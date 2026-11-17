@@ -1,0 +1,10 @@
+/* Dialog.tsx's styles. */
+.ds-dialog { width: min(480px, calc(100vw - 32px)); margin: auto; padding: 0; border: var(--ds-border-hairline) solid var(--ds-color-edge); border-radius: var(--ds-radius-container); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); }
+.ds-dialog[data-wide] { width: min(640px, calc(100vw - 32px)); }
+.ds-dialog:focus { outline: none; }
+.ds-dialog::backdrop { background: var(--ds-color-scrim); }
+.ds-dialog[open] { animation: ds-dialog-in var(--ds-duration-entrance) var(--ds-easing-out); }
+.ds-dialog[open]::backdrop { animation: ds-dialog-fade var(--ds-duration-entrance) var(--ds-easing-out); }
+@keyframes ds-dialog-in { from { opacity: 0; transform: scale(0.96); } }
+@keyframes ds-dialog-fade { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .ds-dialog[open] { animation-name: ds-dialog-fade; } }

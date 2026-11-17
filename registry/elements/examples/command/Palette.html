@@ -1,0 +1,19 @@
+<!-- The command menu in a window: the button or Cmd+K opens it at once, Escape closes it, a row runs and closes it. -->
+<div class="flex min-h-96 flex-col items-center justify-center gap-3">
+  <spyglass-button id="palette-open" variant="secondary"><i data-lucide="search" data-size="16" data-stroke-width="1.5" aria-hidden="true"></i>Search Spyglass<span class="type-caption text-fg-muted">⌘K</span></spyglass-button>
+  <p id="palette-ran" class="type-caption text-fg-muted" aria-live="polite">Press Cmd+K anywhere on the page.</p>
+  <spyglass-command-dialog id="palette" groups='[{"heading":"Go to","items":[{"id":"search","label":"Search creatives","shortcut":"/"},{"id":"brands","label":"Track a brand","keywords":["creator","follow"]},{"id":"boards","label":"Boards"}]},{"heading":"Settings","items":[{"id":"billing","label":"Billing","keywords":["plan","invoice"],"shortcut":"⌘B"},{"id":"team","label":"Team"}]}]'>
+    <span slot="icon-search" class="contents"><i data-lucide="search" data-size="16" data-stroke-width="1.5"></i></span>
+    <span slot="icon-brands" class="contents"><i data-lucide="building-2" data-size="16" data-stroke-width="1.5"></i></span>
+    <span slot="icon-boards" class="contents"><i data-lucide="bookmark" data-size="16" data-stroke-width="1.5"></i></span>
+    <span slot="icon-billing" class="contents"><i data-lucide="credit-card" data-size="16" data-stroke-width="1.5"></i></span>
+    <span slot="icon-team" class="contents"><i data-lucide="users" data-size="16" data-stroke-width="1.5"></i></span>
+  </spyglass-command-dialog>
+</div>
+<script type="module">
+  const palette = document.getElementById('palette')
+  document.getElementById('palette-open').addEventListener('click', () => { palette.open = true })
+  palette.addEventListener('select', (e) => {
+    document.getElementById('palette-ran').textContent = `Ran: ${e.detail.label}.`
+  })
+</script>

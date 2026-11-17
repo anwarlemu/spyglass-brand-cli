@@ -1,0 +1,18 @@
+<!-- An offer with its buttons in the foot: the White primary for the one action, secondary for the way out. -->
+<div class="flex min-h-96 items-center justify-center">
+  <spyglass-button id="plan-open" variant="secondary">See the Creator plan</spyglass-button>
+  <spyglass-dialog id="plan-dialog" heading="Creator" description="$10 for your first month, then $20/month.">
+    <ul class="flex list-disc flex-col gap-2 pl-5 type-ui text-fg-soft">
+      <li>Search every ad by what it says and shows.</li>
+      <li>Track any brand or creator.</li>
+      <li>Unlimited boards.</li>
+    </ul>
+    <spyglass-button slot="foot" variant="secondary" data-close>Not now</spyglass-button>
+    <spyglass-button slot="foot" data-close>Start Creator for 50% off</spyglass-button>
+  </spyglass-dialog>
+</div>
+<script type="module">
+  const dialog = document.getElementById('plan-dialog')
+  document.getElementById('plan-open').addEventListener('click', () => { dialog.open = true })
+  for (const b of dialog.querySelectorAll('[data-close]')) b.addEventListener('click', () => { dialog.open = false })
+</script>
