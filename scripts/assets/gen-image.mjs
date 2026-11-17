@@ -20,7 +20,7 @@ const X = { width: 1500, height: 500 }, LI = { width: 1584, height: 396 }, LC = 
 // these windows onto the brand heat map were chosen by fitting each against its reference render (light flowing in
 // from the left edge behind the tagline; a diagonal behind the row of creatives, picked by eye where no fit came close): the light flowing in from the left edge
 // behind the tagline, and a diagonal behind the row of creatives.
-const BG = { tx: [-20,-661,2913,1821], tl: [-16,-523,2307,1442], tc: [-8,-252,1113,696], rx: [-250,-510,4661,2914], rl: [-198,-404,3692,2308], rc: [-96,-195,1781,1113] };
+const BG = { tx: [-20,-661,2913,1821], tl: [-16,-523,2307,1442], tc: [-10,-330,1457,911], rx: [-250,-510,4661,2914], rl: [-198,-404,3692,2308], rc: [-96,-195,1781,1113] };
 const DOMAIN = '{domain}';
 const TAGLINE = '{tagline}';
 
@@ -135,7 +135,7 @@ const templates = [
       { type: 'rect', box: [240, 544, 600, 452], fill: 'card-fill', radius: 10 },
       T('plan', 'display', 40, 40, 288, 592.5, 504, { maxLines: 1 }),
       T('price', 'body', 24, 32, 288, 656, 504, { maxLines: 1 }),
-      { type: 'list', slot: 'features', face: 'body', size: 20, leading: 26, x: 288, top: 728, w: 504, gap: 24, maxLines: 2 },
+      { type: 'list', slot: 'features', face: 'body', size: 20, leading: 26, x: 288, top: 728, w: 500, gap: 24, maxLines: 2 },
       btn([288, 892, 504, 56]),
       logo([64, 1258, 183, 28], 'left'),
       url(616, 1263, 400, 'right')] } } },
@@ -195,25 +195,24 @@ const templates = [
       L([-1479, -33.3, 3237, 2023.7], 49.1, [0, 452, 1200, 178]),
       logo([64, 64, 183, 28], 'left'),
       url(736, 69, 400, 'right'),
-      T('headline', 'display', 72, 77, 64, 192, 900, { maxLines: 3 })] } } },
-  { id: 'og-offer', group: 'derived', name: 'Open Graph offer', figma: 'derived from Ad, plan offer (966:4541) at 1200 by 630', description: 'The light field above a centered headline and button, lockup and domain at the foot.',
+      T('headline', 'display', 72, 77, 64, 192, 760, { maxLines: 3 })] } } },
+  { id: 'og-offer', group: 'derived', name: 'Open Graph offer', figma: 'derived from Post, offer (966:4421) at 1200 by 630', description: 'The corner light around a centered headline and button, lockup and domain at the foot.',
     slots: { headline: 'Stop screenshotting at midnight.', cta: 'Start Creator for 50% off', url: DOMAIN },
     sizes: { og: { width: 1200, height: 630, layers: [A(),
-      L([-1032.2, -43.3, 2739, 1712.3], 41.6, [0, 0, 1200, 400]),
-      T('headline', 'display', 64, 68.5, 160, 250, 880, { align: 'center', maxLines: 2 }),
+      L([-592.2, -36.7, 1917.3, 1236.4], 29.1),
+      T('headline', 'display', 64, 72, 260, 230, 680, { align: 'center', maxLines: 2 }),
       btn([440, 430, 320, 56]),
       logo([64, 538, 183, 28], 'left'),
       url(736, 543, 400, 'right')] } } },
-  { id: 'story', group: 'derived', name: 'Story', figma: 'derived from Ad, one photo (966:4637) at 1080 by 1920', description: 'The lit sea at the top, headline, line and button inside the story safe area (250px top and bottom).',
+  { id: 'story', group: 'derived', name: 'Story', figma: 'derived from Post, offer (966:4421) at 1080 by 1920', description: 'The corner light around the frame, headline, line and button inside the story safe area (250px top and bottom).',
     slots: { headline: TAGLINE, body: 'AI search across millions of creatives. Ask a question and get instant, structured results.', cta: 'Get 50% off', url: DOMAIN },
     sizes: { story: { width: 1080, height: 1920, layers: [A(),
-      L([-2098.636,-184.092,3300.382,2063.291], 50.073, [0, 0, 1080, 810]),
-      L([-3316.091,-493.364,4400.509,2751.055], 66.764, [0, 419.728, 1080, 419.727]),
-      logo([64, 250, 183, 28], 'left'),
-      T('headline', 'display', 72, 77, 64, 1000, 952, { maxLines: 3 }),
+      L([-947.6, -58.7, 3067.7, 1978.3], 46.5),
+      T('headline', 'display', 72, 77, 64, 1000, 760, { maxLines: 3 }),
       T('body', 'body', 24, 32, 64, 1220, 760, { maxLines: 3, after: { slot: 'headline', gap: 56 } }),
-      btn([64, 1614, 258, 56]),
-      url(616, 1635, 400, 'right')] } } },
+      btn([64, 1470, 258, 56]),
+      logo([64, 1614, 183, 28], 'left'),
+      url(616, 1619, 400, 'right')] } } },
   { id: 'story-offer', group: 'derived', name: 'Story offer', figma: 'derived from Ad, plan offer (966:4541) at 1080 by 1920', description: 'The plan ad, centered in the story safe area, under a taller light field.',
     slots: { headline: 'Stop screenshotting at midnight.', plan: 'Creator', price: '$10 for your first month, then $20/month', features: 'AI-powered research across brands, creators, ads, and campaigns | Unlimited board swipe files, alerts, and tracked brands | Unlimited team seats', cta: 'Start Creator for 50% off', url: DOMAIN },
     sizes: { story: { width: 1080, height: 1920, layers: [A(),
@@ -222,7 +221,7 @@ const templates = [
       { type: 'rect', box: [240, 829, 600, 452], fill: 'card-fill', radius: 10 },
       T('plan', 'display', 40, 40, 288, 877.5, 504, { maxLines: 1 }),
       T('price', 'body', 24, 32, 288, 941, 504, { maxLines: 1 }),
-      { type: 'list', slot: 'features', face: 'body', size: 20, leading: 26, x: 288, top: 1013, w: 504, gap: 24, maxLines: 2 },
+      { type: 'list', slot: 'features', face: 'body', size: 20, leading: 26, x: 288, top: 1013, w: 500, gap: 24, maxLines: 2 },
       btn([288, 1177, 504, 56]),
       logo([64, 1614, 183, 28], 'left'),
       url(616, 1619, 400, 'right')] } } },

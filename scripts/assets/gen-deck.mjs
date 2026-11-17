@@ -23,7 +23,7 @@ const slides = [
       { type: 'inline', slot: 'headline', face: 'display', size: 144, leading: 176, x: 96, top: 430, gap: 32, lines: [[{ words: 2 }, { photo: 0, w: 200 }, { words: 1 }], [{ photo: 1, w: 260 }, { words: 'rest' }]] }] } } },
   { id: 'cover-curved', group: 'cover', name: 'Cover, curved strip', figma: '966:4619', note: NOTE_CURVED, description: 'Nine pictures on a curved wall under the curved strip of light, the tagline top right.', photos: 9,
     slots: { headline: TAG },
-    sizes: { slide: { ...D, layers: [A(), L([-300,-2300,6400,4001], 44),
+    sizes: { slide: { ...D, layers: [A(), L([-800,-3000,8000,5001], 50),
       ...CURVED.map((quad, i) => ({ type: 'panel', quad, index: i })),
       logo(), T('headline', 'display', 112, 112, 924, 96, 900, { align: 'right', maxLines: 2 })] } } },
   // Content slides, derived from the covers' rules: 96px margins, the lockup top left, a label top right, Funnel Display
@@ -31,7 +31,7 @@ const slides = [
   // light flowing in from an edge and the texture kept clear of the copy.
   { id: 'section', group: 'content', name: 'Section', figma: 'derived', description: 'A section opener: a label and a 144px title bottom left, the light ring at the right edge.',
     slots: { kicker: 'Section 01', headline: 'The only creative search engine.', label: 'Pitch deck' },
-    sizes: { slide: { ...D, layers: [A(), L([-1650,-1000,3750,2344], 34), logo(), label(),
+    sizes: { slide: { ...D, layers: [A(), L([-3345,-1700,6409,4007], 34), logo(), label(),
       T('kicker', 'label', 16, 16, 96, 600, 900, { maxLines: 1 }),
       T('headline', 'display', 144, 144, 96, 660, 1500, { maxLines: 2 })] } } },
   { id: 'statement', group: 'content', name: 'Statement', figma: 'derived', description: 'One statement at 112px over the curved strip.',
@@ -50,7 +50,7 @@ const slides = [
       T('body', 'body', 32, 42.5, 96, 620, 1100, { maxLines: 2, after: { slot: 'stat', gap: 72 } })] } } },
   { id: 'quote', group: 'content', name: 'Quote', figma: 'derived from Ad, testimonial (966:4502)', description: 'A portrait, the quote at 64px, the name and role, over a light band.', photos: 1,
     slots: { quote: '“This is the only tool that gives me full competitive visibility across every account I manage.”', name: 'Acme customer', role: 'Head of growth, Acme', label: 'Pitch deck' },
-    sizes: { slide: { ...D, layers: [A(), L([-2366,18,5179,3238], 78.6, [0, 440, 1920, 240]), logo(), label(),
+    sizes: { slide: { ...D, layers: [A(), L([-2366,-53,5179,3238], 78.6, [0, 920, 1920, 160]), logo(), label(),
       P(0, [96, 220, 560, 700]),
       T('quote', 'display', 64, 68.5, 736, 300, 1088, { maxLines: 4 }),
       T('name', 'medium', 32, 42.5, 736, 700, 900, { maxLines: 1, after: { slot: 'quote', gap: 80 } }),
@@ -63,8 +63,9 @@ const slides = [
       T('body', 'body', 32, 42.5, 232, 560, 648, { maxLines: 4, after: { slot: 'headline', gap: 56 } })] } } },
   { id: 'closing', group: 'content', name: 'Closing', figma: 'derived from Ad, plan offer (966:4541)', description: 'The light field above a centered closing line, a button and the domain.',
     slots: { headline: TAG, cta: 'Start Creator for 50% off', url: '{domain}' },
-    sizes: { slide: { ...D, layers: [A(), L([-1652,-69,4383,2740], 66.5, [0, 0, 1920, 640]), logo(),
-      T('headline', 'display', 112, 112, 160, 600, 1600, { align: 'center', maxLines: 2 }),
+    sizes: { slide: { ...D, layers: [A(), L([-1652,-69,4383,2740], 66.5, [0, 0, 1920, 420]),
+      { type: 'logo', lockup: 'horizontal', color: 'white', box: [840, 500, 240, 36.721], align: 'center' },
+      T('headline', 'display', 112, 112, 410, 610, 1100, { align: 'center', maxLines: 2 }),
       { type: 'button', box: [780, 860, 360, 72], slot: 'cta', size: 24 },
       T('url', 'label', 16, 16, 560, 1000, 800, { align: 'center', maxLines: 1 })] } } },
 ];

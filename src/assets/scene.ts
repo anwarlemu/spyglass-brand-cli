@@ -180,7 +180,8 @@ function faceFor(all: Faces4, role: FaceRole): Face {
 	return role === 'display' ? all.display : role === 'body' ? all.body : role === 'code' ? all.code : all.medium;
 }
 
-/** Wraps text into lines that fit a width at a size (explicit line breaks kept). */
+/** Wraps text into lines that fit a width at a size (explicit line breaks kept). A line may run 0.5% past the box:
+ * the brand's boxes are set tight to the type, and the vendored faces measure a hair wider than the design tool's. */
 export function wrapLines(face: Face, text: string, size: number, width: number, tracking: number): string[] {
 	const lines: string[] = [];
 	for (const para of normalize(text).split('\n')) {
@@ -188,7 +189,7 @@ export function wrapLines(face: Face, text: string, size: number, width: number,
 		let line = '';
 		for (const word of words) {
 			const next = line ? `${line} ${word}` : word;
-			if (!line || measure(face, next, size, tracking) <= width * 1.01) line = next;
+			if (!line || measure(face, next, size, tracking) <= width * 1.005) line = next;
 			else {
 				lines.push(line);
 				line = word;
@@ -207,7 +208,7 @@ export function fitText(face: Face, text: string, layer: Pick<TextLayer, 'size' 
 	const max = layer.maxLines ?? 99;
 	for (let size = layer.size; size >= layer.size * 0.75 - 0.01; size -= Math.max(1, layer.size / 40)) {
 		const lines = wrapLines(face, text, size, layer.w, tracking);
-		const fitsWide = lines.every((l) => measure(face, l, size, tracking) <= layer.w * 1.01 + 0.5 || !l.includes(' '));
+		const fitsWide = lines.every((l) => measure(face, l, size, tracking) <= layer.w * 1.005 + 0.5 || !l.includes(' '));
 		if (lines.length <= max && fitsWide) return { size, leading: layer.leading * (size / layer.size), lines };
 	}
 	throw new FitError(`The ${layer.slot ?? 'text'} is too long for this layout: it needs more than ${max} line${max === 1 ? '' : 's'} at ${Math.round(layer.size * 0.75)}px in a ${layer.w}px box. Shorten it.`);

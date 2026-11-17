@@ -1562,7 +1562,7 @@
        "leading": 26,
        "x": 288,
        "top": 728,
-       "w": 504,
+       "w": 500,
        "gap": 24,
        "maxLines": 2
       },
@@ -1944,10 +1944,10 @@
       {
        "type": "light",
        "b": [
-        -8,
-        -252,
-        1113,
-        696
+        -10,
+        -330,
+        1457,
+        911
        ],
        "shift": 34
       },
@@ -2516,10 +2516,10 @@
       {
        "type": "light",
        "b": [
-        -8,
-        -252,
-        1113,
-        696
+        -10,
+        -330,
+        1457,
+        911
        ],
        "shift": 34
       },
@@ -2822,7 +2822,7 @@
        "leading": 77,
        "x": 64,
        "top": 192,
-       "w": 900,
+       "w": 760,
        "maxLines": 3
       }
      ]
@@ -2833,8 +2833,8 @@
    "id": "og-offer",
    "group": "derived",
    "name": "Open Graph offer",
-   "figma": "derived from Ad, plan offer (966:4541) at 1200 by 630",
-   "description": "The light field above a centered headline and button, lockup and domain at the foot.",
+   "figma": "derived from Post, offer (966:4421) at 1200 by 630",
+   "description": "The corner light around a centered headline and button, lockup and domain at the foot.",
    "slots": {
     "headline": "Stop screenshotting at midnight.",
     "cta": "Start Creator for 50% off",
@@ -2850,29 +2850,23 @@
       },
       {
        "type": "light",
-       "window": [
-        0,
-        0,
-        1200,
-        400
-       ],
        "b": [
-        -1032.2,
-        -43.3,
-        2739,
-        1712.3
+        -592.2,
+        -36.7,
+        1917.3,
+        1236.4
        ],
-       "shift": 41.6
+       "shift": 29.1
       },
       {
        "type": "text",
        "slot": "headline",
        "face": "display",
        "size": 64,
-       "leading": 68.5,
-       "x": 160,
-       "top": 250,
-       "w": 880,
+       "leading": 72,
+       "x": 260,
+       "top": 230,
+       "w": 680,
        "align": "center",
        "maxLines": 2
       },
@@ -2919,8 +2913,8 @@
    "id": "story",
    "group": "derived",
    "name": "Story",
-   "figma": "derived from Ad, one photo (966:4637) at 1080 by 1920",
-   "description": "The lit sea at the top, headline, line and button inside the story safe area (250px top and bottom).",
+   "figma": "derived from Post, offer (966:4421) at 1080 by 1920",
+   "description": "The corner light around the frame, headline, line and button inside the story safe area (250px top and bottom).",
    "slots": {
     "headline": "{tagline}",
     "body": "AI search across millions of creatives. Ask a question and get instant, structured results.",
@@ -2937,47 +2931,13 @@
       },
       {
        "type": "light",
-       "window": [
-        0,
-        0,
-        1080,
-        810
-       ],
        "b": [
-        -2098.636,
-        -184.092,
-        3300.382,
-        2063.291
+        -947.6,
+        -58.7,
+        3067.7,
+        1978.3
        ],
-       "shift": 50.073
-      },
-      {
-       "type": "light",
-       "window": [
-        0,
-        419.728,
-        1080,
-        419.727
-       ],
-       "b": [
-        -3316.091,
-        -493.364,
-        4400.509,
-        2751.055
-       ],
-       "shift": 66.764
-      },
-      {
-       "type": "logo",
-       "lockup": "horizontal",
-       "color": "white",
-       "box": [
-        64,
-        250,
-        183,
-        28
-       ],
-       "align": "left"
+       "shift": 46.5
       },
       {
        "type": "text",
@@ -2987,7 +2947,7 @@
        "leading": 77,
        "x": 64,
        "top": 1000,
-       "w": 952,
+       "w": 760,
        "maxLines": 3
       },
       {
@@ -3009,12 +2969,24 @@
        "type": "button",
        "box": [
         64,
-        1614,
+        1470,
         258,
         56
        ],
        "slot": "cta",
        "size": 20
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        64,
+        1614,
+        183,
+        28
+       ],
+       "align": "left"
       },
       {
        "type": "text",
@@ -3023,7 +2995,7 @@
        "size": 20,
        "leading": 26,
        "x": 616,
-       "top": 1635,
+       "top": 1619,
        "w": 400,
        "align": "right",
        "maxLines": 1
@@ -3123,7 +3095,7 @@
        "leading": 26,
        "x": 288,
        "top": 1013,
-       "w": 504,
+       "w": 500,
        "gap": 24,
        "maxLines": 2
       },
