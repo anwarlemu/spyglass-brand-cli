@@ -1,0 +1,18 @@
+<!-- Press Save: a note rises in the corner, with Undo. Press it quickly and they stack, three at most; point at the
+     stack to spread it out and hold their time. -->
+<div class="flex min-h-72 flex-wrap items-start justify-center gap-2">
+  <spyglass-button id="sonner-save">Save to board</spyglass-button>
+  <spyglass-button id="sonner-track" variant="secondary">Track brand</spyglass-button>
+  <spyglass-sonner id="sonner"></spyglass-sonner>
+</div>
+<script type="module">
+  const sonner = document.getElementById('sonner')
+  let count = 23
+  document.getElementById('sonner-save').addEventListener('click', () => {
+    count += 1
+    sonner.toast('Saved to board', { description: `Acme hooks now has ${count} creatives.`, action: { label: 'Undo' } })
+  })
+  document.getElementById('sonner-track').addEventListener('click', () => {
+    sonner.toast('Brand added', { description: 'New ads from Acme Studio show up here every day.' })
+  })
+</script>

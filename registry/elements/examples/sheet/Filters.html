@@ -1,0 +1,25 @@
+<!-- A search's filters in a sheet at the right edge: two fields and the buttons at the foot. Escape, Close or the
+     dimmed page closes it. -->
+<div class="flex min-h-40 items-center justify-center">
+  <spyglass-button id="filters-open" variant="secondary"><i data-lucide="sliders-horizontal" data-size="16" data-stroke-width="1.5" aria-hidden="true"></i>Filters</spyglass-button>
+  <spyglass-sheet id="filters-sheet" heading="Filter creatives" description="Narrow this search to the brands and dates you care about.">
+    <div class="flex flex-col gap-6">
+      <div class="flex flex-col gap-2">
+        <label for="sheet-brand" class="type-label text-fg-soft">Brand</label>
+        <spyglass-input id="sheet-brand" name="brand" value="Acme Studio" aria-label="Brand"></spyglass-input>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label for="sheet-days" class="type-label text-fg-soft">Running for at least</label>
+        <spyglass-input id="sheet-days" name="days" value="30 days" aria-label="Running for at least"></spyglass-input>
+        <p class="type-caption text-fg-muted">Ads that run longer are the ones that work.</p>
+      </div>
+    </div>
+    <spyglass-button slot="foot" variant="ghost" data-close>Reset</spyglass-button>
+    <spyglass-button slot="foot" data-close>Show results</spyglass-button>
+  </spyglass-sheet>
+</div>
+<script type="module">
+  const sheet = document.getElementById('filters-sheet')
+  document.getElementById('filters-open').addEventListener('click', () => { sheet.open = true })
+  for (const b of sheet.querySelectorAll('[data-close]')) b.addEventListener('click', () => { sheet.open = false })
+</script>
