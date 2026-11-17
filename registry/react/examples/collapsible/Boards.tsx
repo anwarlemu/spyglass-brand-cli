@@ -1,3 +1,4 @@
+'use client'
 import { Collapsible } from '@/react/components/ui/Collapsible'
 // A list that shows its first boards and opens to the rest, open with the page.
 const boards = ['Acme skincare', 'Acme summer UGC', 'Acme founder stories']

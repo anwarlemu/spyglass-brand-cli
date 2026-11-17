@@ -1,3 +1,4 @@
+'use client'
 import { Fragment, type ElementType, type MouseEvent } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { cn } from '@/react/lib/cn'
