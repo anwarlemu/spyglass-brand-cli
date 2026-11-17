@@ -1,0 +1,21 @@
+<!-- One choice from a few: radio rows, the current one checked. The trigger says what is picked. -->
+<div class="flex h-56 w-full items-start justify-center pt-2">
+  <spyglass-dropdown-menu id="sort-menu" label="Sort creatives" width="200px">
+    <span slot="trigger" class="contents"><span id="sort-current">Sort: Newest</span><i data-lucide="chevron-down" data-size="16" data-stroke-width="1.5" aria-hidden="true"></i></span>
+    <spyglass-menu-item role="menuitemradio" aria-checked="true" data-order="Newest"><span class="min-w-0 flex-1 truncate">Newest</span><span data-check class="contents"><i data-lucide="check" data-size="16" data-stroke-width="1.5" class="shrink-0" aria-hidden="true"></i></span></spyglass-menu-item>
+    <spyglass-menu-item role="menuitemradio" aria-checked="false" data-order="Longest running"><span class="min-w-0 flex-1 truncate">Longest running</span><span data-check hidden class="contents"><i data-lucide="check" data-size="16" data-stroke-width="1.5" class="shrink-0" aria-hidden="true"></i></span></spyglass-menu-item>
+    <spyglass-menu-item role="menuitemradio" aria-checked="false" data-order="Most engagement"><span class="min-w-0 flex-1 truncate">Most engagement</span><span data-check hidden class="contents"><i data-lucide="check" data-size="16" data-stroke-width="1.5" class="shrink-0" aria-hidden="true"></i></span></spyglass-menu-item>
+  </spyglass-dropdown-menu>
+</div>
+<script type="module">
+  const menu = document.getElementById('sort-menu')
+  menu.addEventListener('select', (e) => {
+    const row = e.target.closest('[data-order]')
+    if (!row) return
+    for (const r of menu.querySelectorAll('[data-order]')) {
+      r.checked = r === row
+      r.querySelector('[data-check]').hidden = r !== row
+    }
+    document.getElementById('sort-current').textContent = `Sort: ${row.dataset.order}`
+  })
+</script>

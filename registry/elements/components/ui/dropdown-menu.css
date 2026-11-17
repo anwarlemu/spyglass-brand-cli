@@ -1,0 +1,16 @@
+/* The host is the menu's box (DropdownMenu.tsx's root div: relative inline-block), so a class on
+   <spyglass-dropdown-menu> lands on it as a class on <DropdownMenu> does. */
+:host { @apply relative inline-block; }
+/* DropdownMenu.tsx's styles. Opened from the keyboard, focus lands on a row at once: no animation. React reads that
+   from :has(:focus-visible), which cannot see rows slotted from the page, so the element marks the panel data-instant. */
+.ds-menu { position: absolute; z-index: 40; display: flex; max-width: calc(100vw - 16px); flex-direction: column; padding: var(--ds-space-xs); border: var(--ds-border-hairline) solid var(--ds-color-edge); border-radius: var(--ds-radius-container); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); transform-origin: top left; animation: ds-menu-in var(--ds-duration-enter) var(--ds-easing-out) both; scroll-margin: 8px; }
+.ds-menu[data-align="end"] { transform-origin: top right; }
+.ds-menu[data-up] { transform-origin: bottom left; animation-name: ds-menu-up; }
+.ds-menu[data-up][data-align="end"] { transform-origin: bottom right; }
+.ds-menu:has(:focus-visible) { animation: none; }
+.ds-menu > * { flex-shrink: 0; }
+@keyframes ds-menu-in { from { opacity: 0; transform: translateY(-4px) scale(0.98); } }
+@keyframes ds-menu-up { from { opacity: 0; transform: translateY(4px) scale(0.98); } }
+@media (prefers-reduced-motion: reduce) { .ds-menu, .ds-menu[data-up] { animation-name: ds-menu-fade; } }
+@keyframes ds-menu-fade { from { opacity: 0; } }
+.ds-menu[data-instant] { animation: none; }

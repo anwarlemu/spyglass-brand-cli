@@ -1,0 +1,43 @@
+<!-- A board's saved creatives: right-click a row, or focus it and press Shift+F10, for what you can do with it. -->
+<div class="min-h-80 w-full max-w-120">
+  <spyglass-context-menu label="Creative" id="creative-menu">
+    <ul class="flex flex-col gap-1">
+      <li data-context="cr_8f2k1" tabindex="0" class="flex h-row items-center gap-3 rounded-control px-3 outline-none transition-[background-color] duration-150 ease-standard hover:bg-surface-raised focus-visible:bg-surface-raised focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus">
+        <i data-lucide="image" data-size="16" data-stroke-width="1.5" class="shrink-0 text-fg-muted" aria-hidden="true"></i>
+        <span class="min-w-0 flex-1 truncate type-ui">Acme summer UGC, before and after</span>
+        <span class="type-caption text-fg-muted max-sm:hidden">Video</span>
+      </li>
+      <li data-context="cr_3m9q7" tabindex="0" class="flex h-row items-center gap-3 rounded-control px-3 outline-none transition-[background-color] duration-150 ease-standard hover:bg-surface-raised focus-visible:bg-surface-raised focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus">
+        <i data-lucide="image" data-size="16" data-stroke-width="1.5" class="shrink-0 text-fg-muted" aria-hidden="true"></i>
+        <span class="min-w-0 flex-1 truncate type-ui">Acme serum launch, carousel</span>
+        <span class="type-caption text-fg-muted max-sm:hidden">Carousel</span>
+      </li>
+      <li data-context="cr_5t0x2" tabindex="0" class="flex h-row items-center gap-3 rounded-control px-3 outline-none transition-[background-color] duration-150 ease-standard hover:bg-surface-raised focus-visible:bg-surface-raised focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus">
+        <i data-lucide="image" data-size="16" data-stroke-width="1.5" class="shrink-0 text-fg-muted" aria-hidden="true"></i>
+        <span class="min-w-0 flex-1 truncate type-ui">Acme founder story, 30 seconds</span>
+        <span class="type-caption text-fg-muted max-sm:hidden">Video</span>
+      </li>
+    </ul>
+    <spyglass-menu-label slot="menu"><span class="truncate" data-format></span></spyglass-menu-label>
+    <spyglass-menu-item slot="menu" data-note="Opened"><i data-lucide="external-link" data-size="16" data-stroke-width="1.5" class="shrink-0 text-fg-muted" aria-hidden="true"></i>Open</spyglass-menu-item>
+    <spyglass-menu-item slot="menu" data-note="Copied link"><i data-lucide="copy" data-size="16" data-stroke-width="1.5" class="shrink-0 text-fg-muted" aria-hidden="true"></i>Copy link</spyglass-menu-item>
+    <spyglass-menu-item slot="menu" data-note="Saved"><i data-lucide="bookmark" data-size="16" data-stroke-width="1.5" class="shrink-0 text-fg-muted" aria-hidden="true"></i>Save to another board</spyglass-menu-item>
+    <spyglass-menu-separator slot="menu"></spyglass-menu-separator>
+    <spyglass-menu-item slot="menu" danger data-note="Removed"><i data-lucide="trash-2" data-size="16" data-stroke-width="1.5" class="shrink-0" aria-hidden="true"></i>Remove from board</spyglass-menu-item>
+  </spyglass-context-menu>
+  <p id="creative-last" class="mt-3 type-caption text-fg-muted" aria-live="polite">Right-click a creative, or focus it and press Shift+F10.</p>
+</div>
+<script type="module">
+  // The menu names the format of the creative it opened for; each row says what it did under the list.
+  const menu = document.getElementById('creative-menu')
+  let row
+  menu.addEventListener('open', (event) => {
+    row = menu.querySelector(`[data-context="${event.detail.context}"]`)
+    menu.querySelector('[data-format]').textContent = row?.querySelector('.type-caption')?.textContent ?? ''
+  })
+  for (const item of menu.querySelectorAll('[data-note]')) {
+    item.addEventListener('select', () => {
+      document.getElementById('creative-last').textContent = `${item.dataset.note}: ${row?.querySelector('.truncate')?.textContent ?? ''}`
+    })
+  }
+</script>

@@ -242,11 +242,12 @@ export class PopoverController implements ReactiveController {
 	}
 }
 
-/** PopoverPanel.vue's <style>, for every element that draws a panel, with the top layer's own defaults undone. */
+/** PopoverPanel.tsx's styles, for every element that draws a panel: the #171717 overlay surface in a neutral hairline with
+ * the 8px corner and no shadow; the tooltip's White fill; the top layer's own defaults undone. */
 export const popoverStyles = css`
-.ds-pop { position: fixed; z-index: 60; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); overflow: auto; overscroll-behavior: contain; border: var(--ds-border-hairline) solid var(--ds-color-edge); background: var(--ds-color-surface); color: var(--ds-color-fg); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); text-align: left; outline: none; }
+.ds-pop { position: fixed; z-index: 60; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); overflow: auto; overscroll-behavior: contain; border: var(--ds-border-hairline) solid var(--ds-color-edge); border-radius: var(--ds-radius-container); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); text-align: left; outline: none; }
 .ds-pop:not([data-placed]) { visibility: hidden; }
-.ds-pop[data-tip] { z-index: 70; overflow: visible; padding: 2px 6px; border-color: var(--ds-color-surface-inverse); background: var(--ds-color-surface-inverse); color: var(--ds-color-fg-inverse); font-size: var(--ds-text-caption); line-height: var(--ds-text-caption-leading); white-space: nowrap; pointer-events: none; }
+.ds-pop[data-tip] { z-index: 70; overflow: visible; padding: 4px 8px; border-radius: var(--ds-radius-sm); border-color: var(--ds-color-surface-inverse); background: var(--ds-color-surface-inverse); color: var(--ds-color-fg-inverse); font-size: var(--ds-text-caption); line-height: var(--ds-text-caption-leading); white-space: nowrap; pointer-events: none; }
 .ds-pop-enter-active { transition: opacity var(--ds-duration-enter) var(--ds-easing-out), transform var(--ds-duration-enter) var(--ds-easing-out); }
 .ds-pop-leave-active { transition: opacity var(--ds-duration-exit) var(--ds-easing-standard), transform var(--ds-duration-exit) var(--ds-easing-standard); }
 .ds-pop-enter-from, .ds-pop-leave-to { opacity: 0; }
@@ -254,7 +255,7 @@ export const popoverStyles = css`
 .ds-pop-enter-from[data-side="top"], .ds-pop-leave-to[data-side="top"] { transform: translateY(4px) scale(0.98); }
 .ds-pop-enter-from[data-side="right"], .ds-pop-leave-to[data-side="right"] { transform: translateX(-4px) scale(0.98); }
 .ds-pop-enter-from[data-side="left"], .ds-pop-leave-to[data-side="left"] { transform: translateX(4px) scale(0.98); }
-.ds-pop[data-tip].ds-pop-enter-active, .ds-pop[data-tip].ds-pop-leave-active { transition: opacity var(--ds-duration-tip) var(--ds-easing-out), transform var(--ds-duration-tip) var(--ds-easing-out); }
+.ds-pop[data-tip].ds-pop-enter-active, .ds-pop[data-tip].ds-pop-leave-active { transition: opacity var(--ds-duration-micro) var(--ds-easing-out), transform var(--ds-duration-micro) var(--ds-easing-out); }
 .ds-pop[data-tip].ds-pop-enter-from[data-side="bottom"], .ds-pop[data-tip].ds-pop-leave-to[data-side="bottom"] { transform: translateY(-2px); }
 .ds-pop[data-tip].ds-pop-enter-from[data-side="top"], .ds-pop[data-tip].ds-pop-leave-to[data-side="top"] { transform: translateY(2px); }
 .ds-pop[data-tip].ds-pop-enter-from[data-side="right"], .ds-pop[data-tip].ds-pop-leave-to[data-side="right"] { transform: translateX(-2px); }
