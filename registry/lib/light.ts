@@ -118,8 +118,10 @@ export function lightWindow(variant: Exclude<LightVariant, 'curved-strip'>, seed
 	let cx = cx0 + extra * (rnd() - 0.5) * w * 0.3
 	let cy = cy0 + extra * (rnd() - 0.5) * h * 0.3
 	// Inside the heat map where it fits: past its edge there is no light, only the edge of the frame.
-	if (w < 1) cx = Math.min(Math.max(cx, w / 2), 1 - w / 2)
-	if (h < MASTER_H) cy = Math.min(Math.max(cy, h / 2), MASTER_H - h / 2)
+	// (A margin of four blurs, so the heat map's own edge never shows as a dimmed line.)
+	const m = LIGHT_BLUR * 4
+	if (w < 1 - 2 * m) cx = Math.min(Math.max(cx, w / 2 + m), 1 - w / 2 - m)
+	if (h < MASTER_H - 2 * m) cy = Math.min(Math.max(cy, h / 2 + m), MASTER_H - h / 2 - m)
 	return { x: cx - w / 2, y: cy - h / 2, w, h, from: a.from }
 }
 

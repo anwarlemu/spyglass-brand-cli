@@ -1,35 +1,27 @@
-// The React and web component flavors of the registry, for scripts/build-registry.ts. Each Vue item may have:
+// The React and web component flavors of the registry, for scripts/build-registry.ts. React is the source: each item
+// lists its React files (registry/react/components/<group>/<Name>.tsx, hooks, and framework-free registry/lib/*.ts) and
+// has examples at registry/react/examples/<item>/<Example>.tsx. Its web components are ported from them:
 //
-//   React     registry/react/components/<group>/<Name>.tsx for every components/<group>/<Name>.vue it lists (and
-//             registry/react/hooks/useX.ts for a composables/useX.ts), examples at registry/react/examples/<item>/<Example>.tsx
-//   elements  registry/elements/components/<group>/<name>.ts (kebab-case of the Vue file, plus an optional sibling
+//   elements  registry/elements/components/<group>/<name>.ts (kebab-case of the React file, plus an optional sibling
 //             <name>.css), examples at registry/elements/examples/<item>/<Example>.html
 //
-// A docs entry can name other files with `react_files:` and `elements_files:` lists. An item has a flavor when every
-// file and every example of it exists; one with some but not all fails the build (a half port). Items with no port yet
-// are reported in the coverage, and --require-all-flavors makes them fail.
+// A docs entry can name other element files with `elements_files:`. An item has the elements flavor when every file and
+// every example of it exists; one with some but not all fails the build (a half port). Items with no port yet are
+// reported in the coverage, and --require-all-flavors makes them fail.
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, posix } from 'node:path';
 import ts from 'typescript';
 
 export type Example = { name: string; label: string; center: boolean; half: boolean };
-export type FlavorDoc = { name: string; title: string; type: string; description: string; files: string[]; examples: Example[]; react_files?: string[]; elements_files?: string[] };
+export type FlavorDoc = { name: string; title: string; type: string; description: string; files: string[]; examples: Example[]; elements_files?: string[] };
 type Ctx = { root: string; reg: string; outDir: string; brand: { name: string; registryHost?: string; registryUrl: string; assetBase?: string; elementPrefix?: string }; fail: (msg: string) => void; pinned: (p: string) => string };
 
 const IMPORT = /(?:^|\n)\s*(?:import|export)\s+(?:type\s+)?(?:[^'";]*?\s+from\s+)?['"]([^'"]+)['"]/g;
 const kebab = (s: string) => s.replace(/([a-z0-9])([A-Z])/g, '$1-$2').replace(/([A-Z])([A-Z][a-z])/g, '$1-$2').toLowerCase();
 
-/** The React files that stand for a Vue file. */
-export function reactPath(vue: string) {
-	let m = vue.match(/^components\/(.+)\.vue$/);
-	if (m) return `react/components/${m[1]}.tsx`;
-	m = vue.match(/^composables\/(.+)\.ts$/);
-	if (m) return `react/hooks/${m[1]}.ts`;
-	return undefined;
-}
-/** The element file that stands for a Vue component (composables have none: controllers are the element's own). */
-export function elementPath(vue: string) {
-	const m = vue.match(/^components\/(.+)\/(\w+)\.vue$/);
+/** The element file that stands for a React component (hooks and lib files have none: they are bundled into it). */
+export function elementPath(react: string) {
+	const m = react.match(/^react\/components\/(.+)\/(\w+)\.tsx$/);
 	return m ? `elements/components/${m[1]}/${kebab(m[2])}.ts` : undefined;
 }
 
@@ -105,7 +97,7 @@ export async function buildFlavors(docs: FlavorDoc[], ctx: Ctx) {
 	const reactOwner = new Map<string, string>();
 	const reactFilesOf = new Map<string, string[]>();
 	for (const d of docs) {
-		const files = d.react_files ?? d.files.map(reactPath).filter((p): p is string => !!p);
+		const files = d.files;
 		reactFilesOf.set(d.name, files);
 		for (const f of files) reactOwner.set(f, d.name);
 	}
@@ -131,10 +123,10 @@ export async function buildFlavors(docs: FlavorDoc[], ctx: Ctx) {
 			files.add(f);
 			for (const m of read(f).matchAll(IMPORT)) {
 				const spec = m[1];
-				if (spec.startsWith('@/react/')) {
+				if (spec.startsWith('@/react/') || spec.startsWith('@/lib/')) {
 					const hit = resolveReact(f, spec);
 					if (hit) queue.push(hit);
-				} else if (spec.startsWith('@/')) fail(`${f}: imports ${spec}; React files import only @/react/...`);
+				} else if (spec.startsWith('@/')) fail(`${f}: imports ${spec}; React files import only @/react/... and @/lib/... (framework-free)`);
 				else if (spec.startsWith('.')) fail(`${f}: relative import ${spec}; use @/react/... so add can place it`);
 				else if (!/^react(-dom)?(\/|$)/.test(spec)) packages.add(spec.startsWith('@') ? spec.split('/').slice(0, 2).join('/') : spec.split('/')[0]);
 			}
@@ -149,9 +141,10 @@ export async function buildFlavors(docs: FlavorDoc[], ctx: Ctx) {
 		const text = read(f);
 		if (/from\s+['"]next\//.test(text)) fail(`${f}: imports Next.js; components take data through props and work in any React app`);
 		if (/from\s+['"]vue['"]/.test(text)) fail(`${f}: imports vue`);
+		if (f.startsWith('lib/') && /from\s+['"](react|lit|lucide)/.test(text)) fail(`${f}: lib/ files are framework-free (both flavors import them)`);
 		if (needsUseClient(text) && !/^\s*['"]use client['"]/.test(text)) fail(`${f}: uses hooks; start it with 'use client' so it works in Next's App Router`);
 		glued(f, text);
-		if (f.startsWith('react/components/') && !/(\sdata-ds=["{]|['"]data-ds['"]\s*:)/.test(text)) fail(`${f}: its root element needs data-ds="<name>" as the Vue file's has`);
+		if (f.startsWith('react/components/') && !/(\sdata-ds=["{]|['"]data-ds['"]\s*:)/.test(text)) fail(`${f}: its root element needs data-ds="<name>" (the scoped base styles the library by it)`);
 	}
 
 	// ----- Elements -----
@@ -164,8 +157,8 @@ export async function buildFlavors(docs: FlavorDoc[], ctx: Ctx) {
 		for (const f of files) elementOwner.set(f, d.name);
 	}
 	const allElements = elementFiles() as Array<{ name: string; path: string }>;
-	for (const f of allElements) if (!elementOwner.has(f.path)) fail(`${f.path} belongs to no item (name it after the Vue file it ports, or list it in a docs entry's elements_files)`);
-	for (const f of reactFilesOfAll()) if (!reactOwner.has(f)) fail(`${f} belongs to no item (name it after the Vue file it ports, or list it in a docs entry's react_files)`);
+	for (const f of allElements) if (!elementOwner.has(f.path)) fail(`${f.path} belongs to no item (name it after the React file it ports, or list it in a docs entry's elements_files)`);
+	for (const f of reactFilesOfAll()) if (!reactOwner.has(f)) fail(`${f} belongs to no item (add it to a docs entry's files)`);
 	function reactFilesOfAll() {
 		const walk = (dir: string): string[] => (exists(dir) ? readdirSync(join(reg, dir), { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(posix.join(dir, e.name)) : [posix.join(dir, e.name)])) : []);
 		return walk('react/components').filter((f) => f.endsWith('.tsx'));
@@ -204,12 +197,13 @@ export async function buildFlavors(docs: FlavorDoc[], ctx: Ctx) {
 			for (const m of read(f).matchAll(IMPORT)) {
 				const spec = m[1];
 				if (spec.startsWith('@/elements/lib/')) continue; // in shared.js
+				if (spec.startsWith('@/lib/')) continue; // framework-free, bundled into the module
 				if (spec.startsWith('@/elements/')) {
 					const t = spec.slice(2).replace(/\.ts$/, '');
 					const hit = [`${t}.ts`, `${t}/index.ts`].find(exists);
 					if (!hit) fail(`${f}: cannot resolve ${spec}`);
 					else queue.push(hit);
-				} else if (spec.startsWith('@/')) fail(`${f}: imports ${spec}; element files import only @/elements/...`);
+				} else if (spec.startsWith('@/')) fail(`${f}: imports ${spec}; element files import only @/elements/... and @/lib/...`);
 				else if (spec.startsWith('.')) fail(`${f}: relative import ${spec}; use @/elements/...`);
 				else if (!/^(lit|lit\/.*|lucide|virtual:.*)$/.test(spec)) fail(`${f}: imports ${spec}; elements bundle only Lit (in shared.js) and Lucide icons`);
 			}
@@ -284,7 +278,7 @@ export async function buildFlavors(docs: FlavorDoc[], ctx: Ctx) {
 					// A subclass of another element (<conare-select> extends <conare-combobox>) draws its parent's template.
 					const subclass = /from\s+['"]@\/elements\/components\//.test(text) && /\bclass\s+\w+\s+extends\s+(?!Ds(Form)?Element\b)\w+/.test(text)
 					// A root drawn by another element names itself through that element's rootName (.rootName=${'searches-page'}).
-					if (!/\sdata-ds=["']|\.rootName=/.test(text) && !hostIsRoot && !subclass) fail(`${f}: its shadow root's root element needs data-ds="<name>" as the Vue file's has (or the host is the root: style :host in ${posix.basename(css)})`);
+					if (!/\sdata-ds=["']|\.rootName=/.test(text) && !hostIsRoot && !subclass) fail(`${f}: its shadow root's root element needs data-ds="<name>" as the React file's has (or the host is the root: style :host in ${posix.basename(css)})`);
 				}
 				const c = elementClosure(eFiles, d.name);
 				const tags = eFiles.map((f) => `${prefix}-${posix.basename(f, '.ts')}`);
@@ -330,7 +324,7 @@ export async function buildFlavors(docs: FlavorDoc[], ctx: Ctx) {
 	const host = ctx.brand.registryHost ?? ctx.brand.registryUrl;
 	const assetBase = ctx.brand.assetBase ?? '/ds';
 	const toApp = (text: string) => text.replace(/(['"])@\/react\/(components|hooks|lib)\//g, '$1@/$2/');
-	const reactType = (p: string) => (p.startsWith('react/hooks/') ? 'registry:hook' : p.startsWith('react/lib/') ? 'registry:lib' : 'registry:ui');
+	const reactType = (p: string) => (p.startsWith('react/hooks/') ? 'registry:hook' : p.startsWith('react/lib/') || p.startsWith('lib/') ? 'registry:lib' : 'registry:ui');
 	mkdirSync(join(ctx.outDir, 'react'), { recursive: true });
 	mkdirSync(join(ctx.outDir, 'elements'), { recursive: true });
 	const reactIndex: unknown[] = [];

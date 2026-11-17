@@ -1,0 +1,9 @@
+/* The element is the box, as BrandLight.tsx's root: the page's classes size and place it. */
+:host {
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+}
+:host([data-ground]) {
+  background-color: var(--ds-color-surface);
+}

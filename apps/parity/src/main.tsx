@@ -2,10 +2,10 @@ import './main.css'
 import { createRoot } from 'react-dom/client'
 import { useEffect, useRef, type ComponentType } from 'react'
 
-// One example alone, as the docs site's /preview/<item>/<example> shows it: /react/<item>/<Example> renders the React
-// example, /elements/<item>/<Example> the element example (its markup from /r/elements/<item>.json, its modules
-// imported first, its inline scripts run). The frame is the preview page's: bg-surface, centered with px-8 py-10 when
-// the docs list the example as `center`, else p-8.
+// One example alone: /react/<item>/<Example> renders the React example (the reference), /elements/<item>/<Example>
+// the element example (its markup from /r/<item>.json, its modules imported first, its inline scripts run). The frame
+// is the docs site's preview frame: bg-surface, centered with px-8 py-10 when the docs list the example as `center`,
+// else p-8.
 interface Example { name: string, label: string, center: boolean, half: boolean }
 interface ElementsFlavor { modules: string[], examples: Array<{ name: string, content: string }> }
 
@@ -33,7 +33,7 @@ function ElementExample({ html }: { html: string }) {
       old.replaceWith(s)
     }
   }, [html])
-  // display: contents, so the example's own nodes sit in the frame as a Vue example's do.
+  // display: contents, so the example's own nodes sit in the frame as the React example's do.
   return <div ref={ref} className="contents" />
 }
 

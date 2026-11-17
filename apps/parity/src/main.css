@@ -1,5 +1,5 @@
-/* The docs site's stylesheet (apps/www/app/assets/css/main.css), so a frame here and a /preview frame there get the
-   same CSS: Tailwind, the brand as apps install it, and every class the registry uses. */
+/* The brand as apps install it, Tailwind and every class the registry uses: the same CSS for the React example (the
+   reference) and the element example. */
 @import "tailwindcss";
 @import "../../../build/brand.css";
 @import "../../../build/theme.css";

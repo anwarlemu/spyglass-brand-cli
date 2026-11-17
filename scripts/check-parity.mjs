@@ -1,6 +1,6 @@
-// Renders every example of the named items (or every item with a port) in all three flavors and compares them with
-// the Vue original: Vue from the docs site's /preview/<item>/<example>, React and elements from apps/parity's
-// /react/<item>/<example> and /elements/<item>/<example>. For each example, at 1440 and 390 wide:
+// Renders every example of the named items (or every item with a web component port) as React (the source) and as
+// web components, and compares them: both from apps/parity, /react/<item>/<example> and /elements/<item>/<example>.
+// For each example, at 1440 and 390 wide:
 //
 //   pixels    full-page screenshots, diffed with pixelmatch; over 0.5% of the pixels differing fails
 //   styles    computed styles of every element with data-ds, in flat-tree order (through shadow roots and slots)
@@ -9,12 +9,10 @@
 //
 // It writes report.json, report.html and the screenshots and diff images to the report folder.
 //
-//   node scripts/check-parity.mjs [items...] [--flavor react|elements] [--width 1440|390] [--out dir] [--no-build]
-//                                            [--keep-open] [--threshold 0.5]
+//   node scripts/check-parity.mjs [items...] [--width 1440|390] [--out dir] [--threshold 0.5] [--parity-port 3351]
 //
-// It needs the registry built (bun run ci, or bun run registry). It builds the docs site (unless apps/www/.output is
-// newer than the registry output, or --no-build), serves it on port 3350 and the parity app (Vite's dev server) on
-// 3351, and stops both when done. Exit 1 when anything fails.
+// It needs the registry built (bun run ci, or bun run registry). It serves the parity app (Vite's dev server) on 3351
+// and stops it when done. Exit 1 when anything fails.
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
@@ -27,17 +25,16 @@ const opt = (name, fallback) => {
 	return i >= 0 ? args[i + 1] : fallback;
 };
 const flags = new Set(args.filter((a) => a.startsWith('--')));
-const positional = args.filter((a, i) => !a.startsWith('--') && !args[i - 1]?.match(/^--(flavor|width|out|threshold|www-port|parity-port)$/));
-const WWW_PORT = Number(opt('www-port', 3350));
+const positional = args.filter((a, i) => !a.startsWith('--') && !args[i - 1]?.match(/^--(width|out|threshold|parity-port)$/));
 const PARITY_PORT = Number(opt('parity-port', 3351));
 const THRESHOLD = Number(opt('threshold', 0.5));
 const widths = opt('width') ? [Number(opt('width'))] : [1440, 390];
-const flavorsWanted = opt('flavor') ? [opt('flavor')] : ['react', 'elements'];
+const flavorsWanted = ['elements'];
 const out = resolve(root, opt('out', 'apps/parity/report'));
 const CHROME = process.env.PARITY_CHROMIUM ?? '/Users/anwarlemu/Library/Caches/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/chrome-headless-shell';
 
 const index = JSON.parse(readFileSync(join(root, 'apps/www/public/r/index.json'), 'utf8'));
-const ported = index.items.filter((i) => i.flavors.some((f) => f !== 'vue'));
+const ported = index.items.filter((i) => i.flavors.includes('elements'));
 const names = positional.length ? positional : ported.map((i) => i.name);
 for (const n of names) if (!index.items.some((i) => i.name === n)) {
 	console.error(`No item ${n}`);
@@ -78,12 +75,6 @@ function run(cmd, cmdArgs, label) {
 		process.exit(1);
 	}
 }
-const mtime = (p) => (existsSync(p) ? statSync(p).mtimeMs : 0);
-if (!flags.has('--no-build')) {
-	const wwwOut = join(root, 'apps/www/.output/server/index.mjs');
-	if (mtime(wwwOut) < mtime(join(root, 'apps/www/public/r/index.json'))) run('bun', ['run', '--cwd', 'apps/www', 'build'], 'building the docs site');
-}
-
 // ----- Page probes (run in the browser) -----
 /** Every element in flat-tree order: shadow roots instead of their hosts' children, slots' assigned nodes in place. */
 const FLAT = `(() => {
@@ -139,7 +130,7 @@ const FOCUS = `(() => {
 /** Open overlays and expanded triggers, so a step's effect can be compared. */
 const STATE = `(() => {
   const all = ${FLAT};
-  // An element's text in the flat tree (slotted text included, as a Vue element's own), without whitespace.
+  // An element's text in the flat tree (slotted text included, as a React element's own), without whitespace.
   const text = (n) => { const parts = []; const walk = (x) => { if (x.nodeType === 3) parts.push(x.textContent); else if (x.nodeType === 1) { if (x.localName === 'slot') { const nodes = x.assignedNodes({ flatten: true }); (nodes.length ? nodes : [...x.childNodes]).forEach(walk); } else if (x.shadowRoot) [...x.shadowRoot.childNodes].forEach(walk); else if (x.localName !== 'style' && x.localName !== 'script') [...x.childNodes].forEach(walk); } }; walk(n); return parts.join('').replace(/\\s+/g, '').slice(0, 32); };
   const vis = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden'; };
   return {
@@ -159,11 +150,9 @@ const { chromium } = await import('playwright-core');
 const { PNG } = await import('pngjs');
 const pixelmatch = (await import('pixelmatch')).default;
 
-const www = `http://localhost:${WWW_PORT}`;
 const parity = `http://localhost:${PARITY_PORT}`;
 try {
 	await Promise.all([
-		serve('node', [join(root, 'apps/www/.output/server/index.mjs')], { PORT: String(WWW_PORT), HOST: '127.0.0.1', NITRO_HOST: '127.0.0.1' }, `${www}/`),
 		// The parity app runs as Vite's dev server, so it always serves the registry output as it is now.
 		serve(join(root, 'node_modules/.bin/vite'), ['--config', 'apps/parity/vite.config.ts', '--port', String(PARITY_PORT), '--strictPort', '--host', '127.0.0.1'], {}, `${parity}/`),
 	]);
@@ -217,7 +206,7 @@ async function capture(url, width, settle = true) {
 
 // A step: { label, example?, reload?, click? (with button: 'right' for a right-click), clickAt? ([x, y]), focus?, hover?, hold? (selector, with ms), key?, down?, up?, type?, wait?,
 // shot? }. Selectors are Playwright's, which pierce shadow roots: prefer role=button[name="Create key"] or text=...,
-// which find the same control in every flavor. `shot` screenshots the example after the step and diffs it with Vue's.
+// which find the same control in every flavor. `shot` screenshots the example after the step and diffs it with React's.
 async function keyboard(page, steps) {
 	const trail = [];
 	// From the page as it loaded (a dialog that opens with the page keeps focus in it).
@@ -288,18 +277,18 @@ function diff(a, b, file) {
 }
 // A url() resolves against the page, so the docs site and the parity app give it different origins.
 const norm = (v) => String(v).replace(/url\("https?:\/\/(localhost|127\.0\.0\.1):\d+/g, 'url("');
-function compareStyles(vue, other) {
+function compareStyles(ref, other) {
 	const problems = [];
-	if (vue.length !== other.length) problems.push(`${vue.length} data-ds elements in Vue, ${other.length} here (${vue.map((s) => s.ds).join(',')} / ${other.map((s) => s.ds).join(',')})`);
-	for (let i = 0; i < Math.min(vue.length, other.length); i++) {
-		const a = vue[i];
+	if (ref.length !== other.length) problems.push(`${ref.length} data-ds elements in React, ${other.length} here (${ref.map((s) => s.ds).join(',')} / ${other.map((s) => s.ds).join(',')})`);
+	for (let i = 0; i < Math.min(ref.length, other.length); i++) {
+		const a = ref[i];
 		const b = other[i];
 		if (a.ds !== b.ds) {
-			problems.push(`#${i}: ${a.ds} in Vue, ${b.ds} here`);
+			problems.push(`#${i}: ${a.ds} in React, ${b.ds} here`);
 			continue;
 		}
-		if (a.box.join() !== b.box.join()) problems.push(`#${i} ${a.ds}: box ${a.box.join(' ')} in Vue, ${b.box.join(' ')} here`);
-		for (const p of PROPS) if (norm(a.style[p]) !== norm(b.style[p])) problems.push(`#${i} ${a.ds}: ${p} ${a.style[p]} in Vue, ${b.style[p]} here`);
+		if (a.box.join() !== b.box.join()) problems.push(`#${i} ${a.ds}: box ${a.box.join(' ')} in React, ${b.box.join(' ')} here`);
+		for (const p of PROPS) if (norm(a.style[p]) !== norm(b.style[p])) problems.push(`#${i} ${a.ds}: ${p} ${a.style[p]} in React, ${b.style[p]} here`);
 	}
 	return problems;
 }
@@ -319,12 +308,12 @@ for (const name of names) {
 	}
 	for (const ex of detail.examples) {
 		for (const width of widths) {
-			const vue = await capture(`${www}/preview/${name}/${ex.name}`, width, settle);
-			const vueFile = `img/${name}-${ex.name}-${width}-vue.png`;
-			writeFileSync(join(out, vueFile), vue.png);
+			const ref = await capture(`${parity}/react/${name}/${ex.name}`, width, settle);
+			const refFile = `img/${name}-${ex.name}-${width}-react.png`;
+			writeFileSync(join(out, refFile), ref.png);
 			const exSteps = steps.filter((s) => (!s.example || s.example === ex.name) && (!s.width || s.width === width));
-			const vueKeys = await keyboard(vue.page, exSteps);
-			await vue.context.close();
+			const refKeys = await keyboard(ref.page, exSteps);
+			await ref.context.close();
 			for (const flavor of flavorsWanted) {
 				const r = { item: name, example: ex.name, width, flavor, ok: true, notes: [] };
 				results.push(r);
@@ -349,25 +338,25 @@ for (const name of names) {
 				}
 				const file = `img/${name}-${ex.name}-${width}-${flavor}.png`;
 				writeFileSync(join(out, file), got.png);
-				const d = diff(vue.png, got.png, join(out, `img/${name}-${ex.name}-${width}-${flavor}-diff.png`));
-				Object.assign(r, { vue: vueFile, image: file, diff: `img/${name}-${ex.name}-${width}-${flavor}-diff.png`, ratio: d.ratio, size: d.size });
-				if (d.ratio * 100 > THRESHOLD) r.notes.push(`pixels: ${pct(d.ratio)} differ (${d.pixels}); Vue ${d.size[0]}x${d.size[1]}, here ${d.size[2]}x${d.size[3]}`);
-				r.styles = compareStyles(vue.styles, got.styles);
+				const d = diff(ref.png, got.png, join(out, `img/${name}-${ex.name}-${width}-${flavor}-diff.png`));
+				Object.assign(r, { ref: refFile, image: file, diff: `img/${name}-${ex.name}-${width}-${flavor}-diff.png`, ratio: d.ratio, size: d.size });
+				if (d.ratio * 100 > THRESHOLD) r.notes.push(`pixels: ${pct(d.ratio)} differ (${d.pixels}); React ${d.size[0]}x${d.size[1]}, here ${d.size[2]}x${d.size[3]}`);
+				r.styles = compareStyles(ref.styles, got.styles);
 				if (r.styles.length) r.notes.push(`styles: ${r.styles.length} difference(s)`);
 				if (got.errors.length) r.notes.push(`errors: ${got.errors.join(' / ')}`);
 				{
 					const keys = await keyboard(got.page, exSteps);
-					r.keyboard = keys.map((k, i) => ({ ...k, vue: vueKeys[i] })).filter((k) => k.focus !== k.vue?.focus || JSON.stringify(k.state) !== JSON.stringify(k.vue?.state)).map(({ png, vue, ...k }) => ({ ...k, vue: vue && { focus: vue.focus, state: vue.state } }));
-					if (r.keyboard.length) r.notes.push(`keyboard: ${r.keyboard.map((k) => `${k.step}: ${k.vue?.focus} ${JSON.stringify(k.vue?.state)} in Vue, ${k.focus} ${JSON.stringify(k.state)} here`).join('; ')}`);
-					r.trail = keys.map(({ png, ...k }, i) => ({ ...k, vue: vueKeys[i]?.focus }));
+					r.keyboard = keys.map((k, i) => ({ ...k, ref: refKeys[i] })).filter((k) => k.focus !== k.ref?.focus || JSON.stringify(k.state) !== JSON.stringify(k.ref?.state)).map(({ png, ref, ...k }) => ({ ...k, ref: ref && { focus: ref.focus, state: ref.state } }));
+					if (r.keyboard.length) r.notes.push(`keyboard: ${r.keyboard.map((k) => `${k.step}: ${k.ref?.focus} ${JSON.stringify(k.ref?.state)} in React, ${k.focus} ${JSON.stringify(k.state)} here`).join('; ')}`);
+					r.trail = keys.map(({ png, ...k }, i) => ({ ...k, ref: refKeys[i]?.focus }));
 					r.shots = [];
 					keys.forEach((k, i) => {
-						if (!k.png || !vueKeys[i]?.png) return;
+						if (!k.png || !refKeys[i]?.png) return;
 						const tag = `${name}-${ex.name}-${width}-step${i}-${flavor}`;
 						writeFileSync(join(out, `img/${tag}.png`), k.png);
-						writeFileSync(join(out, `img/${tag}-vue.png`), vueKeys[i].png);
-						const sd = diff(vueKeys[i].png, k.png, join(out, `img/${tag}-diff.png`));
-						r.shots.push({ step: k.step, ratio: sd.ratio, image: `img/${tag}.png`, vue: `img/${tag}-vue.png`, diff: `img/${tag}-diff.png` });
+						writeFileSync(join(out, `img/${tag}-react.png`), refKeys[i].png);
+						const sd = diff(refKeys[i].png, k.png, join(out, `img/${tag}-diff.png`));
+						r.shots.push({ step: k.step, ratio: sd.ratio, image: `img/${tag}.png`, ref: `img/${tag}-react.png`, diff: `img/${tag}-diff.png` });
 						if (sd.ratio * 100 > THRESHOLD) r.notes.push(`after "${k.step}": ${pct(sd.ratio)} of pixels differ`);
 					});
 				}
@@ -394,7 +383,7 @@ const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 writeFileSync(join(out, 'report.html'), `<!doctype html><meta charset="utf-8"><title>Parity</title><style>body{font:13px/1.5 system-ui;margin:24px}table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:4px 8px;vertical-align:top}img{max-width:420px;border:1px solid #ccc}.f{color:#b42317}</style>
 <h1>Parity: ${failed ? `${failed} failing` : 'all pass'}</h1><p>Threshold ${THRESHOLD}% of pixels; widths ${widths.join(', ')}.</p>
 <table><tr><th>Item</th>${flavorsWanted.map((f) => `<th>${f}</th>`).join('')}</tr>${summary.map((s) => `<tr><td>${s.item}</td>${flavorsWanted.map((f) => `<td>${s[f] ? `${s[f].pass}/${s[f].of}, worst ${pct(s[f].worst)}` : 'not ported'}</td>`).join('')}</tr>`).join('')}</table>
-${results.filter((r) => !r.missing).map((r) => `<h3 class="${r.ok ? '' : 'f'}">${r.item}/${r.example} ${r.width} ${r.flavor}: ${pct(r.ratio ?? 0)}</h3>${r.notes.length ? `<pre class="f">${esc(r.notes.join('\n'))}</pre>${r.styles?.length ? `<pre>${esc(r.styles.slice(0, 40).join('\n'))}</pre>` : ''}` : ''}<p><img src="${r.vue}" alt="vue"> <img src="${r.image}" alt="${r.flavor}"> <img src="${r.diff}" alt="diff"></p>`).join('\n')}`);
+${results.filter((r) => !r.missing).map((r) => `<h3 class="${r.ok ? '' : 'f'}">${r.item}/${r.example} ${r.width} ${r.flavor}: ${pct(r.ratio ?? 0)}</h3>${r.notes.length ? `<pre class="f">${esc(r.notes.join('\n'))}</pre>${r.styles?.length ? `<pre>${esc(r.styles.slice(0, 40).join('\n'))}</pre>` : ''}` : ''}<p><img src="${r.ref}" alt="react"> <img src="${r.image}" alt="${r.flavor}"> <img src="${r.diff}" alt="diff"></p>`).join('\n')}`);
 console.log(`\nparity: ${results.length - failed} of ${results.length} pass; report at ${relative(root, join(out, 'report.html'))}`);
 for (const s of summary) console.log(`  ${s.item.padEnd(20)} ${flavorsWanted.map((f) => `${f} ${s[f] ? `${s[f].pass}/${s[f].of} (worst ${pct(s[f].worst)})` : 'not ported'}`).join('   ')}`);
 process.exit(failed ? 1 : 0);

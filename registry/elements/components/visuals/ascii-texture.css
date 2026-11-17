@@ -1,0 +1,6 @@
+/* The element is the box, as AsciiTexture.tsx's root: the page's classes size and place it. */
+:host {
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+}

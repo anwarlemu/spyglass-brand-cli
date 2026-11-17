@@ -12,5 +12,5 @@
     "baseUrl": ".",
     "paths": { "@/*": ["registry/*"] }
   },
-  "include": ["registry/react/**/*.ts", "registry/react/**/*.tsx"]
+  "include": ["registry/react/**/*.ts", "registry/react/**/*.tsx", "registry/lib/**/*.ts"]
 }

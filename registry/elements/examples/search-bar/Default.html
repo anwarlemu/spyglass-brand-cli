@@ -1,0 +1,10 @@
+<!-- A search with the ad's prompt; the last query shows under it. -->
+<div class="mx-auto flex w-full max-w-238 flex-col gap-3">
+  <spyglass-search-bar id="search-default" value="Show me UGC ads for skincare brands using before/after hooks" aria-label="Search creatives"></spyglass-search-bar>
+  <p id="search-default-last" class="type-caption text-fg-muted" aria-live="polite">Ask in words. Enter searches.</p>
+</div>
+<script type="module">
+  document.getElementById('search-default').addEventListener('search', (e) => {
+    document.getElementById('search-default-last').textContent = e.detail.query ? `Searching: ${e.detail.query}` : 'Ask in words. Enter searches.'
+  })
+</script>

@@ -5,7 +5,9 @@
 //   build/brand.css    fonts + tokens + base in one file, what apps import
 //   build/theme.css    the Tailwind 4 theme: tokens as utilities (bg-surface, text-fg, border-edge...)
 //   build/tokens.json  every token, its value and its resolved value per theme
-//   build/fonts/, build/textures/  the assets, copied as they are
+//   build/fonts/, build/logo/  the assets, copied as they are
+//   build/generators/  the brand light and the ASCII texture (registry/lib/light.ts, ascii.ts) bundled for node, so
+//                      the CLI's light, ascii, image and video commands draw with the same code as the components
 // It also copies the assets into apps/www/public<assetBase>/ for the docs site.
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -41,7 +43,7 @@ function resolve(value, table, depth = 0) {
 rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 cpSync(join(brandDir, 'fonts'), join(out, 'fonts'), { recursive: true });
-cpSync(join(brandDir, 'textures'), join(out, 'textures'), { recursive: true });
+cpSync(join(brandDir, 'logo', 'svg'), join(out, 'logo'), { recursive: true });
 
 const base = brand.assetBase ?? '/ds';
 // The brand registers its faces under its own names ("Geist (Brand)"), and its font tokens name those first: an app
@@ -68,8 +70,8 @@ const scopedBase = `/* Scoped base: the brand's element defaults inside the libr
   :is([data-ds], .ds-scope):not(:is([data-ds], .ds-scope) *) {
     color: var(--ds-color-fg);
     font-family: var(--ds-font-text);
-    font-size: var(--ds-text-ui);
-    line-height: var(--ds-text-ui-leading);
+    font-size: var(--ds-text-body);
+    line-height: var(--ds-text-body-leading);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -81,8 +83,8 @@ const scopedBase = `/* Scoped base: the brand's element defaults inside the libr
     outline-offset: var(--ds-border-focus);
   }
   :where([data-ds], .ds-scope)::selection, :where([data-ds], .ds-scope) ::selection {
-    background: var(--ds-color-edge-accent);
-    color: var(--ds-color-off-white);
+    background: var(--ds-color-white);
+    color: var(--ds-color-black);
   }
   :where([data-ds], .ds-scope) :where(a, button, [role="button"], [role="tab"]) {
     touch-action: manipulation;
@@ -132,23 +134,22 @@ for (const n of pick('--ds-size-')) lines.push(`  --spacing-${n.slice('--ds-size
 for (const n of pick('--ds-layout-')) lines.push(`  --container-${n.slice('--ds-layout-'.length)}: var(${n});`);
 for (const n of pick('--ds-easing-')) lines.push(`  --ease-${n.slice('--ds-easing-'.length)}: var(${n});`);
 
-// Composite type styles, as conare-web's type-* utilities, in the console's sizes.
+// Composite type styles: Funnel Display Regular for heads, DM Sans for text (Medium for labels and buttons), labels in
+// capitals with 6% tracking, Geist Mono for code and the texture.
 const type = {
-	display: ['heading', 'display', 'regular', 'display'],
-	hero: ['heading', 'hero', 'regular', 'tight'],
-	'heading-1': ['heading', 'heading-1', 'regular', 'tight'],
-	'heading-2': ['heading', 'heading-2', 'regular', 'tight'],
+	display: ['heading', 'display', 'regular'],
+	hero: ['heading', 'hero', 'regular'],
+	'heading-1': ['heading', 'heading-1', 'regular'],
+	'heading-2': ['heading', 'heading-2', 'regular'],
 	'heading-3': ['heading', 'heading-3', 'regular'],
 	'heading-4': ['heading', 'heading-4', 'regular'],
 	'body-lg': ['text', 'body-lg', 'regular'],
 	body: ['text', 'body', 'regular'],
 	ui: ['text', 'ui', 'regular'],
 	'ui-strong': ['text', 'ui', 'medium'],
-	meta: ['text', 'meta', 'regular'],
 	caption: ['text', 'caption', 'regular'],
-	tag: ['text', 'tag', 'medium', 'tag'],
+	label: ['text', 'label', 'medium', 'label'],
 	code: ['code', 'ui', 'regular'],
-	'code-sm': ['code', 'meta', 'regular'],
 };
 const utilities = Object.entries(type).map(([name, [font, size, weight, tracking]]) => {
 	const body = [
@@ -157,7 +158,7 @@ const utilities = Object.entries(type).map(([name, [font, size, weight, tracking
 		`line-height: var(--ds-text-${size}-leading);`,
 		`font-weight: var(--ds-font-weight-${weight});`,
 		`letter-spacing: ${tracking ? `var(--ds-tracking-${tracking})` : '0'};`,
-		...(name === 'tag' ? ['text-transform: uppercase;'] : []),
+		...(name === 'label' ? ['text-transform: uppercase;'] : []),
 	];
 	return `@utility type-${name} {\n  ${body.join('\n  ')}\n}`;
 });
@@ -171,15 +172,23 @@ const json = { name: brand.name, tokens: {} };
 for (const n of names) json.tokens[n] = { value: light[n], light: resolve(light[n], light), dark: resolve(dark[n], dark) };
 writeFileSync(join(out, 'tokens.json'), `${JSON.stringify(json, null, 2)}\n`);
 
+// The generators, bundled for node (the CLI imports build/generators/*.mjs at run time).
+const esbuild = await import('esbuild');
+esbuild.buildSync({ entryPoints: { light: join(root, 'registry', 'lib', 'light.ts'), ascii: join(root, 'registry', 'lib', 'ascii.ts') }, bundle: true, format: 'esm', platform: 'node', target: 'node20', outdir: join(out, 'generators'), outExtension: { '.js': '.mjs' }, alias: { '@': join(root, 'registry') }, logLevel: 'silent' });
+
+// PNG icons from the favicon (the White logomark on Black), for the docs site and apps.
+const { Resvg } = await import('@resvg/resvg-js');
+const favicon = readFileSync(join(brandDir, 'logo', 'svg', 'favicon.svg'), 'utf8');
+mkdirSync(join(out, 'icons'), { recursive: true });
+for (const [name, size] of [['favicon-32.png', 32], ['apple-touch-icon.png', 180], ['icon-512.png', 512]]) writeFileSync(join(out, 'icons', name), new Resvg(favicon, { fitTo: { mode: 'width', value: size } }).render().asPng());
+
 // The docs site serves the assets at the same base an app does.
 const www = join(root, 'apps', 'www', 'public', base.replace(/^\//, ''));
 if (existsSync(join(root, 'apps', 'www'))) {
 	rmSync(www, { recursive: true, force: true });
 	mkdirSync(www, { recursive: true });
 	cpSync(join(out, 'fonts'), join(www, 'fonts'), { recursive: true });
-	cpSync(join(out, 'textures'), join(www, 'textures'), { recursive: true });
-	cpSync(join(brandDir, 'logo'), join(www, 'logo'), { recursive: true });
-	cpSync(join(brandDir, 'logo', 'favicon', 'favicon.ico'), join(root, 'apps', 'www', 'public', 'favicon.ico'));
-	cpSync(join(brandDir, 'logo', 'favicon', 'apple-touch-icon.png'), join(root, 'apps', 'www', 'public', 'apple-touch-icon.png'));
+	cpSync(join(out, 'logo'), join(www, 'logo'), { recursive: true });
+	cpSync(join(out, 'icons'), join(www, 'icons'), { recursive: true });
 }
-console.log(`build: ${names.length} tokens, ${brand.fonts.files.length} font files -> build/`);
+console.log(`build: ${names.length} tokens, ${brand.fonts.files.length} font files, generators, icons -> build/`);
