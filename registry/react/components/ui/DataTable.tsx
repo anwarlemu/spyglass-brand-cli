@@ -36,7 +36,7 @@ export interface DataTableProps<Row extends Record<string, unknown>> {
 
 const display = (v: unknown) => (typeof v === 'number' ? v.toLocaleString('en-US') : String(v ?? ''))
 export const FILTER = 'inline-flex h-control-sm cursor-pointer items-center gap-1.5 rounded-control border border-edge-strong bg-surface px-3 type-ui text-fg transition-[border-color] duration-150 ease-standard hover:border-action-secondary-edge-hover aria-expanded:border-edge-focus max-md:h-control-touch'
-export const SORT = '-mx-1 inline-flex cursor-pointer items-center gap-1 rounded-ds-sm px-1 uppercase transition-[color] duration-150 ease-standard hover:text-fg'
+export const SORT = '-mx-1 inline-flex cursor-pointer items-center gap-1 rounded-ds-sm px-1 align-middle uppercase transition-[color] duration-150 ease-standard hover:text-fg'
 
 export function DataTable<Row extends Record<string, unknown>>({ columns, rows, rowKey, label, filters = [], pageSize = 5, cell = {}, empty, className }: DataTableProps<Row>) {
   const [picked, setPicked] = useState<Record<string, string>>({})
@@ -89,7 +89,7 @@ export function DataTable<Row extends Record<string, unknown>>({ columns, rows, 
           <thead>
             <tr>
               {columns.map(c => (
-                <th key={c.key} scope="col" className={cn('h-10 border-b border-edge px-3 type-label whitespace-nowrap text-fg-muted', c.align === 'right' ? 'text-right' : 'text-left')} aria-sort={sort?.key === c.key ? sort.dir : c.sortable ? 'none' : undefined}>
+                <th key={c.key} scope="col" className={cn('h-10 border-b border-edge px-3 align-middle type-label whitespace-nowrap text-fg-muted', c.align === 'right' ? 'text-right' : 'text-left')} aria-sort={sort?.key === c.key ? sort.dir : c.sortable ? 'none' : undefined}>
                   {c.sortable
                     ? (
                         <button type="button" className={cn(SORT, c.align === 'right' && 'flex-row-reverse')} onClick={() => toggleSort(c.key)}>
@@ -110,7 +110,7 @@ export function DataTable<Row extends Record<string, unknown>>({ columns, rows, 
             {visible.map(r => (
               <tr key={String(r[rowKey])} className="transition-[background-color] duration-150 ease-standard hover:bg-surface-raised">
                 {columns.map(c => (
-                  <td key={c.key} className={cn('h-row border-b border-edge px-3 py-1 [tr:last-child>&]:border-b-0', c.align === 'right' && 'text-right tabular-nums', c.muted && 'whitespace-nowrap text-fg-muted')}>
+                  <td key={c.key} className={cn('h-row border-b border-edge px-3 py-1 whitespace-nowrap [tr:last-child>&]:border-b-0', c.align === 'right' && 'text-right tabular-nums', c.muted && 'text-fg-muted')}>
                     {cell[c.key] ? cell[c.key]!({ row: r, value: r[c.key] }) : display(r[c.key])}
                   </td>
                 ))}

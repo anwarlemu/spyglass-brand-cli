@@ -3,10 +3,10 @@ import { DataTable } from '@/react/components/ui/DataTable'
 // to a page.
 const formats = ['Video', 'Carousel', 'Image']
 const statuses = ['Active', 'Paused']
-const names = ['Summer UGC', 'Serum launch', 'Founder story', 'Bundle offer', 'Before and after', 'Unboxing', 'Routine in 30 seconds', 'Holiday gift set']
+const names = ['summer UGC', 'serum launch', 'founder story', 'bundle offer', 'before and after', 'unboxing', 'routine in 30 seconds', 'holiday gift set']
 const rows = Array.from({ length: 17 }, (_, i) => ({
   id: `cr-${i + 1}`,
-  name: `Acme ${names[i % names.length]!.toLowerCase()}${i >= names.length ? ` ${Math.floor(i / names.length) + 1}` : ''}`,
+  name: `Acme ${names[i % names.length]!}${i >= names.length ? ` ${Math.floor(i / names.length) + 1}` : ''}`,
   format: formats[i % 3]!,
   status: statuses[i % 4 === 3 ? 1 : 0]!,
   days: ((i * 17) % 80) + 3,
