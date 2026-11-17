@@ -1,0 +1,3170 @@
+{
+ "$comment": "Image templates: every layout on the Figma page \"8. Brand assets\" (file Qx2i6GhXZD1V4O7RE7hYQi) as a scene in canvas pixels, with the frame sizes and positions from its layer tree. Text tops are the top of the capitals; sizes and line pitches are measured from the reference renders (Funnel Display 44 to 112, DM Sans 14 to 27). Lights: b is the Light B layer (x, y, width, height in the window), shift the step to Light G and Light R, window the frame it shows through. Photos are slots filled from --image in order; without one a slot is the card fill. Slots default to the brand copy; {domain} and {tagline} come from brand.json. Third-party pictures and real names from the Figma are never shipped.",
+ "templates": [
+  {
+   "id": "post-creative-ring",
+   "group": "post",
+   "name": "Post, creative ring",
+   "figma": "966:4389",
+   "description": "The lockup in the middle of a ring of eight pictures and four light tiles.",
+   "photos": 8,
+   "slots": {},
+   "sizes": {
+    "square": {
+     "width": 1080,
+     "height": 1080,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        410.4,
+        520.364,
+        261,
+        40
+       ],
+       "align": "center"
+      },
+      {
+       "type": "light",
+       "window": [
+        294.545,
+        155.127,
+        111.927,
+        145.309
+       ],
+       "b": [
+        -612.655,
+        -288.655,
+        752.487,
+        470.43
+       ],
+       "shift": 11.417
+      },
+      {
+       "type": "photo",
+       "index": 0,
+       "box": [
+        155,
+        287,
+        112,
+        146
+       ]
+      },
+      {
+       "type": "light",
+       "window": [
+        96.218,
+        475.2,
+        127.636,
+        127.636
+       ],
+       "b": [
+        -644.072,
+        -365.237,
+        858.099,
+        536.456
+       ],
+       "shift": 13.019
+      },
+      {
+       "type": "photo",
+       "index": 1,
+       "box": [
+        131,
+        663,
+        160,
+        114
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 2,
+       "box": [
+        286,
+        788,
+        128,
+        128
+       ]
+      },
+      {
+       "type": "light",
+       "window": [
+        483.055,
+        826.691,
+        111.927,
+        145.309
+       ],
+       "b": [
+        -622.473,
+        -88.364,
+        752.487,
+        470.43
+       ],
+       "shift": 11.416
+      },
+      {
+       "type": "photo",
+       "index": 3,
+       "box": [
+        650,
+        795,
+        160,
+        114
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 4,
+       "box": [
+        813,
+        647,
+        112,
+        146
+       ]
+      },
+      {
+       "type": "light",
+       "window": [
+        856.145,
+        475.2,
+        127.636,
+        127.636
+       ],
+       "b": [
+        -691.2,
+        -353.455,
+        858.099,
+        536.456
+       ],
+       "shift": 13.019
+      },
+      {
+       "type": "photo",
+       "index": 5,
+       "box": [
+        789,
+        303,
+        160,
+        114
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 6,
+       "box": [
+        674,
+        155,
+        112,
+        146
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 7,
+       "box": [
+        476,
+        116,
+        128,
+        128
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "post-agents",
+   "group": "post",
+   "name": "Post, photo over a light band",
+   "figma": "966:4377",
+   "description": "One tall picture over a light band, the lockup above and a two-line headline below.",
+   "photos": 1,
+   "slots": {
+    "headline": "Give your agents access to Instagram and TikTok."
+   },
+   "sizes": {
+    "square": {
+     "width": 1080,
+     "height": 1080,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "window": [
+        0,
+        414.327,
+        1080,
+        200.291
+       ],
+       "b": [
+        -251.345,
+        -111.927,
+        2860.331,
+        1788.186
+       ],
+       "shift": 43.397
+      },
+      {
+       "type": "photo",
+       "index": 0,
+       "box": [
+        300,
+        203,
+        480,
+        624
+       ]
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        449,
+        64,
+        183,
+        28
+       ],
+       "align": "center"
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 44,
+       "leading": 48,
+       "x": 282,
+       "top": 938,
+       "w": 516,
+       "align": "center",
+       "maxLines": 2
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "post-any-brand",
+   "group": "post",
+   "name": "Post, picture grid",
+   "figma": "966:4434",
+   "description": "A three by three grid: eight pictures (the first split into its color channels) and a light tile, over a light band.",
+   "photos": 8,
+   "slots": {
+    "headline": "Add any brand or creator in under a minute.",
+    "url": "{domain}"
+   },
+   "sizes": {
+    "square": {
+     "width": 1080,
+     "height": 1080,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "window": [
+        0,
+        -2,
+        1080,
+        586
+       ],
+       "b": [
+        -453,
+        -30,
+        2913.3,
+        1821.3
+       ],
+       "shift": 44.2
+      },
+      {
+       "type": "split",
+       "index": 0,
+       "box": [
+        232,
+        176,
+        200,
+        200
+       ],
+       "shift": 8,
+       "bleed": 12
+      },
+      {
+       "type": "light",
+       "window": [
+        232,
+        176,
+        200,
+        200
+       ],
+       "b": [
+        -1754,
+        -1180,
+        2241,
+        1401
+       ],
+       "shift": 34
+      },
+      {
+       "type": "photo",
+       "index": 1,
+       "box": [
+        440,
+        176,
+        200,
+        200
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 2,
+       "box": [
+        648,
+        176,
+        200,
+        200
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 3,
+       "box": [
+        232,
+        384,
+        200,
+        200
+       ]
+      },
+      {
+       "type": "light",
+       "window": [
+        440,
+        384,
+        200,
+        200
+       ],
+       "b": [
+        -157,
+        -92,
+        2689.2,
+        1681.2
+       ],
+       "shift": 40.8
+      },
+      {
+       "type": "photo",
+       "index": 4,
+       "box": [
+        648,
+        384,
+        200,
+        200
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 5,
+       "box": [
+        232,
+        592,
+        200,
+        200
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 6,
+       "box": [
+        440,
+        592,
+        200,
+        200
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 7,
+       "box": [
+        648,
+        592,
+        200,
+        200
+       ]
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        449,
+        72,
+        183,
+        28
+       ],
+       "align": "center"
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 44,
+       "leading": 48,
+       "x": 276,
+       "top": 856,
+       "w": 529,
+       "align": "center",
+       "maxLines": 2
+      },
+      {
+       "type": "text",
+       "slot": "url",
+       "face": "label",
+       "size": 14,
+       "leading": 14,
+       "x": 140,
+       "top": 998,
+       "w": 800,
+       "align": "center",
+       "maxLines": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "post-every-market",
+   "group": "post",
+   "name": "Post, light strips",
+   "figma": "966:4471",
+   "description": "A headline and a paragraph between two light strips.",
+   "slots": {
+    "headline": "Understand what is working in any category.",
+    "body": "Compare brands, creators, campaigns, and formats to uncover what is gaining traction, what is falling behind, and why.",
+    "url": "{domain}"
+   },
+   "sizes": {
+    "square": {
+     "width": 1080,
+     "height": 1080,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "window": [
+        0,
+        0,
+        160,
+        1080
+       ],
+       "b": [
+        -134,
+        -160,
+        2241,
+        1401
+       ],
+       "shift": 34
+      },
+      {
+       "type": "light",
+       "window": [
+        920,
+        0,
+        160,
+        1080
+       ],
+       "b": [
+        -2014,
+        -160,
+        2241,
+        1401
+       ],
+       "shift": 34
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        232,
+        72,
+        183,
+        28
+       ],
+       "align": "left"
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 56,
+       "leading": 60,
+       "x": 232,
+       "top": 384.2,
+       "w": 616,
+       "maxLines": 4
+      },
+      {
+       "type": "text",
+       "slot": "body",
+       "face": "body",
+       "size": 27,
+       "leading": 38,
+       "x": 232,
+       "top": 604.3,
+       "w": 560,
+       "maxLines": 4,
+       "after": {
+        "slot": "headline",
+        "gap": 62.3
+       }
+      },
+      {
+       "type": "text",
+       "slot": "url",
+       "face": "label",
+       "size": 14,
+       "leading": 14,
+       "x": 232,
+       "top": 996,
+       "w": 400,
+       "align": "left",
+       "maxLines": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "post-know-what-changed",
+   "group": "post",
+   "name": "Post, headline over a band",
+   "figma": "966:4489",
+   "description": "A large headline top left, a light band across, a paragraph bottom right.",
+   "slots": {
+    "headline": "Know what changed before your next meeting.",
+    "body": "Spyglass follows the brands, creators, and niches that matter to you then turns the changes into a brief you actually want to read.",
+    "url": "{domain}"
+   },
+   "sizes": {
+    "square": {
+     "width": 1080,
+     "height": 1080,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "window": [
+        0,
+        520,
+        1080,
+        160
+       ],
+       "b": [
+        -1331,
+        -30,
+        2913.3,
+        1821.3
+       ],
+       "shift": 44.2
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        72,
+        72,
+        183,
+        28
+       ],
+       "align": "left"
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 72,
+       "leading": 78,
+       "x": 72,
+       "top": 217.4,
+       "w": 900,
+       "maxLines": 3
+      },
+      {
+       "type": "text",
+       "slot": "body",
+       "face": "body",
+       "size": 24,
+       "leading": 31,
+       "x": 622,
+       "top": 891.9,
+       "w": 386,
+       "maxLines": 4
+      },
+      {
+       "type": "text",
+       "slot": "url",
+       "face": "label",
+       "size": 14,
+       "leading": 14,
+       "x": 72,
+       "top": 996,
+       "w": 400,
+       "align": "left",
+       "maxLines": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "post-offer",
+   "group": "post",
+   "name": "Post, offer",
+   "figma": "966:4421",
+   "description": "A centered headline, the offer in capitals and a button, inside the corner light.",
+   "slots": {
+    "headline": "Stop screenshotting at midnight.",
+    "price": "$10 for your first month, then $20/month",
+    "cta": "Start Creator for 50% off",
+    "url": "{domain}"
+   },
+   "sizes": {
+    "square": {
+     "width": 1080,
+     "height": 1080,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "b": [
+        -533,
+        -33,
+        1725.57,
+        1112.77
+       ],
+       "shift": 26.18
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        449,
+        72,
+        183,
+        28
+       ],
+       "align": "center"
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 64,
+       "leading": 72,
+       "x": 200,
+       "top": 420.8,
+       "w": 680,
+       "align": "center",
+       "maxLines": 2
+      },
+      {
+       "type": "text",
+       "slot": "price",
+       "face": "label",
+       "size": 14,
+       "leading": 14,
+       "x": 140,
+       "top": 582,
+       "w": 800,
+       "align": "center",
+       "maxLines": 1
+      },
+      {
+       "type": "button",
+       "box": [
+        380,
+        626,
+        320,
+        64
+       ],
+       "slot": "cta",
+       "size": 20
+      },
+      {
+       "type": "text",
+       "slot": "url",
+       "face": "label",
+       "size": 14,
+       "leading": 14,
+       "x": 140,
+       "top": 996,
+       "w": 800,
+       "align": "center",
+       "maxLines": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "ad-search-bar",
+   "group": "ad",
+   "name": "Ad, search bar",
+   "figma": "966:4519",
+   "description": "Headline and line, the search bar on a light band, three pictures, a button.",
+   "photos": 3,
+   "slots": {
+    "headline": "{tagline}",
+    "body": "AI search across millions of creatives. Ask a question and get instant, structured results.",
+    "prompt": "Show me UGC ads for skincare brands using before/after hooks",
+    "cta": "Get 50% off",
+    "url": "{domain}"
+   },
+   "sizes": {
+    "portrait": {
+     "width": 1080,
+     "height": 1350,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "window": [
+        0,
+        440,
+        1080,
+        240
+       ],
+       "b": [
+        -239,
+        -127,
+        2913.3,
+        1821.3
+       ],
+       "shift": 44.2
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        64,
+        64,
+        183,
+        28
+       ],
+       "align": "left"
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 56,
+       "leading": 60,
+       "x": 64,
+       "top": 168,
+       "w": 760,
+       "maxLines": 2
+      },
+      {
+       "type": "text",
+       "slot": "body",
+       "face": "body",
+       "size": 24,
+       "leading": 32,
+       "x": 64,
+       "top": 312,
+       "w": 640,
+       "maxLines": 2
+      },
+      {
+       "type": "search",
+       "box": [
+        64,
+        516,
+        952,
+        88
+       ],
+       "slot": "prompt",
+       "size": 24,
+       "button": "Search"
+      },
+      {
+       "type": "photo",
+       "index": 0,
+       "box": [
+        64,
+        728,
+        296,
+        400
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 1,
+       "box": [
+        392,
+        728,
+        296,
+        400
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 2,
+       "box": [
+        720,
+        728,
+        296,
+        400
+       ]
+      },
+      {
+       "type": "button",
+       "box": [
+        64,
+        1230,
+        258,
+        56
+       ],
+       "slot": "cta",
+       "size": 20
+      },
+      {
+       "type": "text",
+       "slot": "url",
+       "face": "body",
+       "size": 20,
+       "leading": 26,
+       "x": 616,
+       "top": 1251,
+       "w": 400,
+       "align": "right",
+       "maxLines": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "ad-corridor",
+   "group": "ad",
+   "name": "Ad, corridor of creatives",
+   "figma": "966:4562",
+   "description": "Twelve pictures as the walls of a corridor, the light at its end.",
+   "photos": 12,
+   "slots": {
+    "headline": "The world’s largest creative search engine.",
+    "body": "Meta, TikTok, Instagram, and YouTube creatives in one index.",
+    "cta": "Get 50% off",
+    "url": "{domain}"
+   },
+   "sizes": {
+    "portrait": {
+     "width": 1080,
+     "height": 1350,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "window": [
+        470,
+        648,
+        140,
+        104
+       ],
+       "b": [
+        -20,
+        -15,
+        941.22,
+        588.42
+       ],
+       "shift": 14.28
+      },
+      {
+       "type": "panel",
+       "quad": [
+        [
+         -60,
+         328
+        ],
+        [
+         140,
+         452
+        ],
+        [
+         140,
+         948
+        ],
+        [
+         -60,
+         1072
+        ]
+       ],
+       "index": 0
+      },
+      {
+       "type": "panel",
+       "quad": [
+        [
+         170,
+         470.6
+        ],
+        [
+         257.4,
+         524.8
+        ],
+        [
+         257.4,
+         875.2
+        ],
+        [
+         170,
+         929.4
+        ]
+       ],
+       "index": 1
+      },
+      {
+       "type": "panel",
+       "quad": [
+        [
+         272,
+         533.8
+        ],
+        [
+         320.9,
+         564.2
+        ],
+        [
+         320.9,
+         835.8
+        ],
+        [
+         272,
+         866.2
+        ]
+       ],
+       "index": 2
+      },
+      {
+       "type": "panel",
+       "quad": [
+        [
+         330,
+         569.8
+        ],
+        [
+         361.2,
+         589.1
+        ],
+        [
+         361.2,
+         810.9
+        ],
+        [
+         330,
+         830.2
+        ]
+       ],
+       "index": 3
+      },
+      {
+       "type": "panel",
+       "quad": [
+        [
+         368,
+         593.4
+        ],
+        [
+         389.7,
+         606.8
+        ],
+        [
+         389.7,
+         793.2
+        ],
+        [
+         368,
+         806.6
+        ]
+       ],
+       "index": 4
+      },
+      {
+       "type": "panel",
+       "quad": [
+        [
+         394,
+         609.5
+        ],
+        [
+         409.9,
+         619.3
+        ],
+        [
+         409.9,
+         780.7
+        ],
+        [
+         394,
+         790.5
+        ]
+       ],
+       "index": 5
+      },
+      {
+       "type": "panel",
+       "quad": [
+        [
+         940,
+         452
+        ],
+        [
+         1140,
+         328
+        ],
+        [
+         1140,
+         1072
+        ],
+        [
+         940,
+         948
+        ]
+       ],
+       "index": 6
+      },
+      {
+       "type": "panel",
+       "quad": [
+        [
+         823,
+         524.5
+        ],
+        [
+         910.4,
+         470.4
+        ],
+        [
+         910.4,
+         929.6
+        ],
+        [
+         823,
+         875.5
+        ]
+       ],
+       "index": 7
+      },
+      {
+       "type": "panel",
+       "quad": [
+        [
+         759,
+         564.2
+        ],
+        [
+         807.9,
+         533.9
+        ],
+        [
+         807.9,
+         866.1
+        ],
+        [
+         759,
+         835.8
+        ]
+       ],
+       "index": 8
+      },
+      {
+       "type": "panel",
+       "quad": [
+        [
+         719,
+         589
+        ],
+        [
+         750.2,
+         569.7
+        ],
+        [
+         750.2,
+         830.3
+        ],
+        [
+         719,
+         811
+        ]
+       ],
+       "index": 9
+      },
+      {
+       "type": "panel",
+       "quad": [
+        [
+         691,
+         606.4
+        ],
+        [
+         712.7,
+         592.9
+        ],
+        [
+         712.7,
+         807.1
+        ],
+        [
+         691,
+         793.6
+        ]
+       ],
+       "index": 10
+      },
+      {
+       "type": "panel",
+       "quad": [
+        [
+         670,
+         619.4
+        ],
+        [
+         685.9,
+         609.5
+        ],
+        [
+         685.9,
+         790.5
+        ],
+        [
+         670,
+         780.6
+        ]
+       ],
+       "index": 11
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        64,
+        64,
+        183,
+        28
+       ],
+       "align": "left"
+      },
+      {
+       "type": "text",
+       "slot": "url",
+       "face": "body",
+       "size": 20,
+       "leading": 26,
+       "x": 616,
+       "top": 69,
+       "w": 400,
+       "align": "right",
+       "maxLines": 1
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 56,
+       "leading": 60,
+       "x": 190,
+       "top": 168,
+       "w": 700,
+       "align": "center",
+       "maxLines": 2
+      },
+      {
+       "type": "text",
+       "slot": "body",
+       "face": "body",
+       "size": 24,
+       "leading": 32,
+       "x": 291,
+       "top": 1100,
+       "w": 499,
+       "align": "center",
+       "maxLines": 2
+      },
+      {
+       "type": "button",
+       "box": [
+        411,
+        1230,
+        258,
+        56
+       ],
+       "slot": "cta",
+       "size": 20
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "ad-photo",
+   "group": "ad",
+   "name": "Ad, one photo",
+   "figma": "966:4637",
+   "description": "A wide picture in the lit sea, the headline and a line under it.",
+   "photos": 1,
+   "slots": {
+    "headline": "Search millions of creators in one place.",
+    "body": "Spyglass monitors millions of brands and creators across Meta Ads, Instagram, and TikTok.",
+    "cta": "Get Spyglass 50% off",
+    "url": "{domain}"
+   },
+   "sizes": {
+    "portrait": {
+     "width": 1080,
+     "height": 1350,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "window": [
+        0,
+        0,
+        1080,
+        810
+       ],
+       "b": [
+        -2098.636,
+        -184.092,
+        3300.382,
+        2063.291
+       ],
+       "shift": 50.073
+      },
+      {
+       "type": "light",
+       "window": [
+        0,
+        419.728,
+        1080,
+        419.727
+       ],
+       "b": [
+        -3316.091,
+        -493.364,
+        4400.509,
+        2751.055
+       ],
+       "shift": 66.764
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        64,
+        64,
+        183,
+        28
+       ],
+       "align": "left"
+      },
+      {
+       "type": "photo",
+       "index": 0,
+       "box": [
+        64,
+        156,
+        952,
+        640
+       ]
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 56,
+       "leading": 60,
+       "x": 64,
+       "top": 860,
+       "w": 564,
+       "maxLines": 2
+      },
+      {
+       "type": "text",
+       "slot": "body",
+       "face": "body",
+       "size": 24,
+       "leading": 32,
+       "x": 64,
+       "top": 1006,
+       "w": 999,
+       "maxLines": 2
+      },
+      {
+       "type": "button",
+       "box": [
+        64,
+        1230,
+        258,
+        56
+       ],
+       "slot": "cta",
+       "size": 20
+      },
+      {
+       "type": "text",
+       "slot": "url",
+       "face": "body",
+       "size": 20,
+       "leading": 26,
+       "x": 616,
+       "top": 1251,
+       "w": 400,
+       "align": "right",
+       "maxLines": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "ad-testimonial",
+   "group": "ad",
+   "name": "Ad, testimonial",
+   "figma": "966:4502",
+   "description": "A portrait over a light band, the quote, the name and role, a button.",
+   "photos": 1,
+   "slots": {
+    "quote": "“This is the only tool that gives me full competitive visibility across every account I manage.”",
+    "name": "Acme customer",
+    "role": "Head of growth, Acme",
+    "cta": "Get 50% off",
+    "url": "{domain}"
+   },
+   "sizes": {
+    "portrait": {
+     "width": 1080,
+     "height": 1350,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "window": [
+        0,
+        330,
+        1080,
+        240
+       ],
+       "b": [
+        -1331,
+        10,
+        2913.3,
+        1821.3
+       ],
+       "shift": 44.2
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        64,
+        64,
+        183,
+        28
+       ],
+       "align": "left"
+      },
+      {
+       "type": "photo",
+       "index": 0,
+       "box": [
+        64,
+        160,
+        464,
+        580
+       ]
+      },
+      {
+       "type": "text",
+       "slot": "quote",
+       "face": "display",
+       "size": 48,
+       "leading": 51.4,
+       "x": 64,
+       "top": 812,
+       "w": 920,
+       "maxLines": 3
+      },
+      {
+       "type": "text",
+       "slot": "name",
+       "face": "medium",
+       "size": 24,
+       "leading": 32,
+       "x": 64,
+       "top": 1010,
+       "w": 600,
+       "maxLines": 1
+      },
+      {
+       "type": "text",
+       "slot": "role",
+       "face": "label",
+       "size": 14,
+       "leading": 14,
+       "x": 64,
+       "top": 1050,
+       "w": 600,
+       "align": "left",
+       "maxLines": 1
+      },
+      {
+       "type": "button",
+       "box": [
+        64,
+        1230,
+        258,
+        56
+       ],
+       "slot": "cta",
+       "size": 20
+      },
+      {
+       "type": "text",
+       "slot": "url",
+       "face": "body",
+       "size": 20,
+       "leading": 26,
+       "x": 616,
+       "top": 1251,
+       "w": 400,
+       "align": "right",
+       "maxLines": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "ad-creator-plan",
+   "group": "ad",
+   "name": "Ad, plan offer",
+   "figma": "966:4541",
+   "description": "The headline over the plan card (name, price, features, button), under the light field.",
+   "slots": {
+    "headline": "Stop screenshotting at midnight.",
+    "plan": "Creator",
+    "price": "$10 for your first month, then $20/month",
+    "features": "AI-powered research across brands, creators, ads, and campaigns | Unlimited board swipe files, alerts, and tracked brands | Unlimited team seats",
+    "cta": "Start Creator for 50% off",
+    "url": "{domain}"
+   },
+   "sizes": {
+    "portrait": {
+     "width": 1080,
+     "height": 1350,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "window": [
+        0,
+        0,
+        1080,
+        612
+       ],
+       "b": [
+        -929,
+        -39,
+        2465.1,
+        1541.1
+       ],
+       "shift": 37.4
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 72,
+       "leading": 77,
+       "x": 160,
+       "top": 353,
+       "w": 760,
+       "align": "center",
+       "maxLines": 2
+      },
+      {
+       "type": "rect",
+       "box": [
+        240,
+        544,
+        600,
+        452
+       ],
+       "fill": "card-fill",
+       "radius": 10
+      },
+      {
+       "type": "text",
+       "slot": "plan",
+       "face": "display",
+       "size": 40,
+       "leading": 40,
+       "x": 288,
+       "top": 592.5,
+       "w": 504,
+       "maxLines": 1
+      },
+      {
+       "type": "text",
+       "slot": "price",
+       "face": "body",
+       "size": 24,
+       "leading": 32,
+       "x": 288,
+       "top": 656,
+       "w": 504,
+       "maxLines": 1
+      },
+      {
+       "type": "list",
+       "slot": "features",
+       "face": "body",
+       "size": 20,
+       "leading": 26,
+       "x": 288,
+       "top": 728,
+       "w": 504,
+       "gap": 24,
+       "maxLines": 2
+      },
+      {
+       "type": "button",
+       "box": [
+        288,
+        892,
+        504,
+        56
+       ],
+       "slot": "cta",
+       "size": 20
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        64,
+        1258,
+        183,
+        28
+       ],
+       "align": "left"
+      },
+      {
+       "type": "text",
+       "slot": "url",
+       "face": "body",
+       "size": 20,
+       "leading": 26,
+       "x": 616,
+       "top": 1263,
+       "w": 400,
+       "align": "right",
+       "maxLines": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "ad-creative-row",
+   "group": "ad",
+   "name": "Ad, row of creatives",
+   "figma": "966:4659",
+   "description": "Six pictures and two light tiles turned in a row, the headline and a button below.",
+   "photos": 6,
+   "slots": {
+    "headline": "Search millions of brands and creators.",
+    "cta": "Explore the product"
+   },
+   "sizes": {
+    "portrait": {
+     "width": 1080,
+     "height": 1350,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "panel",
+       "quad": [
+        [
+         817,
+         150
+        ],
+        [
+         1015.5,
+         209.5
+        ],
+        [
+         1015.5,
+         414.4
+        ],
+        [
+         817,
+         480.5
+        ]
+       ],
+       "index": 0
+      },
+      {
+       "type": "light",
+       "window": [
+        709.364,
+        223.363,
+        199.56,
+        331.45
+       ],
+       "b": [
+        -1156.091,
+        -552.273,
+        1341.639,
+        1349.849
+       ],
+       "shift": 21.533,
+       "clipQuad": [
+        [
+         709.4,
+         223.4
+        ],
+        [
+         908.9,
+         283
+        ],
+        [
+         908.9,
+         488.5
+        ],
+        [
+         709.4,
+         554.8
+        ]
+       ]
+      },
+      {
+       "type": "panel",
+       "quad": [
+        [
+         602,
+         296
+        ],
+        [
+         800.5,
+         355.5
+        ],
+        [
+         800.5,
+         560.4
+        ],
+        [
+         602,
+         626.5
+        ]
+       ],
+       "index": 1
+      },
+      {
+       "type": "panel",
+       "quad": [
+        [
+         494,
+         369
+        ],
+        [
+         692.5,
+         428.5
+        ],
+        [
+         692.5,
+         633.4
+        ],
+        [
+         494,
+         699.5
+        ]
+       ],
+       "index": 2
+      },
+      {
+       "type": "light",
+       "window": [
+        387.818,
+        441.818,
+        199.56,
+        331.45
+       ],
+       "b": [
+        -1065.274,
+        -576.818,
+        1341.639,
+        1349.849
+       ],
+       "shift": 21.533,
+       "clipQuad": [
+        [
+         387.8,
+         441.8
+        ],
+        [
+         587.4,
+         501.5
+        ],
+        [
+         587.4,
+         707
+        ],
+        [
+         387.8,
+         773.3
+        ]
+       ]
+      },
+      {
+       "type": "panel",
+       "quad": [
+        [
+         279,
+         514
+        ],
+        [
+         477.5,
+         573.5
+        ],
+        [
+         477.5,
+         778.4
+        ],
+        [
+         279,
+         844.5
+        ]
+       ],
+       "index": 3
+      },
+      {
+       "type": "panel",
+       "quad": [
+        [
+         172,
+         587
+        ],
+        [
+         370.5,
+         646.5
+        ],
+        [
+         370.5,
+         851.4
+        ],
+        [
+         172,
+         917.5
+        ]
+       ],
+       "index": 4
+      },
+      {
+       "type": "panel",
+       "quad": [
+        [
+         64,
+         660
+        ],
+        [
+         262.5,
+         719.5
+        ],
+        [
+         262.5,
+         924.4
+        ],
+        [
+         64,
+         990.5
+        ]
+       ],
+       "index": 5
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        64,
+        64,
+        183,
+        28
+       ],
+       "align": "left"
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 48,
+       "leading": 51.6,
+       "x": 64,
+       "top": 1202,
+       "w": 468,
+       "maxLines": 2
+      },
+      {
+       "type": "button",
+       "box": [
+        775,
+        1230,
+        241,
+        56
+       ],
+       "slot": "cta",
+       "size": 20
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "banner-tagline",
+   "group": "banner",
+   "name": "Banner, tagline",
+   "figma": "966:4683, 973:3, 973:4",
+   "description": "The tagline on the right, the light flowing in from the left.",
+   "slots": {
+    "headline": "{tagline}"
+   },
+   "sizes": {
+    "x": {
+     "width": 1500,
+     "height": 500,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "b": [
+        -20,
+        -661,
+        2913,
+        1821
+       ],
+       "shift": 34
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 56,
+       "leading": 56,
+       "x": 1002,
+       "top": 203,
+       "w": 450,
+       "align": "right",
+       "maxLines": 2
+      }
+     ]
+    },
+    "linkedin": {
+     "width": 1584,
+     "height": 396,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "b": [
+        -16,
+        -523,
+        2307,
+        1442
+       ],
+       "shift": 34
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 48,
+       "leading": 48,
+       "x": 1150,
+       "top": 158,
+       "w": 386,
+       "align": "right",
+       "maxLines": 2
+      }
+     ]
+    },
+    "linkedin-company": {
+     "width": 1128,
+     "height": 191,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "b": [
+        -8,
+        -252,
+        1113,
+        696
+       ],
+       "shift": 34
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 28,
+       "leading": 28,
+       "x": 672,
+       "top": 86,
+       "w": 424,
+       "align": "right",
+       "maxLines": 1
+      }
+     ]
+    }
+   },
+   "note": "The Figma background light is a vector not among the exports; this window onto the brand heat map keeps its composition."
+  },
+  {
+   "id": "banner-creative-row",
+   "group": "banner",
+   "name": "Banner, row of creatives",
+   "figma": "966:4690, 973:17, 973:18",
+   "description": "Six pictures in a row across a diagonal light.",
+   "photos": 6,
+   "slots": {},
+   "sizes": {
+    "x": {
+     "width": 1500,
+     "height": 500,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "b": [
+        -250,
+        -510,
+        4661,
+        2914
+       ],
+       "shift": 34
+      },
+      {
+       "type": "photo",
+       "index": 0,
+       "box": [
+        350,
+        175,
+        120,
+        150
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 1,
+       "box": [
+        486,
+        175,
+        120,
+        150
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 2,
+       "box": [
+        622,
+        175,
+        120,
+        150
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 3,
+       "box": [
+        758,
+        175,
+        120,
+        150
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 4,
+       "box": [
+        894,
+        175,
+        120,
+        150
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 5,
+       "box": [
+        1030,
+        175,
+        120,
+        150
+       ]
+      }
+     ]
+    },
+    "linkedin": {
+     "width": 1584,
+     "height": 396,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "b": [
+        -198,
+        -404,
+        3692,
+        2308
+       ],
+       "shift": 34
+      },
+      {
+       "type": "photo",
+       "index": 0,
+       "box": [
+        440,
+        133,
+        104,
+        130
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 1,
+       "box": [
+        560,
+        133,
+        104,
+        130
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 2,
+       "box": [
+        680,
+        133,
+        104,
+        130
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 3,
+       "box": [
+        800,
+        133,
+        104,
+        130
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 4,
+       "box": [
+        920,
+        133,
+        104,
+        130
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 5,
+       "box": [
+        1040,
+        133,
+        104,
+        130
+       ]
+      }
+     ]
+    },
+    "linkedin-company": {
+     "width": 1128,
+     "height": 191,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "b": [
+        -96,
+        -195,
+        1781,
+        1113
+       ],
+       "shift": 34
+      },
+      {
+       "type": "photo",
+       "index": 0,
+       "box": [
+        342,
+        56,
+        64,
+        80
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 1,
+       "box": [
+        418,
+        56,
+        64,
+        80
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 2,
+       "box": [
+        494,
+        56,
+        64,
+        80
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 3,
+       "box": [
+        570,
+        56,
+        64,
+        80
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 4,
+       "box": [
+        646,
+        56,
+        64,
+        80
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 5,
+       "box": [
+        722,
+        56,
+        64,
+        80
+       ]
+      }
+     ]
+    }
+   },
+   "note": "The Figma background light is a vector not among the exports; this window onto the brand heat map keeps its composition."
+  },
+  {
+   "id": "banner-light-close-up",
+   "group": "banner",
+   "name": "Banner, light close-up",
+   "figma": "966:4702, 973:41, 973:42",
+   "description": "A close-up of the light and the domain.",
+   "slots": {
+    "url": "{domain}"
+   },
+   "sizes": {
+    "x": {
+     "width": 1500,
+     "height": 500,
+     "layers": [
+      {
+       "type": "light",
+       "b": [
+        -1540,
+        -422,
+        5378.4,
+        3362.4
+       ],
+       "shift": 81.6
+      },
+      {
+       "type": "text",
+       "slot": "url",
+       "face": "body",
+       "size": 18,
+       "leading": 24,
+       "x": 1152,
+       "top": 439,
+       "w": 300,
+       "align": "right",
+       "maxLines": 1
+      }
+     ]
+    },
+    "linkedin": {
+     "width": 1584,
+     "height": 396,
+     "layers": [
+      {
+       "type": "light",
+       "b": [
+        -1498,
+        -474,
+        5378.4,
+        3362.4
+       ],
+       "shift": 81.6
+      },
+      {
+       "type": "text",
+       "slot": "url",
+       "face": "body",
+       "size": 18,
+       "leading": 24,
+       "x": 1236,
+       "top": 335,
+       "w": 300,
+       "align": "right",
+       "maxLines": 1
+      }
+     ]
+    },
+    "linkedin-company": {
+     "width": 1128,
+     "height": 191,
+     "layers": [
+      {
+       "type": "light",
+       "b": [
+        -962,
+        -352,
+        3585.6,
+        2241.6
+       ],
+       "shift": 54.4
+      },
+      {
+       "type": "text",
+       "slot": "url",
+       "face": "body",
+       "size": 14,
+       "leading": 18,
+       "x": 896,
+       "top": 149,
+       "w": 200,
+       "align": "right",
+       "maxLines": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "banner-tagline-creatives",
+   "group": "banner",
+   "name": "Banner, tagline and creatives",
+   "figma": "1029:2, 1029:15, 1029:28",
+   "description": "Six pictures on the left over the light, the tagline on the right.",
+   "photos": 6,
+   "slots": {
+    "headline": "{tagline}"
+   },
+   "sizes": {
+    "x": {
+     "width": 1500,
+     "height": 500,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "b": [
+        -20,
+        -661,
+        2913,
+        1821
+       ],
+       "shift": 34
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 56,
+       "leading": 56,
+       "x": 1002,
+       "top": 203,
+       "w": 450,
+       "align": "right",
+       "maxLines": 2
+      },
+      {
+       "type": "photo",
+       "index": 0,
+       "box": [
+        48,
+        190,
+        96,
+        120
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 1,
+       "box": [
+        156,
+        190,
+        96,
+        120
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 2,
+       "box": [
+        264,
+        190,
+        96,
+        120
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 3,
+       "box": [
+        372,
+        190,
+        96,
+        120
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 4,
+       "box": [
+        480,
+        190,
+        96,
+        120
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 5,
+       "box": [
+        588,
+        190,
+        96,
+        120
+       ]
+      }
+     ]
+    },
+    "linkedin": {
+     "width": 1584,
+     "height": 396,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "b": [
+        -16,
+        -523,
+        2307,
+        1442
+       ],
+       "shift": 34
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 48,
+       "leading": 48,
+       "x": 1150,
+       "top": 158,
+       "w": 386,
+       "align": "right",
+       "maxLines": 2
+      },
+      {
+       "type": "photo",
+       "index": 0,
+       "box": [
+        48,
+        133,
+        104,
+        130
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 1,
+       "box": [
+        168,
+        133,
+        104,
+        130
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 2,
+       "box": [
+        288,
+        133,
+        104,
+        130
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 3,
+       "box": [
+        408,
+        133,
+        104,
+        130
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 4,
+       "box": [
+        528,
+        133,
+        104,
+        130
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 5,
+       "box": [
+        648,
+        133,
+        104,
+        130
+       ]
+      }
+     ]
+    },
+    "linkedin-company": {
+     "width": 1128,
+     "height": 191,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "b": [
+        -8,
+        -252,
+        1113,
+        696
+       ],
+       "shift": 34
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 28,
+       "leading": 28,
+       "x": 672,
+       "top": 86,
+       "w": 424,
+       "align": "right",
+       "maxLines": 1
+      },
+      {
+       "type": "photo",
+       "index": 0,
+       "box": [
+        32,
+        66,
+        48,
+        60
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 1,
+       "box": [
+        88,
+        66,
+        48,
+        60
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 2,
+       "box": [
+        144,
+        66,
+        48,
+        60
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 3,
+       "box": [
+        200,
+        66,
+        48,
+        60
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 4,
+       "box": [
+        256,
+        66,
+        48,
+        60
+       ]
+      },
+      {
+       "type": "photo",
+       "index": 5,
+       "box": [
+        312,
+        66,
+        48,
+        60
+       ]
+      }
+     ]
+    }
+   },
+   "note": "The Figma background light is a vector not among the exports; this window onto the brand heat map keeps its composition."
+  },
+  {
+   "id": "avatar",
+   "group": "logo",
+   "name": "Social avatar",
+   "figma": "975:580",
+   "description": "The logomark in Black on White, for profile pictures (crops to a circle).",
+   "slots": {},
+   "sizes": {
+    "avatar": {
+     "width": 400,
+     "height": 400,
+     "ground": "white",
+     "layers": [
+      {
+       "type": "logo",
+       "lockup": "mark",
+       "color": "black",
+       "box": [
+        100,
+        150,
+        200,
+        100
+       ],
+       "align": "center"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "logo-background",
+   "group": "logo",
+   "name": "Logo background",
+   "figma": "975:553 to 975:565",
+   "description": "The logomark on an approved background: Black, White, Blue, Red, Magenta (White mark), Yellow, Green (Black mark).",
+   "slots": {},
+   "variants": {
+    "black": {
+     "ground": "black",
+     "mark": "white"
+    },
+    "white": {
+     "ground": "white",
+     "mark": "black"
+    },
+    "blue": {
+     "ground": "blue",
+     "mark": "white"
+    },
+    "red": {
+     "ground": "red",
+     "mark": "white"
+    },
+    "magenta": {
+     "ground": "magenta",
+     "mark": "white"
+    },
+    "yellow": {
+     "ground": "yellow",
+     "mark": "black"
+    },
+    "green": {
+     "ground": "green",
+     "mark": "black"
+    }
+   },
+   "sizes": {
+    "tile": {
+     "width": 600,
+     "height": 600,
+     "ground": "$ground",
+     "layers": [
+      {
+       "type": "logo",
+       "lockup": "mark",
+       "color": "$mark",
+       "box": [
+        180,
+        241,
+        240,
+        119
+       ],
+       "align": "center"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "logo-background-3d",
+   "group": "logo",
+   "name": "3D logomark background",
+   "figma": "975:568, 975:570",
+   "description": "The 3D logomark on Black (White mark) or White (Black mark).",
+   "slots": {},
+   "variants": {
+    "black": {
+     "ground": "black",
+     "mark": "white"
+    },
+    "white": {
+     "ground": "white",
+     "mark": "black"
+    }
+   },
+   "sizes": {
+    "tile": {
+     "width": 600,
+     "height": 600,
+     "ground": "$ground",
+     "layers": [
+      {
+       "type": "logo",
+       "lockup": "mark-3d",
+       "color": "$mark",
+       "box": [
+        140,
+        180,
+        321,
+        240
+       ],
+       "align": "center"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "logo-primary",
+   "group": "logo",
+   "name": "Primary logo background",
+   "figma": "975:583",
+   "description": "The logomark in White on Black at 1920 by 1080.",
+   "slots": {},
+   "sizes": {
+    "landscape": {
+     "width": 1920,
+     "height": 1080,
+     "ground": "black",
+     "layers": [
+      {
+       "type": "logo",
+       "lockup": "mark",
+       "color": "white",
+       "box": [
+        720,
+        421,
+        480,
+        239
+       ],
+       "align": "center"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "og",
+   "group": "derived",
+   "name": "Open Graph card",
+   "figma": "derived from Post, headline over a band (966:4489) at 1200 by 630",
+   "description": "Lockup and domain on top, the headline, a light band across the foot.",
+   "slots": {
+    "headline": "{tagline}",
+    "url": "{domain}"
+   },
+   "sizes": {
+    "og": {
+     "width": 1200,
+     "height": 630,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "window": [
+        0,
+        452,
+        1200,
+        178
+       ],
+       "b": [
+        -1479,
+        -33.3,
+        3237,
+        2023.7
+       ],
+       "shift": 49.1
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        64,
+        64,
+        183,
+        28
+       ],
+       "align": "left"
+      },
+      {
+       "type": "text",
+       "slot": "url",
+       "face": "body",
+       "size": 20,
+       "leading": 26,
+       "x": 736,
+       "top": 69,
+       "w": 400,
+       "align": "right",
+       "maxLines": 1
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 72,
+       "leading": 77,
+       "x": 64,
+       "top": 192,
+       "w": 900,
+       "maxLines": 3
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "og-offer",
+   "group": "derived",
+   "name": "Open Graph offer",
+   "figma": "derived from Ad, plan offer (966:4541) at 1200 by 630",
+   "description": "The light field above a centered headline and button, lockup and domain at the foot.",
+   "slots": {
+    "headline": "Stop screenshotting at midnight.",
+    "cta": "Start Creator for 50% off",
+    "url": "{domain}"
+   },
+   "sizes": {
+    "og": {
+     "width": 1200,
+     "height": 630,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "window": [
+        0,
+        0,
+        1200,
+        400
+       ],
+       "b": [
+        -1032.2,
+        -43.3,
+        2739,
+        1712.3
+       ],
+       "shift": 41.6
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 64,
+       "leading": 68.5,
+       "x": 160,
+       "top": 250,
+       "w": 880,
+       "align": "center",
+       "maxLines": 2
+      },
+      {
+       "type": "button",
+       "box": [
+        440,
+        430,
+        320,
+        56
+       ],
+       "slot": "cta",
+       "size": 20
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        64,
+        538,
+        183,
+        28
+       ],
+       "align": "left"
+      },
+      {
+       "type": "text",
+       "slot": "url",
+       "face": "body",
+       "size": 20,
+       "leading": 26,
+       "x": 736,
+       "top": 543,
+       "w": 400,
+       "align": "right",
+       "maxLines": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "story",
+   "group": "derived",
+   "name": "Story",
+   "figma": "derived from Ad, one photo (966:4637) at 1080 by 1920",
+   "description": "The lit sea at the top, headline, line and button inside the story safe area (250px top and bottom).",
+   "slots": {
+    "headline": "{tagline}",
+    "body": "AI search across millions of creatives. Ask a question and get instant, structured results.",
+    "cta": "Get 50% off",
+    "url": "{domain}"
+   },
+   "sizes": {
+    "story": {
+     "width": 1080,
+     "height": 1920,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "window": [
+        0,
+        0,
+        1080,
+        810
+       ],
+       "b": [
+        -2098.636,
+        -184.092,
+        3300.382,
+        2063.291
+       ],
+       "shift": 50.073
+      },
+      {
+       "type": "light",
+       "window": [
+        0,
+        419.728,
+        1080,
+        419.727
+       ],
+       "b": [
+        -3316.091,
+        -493.364,
+        4400.509,
+        2751.055
+       ],
+       "shift": 66.764
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        64,
+        250,
+        183,
+        28
+       ],
+       "align": "left"
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 72,
+       "leading": 77,
+       "x": 64,
+       "top": 1000,
+       "w": 952,
+       "maxLines": 3
+      },
+      {
+       "type": "text",
+       "slot": "body",
+       "face": "body",
+       "size": 24,
+       "leading": 32,
+       "x": 64,
+       "top": 1220,
+       "w": 760,
+       "maxLines": 3,
+       "after": {
+        "slot": "headline",
+        "gap": 56
+       }
+      },
+      {
+       "type": "button",
+       "box": [
+        64,
+        1614,
+        258,
+        56
+       ],
+       "slot": "cta",
+       "size": 20
+      },
+      {
+       "type": "text",
+       "slot": "url",
+       "face": "body",
+       "size": 20,
+       "leading": 26,
+       "x": 616,
+       "top": 1635,
+       "w": 400,
+       "align": "right",
+       "maxLines": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "story-offer",
+   "group": "derived",
+   "name": "Story offer",
+   "figma": "derived from Ad, plan offer (966:4541) at 1080 by 1920",
+   "description": "The plan ad, centered in the story safe area, under a taller light field.",
+   "slots": {
+    "headline": "Stop screenshotting at midnight.",
+    "plan": "Creator",
+    "price": "$10 for your first month, then $20/month",
+    "features": "AI-powered research across brands, creators, ads, and campaigns | Unlimited board swipe files, alerts, and tracked brands | Unlimited team seats",
+    "cta": "Start Creator for 50% off",
+    "url": "{domain}"
+   },
+   "sizes": {
+    "story": {
+     "width": 1080,
+     "height": 1920,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "window": [
+        0,
+        0,
+        1080,
+        900
+       ],
+       "b": [
+        -1366,
+        -57.3,
+        3625.1,
+        2266.3
+       ],
+       "shift": 55
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 72,
+       "leading": 77,
+       "x": 160,
+       "top": 638,
+       "w": 760,
+       "align": "center",
+       "maxLines": 2
+      },
+      {
+       "type": "rect",
+       "box": [
+        240,
+        829,
+        600,
+        452
+       ],
+       "fill": "card-fill",
+       "radius": 10
+      },
+      {
+       "type": "text",
+       "slot": "plan",
+       "face": "display",
+       "size": 40,
+       "leading": 40,
+       "x": 288,
+       "top": 877.5,
+       "w": 504,
+       "maxLines": 1
+      },
+      {
+       "type": "text",
+       "slot": "price",
+       "face": "body",
+       "size": 24,
+       "leading": 32,
+       "x": 288,
+       "top": 941,
+       "w": 504,
+       "maxLines": 1
+      },
+      {
+       "type": "list",
+       "slot": "features",
+       "face": "body",
+       "size": 20,
+       "leading": 26,
+       "x": 288,
+       "top": 1013,
+       "w": 504,
+       "gap": 24,
+       "maxLines": 2
+      },
+      {
+       "type": "button",
+       "box": [
+        288,
+        1177,
+        504,
+        56
+       ],
+       "slot": "cta",
+       "size": 20
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        64,
+        1614,
+        183,
+        28
+       ],
+       "align": "left"
+      },
+      {
+       "type": "text",
+       "slot": "url",
+       "face": "body",
+       "size": 20,
+       "leading": 26,
+       "x": 616,
+       "top": 1619,
+       "w": 400,
+       "align": "right",
+       "maxLines": 1
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

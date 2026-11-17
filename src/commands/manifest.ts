@@ -1,8 +1,14 @@
 import { brand } from '../lib/brand.js';
 import { logos, principleSurfaces, tokenRecords, BRAND_SECTIONS, SURFACE_IDS } from '../brand/system.js';
 import { componentCatalog } from '../component/emit.js';
-import { catalog } from '../image/spec.js';
-import { videoCatalog } from '../video/spec.js';
+import { catalogOf } from '../assets/templates.js';
+import { merchCatalog } from '../assets/merch.js';
+import { videoCatalog } from './video.js';
+import { IMAGE_FLAGS } from './image.js';
+import { DECK_FLAGS } from './deck.js';
+import { VIDEO_FLAGS } from './video.js';
+import { MERCH_FLAGS } from './merch.js';
+import { slotNames } from '../assets/templates.js';
 
 // The one document an agent reads first. It names every command, template, size, component, token and rule.
 // Commands reject anything that is not in here.
@@ -13,8 +19,10 @@ const COMMANDS = [
 	{ name: 'brand', summary: 'Tokens (color, type, spacing, radii, motion), fonts, logos and voice.', flags: ['section', 'token', 'help'] },
 	{ name: 'principles', summary: 'Product and website rules, with do and do-not lists. Voice is included.', flags: ['surface', 'help'] },
 	{ name: 'component', summary: 'list, inspect and emit React for a real component, including props and states.', flags: ['group', 'part', 'state', 'prop', 'source', 'help'] },
-	{ name: 'image', summary: 'Open Graph and social stills (PNG and SVG).', flags: ['title', 'text', 'subtitle', 'eyebrow', 'by', 'author', 'image', 'template', 'size', 'ground', 'out', 'format', 'list', 'help'] },
-	{ name: 'video', summary: 'Short Motion JPEG MP4 clips from the tokens, faces and logos.', flags: ['title', 'text', 'subtitle', 'eyebrow', 'template', 'size', 'ground', 'out', 'list', 'help'] },
+	{ name: 'image', summary: 'Posts, ads, banners, avatar, logo backgrounds, Open Graph and story images (PNG and SVG) from the brand assets layouts.', get flags() { return [...IMAGE_FLAGS, ...slotNames('image'), 'help']; } },
+	{ name: 'deck', summary: 'Pitch deck slides at 1920 by 1080: PNG per slide and one PDF.', get flags() { return [...DECK_FLAGS, ...slotNames('deck'), 'help']; } },
+	{ name: 'video', summary: 'Seamless loops of the brand light: MP4 and WebM through ffmpeg, else PNG frames and a Motion JPEG MP4.', flags: [...VIDEO_FLAGS, 'help'] },
+	{ name: 'merch', summary: 'Merch print files: SVG at physical size and PNG at 300 dpi with bleed and safe area.', flags: [...MERCH_FLAGS, 'help'] },
 	{ name: 'light', summary: 'The brand light as SVG or PNG, seeded: windows onto the brand heat map or a generated one.', flags: ['variant', 'seed', 'source', 'width', 'height', 'out', 'format', 'ground', 'list', 'help'] },
 	{ name: 'ascii', summary: 'The ASCII texture as SVG or PNG, seeded.', flags: ['seed', 'width', 'height', 'density', 'out', 'format', 'ground', 'help'] },
 	{ name: 'list', summary: 'Every library item. In JSON, group is the label and groupId is the id (ui, product, site, visuals).', flags: [] },
@@ -36,8 +44,10 @@ export function manifestHelp(): string {
 export async function manifest(): Promise<Record<string, unknown>> {
 	const components = await componentCatalog();
 	const principles = principleSurfaces();
-	const image = catalog();
+	const image = { templates: catalogOf('image') };
+	const deck = { slides: catalogOf('deck') };
 	const video = videoCatalog();
+	const merch = { items: merchCatalog() };
 	const logo = logos();
 	const rules = (['product', 'website'] as const).flatMap((id) => {
 		const surface = principles[id];
@@ -64,15 +74,19 @@ export async function manifest(): Promise<Record<string, unknown>> {
 		groups: Object.entries(brand().groups).map(([id, label]) => ({ id, label })),
 		components: components.map((item) => ({ name: item.name, group: item.group, part: item.part, parts: item.parts, states: item.states, examples: item.examples, description: item.description, use_for: item.use_for, never: item.never })),
 		image,
+		deck,
 		video,
+		merch,
 		gaps: [...logo.missing, principles.website.gap].filter((gap): gap is string => Boolean(gap)),
 	};
 }
 
 export function formatManifest(doc: Record<string, unknown>): string {
 	const commands = doc.commands as { name: string; summary: string }[];
-	const image = doc.image as { templates: { id: string }[]; sizes: { id: string; width: number; height: number }[] };
-	const video = doc.video as { templates: { id: string }[]; sizes: { id: string; width: number; height: number }[]; fps: number; frames: number; codec: string };
+	const image = doc.image as { templates: { id: string; sizes: { id: string; width: number; height: number }[] }[] };
+	const deck = doc.deck as { slides: { id: string }[] };
+	const video = doc.video as { templates: { id: string }[]; sizes: { id: string; width: number; height: number }[]; fps: number; seconds: number };
+	const merch = doc.merch as { items: { id: string; trim: { width: number; height: number } }[] };
 	const components = doc.components as { name: string; group: string }[];
 	const rules = (doc.principles as { rules: { surface: string; id: string }[] }).rules;
 	const gaps = doc.gaps as string[];
@@ -86,11 +100,11 @@ export function formatManifest(doc: Record<string, unknown>): string {
 		`Brand sections: ${brandInfo.sections.join(', ')} (${brandInfo.tokens.length} tokens in --json)`,
 		`Principles: ${rules.map((rule) => `${rule.surface}:${rule.id}`).join(', ')}`,
 		'',
-		`Image templates: ${image.templates.map((template) => template.id).join(', ')}`,
-		`Image sizes: ${image.sizes.map((size) => `${size.id} ${size.width}x${size.height}`).join(', ')}`,
+		`Image templates: ${image.templates.map((t) => `${t.id} (${t.sizes.map((s) => `${s.width}x${s.height}`).join(', ')})`).join(', ')}`,
+		`Deck slides: ${deck.slides.map((s) => s.id).join(', ')}`,
 		`Video templates: ${video.templates.map((template) => template.id).join(', ')}`,
-		`Video sizes: ${video.sizes.map((size) => `${size.id} ${size.width}x${size.height}`).join(', ')}`,
-		`Video: ${video.frames} frames at ${video.fps} fps, ${video.codec}.`,
+		`Video sizes: ${video.sizes.map((size) => `${size.id} ${size.width}x${size.height}`).join(', ')}; ${video.seconds} s at ${video.fps} fps`,
+		`Merch: ${merch.items.map((i) => `${i.id} ${i.trim.width}x${i.trim.height} in`).join(', ')}`,
 		'',
 		`Components (${components.length})`,
 		...components.map((item) => `  ${item.name.padEnd(22)} ${item.group}`),
