@@ -1,0 +1,23 @@
+<!-- Pick a category to search in: type to narrow the list, arrows to move, Enter to pick. Counts are creatives tracked. -->
+<div class="flex h-96 w-72 max-w-full flex-col gap-2">
+  <label for="combobox-category" class="type-label text-fg-soft">Category</label>
+  <spyglass-combobox id="combobox-category" value="" label="Category" placeholder="Choose a category" filter-label="Filter categories" match-width></spyglass-combobox>
+  <p id="combobox-category-note" class="type-caption text-fg-muted" aria-live="polite">Search one category at a time.</p>
+</div>
+<script type="module">
+  await customElements.whenDefined('spyglass-combobox')
+  const categories = [
+    { value: 'skincare', label: 'Skincare', hint: '12.4k' },
+    { value: 'supplements', label: 'Supplements', hint: '8.1k' },
+    { value: 'apparel', label: 'Apparel', hint: '6.9k' },
+    { value: 'beverages', label: 'Beverages', hint: '5.2k' },
+    { value: 'fitness', label: 'Fitness', hint: '4.7k' },
+    { value: 'home', label: 'Home', hint: '3.3k' },
+    { value: 'pets', label: 'Pets', hint: '2.8k' },
+  ]
+  const box = document.getElementById('combobox-category')
+  box.options = categories
+  box.addEventListener('change', () => {
+    document.getElementById('combobox-category-note').textContent = `Searching ${categories.find((c) => c.value === box.value)?.label} creatives.`
+  })
+</script>
