@@ -32,8 +32,8 @@ export function MenuItem({ href, current, danger, disabled, keepOpen, onSelect, 
     onSelect?.()
     if (!keepOpen) close()
   }
-  const shared = { 'data-ds': 'menu-item', role, 'aria-checked': checked, className: className ? `${MENU_ITEM} ${className}` : MENU_ITEM, 'aria-current': current ? 'true' as const : undefined, 'data-danger': danger || undefined, onClick: choose }
-  return href ? <a href={href} {...shared}>{children}</a> : <button type="button" disabled={disabled} {...shared}>{children}</button>
+  const shared = { role, 'aria-checked': checked, className: className ? `${MENU_ITEM} ${className}` : MENU_ITEM, 'aria-current': current ? 'true' as const : undefined, 'data-danger': danger || undefined, onClick: choose }
+  return href ? <a data-ds="menu-item" href={href} {...shared}>{children}</a> : <button data-ds="menu-item" type="button" disabled={disabled} {...shared}>{children}</button>
 }
 
 /** shadcn's name for it. */

@@ -4,12 +4,12 @@ import { useMenu } from '@/react/hooks/useMenu'
 import { cn } from '@/react/lib/cn'
 
 // shadcn's dropdown menu in the brand: a button that opens a short list of actions or choices on the #171717 overlay
-// surface, a neutral hairline, the 8px corner, no shadow, 4px inside; rows are DropdownMenuItem, with
-// DropdownMenuLabel and DropdownMenuSeparator between groups. It comes in over 200ms (a 4px drop and a touch of scale
-// from its trigger's edge, ease-out), leaves at once, and does not animate when opened from the keyboard, which is
-// how menus are opened most. Arrows, Home, End, Escape, Tab and a click outside are handled (useMenu). The trigger's
-// content is `trigger` (a node, or a function of `open`), drawn as a small secondary button unless `triggerClass`
-// says otherwise. `defaultOpen` opens it with the page; `ref` gets { open, show, close }; `onOpenChange` hears it.
+// surface, a neutral hairline, the 8px corner, no shadow, 4px inside; rows are MenuItem (shadcn's DropdownMenuItem),
+// with MenuLabel and MenuSeparator between groups. It comes in over 200ms (a 4px drop and a touch of scale from its
+// trigger's edge, ease-out), leaves at once, and does not animate when opened from the keyboard, which is how menus
+// are opened most. Arrows, Home, End, Escape, Tab and a click outside are handled (useMenu). The trigger's content is
+// `trigger` (a node, or a function of `open`), drawn as a small secondary button unless `triggerClass` says
+// otherwise. `defaultOpen` opens it with the page; `ref` gets { open, show, close }; `onOpenChange` hears it.
 export const MenuClose = createContext<() => void>(() => {})
 
 export interface DropdownMenuHandle { open: boolean, show: (focus?: 'first' | 'last' | 'none') => void, close: (refocus?: boolean) => void }
@@ -33,8 +33,6 @@ export interface DropdownMenuProps {
   /** Opens with the page. */
   defaultOpen?: boolean
   onOpenChange?: (open: boolean) => void
-  /** The root's data-ds, for a component built on it. */
-  'data-ds'?: string
   className?: string
   children?: ReactNode
   ref?: Ref<DropdownMenuHandle>
@@ -42,7 +40,7 @@ export interface DropdownMenuProps {
 
 export const MENU_TRIGGER = 'inline-flex h-control-sm cursor-pointer items-center gap-1.5 rounded-control bg-action-secondary px-3 type-ui-strong text-action-secondary-fg transition-[background-color] duration-150 ease-standard hover:bg-action-secondary-hover aria-expanded:bg-action-secondary-hover max-md:h-control-touch'
 
-export function DropdownMenu({ label, up, align = 'start', width = '240px', offset = '0px', triggerClass, triggerLabel, trigger: triggerContent, defaultOpen, onOpenChange, 'data-ds': ds = 'dropdown-menu', className, children, ref }: DropdownMenuProps) {
+export function DropdownMenu({ label, up, align = 'start', width = '240px', offset = '0px', triggerClass, triggerLabel, trigger: triggerContent, defaultOpen, onOpenChange, className, children, ref }: DropdownMenuProps) {
   const { open, root, trigger, show, close, toggle, onTriggerKey, onMenuKey } = useMenu(defaultOpen)
   const report = useRef(onOpenChange)
   report.current = onOpenChange
@@ -57,7 +55,7 @@ export function DropdownMenu({ label, up, align = 'start', width = '240px', offs
   return (
     <MenuClose.Provider value={() => close(true)}>
       <style href="ds-dropdown-menu" precedence="ds">{css}</style>
-      <div data-ds={ds} ref={root} className={cn('relative inline-block', className)}>
+      <div data-ds="dropdown-menu" ref={root} className={cn('relative inline-block', className)}>
         <button
           ref={trigger}
           type="button"
