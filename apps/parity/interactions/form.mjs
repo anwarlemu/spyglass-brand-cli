@@ -1,0 +1,18 @@
+export default [
+	{ click: 'role=button[name="Create key"]', wait: 400, shot: true, label: 'sending it empty shows the errors and focuses the first' },
+	{ type: 'my key', wait: 300, shot: true, label: 'the error follows the value' },
+	{ key: 'Tab', wait: 200, label: 'Tab to the namespace' },
+	{ type: 'c', wait: 300, shot: true, label: 'a namespace clears its error' },
+	{ click: 'role=textbox[name="Name"]', key: 'Meta+a', wait: 200, label: 'select the name' },
+	{ type: 'taken', wait: 200, label: 'a name the server refuses' },
+	{ key: 'Enter', wait: 300, shot: true, label: 'Enter sends it: Creating' },
+	{ wait: 900, shot: true, label: 'the server answer shows above the actions' },
+	{ click: 'role=textbox[name="Name"]', key: 'Meta+a', wait: 200, label: 'select the name again' },
+	{ type: 'acme-agent', wait: 200, label: 'a good name' },
+	{ click: 'role=button[name="Clear"]', wait: 400, shot: true, label: 'Clear empties it and hides the errors' },
+	{ click: 'role=textbox[name="Name"]', type: 'acme-agent', wait: 200, label: 'a name again' },
+	{ click: 'role=combobox[name="Namespace"]', type: 's', wait: 200, label: 'a namespace' },
+	{ click: 'text=Read only', wait: 200, label: 'the checkbox' },
+	{ click: 'role=button[name=/Create key/]', wait: 1200, shot: true, label: 'it is created' },
+	{ click: 'role=button[name="Create another"]', wait: 400, shot: true, label: 'back to an empty form' },
+]

@@ -1,0 +1,16 @@
+export default [
+	{ click: 'role=button[name="Send request"]', wait: 400, shot: true, label: 'an empty required field stops the send and takes focus' },
+	{ type: 'Acme', wait: 200, label: 'the company' },
+	{ key: 'Tab', wait: 200, label: 'Tab to the team size' },
+	{ type: '1', wait: 300, label: 'a team size' },
+	{ key: 'Tab', wait: 200, label: 'Tab to the use case' },
+	{ type: 'Support agents for our help center.', wait: 300, shot: true, label: 'the use case' },
+	{ key: 'Tab', wait: 200, label: 'Tab to the send button' },
+	{ key: 'Enter', wait: 200, shot: true, label: 'Enter sends: Sending' },
+	{ wait: 800, shot: true, label: 'the sent state' },
+	{ hover: 'role=button[name="Change your answers"]', wait: 400, shot: true, label: 'hover darkens the underline' },
+	{ click: 'role=button[name="Change your answers"]', wait: 400, shot: true, label: 'the form again, with the answers kept' },
+	{ click: 'role=textbox[name="Name"]', key: 'Meta+a', wait: 200, label: 'select the name' },
+	{ key: 'Backspace', wait: 200, label: 'empty it' },
+	{ key: 'Enter', wait: 400, shot: true, label: 'Enter in the empty name stops at it' },
+]

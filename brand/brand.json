@@ -1,0 +1,54 @@
+{
+  "name": "Spyglass",
+  "bin": "spyglass-ds",
+  "source": "github:anwarlemu/spyglass-brand-cli#release",
+  "registryUrl": "https://spyglass-ds.vercel.app",
+  "site": "https://spyglass.so",
+  "domain": "spyglass.so",
+  "framework": "react",
+  "elementPrefix": "spyglass",
+  "assetBase": "/spyglass-ds",
+  "tagline": "The only creative search engine.",
+  "fonts": {
+    "files": [
+      { "family": "Funnel Display", "weight": 400, "file": "FunnelDisplay-400.woff2", "role": "heading", "license": "licenses/FunnelDisplay-OFL.txt" },
+      { "family": "DM Sans", "weight": 400, "file": "DMSans-400.woff2", "role": "text", "license": "licenses/DMSans-OFL.txt" },
+      { "family": "DM Sans", "weight": 500, "file": "DMSans-500.woff2", "role": "text", "license": "licenses/DMSans-OFL.txt" },
+      { "family": "Geist Mono", "weight": 400, "file": "GeistMono-400.woff2", "role": "code", "license": "licenses/GeistMono-OFL.txt" }
+    ],
+    "css": "https://fonts.googleapis.com/css2?family=Funnel+Display&family=DM+Sans:wght@400;500&family=Geist+Mono&display=swap"
+  },
+  "icons": {
+    "name": "Lucide",
+    "packages": ["lucide-react", "lucide", "lucide-vue-next", "@lucide/svelte", "lucide-svelte", "lucide-angular", "lucide-solid", "lucide-preact"],
+    "stroke": 1.5
+  },
+  "type": {
+    "caps": true,
+    "bold": false
+  },
+  "light": {
+    "layers": [
+      { "name": "Light B", "token": "--ds-color-light-b", "color": "#1B1DFF", "opacity": 0.782, "shift": 0 },
+      { "name": "Light G", "token": "--ds-color-light-g", "color": "#00FF29", "opacity": 0.782, "shift": 1 },
+      { "name": "Light R", "token": "--ds-color-light-r", "color": "#DF0000", "opacity": 0.85, "shift": 2 }
+    ],
+    "offset": 0.0152,
+    "blur": 0.00265,
+    "blend": "plus-lighter",
+    "ground": "#000000"
+  },
+  "ascii": {
+    "ramp": " .:-=+*#",
+    "font": "Geist Mono",
+    "size": 13.333,
+    "leading": 1.2,
+    "opacity": 0.35
+  },
+  "groups": {
+    "ui": "Components",
+    "product": "Product",
+    "site": "Site",
+    "visuals": "Brand"
+  }
+}

@@ -1,0 +1,307 @@
+import { resolve } from 'node:path';
+import { brand, registryHost } from './lib/brand.js';
+import { formatFinding, hookCheck, runCheck } from './check/engine.js';
+import { add, update, type AddResult } from './commands/add.js';
+import { apply, formatApply, readState } from './commands/apply.js';
+import { describeProject, init } from './commands/init.js';
+import { flavorLabel } from './commands/add.js';
+import { diff, formatInfo, formatView, info, search, view } from './commands/library.js';
+import { brandHelp, principlesHelp, runBrand, runPrinciples } from './commands/brand.js';
+import { componentHelp, runComponent } from './commands/component.js';
+import { imageHelp, runImage } from './commands/image.js';
+import { formatManifest, manifest, manifestHelp } from './commands/manifest.js';
+import { findTokens, list } from './commands/small.js';
+import { runVideo, videoHelp } from './commands/video.js';
+
+const HELP = () => {
+	const b = brand().bin;
+	const row = (cmd: string, what: string) => `  ${`${b} ${cmd}`.padEnd(44)}${what}`;
+	const more = (text: string) => `      ${text}`;
+	return [
+		`${brand().name} design system (${b})`,
+		'',
+		'Restyle an app:',
+		row('apply', "The whole app: style values to the brand's tokens, the library's look on buttons,"),
+		`  ${''.padEnd(44)}fields, cards, dialogs, tables...; theme and fonts installed`,
+		row('apply button card dialog', "Only those kinds, wherever the app uses them (its components and elements)"),
+		row('apply /settings /billing', 'Only those pages (by route), with the components only they use'),
+		row('apply app/pages/settings.vue', 'Pages by file (or a glob in quotes); an app component by name (PrimaryButton)'),
+		more('any stack: Vue, React, Svelte, Astro, Angular, Solid, HTML, ERB, Blade, Django, PHP, Liquid, Twig...'),
+		row('apply --components button,card --pages /settings', ''),
+		more('--with-shared  include layouts and components other pages share'),
+		more('--dry-run [--json]  list every file it would touch and why, write nothing'),
+		more('--redo  repeat the recorded scope (.ds/state.json)'),
+		'',
+		'Use the library:',
+		row('add <item...>', 'Copy items (Button, alert-dialog, badge...) and what they need into the app'),
+		more('in its flavor: Vue (Vue, Nuxt), React (Next, Vite, React Router), web components (everything else)'),
+		more('--framework vue|react|elements   --dry-run   --overwrite   --no-install (skip packages)'),
+		row('add --update', 'Every installed item to this version: prebuilt modules replaced, files you changed kept (--overwrite replaces them)'),
+		row('view <item...> [--source]', 'How to use an item: rules, props, slots, events, examples, source'),
+		row('search <words>', 'Find items by what they do'),
+		row('list', 'Every item, with what it requires'),
+		row('diff <item...>', "Your copy of an item against the library's"),
+		'',
+		'The app:',
+		row('info', "The app's setup, installed items, applied scope and what to run next"),
+		row('init', 'The brand stylesheet, theme, fonts and agent contract only'),
+		row('check [paths...] [--fix] [--all]', 'Values off the tokens (the applied scope; --all for every file)'),
+		row('tokens [term...]', 'Find tokens by name or value (no match is an error)'),
+		row('hook', "An agent's edit hook: checks the files its payload names (stdin), exit 2 on findings"),
+		'',
+		'For an agent, start with manifest --json. It lists every command, template, size, component, token and rule.',
+		row('manifest', 'That document. describe is the same command'),
+		row('brand [--section color]', 'Tokens, fonts, logos and voice. colour is color. --token --ds-color-fg reads one'),
+		row('principles [--surface product]', 'Product and website rules. Surfaces: product, website, all'),
+		row('component list', 'Components with group ids, parts and states'),
+		row('component inspect <item>', 'Props, slots, states and examples. --part --source'),
+		row('component emit <item>', 'Vue for one state. --state variant:dark, --state example:Dark, --prop name=value'),
+		'',
+		'Images:',
+		row('image --title "..."', 'Open Graph and social images (PNG and SVG) from a title and optional subtext'),
+		more('--template headline|statement|quote|announcement|frame   --size og,square,portrait,landscape,all'),
+		more('--ground paper|ink   --text   --eyebrow   --by   --image <file>   --out <dir>   --format png|svg|both'),
+		more('--list  templates, sizes and grounds. A field the template does not draw is an error'),
+		'',
+		'Video:',
+		row('video --template headline --title "..."', 'Motion JPEG MP4, 18 frames at 12 fps, from the tokens, faces and logos'),
+		more('--template headline|statement|announcement|logo   --size square,vertical,landscape,all'),
+		more('--ground paper|ink   --text   --eyebrow   --out <dir>. Logo takes no title. --list for the spec'),
+		'',
+		'Common options: --cwd <dir> (default: the current folder), --json (machine output on stdout).',
+		`Registry: ${registryHost()}/r/index.json`,
+	].join('\n');
+};
+
+const VALUE_FLAGS = new Set(['cwd', 'components', 'pages', 'framework', 'title', 'text', 'subtitle', 'eyebrow', 'by', 'author', 'image', 'template', 'size', 'ground', 'out', 'format', 'section', 'token', 'surface', 'group', 'state', 'part', 'prop']);
+const REPEAT_FLAGS = new Set(['prop']);
+
+export function parse(argv: string[]) {
+	const flags: Record<string, string | boolean | string[]> = {};
+	const rest: string[] = [];
+	const take = (key: string, value: string) => {
+		if (REPEAT_FLAGS.has(key)) {
+			const cur = flags[key];
+			const list = Array.isArray(cur) ? cur : typeof cur === 'string' ? [cur] : [];
+			flags[key] = [...list, value];
+		} else flags[key] = value;
+	};
+	for (let i = 0; i < argv.length; i++) {
+		const a = argv[i];
+		const eq = a.match(/^--([\w-]+)=(.*)$/);
+		if (eq) take(eq[1], eq[2]);
+		else if (a.startsWith('--') && VALUE_FLAGS.has(a.slice(2))) take(a.slice(2), argv[++i] ?? '');
+		else if (a === '-h') flags.help = true;
+		else if (a.startsWith('--no-')) flags[a.slice(5)] = false;
+		else if (a.startsWith('--')) flags[a.slice(2)] = true;
+		else rest.push(a);
+	}
+	return { command: rest[0], args: rest.slice(1), flags };
+}
+
+const listFlag = (v: string | boolean | string[] | undefined) => (typeof v === 'string' ? v.split(',').map((s) => s.trim()).filter(Boolean) : undefined);
+
+// The flags each command takes; anything else is a mistake to report, not to ignore (a typo would widen an apply).
+const COMMON = ['cwd', 'json', 'help'];
+const FLAGS: Record<string, string[]> = {
+	list: [],
+	add: ['update', 'dry-run', 'overwrite', 'install', 'framework'],
+	apply: ['components', 'pages', 'with-shared', 'dry-run', 'redo'],
+	view: ['source', 'full', 'framework'],
+	show: ['source', 'full', 'framework'],
+	search: [],
+	info: [],
+	diff: ['framework'],
+	init: ['dry-run'],
+	check: ['fix', 'all'],
+	hook: [],
+	tokens: [],
+	image: ['title', 'text', 'subtitle', 'eyebrow', 'by', 'author', 'image', 'template', 'size', 'ground', 'out', 'format', 'list'],
+	video: ['title', 'text', 'subtitle', 'eyebrow', 'template', 'size', 'ground', 'out', 'list'],
+	brand: ['section', 'token'],
+	principles: ['surface'],
+	component: ['group', 'part', 'state', 'prop', 'source'],
+	manifest: [],
+	describe: [],
+};
+
+async function main() {
+	const { command, args, flags } = parse(process.argv.slice(2));
+	const known = command ? FLAGS[command] : undefined;
+	if (known) {
+		const bad = Object.keys(flags).filter((f) => !COMMON.includes(f) && !known.includes(f));
+		if (bad.length) throw new Error(`Unknown option${bad.length > 1 ? 's' : ''} for ${command}: ${bad.map((f) => `--${f}`).join(', ')}. ${brand().bin} ${command} takes ${[...known, ...COMMON].map((f) => `--${f}`).join(', ')}.`);
+	}
+	const cwd = resolve(typeof flags.cwd === 'string' ? flags.cwd : process.cwd());
+	const json = flags.json === true;
+	const out = (value: unknown, text: string) => console.log(json ? JSON.stringify(value, null, 2) : text);
+	const ownHelp = new Set(['image', 'video', 'brand', 'principles', 'component', 'manifest', 'describe']);
+	if (flags.help && command && !ownHelp.has(command)) {
+		console.log(HELP());
+		return;
+	}
+	switch (command) {
+		case 'list': {
+			const items = await list();
+			out({ items }, items.map((i) => `${i.name.padEnd(22)} ${i.group.padEnd(12)} ${i.flavors.map((f) => (f === 'elements' ? 'wc' : f)).join(',').padEnd(15)} ${i.description}`).join('\n'));
+			return;
+		}
+		case 'add': {
+			const opts = { dryRun: flags['dry-run'] === true, overwrite: flags.overwrite === true, install: flags.install !== false };
+			const lines = (r: AddResult) => [
+				...r.notes.map((n) => `note: ${n}`),
+				`${flags['dry-run'] ? 'Would add' : 'Added'} ${r.items.join(', ')} (${flavorLabel(r.flavor)})`,
+				...r.written.map((w) => `  + ${w}`),
+				...(r.updated.length ? [`Updated ${r.updated.length} prebuilt module(s) to this version: ${r.updated.map((u) => u.split('/').pop()).join(', ')}`] : []),
+				...(r.packages.length ? [`Packages: ${r.packages.join(', ')}${r.installed ? ' (installed)' : ''}`] : []),
+				...(r.scripts.length ? ['Load each on the pages that use it (once):', ...r.scripts.map((l) => `  ${l}`)] : []),
+				...r.warnings.map((w) => `warning: ${w}`),
+			];
+			if (flags.update === true) {
+				if (args.length) throw new Error(`add --update re-adds every installed item; name none (or add them by name without --update).`);
+				const rs = await update(cwd, opts);
+				out({ results: rs }, rs.flatMap(lines).join('\n'));
+				return;
+			}
+			if (!args.length) throw new Error(`Name at least one item: ${brand().bin} add button (\`${brand().bin} search <words>\` finds one), or ${brand().bin} add --update for every installed item`);
+			const r = await add(cwd, args, { ...opts, framework: typeof flags.framework === 'string' ? flags.framework : undefined });
+			out(r, [...lines(r), ...(flags['dry-run'] ? [] : [`How to use: ${brand().bin} view ${r.items[r.items.length - 1]}`])].join('\n'));
+			return;
+		}
+		case 'apply': {
+			const r = await apply(cwd, { targets: args, components: listFlag(flags.components), pages: listFlag(flags.pages), withShared: flags['with-shared'] === true, dryRun: flags['dry-run'] === true, redo: flags.redo === true });
+			out({ scope: r.scope, files: r.files.map((f) => ({ file: f.file, reason: f.reason, changes: f.changes })), skipped: r.skipped, sharedLeftOut: r.sharedLeftOut, setup: r.setup, warnings: r.warnings, dryRun: r.dryRun, state: r.dryRun ? undefined : r.state }, formatApply(r));
+			return;
+		}
+		case 'view':
+		case 'show': {
+			if (!args.length) throw new Error(`Name an item: ${brand().bin} view button`);
+			const v = await view(cwd, args, { framework: typeof flags.framework === 'string' ? flags.framework : undefined });
+			out({ items: v }, v.map((x) => formatView(x, flags.source === true || flags.full === true)).join('\n\n'));
+			return;
+		}
+		case 'search': {
+			if (!args.length) throw new Error(`Say what you are looking for: ${brand().bin} search date picker`);
+			const r = await search(args);
+			out({ results: r }, r.length ? r.map((x) => `${x.name.padEnd(22)} ${x.group.padEnd(11)} ${x.flavors.map((f) => (f === 'elements' ? 'wc' : f)).join(',').padEnd(15)} ${x.description}`).join('\n') : `Nothing matches. \`${brand().bin} list\` shows every item.`);
+			return;
+		}
+		case 'info': {
+			const r = await info(cwd);
+			out(r, formatInfo(r));
+			return;
+		}
+		case 'diff': {
+			if (!args.length) throw new Error(`Name an item: ${brand().bin} diff button`);
+			const r = await diff(cwd, args, { framework: typeof flags.framework === 'string' ? flags.framework : undefined });
+			out({ items: r }, r.map((i) => i.files.map((f) => (f.status === 'changed' ? f.diff : `${f.path}: ${f.status === 'same' ? 'same as the library' : `not in this app (${brand().bin} add ${i.name})`}`)).join('\n')).join('\n'));
+			if (r.some((i) => i.files.some((f) => f.status === 'changed'))) process.exitCode = 1;
+			return;
+		}
+		case 'init': {
+			const r = await init(cwd, { dryRun: flags['dry-run'] === true });
+			out({ framework: r.project.framework, flavor: r.project.flavor, styling: r.styling, writes: r.writes, links: r.links, warnings: r.warnings }, [`${describeProject(r.project)} at ${cwd} (${r.styling})`, ...r.writes.map((w) => `  + ${w}`), ...(r.links.length ? [`Linked from ${r.project.layouts.length ? r.project.layouts.join(', ') : 'no layout'}:`, ...r.links.map((l) => `  ${l}`)] : []), ...r.warnings.map((w) => `warning: ${w}`)].join('\n'));
+			return;
+		}
+		case 'hook': {
+			// An agent's edit hook (Claude Code PostToolUse, Codex, Cursor afterFileEdit): the payload on stdin names the
+			// edited files; their findings go back on stderr with exit 2, which the agent reads and fixes.
+			const input = await new Promise<string>((done) => {
+				let data = '';
+				process.stdin.on('data', (c) => (data += c));
+				process.stdin.on('end', () => done(data));
+				if (process.stdin.isTTY) done('');
+			});
+			const r = hookCheck(cwd, input);
+			if (json) console.log(JSON.stringify(r, null, 2));
+			if (r.findings.length) {
+				console.error([`${brand().name} design system: ${r.findings.length} value${r.findings.length === 1 ? '' : 's'} off the brand in ${r.paths.join(', ')}:`, ...r.findings.slice(0, 30).map(formatFinding)].join('\n'));
+				process.exitCode = 2;
+			}
+			return;
+		}
+		case 'check': {
+			// With an applied scope, the check enforces the brand on that scope only, so a partial adoption passes.
+			const state = readState(cwd);
+			const scoped = !args.length && flags.all !== true && state && !state.whole;
+			const r = runCheck(cwd, { paths: scoped ? state.checked : args, fix: flags.fix === true });
+			const note = scoped ? ' in the applied scope (--all checks every file)' : '';
+			const n = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`;
+			out({ ...r, scope: scoped ? state.checked : undefined }, [...r.findings.map(formatFinding), `${n(r.files, 'file')}${note}, ${n(r.findings.length, 'finding')}${r.fixed ? `, ${r.fixed} fixed` : ''} (${r.ms}ms)`].join('\n'));
+			if (r.findings.length) process.exitCode = 1;
+			return;
+		}
+		case 'tokens': {
+			const t = findTokens(args);
+			out({ tokens: t }, t.map((x) => `${x.name.padEnd(40)} ${x.light}${x.dark !== x.light ? `  (dark ${x.dark})` : ''}`).join('\n'));
+			return;
+		}
+		case 'image': {
+			if (flags.help) {
+				console.log(imageHelp());
+				return;
+			}
+			const r = await runImage(cwd, args, flags);
+			out(r.json, r.text);
+			return;
+		}
+		case 'video': {
+			if (flags.help) {
+				console.log(videoHelp());
+				return;
+			}
+			const r = await runVideo(cwd, args, flags);
+			out(r.json, r.text);
+			return;
+		}
+		case 'brand': {
+			if (flags.help) {
+				console.log(brandHelp());
+				return;
+			}
+			const r = runBrand(args, flags);
+			out(r.json, r.text);
+			return;
+		}
+		case 'principles': {
+			if (flags.help) {
+				console.log(principlesHelp());
+				return;
+			}
+			const r = runPrinciples(args, flags);
+			out(r.json, r.text);
+			return;
+		}
+		case 'component': {
+			if (flags.help) {
+				console.log(componentHelp());
+				return;
+			}
+			const r = await runComponent(cwd, args, flags);
+			out(r.json, r.text);
+			return;
+		}
+		case 'manifest':
+		case 'describe': {
+			if (flags.help) {
+				console.log(manifestHelp());
+				return;
+			}
+			if (args.length) throw new Error(`\`${command}\` takes no arguments. ${brand().bin} manifest --json`);
+			const doc = await manifest();
+			out(doc, formatManifest(doc));
+			return;
+		}
+		default:
+			console.log(HELP());
+			if (command && command !== 'help' && command !== '--help') {
+				console.error(`\nUnknown command \`${command}\`.`);
+				process.exitCode = 1;
+			}
+	}
+}
+
+main().catch((error) => {
+	console.error(`${brand().bin}: ${(error as Error).message}`);
+	process.exitCode = 1;
+});

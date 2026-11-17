@@ -1,0 +1,603 @@
+{
+  "$comment": "How apply restyles an app: the role each color becomes, and for each kind of element the library item it takes its look from (recipes are the library components' own classes). Read by src/convert and src/install; no brand values live in src/.",
+  "roles": {
+    "bg": {
+      "neutral": [
+        [
+          0.995,
+          "surface"
+        ],
+        [
+          0.94,
+          "surface-subtle"
+        ],
+        [
+          0.86,
+          "surface-sunken"
+        ],
+        [
+          0.55,
+          "edge-strong"
+        ],
+        [
+          0.3,
+          "fg-muted"
+        ],
+        [
+          0,
+          "surface-inverse"
+        ]
+      ],
+      "accent": [
+        [
+          0.86,
+          "surface-subtle"
+        ],
+        [
+          0.7,
+          "surface-sunken"
+        ],
+        [
+          0,
+          "action-primary"
+        ]
+      ],
+      "danger": [
+        [
+          0.86,
+          "surface-danger"
+        ],
+        [
+          0,
+          "action-danger"
+        ]
+      ],
+      "success": [
+        [
+          0.86,
+          "surface-subtle"
+        ],
+        [
+          0,
+          "status-working"
+        ]
+      ],
+      "warning": [
+        [
+          0.86,
+          "surface-subtle"
+        ],
+        [
+          0,
+          "status-working"
+        ]
+      ]
+    },
+    "text": {
+      "neutral": [
+        [
+          0.95,
+          "fg-inverse"
+        ],
+        [
+          0.75,
+          "fg-inverse/70"
+        ],
+        [
+          0.55,
+          "fg-faint"
+        ],
+        [
+          0.4,
+          "fg-muted"
+        ],
+        [
+          0.22,
+          "fg-soft"
+        ],
+        [
+          0,
+          "fg"
+        ]
+      ],
+      "accent": [
+        [
+          0.75,
+          "fg-inverse"
+        ],
+        [
+          0.55,
+          "fg-accent-display"
+        ],
+        [
+          0,
+          "fg-accent"
+        ]
+      ],
+      "danger": [
+        [
+          0.75,
+          "fg-inverse"
+        ],
+        [
+          0.55,
+          "fg-accent-display"
+        ],
+        [
+          0,
+          "fg-danger"
+        ]
+      ],
+      "success": [
+        [
+          0.75,
+          "fg-inverse"
+        ],
+        [
+          0,
+          "fg-soft"
+        ]
+      ],
+      "warning": [
+        [
+          0.75,
+          "fg-inverse"
+        ],
+        [
+          0,
+          "fg-soft"
+        ]
+      ]
+    },
+    "border": {
+      "neutral": [
+        [
+          0.88,
+          "edge"
+        ],
+        [
+          0.6,
+          "edge-strong"
+        ],
+        [
+          0.4,
+          "fg-faint"
+        ],
+        [
+          0,
+          "fg-soft"
+        ]
+      ],
+      "accent": [
+        [
+          0.8,
+          "edge"
+        ],
+        [
+          0,
+          "edge-focus"
+        ]
+      ],
+      "danger": [
+        [
+          0.8,
+          "edge"
+        ],
+        [
+          0,
+          "edge-accent"
+        ]
+      ],
+      "success": [
+        [
+          0.8,
+          "edge"
+        ],
+        [
+          0,
+          "edge-strong"
+        ]
+      ],
+      "warning": [
+        [
+          0.8,
+          "edge"
+        ],
+        [
+          0,
+          "edge-strong"
+        ]
+      ]
+    },
+    "hover": {
+      "accent": "action-primary-hover",
+      "danger": "action-danger-hover"
+    }
+  },
+  "text": {
+    "steps": {
+      "label": 12,
+      "ui": 14,
+      "body": 16,
+      "body-lg": 18,
+      "heading-4": 20,
+      "heading-3": 24,
+      "heading-2": 28,
+      "heading-1": 36,
+      "hero": 48,
+      "display": 64
+    },
+    "tailwind": {
+      "xs": 12,
+      "sm": 14,
+      "base": 16,
+      "lg": 18,
+      "xl": 20,
+      "2xl": 24,
+      "3xl": 30,
+      "4xl": 36,
+      "5xl": 48,
+      "6xl": 60,
+      "7xl": 72,
+      "8xl": 96,
+      "9xl": 128
+    },
+    "base": "body",
+    "headings": {
+      "display": 56,
+      "hero": 44,
+      "heading-1": 32,
+      "heading-2": 26,
+      "heading-3": 22,
+      "heading-4": 19
+    }
+  },
+  "fonts": {
+    "text": "--ds-font-text",
+    "heading": "--ds-font-heading",
+    "code": "--ds-font-code"
+  },
+  "variables": {
+    "$comment": "shadcn and shadcn-vue theme variables, pointed at the brand's roles (the dark block takes each role's dark value).",
+    "background": "surface",
+    "foreground": "fg",
+    "card": "surface",
+    "card-foreground": "fg",
+    "popover": "surface",
+    "popover-foreground": "fg",
+    "primary": "action-primary",
+    "primary-foreground": "action-primary-fg",
+    "secondary": "surface-subtle",
+    "secondary-foreground": "fg",
+    "muted": "surface-subtle",
+    "muted-foreground": "fg-muted",
+    "accent": "surface-subtle",
+    "accent-foreground": "fg",
+    "destructive": "action-danger",
+    "destructive-foreground": "fg-on-accent",
+    "border": "edge",
+    "input": "edge-strong",
+    "ring": "edge-focus",
+    "chart-1": "data-1",
+    "chart-2": "data-2",
+    "chart-3": "data-3",
+    "chart-4": "fg",
+    "chart-5": "fg-soft",
+    "sidebar": "surface-subtle",
+    "sidebar-foreground": "fg",
+    "sidebar-primary": "action-primary",
+    "sidebar-primary-foreground": "action-primary-fg",
+    "sidebar-accent": "surface-sunken",
+    "sidebar-accent-foreground": "fg",
+    "sidebar-border": "edge",
+    "sidebar-ring": "edge-focus",
+    "radius": "--ds-radius-control"
+  },
+  "aliases": {
+    "btn": "button",
+    "cta": "button",
+    "text-field": "input",
+    "textfield": "input",
+    "field": "input",
+    "panel": "card",
+    "tile": "card",
+    "search": "search-bar",
+    "search-box": "search-bar",
+    "prompt": "search-bar",
+    "pattern": "brand-light",
+    "light": "brand-light",
+    "glow": "brand-light",
+    "ascii": "ascii-texture",
+    "texture": "ascii-texture",
+    "lockup": "logo",
+    "logomark": "logo",
+    "wordmark": "logo",
+    "brand-logo": "logo"
+  },
+  "kinds": {
+    "button": {
+      "item": "button",
+      "names": "^(base|app|ui|the|primary|secondary|ghost|danger|icon|action|submit|my|v)?-?(button|btn)$",
+      "replace": [
+        "bg",
+        "text-color",
+        "border-color",
+        "border-width",
+        "radius",
+        "shadow",
+        "ring",
+        "outline",
+        "padding",
+        "height",
+        "type",
+        "motion",
+        "state"
+      ],
+      "base": "inline-flex items-center justify-center gap-2 cursor-pointer h-control-md px-4 type-ui-strong rounded-control transition-[color,background-color,border-color,scale] duration-micro ease-standard active:enabled:scale-97 motion-reduce:active:enabled:scale-100 disabled:cursor-not-allowed disabled:bg-action-disabled disabled:text-action-disabled-fg",
+      "icon": "w-control-md px-0",
+      "variants": {
+        "primary": "bg-action-primary text-action-primary-fg hover:enabled:bg-action-primary-hover",
+        "secondary": "bg-action-secondary text-action-secondary-fg hover:enabled:bg-action-secondary-hover",
+        "ghost": "bg-transparent text-fg hover:enabled:bg-action-ghost-hover"
+      },
+      "keys": {
+        "primary": [
+          "default",
+          "primary",
+          "solid",
+          "dark",
+          "filled",
+          "cta",
+          "main",
+          "white"
+        ],
+        "secondary": [
+          "outline",
+          "outlined",
+          "secondary",
+          "bordered",
+          "neutral",
+          "light",
+          "soft"
+        ],
+        "ghost": [
+          "ghost",
+          "subtle",
+          "text",
+          "plain",
+          "minimal",
+          "tertiary",
+          "quiet",
+          "flat"
+        ]
+      },
+      "default": "primary"
+    },
+    "input": {
+      "item": "input",
+      "names": "^(base|app|ui|the|text|form|my|v)?-?(input|text-?field|text-?input)$",
+      "replace": [
+        "bg",
+        "text-color",
+        "border-color",
+        "border-width",
+        "radius",
+        "shadow",
+        "ring",
+        "outline",
+        "padding",
+        "height",
+        "type",
+        "motion",
+        "placeholder"
+      ],
+      "base": "h-control-md w-full border border-edge-strong bg-surface px-3 type-ui text-fg rounded-control outline-none transition-[border-color] duration-micro ease-standard placeholder:text-fg-muted focus:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input"
+    },
+    "textarea": {
+      "item": "textarea",
+      "names": "^(base|app|ui|the|form|my|v)?-?(textarea|text-?area)$",
+      "replace": [
+        "bg",
+        "text-color",
+        "border-color",
+        "border-width",
+        "radius",
+        "shadow",
+        "ring",
+        "outline",
+        "padding",
+        "type",
+        "motion",
+        "placeholder"
+      ],
+      "base": "w-full border border-edge-strong bg-surface px-3 py-2 type-ui text-fg rounded-control outline-none transition-[border-color] duration-micro ease-standard placeholder:text-fg-muted focus:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input"
+    },
+    "select": {
+      "item": "native-select",
+      "names": "^(base|app|ui|the|form|native|my|v)?-?(select|dropdown-?select)$",
+      "replace": [
+        "bg",
+        "text-color",
+        "border-color",
+        "border-width",
+        "radius",
+        "shadow",
+        "ring",
+        "outline",
+        "padding",
+        "height",
+        "type",
+        "motion"
+      ],
+      "base": "w-full border border-edge-strong bg-surface px-3 type-ui text-fg rounded-control outline-none transition-[border-color] duration-micro ease-standard placeholder:text-fg-muted focus:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input"
+    },
+    "checkbox": {
+      "item": "checkbox",
+      "names": "^(base|app|ui|the|form|my|v)?-?(checkbox|check-?box|radio)$",
+      "replace": [
+        "bg",
+        "text-color",
+        "border-color",
+        "radius",
+        "shadow",
+        "ring",
+        "accent"
+      ],
+      "base": "cursor-pointer rounded-sm accent-fg"
+    },
+    "card": {
+      "item": "card",
+      "names": "^(base|app|ui|the|my|v|info|stat|feature|pricing|product|plan)?-?(card|panel|tile)$",
+      "replace": [
+        "bg",
+        "border-color",
+        "border-width",
+        "radius",
+        "shadow",
+        "ring"
+      ],
+      "base": "bg-surface-raised text-fg rounded-container"
+    },
+    "dialog": {
+      "item": "dialog",
+      "names": "^(base|app|ui|the|my|v|confirm)?-?(dialog|modal)$",
+      "replace": [
+        "bg",
+        "border-color",
+        "border-width",
+        "radius",
+        "shadow",
+        "ring"
+      ],
+      "base": "bg-surface-raised text-fg rounded-container",
+      "backdrop": "bg-scrim"
+    },
+    "badge": {
+      "item": "tag",
+      "names": "^(base|app|ui|the|status|my|v)?-?(badge|tag|chip|pill)$",
+      "replace": [
+        "bg",
+        "text-color",
+        "border-color",
+        "border-width",
+        "radius",
+        "shadow",
+        "ring",
+        "padding",
+        "height",
+        "type"
+      ],
+      "base": "inline-flex h-6 items-center px-2 type-label rounded-sm",
+      "variants": {
+        "default": "bg-surface-subtle text-fg",
+        "working": "bg-status-working text-status-working-fg",
+        "failed": "bg-status-failed text-status-failed-fg",
+        "quiet": "text-fg-muted"
+      },
+      "default": "default"
+    },
+    "table": {
+      "item": "table",
+      "names": "^(base|app|ui|the|data|my|v)?-?(table|data-?table|grid)$",
+      "replace": [
+        "type"
+      ],
+      "base": "border-collapse type-ui",
+      "th": {
+        "replace": [
+          "bg",
+          "text-color",
+          "border-color",
+          "border-width",
+          "padding",
+          "height",
+          "type"
+        ],
+        "base": "h-control-md border-b border-edge px-3 type-label text-fg-muted"
+      },
+      "td": {
+        "replace": [
+          "border-color",
+          "border-width",
+          "padding",
+          "height",
+          "type"
+        ],
+        "base": "h-row border-b border-edge px-3 py-1 type-ui"
+      }
+    },
+    "tabs": {
+      "item": "tabs",
+      "names": "^(base|app|ui|the|my|v)?-?(tabs|tab-?bar|segmented(-?control)?)$",
+      "replace": [
+        "bg",
+        "border-color",
+        "border-width",
+        "radius",
+        "shadow",
+        "padding"
+      ],
+      "base": "bg-surface-subtle p-1 rounded-control",
+      "tab": {
+        "replace": [
+          "bg",
+          "text-color",
+          "border-color",
+          "border-width",
+          "radius",
+          "shadow",
+          "padding",
+          "height",
+          "type",
+          "motion"
+        ],
+        "base": "h-control-sm px-3 type-ui text-fg-muted rounded-sm transition-[color,background-color] duration-micro ease-standard hover:text-fg aria-selected:bg-surface-raised aria-selected:text-fg"
+      }
+    },
+    "link": {
+      "item": "link",
+      "names": "^(base|app|ui|the|text|my|v)?-?(link|anchor)$",
+      "replace": [
+        "text-color",
+        "decoration",
+        "motion"
+      ],
+      "base": "text-fg underline decoration-edge-strong underline-offset-4 transition-[text-decoration-color] duration-micro ease-standard hover:decoration-fg"
+    },
+    "label": {
+      "item": "label",
+      "names": "^(base|app|ui|the|form|field|my|v)?-?label$",
+      "replace": [
+        "text-color",
+        "type"
+      ],
+      "base": "type-label text-fg-soft"
+    },
+    "alert": {
+      "item": "alert",
+      "names": "^(base|app|ui|the|my|v)?-?(alert|banner|callout|notice)$",
+      "replace": [
+        "bg",
+        "border-color",
+        "border-width",
+        "radius",
+        "shadow",
+        "ring"
+      ],
+      "base": "bg-surface-raised rounded-container",
+      "variants": {
+        "default": "bg-surface-raised",
+        "danger": "bg-surface-danger text-fg-danger"
+      },
+      "default": "default"
+    },
+    "typography": {
+      "item": "typography",
+      "names": "^(base|app|ui|the|my|v|page|section)?-?(heading|title|headline)$",
+      "replace": [
+        "type"
+      ],
+      "base": ""
+    }
+  }
+}
