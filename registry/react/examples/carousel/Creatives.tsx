@@ -1,3 +1,4 @@
+'use client'
 import { Carousel } from '@/react/components/ui/Carousel'
 // Saved creatives, three in view on wide screens and one on phones. Placeholders stand in for the ads.
 const creatives = [

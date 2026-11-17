@@ -1,3 +1,4 @@
+'use client'
 import { LineChart, type LineSeries } from '@/react/components/ui/LineChart'
 // New creatives found per day by category over two weeks: six series in the brand's order, the neutrals first, then
 // the spectrum. Point at the plot to read a day. Sample data.

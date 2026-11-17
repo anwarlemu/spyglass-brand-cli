@@ -1,3 +1,4 @@
+'use client'
 import { DataTable } from '@/react/components/ui/DataTable'
 // A board's creatives on sample data: filter by format and status, sort by days running, spend or impressions, five
 // to a page.

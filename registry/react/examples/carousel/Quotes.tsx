@@ -1,3 +1,4 @@
+'use client'
 import { Carousel } from '@/react/components/ui/Carousel'
 // One quote at a time from Acme's team, on the #171717 card.
 const quotes = [
