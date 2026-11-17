@@ -1,0 +1,17 @@
+/* RadioGroup.tsx's styles, as they are. */
+.ds-radios { display: flex; flex-direction: column; gap: var(--ds-space-xs); }
+.ds-radios[data-inline] { flex-direction: row; flex-wrap: wrap; column-gap: var(--ds-space-xl); }
+.ds-radiorow { display: inline-flex; min-height: var(--ds-size-control-sm); align-items: flex-start; gap: var(--ds-space-md); padding-block: var(--ds-space-xs); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); cursor: pointer; }
+.ds-radiorow[data-disabled] { color: var(--ds-color-fg-faint); cursor: not-allowed; }
+.ds-radio { display: inline-grid; width: var(--ds-size-icon-sm); height: var(--ds-size-icon-sm); flex-shrink: 0; margin-top: var(--ds-space-2xs); place-items: center; }
+.ds-radio > * { grid-area: 1 / 1; }
+.ds-radio > input { width: var(--ds-size-icon-sm); height: var(--ds-size-icon-sm); margin: 0; border: var(--ds-border-hairline) solid var(--ds-color-edge-strong); border-radius: var(--ds-radius-full); background: var(--ds-color-surface); appearance: none; cursor: inherit; transition: border-color var(--ds-duration-micro) var(--ds-easing-standard); }
+.ds-radio > input:checked { border-color: var(--ds-color-action-primary); }
+.ds-radio > input:focus-visible { outline: var(--ds-border-focus) solid var(--ds-color-edge-focus); outline-offset: var(--ds-border-focus); }
+.ds-radio > input:disabled { border-color: var(--ds-color-edge); background: var(--ds-color-surface-sunken); }
+.ds-radio > i { width: var(--ds-space-sm); height: var(--ds-space-sm); border-radius: var(--ds-radius-full); background: var(--ds-color-action-primary); opacity: 0; pointer-events: none; transform: scale(0.6); transition: opacity var(--ds-duration-micro) var(--ds-easing-out), transform var(--ds-duration-micro) var(--ds-easing-out); }
+.ds-radio > input:checked + i { opacity: 1; transform: none; }
+.ds-radio > input:disabled + i { background: var(--ds-color-fg-faint); }
+@media (hover: hover) and (pointer: fine) { .ds-radiorow:hover > .ds-radio > input:not(:disabled, :checked) { border-color: var(--ds-color-action-secondary-edge-hover); } }
+@media (pointer: coarse), (max-width: 767px) { .ds-radiorow { min-height: var(--ds-size-control-touch); align-items: center; padding-block: var(--ds-space-sm); font-size: var(--ds-text-body); line-height: var(--ds-text-body-leading); } .ds-radio { margin-top: 0; } }
+@media (prefers-reduced-motion: reduce) { .ds-radio > i { transform: none; transition: opacity var(--ds-duration-micro) var(--ds-easing-standard); } }

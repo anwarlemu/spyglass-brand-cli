@@ -1,0 +1,17 @@
+<!-- A filter over a search: only ads that have run at least this many days, the count beside it. -->
+<div class="flex w-96 max-w-full flex-col gap-2">
+  <div class="flex items-baseline justify-between gap-4">
+    <p class="type-label text-fg-soft">Running for at least</p>
+    <p id="slider-days" class="type-ui text-fg tabular-nums">30 days</p>
+  </div>
+  <spyglass-slider id="slider-filter" label="Running for at least" min="0" max="90" value="30" value-text="30 days"></spyglass-slider>
+  <p class="type-caption text-fg-muted">Ads that run longer are the ones that work.</p>
+</div>
+<script type="module">
+  const slider = document.getElementById('slider-filter')
+  const out = document.getElementById('slider-days')
+  slider.addEventListener('input', () => {
+    out.textContent = `${slider.value} days`
+    slider.valueText = `${slider.value} days`
+  })
+</script>

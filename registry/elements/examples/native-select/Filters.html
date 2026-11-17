@@ -1,0 +1,20 @@
+<!-- Two filters over a search: where the ads ran and how long ago. -->
+<div class="grid w-full max-w-120 gap-4 sm:grid-cols-2">
+  <div class="flex flex-col gap-2">
+    <label for="native-select-platform" class="type-label text-fg-soft">Platform</label>
+    <spyglass-native-select id="native-select-platform" name="platform" value="meta" aria-label="Platform">
+      <option value="all">All platforms</option>
+      <option value="meta">Meta</option>
+      <option value="tiktok">TikTok</option>
+      <option value="youtube">YouTube</option>
+    </spyglass-native-select>
+  </div>
+  <div class="flex flex-col gap-2">
+    <label for="native-select-range" class="type-label text-fg-soft">Running for</label>
+    <spyglass-native-select id="native-select-range" name="range" value="30" aria-label="Running for">
+      <option value="7">Over 7 days</option>
+      <option value="30">Over 30 days</option>
+      <option value="90">Over 90 days</option>
+    </spyglass-native-select>
+  </div>
+</div>

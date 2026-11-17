@@ -1,0 +1,11 @@
+<!-- Which formats to show: several can stay on. And a size for the grid: one at most. -->
+<div class="flex flex-col items-start gap-6">
+  <div class="flex flex-col items-start gap-2">
+    <p class="type-label text-fg-soft">Formats</p>
+    <spyglass-toggle-group label="Formats" multiple value='["Video","Image"]' options='["Video","Image","Carousel",{"value":"Story","label":"Story","disabled":true}]'></spyglass-toggle-group>
+  </div>
+  <div class="flex flex-col items-start gap-2">
+    <p class="type-label text-fg-soft">Grid</p>
+    <spyglass-toggle-group label="Grid" size="sm" value="Medium" options='["Small","Medium","Large"]'></spyglass-toggle-group>
+  </div>
+</div>
