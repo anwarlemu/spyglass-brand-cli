@@ -1,0 +1,27 @@
+<!-- A board's tools as a menubar: the board itself, how its creatives are sorted, and who sees it. Open one, then point
+     at the next or press Right. -->
+<div class="min-h-72">
+  <spyglass-menubar label="Board">
+    <spyglass-menubar-menu label="Board">
+      <spyglass-menubar-item shortcut="⌘N"><i data-lucide="folder-plus" data-size="16" data-stroke-width="1.5" class="shrink-0 text-fg-muted" aria-hidden="true"></i>New board</spyglass-menubar-item>
+      <spyglass-menubar-item><i data-lucide="copy" data-size="16" data-stroke-width="1.5" class="shrink-0 text-fg-muted" aria-hidden="true"></i>Duplicate</spyglass-menubar-item>
+      <spyglass-menubar-item><i data-lucide="download" data-size="16" data-stroke-width="1.5" class="shrink-0 text-fg-muted" aria-hidden="true"></i>Export as PDF</spyglass-menubar-item>
+      <spyglass-menubar-separator></spyglass-menubar-separator>
+      <spyglass-menubar-item danger><i data-lucide="trash-2" data-size="16" data-stroke-width="1.5" class="shrink-0" aria-hidden="true"></i>Delete board</spyglass-menubar-item>
+    </spyglass-menubar-menu>
+    <spyglass-menubar-menu label="View">
+      <spyglass-menubar-label>Sort creatives</spyglass-menubar-label>
+      <spyglass-menubar-item item-role="menuitemradio" data-sort="newest" checked>Newest first</spyglass-menubar-item>
+      <spyglass-menubar-item item-role="menuitemradio" data-sort="longest">Longest running</spyglass-menubar-item>
+      <spyglass-menubar-item item-role="menuitemradio" data-sort="saved">Most saved</spyglass-menubar-item>
+    </spyglass-menubar-menu>
+    <spyglass-menubar-menu label="Share">
+      <spyglass-menubar-item><i data-lucide="link" data-size="16" data-stroke-width="1.5" class="shrink-0 text-fg-muted" aria-hidden="true"></i>Copy link</spyglass-menubar-item>
+      <spyglass-menubar-item><i data-lucide="user-plus" data-size="16" data-stroke-width="1.5" class="shrink-0 text-fg-muted" aria-hidden="true"></i>Invite a teammate</spyglass-menubar-item>
+    </spyglass-menubar-menu>
+  </spyglass-menubar>
+</div>
+<script type="module">
+  const rows = document.querySelectorAll('spyglass-menubar-item[data-sort]')
+  for (const row of rows) row.addEventListener('select', () => { for (const r of rows) r.checked = r === row })
+</script>
