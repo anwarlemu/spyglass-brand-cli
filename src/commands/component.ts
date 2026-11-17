@@ -18,7 +18,7 @@ export function componentHelp(): string {
 		`  ${b} component emit button --state example:Dark`,
 		`  ${b} component emit field --prop label=Email`,
 		'',
-		'Groups are ui, product, site, visuals (the ids, not the labels list prints).',
+		`Groups are ${Object.keys(brand().groups).join(', ')} (the ids, not the labels list prints).`,
 		'States are rest, <prop>:<value> for each union or boolean, and example:<Name> for each example file.',
 		'example:<Name> copies that example unchanged. Generated markup leaves the default slot empty and says so in a comment.',
 		'A required prop with no default must be passed with --prop, or you emit an example. --part selects one component when an item has several.',
@@ -33,7 +33,7 @@ export async function runComponent(root: string, args: string[], flags: Flags): 
 	if (action === 'list') {
 		if (args.length > 1) throw new Error('component list takes no item. Use component inspect <item>.');
 		if (flags.state !== undefined || flags.part !== undefined || flags.prop !== undefined || flags.source === true) throw new Error('component list only takes --group.');
-		if (flags.group !== undefined && !str(flags.group)) throw new Error('--group needs a group id. Groups: ui, product, site, visuals.');
+		if (flags.group !== undefined && !str(flags.group)) throw new Error(`--group needs a group id. Groups: ${Object.keys(brand().groups).join(', ')}.`);
 		const items = await componentList(str(flags.group));
 		const text = items.map((item) => `${item.name.padEnd(22)} ${item.group.padEnd(10)} ${item.part ?? item.parts.map((part) => part.component).join(', ')}  ${item.description}`).join('\n');
 		return { json: { components: items }, text: text || 'No components.' };

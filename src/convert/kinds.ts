@@ -193,6 +193,9 @@ export function restyle(text: string, hit: Hit, opts: RestyleOptions = {}): stri
 		if (v && def.variants[v]) add.push(...def.variants[v].split(/\s+/));
 	}
 	if (hit.kind === 'button' && opts.key && /^icon/.test(opts.key) && def.icon) add.push(...def.icon.split(/\s+/));
+	// A button the app sized itself (w-10, size-8) with no padding of its own is an icon button: the recipe's label
+	// padding would squeeze its icon, so it keeps no side padding.
+	else if (hit.kind === 'button' && which !== 'variant' && tokens.some((t) => /^(?:[\w-]+:)*(?:w|size)-(?:\d|\[)/.test(t)) && !tokens.some((t) => groupOf(t) === 'padding')) add = [...add.filter((t) => groupOf(t) !== 'padding'), 'px-0'];
 	if (anchor && hit.kind === 'button') {
 		add = add.filter((t) => !t.startsWith('disabled:')).map((t) => t.replace(/^(hover|active):enabled:/, '$1:'));
 		if (!keep.some((t) => /^(block|inline|inline-block|flex|inline-flex|grid|inline-grid|hidden)$/.test(t))) add.unshift('inline-flex', 'items-center', 'justify-center');

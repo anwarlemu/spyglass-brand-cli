@@ -1,7 +1,8 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, posix, relative, resolve } from 'node:path';
 import { type Change } from '../convert/classes.js';
-import { elements } from '../convert/color.js';
+import { elements, setGround } from '../convert/color.js';
+import { detectGround } from '../convert/ground.js';
 import { StructureChanged } from '../convert/shared.js';
 import type { FileOptions } from '../convert/shared.js';
 import { STYLE_FILE, convertFile, fileType } from '../convert/dispatch.js';
@@ -237,6 +238,8 @@ export async function apply(root: string, opts: ApplyOptions): Promise<ApplyResu
 
 	// What the app's own stylesheets give its classes: read once, for kinds and variants of elements styled in CSS.
 	const look = buildStyleIndex(graph.files.flatMap((f) => (STYLE_FILE.test(f) ? [readFileSync(join(root, f), 'utf8')] : /\.(vue|svelte|astro|html?|erb|php|hbs|ejs|liquid|twig|njk)$/.test(f) ? styleBlocks(readFileSync(join(root, f), 'utf8')) : [])));
+	// The app's ground becomes the brand's: a dark app stays dark in a dark brand (convert/ground.ts).
+	setGround(detectGround(graph.files.filter((f) => STYLE_FILE.test(f) || /\.(html?|vue|svelte|astro|[jt]sx|erb|php|hbs|ejs|liquid|twig|njk)$/.test(f)).map((f) => readFileSync(join(root, f), 'utf8'))));
 	const results: ApplyResult['files'] = [];
 	const skipped: ApplyResult['skipped'] = [];
 	for (const plan of plans.values()) {
