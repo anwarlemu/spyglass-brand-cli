@@ -1,0 +1,13 @@
+<!-- Signing in with a code from email: six digits in two threes, and a line that says when it is checked. -->
+<div class="flex flex-col items-start gap-3">
+  <p class="type-label text-fg-soft">Code from your email</p>
+  <spyglass-input-otp id="otp-verify" label="Code from your email" split="3"></spyglass-input-otp>
+  <p id="otp-status" class="type-caption text-fg-muted" role="status">We sent it to you@acme.com.</p>
+</div>
+<script type="module">
+  const otp = document.getElementById('otp-verify')
+  const status = document.getElementById('otp-status')
+  // The input event reaches the page after complete: only a code still being typed resets the line.
+  otp.addEventListener('input', () => { if (otp.value.length < otp.length) status.textContent = 'We sent it to you@acme.com.' })
+  otp.addEventListener('complete', () => { status.textContent = 'Checking your code.' })
+</script>

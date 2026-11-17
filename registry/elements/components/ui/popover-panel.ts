@@ -4,11 +4,11 @@ import { PopoverController, popoverStyles, type Align, type Side } from '@/eleme
 import styles from 'virtual:tw'
 
 // PopoverPanel.tsx as <spyglass-popover-panel>: the floating panel every overlay draws, on its own, for overlays of
-// your own: the #171717 overlay surface in a neutral hairline with the 8px corner and no shadow, beside the element named by `anchor` (an id), flipped to the
-// side with room and kept 8px inside the viewport, in the top layer. It grows from its anchor over 200ms and leaves in
-// 150ms; opened or closed from the keyboard it does neither. `tip` is the tooltip's White fill. Set `open` (or call
-// show() and hide()); a press outside, Escape and focus leaving close it. The library's own overlays draw the same
-// panel inside their shadow roots (lib/popover.ts).
+// your own: the card's #171717 fill with a hairline and the brand corner, no shadow, beside the element named by
+// `anchor` (an id), flipped to the side with room and kept 8px inside the viewport, in the top layer. It grows from its
+// anchor over 200ms and leaves in 150ms; opened or closed from the keyboard it does neither. `tip` is the tooltip's
+// White fill. Set `open` (or call show() and hide()); a press outside, Escape and focus leaving close it. The library's
+// own overlays draw the same panel inside their shadow roots (lib/popover.ts).
 
 /**
  * @summary A floating panel beside an anchor.

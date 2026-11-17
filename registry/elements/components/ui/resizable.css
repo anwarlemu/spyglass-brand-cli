@@ -1,0 +1,25 @@
+/* The host is the split (Resizable.tsx's root div and its classes), so a class on the element lands on it. */
+:host { @apply flex min-h-0 min-w-0 flex-row; }
+:host([direction="vertical"]) { @apply flex-col; }
+:host([data-dragging]) { @apply select-none; }
+/* Resizable.tsx's styles, as they are. */
+.ds-resize-handle { position: relative; display: flex; flex-shrink: 0; align-items: center; justify-content: center; background: var(--ds-color-edge); touch-action: none; transition: background-color var(--ds-duration-micro) var(--ds-easing-standard); }
+.ds-resize-handle[data-direction="horizontal"] { width: var(--ds-border-hairline); cursor: col-resize; }
+.ds-resize-handle[data-direction="vertical"] { height: var(--ds-border-hairline); cursor: row-resize; }
+/* The reach: 12px either side of the hairline, 20px on touch. */
+.ds-resize-handle::before { position: absolute; content: ""; }
+.ds-resize-handle[data-direction="horizontal"]::before { inset: 0 calc(var(--ds-space-md) * -1); }
+.ds-resize-handle[data-direction="vertical"]::before { inset: calc(var(--ds-space-md) * -1) 0; }
+@media (pointer: coarse) {
+  .ds-resize-handle[data-direction="horizontal"]::before { inset: 0 -20px; }
+  .ds-resize-handle[data-direction="vertical"]::before { inset: -20px 0; }
+}
+.ds-resize-handle[data-dragging], .ds-resize-handle:focus-visible { background: var(--ds-color-edge-focus); }
+.ds-resize-handle:focus-visible { outline: none; }
+@media (hover: hover) and (pointer: fine) { .ds-resize-handle:hover { background: var(--ds-color-edge-focus); } }
+/* The grip: a small box on the hairline, the card's fill in a #363636 hairline that turns White with it. */
+.ds-resize-grip { position: relative; z-index: 1; flex-shrink: 0; border: var(--ds-border-hairline) solid var(--ds-color-edge-strong); border-radius: var(--ds-radius-sm); background: var(--ds-color-surface-raised); transition: border-color var(--ds-duration-micro) var(--ds-easing-standard); }
+.ds-resize-handle[data-direction="horizontal"] .ds-resize-grip { width: var(--ds-space-md); height: var(--ds-space-xl); }
+.ds-resize-handle[data-direction="vertical"] .ds-resize-grip { width: var(--ds-space-xl); height: var(--ds-space-md); }
+.ds-resize-handle[data-dragging] .ds-resize-grip, .ds-resize-handle:focus-visible .ds-resize-grip { border-color: var(--ds-color-edge-focus); }
+@media (hover: hover) and (pointer: fine) { .ds-resize-handle:hover .ds-resize-grip { border-color: var(--ds-color-edge-focus); } }

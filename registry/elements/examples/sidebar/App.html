@@ -1,0 +1,39 @@
+<!-- The app's rail: the logo and the fold button at the top, a label over each group, the page you are on in White,
+     and the account at the foot. Fold it to icons with the button. -->
+<div class="flex h-120 overflow-hidden rounded-container border border-edge">
+  <spyglass-sidebar id="app-rail" label="App" collapsible>
+    <spyglass-logo slot="head" height="20"></spyglass-logo>
+    <spyglass-sidebar-label>Discover</spyglass-sidebar-label>
+    <spyglass-sidebar-link href="#" active><i data-lucide="search" slot="icon" data-size="16" data-stroke-width="1.5" aria-hidden="true"></i>Search</spyglass-sidebar-link>
+    <spyglass-sidebar-link href="#"><i data-lucide="compass" slot="icon" data-size="16" data-stroke-width="1.5" aria-hidden="true"></i>Explore</spyglass-sidebar-link>
+    <spyglass-sidebar-link href="#" status="12"><i data-lucide="store" slot="icon" data-size="16" data-stroke-width="1.5" aria-hidden="true"></i>Brands</spyglass-sidebar-link>
+    <spyglass-sidebar-link href="#" status="8"><i data-lucide="users" slot="icon" data-size="16" data-stroke-width="1.5" aria-hidden="true"></i>Creators</spyglass-sidebar-link>
+    <spyglass-sidebar-label>Boards</spyglass-sidebar-label>
+    <spyglass-sidebar-link href="#" status="24"><i data-lucide="folder" slot="icon" data-size="16" data-stroke-width="1.5" aria-hidden="true"></i>Acme hooks</spyglass-sidebar-link>
+    <spyglass-sidebar-link href="#" status="9"><i data-lucide="folder" slot="icon" data-size="16" data-stroke-width="1.5" aria-hidden="true"></i>UGC ideas</spyglass-sidebar-link>
+    <spyglass-sidebar-link href="#"><i data-lucide="bookmark" slot="icon" data-size="16" data-stroke-width="1.5" aria-hidden="true"></i>Saved</spyglass-sidebar-link>
+    <div slot="foot" class="flex flex-col gap-0.5">
+      <spyglass-sidebar-link href="#" data-static><i data-lucide="settings" slot="icon" data-size="16" data-stroke-width="1.5" aria-hidden="true"></i>Settings</spyglass-sidebar-link>
+      <div class="flex flex-col px-3 pt-2">
+        <span class="type-ui-strong text-fg">Acme Studio</span>
+        <span class="type-caption text-fg-muted">Creator plan</span>
+      </div>
+    </div>
+  </spyglass-sidebar>
+  <div class="hidden min-w-0 flex-1 flex-col gap-2 p-8 md:flex">
+    <h2 id="app-page" class="type-heading-3 text-fg">Search</h2>
+    <p class="type-ui text-fg-muted">The only creative search engine.</p>
+  </div>
+</div>
+<script type="module">
+  const rail = document.getElementById('app-rail')
+  const links = rail.querySelectorAll('spyglass-sidebar-link:not([data-static])')
+  for (const link of rail.querySelectorAll('spyglass-sidebar-link')) {
+    link.addEventListener('click', (event) => {
+      event.preventDefault()
+      if (link.hasAttribute('data-static')) return
+      for (const l of links) l.active = l === link
+      document.getElementById('app-page').textContent = link.textContent.trim()
+    })
+  }
+</script>

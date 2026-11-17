@@ -1,0 +1,3 @@
+/* The host is the field's box (Field.tsx's root div), so a class on <spyglass-field> (a width, a margin) lands on it as
+   a class on <Field> does. */
+:host { @apply flex flex-col gap-2; }

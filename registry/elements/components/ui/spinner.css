@@ -1,0 +1,5 @@
+/* Spinner.tsx's styles, as they are. */
+.ds-spinner { animation: ds-spinner-turn 750ms linear infinite; }
+@keyframes ds-spinner-turn { to { transform: rotate(360deg); } }
+@keyframes ds-spinner-breathe { 50% { opacity: 0.5; } }
+@media (prefers-reduced-motion: reduce) { .ds-spinner { animation: ds-spinner-breathe 2s var(--ds-easing-in-out) infinite; } }

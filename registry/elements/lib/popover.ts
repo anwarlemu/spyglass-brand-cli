@@ -60,7 +60,7 @@ export function within(container: Node | null | undefined, node: Node | null | u
 }
 
 /** The box an element draws: itself, or, for an element whose host is display: contents (most of the library's), the
- * first box in its shadow root. A panel placed beside <conare-button> measures the button it draws. */
+ * first box in its shadow root. A panel placed beside <spyglass-button> measures the button it draws. */
 export function boxOf(el: Element | null | undefined): HTMLElement | null {
 	let n = el ?? null
 	for (let i = 0; n && i < 8 && getComputedStyle(n).display === 'contents'; i++) n = [...(n.shadowRoot?.children ?? n.children)].find((c) => c.localName !== 'style' && c.localName !== 'slot') ?? null
@@ -242,14 +242,13 @@ export class PopoverController implements ReactiveController {
 	}
 }
 
-/** PopoverPanel.tsx's styles, for every element that draws a panel: the #171717 overlay surface in a neutral hairline with
- * the 8px corner and no shadow; the tooltip's White fill; the top layer's own defaults undone. */
+/** PopoverPanel.tsx's styles, for every element that draws a panel, with the top layer's own defaults undone. */
 export const popoverStyles = css`
-.ds-pop { position: fixed; z-index: 60; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); overflow: auto; overscroll-behavior: contain; border: var(--ds-border-hairline) solid var(--ds-color-edge); border-radius: var(--ds-radius-container); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); text-align: left; outline: none; }
+.ds-pop { position: fixed; z-index: 60; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); overflow: auto; overscroll-behavior: contain; border: var(--ds-border-hairline) solid var(--ds-color-edge-strong); border-radius: var(--ds-radius-container); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); text-align: left; outline: none; }
 .ds-pop:not([data-placed]) { visibility: hidden; }
-.ds-pop[data-tip] { z-index: 70; overflow: visible; padding: 4px 8px; border-radius: var(--ds-radius-sm); border-color: var(--ds-color-surface-inverse); background: var(--ds-color-surface-inverse); color: var(--ds-color-fg-inverse); font-size: var(--ds-text-caption); line-height: var(--ds-text-caption-leading); white-space: nowrap; pointer-events: none; }
+.ds-pop[data-tip] { z-index: 70; overflow: visible; padding: var(--ds-space-xs) var(--ds-space-sm); border-color: var(--ds-color-surface-inverse); border-radius: var(--ds-radius-sm); background: var(--ds-color-surface-inverse); color: var(--ds-color-fg-inverse); font-size: var(--ds-text-caption); line-height: var(--ds-text-caption-leading); white-space: nowrap; pointer-events: none; }
 .ds-pop-enter-active { transition: opacity var(--ds-duration-enter) var(--ds-easing-out), transform var(--ds-duration-enter) var(--ds-easing-out); }
-.ds-pop-leave-active { transition: opacity var(--ds-duration-exit) var(--ds-easing-standard), transform var(--ds-duration-exit) var(--ds-easing-standard); }
+.ds-pop-leave-active { transition: opacity var(--ds-duration-exit) var(--ds-easing-out), transform var(--ds-duration-exit) var(--ds-easing-out); }
 .ds-pop-enter-from, .ds-pop-leave-to { opacity: 0; }
 .ds-pop-enter-from[data-side="bottom"], .ds-pop-leave-to[data-side="bottom"] { transform: translateY(-4px) scale(0.98); }
 .ds-pop-enter-from[data-side="top"], .ds-pop-leave-to[data-side="top"] { transform: translateY(4px) scale(0.98); }
@@ -265,6 +264,6 @@ export const popoverStyles = css`
   .ds-pop.ds-pop-enter-from, .ds-pop.ds-pop-leave-to { transform: none; }
 }
 
-/* The top layer's own defaults undone, under every utility class (a layer), as the Vue panel has none of them. */
+/* The top layer's own defaults undone, under every utility class (a layer), as the React panel has none of them. */
 @layer base { .ds-pop[popover] { inset: auto; margin: 0; padding: 0; width: auto; height: auto; } }
 `

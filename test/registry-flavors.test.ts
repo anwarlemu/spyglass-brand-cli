@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { createServer, type Server } from 'node:http';
 import { extname, join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { builtModule, elementPath, gluedInterpolation, needsUseClient } from '../scripts/registry-flavors.ts';
+import { builtModule, elementPath, exampleNeedsUseClient, gluedInterpolation, needsUseClient } from '../scripts/registry-flavors.ts';
 import { explainBuildError } from '../scripts/build-elements.mjs';
 
 // The React and web component flavors as the registry build writes them (bun run registry runs before the tests in ci).
@@ -92,6 +92,20 @@ describe('registry flavors: output', () => {
 		const sizes = el.examples.find((e: { name: string }) => e.name === 'Sizes');
 		expect(sizes.content).toContain('class="lucide lucide-search"');
 		expect(sizes.content).not.toContain('data-lucide');
+	});
+	it('asks for use client on an example that writes an event handler', () => {
+		const ex = "export default function A() { return <Toast onDismiss={() => {}} /> }";
+		expect(exampleNeedsUseClient('react/examples/toast/Notes.tsx', ex)).toBe(true);
+		expect(exampleNeedsUseClient('react/examples/toast/Notes.tsx', `'use client'\n${ex}`)).toBe(false);
+		expect(exampleNeedsUseClient('react/components/ui/Toast.tsx', ex)).toBe(false);
+	});
+	it('expands an example icon whatever attribute comes before data-lucide', async () => {
+		const { expandIcons } = await import('../scripts/build-elements.mjs');
+		const out = await expandIcons('<i slot="start" data-lucide="search" data-size="16" aria-hidden="true"></i>');
+		expect(out).toContain('class="lucide lucide-search"');
+		expect(out).toContain('slot="start"');
+		expect(out).toContain('width="16"');
+		expect(out).not.toContain('data-lucide');
 	});
 	it('records what an item requires in each flavor, and the modules its examples load', () => {
 		const bar = json('apps/www/public/r/search-bar.json');

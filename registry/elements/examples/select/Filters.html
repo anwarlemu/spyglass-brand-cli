@@ -1,0 +1,12 @@
+<!-- Two filters for a search: a platform to pick (a placeholder until then) and the order, already chosen. -->
+<div class="flex min-h-72 w-72 max-w-full flex-col gap-6">
+  <div class="flex flex-col gap-2">
+    <label for="select-platform" class="type-label text-fg-soft">Platform</label>
+    <spyglass-select id="select-platform" aria-label="Platform" name="platform" placeholder="Any platform" options='[{"value":"meta","label":"Meta"},{"value":"tiktok","label":"TikTok"},{"value":"youtube","label":"YouTube"},{"value":"linkedin","label":"LinkedIn","disabled":true}]'></spyglass-select>
+  </div>
+  <div class="flex flex-col gap-2">
+    <label for="select-order" class="type-label text-fg-soft">Sort by</label>
+    <spyglass-select id="select-order" aria-label="Sort by" name="order" value="longest" options='[{"value":"newest","label":"Newest first"},{"value":"longest","label":"Longest running"},{"value":"saved","label":"Most saved"}]'></spyglass-select>
+    <p class="type-caption text-fg-muted">Ads that run longer are the ones that work.</p>
+  </div>
+</div>

@@ -1,0 +1,5 @@
+/* The host is the block (Skeleton.tsx's root div), so size classes on the element land on it. */
+:host { @apply block bg-surface-subtle rounded-control; animation: ds-skeleton-breathe 2s var(--ds-easing-in-out) infinite; }
+:host([circle]) { @apply rounded-full; }
+@keyframes ds-skeleton-breathe { 50% { opacity: 0.5; } }
+@media (prefers-reduced-motion: reduce) { :host { animation: none; } }

@@ -1,0 +1,24 @@
+<!-- Notification settings: each row says what the switch does, one on, one off, and one the plan locks. -->
+<div class="flex w-120 max-w-full flex-col divide-y divide-edge rounded-container bg-surface-raised px-6">
+  <div class="flex items-center justify-between gap-6 py-4">
+    <div class="flex min-w-0 flex-col gap-1">
+      <p class="type-ui-strong text-fg">Weekly digest</p>
+      <p class="type-caption text-fg-muted">New ads from the brands you track, every Monday.</p>
+    </div>
+    <spyglass-switch label="Weekly digest" checked></spyglass-switch>
+  </div>
+  <div class="flex items-center justify-between gap-6 py-4">
+    <div class="flex min-w-0 flex-col gap-1">
+      <p class="type-ui-strong text-fg">New creative alerts</p>
+      <p class="type-caption text-fg-muted">An email the day a tracked brand launches an ad.</p>
+    </div>
+    <spyglass-switch label="New creative alerts"></spyglass-switch>
+  </div>
+  <div class="flex items-center justify-between gap-6 py-4">
+    <div class="flex min-w-0 flex-col gap-1">
+      <p class="type-ui-strong text-fg">Share outside Acme</p>
+      <p class="type-caption text-fg-muted">Available on the Team plan.</p>
+    </div>
+    <spyglass-switch label="Share outside Acme" disabled></spyglass-switch>
+  </div>
+</div>

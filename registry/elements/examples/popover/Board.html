@@ -1,0 +1,23 @@
+<!-- Save a search to a board: a short form in a panel, opened from a button. -->
+<spyglass-popover id="board-popover" label="Save to a board">
+  <span slot="trigger">Save to board</span>
+  <form id="board-form" class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1">
+      <p class="type-ui-strong text-fg">Save to a board</p>
+      <p class="type-caption text-fg-muted">Keep the creatives from this search in one place.</p>
+    </div>
+    <div class="flex flex-col gap-2">
+      <label for="popover-board" class="type-label text-fg-soft">Board name</label>
+      <spyglass-input id="popover-board" name="board" size="sm" value="Acme hooks" aria-label="Board name"></spyglass-input>
+    </div>
+    <div class="flex justify-end gap-2">
+      <spyglass-button id="board-cancel" variant="ghost" size="sm">Cancel</spyglass-button>
+      <spyglass-button type="submit" size="sm">Save</spyglass-button>
+    </div>
+  </form>
+</spyglass-popover>
+<script type="module">
+  const pop = document.getElementById('board-popover')
+  document.getElementById('board-form').addEventListener('submit', (event) => { event.preventDefault(); pop.close() })
+  document.getElementById('board-cancel').addEventListener('click', () => pop.close())
+</script>

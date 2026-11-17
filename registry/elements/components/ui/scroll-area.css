@@ -1,0 +1,7 @@
+/* The host is the scrolling box (ScrollArea.tsx's root div), so a class on the element lands on it. */
+:host { @apply relative block overscroll-contain overflow-x-hidden overflow-y-auto; }
+:host([axis="x"]) { @apply overflow-x-auto overflow-y-hidden; }
+:host([axis="both"]) { @apply overflow-auto; }
+:host { scrollbar-width: thin; scrollbar-color: var(--ds-color-neutral-5) transparent; }
+/* !important: the page's focus ring (outline-offset 2px) wins over a plain :host rule. */
+:host(:focus-visible) { outline-offset: calc(var(--ds-border-focus) * -1) !important; }

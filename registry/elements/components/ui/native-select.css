@@ -1,0 +1,2 @@
+/* The host is the box (NativeSelect.tsx's wrapper span), so a class on the element (a width) lands on it. */
+:host { @apply relative inline-flex w-full items-center; }

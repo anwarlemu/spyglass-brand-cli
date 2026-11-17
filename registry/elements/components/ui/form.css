@@ -1,0 +1,2 @@
+/* The host is the form's box (Form.tsx's root <form>), so a class on <spyglass-form> lands on it as on <Form>. */
+:host { @apply flex flex-col gap-6; }

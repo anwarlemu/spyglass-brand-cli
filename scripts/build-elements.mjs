@@ -99,7 +99,9 @@ const pascal = (s) => s.replace(/(^|-)([a-z0-9])/g, (_, __, c) => c.toUpperCase(
  */
 export async function expandIcons(html, file = 'example') {
 	lucideNodes ??= await import(pathToFileURL(join(root, 'node_modules', 'lucide', 'dist', 'esm', 'lucide.js')).href);
-	return html.replace(/<i\s+data-lucide="([\w-]+)"([^>]*)><\/i>/g, (_, name, rest) => {
+	// data-lucide may come anywhere among the attributes (<i slot="start" data-lucide="search">).
+	return html.replace(/<i((?:\s+[\w:-]+(?:="[^"]*")?)*?)\s+data-lucide="([\w-]+)"([^>]*)><\/i>/g, (_, before, name, after) => {
+		const rest = `${before}${after}`;
 		const node = lucideNodes[pascal(name)];
 		if (!node) throw new Error(`${file}: no Lucide icon named ${name}`);
 		const attr = (k) => rest.match(new RegExp(`\\s${k}="([^"]*)"`))?.[1];
