@@ -8,7 +8,7 @@ import { flavorsOf, resolveItems } from '../library/registry.js';
 import { init } from './init.js';
 import { installedItems, resolveNames } from './library.js';
 
-// add: copies items and everything they require into the app in its flavor (Vue, React, or web components), makes
+// add: copies items and everything they require into the app in its flavor (React, or web components), makes
 // their library imports resolve there, installs the npm packages they import with the app's manager and installs the
 // brand stylesheet once. Web components are prebuilt modules: copied into the static folder, with the line to load them.
 
@@ -21,7 +21,7 @@ export async function add(root: string, names: string[], opts: { dryRun?: boolea
 	let flavor = chooseFlavor(project, opts.framework);
 	const stop = flavorProblem(project, flavor);
 	// Asked for by name: stop and say why. Chosen from the app: the web components work without Tailwind, so use them.
-	const fallback = stop && !opts.framework ? `This app has no Tailwind, so it gets the web components (they carry their own styles). Install Tailwind 4 and pass --framework ${flavor} for the ${flavor === 'react' ? 'React' : 'Vue'} files.` : undefined;
+	const fallback = stop && !opts.framework ? 'This app has no Tailwind, so it gets the web components (they carry their own styles). Install Tailwind 4 and pass --framework react for the React files.' : undefined;
 	if (stop && !fallback) throw new Error(stop);
 	if (fallback) flavor = 'elements';
 	// Names as typed: Button, alert-dialog, AlertDialog, badge (an alias); every one resolves before anything is written.
@@ -30,7 +30,7 @@ export async function add(root: string, names: string[], opts: { dryRun?: boolea
 	if (fallback) notes.push(fallback);
 	const items = await resolveItems(resolved.map((r) => r.name), flavor);
 	const missing = items.filter((i) => !flavorsOf(i).includes(flavor));
-	if (missing.length) throw new Error(`${missing.map((i) => i.name).join(', ')} ${missing.length === 1 ? 'has' : 'have'} no ${flavor === 'elements' ? 'web component' : flavor === 'react' ? 'React' : 'Vue'} version in this registry yet. Nothing was written. ${flavor === 'vue' ? '' : `Pass --framework ${flavor === 'react' ? 'elements' : 'vue'} for another flavor, or update the package.`}`.trim());
+	if (missing.length) throw new Error(`${missing.map((i) => i.name).join(', ')} ${missing.length === 1 ? 'has' : 'have'} no ${flavor === 'elements' ? 'web component' : 'React'} version in this registry yet. Nothing was written. Pass --framework ${flavor === 'react' ? 'elements' : 'react'} for the other flavor, or update the package.`);
 	const written: string[] = [];
 	const updated: string[] = [];
 	const kept: string[] = [];
@@ -53,10 +53,10 @@ export async function add(root: string, names: string[], opts: { dryRun?: boolea
 	}
 	if (kept.length) warnings.push(`Kept ${kept.length} local file(s) that differ from the library; pass --overwrite to replace them.`);
 
-	// npm packages: Vue and React flavors import them; prebuilt web components carry their own.
+	// npm packages: the React flavor imports them; prebuilt web components carry their own.
 	const have = { ...project.pkg.dependencies, ...project.pkg.devDependencies };
 	const nameOf = (spec: string) => spec.replace(/(.)@.*$/, '$1');
-	const wanted = flavor === 'vue' ? items.flatMap((i) => i.dependencies) : flavor === 'react' ? items.flatMap((i) => i.flavors?.react?.dependencies ?? []) : [];
+	const wanted = flavor === 'react' ? items.flatMap((i) => i.flavors?.react?.dependencies ?? i.dependencies) : [];
 	const packages = [...new Set(wanted)].filter((p) => !have[nameOf(p)]);
 	let installed = false;
 	if (packages.length && !opts.dryRun && opts.install !== false) {
@@ -95,14 +95,14 @@ export async function update(root: string, opts: { dryRun?: boolean; overwrite?:
 	const have = await installedItems(project);
 	if (!have.length) throw new Error(`No library items found in this app: add one first (${brand().bin} add <item>).`);
 	const out: AddResult[] = [];
-	for (const flavor of ['vue', 'react', 'elements'] as Flavor[]) {
+	for (const flavor of ['react', 'elements'] as Flavor[]) {
 		const names = have.filter((i) => i.flavor === flavor).map((i) => i.name);
 		if (names.length) out.push(await add(root, names, { ...opts, framework: flavor }));
 	}
 	return out;
 }
 
-export const flavorLabel = (f: Flavor) => (f === 'elements' ? 'web components' : f === 'react' ? 'React' : 'Vue');
+export const flavorLabel = (f: Flavor) => (f === 'elements' ? 'web components' : 'React');
 export const brandBin = () => brand().bin;
 
 /**

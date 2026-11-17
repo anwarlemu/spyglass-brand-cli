@@ -12,6 +12,7 @@ import { imageHelp, runImage } from './commands/image.js';
 import { formatManifest, manifest, manifestHelp } from './commands/manifest.js';
 import { findTokens, list } from './commands/small.js';
 import { runVideo, videoHelp } from './commands/video.js';
+import { patternHelp, runAscii, runLight } from './commands/pattern.js';
 
 const HELP = () => {
 	const b = brand().bin;
@@ -25,7 +26,7 @@ const HELP = () => {
 		`  ${''.padEnd(44)}fields, cards, dialogs, tables...; theme and fonts installed`,
 		row('apply button card dialog', "Only those kinds, wherever the app uses them (its components and elements)"),
 		row('apply /settings /billing', 'Only those pages (by route), with the components only they use'),
-		row('apply app/pages/settings.vue', 'Pages by file (or a glob in quotes); an app component by name (PrimaryButton)'),
+		row('apply app/settings/page.tsx', 'Pages by file (or a glob in quotes); an app component by name (PrimaryButton)'),
 		more('any stack: Vue, React, Svelte, Astro, Angular, Solid, HTML, ERB, Blade, Django, PHP, Liquid, Twig...'),
 		row('apply --components button,card --pages /settings', ''),
 		more('--with-shared  include layouts and components other pages share'),
@@ -34,8 +35,8 @@ const HELP = () => {
 		'',
 		'Use the library:',
 		row('add <item...>', 'Copy items (Button, alert-dialog, badge...) and what they need into the app'),
-		more('in its flavor: Vue (Vue, Nuxt), React (Next, Vite, React Router), web components (everything else)'),
-		more('--framework vue|react|elements   --dry-run   --overwrite   --no-install (skip packages)'),
+		more('in its flavor: React (Next, Vite, React Router), web components (everything else)'),
+		more('--framework react|elements   --dry-run   --overwrite   --no-install (skip packages)'),
 		row('add --update', 'Every installed item to this version: prebuilt modules replaced, files you changed kept (--overwrite replaces them)'),
 		row('view <item...> [--source]', 'How to use an item: rules, props, slots, events, examples, source'),
 		row('search <words>', 'Find items by what they do'),
@@ -55,7 +56,11 @@ const HELP = () => {
 		row('principles [--surface product]', 'Product and website rules. Surfaces: product, website, all'),
 		row('component list', 'Components with group ids, parts and states'),
 		row('component inspect <item>', 'Props, slots, states and examples. --part --source'),
-		row('component emit <item>', 'Vue for one state. --state variant:dark, --state example:Dark, --prop name=value'),
+		row('component emit <item>', 'React for one state. --state variant:secondary, --state example:Variants, --prop name=value'),
+		'',
+		'Brand graphics:',
+		row('light --variant band --seed 1', 'The brand light as SVG or PNG, seeded (--source brand|generated, --list)'),
+		row('ascii --seed 4', 'The ASCII texture as SVG or PNG, seeded (--density, --ground)'),
 		'',
 		'Images:',
 		row('image --title "..."', 'Open Graph and social images (PNG and SVG) from a title and optional subtext'),
@@ -73,7 +78,7 @@ const HELP = () => {
 	].join('\n');
 };
 
-const VALUE_FLAGS = new Set(['cwd', 'components', 'pages', 'framework', 'title', 'text', 'subtitle', 'eyebrow', 'by', 'author', 'image', 'template', 'size', 'ground', 'out', 'format', 'section', 'token', 'surface', 'group', 'state', 'part', 'prop']);
+const VALUE_FLAGS = new Set(['variant', 'seed', 'source', 'width', 'height', 'density', 'cwd', 'components', 'pages', 'framework', 'title', 'text', 'subtitle', 'eyebrow', 'by', 'author', 'image', 'template', 'size', 'ground', 'out', 'format', 'section', 'token', 'surface', 'group', 'state', 'part', 'prop']);
 const REPEAT_FLAGS = new Set(['prop']);
 
 export function parse(argv: string[]) {
@@ -123,6 +128,8 @@ const FLAGS: Record<string, string[]> = {
 	component: ['group', 'part', 'state', 'prop', 'source'],
 	manifest: [],
 	describe: [],
+	light: ['variant', 'seed', 'source', 'width', 'height', 'out', 'format', 'ground', 'list'],
+	ascii: ['seed', 'width', 'height', 'density', 'out', 'format', 'ground'],
 };
 
 async function main() {
@@ -135,7 +142,7 @@ async function main() {
 	const cwd = resolve(typeof flags.cwd === 'string' ? flags.cwd : process.cwd());
 	const json = flags.json === true;
 	const out = (value: unknown, text: string) => console.log(json ? JSON.stringify(value, null, 2) : text);
-	const ownHelp = new Set(['image', 'video', 'brand', 'principles', 'component', 'manifest', 'describe']);
+	const ownHelp = new Set(['image', 'video', 'brand', 'principles', 'component', 'manifest', 'describe', 'light', 'ascii']);
 	if (flags.help && command && !ownHelp.has(command)) {
 		console.log(HELP());
 		return;
@@ -278,6 +285,16 @@ async function main() {
 				return;
 			}
 			const r = await runComponent(cwd, args, flags);
+			out(r.json, r.text);
+			return;
+		}
+		case 'light':
+		case 'ascii': {
+			if (flags.help) {
+				console.log(patternHelp(command));
+				return;
+			}
+			const r = command === 'light' ? await runLight(cwd, args, flags) : await runAscii(cwd, args, flags);
 			out(r.json, r.text);
 			return;
 		}

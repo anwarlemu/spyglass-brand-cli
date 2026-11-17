@@ -46,7 +46,6 @@ async function libraryFiles(project: Project): Promise<Set<string>> {
 		for (const entry of await readIndex()) {
 			for (const flavor of flavorsOf(entry)) {
 				if (flavor === 'elements') continue;
-				if (flavor === 'vue' && !entry.files.some((f) => existsSync(join(project.root, project.srcDir === '.' ? f : `${project.srcDir}/${f}`)))) continue;
 				const item = await readItem(entry.name);
 				for (const p of await placedFiles(project, [item], flavor)) if (existsSync(join(project.root, p.path)) && readFileSync(join(project.root, p.path), 'utf8') === p.content) out.add(p.path);
 			}

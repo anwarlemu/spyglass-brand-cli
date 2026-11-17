@@ -6,33 +6,32 @@ import { type RegistryItem, readModule } from './registry.js';
 import { elementTypes, narrowManifest } from './element-types.js';
 import { staticHref } from '../install/stylesheets.js';
 
-// The library in the flavor an app takes (Vue for Vue and Nuxt, React for React apps, web components for everything
-// else), and where each flavor's files land in the app, with their library imports made to resolve there.
+// The library in the flavor an app takes (React for React apps, web components for everything else), and where each
+// flavor's files land in the app, with their library imports made to resolve there.
 
-export const FLAVORS: Flavor[] = ['vue', 'react', 'elements'];
+export const FLAVORS: Flavor[] = ['react', 'elements'];
 
 export function chooseFlavor(project: Project | undefined, override?: string): Flavor {
 	if (override) {
 		const f = override.toLowerCase().replace(/^web-?components?$|^wc$|^custom-?elements$/, 'elements');
-		if (!FLAVORS.includes(f as Flavor)) throw new Error(`--framework takes vue, react or elements (web components), not \`${override}\`.`);
+		if (!FLAVORS.includes(f as Flavor)) throw new Error(`--framework takes react or elements (web components), not \`${override}\`.`);
 		return f as Flavor;
 	}
-	return project ? flavorOf(project.framework) : 'vue';
+	return project ? flavorOf(project.framework) : 'react';
 }
 
 /**
- * Why a flavor cannot work in this app, with the fix: the Vue and React components are styled with the theme's
- * Tailwind utilities, so an app without Tailwind takes the web components (they carry their own styles).
+ * Why a flavor cannot work in this app, with the fix: the React components are styled with the theme's Tailwind
+ * utilities, so an app without Tailwind takes the web components (they carry their own styles).
  */
 export function flavorProblem(project: Project, flavor: Flavor): string | undefined {
 	if (flavor === 'elements' || project.tailwind) return undefined;
-	const name = flavor === 'react' ? 'React' : 'Vue';
-	return `This ${name} app has no Tailwind, and the ${name} components are styled with the theme's Tailwind utilities. Nothing was written. Pass --framework elements for the web components (they carry their own styles and work in ${name}), or install Tailwind 4 and run this again.`;
+	return `This app has no Tailwind, and the React components are styled with the theme's Tailwind utilities. Nothing was written. Pass --framework elements for the web components (they carry their own styles and work in React), or install Tailwind 4 and run this again.`;
 }
 
 /**
- * The flavor this app takes when none is named: its own (Vue, React), or the web components where that flavor cannot
- * work (a Vue or React app without Tailwind), as `add` installs them. view, diff and info follow it.
+ * The flavor this app takes when none is named: React in a React app, or the web components where React cannot work
+ * (a React app without Tailwind) and in every other stack, as `add` installs them. view, diff and info follow it.
  */
 export function appFlavor(project: Project | undefined, override?: string): Flavor {
 	const f = chooseFlavor(project, override);
@@ -59,17 +58,11 @@ export function aliasOf(project: Project): string | undefined {
 	return project.alias ? '@/' : undefined;
 }
 
-/** A library-relative path (`components/ui/Button.vue`) as an import from one placed file to another. */
+/** A library-relative path as an import from one placed file to another. */
 function relativeSpec(fromPlaced: string, toPlaced: string) {
 	let rel = posix.relative(posix.dirname(fromPlaced), toPlaced);
 	if (!rel.startsWith('.')) rel = `./${rel}`;
 	return rel;
-}
-
-/** A Vue library file as `add` writes it into this app (the `@/` imports made relative when the app has no alias). */
-export function localContent(project: Project, path: string, content: string) {
-	if (project.alias) return content;
-	return content.replace(/(['"])(@\/[^'"]+)\1/g, (_, q: string, spec: string) => `${q}${relativeSpec(path, spec.slice(2))}${q}`);
 }
 
 const srcJoin = (project: Project, path: string) => (project.srcDir === '.' ? path : posix.join(project.srcDir, path));
@@ -77,11 +70,12 @@ const srcJoin = (project: Project, path: string) => (project.srcDir === '.' ? pa
 /** Where a React file goes: its target, else the app's source folder without the library's `react/` prefix. */
 export const reactPath = (project: Project, f: { path: string; target?: string }) => f.target ?? srcJoin(project, f.path.replace(/^(registry\/)?react\//, ''));
 
-/** A React library file as written into this app: `@/react/...` imports through the app's alias, else relative. */
+/** A React library file as written into this app: `@/react/...` and `@/lib/...` imports through the app's alias, else
+ * relative. */
 export function reactContent(project: Project, item: { path: string; target?: string }, content: string, siblings: { path: string; target?: string }[] = []) {
 	const alias = aliasOf(project);
 	const here = reactPath(project, item);
-	return content.replace(/(['"])@\/react\/([^'"]+)\1/g, (_, q: string, rest: string) => {
+	return content.replace(/(['"])@\/(?:react\/)?((?:components|hooks|lib)\/[^'"]+)\1/g, (_, q: string, rest: string) => {
 		const sib = siblings.find((s) => s.path.replace(/^(registry\/)?react\//, '').replace(/\.(tsx|ts|jsx|js)$/, '') === rest.replace(/\.(tsx|ts|jsx|js)$/, ''));
 		if (!sib?.target && alias && alias !== '$lib/') return `${q}${alias}${rest}${q}`;
 		const to = sib ? reactPath(project, sib).replace(/\.(tsx|ts|jsx|js)$/, '') : srcJoin(project, rest);
@@ -109,10 +103,6 @@ export const elementTypesPath = (project: Project) => srcJoin(project, `${brand(
 /** An item's files as they land in this app, in a flavor (web components: the prebuilt modules and what they import). */
 export async function placedFiles(project: Project, items: RegistryItem[], flavor: Flavor): Promise<Placed[]> {
 	const out: Placed[] = [];
-	if (flavor === 'vue') {
-		for (const item of items) for (const f of item.files) out.push({ path: srcJoin(project, f.path), content: localContent(project, f.path, f.content), library: f.path });
-		return out;
-	}
 	if (flavor === 'react') {
 		const all = items.flatMap((i) => i.flavors?.react?.files ?? []);
 		for (const f of all) out.push({ path: reactPath(project, f), content: reactContent(project, f, f.content, all), library: f.path });

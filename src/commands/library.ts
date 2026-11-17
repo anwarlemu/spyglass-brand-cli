@@ -1,15 +1,14 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { join, posix } from 'node:path';
+import { join } from 'node:path';
 import { elements } from '../convert/color.js';
 import { brand, cli, registryHost } from '../lib/brand.js';
 import { normalizeName, suggest } from '../lib/names.js';
 import { type Flavor, type Project, readProject, stackLabel, unsupported } from '../library/project.js';
 import { type IndexEntry, type RegistryItem, flavorsOf, readIndex, readItem, requiresOf } from '../library/registry.js';
 import { exampleCss } from '../library/example-css.js';
-import { aliasOf, appFlavor, elementsDir, localContent, placedFiles, reactPath, scriptLines, tagModules } from '../library/flavors.js';
+import { aliasOf, appFlavor, elementsDir, placedFiles, reactPath, scriptLines, tagModules } from '../library/flavors.js';
 import { readState } from '../lib/state.js';
 
-export { localContent };
 
 // The library by name, for people and agents: resolve a name however it is typed, show how to use an item (rules,
 // props, slots, events, examples, the exact source), search, describe the app's setup, and diff local copies.
@@ -76,64 +75,6 @@ function members(body: string) {
 }
 
 export type Api = { file: string; component: string; props: { name: string; type: string; required: boolean; default?: string }[]; models: { name: string; type: string }[]; emits: string[]; slots: string[] };
-
-export function apiOf(path: string, source: string): Api {
-	const component = path.split('/').pop()!.replace(/\.vue$/, '');
-	const script = source.match(/<script\b[^>]*setup[^>]*>([\s\S]*?)<\/script>/)?.[1] ?? '';
-	const api: Api = { file: path, component, props: [], models: [], emits: [], slots: [] };
-	const dp = script.indexOf('defineProps<');
-	if (dp >= 0) {
-		let body = balanced(script, dp + 'defineProps'.length).trim();
-		if (/^\w+$/.test(body)) body = script.match(new RegExp(`(?:interface\\s+${body}\\s*|type\\s+${body}\\s*=\\s*)`))?.index !== undefined ? balanced(script, script.indexOf('{', script.search(new RegExp(`(?:interface|type)\\s+${body}\\b`)))) : '';
-		else if (body.startsWith('{')) body = balanced(body, 0);
-		const defaults: Record<string, string> = {};
-		const wd = script.indexOf('withDefaults(');
-		if (wd >= 0) {
-			const args = balanced(script, wd + 'withDefaults'.length);
-			const obj = args.lastIndexOf('{');
-			if (obj >= 0) for (const m of members(balanced(args, obj))) defaults[m.split(':')[0].trim()] = m.slice(m.indexOf(':') + 1).trim();
-		}
-		for (const m of members(body)) {
-			const [, name, optional, type] = m.match(/^['"]?([\w$-]+)['"]?(\?)?\s*:\s*([\s\S]+)$/) ?? [];
-			if (name) api.props.push({ name, type: type.replace(/\s+/g, ' '), required: !optional && !(name in defaults), default: defaults[name] });
-		}
-	}
-	for (const m of script.matchAll(/defineModel<([^>]*(?:<[^>]*>[^>]*)?)>\(\s*(?:['"]([\w-]+)['"])?/g)) api.models.push({ name: m[2] ?? 'modelValue', type: m[1].trim() });
-	const de = script.indexOf('defineEmits<');
-	if (de >= 0) {
-		const body = balanced(script, de + 'defineEmits'.length).trim();
-		if (body.startsWith('{')) {
-			const inner = balanced(body, 0);
-			for (const m of members(inner)) {
-				const [, name, args] = m.match(/^['"]?([\w:-]+)['"]?\s*:\s*\[([\s\S]*)\]$/) ?? [];
-				if (name) api.emits.push(args?.trim() ? `${name} (${args.trim()})` : name);
-			}
-			for (const m of inner.matchAll(/\(\s*e\s*:\s*['"]([\w:-]+)['"]/g)) api.emits.push(m[1]);
-		}
-	}
-	const arr = script.match(/defineEmits\(\s*\[([^\]]*)\]/);
-	if (arr) for (const m of arr[1].matchAll(/['"]([\w:-]+)['"]/g)) api.emits.push(m[1]);
-	// A prop typed by an alias in the same file reads as its values.
-	for (const p of api.props) {
-		const alias = script.match(new RegExp(`type\\s+${p.type.replace(/[^\w]/g, '')}\\s*=\\s*([^\\n]+)`))?.[1];
-		if (/^\w+$/.test(p.type) && alias) p.type = `${p.type} (${alias.trim()})`;
-	}
-	const template = source.match(/<template>([\s\S]*)<\/template>/)?.[1] ?? '';
-	for (const m of template.matchAll(/<slot\b([^>]*)>/g)) {
-		const name = m[1].match(/\sname="([\w-]+)"/)?.[1] ?? 'default';
-		const bound = [...m[1].matchAll(/:([\w-]+)=/g)].map((x) => x[1]).filter((x) => x !== 'name');
-		const label = bound.length ? `${name} (${bound.join(', ')})` : name;
-		if (!api.slots.includes(label)) api.slots.push(label);
-	}
-	return api;
-}
-
-/** How an app imports a component file, with or without the `@` alias. */
-function importLine(project: Project | undefined, component: string, path: string) {
-	const src = project && project.srcDir !== '.' ? project.srcDir : project ? '' : 'src';
-	const spec = !project || project.alias ? `@/${path}` : `./${posix.join(src, path)} (relative to the importing file)`;
-	return `import ${component} from '${spec}'`;
-}
 
 /** A React component's API from its source: its props type (interface or type alias), children as its slot. */
 export function reactApiOf(path: string, source: string): Api[] {
@@ -206,7 +147,7 @@ function givenApi(raw: unknown, file: string, component: string): Api[] | undefi
 	}));
 }
 
-export type ViewResult = { name: string; title: string; group: string; description: string; use_for: string; never: string[]; notes: string; flavor: Flavor; flavors: Flavor[]; install: string; imports: string[]; nuxtNames: string[]; tag?: string; requires: string[]; packages: string[]; api: Api[]; examples: { name: string; label?: string; path: string; content: string }[]; files: { path: string; content: string }[]; via?: string };
+export type ViewResult = { name: string; title: string; group: string; description: string; use_for: string; never: string[]; notes: string; flavor: Flavor; flavors: Flavor[]; install: string; imports: string[]; tag?: string; requires: string[]; packages: string[]; api: Api[]; examples: { name: string; label?: string; path: string; content: string }[]; files: { path: string; content: string }[]; via?: string };
 
 export async function view(root: string, names: string[], opts: { framework?: string } = {}): Promise<ViewResult[]> {
 	const project = (() => {
@@ -225,12 +166,12 @@ export async function view(root: string, names: string[], opts: { framework?: st
 		seen.add(r.name);
 		const item = await readItem(r.name);
 		const flavors = flavorsOf(item);
-		// An item without the app's flavor yet shows its Vue source, and says so.
-		const shown: Flavor = flavors.includes(flavor) ? flavor : 'vue';
+		// An item without the app's flavor yet shows its React source (every item has it), and says so.
+		const shown: Flavor = flavors.includes(flavor) ? flavor : 'react';
 		const base = { name: item.name, title: item.title, group: brand().groups[item.group] ?? item.group, description: item.description, use_for: item.use_for, never: item.never, notes: item.body ?? '', flavors, requires: requiresOf(item, shown), via: r.via };
-		const install = `npx ${cli()} add ${item.name}${shown !== (project ? appFlavor(project) : 'vue') ? ` --framework ${shown}` : ''}`;
+		const install = `npx ${cli()} add ${item.name}${shown !== (project ? appFlavor(project) : 'react') ? ` --framework ${shown}` : ''}`;
 		if (shown === 'react') {
-			const f = item.flavors!.react!;
+			const f = item.flavors?.react ?? { files: item.files, dependencies: item.dependencies, registryDependencies: item.requires, examples: item.examples };
 			const comps = f.files.filter((x) => /\.(tsx|jsx)$/.test(x.path) && /components\//.test(x.path));
 			const alias = project ? aliasOf(project) : '@/';
 			const api = (givenApi(f.api, comps[0]?.path ?? '', item.title.replace(/\s+/g, '')) ?? comps.flatMap((c) => reactApiOf(c.path, c.content)));
@@ -243,7 +184,7 @@ export async function view(root: string, names: string[], opts: { framework?: st
 			});
 			// Examples as they read in this app: the library's `@/react/...` imports through the app's alias.
 			const examples = (f.examples ?? []).map((e) => ({ ...e, content: alias && project ? e.content.replace(/(['"])@\/react\//g, `$1${alias}`) : e.content }))
-			out.push({ ...base, flavor: shown, install, imports, nuxtNames: [], packages: f.dependencies, api, examples, files: f.files });
+			out.push({ ...base, flavor: shown, install, imports, packages: f.dependencies, api, examples, files: f.files });
 			continue;
 		}
 		if (shown === 'elements') {
@@ -258,26 +199,14 @@ export async function view(root: string, names: string[], opts: { framework?: st
 				const css = plain ? await exampleCss(e.content) : '';
 				return css ? { ...e, content: `${e.content.trimEnd()}\n<!-- The layout classes above are Tailwind's, which this app does not have: this is the CSS they need (brand tokens only; your own styles win over it). -->\n<style>\n${css}\n</style>\n` } : e;
 			}));
-			out.push({ ...base, flavor: shown, install, tag: f.tag, imports: [...loads, `<${f.tag}>...</${f.tag}>`], nuxtNames: [], packages: [], api, examples, files: f.files });
+			out.push({ ...base, flavor: shown, install, tag: f.tag, imports: [...loads, `<${f.tag}>...</${f.tag}>`], packages: [], api, examples, files: f.files });
 			continue;
 		}
-		const components = item.files.filter((f) => f.path.startsWith('components/') && f.path.endsWith('.vue'));
-		out.push({
-			...base,
-			flavor: 'vue',
-			install,
-			imports: components.map((f) => importLine(project?.flavor === 'vue' ? project : undefined, f.path.split('/').pop()!.replace(/\.vue$/, ''), f.path)),
-			nuxtNames: components.map((f) => f.path.replace(/^components\//, '').replace(/\.vue$/, '').split('/').map((s) => s[0].toUpperCase() + s.slice(1)).join('')),
-			packages: item.dependencies,
-			api: components.map((f) => apiOf(f.path, f.content)),
-			examples: item.examples,
-			files: item.files,
-		});
 	}
 	return out;
 }
 
-const flavorName = (f: Flavor) => (f === 'elements' ? 'web component' : f === 'react' ? 'React' : 'Vue');
+const flavorName = (f: Flavor) => (f === 'elements' ? 'web component' : 'React');
 
 export function formatView(v: ViewResult, full: boolean) {
 	const lines = [`${v.title} (${v.name}, ${v.group}, ${flavorName(v.flavor)})${v.via ? `  [${v.via}]` : ''}`, '', v.description, '', `Use for: ${v.use_for}`];
@@ -287,11 +216,9 @@ export function formatView(v: ViewResult, full: boolean) {
 	lines.push(`Flavors: ${v.flavors.map(flavorName).join(', ')}`);
 	if (v.flavor === 'elements') lines.push(`Load: ${v.imports.join('\n      ')}`);
 	else lines.push(`Import: ${v.imports.join('\n        ')}`);
-	if (v.flavor === 'vue') lines.push(`Nuxt auto-import names: ${v.nuxtNames.join(', ')}`);
 	for (const a of v.api) {
 		lines.push('', `<${a.component}>  ${a.file}`);
 		if (a.props.length) lines.push(`  ${v.flavor === 'elements' ? 'Properties' : 'Props'}:`, ...a.props.map((p) => `    ${p.name}${p.required ? '' : '?'}: ${p.type}${p.default ? `  (default ${p.default})` : ''}`));
-		if (a.models.length) lines.push(`  v-model: ${a.models.map((m) => `${m.name === 'modelValue' ? 'v-model' : `v-model:${m.name}`} (${m.type})`).join(', ')}`);
 		if (a.emits.length) lines.push(`  ${v.flavor === 'react' ? 'Callbacks' : 'Events'}: ${a.emits.join(', ')}`);
 		if (a.slots.length) lines.push(`  ${v.flavor === 'react' ? 'Children' : 'Slots'}: ${a.slots.join(', ')}`);
 	}
@@ -308,7 +235,7 @@ export async function search(query: string[]) {
 	const words = query.join(' ').toLowerCase().split(/\s+/).filter(Boolean);
 	const aliases = elements().aliases;
 	const scored = items.map((i) => {
-		const names = [i.name, i.title, ...Object.entries(aliases).filter(([, v]) => v === i.name).map(([a]) => a), ...i.files.map((f) => f.split('/').pop()!.replace(/\.vue$/, ''))].join(' ').toLowerCase();
+		const names = [i.name, i.title, ...Object.entries(aliases).filter(([, v]) => v === i.name).map(([a]) => a), ...i.files.map((f) => f.split('/').pop()!.replace(/\.(tsx|ts)$/, ''))].join(' ').toLowerCase();
 		const text = `${i.description} ${i.use_for}`.toLowerCase();
 		let score = 0;
 		for (const w of words) {
@@ -329,10 +256,8 @@ export async function installedItems(project: Project, index?: IndexEntry[]): Pr
 	const root = project.root;
 	const installed: { name: string; flavor: Flavor; modified: string[] }[] = [];
 	for (const entry of index) {
-		for (const f of ['vue', 'react', 'elements'] as Flavor[]) {
-			if (f !== 'vue' && !flavorsOf(entry).includes(f)) continue;
-			// Cheap check first: does the item's first file exist in this app?
-			if (f === 'vue' && !entry.files.every((x) => existsSync(join(root, project.srcDir === '.' ? x : posix.join(project.srcDir, x))))) continue;
+		for (const f of ['react', 'elements'] as Flavor[]) {
+			if (!flavorsOf(entry).includes(f)) continue;
 			let item: RegistryItem;
 			try {
 				item = await readItem(entry.name);
@@ -373,8 +298,8 @@ export async function info(root: string) {
 	else {
 		if (!theme) next.push(`npx ${cli()} init   (stylesheet${project.tailwind ? ', theme' : ''}, fonts, agent contract)`);
 		if (!state) next.push(`npx ${cli()} apply --dry-run   (see what restyling the whole app would change), then npx ${cli()} apply`);
-		next.push(`npx ${cli()} add <item>   (${flavorName(flavor)}; for example: ${['button', 'field', 'dialog'].filter((n) => index.some((i) => i.name === n)).join(', ')}; npx ${cli()} search <words> finds one)`);
-		next.push(`npx ${cli()} view <item>   (${flavor === 'elements' ? 'properties, events, slots' : flavor === 'react' ? 'props, callbacks, children' : 'props, slots'}, examples, source)`);
+		next.push(`npx ${cli()} add <item>   (${flavorName(flavor)}; for example: ${['button', 'card', 'search-bar'].filter((n) => index.some((i) => i.name === n)).join(', ')}; npx ${cli()} search <words> finds one)`);
+		next.push(`npx ${cli()} view <item>   (${flavor === 'elements' ? 'properties, events, slots' : 'props, callbacks, children'}, examples, source)`);
 		if (installed.length) next.push(`npx ${cli()} add --update   (every installed item to this version: prebuilt modules replaced, files you changed kept unless --overwrite)`);
 		next.push(`npx ${cli()} check`);
 	}

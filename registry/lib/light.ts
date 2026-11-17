@@ -435,11 +435,14 @@ export function lightSvg(options: LightSvgOptions): string {
 		// One filter adds the three tinted, shifted, blurred copies of the shape's alpha: plus-lighter, in SVG.
 		const tint = (c: string, o: number) => {
 			const [r, gr, b] = [1, 3, 5].map((k) => parseInt(c.slice(k, k + 2), 16) / 255)
-			return `0 0 0 0 ${num(r! * o)} 0 0 0 0 ${num(gr! * o)} 0 0 0 0 ${num(b! * o)} 0 0 0 ${o} 0`
+			// The color itself (unpremultiplied) and the opacity on the alpha: the filter premultiplies once.
+			return `0 0 0 0 ${num(r!)} 0 0 0 0 ${num(gr!)} 0 0 0 0 ${num(b!)} 0 0 0 ${o} 0`
 		}
+		// The region reaches past the frame, so the shifted layers and the blur do not stop at its edge.
+		const pad = g.offset * 2 + g.blur * 4
 		const steps = LIGHT_LAYERS.map((l, i) => `<feOffset in="blur" dx="${num(g.offset * l.shift)}" dy="0" result="o${i}"/><feColorMatrix in="o${i}" type="matrix" values="${tint(l.color, l.opacity)}" result="c${i}"/>`).join('')
 		const add = '<feComposite in="c0" in2="c1" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="a01"/><feComposite in="a01" in2="c2" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/>'
-		return `${head}<defs><filter id="${id}-add" x="0" y="0" width="${num(g.width)}" height="${num(g.height)}" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceAlpha" stdDeviation="${num(g.blur)}" result="blur"/>${steps}${add}</filter></defs>${ground}<g filter="url(#${id}-add)"><path fill="#FFFFFF" fill-rule="evenodd" d="${g.d}"/></g></svg>`
+		return `${head}<defs><filter id="${id}-add" x="${num(-pad)}" y="${num(-pad)}" width="${num(g.width + 2 * pad)}" height="${num(g.height + 2 * pad)}" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceAlpha" stdDeviation="${num(g.blur)}" result="blur"/>${steps}${add}</filter></defs>${ground}<g filter="url(#${id}-add)"><path fill="#FFFFFF" fill-rule="evenodd" d="${g.d}"/></g></svg>`
 	}
 	const uses = LIGHT_LAYERS.map((l) => `<use xlink:href="#${id}-shape" href="#${id}-shape" x="${num(g.offset * l.shift)}" fill="${l.color}" opacity="${l.opacity}" filter="url(#${id}-blur)" style="mix-blend-mode:plus-lighter"/>`).join('')
 	return `${head}<defs>${shape}<filter id="${id}-blur" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="${num(g.blur)}"/></filter></defs>${ground}<g style="isolation:isolate">${uses}</g></svg>`

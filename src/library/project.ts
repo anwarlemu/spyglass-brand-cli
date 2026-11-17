@@ -25,12 +25,12 @@ export type Stack =
 	| 'html'
 	| 'unknown';
 
-export type Flavor = 'vue' | 'react' | 'elements';
+export type Flavor = 'react' | 'elements';
 
 export type Project = {
 	root: string;
 	framework: Stack;
-	/** The library flavor `add` installs: Vue apps get Vue, React apps React, everything else web components. */
+	/** The library flavor `add` installs: React apps get React, everything else web components. */
 	flavor: Flavor;
 	srcDir: string;
 	/** The folder served at the site root (public/, static/, or the app folder itself for a plain site). */
@@ -140,7 +140,7 @@ function detectFramework(root: string, deps: Record<string, string>, files: () =
 	return 'unknown';
 }
 
-export const flavorOf = (framework: Stack): Flavor => (framework === 'nuxt' || framework === 'vite-vue' ? 'vue' : ['next', 'react-router', 'vite-react'].includes(framework) ? 'react' : 'elements');
+export const flavorOf = (framework: Stack): Flavor => (['next', 'react-router', 'vite-react'].includes(framework) ? 'react' : 'elements');
 
 const LABELS: Record<Stack, string> = {
 	nuxt: 'Nuxt',

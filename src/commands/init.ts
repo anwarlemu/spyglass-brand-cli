@@ -171,7 +171,6 @@ export function appNote(project: Project): string {
 	const p = elementPrefix();
 	const where = `${stackLabel(project.framework)}`;
 	const flavor = appFlavor(project);
-	if (flavor === 'vue') return `- In this app (${where}): the Vue flavor, in ${project.srcDir === '.' ? '' : `${project.srcDir}/`}components/ (\`import Button from '@/components/ui/Button.vue'\`${project.framework === 'nuxt' ? ', or auto-imported as <UiButton>' : ''}).`;
 	if (flavor === 'react') return `- In this app (${where}): the React flavor, in ${project.srcDir === '.' ? '' : `${project.srcDir}/`}components/ (\`import { Button } from '@/components/ui/Button'\`). ${project.framework === 'next' ? 'Server components can render them; callbacks and render props belong in client components.' : ''}`.trimEnd();
 	const src = project.framework === 'django' ? `{% static '${b.assetBase.replace(/^\//, '')}/elements/<name>.js' %}` : `${project.publicUrl}${b.assetBase}/elements/<name>.js`;
 	const extra = project.framework === 'angular' ? ' Add schemas: [CUSTOM_ELEMENTS_SCHEMA] to each component that uses them.' : project.framework === 'nuxt' || project.framework === 'vite-vue' ? ` Vue needs isCustomElement for the ${p}- prefix (add sets it where it can).` : '';

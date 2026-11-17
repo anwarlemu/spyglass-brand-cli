@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { join, posix } from 'node:path';
 import { brand } from '../lib/brand.js';
-import { apiOf, view, type Api } from '../commands/library.js';
+import { reactApiOf, view, type Api } from '../commands/library.js';
 import { readProject } from '../library/project.js';
 import { readIndex, readItem, type RegistryItem } from '../library/registry.js';
 
@@ -66,8 +66,24 @@ export function statesOf(api: Api, exampleNames: string[]): StateSpec[] {
 	return states;
 }
 
+type GivenProp = { name: string; type: string; required: boolean; default?: string };
+type GivenComponent = { name: string; file: string; props: GivenProp[] };
+
+/** The React components of an item and their props (from the registry's API, else read from the source). Callbacks
+ * are its events and children its slot; className is left out. */
 function componentApis(item: RegistryItem): Api[] {
-	return item.files.filter((file) => file.path.startsWith('components/') && file.path.endsWith('.vue')).map((file) => apiOf(file.path, file.content));
+	const given = (item.flavors?.react?.api as { components?: GivenComponent[] } | undefined)?.components;
+	if (given?.length) {
+		return given.map((c) => ({
+			file: c.file,
+			component: c.name,
+			props: c.props.filter((p) => !/^on[A-Z]/.test(p.name) && p.name !== 'children' && p.name !== 'className'),
+			models: [],
+			emits: c.props.filter((p) => /^on[A-Z]/.test(p.name)).map((p) => p.name),
+			slots: c.props.some((p) => p.name === 'children') || /\bchildren\b/.test(item.files.find((f) => f.path === c.file)?.content ?? '') ? ['children'] : [],
+		}));
+	}
+	return item.files.filter((f) => /^react\/components\/.*\.tsx$/.test(f.path)).flatMap((f) => reactApiOf(f.path, f.content));
 }
 
 export function choosePart(apis: Api[], item: string, requested?: string): Api {
@@ -198,28 +214,29 @@ function applyProps(api: Api, base: Record<string, string | boolean>, extras: st
 
 function componentImport(root: string, component: string, file: string): { line: string; note?: string } {
 	const project = existsSync(join(root, 'package.json')) ? readProject(root) : undefined;
-	if (!project || project.alias) return { line: `import ${component} from '@/${file}'` };
+	const rel = file.replace(/^react\//, '').replace(/\.tsx?$/, '');
+	if (!project || project.alias) return { line: `import { ${component} } from '@/${rel}'` };
 	const src = project.srcDir === '.' ? '' : project.srcDir;
-	const spec = src ? `./${posix.join(src, file)}` : `./${file}`;
-	return { line: `import ${component} from '${spec}'`, note: 'This app has no @ alias. The import is relative to a file in the source root; adjust the prefix if the file is nested.' };
+	const spec = src ? `./${posix.join(src, rel)}` : `./${rel}`;
+	return { line: `import { ${component} } from '${spec}'`, note: 'This app has no @ alias. The import is relative to a file in the source root; adjust the prefix if the file is nested.' };
 }
 
-function hasDefaultSlot(api: Api): boolean {
-	return api.slots.some((slot) => slot === 'default' || slot.startsWith('default ') || slot.startsWith('default('));
+function hasChildren(api: Api): boolean {
+	return api.slots.includes('children');
 }
 
 function attr(prop: Api['props'][number] | undefined, name: string, value: string | boolean): string {
 	if (value === true) return name;
-	if (value === false) return `:${name}="false"`;
-	if (prop && prop.type.trim() === 'number') return `:${name}="${value}"`;
+	if (value === false) return `${name}={false}`;
+	if (prop && prop.type.trim() === 'number') return `${name}={${value}}`;
 	return `${name}="${value}"`;
 }
 
-function vueMarkup(component: string, importLine: string, api: Api, props: Record<string, string | boolean>, slotted: boolean): string {
+function jsxMarkup(component: string, importLine: string, api: Api, props: Record<string, string | boolean>, slotted: boolean): string {
 	const attrs = Object.entries(props).map(([name, value]) => attr(api.props.find((prop) => prop.name === name), name, value)).join(' ');
 	const open = attrs ? `<${component} ${attrs}` : `<${component}`;
 	const tag = slotted ? `${open}></${component}>` : `${open} />`;
-	return `<script setup lang="ts">\n${importLine}\n</script>\n\n<template>\n  ${tag}\n</template>\n`;
+	return `${importLine}\n\nexport default function Example() {\n  return ${tag}\n}\n`;
 }
 
 export async function emitComponent(root: string, name: string, opts: { part?: string; state?: string; props: string[] }) {
@@ -241,10 +258,10 @@ export async function emitComponent(root: string, name: string, opts: { part?: s
 	const props = applyProps(api, { ...(state.props ?? {}) }, opts.props);
 	const missing = api.props.filter((prop) => prop.required && !(prop.name in props)).map((prop) => `${prop.name}: ${prop.type}`);
 	if (missing.length) throw new Error(`Missing required prop ${missing.join('; ')} on ${api.component}. Pass --prop name=value, or --state example:<Name>. States: ${states.map((itemState) => itemState.id).join(', ')}.`);
-	const slotted = hasDefaultSlot(api);
+	const slotted = hasChildren(api);
 	const imported = componentImport(root, api.component, api.file);
-	const note = [imported.note, slotted ? 'The default slot is empty. Copy an example for real children.' : undefined].filter(Boolean).join(' ');
-	const markup = vueMarkup(api.component, imported.line, api, props, slotted);
+	const note = [imported.note, slotted ? 'The children are empty. Copy an example for real children.' : undefined].filter(Boolean).join(' ');
+	const markup = jsxMarkup(api.component, imported.line, api, props, slotted);
 	return {
 		name: item.name,
 		part: api.component,
@@ -253,7 +270,7 @@ export async function emitComponent(root: string, name: string, opts: { part?: s
 		import: imported.line,
 		slots: api.slots,
 		examples,
-		markup: note ? `<!-- ${note} -->\n${markup}` : markup,
+		markup: note ? `// ${note}\n${markup}` : markup,
 		note: note || undefined,
 	};
 }

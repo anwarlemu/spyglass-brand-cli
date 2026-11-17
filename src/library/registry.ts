@@ -5,7 +5,7 @@ import type { Flavor } from './project.js';
 
 // The registry as built by scripts/build-registry.ts: r/ in the release tree, apps/www/public/r in a checkout (or
 // DS_REGISTRY_DIR). Falls back to the published registry (registryHost/r) when an item is not bundled. Each item
-// carries its Vue files at the top level and, when built, its React and web component flavors under `flavors`.
+// carries its React files at the top level (the source) and its React and web component flavors under `flavors`.
 
 export type RegistryFile = { path: string; content: string; target?: string };
 export type FlavorApi = Record<string, unknown>;
@@ -55,10 +55,10 @@ export async function readItem(name: string): Promise<RegistryItem> {
 export const depName = (d: string) => d.replace(/^.*\//, '').replace(/\.json$/, '');
 
 /** What an item needs from the library, in a flavor. */
-export const requiresOf = (item: RegistryItem, flavor: Flavor) => (flavor === 'vue' ? item.requires : (item.flavors?.[flavor]?.registryDependencies ?? item.requires).map(depName));
+export const requiresOf = (item: RegistryItem, flavor: Flavor) => (item.flavors?.[flavor]?.registryDependencies ?? item.requires).map(depName);
 
 /** Items with everything they require, required items first. */
-export async function resolveItems(names: string[], flavor: Flavor = 'vue'): Promise<RegistryItem[]> {
+export async function resolveItems(names: string[], flavor: Flavor = 'react'): Promise<RegistryItem[]> {
 	const seen = new Map<string, RegistryItem>();
 	const visit = async (name: string, trail: string[]) => {
 		if (seen.has(name) || trail.includes(name)) return;
@@ -74,7 +74,7 @@ export async function resolveItems(names: string[], flavor: Flavor = 'vue'): Pro
 export function flavorsOf(item: Pick<RegistryItem, 'flavors'> | IndexEntry): Flavor[] {
 	const f = (item as { flavors?: unknown }).flavors;
 	const keys = Array.isArray(f) ? (f as string[]) : f && typeof f === 'object' ? Object.keys(f) : [];
-	return ['vue', ...(['react', 'elements'] as Flavor[]).filter((k) => keys.includes(k))] as Flavor[];
+	return (['react', 'elements'] as Flavor[]).filter((k) => keys.includes(k));
 }
 
 /** A prebuilt web component module (`elements/button.js`): bundled with the package, or from the registry host. */

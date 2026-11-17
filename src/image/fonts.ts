@@ -56,3 +56,18 @@ async function loadFace(entry: { family: string; weight: number; file: string })
 	writeFileSync(ttfPath, decoded);
 	return { family: entry.family, weight: entry.weight, file: entry.file, ttf: decoded, woff2, ttfPath, font };
 }
+
+let codePending: Promise<Face> | undefined;
+
+/** The code face (the brand's monospace, used by the ASCII texture), decoded for the rasterizer. */
+export function codeFace(): Promise<Face> {
+	codePending ??= (async () => {
+		const entry = brand().fonts.files.find((f) => f.role === 'code');
+		if (!entry) throw new Error('The brand font list has no code face.');
+		return loadFace(entry);
+	})().catch((err) => {
+		codePending = undefined;
+		throw err;
+	});
+	return codePending;
+}
