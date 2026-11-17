@@ -166,7 +166,7 @@
   --ds-light-opacity-g: 0.782;
   --ds-light-opacity-b: 0.782;
   --ds-light-offset: 0.0152; /* each layer sideways, as a share of the heat map's width (43.4 of 2860 in Figma) */
-  --ds-light-blur: 0.00265; /* Gaussian blur, as a share of the heat map's width (stdDeviation 7.8 of 2945.8) */
+  --ds-light-blur: 0.00268; /* Gaussian blur, as a share of the heat map's width (stdDeviation 7.8 of 2913.3) */
   --ds-color-light-overlap: #D3DEE7; /* where all three layers overlap: the three colors at their opacities, added */
   /* The ASCII texture: Geist Mono characters from the ramp " .:-=+*#" on Black. */
   --ds-ascii-opacity: 0.35;

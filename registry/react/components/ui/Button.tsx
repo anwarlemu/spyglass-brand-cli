@@ -17,11 +17,13 @@ const VARIANTS: Record<ButtonVariant, string> = {
 }
 
 const SIZES: Record<ButtonSize, string> = {
-  sm: 'h-control-sm gap-1.5 px-3 type-ui-strong',
-  md: 'h-control-md gap-2 px-4 type-ui-strong',
-  lg: 'h-control-lg gap-2 px-5 type-body font-medium',
+  sm: 'h-control-sm gap-1.5 type-ui-strong',
+  md: 'h-control-md gap-2 type-ui-strong',
+  lg: 'h-control-lg gap-2 type-body font-medium',
 }
 
+// One padding class per button, so a square button's 0 never competes with a label's padding in the stylesheet.
+const PADDING: Record<ButtonSize, string> = { sm: 'px-3', md: 'px-4', lg: 'px-5' }
 const SQUARE: Record<ButtonSize, string> = { sm: 'w-control-sm px-0', md: 'w-control-md px-0', lg: 'w-control-lg px-0' }
 
 export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
@@ -43,7 +45,7 @@ export function buttonClasses({ variant = 'primary', size = 'md', icon }: Pick<B
     'transition-[background-color,color,scale] duration-150 ease-out active:not-disabled:scale-97 motion-reduce:active:not-disabled:scale-100',
     'disabled:cursor-not-allowed disabled:bg-action-disabled disabled:text-action-disabled-fg',
     SIZES[size],
-    icon && SQUARE[size],
+    icon ? SQUARE[size] : PADDING[size],
     VARIANTS[variant],
   )
 }

@@ -21,10 +21,12 @@ const VARIANTS: Record<ButtonVariant, string> = {
 	ghost: 'bg-transparent text-fg hover:not-disabled:bg-action-ghost-hover',
 }
 const SIZES: Record<ButtonSize, string> = {
-	sm: 'h-control-sm gap-1.5 px-3 type-ui-strong',
-	md: 'h-control-md gap-2 px-4 type-ui-strong',
-	lg: 'h-control-lg gap-2 px-5 type-body font-medium',
+	sm: 'h-control-sm gap-1.5 type-ui-strong',
+	md: 'h-control-md gap-2 type-ui-strong',
+	lg: 'h-control-lg gap-2 type-body font-medium',
 }
+// One padding class per button, so a square button's 0 never competes with a label's padding in the stylesheet.
+const PADDING: Record<ButtonSize, string> = { sm: 'px-3', md: 'px-4', lg: 'px-5' }
 const SQUARE: Record<ButtonSize, string> = { sm: 'w-control-sm px-0', md: 'w-control-md px-0', lg: 'w-control-lg px-0' }
 
 /**
@@ -107,7 +109,7 @@ export class Button extends DsFormElement {
 			'transition-[background-color,color,scale] duration-150 ease-out active:not-disabled:scale-97 motion-reduce:active:not-disabled:scale-100',
 			'disabled:cursor-not-allowed disabled:bg-action-disabled disabled:text-action-disabled-fg',
 			SIZES[size],
-			this.icon ? SQUARE[size] : '',
+			this.icon ? SQUARE[size] : PADDING[size],
 			VARIANTS[this.variant] ?? VARIANTS.primary,
 		].join(' ')
 		return this.href

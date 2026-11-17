@@ -34,7 +34,7 @@
       { "name": "Light R", "token": "--ds-color-light-r", "color": "#DF0000", "opacity": 0.85, "shift": 2 }
     ],
     "offset": 0.0152,
-    "blur": 0.00265,
+    "blur": 0.00268,
     "blend": "plus-lighter",
     "ground": "#000000"
   },

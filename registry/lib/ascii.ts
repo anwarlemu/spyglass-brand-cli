@@ -10,6 +10,10 @@ export const ASCII_FONT = { size: 13.333, leading: 1.2, advance: 0.6, opacity: 0
 
 export interface AsciiRect { x: number; y: number; w: number; h: number }
 
+/** A line as SVG text draws it: spaces as no-break spaces (the same advance in a monospace face), so leading and
+ * repeated spaces keep their width in every renderer instead of collapsing. */
+export const asciiText = (line: string) => line.replace(/ /g, '\u00a0')
+
 export interface AsciiOptions {
 	/** Columns and rows of characters. */
 	cols: number
@@ -41,7 +45,7 @@ export function asciiLines(options: AsciiOptions): string[] {
 		y: rnd() * rows,
 		sx: 4 + rnd() * 11,
 		sy: 1.5 + rnd() * 3,
-		a: 0.5 + rnd() * 0.65,
+		a: 0.65 + rnd() * 0.7,
 		tilt: (rnd() - 0.5) * 0.5,
 	}))
 	// Grain: a per-cell hash, so cores break into "### ##" as the brand's do.
@@ -67,7 +71,7 @@ export function asciiLines(options: AsciiOptions): string[] {
 				const dy = Math.max(r.y - j, 0, j - (r.y + r.h)) * 2
 				keep = Math.min(keep, smooth(0, 6, Math.hypot(dx, dy)))
 			}
-			v = Math.min(1.15, v) * keep
+			v = Math.min(1.2, v) * keep
 			const g = grain(i, j)
 			v += (g - 0.5) * 0.3
 			// A few stray dots on the empty ground, as the brand's texture has.
@@ -110,7 +114,7 @@ export function asciiSvg(options: AsciiSvgOptions): string {
 	const lines = asciiLines({ cols, rows, seed: options.seed, density: options.density, clear })
 	const font = options.font ?? 'Geist Mono'
 	const ground = options.ground ? `<rect width="${num(options.width)}" height="${num(options.height)}" fill="#000000"/>` : ''
-	const text = lines.map((l, j) => (l.trim() ? `<text x="0" y="${num(j * lh + size * 0.95)}">${esc(l)}</text>` : '')).join('')
+	const text = lines.map((l, j) => (l.trim() ? `<text x="0" y="${num(j * lh + size * 0.95)}">${esc(asciiText(l))}</text>` : '')).join('')
 	return `<svg xmlns="http://www.w3.org/2000/svg" width="${num(options.width)}" height="${num(options.height)}" viewBox="0 0 ${num(options.width)} ${num(options.height)}">${ground}<g fill="#FFFFFF" fill-opacity="${ASCII_FONT.opacity}" font-family="${font}, ui-monospace, monospace" font-size="${num(size)}" xml:space="preserve" style="white-space:pre">${text}</g></svg>`
 }
 

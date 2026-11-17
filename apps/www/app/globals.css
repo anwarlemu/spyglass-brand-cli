@@ -1,0 +1,18 @@
+@import "tailwindcss";
+@import "../../../build/brand.css";
+@import "../../../build/theme.css";
+
+@source "../../../registry";
+@source "../components";
+@source "../app";
+
+/* The docs' own base, on top of the brand's: the page never scrolls sideways, and the gutter stays put. */
+@layer base {
+  html {
+    scrollbar-gutter: stable;
+    overflow-x: clip;
+  }
+  :where(h1, h2, h3, h4) {
+    text-wrap: balance;
+  }
+}

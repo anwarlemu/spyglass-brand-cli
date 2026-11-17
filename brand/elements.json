@@ -333,7 +333,7 @@
         "motion",
         "state"
       ],
-      "base": "inline-flex items-center justify-center gap-2 cursor-pointer h-control-md px-4 type-ui-strong rounded-control transition-[color,background-color,border-color,scale] duration-micro ease-standard active:enabled:scale-97 motion-reduce:active:enabled:scale-100 disabled:cursor-not-allowed disabled:bg-action-disabled disabled:text-action-disabled-fg",
+      "base": "inline-flex items-center justify-center gap-2 cursor-pointer h-control-md px-4 type-ui-strong rounded-control transition-[color,background-color,border-color,scale] duration-150 ease-standard active:enabled:scale-97 motion-reduce:active:enabled:scale-100 disabled:cursor-not-allowed disabled:bg-action-disabled disabled:text-action-disabled-fg",
       "icon": "w-control-md px-0",
       "variants": {
         "primary": "bg-action-primary text-action-primary-fg hover:enabled:bg-action-primary-hover",
@@ -371,7 +371,19 @@
           "flat"
         ]
       },
-      "default": "primary"
+      "default": "secondary",
+      "fallbacks": {
+        "dark": [
+          "primary"
+        ],
+        "danger": [
+          "secondary"
+        ]
+      },
+      "onDark": {
+        "from": "primary",
+        "to": "secondary"
+      }
     },
     "input": {
       "item": "input",
@@ -391,7 +403,7 @@
         "motion",
         "placeholder"
       ],
-      "base": "h-control-md w-full border border-edge-strong bg-surface px-3 type-ui text-fg rounded-control outline-none transition-[border-color] duration-micro ease-standard placeholder:text-fg-muted focus:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input"
+      "base": "h-control-md w-full border border-edge-strong bg-surface px-3 type-ui text-fg rounded-control outline-none transition-[border-color] duration-150 ease-standard placeholder:text-fg-muted focus:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input"
     },
     "textarea": {
       "item": "textarea",
@@ -410,7 +422,7 @@
         "motion",
         "placeholder"
       ],
-      "base": "w-full border border-edge-strong bg-surface px-3 py-2 type-ui text-fg rounded-control outline-none transition-[border-color] duration-micro ease-standard placeholder:text-fg-muted focus:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input"
+      "base": "w-full border border-edge-strong bg-surface px-3 py-2 type-ui text-fg rounded-control outline-none transition-[border-color] duration-150 ease-standard placeholder:text-fg-muted focus:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input"
     },
     "select": {
       "item": "native-select",
@@ -429,7 +441,7 @@
         "type",
         "motion"
       ],
-      "base": "w-full border border-edge-strong bg-surface px-3 type-ui text-fg rounded-control outline-none transition-[border-color] duration-micro ease-standard placeholder:text-fg-muted focus:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input"
+      "base": "w-full border border-edge-strong bg-surface px-3 type-ui text-fg rounded-control outline-none transition-[border-color] duration-150 ease-standard placeholder:text-fg-muted focus:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input"
     },
     "checkbox": {
       "item": "checkbox",
@@ -443,7 +455,7 @@
         "ring",
         "accent"
       ],
-      "base": "cursor-pointer rounded-sm accent-fg"
+      "base": "cursor-pointer rounded-ds-sm accent-fg"
     },
     "card": {
       "item": "card",
@@ -487,7 +499,7 @@
         "height",
         "type"
       ],
-      "base": "inline-flex h-6 items-center px-2 type-label rounded-sm",
+      "base": "inline-flex h-6 items-center px-2 type-label rounded-ds-sm",
       "variants": {
         "default": "bg-surface-subtle text-fg",
         "working": "bg-status-working text-status-working-fg",
@@ -551,7 +563,7 @@
           "type",
           "motion"
         ],
-        "base": "h-control-sm px-3 type-ui text-fg-muted rounded-sm transition-[color,background-color] duration-micro ease-standard hover:text-fg aria-selected:bg-surface-raised aria-selected:text-fg"
+        "base": "h-control-sm px-3 type-ui text-fg-muted rounded-ds-sm transition-[color,background-color] duration-150 ease-standard hover:text-fg aria-selected:bg-surface-raised aria-selected:text-fg"
       }
     },
     "link": {
@@ -562,7 +574,7 @@
         "decoration",
         "motion"
       ],
-      "base": "text-fg underline decoration-edge-strong underline-offset-4 transition-[text-decoration-color] duration-micro ease-standard hover:decoration-fg"
+      "base": "text-fg underline decoration-edge-strong underline-offset-4 transition-[text-decoration-color] duration-150 ease-standard hover:decoration-fg"
     },
     "label": {
       "item": "label",

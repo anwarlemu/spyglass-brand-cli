@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import { ASCII_FONT, asciiGrid, asciiLines, type AsciiRect } from '@/lib/ascii'
+import { ASCII_FONT, asciiGrid, asciiLines, asciiText, type AsciiRect } from '@/lib/ascii'
 import { cn } from '@/react/lib/cn'
 
 // The ASCII texture, drawn from the seeded generator (lib/ascii.ts): Geist Mono characters from " .:-=+*#" off a soft
@@ -29,7 +29,7 @@ export function AsciiTexture({ seed = 0, density = 0.5, width = 1080, height = 1
     <div data-ds="ascii-texture" aria-hidden="true" style={style} className={cn('pointer-events-none overflow-hidden', className)}>
       <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid slice" className="block size-full fill-fg font-code">
         <g fillOpacity={ASCII_FONT.opacity} fontSize={ASCII_FONT.size} xmlSpace="preserve" className="whitespace-pre">
-          {lines.map((line, j) => (line.trim() ? <text key={j} x={0} y={Math.round((j * lh + ASCII_FONT.size * 0.95) * 1000) / 1000}>{line}</text> : null))}
+          {lines.map((line, j) => (line.trim() ? <text key={j} x={0} y={Math.round((j * lh + ASCII_FONT.size * 0.95) * 1000) / 1000}>{asciiText(line)}</text> : null))}
         </g>
       </svg>
     </div>

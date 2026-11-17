@@ -18,3 +18,4 @@ apps/www/next-env.d.ts
 .env*
 apps/parity/report
 apps/parity/dist
+apps/www/lib/examples.generated.tsx

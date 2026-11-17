@@ -1,6 +1,6 @@
 import { html, nothing, svg } from 'lit'
 import { DsElement, define } from '@/elements/lib/element'
-import { ASCII_FONT, asciiGrid, asciiLines, type AsciiRect } from '@/lib/ascii'
+import { ASCII_FONT, asciiGrid, asciiLines, asciiText, type AsciiRect } from '@/lib/ascii'
 import styles from 'virtual:tw'
 
 // AsciiTexture.tsx as <spyglass-ascii-texture>: Geist Mono characters from " .:-=+*#" off a soft heat map, White at
@@ -40,7 +40,7 @@ export class AsciiTexture extends DsElement {
 		const { cols, rows, cw, lh } = asciiGrid(this.width, this.height)
 		const lines = asciiLines({ cols, rows, seed: this.seed, density: this.density, clear: (this.clear ?? []).map((r) => ({ x: r.x / cw, y: r.y / lh, w: r.w / cw, h: r.h / lh })) })
 		this.style.aspectRatio = this.cover ? '' : `${this.width} / ${this.height}`
-		return html`<svg viewBox="0 0 ${this.width} ${this.height}" preserveAspectRatio="xMidYMid slice" class="block size-full fill-fg font-code"><g fill-opacity=${ASCII_FONT.opacity} font-size=${ASCII_FONT.size} xml:space="preserve" class="whitespace-pre">${lines.map((line, j) => (line.trim() ? svg`<text x="0" y=${Math.round((j * lh + ASCII_FONT.size * 0.95) * 1000) / 1000}>${line}</text>` : nothing))}</g></svg>`
+		return html`<svg viewBox="0 0 ${this.width} ${this.height}" preserveAspectRatio="xMidYMid slice" class="block size-full fill-fg font-code"><g fill-opacity=${ASCII_FONT.opacity} font-size=${ASCII_FONT.size} xml:space="preserve" class="whitespace-pre">${lines.map((line, j) => (line.trim() ? svg`<text x="0" y=${Math.round((j * lh + ASCII_FONT.size * 0.95) * 1000) / 1000}>${asciiText(line)}</text>` : nothing))}</g></svg>`
 	}
 }
 
