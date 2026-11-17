@@ -1,0 +1,16 @@
+<!-- The command menu on the page: type to filter, arrows to move, Enter to run. The line under says what ran. -->
+<div class="flex w-120 max-w-full flex-col gap-3">
+  <spyglass-command id="command-menu" label="Commands" placeholder="Type a command or search" groups='[{"heading":"Go to","items":[{"id":"search","label":"Search creatives","shortcut":"/"},{"id":"brands","label":"Track a brand","keywords":["creator","follow"]},{"id":"boards","label":"Boards"}]},{"heading":"Boards","items":[{"id":"summer","label":"Acme summer ads"},{"id":"serum","label":"Acme serum launch"}]},{"heading":"Settings","items":[{"id":"billing","label":"Billing","keywords":["plan","invoice"],"shortcut":"⌘B"},{"id":"team","label":"Team","disabled":true}]}]'>
+    <span slot="icon-search" class="contents"><i data-lucide="search" data-size="16" data-stroke-width="1.5"></i></span>
+    <span slot="icon-brands" class="contents"><i data-lucide="building-2" data-size="16" data-stroke-width="1.5"></i></span>
+    <span slot="icon-boards" class="contents"><i data-lucide="bookmark" data-size="16" data-stroke-width="1.5"></i></span>
+    <span slot="icon-billing" class="contents"><i data-lucide="credit-card" data-size="16" data-stroke-width="1.5"></i></span>
+    <span slot="icon-team" class="contents"><i data-lucide="users" data-size="16" data-stroke-width="1.5"></i></span>
+  </spyglass-command>
+  <p id="command-menu-ran" class="type-caption text-fg-muted" aria-live="polite">Team needs an admin.</p>
+</div>
+<script type="module">
+  document.getElementById('command-menu').addEventListener('select', (e) => {
+    document.getElementById('command-menu-ran').textContent = `Ran: ${e.detail.label}.`
+  })
+</script>

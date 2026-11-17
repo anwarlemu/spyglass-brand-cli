@@ -1,0 +1,24 @@
+<!-- The same card read left to right and right to left: logical spacing and the breadcrumb follow; code stays left to
+     right. -->
+<div class="grid w-200 max-w-full grid-cols-2 gap-4 max-sm:grid-cols-1">
+  <spyglass-direction dir="ltr">
+    <div class="flex flex-col gap-3 rounded-container bg-surface-raised p-6">
+      <spyglass-breadcrumb items='[{"label":"Boards","href":"#boards"},{"label":"Acme skincare"}]'></spyglass-breadcrumb>
+      <div class="flex items-center gap-2">
+        <spyglass-badge variant="outline" dot="green">Running</spyglass-badge>
+        <span class="type-ui text-fg-muted">since March</span>
+      </div>
+      <code class="self-start rounded-ds-sm bg-surface px-2 py-1 type-code text-fg-muted">board_8f2k1</code>
+    </div>
+  </spyglass-direction>
+  <spyglass-direction dir="rtl">
+    <div class="flex flex-col gap-3 rounded-container bg-surface-raised p-6">
+      <spyglass-breadcrumb items='[{"label":"Boards","href":"#boards"},{"label":"Acme skincare"}]'></spyglass-breadcrumb>
+      <div class="flex items-center gap-2">
+        <spyglass-badge variant="outline" dot="green">Running</spyglass-badge>
+        <span class="type-ui text-fg-muted">since March</span>
+      </div>
+      <code class="self-start rounded-ds-sm bg-surface px-2 py-1 type-code text-fg-muted">board_8f2k1</code>
+    </div>
+  </spyglass-direction>
+</div>
