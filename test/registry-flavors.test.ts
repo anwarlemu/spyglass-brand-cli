@@ -93,6 +93,14 @@ describe('registry flavors: output', () => {
 		expect(sizes.content).toContain('class="lucide lucide-search"');
 		expect(sizes.content).not.toContain('data-lucide');
 	});
+	it('expands an example icon whatever attribute comes before data-lucide', async () => {
+		const { expandIcons } = await import('../scripts/build-elements.mjs');
+		const out = await expandIcons('<i slot="start" data-lucide="search" data-size="16" aria-hidden="true"></i>');
+		expect(out).toContain('class="lucide lucide-search"');
+		expect(out).toContain('slot="start"');
+		expect(out).toContain('width="16"');
+		expect(out).not.toContain('data-lucide');
+	});
 	it('records what an item requires in each flavor, and the modules its examples load', () => {
 		const bar = json('apps/www/public/r/search-bar.json');
 		expect(bar.requires).toEqual(['button']);
