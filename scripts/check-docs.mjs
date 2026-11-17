@@ -1,5 +1,5 @@
 // The docs site's full sweep, against a production server: build it (`bun run ci`, then `bun run www:build`), start it
-// (`PORT=3201 node apps/www/.output/server/index.mjs`), then `DOCS_URL=http://localhost:3201 bun run test:docs`.
+// (`bun run --cwd apps/www start`, port 3700), then `DOCS_URL=http://localhost:3700 bun run test:docs`.
 // Every component page and every /preview/<item>/<example> at 1440 and 390: no browser errors, no failed requests and
 // no horizontal overflow. Then the rail (every item listed, the filter), the overlays (open, Escape, focus back on
 // the trigger) and the items that compose others. CHROMIUM_PATH points at a Chromium build if playwright-core has
@@ -7,7 +7,7 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright-core';
 
-const base = (process.env.DOCS_URL ?? 'http://localhost:3201').replace(/\/$/, '');
+const base = (process.env.DOCS_URL ?? 'http://localhost:3700').replace(/\/$/, '');
 const widths = [1440, 390];
 const concurrency = Number(process.env.CONCURRENCY ?? 4);
 const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
@@ -55,7 +55,7 @@ try {
 				await page.getByRole('heading', { name: title, exact: true, level: 1 }).waitFor({ timeout: 5000 }).catch(() => fail(where, 'no page title'));
 			} else {
 				await page.waitForTimeout(600);
-				if (!(await page.evaluate(() => document.querySelector('#__nuxt')?.textContent?.trim().length || document.querySelector('#__nuxt svg, #__nuxt img, #__nuxt canvas')))) fail(where, 'renders nothing');
+				if (!(await page.evaluate(() => document.body.textContent?.trim().length || document.querySelector('body svg, body img, body canvas')))) fail(where, 'renders nothing');
 			}
 			const over = await overflow(page);
 			if (over > 0) fail(where, `overflows by ${over}px`);
@@ -76,13 +76,13 @@ try {
 		if (missing.length) fail(where, `missing from the rail: ${missing.join(', ')}`);
 		if (listed.length !== items.length) fail(where, `rail lists ${listed.length} items, the index ${items.length}`);
 		const filter = rail.getByRole('textbox', { name: 'filter components' });
-		await filter.fill('menu');
+		await filter.fill('light');
 		const narrowed = await rail.locator('a[href^="/components/"]').allTextContents();
-		const expected = items.filter((i) => i.title.toLowerCase().includes('menu') || i.name.includes('menu')).length;
-		if (narrowed.length !== expected) fail(where, `filter "menu" shows ${narrowed.length}, expected ${expected}`);
-		await rail.locator('a[href="/components/menubar"]').click();
-		await page.waitForURL('**/components/menubar');
-		if ((await filter.inputValue()) !== 'menu') fail(where, 'the filter is not kept after navigating');
+		const expected = items.filter((i) => i.title.toLowerCase().includes('light') || i.name.includes('light')).length;
+		if (narrowed.length !== expected) fail(where, `filter "light" shows ${narrowed.length}, expected ${expected}`);
+		await rail.locator('a[href="/components/brand-light"]').click();
+		await page.waitForURL('**/components/brand-light');
+		if ((await filter.inputValue()) !== 'light') fail(where, 'the filter is not kept after navigating');
 		await filter.fill('zzz');
 		await rail.getByText('Nothing matches').waitFor({ timeout: 3000 }).catch(() => fail(where, 'no empty message for a filter with no match'));
 		await context.close();

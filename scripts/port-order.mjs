@@ -1,4 +1,5 @@
-// The order to port the remaining items in: waves, each item after every item it (or one of its examples) requires,
+// The order to port the remaining items to web components in: waves, each item after every item it (or one of its
+// examples) requires,
 // so a port agent never waits on a file another agent has not written yet. Items in one wave can run in parallel.
 // It also names the hooks and controllers a port creates for a composable, and which item creates each.
 //
@@ -10,14 +11,11 @@ const root = join(import.meta.dirname, '..');
 const index = JSON.parse(readFileSync(join(root, 'apps/www/public/r/index.json'), 'utf8'));
 const args = process.argv.slice(2);
 const only = args.includes('--flavor') ? args[args.indexOf('--flavor') + 1] : undefined;
-const flavors = only ? [only] : ['react', 'elements'];
+const flavors = only ? [only] : ['elements'];
 
 // A composable's React hook (react/hooks/useX.ts) and element controller (elements/controllers/x.ts) are created by
 // one item, the one whose component the composable belongs to; the others that use it come after it.
-export const COMPOSABLES = {
-	useAccordion: 'accordion', useCellBurst: 'cell-burst', useChart: 'chart', useDirection: 'direction', useDocumentDownload: 'document-download',
-	useForm: 'form', useGlideMark: 'glide-mark', useParse: 'parse-page', useSearchResults: 'search-results', useSheet: 'sheet', useSteps: 'steps',
-};
+export const COMPOSABLES = {};
 
 const out = {};
 for (const flavor of flavors) {
