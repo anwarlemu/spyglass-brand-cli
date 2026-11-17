@@ -24,7 +24,7 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json && node scripts/build-brand.mjs",
-    "registry": "bun scripts/build-registry.ts",
+    "registry": "bun scripts/build-registry.ts && node scripts/build-assets-docs.mjs",
     "test": "vitest run",
     "test:docs": "node scripts/check-docs.mjs",
     "ci": "bun run build && node scripts/ci-limits.mjs && bun run registry && vitest run",
