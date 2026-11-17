@@ -128,7 +128,7 @@ export function lightWindow(variant: Exclude<LightVariant, 'curved-strip'>, seed
 // ----- The brand heat map, in frame pixels -----
 
 /** MASTER_PATH (M, L, H, V and Z, absolute) mapped by (x, y) -> (ax + b, ay + c). */
-function mapMaster(scale: number, tx: number, ty: number) {
+function mapMaster(scale: number, tx: number, ty: number, scaleY = scale) {
 	const out: string[] = []
 	let x = 0
 	let y = 0
@@ -146,7 +146,7 @@ function mapMaster(scale: number, tx: number, ty: number) {
 			x = nums[0]!
 			y = nums[1]!
 		}
-		out.push(`${c === 'M' ? 'M' : 'L'}${f(x * scale + tx)} ${f(y * scale + ty)}`)
+		out.push(`${c === 'M' ? 'M' : 'L'}${f(x * scale + tx)} ${f(y * scaleY + ty)}`)
 	}
 	return out.join('')
 }
@@ -426,7 +426,38 @@ export interface LightSvgOptions extends LightOptions {
 
 /** The light as a standalone SVG document. */
 export function lightSvg(options: LightSvgOptions): string {
-	const g = lightGeometry(options)
+	return lightGeometrySvg(lightGeometry(options), options)
+}
+
+/** A light placed as the brand assets place it: the heat map's Light B layer drawn at `b` (x, y, width and height in
+ * the frame's pixels, so a window can stretch it as the deck and banner backgrounds do), each layer `shift` pixels
+ * right of the last. Seed 0 with source 'brand' is the brand's own heat map; source 'generated' fills the same window
+ * from a heat map generated from the seed. */
+export interface LightPlacement {
+	width: number
+	height: number
+	b: { x: number; y: number; w: number; h: number }
+	shift: number
+	source?: LightSource
+	seed?: number
+}
+
+export function placedLightGeometry(p: LightPlacement): LightGeometry {
+	const { width, height, b, shift } = p
+	if (!(width > 0 && height > 0 && b.w > 0 && b.h > 0)) throw new Error('placedLightGeometry needs a frame and a layer above 0')
+	const source = p.source ?? 'brand'
+	const seed = Math.trunc(p.seed ?? 0)
+	const sx = b.w / MASTER_BOX.w
+	const sy = b.h / MASTER_BOX.h
+	// The blur keeps its ratio to the shift (7.8 to 44.2 in the heat map's own units), so a stretched light blurs as much as it separates.
+	const blur = shift * (LIGHT_BLUR / LIGHT_OFFSET)
+	if (source === 'brand') return { width, height, variant: 'field', source, seed, d: mapMaster(sx, b.x - MASTER_BOX.x * sx, b.y - MASTER_BOX.y * sy, sy), offset: shift, blur }
+	const win = { x: -b.x / b.w, y: (-b.y / b.h) * MASTER_H, w: width / b.w, h: (height / b.h) * MASTER_H }
+	return { width, height, variant: 'field', source, seed, d: fieldPath(generatedField(seed), win, width, height), offset: shift, blur }
+}
+
+/** The SVG for a geometry (lightSvg and placed lights share it). */
+export function lightGeometrySvg(g: LightGeometry, options: Pick<LightSvgOptions, 'ground' | 'blend' | 'id'> = {}): string {
 	const id = options.id ?? `sg-light-${g.variant}-${g.seed}`
 	const ground = options.ground !== false ? `<rect width="${num(g.width)}" height="${num(g.height)}" fill="#000000"/>` : ''
 	const head = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${num(g.width)}" height="${num(g.height)}" viewBox="0 0 ${num(g.width)} ${num(g.height)}" style="isolation:isolate">`

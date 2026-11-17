@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, LayoutGrid, Menu, Palette, Search, X } from "lucide-react";
+import { BookOpen, Images, LayoutGrid, Menu, Palette, Search, X } from "lucide-react";
 
 import { Input } from "@/react/components/ui/Input";
 import { Logo } from "@/react/components/visuals/Logo";
@@ -20,6 +20,7 @@ const PAGES = [
   { href: "/", label: "Introduction", icon: BookOpen },
   { href: "/components", label: "All components", icon: LayoutGrid },
   { href: "/theme", label: "Theme", icon: Palette },
+  { href: "/assets", label: "Assets", icon: Images },
 ];
 
 function Rows({ groups, query, onNavigate }: { groups: Group[]; query: string; onNavigate: () => void }) {

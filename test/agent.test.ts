@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -9,10 +9,6 @@ import { manifest } from '../src/commands/manifest.js';
 import { statesOf, unionLiterals } from '../src/component/emit.js';
 import { runComponent } from '../src/commands/component.js';
 import type { Api } from '../src/commands/library.js';
-import { frameSvg, renderVideo } from '../src/video/render.js';
-import { runVideo } from '../src/commands/video.js';
-import { resolveVideo, VIDEO_FRAMES, VIDEO_FPS } from '../src/video/spec.js';
-import { theme } from '../src/image/spec.js';
 
 const bin = join(__dirname, '..', 'bin.js');
 const root = join(__dirname, '..');
@@ -69,9 +65,11 @@ describe('manifest', () => {
 	it('lists commands, templates, sizes, components and rules', async () => {
 		const doc = await manifest();
 		const commands = (doc.commands as { name: string }[]).map((command) => command.name);
-		for (const name of ['manifest', 'describe', 'brand', 'principles', 'component', 'image', 'video', 'light', 'ascii', 'list', 'view', 'add', 'check', 'tokens']) expect(commands).toContain(name);
-		expect((doc.image as { templates: { id: string }[] }).templates.map((template) => template.id)).toEqual(['headline', 'statement', 'quote', 'announcement', 'frame']);
-		expect((doc.video as { templates: { id: string }[] }).templates.map((template) => template.id)).toEqual(['headline', 'statement', 'announcement', 'logo']);
+		for (const name of ['manifest', 'describe', 'brand', 'principles', 'component', 'image', 'deck', 'video', 'merch', 'light', 'ascii', 'list', 'view', 'add', 'check', 'tokens']) expect(commands).toContain(name);
+		expect((doc.image as { templates: { id: string }[] }).templates.map((template) => template.id)).toEqual(expect.arrayContaining(['post-offer', 'ad-creator-plan', 'ad-search-bar', 'banner-tagline', 'avatar', 'logo-background', 'og', 'story']));
+		expect((doc.deck as { slides: { id: string }[] }).slides.map((slide) => slide.id)).toEqual(['cover-row', 'cover-inline', 'cover-curved', 'section', 'statement', 'bullets', 'stat', 'quote', 'image', 'closing']);
+		expect((doc.merch as { items: { id: string }[] }).items.map((item) => item.id)).toEqual(['cap-front', 'tee-front', 'tee-back', 'hoodie-front', 'tote', 'mug-wrap', 'sticker', 'poster', 'socks']);
+		expect((doc.video as { templates: { id: string }[] }).templates.map((template) => template.id)).toEqual(['light-band', 'light-corner', 'light-field', 'light-strips', 'light-close-up']);
 		expect((doc.video as { sizes: { id: string; width: number; height: number }[] }).sizes.map((size) => [size.id, size.width, size.height])).toEqual([
 			['square', 1080, 1080],
 			['vertical', 1080, 1920],
@@ -132,57 +130,14 @@ describe('components', () => {
 	});
 });
 
-describe('video', () => {
-	it('rejects unknown templates and sizes and fields a template does not draw', async () => {
-		expect(() => resolveVideo({ template: 'poster', size: 'square' })).toThrow(/Unknown template/);
-		expect(() => resolveVideo({ template: 'headline', size: 'story' })).toThrow(/Unknown size/);
-		expect(() => resolveVideo({ template: 'logo', size: 'og' })).toThrow(/Unknown size/);
-		expect(resolveVideo({ template: 'Headline', size: '1080x1920' }).sizes).toEqual(['vertical']);
-		expect(resolveVideo({ template: 'logo' }).sizes).toEqual(['square']);
-		expect(() => resolveVideo({})).toThrow(/--template is required/);
-		await expect(runVideo(root, [], { template: '' })).rejects.toThrow(/--template needs a value/);
-		await expect(runVideo(root, [], { template: 'headline' })).rejects.toThrow(/title is required/);
-		await expect(runVideo(root, [], { template: 'headline', title: 'Hello', text: 'under' })).rejects.toThrow(/does not draw --text/);
-		await expect(runVideo(root, [], { template: 'logo', title: 'Hello' })).rejects.toThrow(/does not draw a title/);
-	});
-
-	it('renders byte-identical frames from the tokens, the face and the logo', async () => {
-		const request = { template: 'headline' as const, sizes: ['square' as const], ground: 'paper' as const, title: 'Context that stays current', frames: 2 };
-		const once = await renderVideo(request);
-		const twice = await renderVideo(request);
-		expect(Buffer.compare(once[0].mp4, twice[0].mp4)).toBe(0);
-		expect(Buffer.compare(once[0].poster, twice[0].poster)).toBe(0);
-		expect(once[0].width).toBe(1080);
-		expect(once[0].height).toBe(1080);
-		expect(once[0].frames).toBe(2);
-		const first = await frameSvg(request, { id: 'square', width: 1080, height: 1080, description: '' }, 0, 2);
-		const last = await frameSvg(request, { id: 'square', width: 1080, height: 1080, description: '' }, 1, 2);
-		expect(first).not.toBe(last);
-		expect(last).toContain(theme('paper').fg);
-		expect(last).toContain('Context that stays');
-		// The logomark from brand/logo/svg/mark-white.svg, split from the given lockup.
-		expect(last).toContain('M31.2854');
-		expect(last).toContain('font/woff2');
-		const logo = await frameSvg({ template: 'logo', sizes: ['square'], ground: 'ink' }, { id: 'square', width: 1080, height: 1080, description: '' }, 1, 2);
-		expect(logo).toContain(theme('ink').bg);
-		expect(logo).toContain('M31.2854');
-		expect(logo).toContain('M659.19');
-		const probed = probe(once[0].mp4);
-		expect(probed.codec).toBe('mjpeg');
-		expect(probed.width).toBe(1080);
-		expect(probed.height).toBe(1080);
-		expect(probed.frames).toBe(2);
-	});
-});
-
 describe('cli agent surface', () => {
 	it('prints manifest, rejects an unknown video template, and emits from the command', () => {
-		const doc = JSON.parse(execFileSync('node', [bin, 'manifest', '--json'], { encoding: 'utf8' })) as { components: { name: string }[]; video: { fps: number; frames: number } };
+		const doc = JSON.parse(execFileSync('node', [bin, 'manifest', '--json'], { encoding: 'utf8' })) as { components: { name: string }[]; video: { fps: number; seconds: number } };
 		expect(doc.components.some((item) => item.name === 'button')).toBe(true);
-		expect(doc.video).toMatchObject({ fps: VIDEO_FPS, frames: VIDEO_FRAMES });
+		expect(doc.video).toMatchObject({ fps: 30, seconds: 6 });
 		let err = '';
 		try {
-			execFileSync('node', [bin, 'video', '--template', 'reel', '--title', 'Hello'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+			execFileSync('node', [bin, 'video', '--template', 'reel'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 		} catch (error) {
 			err = (error as { stderr: string }).stderr;
 		}
@@ -193,13 +148,3 @@ describe('cli agent surface', () => {
 		rmSync(dir, { recursive: true, force: true });
 	});
 });
-
-function probe(mp4: Buffer): { codec: string; width: number; height: number; frames: number } {
-	const dir = mkdtempSync(join(tmpdir(), 'ds-mp4-'));
-	const path = join(dir, 'clip.mp4');
-	writeFileSync(path, mp4);
-	const raw = execFileSync('ffprobe', ['-v', 'error', '-count_frames', '-select_streams', 'v:0', '-show_entries', 'stream=codec_name,width,height,nb_read_frames', '-of', 'json', path], { encoding: 'utf8' });
-	rmSync(dir, { recursive: true, force: true });
-	const stream = JSON.parse(raw).streams[0] as { codec_name: string; width: number; height: number; nb_read_frames: string };
-	return { codec: stream.codec_name, width: stream.width, height: stream.height, frames: Number(stream.nb_read_frames) };
-}

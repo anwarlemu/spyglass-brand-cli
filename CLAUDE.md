@@ -52,7 +52,9 @@ sweeps it.
   `apps/parity/interactions/<item>.mjs`). `PORTING.md` is the recipe.
 - `src/`: the CLI (`bin.js` -> `dist/cli.js`). `check/` (the value check), `convert/` (apply's restyle, in every file
   type including Vue SFCs), `project/graph.ts`, `commands/` (apply, add, init, library: view, search, info, diff; list,
-  tokens; image, video, brand, principles, component, manifest; pattern: light and ascii), `image/`, `video/`,
+  tokens; image, deck, video, merch, brand, principles, component, manifest; pattern: light and ascii), `assets/` (the
+  asset engine: scenes drawn to SVG and rasterized by resvg, templates, merch, PNG and PDF writers; layouts live in
+  `brand/assets/*.json`, written by `scripts/assets/gen-*.mjs`), `image/` (fonts and text measuring),
   `brand/`, `component/` (list, inspect, emit React), `library/` (registry and project detection), `lib/brand.ts`.
 - `test/`: vitest for the check, the build outputs, the registry, the generators and the CLI on temporary apps.
 

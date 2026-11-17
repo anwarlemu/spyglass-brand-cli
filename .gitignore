@@ -19,3 +19,5 @@ apps/www/next-env.d.ts
 apps/parity/report
 apps/parity/dist
 apps/www/lib/examples.generated.tsx
+apps/www/public/assets
+apps/www/lib/assets.generated.json

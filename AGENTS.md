@@ -13,7 +13,7 @@ spyglass-ds manifest --json
 ```
 
 `describe` is the same command. The JSON document lists every command, flag, brand section, token name, principle,
-group, component (with parts, states and examples), image and video template and size. If a name is not in the
+group, component (with parts, states and examples), image, deck, video and merch template, slide, item and size. If a name is not in the
 document, the command exits 1 and names what is allowed. Do not substitute a nearby value.
 
 ## Brand

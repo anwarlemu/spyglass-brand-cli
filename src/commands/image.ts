@@ -1,132 +1,102 @@
-import { readFileSync } from 'node:fs';
-import { isAbsolute, resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import { brand } from '../lib/brand.js';
-import { mimeOf, renderImages, resolveRequest, writeImages, type Written } from '../image/render.js';
-import { catalog, TEMPLATE_FIELDS, type TemplateId } from '../image/spec.js';
+import { drawScene, rasterizeScene, FitError } from '../assets/scene.js';
+import { catalogOf, findTemplate, sceneFor, slotNames, templates, type Template } from '../assets/templates.js';
+import { display, format, int, lightSource, list, readPhoto, str, write, type Flags } from '../assets/io.js';
 
-// `image` renders Open Graph and social cards from copy. It does not need an app: the type, colors and mark come
-// from the package.
+// `image` draws the brand's layouts (brand/assets/image.json: every post, ad, banner and logo background on the brand
+// assets page, plus Open Graph and story sizes derived from them) with your copy and pictures.
 
-type Flags = Record<string, string | boolean | string[] | undefined>;
+export const IMAGE_FLAGS = ['template', 'size', 'variant', 'image', 'seed', 'light', 'format', 'out', 'list', 'all', 'title', 'text'];
+
+/** Older names for two slots. */
+const ALIASES: Record<string, string> = { title: 'headline', text: 'body' };
 
 export function imageHelp(): string {
 	const b = brand().bin;
-	const row = (cmd: string, what: string) => `  ${cmd.padEnd(46)}${what}`;
+	const row = (cmd: string, what: string) => `  ${cmd.padEnd(58)}${what}`;
+	const groups = [...new Set(templates('image').map((t) => t.group))];
 	return [
-		`Open Graph and social images from the brand's type, colors and logo.`,
-		'Headless: the same copy gives the same file.',
+		'Social posts, ads, banners, avatars, logo backgrounds, Open Graph cards and stories: the layouts on the brand',
+		'assets page, drawn with your copy and pictures. The same inputs write the same bytes.',
 		'',
-		row(`${b} image --title "..." --text "..."`, 'A statement at Open Graph size, PNG and SVG'),
-		row(`${b} image --size all --title "..."`, 'That card at every size'),
-		row(`${b} image --template quote --title "..." --by "Acme" --size square`, 'A square quotation'),
-		row(`${b} image --template frame --title "..." --image shot.png --size og,landscape`, 'A screenshot in the double rule'),
-		row(`${b} image --ground ink --out out --json`, 'Off-black, with a machine-readable file list'),
-		row(`${b} image --list`, 'Templates, sizes and grounds'),
+		row(`${b} image --template post-offer --headline "..."`, 'One layout, PNG and SVG in imagery/'),
+		row(`${b} image --template ad-search-bar --image a.png --image b.png`, 'Pictures fill the photo slots in order'),
+		row(`${b} image --template banner-tagline --size linkedin`, 'Banners come in x, linkedin and linkedin-company'),
+		row(`${b} image --template logo-background --variant yellow`, 'Approved backgrounds only'),
+		row(`${b} image --template og --seed 4 --light generated`, 'A light generated from the seed, and its texture'),
+		row(`${b} image --all --out imagery`, 'Every layout at every size and variant'),
+		row(`${b} image --list`, 'Templates with their sizes, slots and photo count'),
 		'',
-		'Templates: headline, statement (the default), quote, announcement, frame.',
-		'Sizes: og 1200x630, square 1080x1080, portrait 1080x1350, landscape 1200x675. --size all writes every one.',
-		'--ground paper (the default) or ink. --format png, svg or both (the default). --out is a directory, or one file when there is one size.',
-		'--text is the line under the headline on statement, announcement and frame (--subtitle too). Headline and quote do not draw it; a quote\'s speaker is --by (or --author).',
-		'--eyebrow is the red tag. A template that does not draw a field rejects it.',
-		'--image is a PNG or JPEG for the frame template. Without it, the frame holds a quiet stand-in of the console. Other templates reject --image.',
-		'--by is the speaker on a quote. Other templates reject it. --text and --subtitle must match when both are set; so must --by and --author.',
-		'A headline ends in a red full stop, as the site\'s headlines do. Write the copy in sentence case.',
+		`Groups: ${groups.join(', ')}. Text goes in by slot: ${slotNames('image').map((s) => `--${s}`).join(', ')} (each template names its own).`,
+		'--image is a PNG or JPEG; repeat it for templates with several pictures. Without one a slot is the card fill.',
+		'--seed moves the ASCII texture (and a generated light). --light brand (default) keeps the brand heat map.',
+		'--format png, svg or both (default). --out is a directory, or one .png or .svg file for one image.',
+		'Copy that does not fit a layout at 75% of its size is an error: shorten it. Write in sentence case.',
 	].join('\n');
 }
 
 export async function runImage(cwd: string, args: string[], flags: Flags): Promise<{ json: unknown; text: string }> {
 	if (flags.list === true || args[0] === 'list') {
-		const spec = catalog();
-		const text = [
-			'Templates',
-			...spec.templates.map((t) => `  ${t.id.padEnd(16)}${t.description}`),
-			'',
-			'Sizes',
-			...spec.sizes.map((s) => `  ${s.id.padEnd(16)}${String(s.width).padStart(4)}x${s.height}  ${s.description}`),
-			'',
-			'Grounds',
-			...spec.grounds.map((g) => `  ${g.id.padEnd(16)}${g.description}`),
-		].join('\n');
-		return { json: spec, text };
+		const cat = catalogOf('image');
+		return {
+			json: { templates: cat },
+			text: cat.map((t) => `${t.id.padEnd(26)}${t.sizes.map((s) => `${s.id} ${s.width}x${s.height}`).join(', ')}${t.variants.length ? `  variants: ${t.variants.join(', ')}` : ''}${t.photos ? `  photos: ${t.photos}` : ''}${Object.keys(t.slots).length ? `  slots: ${Object.keys(t.slots).join(', ')}` : ''}`).join('\n'),
+		};
+	}
+	if (args.length) throw new Error(`image takes no arguments. Pass --template. ${brand().bin} image --list`);
+	const fmt = format(flags, ['png', 'svg', 'both'], 'both');
+	const seed = int(flags, 'seed', 0, 0, 1_000_000);
+	const light = lightSource(flags);
+	const photos = list(flags.image).map((p) => readPhoto(cwd, p));
+	const slots: Record<string, string> = {};
+	for (const name of [...slotNames('image'), ...Object.keys(ALIASES)]) {
+		const v = flags[name];
+		if (v === undefined) continue;
+		if (typeof v !== 'string' || !v.trim()) throw new Error(`--${name} needs a value.`);
+		const key = ALIASES[name] ?? name;
+		if (slots[key] !== undefined && slots[key] !== v.trim()) throw new Error(`--${name} and --${key} disagree. Pass one.`);
+		slots[key] = v.trim();
 	}
 
-	for (const name of ['title', 'text', 'subtitle', 'eyebrow', 'by', 'author', 'image', 'template', 'size', 'ground', 'out', 'format']) {
-		if (flags[name] === '' || flags[name] === true) throw new Error(`--${name} needs a value.`);
+	type Job = { t: Template; size?: string; variant?: string };
+	const jobs: Job[] = [];
+	if (flags.all === true) {
+		if (str(flags.template)) throw new Error('Pass --template or --all, not both.');
+		for (const t of templates('image')) for (const size of Object.keys(t.sizes)) for (const variant of t.variants ? Object.keys(t.variants) : [undefined]) jobs.push({ t, size, variant });
+	} else {
+		const id = str(flags.template);
+		if (!id) throw new Error(`Name a template: ${brand().bin} image --template post-offer (--list shows them all).`);
+		const t = findTemplate('image', id);
+		const sizes = str(flags.size)?.toLowerCase() === 'all' ? Object.keys(t.sizes) : [str(flags.size)];
+		for (const size of sizes) jobs.push({ t, size, variant: str(flags.variant) });
 	}
 
-	const positional: string[] = [];
-	const fromArgs: string[] = [];
-	for (const arg of args) {
-		if (arg.toLowerCase() === 'all' || /^\d+\s*[x×]\s*\d+$/i.test(arg) || ['og', 'square', 'portrait', 'landscape'].includes(arg.toLowerCase())) fromArgs.push(arg);
-		else positional.push(arg);
+	const out = str(flags.out);
+	const single = out && /\.(png|svg)$/i.test(out) ? resolve(cwd, out) : undefined;
+	if (single && (jobs.length > 1 || fmt === 'both')) throw new Error('--out names one file, so pass one template, one size and --format png or svg. For several files, pass a directory.');
+	const dir = resolve(cwd, out && !single ? out : 'imagery');
+	const files: { path: string; format: string; template: string; size: string; variant?: string; width: number; height: number }[] = [];
+	for (const job of jobs) {
+		const all = flags.all === true;
+		const { scene, size, variant } = sceneFor(job.t, { size: job.size, variant: job.variant, slots: all ? {} : slots, photos: all ? [] : photos, seed, light });
+		let drawn;
+		try {
+			drawn = await drawScene(scene);
+		} catch (err) {
+			if (err instanceof FitError) throw new Error(`${job.t.id}: ${err.message}`);
+			throw err;
+		}
+		const base = single ? single.replace(/\.(png|svg)$/i, '') : join(dir, `${job.t.id}${Object.keys(job.t.sizes).length > 1 ? `-${size}` : ''}${variant && job.t.variants ? `-${variant}` : ''}`);
+		if (fmt !== 'svg') {
+			const r = await rasterizeScene(drawn);
+			write(`${base}.png`, r.png);
+			files.push({ path: display(cwd, `${base}.png`), format: 'png', template: job.t.id, size, variant, width: drawn.width, height: drawn.height });
+		}
+		if (fmt !== 'png') {
+			write(`${base}.svg`, drawn.svg);
+			files.push({ path: display(cwd, `${base}.svg`), format: 'svg', template: job.t.id, size, variant, width: drawn.width, height: drawn.height });
+		}
 	}
-	if (positional.length > 1 || (positional.length === 1 && str(flags.title))) throw new Error(`Unexpected \`${positional.join(' ')}\`. Pass the title with --title.`);
-	const title = str(flags.title) || positional[0];
-	if (!title) throw new Error(`A title is required. ${brand().bin} image --title "..." (--list shows templates and sizes).`);
-	const textFlag = str(flags.text);
-	const subtitle = str(flags.subtitle);
-	if (textFlag && subtitle && textFlag !== subtitle) throw new Error('--text and --subtitle disagree. Pass one.');
-	const byFlag = str(flags.by);
-	const author = str(flags.author);
-	if (byFlag && author && byFlag !== author) throw new Error('--by and --author disagree. Pass one.');
-
-	const requested = resolveRequest({
-		template: str(flags.template),
-		size: [str(flags.size), ...fromArgs].filter(Boolean).join(','),
-		ground: str(flags.ground),
-		format: str(flags.format),
-	});
-	const text = textFlag || subtitle;
-	const by = byFlag || author;
-	refuseUnused(requested.template, { text, by, image: str(flags.image), eyebrow: str(flags.eyebrow) });
-	const imagePath = str(flags.image);
-	const image = imagePath ? readImage(cwd, imagePath) : undefined;
-	const rendered = await renderImages({
-		...requested,
-		title,
-		text,
-		eyebrow: str(flags.eyebrow),
-		by,
-		image,
-	});
-	const files = writeImages(cwd, str(flags.out), rendered, requested.format);
-	return { json: { template: requested.template, ground: requested.ground, files: files.map(fileJson) }, text: formatWrote(files) };
-}
-
-function refuseUnused(template: TemplateId, present: { text?: string; by?: string; image?: string; eyebrow?: string }) {
-	const policy = TEMPLATE_FIELDS[template];
-	const label = template.charAt(0).toUpperCase() + template.slice(1);
-	if (present.text && policy.refuses.includes('text')) {
-		if (template === 'headline') throw new Error('Headline does not draw --text. Use --template statement for a line under the title.');
-		if (template === 'quote') throw new Error('Quote does not draw --text. Pass the speaker with --by.');
-		throw new Error(`${label} does not draw --text.`);
-	}
-	if (present.by && policy.refuses.includes('by')) throw new Error(`${label} does not draw --by. --by is the speaker on a quote.`);
-	if (present.image && policy.refuses.includes('image')) throw new Error(`${label} does not use --image. --image is for the frame template.`);
-	if (present.eyebrow && policy.refuses.includes('eyebrow')) throw new Error(`${label} does not draw --eyebrow.`);
-}
-
-function readImage(cwd: string, path: string): { mime: 'image/png' | 'image/jpeg'; data: Buffer } {
-	const abs = isAbsolute(path) ? path : resolve(cwd, path);
-	let data: Buffer;
-	try {
-		data = readFileSync(abs);
-	} catch {
-		throw new Error(`No image at ${path}.`);
-	}
-	const mime = mimeOf(data);
-	if (!mime) throw new Error(`Use a PNG or JPEG for --image. ${path} is neither.`);
-	return { mime, data };
-}
-
-function fileJson(file: Written) {
-	return { path: file.path, format: file.format, template: file.template, size: file.size, ground: file.ground, width: file.width, height: file.height };
-}
-
-function formatWrote(files: Written[]): string {
-	return files.map((f) => `${f.path}  ${f.width}x${f.height}`).join('\n');
-}
-
-function str(value: string | boolean | string[] | undefined): string | undefined {
-	return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+	return { json: { files, seed, light }, text: files.map((f) => `${f.path}  ${f.width}x${f.height}`).join('\n') };
 }

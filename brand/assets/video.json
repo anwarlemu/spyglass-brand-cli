@@ -1,0 +1,13 @@
+{
+ "$comment": "Light loops: one brand light drifting slowly on Black behind the lockup and the texture. Each template is a scene at 1080 by 1080 (windows onto the brand heat map from the posts on the brand assets page) that other sizes cover by scaling it from the center. Motion follows the animation rules: it only exists to make the light flow, it never eases in, the drift is constant motion (a linear phase around a closed figure eight, so the last frame meets the first), slow (one loop in `seconds`), and nothing else moves. --still writes the first frame alone for reduced motion.",
+ "fps": 30,
+ "seconds": 6,
+ "sizes": { "square": [1080, 1080], "vertical": [1080, 1920], "landscape": [1920, 1080] },
+ "templates": [
+  { "id": "light-band", "name": "Light band", "from": "Post, headline over a band (966:4489)", "description": "A light band across the middle drifts sideways.", "light": { "window": [0, 440, 1080, 200], "b": [-1331, -30, 2913.3, 1821.3], "shift": 44.2 }, "drift": [0.05, 0.012], "logo": true, "url": true },
+  { "id": "light-corner", "name": "Corner light", "from": "Post, offer (966:4421)", "description": "The corner light flows in from the edges around an empty middle.", "light": { "b": [-533, -33, 1725.57, 1112.77], "shift": 26.18 }, "drift": [0.035, 0.03], "logo": true, "url": true },
+  { "id": "light-field", "name": "Light field", "from": "Ad, plan offer (966:4541)", "description": "The light field fills the top and drifts.", "light": { "window": [0, 0, 1080, 612], "b": [-929, -39, 2465.1, 1541.1], "shift": 37.4 }, "drift": [0.04, 0.02], "logo": true, "url": true },
+  { "id": "light-strips", "name": "Light strips", "from": "Post, light strips (966:4471)", "description": "Two light strips at the edges drift up and down.", "lights": [ { "window": [0, 0, 160, 1080], "b": [-134, -160, 2241, 1401], "shift": 34 }, { "window": [920, 0, 160, 1080], "b": [-2014, -160, 2241, 1401], "shift": 34 } ], "drift": [0.02, 0.05], "logo": true, "url": true },
+  { "id": "light-close-up", "name": "Light close-up", "from": "Banner, light close-up (966:4702)", "description": "A close-up of the light, full frame, no copy.", "light": { "b": [-1109, -304, 3873, 2421], "shift": 58.8 }, "drift": [0.03, 0.02], "logo": false, "url": true }
+ ]
+}

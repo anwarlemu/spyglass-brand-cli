@@ -8,10 +8,13 @@ import { flavorLabel } from './commands/add.js';
 import { diff, formatInfo, formatView, info, search, view } from './commands/library.js';
 import { brandHelp, principlesHelp, runBrand, runPrinciples } from './commands/brand.js';
 import { componentHelp, runComponent } from './commands/component.js';
-import { imageHelp, runImage } from './commands/image.js';
+import { IMAGE_FLAGS, imageHelp, runImage } from './commands/image.js';
+import { DECK_FLAGS, deckHelp, runDeck } from './commands/deck.js';
+import { MERCH_FLAGS, merchHelp, runMerch } from './commands/merch.js';
+import { slotNames } from './assets/templates.js';
 import { formatManifest, manifest, manifestHelp } from './commands/manifest.js';
 import { findTokens, list } from './commands/small.js';
-import { runVideo, videoHelp } from './commands/video.js';
+import { runVideo, VIDEO_FLAGS, videoHelp } from './commands/video.js';
 import { patternHelp, runAscii, runLight } from './commands/pattern.js';
 
 const HELP = () => {
@@ -62,24 +65,20 @@ const HELP = () => {
 		row('light --variant band --seed 1', 'The brand light as SVG or PNG, seeded (--source brand|generated, --list)'),
 		row('ascii --seed 4', 'The ASCII texture as SVG or PNG, seeded (--density, --ground)'),
 		'',
-		'Images:',
-		row('image --title "..."', 'Open Graph and social images (PNG and SVG) from a title and optional subtext'),
-		more('--template headline|statement|quote|announcement|frame   --size og,square,portrait,landscape,all'),
-		more('--ground paper|ink   --text   --eyebrow   --by   --image <file>   --out <dir>   --format png|svg|both'),
-		more('--list  templates, sizes and grounds. A field the template does not draw is an error'),
-		'',
-		'Video:',
-		row('video --template headline --title "..."', 'Motion JPEG MP4, 18 frames at 12 fps, from the tokens, faces and logos'),
-		more('--template headline|statement|announcement|logo   --size square,vertical,landscape,all'),
-		more('--ground paper|ink   --text   --eyebrow   --out <dir>. Logo takes no title. --list for the spec'),
+		'Assets (PNG and SVG from the brand assets page; --list on each shows templates, sizes and slots):',
+		row('image --template post-offer --headline "..."', 'Posts, ads, banners, avatar, logo backgrounds, Open Graph, story'),
+		more('--size   --variant   --image <file> (repeat)   --seed   --light brand|generated   --all   --out   --format png|svg|both'),
+		row('deck --input deck.json', 'Pitch deck slides at 1920x1080 as PNG and one PDF (--slide <type> for one)'),
+		row('video --template light-band --size square', 'Seamless loops of the light: MP4 and WebM via ffmpeg, else frames'),
+		row('merch --item tee-front --variant full-color', 'Print files: SVG at physical size, PNG at 300 dpi, with bleed (--list)'),
 		'',
 		'Common options: --cwd <dir> (default: the current folder), --json (machine output on stdout).',
 		`Registry: ${registryHost()}/r/index.json`,
 	].join('\n');
 };
 
-const VALUE_FLAGS = new Set(['variant', 'seed', 'source', 'width', 'height', 'density', 'cwd', 'components', 'pages', 'framework', 'title', 'text', 'subtitle', 'eyebrow', 'by', 'author', 'image', 'template', 'size', 'ground', 'out', 'format', 'section', 'token', 'surface', 'group', 'state', 'part', 'prop']);
-const REPEAT_FLAGS = new Set(['prop']);
+const VALUE_FLAGS = new Set(['headline', 'body', 'label', 'cta', 'price', 'plan', 'features', 'prompt', 'quote', 'name', 'role', 'url', 'kicker', 'items', 'stat', 'light', 'input', 'slide', 'item', 'dpi', 'fps', 'seconds', 'variant', 'seed', 'source', 'width', 'height', 'density', 'cwd', 'components', 'pages', 'framework', 'title', 'text', 'subtitle', 'eyebrow', 'by', 'author', 'image', 'template', 'size', 'ground', 'out', 'format', 'section', 'token', 'surface', 'group', 'state', 'part', 'prop']);
+const REPEAT_FLAGS = new Set(['prop', 'image']);
 
 export function parse(argv: string[]) {
 	const flags: Record<string, string | boolean | string[]> = {};
@@ -121,8 +120,10 @@ const FLAGS: Record<string, string[]> = {
 	check: ['fix', 'all'],
 	hook: [],
 	tokens: [],
-	image: ['title', 'text', 'subtitle', 'eyebrow', 'by', 'author', 'image', 'template', 'size', 'ground', 'out', 'format', 'list'],
-	video: ['title', 'text', 'subtitle', 'eyebrow', 'template', 'size', 'ground', 'out', 'list'],
+	image: [...IMAGE_FLAGS, ...slotNames('image')],
+	deck: [...DECK_FLAGS, ...slotNames('deck')],
+	video: VIDEO_FLAGS,
+	merch: MERCH_FLAGS,
 	brand: ['section', 'token'],
 	principles: ['surface'],
 	component: ['group', 'part', 'state', 'prop', 'source'],
@@ -142,7 +143,7 @@ async function main() {
 	const cwd = resolve(typeof flags.cwd === 'string' ? flags.cwd : process.cwd());
 	const json = flags.json === true;
 	const out = (value: unknown, text: string) => console.log(json ? JSON.stringify(value, null, 2) : text);
-	const ownHelp = new Set(['image', 'video', 'brand', 'principles', 'component', 'manifest', 'describe', 'light', 'ascii']);
+	const ownHelp = new Set(['image', 'deck', 'merch', 'video', 'brand', 'principles', 'component', 'manifest', 'describe', 'light', 'ascii']);
 	if (flags.help && command && !ownHelp.has(command)) {
 		console.log(HELP());
 		return;
@@ -249,6 +250,24 @@ async function main() {
 				return;
 			}
 			const r = await runImage(cwd, args, flags);
+			out(r.json, r.text);
+			return;
+		}
+		case 'deck': {
+			if (flags.help) {
+				console.log(deckHelp());
+				return;
+			}
+			const r = await runDeck(cwd, args, flags);
+			out(r.json, r.text);
+			return;
+		}
+		case 'merch': {
+			if (flags.help) {
+				console.log(merchHelp());
+				return;
+			}
+			const r = await runMerch(cwd, args, flags);
 			out(r.json, r.text);
 			return;
 		}
