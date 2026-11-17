@@ -1,0 +1,8 @@
+/* AlertDialog.tsx's styles. */
+.ds-alert { width: min(440px, calc(100vw - 32px)); margin: auto; padding: var(--ds-space-xl); border: var(--ds-border-hairline) solid var(--ds-color-edge); border-radius: var(--ds-radius-container); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); }
+.ds-alert::backdrop { background: var(--ds-color-scrim); }
+.ds-alert[open] { animation: ds-alert-in var(--ds-duration-entrance) var(--ds-easing-out); }
+.ds-alert[open]::backdrop { animation: ds-alert-fade var(--ds-duration-entrance) var(--ds-easing-out); }
+@keyframes ds-alert-in { from { opacity: 0; transform: scale(0.96); } }
+@keyframes ds-alert-fade { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .ds-alert[open] { animation-name: ds-alert-fade; } }
