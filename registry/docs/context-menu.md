@@ -12,7 +12,6 @@ never:
 source: "Derived from the guidelines: the #171717 card fill on Black, neutral hairlines, the 10px canvas corner (8px here). shadcn's context menu for anatomy and keys."
 files:
   - react/components/ui/ContextMenu.tsx
-  - react/components/ui/PopoverPanel.tsx
 examples:
   - "Board | A board's saved creatives"
 ---
