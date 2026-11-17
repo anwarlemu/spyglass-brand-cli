@@ -1,0 +1,16 @@
+/* Collapsible.tsx's styles, as they are. */
+/* The part opens to its content's height (0fr to 1fr) over 250ms and closes in 150ms, on the strong ease-out; the
+   content fades and settles 4px down. The chevron turns half a circle (250ms, ease-in-out). Toggled from the keyboard
+   it opens at once. Reduced motion: no height, move or turn, opacity only. */
+.ds-collapsible-region { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--ds-duration-exit) var(--ds-easing-out); }
+.ds-collapsible[data-open] > .ds-collapsible-region { grid-template-rows: 1fr; transition-duration: var(--ds-duration-glide); }
+.ds-collapsible-region > div { min-height: 0; overflow: hidden; }
+.ds-collapsible-content { opacity: 0; transform: translateY(-4px); transition: opacity var(--ds-duration-exit) var(--ds-easing-standard), transform var(--ds-duration-exit) var(--ds-easing-out); }
+.ds-collapsible[data-open] > .ds-collapsible-region .ds-collapsible-content { opacity: 1; transform: none; transition-duration: var(--ds-duration-glide); }
+.ds-collapsible-chev { transition: rotate var(--ds-duration-glide) var(--ds-easing-in-out); }
+.ds-collapsible[data-open] > button .ds-collapsible-chev { rotate: 180deg; }
+.ds-collapsible[data-instant] :is(.ds-collapsible-region, .ds-collapsible-content, .ds-collapsible-chev) { transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .ds-collapsible-region, .ds-collapsible-chev { transition: none; }
+  .ds-collapsible-content, .ds-collapsible[data-open] > .ds-collapsible-region .ds-collapsible-content { transform: none; }
+}

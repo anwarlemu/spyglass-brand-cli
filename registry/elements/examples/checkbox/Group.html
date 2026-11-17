@@ -1,0 +1,25 @@
+<!-- A filter group: the parent is on when every format is, a bar when some are, and turns them all on or off. -->
+<fieldset id="format-group" class="flex flex-col">
+  <legend class="mb-2 type-label text-fg-muted">Format</legend>
+  <spyglass-checkbox data-all label="All formats" indeterminate></spyglass-checkbox>
+  <div class="flex flex-col pl-7">
+    <spyglass-checkbox data-format label="Video" checked></spyglass-checkbox>
+    <spyglass-checkbox data-format label="Carousel"></spyglass-checkbox>
+    <spyglass-checkbox data-format label="Static image"></spyglass-checkbox>
+  </div>
+</fieldset>
+<script type="module">
+  const group = document.getElementById('format-group')
+  const all = group.querySelector('[data-all]')
+  const formats = [...group.querySelectorAll('[data-format]')]
+  const sync = () => {
+    const on = formats.filter((f) => f.checked).length
+    all.checked = on === formats.length
+    all.indeterminate = on > 0 && on < formats.length
+  }
+  all.addEventListener('checked-change', (e) => {
+    for (const f of formats) f.checked = e.detail.value
+    sync()
+  })
+  for (const f of formats) f.addEventListener('checked-change', sync)
+</script>

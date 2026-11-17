@@ -1,0 +1,18 @@
+<!-- A list that shows its first boards and opens to the rest, open with the page. -->
+<div class="w-100 max-w-full">
+  <p class="py-2 type-ui text-fg">Acme hooks that work</p>
+  <spyglass-collapsible id="boards-more" open>
+    <span slot="trigger" class="contents"><span class="text-fg-muted" data-label>Show fewer boards</span></span>
+    <ul class="flex flex-col">
+      <li class="py-2 type-ui text-fg">Acme skincare</li>
+      <li class="py-2 type-ui text-fg">Acme summer UGC</li>
+      <li class="py-2 type-ui text-fg">Acme founder stories</li>
+    </ul>
+  </spyglass-collapsible>
+</div>
+<script type="module">
+  const more = document.getElementById('boards-more')
+  more.addEventListener('open-change', (e) => {
+    more.querySelector('[data-label]').textContent = e.detail.value ? 'Show fewer boards' : 'Show 3 more boards'
+  })
+</script>

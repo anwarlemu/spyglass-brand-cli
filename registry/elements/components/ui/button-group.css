@@ -1,0 +1,12 @@
+/* ButtonGroup.tsx's styles, for the group's own box. React's rules for its children (`.ds-btngroup > *`) cannot reach
+   the boxes the library's elements draw in their own shadow roots, so the element marks each child (data-group) and
+   these rules, with the ones it gives each child's shadow root, draw what React's do. */
+.ds-btngroup { display: inline-flex; align-items: stretch; gap: var(--ds-border-hairline); }
+.ds-btngroup[data-vertical] { flex-direction: column; }
+/* A child that is its own box (a native field). The page's reset outranks ::slotted, so the corners are important. */
+::slotted(*) { position: relative; }
+::slotted(:is(:hover, :focus-visible, :focus-within)) { z-index: 1; }
+::slotted([data-group~="after-x"]) { border-start-start-radius: 0 !important; border-end-start-radius: 0 !important; }
+::slotted([data-group~="before-x"]) { border-start-end-radius: 0 !important; border-end-end-radius: 0 !important; }
+::slotted([data-group~="after-y"]) { border-start-start-radius: 0 !important; border-start-end-radius: 0 !important; }
+::slotted([data-group~="before-y"]) { border-end-start-radius: 0 !important; border-end-end-radius: 0 !important; }
