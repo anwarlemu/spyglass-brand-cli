@@ -95,7 +95,7 @@ export function refuseVideo(template: VideoTemplateId, present: { title?: string
 	const policy = VIDEO_FIELDS[template];
 	const label = template.charAt(0).toUpperCase() + template.slice(1);
 	if (policy.requires.includes('title') && !present.title) throw new Error(`A title is required for ${template}.`);
-	if (present.title && policy.refuses.includes('title')) throw new Error(`${label} does not draw a title. It uses brand/logo/svg/primary-logo.svg.`);
+	if (present.title && policy.refuses.includes('title')) throw new Error(`${label} does not draw a title. It uses brand/logo/svg/horizontal-white.svg.`);
 	if (present.text && policy.refuses.includes('text')) {
 		if (template === 'headline') throw new Error('Headline does not draw --text. Use --template statement for a line under the title.');
 		throw new Error(`${label} does not draw --text.`);

@@ -12,8 +12,9 @@ const twice = (text: string, opts: Parameters<typeof convertVue>[1]) => {
 const vue = (template: string, script = '') => `<script setup lang="ts">\n${script}\n</script>\n\n<template>\n${template}\n</template>\n`;
 
 describe('classes', () => {
-	it('reads the brand type steps as sizes, not colors (text-meta, text-heading-1)', () => {
-		expect(groupOf('text-meta')).toBe('type');
+	it('reads the brand type steps as sizes, not colors (text-ui, text-label, text-heading-1)', () => {
+		expect(groupOf('text-ui')).toBe('type');
+		expect(groupOf('text-label')).toBe('type');
 		expect(groupOf('text-heading-1')).toBe('type');
 		expect(groupOf('text-[length:var(--ds-text-ui)]')).toBe('type');
 		expect(groupOf('text-fg-muted')).toBe('text-color');
@@ -33,7 +34,7 @@ describe('classes', () => {
 		expect(convertClassList('bg-slate-900 shadow-lg', {})).toBe('bg-surface-inverse ring-1 ring-fg-soft');
 	});
 	it('writes sizes a class merger keeps when the app merges classes (cn, tailwind-merge)', () => {
-		expect(convertClassList('text-sm text-gray-500', { merge: true })).toBe('text-[length:var(--ds-text-body)] text-fg-muted');
+		expect(convertClassList('text-sm text-gray-500', { merge: true })).toBe('text-[length:var(--ds-text-ui)] text-fg-muted');
 	});
 	it('names the transition properties and snaps durations to the steps', () => {
 		expect(convertClassList('transition-all duration-300 ease-in', {})).toBe('transition-colors duration-300 ease-out');
@@ -44,7 +45,9 @@ describe('classes', () => {
 describe('kinds', () => {
 	it('gives a bare <button> the default look once (idempotent)', () => {
 		const out = twice(vue('  <button>Save</button>'), all);
-		expect(out).toContain('border-action-secondary-edge');
+		// One primary per view: a button the app gave no look takes the secondary.
+		expect(out).toContain('bg-action-secondary text-action-secondary-fg');
+		expect(out).toContain('h-control-md px-4 type-ui-strong rounded-control');
 	});
 	it('keeps a tab state string the app toggles (and is idempotent)', () => {
 		const out = twice(vue(`  <div role="tablist" class="flex rounded-lg bg-gray-100 p-1">\n    <button role="tab" class="rounded-md px-4 py-1.5 text-sm" :class="on ? 'bg-white text-gray-900 shadow' : 'text-gray-500'">A</button>\n  </div>`, 'const on = true'), all);
@@ -54,38 +57,44 @@ describe('kinds', () => {
 		const src = vue('  <button :class="[base, variants[variant]]"><slot /></button>', "const variant = 'primary'\nconst base = 'rounded-lg px-4 py-2 text-sm font-semibold transition-all'\nconst variants: Record<string, string> = { primary: 'bg-indigo-600 text-white', secondary: 'bg-white border border-gray-300 text-gray-700', danger: 'bg-red-600 text-white', ghost: 'text-indigo-600 hover:bg-indigo-50' }\nconst sizes: Record<string, string> = { sm: 'px-3 py-1.5 text-sm' }");
 		const out = twice(src, { ...all, componentKind: 'button' });
 		expect(out).not.toMatch(/<button class=/);
-		expect(out).toContain("primary: 'border-action-primary bg-action-primary");
-		expect(out).toContain("secondary: 'border-action-secondary-edge bg-surface");
-		expect(out).toContain("danger: 'border-action-danger bg-surface text-action-danger");
-		expect(out).toContain("ghost: 'border-transparent bg-transparent");
+		expect(out).toContain("primary: 'bg-action-primary text-action-primary-fg");
+		expect(out).toContain("secondary: 'bg-action-secondary text-action-secondary-fg");
+		// The brand has no danger button: a destructive one takes the secondary (elements.json fallbacks).
+		expect(out).toContain("danger: 'bg-action-secondary text-action-secondary-fg");
+		expect(out).toContain("ghost: 'bg-transparent text-fg");
 		// A size string takes only the size part of the look.
-		expect(out).toMatch(/sm: 'h-control-sm px-2\.5 text-meta leading-5 font-medium [^']*'/);
+		expect(out).toMatch(/sm: 'h-control-md px-4 type-ui-strong'/);
 		expect(out).not.toMatch(/sm: '[^']*transition/);
 	});
 	it("takes a cva's variants by their keys (shadcn's ghost has no color at rest)", () => {
 		const code = "import { cva } from 'class-variance-authority'\nexport const buttonVariants = cva('inline-flex rounded-md text-sm font-medium transition-all border border-transparent', { variants: { variant: { default: 'bg-primary text-primary-foreground', destructive: 'bg-destructive/10 text-destructive', outline: 'border-border bg-background', ghost: 'hover:bg-muted hover:text-foreground' }, size: { default: 'h-8 px-2.5', icon: 'size-8' } } })\n";
 		const out = convertCode(code, { general: true, kinds: 'all', componentKind: 'button', merge: true }).text;
 		expect(convertCode(out, { general: true, kinds: 'all', componentKind: 'button', merge: true }).text).toBe(out);
-		expect(out).toContain("ghost: 'border-transparent bg-transparent text-fg-soft");
-		expect(out).toContain("destructive: 'border-action-danger");
-		expect(out).toMatch(/cva\('inline-flex cursor-pointer border h-control-sm/);
-		expect(out).toContain('text-[length:var(--ds-text-meta)]');
-		expect(out).toMatch(/icon: '[^']*w-control-sm px-0/);
+		expect(out).toContain("ghost: 'bg-transparent text-fg hover:enabled:bg-action-ghost-hover");
+		expect(out).toContain("default: 'bg-action-primary text-action-primary-fg");
+		expect(out).toContain("destructive: 'bg-action-secondary");
+		expect(out).toMatch(/cva\('inline-flex items-center justify-center gap-2 cursor-pointer h-control-md/);
+		expect(out).toMatch(/icon: '[^']*w-control-md px-0/);
 	});
 	it("gives a cn() root of a kind with no variants its whole look, once (shadcn's Input)", () => {
 		const src = vue("  <input :class=\"cn('border-input h-8 rounded-lg border bg-transparent px-2.5 py-1 text-base w-full min-w-0 placeholder:text-muted-foreground', props.class)\">", "const props = defineProps<{ class?: string }>()\nconst cn = (...a: unknown[]) => a.join(' ')");
 		const out = twice(src, { ...all, componentKind: 'input', merge: true });
-		expect(out).toContain('h-control-md border border-edge-strong bg-surface');
-		expect(out).toContain('w-full min-w-0');
+		expect(out).toContain('h-control-md w-full border border-edge-strong bg-surface px-3 type-ui text-fg rounded-control');
+		expect(out).toContain('min-w-0');
 	});
 	it('sizes a heading from its own size class', () => {
-		expect(twice(vue('  <h1 class="text-5xl font-extrabold">Acme</h1>'), all)).toContain('<h1 class="type-display">');
-		expect(twice(vue('  <h2 class="text-2xl font-bold text-gray-900">Acme</h2>'), all)).toContain('<h2 class="text-fg type-heading-2">');
+		expect(twice(vue('  <h1 class="text-7xl font-extrabold">Acme</h1>'), all)).toContain('<h1 class="type-display">');
+		expect(twice(vue('  <h1 class="text-5xl font-extrabold">Acme</h1>'), all)).toContain('<h1 class="type-hero">');
+		expect(twice(vue('  <h2 class="text-2xl font-bold text-gray-900">Acme</h2>'), all)).toContain('<h2 class="text-fg type-heading-3">');
 	});
-	it("gives the main action on a dark band the brand's red, not ink on black", () => {
+	it('gives the main action on a dark band the variant that shows there, not a fill that vanishes', () => {
+		// The band takes the inverse surface (White on this Black brand), where the White primary would vanish.
 		const out = twice(vue('  <section class="bg-gray-900 text-white">\n    <button class="rounded-lg bg-indigo-500 px-6 py-3 text-white">Start</button>\n  </section>'), all);
-		expect(out).toContain('bg-edge-accent');
-		expect(out).not.toContain('bg-action-primary');
+		expect(out).toContain('bg-surface-inverse');
+		expect(out).toContain('bg-action-secondary');
+		expect(out).not.toContain('bg-action-primary ');
+		// Off the band, the same button is the primary.
+		expect(twice(vue('  <button class="rounded-lg bg-indigo-500 px-6 py-3 text-white">Start</button>'), all)).toContain('bg-action-primary text-action-primary-fg');
 	});
 	it('keeps a tinted panel tinted instead of making it a white card', () => {
 		const out = twice(vue('  <div class="rounded-lg border border-red-200 bg-red-50 p-6">Danger zone</div>'), all);
@@ -96,7 +105,10 @@ describe('kinds', () => {
 		const out = twice(src, { general: false, kinds: new Set(['button']) });
 		expect(out).toContain('<div class="bg-blue-50 p-4">');
 		expect(out).toContain('<input class="rounded border-gray-300">');
-		expect(out).toContain('bg-action-primary');
+		// The band it sits on stays the app's light blue, where the White primary would vanish: it takes the secondary.
+		expect(out).toContain('bg-action-secondary');
+		const plain = twice(vue('  <button class="rounded bg-blue-600 px-4 py-2 text-white">Go</button>'), { general: false, kinds: new Set(['button']) });
+		expect(plain).toContain('bg-action-primary');
 	});
 });
 
@@ -108,7 +120,7 @@ describe('css', () => {
 		expect(out).toContain('--font-heading: var(--ds-font-heading);');
 		expect(out).toContain('--primary: var(--ds-color-action-primary);');
 		expect(out).toContain('--radius: var(--ds-radius-control);');
-		expect(out).toMatch(/\.dark \{\n {2}--primary: var\(--ds-color-off-white\);/);
+		expect(out).toMatch(/\.dark \{\n {2}--primary: var\(--ds-color-white\);/);
 	});
 	it('converts a rule by role and adds a hairline where a shadow was', () => {
 		const out = convertCss('.card { box-shadow: 0 1px 3px rgba(0,0,0,.1); border-radius: 12px; color: #374151; transition: all .2s ease-in; font-weight: 700; padding: 13px; }');

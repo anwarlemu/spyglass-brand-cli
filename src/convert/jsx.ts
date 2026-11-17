@@ -154,7 +154,7 @@ export function convertJsx(text: string, opts: FileOptions, file: string): FileR
 				}
 			}
 		}
-		const onDark = j.parent ? (dark.get(j.parent.el) ?? false) : false;
+		const onDark = j.parent ? dark.get(j.parent.el) : undefined;
 		const d = convertElementInfo(text, el, opts, edits, changes, onDark);
 		dark.set(j.el, d ?? onDark);
 	}

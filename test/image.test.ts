@@ -35,7 +35,7 @@ describe('image', () => {
 	});
 
 	it('renders every template at every size with the right dimensions', async () => {
-		const mark = readFileSync(join(root, 'brand/logo/svg/mark.svg'), 'utf8');
+		const mark = readFileSync(join(root, 'brand/logo/svg/mark-white.svg'), 'utf8');
 		const pathStart = /d="([^"]{12})/.exec(mark)?.[1];
 		for (const template of TEMPLATES) {
 			for (const size of SIZES) {
@@ -61,13 +61,16 @@ describe('image', () => {
 		expect(once[0].svg).toBe(twice[0].svg);
 	});
 
-	it('paints the headline stop in the accent and accepts a screenshot', async () => {
+	it('ends a headline with the brand\'s stop (a plain period when the accent is the text color) and accepts a screenshot', async () => {
+		const paper = theme('paper');
 		const [card] = await renderImages({ template: 'headline', sizes: ['og'], ground: 'paper', format: 'svg', title: 'Context that stays current' });
-		expect(card.svg).toContain(`<tspan fill="${theme('paper').accentText}">.</tspan>`);
-		const [quoted] = await renderImages({ template: 'headline', sizes: ['og'], ground: 'paper', format: 'svg', title: '"Acme"' });
-		expect(quoted.svg).toContain(`&quot;Acme&quot;<tspan fill="${theme('paper').accentText}">.</tspan>`);
-		const [inside] = await renderImages({ template: 'headline', sizes: ['og'], ground: 'paper', format: 'svg', title: 'Say "hello."' });
-		expect(inside.svg).toContain(`hello<tspan fill="${theme('paper').accentText}">.</tspan>&quot;`);
+		if (paper.accentText === paper.fg) {
+			// Spyglass headlines are White to the period: no colored stop.
+			expect(card.svg).not.toContain('<tspan');
+			expect(card.svg).toMatch(/current\.<\/text>/);
+		} else {
+			expect(card.svg).toContain(`<tspan fill="${paper.accentText}">.</tspan>`);
+		}
 		const [ellipsis] = await renderImages({ template: 'headline', sizes: ['og'], ground: 'paper', format: 'svg', title: 'Wait...' });
 		expect(ellipsis.svg).not.toContain('<tspan');
 		const plain = await renderImages({ template: 'frame', sizes: ['landscape'], ground: 'paper', format: 'png', title: 'What came back' });

@@ -15,7 +15,7 @@ const read = (dir: string, rel: string) => readFileSync(join(dir, rel), 'utf8');
 const page = (body: string) => `<script setup lang="ts">\n</script>\n\n<template>\n${body}\n</template>\n`;
 
 function app() {
-	const dir = mkdtempSync(join(tmpdir(), 'conare-scope-'));
+	const dir = mkdtempSync(join(tmpdir(), 'spyglass-scope-'));
 	const files: Record<string, string> = {
 		'package.json': JSON.stringify({ dependencies: { nuxt: '^4.6.0', vue: '^3.5.0' }, devDependencies: { tailwindcss: '^4.1.0' } }),
 		'nuxt.config.ts': "export default defineNuxtConfig({ css: ['~/assets/css/main.css'] })\n",
@@ -29,8 +29,8 @@ function app() {
 	}
 	return dir;
 }
-const brandCss = (dir: string) => read(dir, 'app/assets/css/conare-ds/brand.css');
-const themeCss = (dir: string) => read(dir, 'app/assets/css/conare-ds/theme.css');
+const brandCss = (dir: string) => read(dir, 'app/assets/css/spyglass-ds/brand.css');
+const themeCss = (dir: string) => read(dir, 'app/assets/css/spyglass-ds/theme.css');
 /** Selectors of rules that apply to the whole page: anything not inside the library's or the selection's scope. */
 const globalRules = (css: string) => [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/(^|[{}])\s*([^{}@;]+)\{/g)].map((m) => m[2].trim()).filter((s) => !/^(:root|\[data-theme=|@)/.test(s) && !/:(where|is)\(\[data-ds\], \.ds-scope\)/.test(s));
 
@@ -42,23 +42,30 @@ describe('the base layer reaches only what was named', () => {
 		// The type on a scoped root outranks Tailwind's preflight (button { font: inherit }) in the base layer.
 		expect(scoped).toContain(':is([data-ds], .ds-scope):not(:is([data-ds], .ds-scope) *) {');
 		// The brand's faces under their own names, so an app that names Inter or Geist keeps its own rendering.
-		expect(scoped).toMatch(/font-family: "Geist \(Conare\)";/);
+		expect(scoped).toMatch(/font-family: "DM Sans \(Spyglass\)";/);
+		expect(scoped).toMatch(/font-family: "Funnel Display \(Spyglass\)";/);
 		expect(scoped).not.toMatch(/font-family: "Inter";/);
 	});
 	it('marks every library component root with data-ds', () => {
 		const index = JSON.parse(read(root, 'apps/www/public/r/index.json'));
 		for (const entry of index.items) {
 			const item = JSON.parse(read(root, `apps/www/public/r/${entry.name}.json`));
-			for (const f of item.files.filter((x: { path: string }) => x.path.endsWith('.vue'))) expect(f.content, f.path).toMatch(/<template>[\s\S]*data-ds="/);
+			for (const f of item.files.filter((x: { path: string }) => /^react\/components\/.*\.tsx$/.test(x.path))) expect(f.content, f.path).toMatch(/data-ds="/);
+			// An element's box says data-ds, or the host is the box (its sibling CSS styles :host; the host carries data-ds).
+			const files = item.flavors.elements.files as { path: string; content: string }[];
+			for (const f of files.filter((x) => /^elements\/components\/.*\.ts$/.test(x.path))) {
+				const css = files.find((x) => x.path === f.path.replace(/\.ts$/, '.css'))?.content ?? '';
+				expect(/data-ds="/.test(f.content) || /:host\s*\{/.test(css), f.path).toBe(true);
+			}
 		}
 	});
-	it('a plain add installs the scoped base and a theme that keeps the app font-sans', () => {
+	it('a plain add (web components in this Vue app) installs the scoped base and a theme that keeps the app font-sans', () => {
 		const dir = app();
 		cli(dir, 'add', 'button', '--no-install');
 		expect(globalRules(brandCss(dir))).toEqual([]);
 		expect(themeCss(dir)).toContain('--font-sans: var(--ds-scope-font-sans);');
 		expect(themeCss(dir)).toMatch(/:root \{\n {2}--ds-scope-font-sans: "Inter", sans-serif;/);
-		expect(read(dir, 'app/components/ui/Button.vue')).toContain('data-ds="button"');
+		expect(read(dir, 'public/spyglass-ds/elements/button.js')).toContain('data-ds');
 	});
 	it('a page selection marks the page it restyled and nothing else', () => {
 		const dir = app();
@@ -85,7 +92,7 @@ describe('the base layer reaches only what was named', () => {
 		expect(themeCss(dir)).toContain('--font-sans: var(--ds-font-text);');
 		expect(read(dir, 'app/pages/settings.vue')).not.toContain('ds-scope');
 		cli(dir, 'apply', '/settings');
-		cli(dir, 'add', 'tag', '--no-install');
+		cli(dir, 'add', 'card', '--no-install');
 		expect(globalRules(brandCss(dir))).toContain('body');
 		expect(JSON.parse(read(dir, '.ds/state.json')).whole).toBe(true);
 	});

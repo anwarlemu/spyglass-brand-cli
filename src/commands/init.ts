@@ -10,7 +10,7 @@ import { brandCss, insertImports, insertLinks, kindsCss, linkLines, tailwind3Pre
 
 // init: the brand stylesheet where the app loads its styles (imported by its main stylesheet when a build processes
 // it, linked from its base layouts when not), the theme for its Tailwind (4: theme.css; 3: a preset), kinds.css when
-// it has no Tailwind, the fonts and textures in its static folder, and the agent contract. It changes no component
+// it has no Tailwind, the fonts and logos in its static folder, and the agent contract. It changes no component
 // and no copy.
 
 export type InitResult = { project: Project; writes: string[]; warnings: string[]; base: 'whole app' | 'scoped'; styling: 'tailwind 4' | 'tailwind 3' | 'plain css'; links: string[] };
@@ -146,8 +146,8 @@ export async function init(root: string, opts: { dryRun?: boolean; whole?: boole
 		if (!linked) warnings.push(`No layout with a <head> found: add these lines to the <head> of every page:\n  ${lines.join('\n  ')}`);
 	}
 
-	// Fonts and textures, served at the brand's asset base.
-	for (const sub of ['fonts', 'textures']) {
+	// Fonts and logos, served at the brand's asset base.
+	for (const sub of ['fonts', 'logo'].filter((s) => existsSync(join(build, s)))) {
 		const fresh = readdirSync(join(build, sub)).some((f) => !existsSync(join(root, assets, sub, f)));
 		if (!fresh) continue;
 		writes.push(posix.join(assets, sub));

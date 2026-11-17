@@ -369,6 +369,8 @@ function typesOf(decl, file, { ts, program, checker }) {
 	// The named types, as written in their source (exported here), and stand-ins for those outside the registry.
 	const decls = [...wanted].filter(([name]) => name !== decl.name).map(([name, d]) => {
 		if (ts.isClassDeclaration(d)) return `export type ${name} = HTMLElement`;
+		// An alias built from a value (keyof typeof SIZES) names something the .d.ts does not have: write what it resolves to.
+		if (ts.isTypeAliasDeclaration(d) && /\btypeof\b/.test(d.type.getText())) return `export type ${name} = ${checker.typeToString(checker.getTypeAtLocation(d.name), undefined, F.NoTruncation)}`;
 		const src = d.getText().replace(/^(export\s+)?(declare\s+)?/, 'export ');
 		return src;
 	});

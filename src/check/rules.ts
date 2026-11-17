@@ -146,7 +146,7 @@ export function checkClass(token: string, offset: number, push: Push) {
 	else if (TW_TEXT_DEFAULT.test(cls)) f('off-scale', `Default text size \`${cls}\``, 'Use the brand type scale: text-caption, text-meta, text-ui, text-body, text-body-lg, text-heading-4 to text-heading-1, text-hero, or a type-* utility.');
 	else if (TW_WEIGHT.test(cls) && !brand().type.bold) f('font', `\`${cls}\``, 'The console uses font-normal and font-medium only.');
 	else if (TW_SHADOW.test(cls)) f('shadow', `Shadow \`${cls}\``, 'The brand has no shadows: a hairline (border border-edge) or a fill sets things apart.');
-	else if (TW_ROUNDED_DEFAULT.test(cls)) f('off-scale', `Radius \`${cls}\``, 'Console controls and containers are square (rounded-control, rounded-container); brand surfaces use rounded-ds-sm, -ds-md, -ds-lg, -ds-xl or rounded-full.');
+	else if (TW_ROUNDED_DEFAULT.test(cls)) f('off-scale', `Radius \`${cls}\``, 'Use the brand radius classes: rounded-control, rounded-container, rounded-ds-* or rounded-full (`' + cli() + ' tokens radius`).');
 	else if (TW_EASE_IN.test(cls)) f('motion', '`ease-in`', 'Use ease-out or ease-standard.');
 	else if (TW_TRANSITION_ALL.test(cls)) f('motion', `Broad transition \`${cls}\``, 'Name the properties: transition-colors, transition-opacity, transition-transform.');
 	else if (TW_UPPERCASE.test(cls) && !brand().type.caps && !/type-tag/.test(cls)) f('font', '`uppercase`', 'Capitals are for the site tag only (type-tag); everything else is sentence case.');

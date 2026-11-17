@@ -174,7 +174,13 @@ export async function view(root: string, names: string[], opts: { framework?: st
 			const f = item.flavors?.react ?? { files: item.files, dependencies: item.dependencies, registryDependencies: item.requires, examples: item.examples };
 			const comps = f.files.filter((x) => /\.(tsx|jsx)$/.test(x.path) && /components\//.test(x.path));
 			const alias = project ? aliasOf(project) : '@/';
-			const api = (givenApi(f.api, comps[0]?.path ?? '', item.title.replace(/\s+/g, '')) ?? comps.flatMap((c) => reactApiOf(c.path, c.content)));
+			// Callbacks are the component's events and children its slot, as reactApiOf reads them; className is everyone's.
+			const api = (givenApi(f.api, comps[0]?.path ?? '', item.title.replace(/\s+/g, '')) ?? comps.flatMap((c) => reactApiOf(c.path, c.content))).map((a) => ({
+				...a,
+				props: a.props.filter((p) => !/^on[A-Z]/.test(p.name) && p.name !== 'children' && p.name !== 'className'),
+				emits: [...new Set([...a.emits, ...a.props.filter((p) => /^on[A-Z]/.test(p.name)).map((p) => `${p.name} (${p.type})`)])],
+				slots: [...new Set([...a.slots, ...(a.props.some((p) => p.name === 'children') || /\bchildren\b/.test(comps.find((c) => c.path === a.file)?.content ?? '') ? ['children'] : [])])],
+			}));
 			const imports = comps.map((c) => {
 				const named = [...c.content.matchAll(/export\s+(?:function|const)\s+([A-Z]\w*)/g)].map((m) => m[1]);
 				const def = c.content.match(/export\s+default\s+(?:function\s+)?([A-Z]\w*)/)?.[1];

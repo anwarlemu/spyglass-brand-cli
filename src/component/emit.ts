@@ -74,10 +74,17 @@ type GivenComponent = { name: string; file: string; props: GivenProp[] };
 function componentApis(item: RegistryItem): Api[] {
 	const given = (item.flavors?.react?.api as { components?: GivenComponent[] } | undefined)?.components;
 	if (given?.length) {
+		// A prop typed by an alias in its file (variant: ButtonVariant) reads as its values, so its states can be listed.
+		const aliased = (file: string, type: string) => {
+			// Its own file first, then the item's other files (a type imported from its lib/ file).
+			const source = [item.files.find((f) => f.path === file)?.content ?? '', ...item.files.filter((f) => f.path !== file).map((f) => f.content)].join('\n');
+			const alias = /^\w+$/.test(type) ? source.match(new RegExp(`type\\s+${type}\\s*=\\s*([^\\n]+)`))?.[1]?.trim() : undefined;
+			return alias ? `${type} (${alias})` : type;
+		};
 		return given.map((c) => ({
 			file: c.file,
 			component: c.name,
-			props: c.props.filter((p) => !/^on[A-Z]/.test(p.name) && p.name !== 'children' && p.name !== 'className'),
+			props: c.props.filter((p) => !/^on[A-Z]/.test(p.name) && p.name !== 'children' && p.name !== 'className').map((p) => ({ ...p, type: aliased(c.file, p.type) })),
 			models: [],
 			emits: c.props.filter((p) => /^on[A-Z]/.test(p.name)).map((p) => p.name),
 			slots: c.props.some((p) => p.name === 'children') || /\bchildren\b/.test(item.files.find((f) => f.path === c.file)?.content ?? '') ? ['children'] : [],

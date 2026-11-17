@@ -6,7 +6,26 @@ export function measure(face: Face, text: string, size: number, trackingEm = 0):
 	if (!text) return 0;
 	const chars = [...text];
 	const tracking = trackingEm * size * Math.max(0, chars.length - 1);
-	return face.font.getAdvanceWidth(text, size) + tracking;
+	return advance(face, text, size) + tracking;
+}
+
+/** The text's advance. opentype.js cannot apply some substitution lookups (DM Sans's contextual ones), so where its
+ * shaper throws, the glyph advances and kerning pairs are summed directly (no ligatures, as the rasterizer draws them). */
+function advance(face: Face, text: string, size: number): number {
+	try {
+		return face.font.getAdvanceWidth(text, size);
+	} catch {
+		const scale = size / face.font.unitsPerEm;
+		let width = 0;
+		let prev: ReturnType<Face['font']['charToGlyph']> | undefined;
+		for (const ch of text) {
+			const glyph = face.font.charToGlyph(ch);
+			width += (glyph.advanceWidth ?? 0) * scale;
+			if (prev) width += face.font.getKerningValue(prev, glyph) * scale;
+			prev = glyph;
+		}
+		return width;
+	}
 }
 
 /** Cap height of H, so a line can sit on its letters rather than on the font's accent box. */

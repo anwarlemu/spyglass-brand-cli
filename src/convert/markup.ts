@@ -256,7 +256,7 @@ export function convertMarkupInto(text: string, opts: FileOptions, dialect: Dial
 			else if (isStyleBinding(a.name)) el.styleBindings.push({ start: v.start, end: v.end, code: raw });
 			else if (isExtraClass(a.name) && !a.codes.length && !v.expr) el.extraClasses.push({ start: v.start, end: v.end, value: raw });
 		}
-		const onDark = t.parent ? (dark.get(t.parent) ?? false) : false;
+		const onDark = t.parent ? dark.get(t.parent) : undefined;
 		const d = convertElementInfo(text, el, opts, sub, changes, onDark);
 		dark.set(t, d ?? onDark);
 		// Template code in the tag (Blade's $attributes->merge(['class' => '...']), Svelte's {...spread}): its class strings.

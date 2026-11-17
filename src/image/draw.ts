@@ -373,7 +373,7 @@ function markAt(fill: string, x: number, y: number, height: number): string {
 }
 
 function readMark(): { viewBox: string; body: string; vw: number; vh: number } {
-	const raw = readFileSync(join(packageRoot, 'brand', 'logo', 'svg', 'mark.svg'), 'utf8');
+	const raw = readFileSync(join(packageRoot, 'brand', 'logo', 'svg', 'mark-white.svg'), 'utf8');
 	const viewBox = /viewBox="([^"]+)"/.exec(raw)?.[1] ?? '0 0 149 134';
 	const parts = viewBox.split(/[\s,]+/).map(Number);
 	const body = raw

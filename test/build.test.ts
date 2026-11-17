@@ -17,18 +17,25 @@ describe('build', () => {
 	it("leaves Tailwind's own neutral and radius scales alone, so an app looks the same where the brand is not applied", () => {
 		const theme = read('build/theme.css');
 		expect(theme).not.toMatch(/--color-neutral-\d/);
-		expect(theme).toContain('--color-ds-neutral-500: var(--ds-color-neutral-500);');
+		expect(theme).toContain('--color-ds-neutral-5: var(--ds-color-neutral-5);');
 		expect(theme).not.toMatch(/--radius-(sm|md|lg|xl):/);
-		expect(theme).toContain('--radius-ds-lg: var(--ds-radius-lg);');
+		expect(theme).toContain('--radius-ds-sm: var(--ds-radius-sm);');
 	});
 	it('serves every font file it declares', () => {
 		const fonts = read('build/fonts.css');
-		for (const m of fonts.matchAll(/url\("\/conare-ds\/fonts\/([^"]+)"\)/g)) expect(existsSync(join(root, 'build', 'fonts', m[1])), m[1]).toBe(true);
+		expect(fonts.match(/url\("\/spyglass-ds\/fonts\//g)?.length).toBe(4);
+		for (const m of fonts.matchAll(/url\("\/spyglass-ds\/fonts\/([^"]+)"\)/g)) expect(existsSync(join(root, 'build', 'fonts', m[1])), m[1]).toBe(true);
 	});
-	it('resolves the dark theme', () => {
+	it('resolves the default theme to Black and White', () => {
 		const t = JSON.parse(read('build/tokens.json')).tokens;
-		expect(t['--ds-color-surface'].light).toBe('#FEFEFE');
-		expect(t['--ds-color-surface'].dark).toBe('#020202');
+		expect(t['--ds-color-surface'].light).toBe('#000000');
+		expect(t['--ds-color-surface'].dark).toBe('#000000');
+		expect(t['--ds-color-fg'].light).toBe('#FFFFFF');
+		expect(t['--ds-color-surface-raised'].light).toBe('#171717');
+		expect(t['--ds-color-red'].light).toBe('#DF0000');
+	});
+	it('ships the generators, icons and logos', () => {
+		for (const f of ['build/generators/light.mjs', 'build/generators/ascii.mjs', 'build/icons/favicon-32.png', 'build/logo/horizontal-white.svg', 'build/logo/mark-black.svg']) expect(existsSync(join(root, f)), f).toBe(true);
 	});
 	it('keeps its own element styles on the tokens', () => {
 		expect(checkText('build/base.css', read('build/base.css')).findings).toEqual([]);
@@ -38,7 +45,7 @@ describe('build', () => {
 describe('registry', () => {
 	const index = JSON.parse(read('apps/www/public/r/index.json'));
 	it('lists every item with files, examples and docs', () => {
-		expect(index.items.length).toBeGreaterThanOrEqual(16);
+		expect(index.items.length).toBeGreaterThanOrEqual(7);
 		for (const i of index.items) {
 			expect(i.files.length, i.name).toBeGreaterThan(0);
 			expect(i.examples.length, i.name).toBeGreaterThan(0);
@@ -51,12 +58,14 @@ describe('registry', () => {
 			for (const r of i.requires) expect(names.has(r), `${i.name} requires ${r}`).toBe(true);
 			for (const d of i.dependencies) expect(d).not.toBe('vue');
 		}
-		const status = index.items.find((i: { name: string }) => i.name === 'tag');
-		expect(status.requires).toContain('loader');
+		expect(index.items.find((i: { name: string }) => i.name === 'search-bar').requires).toContain('button');
+		expect(index.items.find((i: { name: string }) => i.name === 'ascii-texture').requires).toContain('brand-light');
 	});
 	it('ships component content in each item file', () => {
 		const button = JSON.parse(read('apps/www/public/r/button.json'));
-		expect(button.files.find((f: { path: string }) => f.path === 'components/ui/Button.vue').content).toContain('<script setup lang="ts">');
-		expect(button.files.map((f: { path: string }) => f.path)).toContain('composables/usePixelGrid.ts');
+		expect(button.files.find((f: { path: string }) => f.path === 'react/components/ui/Button.tsx').content).toContain('export function Button');
+		expect(button.files.map((f: { path: string }) => f.path)).toContain('react/lib/cn.ts');
+		const light = JSON.parse(read('apps/www/public/r/brand-light.json'));
+		expect(light.files.map((f: { path: string }) => f.path)).toEqual(expect.arrayContaining(['lib/light.ts', 'lib/light-master.ts']));
 	});
 });

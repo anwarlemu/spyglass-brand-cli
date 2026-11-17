@@ -36,7 +36,7 @@ const page = (body: string, script = '') => `<script setup lang="ts">\n${script}
 
 /** A Nuxt 4 app: pages for /, /settings and /billing, a layout, components used by one page or several. */
 function nuxtApp() {
-	const dir = mkdtempSync(join(tmpdir(), 'conare-apply-'));
+	const dir = mkdtempSync(join(tmpdir(), 'spyglass-apply-'));
 	write(dir, {
 		'package.json': JSON.stringify({ dependencies: { nuxt: '^4.6.0', vue: '^3.5.0' }, devDependencies: { tailwindcss: '^4.1.0', '@tailwindcss/vite': '^4.1.0' } }),
 		'nuxt.config.ts': "export default defineNuxtConfig({ css: ['~/assets/css/main.css'] })\n",
@@ -54,7 +54,7 @@ function nuxtApp() {
 	return dir;
 }
 
-const SETUP = /^(\.ds\/|AGENTS\.md|public\/|app\/assets\/css\/conare-ds\/|app\/assets\/css\/main\.css$)/;
+const SETUP = /^(\.ds\/|AGENTS\.md|public\/|app\/assets\/css\/spyglass-ds\/|app\/assets\/css\/main\.css$)/;
 const changed = (before: Record<string, string>, after: Record<string, string>) => Object.keys(after).filter((f) => before[f] !== after[f] && !SETUP.test(f)).sort();
 
 describe('apply', () => {
@@ -63,7 +63,7 @@ describe('apply', () => {
 		const before = snapshot(dir);
 		const r = json(dir, 'apply');
 		expect(r.scope.whole).toBe(true);
-		expect(readFileSync(join(dir, 'app/assets/css/main.css'), 'utf8')).toContain('@import "./conare-ds/theme.css";');
+		expect(readFileSync(join(dir, 'app/assets/css/main.css'), 'utf8')).toContain('@import "./spyglass-ds/theme.css";');
 		expect(readFileSync(join(dir, 'app/assets/css/main.css'), 'utf8')).toContain('color: var(--ds-color-fg);');
 		expect(changed(before, snapshot(dir)).length).toBeGreaterThan(5);
 		const once = snapshot(dir);
@@ -136,17 +136,24 @@ describe('apply', () => {
 		expect(fails(dir, 'apply', '--component', 'button')).toContain('Unknown option');
 		expect(snapshot(dir)).toEqual(before);
 	});
-	it("restyles the app's own components/ui/Button.vue but never a library file add wrote", () => {
-		const dir = nuxtApp();
-		write(dir, { 'app/components/ui/Button.vue': page('  <button class="rounded-md bg-violet-600 px-3 py-2 text-white"><slot /></button>') });
-		cli(dir, 'add', 'tag', '--no-install');
-		const tag = readFileSync(join(dir, 'app/components/ui/Tag.vue'), 'utf8');
+	it("restyles the app's own components but never a library file add wrote", () => {
+		const dir = mkdtempSync(join(tmpdir(), 'spyglass-next-'));
+		write(dir, {
+			'package.json': JSON.stringify({ dependencies: { next: '16.0.0', react: '19.2.0', 'react-dom': '19.2.0', 'lucide-react': '0.479.0' }, devDependencies: { tailwindcss: '^4.2.2', '@tailwindcss/postcss': '^4.2.2' } }),
+			'tsconfig.json': JSON.stringify({ compilerOptions: { paths: { '@/*': ['./*'] } } }),
+			'app/globals.css': '@import "tailwindcss";\n',
+			'app/layout.tsx': "import './globals.css'\nexport default function Layout({ children }: { children: React.ReactNode }) { return <html><body>{children}</body></html> }\n",
+			'app/page.tsx': "import { AppButton } from '@/components/AppButton'\nexport default function Page() { return <main className=\"p-8\"><AppButton>Start</AppButton></main> }\n",
+			'components/AppButton.tsx': 'export function AppButton({ children }: { children: React.ReactNode }) { return <button className="rounded-md bg-violet-600 px-3 py-2 text-white">{children}</button> }\n',
+		});
+		cli(dir, 'add', 'card', 'search-bar', '--no-install');
+		const library = ['components/ui/Card.tsx', 'components/ui/Button.tsx', 'components/product/SearchBar.tsx', 'lib/cn.ts'].map((f) => [f, readFileSync(join(dir, f), 'utf8')] as const);
 		cli(dir, 'apply');
-		expect(readFileSync(join(dir, 'app/components/ui/Button.vue'), 'utf8')).toContain('bg-action-primary');
-		expect(readFileSync(join(dir, 'app/components/ui/Tag.vue'), 'utf8')).toBe(tag);
+		expect(readFileSync(join(dir, 'components/AppButton.tsx'), 'utf8')).toContain('bg-action-primary');
+		for (const [f, text] of library) expect(readFileSync(join(dir, f), 'utf8'), f).toBe(text);
 	});
 	it('reads Vue Router routes in a Vite app', () => {
-		const dir = mkdtempSync(join(tmpdir(), 'conare-vite-'));
+		const dir = mkdtempSync(join(tmpdir(), 'spyglass-vite-'));
 		write(dir, {
 			'package.json': JSON.stringify({ dependencies: { vue: '^3.5.0', 'vue-router': '^4.5.0' }, devDependencies: { tailwindcss: '^4.1.0' } }),
 			'src/main.ts': "import './style.css'\n",
@@ -163,13 +170,13 @@ describe('apply', () => {
 
 describe('apps it cannot restyle fail clearly and write nothing', () => {
 	it('in a folder with no app', () => {
-		const empty = mkdtempSync(join(tmpdir(), 'conare-empty-'));
+		const empty = mkdtempSync(join(tmpdir(), 'spyglass-empty-'));
 		expect(fails(empty, 'init')).toContain('no app this can restyle');
 		expect(fails(empty, 'apply')).toContain('Nothing was written');
 		expect(readdirSync(empty)).toEqual([]);
 	});
 	it('on Tailwind 2', () => {
-		const dir = mkdtempSync(join(tmpdir(), 'conare-tw2-'));
+		const dir = mkdtempSync(join(tmpdir(), 'spyglass-tw2-'));
 		write(dir, { 'package.json': JSON.stringify({ dependencies: { vue: '^3.5.0' }, devDependencies: { tailwindcss: '^2.2.0' } }), 'src/style.css': '@tailwind base;\n' });
 		const before = snapshot(dir);
 		for (const cmd of [['apply'], ['init'], ['add', 'button', '--no-install']]) expect(fails(dir, ...cmd)).toContain('Tailwind CSS 2');
@@ -177,49 +184,70 @@ describe('apps it cannot restyle fail clearly and write nothing', () => {
 	});
 });
 
+/** A Next.js app with the @/ alias at the root and Tailwind 4. */
+function nextApp() {
+	const dir = mkdtempSync(join(tmpdir(), 'spyglass-next-'));
+	write(dir, {
+		'package.json': JSON.stringify({ dependencies: { next: '16.0.0', react: '19.2.0', 'react-dom': '19.2.0', 'lucide-react': '0.479.0' }, devDependencies: { tailwindcss: '^4.2.2', '@tailwindcss/postcss': '^4.2.2' } }),
+		'tsconfig.json': JSON.stringify({ compilerOptions: { paths: { '@/*': ['./*'] } } }),
+		'app/globals.css': '@import "tailwindcss";\n',
+		'app/layout.tsx': "import './globals.css'\nexport default function Layout({ children }: { children: React.ReactNode }) { return <html><body>{children}</body></html> }\n",
+	});
+	return dir;
+}
+
 describe('library by name', () => {
-	it('adds items however they are typed: Button, AlertDialog, alert-dialog, badge', () => {
-		const dir = nuxtApp();
-		const r = json(dir, 'add', 'Button', 'AlertDialog', 'badge', '--no-install');
-		expect(r.items).toEqual(expect.arrayContaining(['button', 'alert-dialog', 'tag']));
-		expect(r.notes.join(' ')).toContain('badge is tag');
-		expect(existsSync(join(dir, 'app/components/ui/AlertDialog.vue'))).toBe(true);
+	it('adds items however they are typed: Button, SearchBar, search_bar, lockup', () => {
+		const dir = nextApp();
+		const r = json(dir, 'add', 'Button', 'SearchBar', 'search_bar', 'lockup', '--no-install');
+		expect(r.items).toEqual(expect.arrayContaining(['button', 'search-bar', 'logo']));
+		expect(r.notes.join(' ')).toContain('lockup is logo');
+		expect(existsSync(join(dir, 'components/product/SearchBar.tsx'))).toBe(true);
+		expect(existsSync(join(dir, 'components/visuals/Logo.tsx'))).toBe(true);
+		expect(existsSync(join(dir, 'lib/logos.ts'))).toBe(true);
 		expect(fails(dir, 'add', 'buton', '--no-install')).toContain('`button`');
 	});
-	it('shows how to use an item: props, model, events, slots, examples', () => {
-		const v = json(dir0(), 'view', 'alert-dialog').items[0];
-		const api = v.api.find((a: { component: string }) => a.component === 'AlertDialog');
-		expect(api.props.map((p: { name: string }) => p.name)).toEqual(expect.arrayContaining(['title', 'action']));
-		expect(api.models[0].name).toBe('open');
-		expect(api.emits).toEqual(expect.arrayContaining(['confirm', 'cancel']));
+	it('shows how to use an item: props, callbacks, children, examples, in either flavor', () => {
+		const v = json(dir0(), 'view', 'search-bar').items[0];
+		expect(v.flavor).toBe('react');
+		const api = v.api.find((a: { component: string }) => a.component === 'SearchBar');
+		expect(api.props.map((p: { name: string }) => p.name)).toEqual(expect.arrayContaining(['value', 'defaultValue', 'placeholder', 'buttonLabel']));
+		expect(api.emits.join(' ')).toContain('onSearch');
 		expect(v.examples.length).toBeGreaterThan(0);
-		expect(v.files[0].content).toContain('<script setup');
+		expect(v.files.some((f: { content: string }) => f.content.includes('export function SearchBar'))).toBe(true);
 		const button = json(dir0(), 'view', 'button').items[0].api[0];
-		expect(button.props.find((p: { name: string }) => p.name === 'variant').type).toContain("'dark'");
+		expect(button.slots).toContain('children');
+		expect(button.props.map((p: { name: string }) => p.name)).toEqual(expect.arrayContaining(['variant', 'size', 'icon', 'href']));
+		const el = json(dir0(), 'view', 'search-bar', '--framework', 'elements').items[0];
+		expect(el.flavor).toBe('elements');
+		expect(el.tag).toBe('spyglass-search-bar');
+		expect(el.api[0].emits).toContain('search');
 	});
 	it('searches, describes the app and diffs a local copy', () => {
-		expect(json(dir0(), 'search', 'modal').results[0].name).toBe('dialog');
-		const dir = nuxtApp();
-		cli(dir, 'add', 'tag', '--no-install');
+		expect(json(dir0(), 'search', 'pattern').results[0].name).toBe('brand-light');
+		expect(json(dir0(), 'search', 'search').results[0].name).toBe('search-bar');
+		const dir = nextApp();
+		cli(dir, 'add', 'card', '--no-install');
 		const info = json(dir, 'info');
-		expect(info.framework).toBe('nuxt');
+		expect(info.framework).toBe('next');
+		expect(info.flavor).toBe('react');
 		expect(info.theme).toBe(true);
-		expect(info.installed.map((i: { name: string }) => i.name)).toEqual(expect.arrayContaining(['tag', 'loader']));
-		writeFileSync(join(dir, 'app/components/ui/Tag.vue'), `${readFileSync(join(dir, 'app/components/ui/Tag.vue'), 'utf8')}<!-- local -->\n`);
+		expect(info.installed.map((i: { name: string }) => i.name)).toContain('card');
+		writeFileSync(join(dir, 'components/ui/Card.tsx'), `${readFileSync(join(dir, 'components/ui/Card.tsx'), 'utf8')}// local\n`);
 		let out = '';
 		try {
-			cli(dir, 'diff', 'tag', '--json');
+			cli(dir, 'diff', 'card', '--json');
 		} catch (e) {
 			// Like git diff --exit-code: 1 when a local copy differs.
 			expect((e as { status: number }).status).toBe(1);
 			out = (e as { stdout: string }).stdout;
 		}
-		const d = JSON.parse(out).items[0].files.find((f: { path: string }) => f.path === 'app/components/ui/Tag.vue');
+		const d = JSON.parse(out).items[0].files.find((f: { path: string }) => f.path === 'components/ui/Card.tsx');
 		expect(d.status).toBe('changed');
-		expect(d.diff).toContain('-<!-- local -->');
+		expect(d.diff).toContain('-// local');
 	});
 	it('installs with the workspace manager in a monorepo', () => {
-		const root = mkdtempSync(join(tmpdir(), 'conare-mono-'));
+		const root = mkdtempSync(join(tmpdir(), 'spyglass-mono-'));
 		write(root, { 'package.json': JSON.stringify({ private: true, workspaces: ['apps/*'] }), 'bun.lock': '{}\n', 'apps/web/package.json': JSON.stringify({ dependencies: { vue: '^3.5.0' }, devDependencies: { tailwindcss: '^4.1.0' } }), 'apps/web/src/style.css': '@import "tailwindcss";\n' });
 		const info = json(join(root, 'apps/web'), 'info');
 		expect(info.packageManager).toBe('bun');
@@ -229,6 +257,6 @@ describe('library by name', () => {
 
 let empty: string | undefined;
 function dir0() {
-	empty ??= mkdtempSync(join(tmpdir(), 'conare-view-'));
+	empty ??= mkdtempSync(join(tmpdir(), 'spyglass-view-'));
 	return empty;
 }

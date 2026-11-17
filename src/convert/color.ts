@@ -20,7 +20,7 @@ type Elements = {
 	kinds: Record<string, Kind>;
 };
 export type Recipe = { replace: string[]; base: string };
-export type Kind = Recipe & { item: string; names: string; icon?: string; variants?: Record<string, string>; keys?: Record<string, string[]>; default?: string; backdrop?: string; th?: Recipe; td?: Recipe; tab?: Recipe };
+export type Kind = Recipe & { item: string; names: string; icon?: string; variants?: Record<string, string>; keys?: Record<string, string[]>; default?: string; onBand?: { when: 'dark' | 'light'; from: string; to: string }; fallbacks?: Record<string, string[]>; backdrop?: string; th?: Recipe; td?: Recipe; tab?: Recipe };
 
 let cached: Elements | undefined;
 export function elements(): Elements {

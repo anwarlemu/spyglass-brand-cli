@@ -118,12 +118,12 @@ export function logos() {
 	const rules = assets
 		.filter((asset) => asset.fills?.length)
 		.map((asset) => `${asset.path} is filled ${asset.fills!.map((fill) => (fill.token ? `${fill.hex} (${fill.token})` : fill.hex)).join(', ')}.`);
-	rules.push('image redraws brand/logo/svg/mark.svg in the foreground of the chosen ground. video logo redraws brand/logo/svg/primary-logo.svg the same way, and every video draws mark.svg in the footer.');
+	rules.push('image redraws brand/logo/svg/mark-white.svg in the foreground of the chosen ground. video logo redraws brand/logo/svg/horizontal-white.svg the same way, and every video draws mark-white.svg in the footer.');
 	return {
 		source: 'brand/logo',
 		assets,
 		rules,
-		missing: ['No clearance, minimum size, or exclusion zone for the logo is in this repository. Do not invent one.'],
+		missing: ['The guidelines set clear space and minimum sizes for the logo, but their values are not in this repository. Do not invent them.'],
 	};
 }
 

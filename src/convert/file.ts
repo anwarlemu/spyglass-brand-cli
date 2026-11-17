@@ -22,12 +22,12 @@ export function convertVue(text: string, opts: FileOptions): FileResult {
 	const template = descriptor.template;
 	if (template?.ast && (!template.lang || template.lang === 'html')) {
 		const roots = (template.ast.children as Node[]).filter((n) => n.type === 1);
-		const visit = (node: Node, isRoot: boolean, onDark: boolean) => {
+		const visit = (node: Node, isRoot: boolean, onDark: boolean | undefined) => {
 			if (node.type !== 1) return;
 			const dark = convertElement(text, node, isRoot, opts, edits, changes, onDark);
 			for (const child of node.children ?? []) visit(child, false, dark ?? onDark);
 		};
-		for (const n of template.ast.children as Node[]) visit(n, roots.includes(n), false);
+		for (const n of template.ast.children as Node[]) visit(n, roots.includes(n), undefined);
 	}
 	for (const block of [descriptor.script, descriptor.scriptSetup]) if (block) convertScript(block.content, block.loc.start.offset, text, opts, edits, changes, { lits: scriptLiterals(block.content, `x.${block.lang === 'tsx' || block.lang === 'jsx' ? block.lang : 'ts'}`, block.loc.start.offset) });
 	if (opts.general) {
@@ -42,7 +42,7 @@ export function convertVue(text: string, opts: FileOptions): FileResult {
 	return { text: out, changes };
 }
 
-function convertElement(text: string, node: Node, isRoot: boolean, opts: FileOptions, edits: Edit[], changes: Change[], onDark = false): boolean | undefined {
+function convertElement(text: string, node: Node, isRoot: boolean, opts: FileOptions, edits: Edit[], changes: Change[], onDark?: boolean): boolean | undefined {
 	const tag = node.tag ?? '';
 	const el: ElementInfo = { tag, isRoot, attrs: {}, bindings: [], directives: [], styleBindings: [], extraClasses: [], insert: { at: node.loc.start.offset + 1 + tag.length, attr: 'class' } };
 	for (const p of node.props ?? []) {

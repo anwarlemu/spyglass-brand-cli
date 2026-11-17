@@ -70,13 +70,21 @@ export function variantOf(kind: KindName, tokens: string[], key?: string): strin
 	if (!def.variants) return undefined;
 	if (key) for (const [v, keys] of Object.entries(def.keys ?? {})) if (keys.includes(key.toLowerCase())) return v;
 	if (!tokens.length) return def.default;
+	// Already in a variant's look (a second run): its own fill says which, so the result does not depend on values the
+	// first run converted.
+	for (const [v, recipe] of Object.entries(def.variants)) {
+		const fill = recipe.split(/\s+/).find((c) => /^bg-/.test(c) && c !== 'bg-transparent');
+		if (fill && tokens.includes(fill) && Object.entries(def.variants).filter(([, r]) => r.split(/\s+/).includes(fill)).length === 1) return v;
+	}
 	const look = lookOf(tokens);
+	// A role the brand has no variant for falls back along brand.json's elements `fallbacks` (danger -> secondary).
+	const pick = (role: string) => [role, ...(def.fallbacks?.[role] ?? [])].find((v) => def.variants![v]) ?? def.default;
 	if (kind === 'button') {
-		if (tokens.some((t) => /^bg-edge-accent$/.test(t))) return 'primary';
-		if (look.bg && look.bg.l < 0.6) return look.bg.family === 'danger' ? 'danger' : 'dark';
-		if (look.text?.family === 'danger') return 'danger';
-		if (look.bg || look.border) return 'secondary';
-		return 'ghost';
+		if (tokens.some((t) => /^bg-edge-accent$/.test(t))) return pick('primary');
+		if (look.bg && look.bg.l < 0.6) return pick(look.bg.family === 'danger' ? 'danger' : 'dark');
+		if (look.text?.family === 'danger') return pick('danger');
+		if (look.bg || look.border) return pick('secondary');
+		return pick('ghost');
 	}
 	if (kind === 'badge') {
 		if (look.bg?.family === 'danger' || look.text?.family === 'danger') return 'failed';
@@ -156,6 +164,9 @@ function headingType(tag: string, tokens: string[]): string {
 /** A token holding template code (a placeholder for `{{ size }}`, `<%= x %>`, `{expr}`): kept exactly where it is. */
 export const opaque = (t: string) => t.includes('\u0000');
 
+/** Whether the band an element sits on calls for elements.json's onBand swap: a dark band, or a light one. */
+const bandSwap = (def: Kind, onDark: boolean | undefined) => !!def.onBand && def.variants?.[def.onBand.to] !== undefined && (def.onBand.when === 'dark' ? onDark === true : onDark === false);
+
 export type RestyleOptions = { tag?: string; key?: string; onDark?: boolean; merge?: boolean; variant?: 'base' | 'variant' | 'both' | 'size'; changes?: Change[]; tokensForVariant?: string[] };
 
 /**
@@ -175,8 +186,10 @@ export function restyle(text: string, hit: Hit, opts: RestyleOptions = {}): stri
 	if (hit.part === 'heading') add.push(headingType(opts.tag ?? 'h2', opts.tokensForVariant?.length ? opts.tokensForVariant : tokens));
 	if (def.variants && !hit.part && which !== 'base' && which !== 'size') {
 		let v = variantOf(hit.kind, opts.tokensForVariant ?? tokens, opts.key) ?? def.default;
-		// On a dark band the ink button would vanish: the main action takes the brand's red there.
-		if (v === 'dark' && opts.onDark && def.variants.primary) v = 'primary';
+		// On a band where the main action would vanish (an ink button on a dark band, a White one on a light band), it
+		// takes the variant elements.json names (onBand). onDark is undefined outside any band.
+		if (v && bandSwap(def, opts.onDark) && v === def.onBand?.from) v = def.onBand.to;
+		else if (v === 'dark' && !def.onBand && opts.onDark === true && def.variants.primary) v = 'primary';
 		if (v && def.variants[v]) add.push(...def.variants[v].split(/\s+/));
 	}
 	if (hit.kind === 'button' && opts.key && /^icon/.test(opts.key) && def.icon) add.push(...def.icon.split(/\s+/));
@@ -224,7 +237,8 @@ export function restyleSemantic(text: string, hit: Hit, opts: RestyleOptions & {
 		let v: string | undefined;
 		for (const [variant, keys] of Object.entries(def.keys ?? {})) if (keys.some((k) => named.includes(k))) v ??= variant;
 		v ??= variantOf(hit.kind, opts.look ?? [], opts.key) ?? def.default;
-		if (v === 'dark' && opts.onDark && def.variants.primary) v = 'primary';
+		if (v && bandSwap(def, opts.onDark) && v === def.onBand?.from) v = def.onBand.to;
+		else if (v === 'dark' && !def.onBand && opts.onDark === true && def.variants.primary) v = 'primary';
 		if (v && def.variants[v]) add.push(semanticClass(hit.kind, v));
 	}
 	if (hit.kind === 'button' && opts.key && /^icon/.test(opts.key) && def.icon) add.push(semanticClass('button', 'icon'));

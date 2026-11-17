@@ -21,7 +21,7 @@ const fails = (cwd: string, ...args: string[]) => {
 	throw new Error(`expected \`${args.join(' ')}\` to fail`);
 };
 function app(files: Record<string, string>) {
-	const dir = mkdtempSync(join(tmpdir(), 'conare-stack-'));
+	const dir = mkdtempSync(join(tmpdir(), 'spyglass-stack-'));
 	for (const [rel, text] of Object.entries(files)) {
 		mkdirSync(dirname(join(dir, rel)), { recursive: true });
 		writeFileSync(join(dir, rel), text);
@@ -72,10 +72,10 @@ describe('Next.js (App Router, src/, Tailwind 4)', () => {
 		json(dir, 'apply', '/settings');
 		const after = snapshot(dir);
 		const changed = Object.keys(after).filter((f) => after[f] !== before[f]);
-		expect(changed.filter((f) => !/conare-ds\/|^\.ds\/|^AGENTS\.md$/.test(f)).sort()).toEqual(['src/app/globals.css', 'src/app/settings/page.tsx']);
-		expect(read(dir, 'src/app/globals.css')).toContain('@import "tailwindcss";\n@import "./conare-ds/brand.css";\n@import "./conare-ds/theme.css";');
+		expect(changed.filter((f) => !/spyglass-ds\/|^\.ds\/|^AGENTS\.md$/.test(f)).sort()).toEqual(['src/app/globals.css', 'src/app/settings/page.tsx']);
+		expect(read(dir, 'src/app/globals.css')).toContain('@import "tailwindcss";\n@import "./spyglass-ds/brand.css";\n@import "./spyglass-ds/theme.css";');
 		const page = read(dir, 'src/app/settings/page.tsx');
-		expect(page).toContain('className="text-fg type-heading-1 ds-scope"');
+		expect(page).toContain('className="text-fg type-heading-2 ds-scope"');
 		expect(page).toMatch(/<button className="[^"]*bg-action-primary[^"]*">Save<\/button>/);
 		// Twice: nothing more changes.
 		json(dir, 'apply', '/settings');
@@ -103,9 +103,9 @@ describe('Next.js (Pages Router, no src, no Tailwind)', () => {
 		expect([info.framework, info.tailwind, info.stylesheet]).toEqual(['next', null, 'styles/globals.css']);
 		json(dir, 'apply');
 		const css = read(dir, 'styles/globals.css');
-		expect(css.startsWith('@import "./conare-ds/brand.css";\n@import "./conare-ds/kinds.css";\n')).toBe(true);
+		expect(css.startsWith('@import "./spyglass-ds/brand.css";\n@import "./spyglass-ds/kinds.css";\n')).toBe(true);
 		expect(css).toContain('background: var(--ds-color-');
-		expect(read(dir, 'styles/conare-ds/kinds.css')).toContain('.ds-button.ds-button-danger');
+		expect(read(dir, 'styles/spyglass-ds/kinds.css')).toContain('.ds-button.ds-button-secondary');
 		// The look wins over a component's scoped rule loaded after it (Angular's .save[_ngcontent-x] and the like).
 		const chrome = '/Users/anwarlemu/Library/Caches/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/chrome-headless-shell';
 		if (existsSync(process.env.PARITY_CHROMIUM ?? chrome)) {
@@ -113,16 +113,16 @@ describe('Next.js (Pages Router, no src, no Tailwind)', () => {
 			const browser = await chromium.launch({ executablePath: process.env.PARITY_CHROMIUM ?? chrome });
 			try {
 				const p = await browser.newPage();
-				const kinds = read(dir, 'styles/conare-ds/kinds.css');
-				await p.setContent(`<style>${kinds}</style><style>.save[_ngcontent-x] { padding: 8px 16px; }</style><button class="save ds-button ds-button-dark" _ngcontent-x>Save</button>`);
+				const kinds = read(dir, 'styles/spyglass-ds/kinds.css');
+				await p.setContent(`<style>${kinds}</style><style>.save[_ngcontent-x] { padding: 8px 16px; }</style><button class="save ds-button ds-button-primary" _ngcontent-x>Save</button>`);
 				expect(await p.evaluate(() => getComputedStyle(document.querySelector('button')!).paddingTop)).toBe('0px');
 			} finally {
 				await browser.close();
 			}
 		}
 		const home = read(dir, 'pages/index.tsx');
-		expect(home).toContain('className="btn ds-button ds-button-dark"');
-		expect(home).toContain('className="btn btn-danger ds-button ds-button-danger"');
+		expect(home).toContain('className="btn ds-button ds-button-primary"');
+		expect(home).toContain('className="btn btn-danger ds-button ds-button-secondary"');
 		expect(home).toContain('<h1 className="ds-type-heading-1">');
 		const once = snapshot(dir);
 		json(dir, 'apply');
@@ -178,9 +178,9 @@ describe('Tailwind 3 (Vite + React)', () => {
 		});
 		json(dir, 'apply');
 		const config = read(dir, 'tailwind.config.js');
-		expect(config.startsWith("import __dsPreset from './src/conare-ds/tailwind-preset.cjs';")).toBe(true);
+		expect(config.startsWith("import __dsPreset from './src/spyglass-ds/tailwind-preset.cjs';")).toBe(true);
 		expect(config).toContain('presets: [__dsPreset],');
-		expect(read(dir, 'src/index.css').startsWith('@import "./conare-ds/brand.css";\n@tailwind base;')).toBe(true);
+		expect(read(dir, 'src/index.css').startsWith('@import "./spyglass-ds/brand.css";\n@tailwind base;')).toBe(true);
 		expect(read(dir, 'src/App.tsx')).toContain('bg-action-primary');
 	});
 });
@@ -208,14 +208,14 @@ describe('SvelteKit (Tailwind 4) and Vite + Svelte (plain CSS)', () => {
 		expect(page).toMatch(/<button class="[^"]*bg-action-primary[^"]*"/);
 		expect(read(dir, 'src/routes/+page.svelte')).toBe(before['src/routes/+page.svelte']);
 		expect(read(dir, 'src/routes/+layout.svelte')).toBe(before['src/routes/+layout.svelte']);
-		expect(existsSync(join(dir, 'static/conare-ds/fonts/Geist-400.woff2'))).toBe(true);
+		expect(existsSync(join(dir, 'static/spyglass-ds/fonts/DMSans-400.woff2'))).toBe(true);
 	});
 	it('a Svelte component restyled as its kind gives the look to its element root, never to its top-level script or style', () => {
 		const card = '<script lang="ts">\n\tlet { title, children } = $props();\n</script>\n\n<div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">\n\t<h2>{title}</h2>\n\t{@render children()}\n</div>\n\n<style>\n\th2 { color: #111827; }\n</style>\n';
 		const out = convertFile('src/lib/Card.svelte', card, { general: true, kinds: 'all', componentKind: 'card' }).text;
 		expect(out).toContain('<script lang="ts">');
 		expect(out).toContain('<style>');
-		expect(out).toMatch(/<div class="[^"]*border-edge[^"]*">/);
+		expect(out).toMatch(/<div class="[^"]*bg-surface-raised[^"]*">/);
 	});
 	it('Vite + Svelte without Tailwind: semantic classes, kinds.css imported by app.css', () => {
 		const dir = app({
@@ -226,8 +226,8 @@ describe('SvelteKit (Tailwind 4) and Vite + Svelte (plain CSS)', () => {
 			'src/App.svelte': '<button class="btn">Go</button>\n<button>Bare</button>\n',
 		});
 		json(dir, 'apply');
-		expect(read(dir, 'src/App.svelte')).toBe('<button class="btn ds-button ds-button-dark">Go</button>\n<button class="ds-button ds-button-secondary">Bare</button>\n');
-		expect(read(dir, 'src/app.css')).toContain('@import "./conare-ds/kinds.css";');
+		expect(read(dir, 'src/App.svelte')).toBe('<button class="btn ds-button ds-button-primary">Go</button>\n<button class="ds-button ds-button-secondary">Bare</button>\n');
+		expect(read(dir, 'src/app.css')).toContain('@import "./spyglass-ds/kinds.css";');
 	});
 });
 
@@ -246,7 +246,7 @@ describe('Astro 5 (plain CSS)', () => {
 		json(dir, 'apply', '/');
 		const page = read(dir, 'src/pages/index.astro');
 		expect(page).toContain("const items = ['a'];");
-		expect(page).toContain('<Layout><h1 class="title ds-type-heading-1 ds-scope">Home</h1><button class="btn ds-button ds-button-dark ds-scope">Go</button>');
+		expect(page).toContain('<Layout><h1 class="title ds-type-heading-1 ds-scope">Home</h1><button class="btn ds-button ds-button-primary ds-scope">Go</button>');
 		// A tag that draws nothing never takes the scope class (the file's top-level style counts as a root).
 		expect(page).toContain('<style>\n  .title { color: var(--ds-color-fg); }');
 		expect(read(dir, 'src/pages/about.astro')).toBe(before['src/pages/about.astro']);
@@ -272,7 +272,7 @@ describe('Angular 20 (plain CSS)', () => {
 		const r = json(dir, 'apply', '/team');
 		expect(r.files.map((f: { file: string }) => f.file).sort()).toEqual(['src/app/team/team.css', 'src/app/team/team.html']);
 		const html = read(dir, 'src/app/team/team.html');
-		expect(html).toContain('<button class="btn ds-button ds-button-dark ds-scope" [class.active]="danger" (click)="danger = !danger">{{ danger ? "On" : "Off" }}</button>');
+		expect(html).toContain('<button class="btn ds-button ds-button-primary ds-scope" [class.active]="danger" (click)="danger = !danger">{{ danger ? "On" : "Off" }}</button>');
 		expect(html).toContain('<th class="ds-table-th ds-scope">');
 		expect(read(dir, 'src/app/home/home.html')).toBe('<h1 class="title">Home</h1>\n');
 	});
@@ -299,9 +299,9 @@ describe('A plain HTML site (no package.json)', () => {
 		const info = json(dir, 'info');
 		expect([info.framework, info.flavor, info.stylesheet, info.publicDir, info.packageManager]).toEqual(['html', 'elements', 'css/site.css', '.', null]);
 		json(dir, 'init');
-		for (const page of ['index.html', 'about.html']) expect(read(dir, page)).toContain('    <link rel="stylesheet" href="/conare-ds/brand.css">\n    <link rel="stylesheet" href="/conare-ds/kinds.css">\n    <link rel="stylesheet" href="/css/site.css" />');
-		expect(read(dir, 'conare-ds/brand.css')).toContain('url("./fonts/Geist-400.woff2")');
-		expect(existsSync(join(dir, 'conare-ds/fonts/Geist-400.woff2'))).toBe(true);
+		for (const page of ['index.html', 'about.html']) expect(read(dir, page)).toContain('    <link rel="stylesheet" href="/spyglass-ds/brand.css">\n    <link rel="stylesheet" href="/spyglass-ds/kinds.css">\n    <link rel="stylesheet" href="/css/site.css" />');
+		expect(read(dir, 'spyglass-ds/brand.css')).toContain('url("./fonts/DMSans-400.woff2")');
+		expect(existsSync(join(dir, 'spyglass-ds/fonts/DMSans-400.woff2'))).toBe(true);
 	});
 	it('a page selection links and restyles that page only: the other pages stay byte for byte', () => {
 		const dir = make();
@@ -309,7 +309,7 @@ describe('A plain HTML site (no package.json)', () => {
 		json(dir, 'apply', '/about');
 		expect(read(dir, 'index.html')).toBe(before['index.html']);
 		expect(read(dir, 'css/site.css')).toBe(before['css/site.css']);
-		expect(read(dir, 'about.html')).toContain('<button class="btn btn-danger ds-button ds-button-danger ds-scope">Delete</button>');
+		expect(read(dir, 'about.html')).toContain('<button class="btn btn-danger ds-button ds-button-secondary ds-scope">Delete</button>');
 	});
 });
 
@@ -328,12 +328,12 @@ describe('Server templates', () => {
 		expect([info.framework, info.stylesheet, info.layouts]).toEqual(['rails', 'app/assets/stylesheets/application.css', ['app/views/layouts/application.html.erb']]);
 		const before = snapshot(dir);
 		json(dir, 'apply', '/settings');
-		expect(read(dir, 'app/views/layouts/application.html.erb')).toContain('    <link rel="stylesheet" href="/conare-ds/brand.css">\n    <link rel="stylesheet" href="/conare-ds/kinds.css">\n    <%= stylesheet_link_tag :app %>');
+		expect(read(dir, 'app/views/layouts/application.html.erb')).toContain('    <link rel="stylesheet" href="/spyglass-ds/brand.css">\n    <link rel="stylesheet" href="/spyglass-ds/kinds.css">\n    <%= stylesheet_link_tag :app %>');
 		const settings = read(dir, 'app/views/pages/settings.html.erb');
 		expect(settings).toContain('<div class="p-4 <% if @x %>active<% end %>">x</div>');
-		expect(settings).toContain('<button class="btn <%= @on ? \'on\' : \'\' %> ds-button ds-button-dark ds-scope">Save</button>');
+		expect(settings).toContain('<button class="btn <%= @on ? \'on\' : \'\' %> ds-button ds-button-primary ds-scope">Save</button>');
 		expect(read(dir, 'app/views/pages/home.html.erb')).toBe(before['app/views/pages/home.html.erb']);
-		expect(existsSync(join(dir, 'public/conare-ds/kinds.css'))).toBe(true);
+		expect(existsSync(join(dir, 'public/spyglass-ds/kinds.css'))).toBe(true);
 		const kinds = json(dir, 'apply', 'button', '--dry-run');
 		expect(kinds.files.map((f: { file: string }) => f.file)).toContain('app/views/shared/_button.html.erb');
 	});
@@ -353,8 +353,8 @@ describe('Server templates', () => {
 		expect([info.framework, info.tailwind, info.stylesheet]).toEqual(['laravel', 4, 'resources/css/app.css']);
 		const r = json(dir, 'apply', '/settings', '--with-shared');
 		expect(r.files.map((f: { file: string }) => f.file)).toEqual(expect.arrayContaining(['resources/views/settings.blade.php', 'resources/views/components/primary-button.blade.php']));
-		expect(read(dir, 'resources/views/components/primary-button.blade.php')).toMatch(/'class' => '[^']*h-control-sm[^']*bg-action-primary/);
-		expect(read(dir, 'resources/css/app.css')).toContain("@import 'tailwindcss';\n@import \"./conare-ds/brand.css\";\n@import \"./conare-ds/theme.css\";");
+		expect(read(dir, 'resources/views/components/primary-button.blade.php')).toMatch(/'class' => '[^']*h-control-md[^']*bg-action-primary/);
+		expect(read(dir, 'resources/css/app.css')).toContain("@import 'tailwindcss';\n@import \"./spyglass-ds/brand.css\";\n@import \"./spyglass-ds/theme.css\";");
 	});
 	it('Django: urls.py routes to views and TemplateView templates; base.html links /static/', () => {
 		const dir = app({
@@ -371,7 +371,7 @@ describe('Server templates', () => {
 		expect([info.framework, info.publicDir, info.layouts]).toEqual(['django', 'static', ['templates/base.html']]);
 		json(dir, 'apply', '/team/');
 		// {% static %}, so STATIC_URL and hashed file names follow; the template loads the tag library already.
-		expect(read(dir, 'templates/base.html')).toContain(`    <link rel="stylesheet" href="{% static 'conare-ds/brand.css' %}">`);
+		expect(read(dir, 'templates/base.html')).toContain(`    <link rel="stylesheet" href="{% static 'spyglass-ds/brand.css' %}">`);
 		expect(read(dir, 'templates/base.html').match(/\{% load static %\}/g)).toHaveLength(1);
 		expect(read(dir, 'templates/team.html')).toContain('<button class="btn {% if x %}on{% endif %}">Go</button>');
 		expect(read(dir, 'templates/team.html')).toContain('<th class="ds-table-th ds-scope">{{ name }}</th>');
@@ -382,8 +382,8 @@ describe('Server templates', () => {
 		const info = json(dir, 'info');
 		expect([info.framework, info.layouts]).toEqual(['php', ['partials/header.php']]);
 		json(dir, 'apply');
-		expect(read(dir, 'partials/header.php')).toContain('<link rel="stylesheet" href="/conare-ds/brand.css"><link rel="stylesheet" href="/conare-ds/kinds.css"><link rel="stylesheet" href="/css/style.css">');
-		expect(read(dir, 'index.php')).toContain('<button class="btn ds-button ds-button-dark">Go</button>');
+		expect(read(dir, 'partials/header.php')).toContain('<link rel="stylesheet" href="/spyglass-ds/brand.css"><link rel="stylesheet" href="/spyglass-ds/kinds.css"><link rel="stylesheet" href="/css/style.css">');
+		expect(read(dir, 'index.php')).toContain('<button class="btn ds-button ds-button-primary">Go</button>');
 		expect(read(dir, 'css/style.css')).toContain('var(--ds-color-');
 	});
 	it('Express + EJS: views, partials and the stylesheet in public/', () => {
@@ -397,7 +397,7 @@ describe('Server templates', () => {
 		expect([info.framework, info.stylesheet, info.layouts]).toEqual(['templates', 'public/css/style.css', ['views/partials/head.ejs']]);
 		json(dir, 'apply');
 		expect(read(dir, 'public/css/style.css')).toContain('var(--ds-color-');
-		expect(read(dir, 'views/home.ejs')).toContain('<button class="btn ds-button ds-button-dark"><%= label %></button>');
+		expect(read(dir, 'views/home.ejs')).toContain('<button class="btn ds-button ds-button-primary"><%= label %></button>');
 		expect(json(dir, 'check').findings).toEqual([]);
 	});
 });
@@ -408,7 +408,7 @@ describe('the structure check holds in every file type', () => {
 		const { markupSignature } = await import('../src/convert/markup.js');
 		const { jsxSignature } = await import('../src/convert/jsx.js');
 		const svelte = '<script>let a = 1;</script>\n<button class="px-4 bg-red-500" onclick={() => a++}>Go {a}</button>\n';
-		expect(markupSignature(svelte, 'svelte')).toBe(markupSignature(svelte.replace('px-4 bg-red-500', 'h-control-sm bg-action-danger'), 'svelte'));
+		expect(markupSignature(svelte, 'svelte')).toBe(markupSignature(svelte.replace('px-4 bg-red-500', 'h-control-md bg-action-danger'), 'svelte'));
 		expect(markupSignature(svelte, 'svelte')).not.toBe(markupSignature(svelte.replace('Go', 'Run'), 'svelte'));
 		expect(markupSignature(svelte, 'svelte')).not.toBe(markupSignature(svelte.replace('a++', 'a--'), 'svelte'));
 		const erb = '<p class="x <%= y %>">Hi <%= name %></p>\n';
@@ -446,19 +446,19 @@ describe('the structure check holds in every file type', () => {
 describe('library flavors', () => {
 	// A registry with the React and web component flavors of button, as the registry build emits them.
 	const fixture = () => {
-		const dir = mkdtempSync(join(tmpdir(), 'conare-registry-'));
+		const dir = mkdtempSync(join(tmpdir(), 'spyglass-registry-'));
 		cpSync(join(__dirname, '..', 'apps', 'www', 'public', 'r'), join(dir, 'r'), { recursive: true });
 		const item = JSON.parse(readFileSync(join(dir, 'r', 'button.json'), 'utf8'));
 		item.flavors = {
-			react: { files: [{ path: 'react/components/ui/Button.tsx', content: "import { cn } from '@/react/lib/cn';\n\nexport type ButtonProps = { variant?: 'secondary' | 'dark'; children?: React.ReactNode };\n\nexport function Button({ variant = 'secondary', children }: ButtonProps) {\n  return <button data-ds=\"Button\" className={cn('h-control-sm', variant === 'dark' ? 'bg-action-primary' : 'bg-surface')}>{children}</button>;\n}\n" }, { path: 'react/lib/cn.ts', content: 'export const cn = (...a: unknown[]) => a.filter(Boolean).join(" ");\n' }], dependencies: ['lucide-react'], registryDependencies: [] },
-			elements: { files: [{ path: 'elements/components/ui/button.ts', content: "@customElement('conare-button')\nexport class ConareButton extends LitElement {\n  @property({ type: String }) variant = 'secondary';\n  render() { this.dispatchEvent(new CustomEvent('press')); return html`<button><slot></slot></button>`; }\n}\n" }], modules: ['elements/button.js'], tag: 'conare-button', dependencies: ['lit'] },
+			react: { files: [{ path: 'react/components/ui/Button.tsx', content: "import { cn } from '@/react/lib/cn';\n\nexport type ButtonProps = { variant?: 'secondary' | 'dark'; children?: React.ReactNode };\n\nexport function Button({ variant = 'secondary', children }: ButtonProps) {\n  return <button data-ds=\"Button\" className={cn('h-control-md', variant === 'dark' ? 'bg-action-primary' : 'bg-surface')}>{children}</button>;\n}\n" }, { path: 'react/lib/cn.ts', content: 'export const cn = (...a: unknown[]) => a.filter(Boolean).join(" ");\n' }], dependencies: ['lucide-react'], registryDependencies: [] },
+			elements: { files: [{ path: 'elements/components/ui/button.ts', content: "@customElement('spyglass-button')\nexport class AcmeButton extends LitElement {\n  @property({ type: String }) variant = 'secondary';\n  render() { this.dispatchEvent(new CustomEvent('press')); return html`<button><slot></slot></button>`; }\n}\n" }], modules: ['elements/button.js'], tag: 'spyglass-button', dependencies: ['lit'] },
 		};
 		writeFileSync(join(dir, 'r', 'button.json'), JSON.stringify(item));
 		const index = JSON.parse(readFileSync(join(dir, 'r', 'index.json'), 'utf8'));
-		for (const i of index.items) if (i.name === 'button') i.flavors = ['vue', 'react', 'elements'];
+		for (const i of index.items) if (i.name === 'button') i.flavors = ['react', 'elements'];
 		writeFileSync(join(dir, 'r', 'index.json'), JSON.stringify(index));
 		mkdirSync(join(dir, 'elements'));
-		writeFileSync(join(dir, 'elements', 'button.js'), "import { DsElement } from './shared-x1.js';\ncustomElements.define('conare-button', class extends DsElement {});\n");
+		writeFileSync(join(dir, 'elements', 'button.js'), "import { DsElement } from './shared-x1.js';\ncustomElements.define('spyglass-button', class extends DsElement {});\n");
 		writeFileSync(join(dir, 'elements', 'shared-x1.js'), 'export class DsElement extends HTMLElement {}\n');
 		(globalThis as any).dsEnv = { DS_REGISTRY_DIR: join(dir, 'r') };
 		return dir;
@@ -492,40 +492,42 @@ describe('library flavors', () => {
 	it('view and diff take --framework, and read the API the registry build writes for each flavor', () => {
 		(globalThis as any).dsEnv = { DS_REGISTRY_DIR: join(__dirname, '..', 'apps', 'www', 'public', 'r') };
 		const dir = app({ 'index.html': htmlPage('Home', '<main></main>') });
-		const wc = json(dir, 'view', 'dialog').items[0];
+		const wc = json(dir, 'view', 'search-bar').items[0];
 		expect(wc.flavor).toBe('elements');
 		expect(wc.api[0].component).toBe(`${wc.tag}`);
-		expect(wc.api[0].props.map((p: { name: string }) => p.name)).toContain('open');
-		expect(wc.api[0].emits).toContain('close');
-		expect(wc.api[0].slots).toContain('foot');
-		const react = json(dir, 'view', 'dialog', '--framework', 'react').items[0];
+		expect(wc.api[0].props.map((p: { name: string }) => p.name)).toContain('placeholder');
+		expect(wc.api[0].emits).toContain('search');
+		const card = json(dir, 'view', 'card').items[0];
+		expect(card.api[0].slots).toContain('actions');
+		const react = json(dir, 'view', 'search-bar', '--framework', 'react').items[0];
 		expect(react.flavor).toBe('react');
-		expect(react.api[0].props.map((p: { name: string }) => p.name)).toContain('onOpenChange');
-		expect(json(dir, 'diff', 'dialog', '--framework', 'react').items[0].files[0].status).toBe('missing');
+		expect(react.api[0].emits.join(' ')).toContain('onValueChange');
+		expect(json(dir, 'diff', 'search-bar', '--framework', 'react').items[0].files[0].status).toBe('missing');
 	});
 	it('a site with no build gets the prebuilt web component and its shared chunk in the static folder, with the script line', () => {
 		fixture();
 		const dir = app({ 'index.html': htmlPage('Home', '<main></main>') });
 		const r = json(dir, 'add', 'button');
 		expect(r.flavor).toBe('elements');
-		expect(existsSync(join(dir, 'conare-ds/elements/button.js'))).toBe(true);
-		expect(existsSync(join(dir, 'conare-ds/elements/shared-x1.js'))).toBe(true);
-		expect(r.scripts).toEqual(['<script type="module" src="/conare-ds/elements/button.js"></script>']);
+		expect(existsSync(join(dir, 'spyglass-ds/elements/button.js'))).toBe(true);
+		expect(existsSync(join(dir, 'spyglass-ds/elements/shared-x1.js'))).toBe(true);
+		expect(r.scripts).toEqual(['<script type="module" src="/spyglass-ds/elements/button.js"></script>']);
 		const v = json(dir, 'view', 'button').items[0];
-		expect([v.flavor, v.tag]).toEqual(['elements', 'conare-button']);
+		expect([v.flavor, v.tag]).toEqual(['elements', 'spyglass-button']);
 		expect(v.api[0].props[0].name).toBe('variant');
 		expect(v.api[0].emits).toEqual(['press']);
 		const django = app({ 'manage.py': '', 'acme/settings.py': "STATIC_URL = '/static/'\n", 'templates/base.html': '<html><head></head><body></body></html>\n', 'static/css/a.css': '' });
-		expect(json(django, 'add', 'button').scripts).toEqual([`<script type="module" src="{% static 'conare-ds/elements/button.js' %}"></script>`]);
+		expect(json(django, 'add', 'button').scripts).toEqual([`<script type="module" src="{% static 'spyglass-ds/elements/button.js' %}"></script>`]);
 		// A template without the tag library gets {% load static %} with the links.
 		expect(read(django, 'templates/base.html')).toMatch(/^\{% load static %\}\n<html>/);
-		expect(read(django, 'templates/base.html')).toContain(`<link rel="stylesheet" href="{% static 'conare-ds/brand.css' %}">`);
-		expect(existsSync(join(django, 'static/conare-ds/elements/button.js'))).toBe(true);
+		expect(read(django, 'templates/base.html')).toContain(`<link rel="stylesheet" href="{% static 'spyglass-ds/brand.css' %}">`);
+		expect(existsSync(join(django, 'static/spyglass-ds/elements/button.js'))).toBe(true);
 	});
 	it('list and search show the flavors', () => {
 		fixture();
 		const button = json(mkdtempSync(join(tmpdir(), 'x-')), 'list').items.find((i: { name: string }) => i.name === 'button');
-		expect(button.flavors).toEqual(['vue', 'react', 'elements']);
+		expect(button.flavors).toEqual(['react', 'elements']);
+		expect(json(mkdtempSync(join(tmpdir(), 'x-')), 'search', 'button').results[0].flavors).toEqual(['react', 'elements']);
 		(globalThis as any).dsEnv = {};
 	});
 });

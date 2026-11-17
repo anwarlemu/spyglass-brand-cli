@@ -380,7 +380,8 @@
           "secondary"
         ]
       },
-      "onDark": {
+      "onBand": {
+        "when": "light",
         "from": "primary",
         "to": "secondary"
       }

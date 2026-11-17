@@ -187,7 +187,7 @@ export type ElementInfo = {
 };
 
 /** One element's classes and styles given the brand. Returns whether it paints a dark fill (its children sit on dark). */
-export function convertElementInfo(text: string, el: ElementInfo, opts: FileOptions, edits: Edit[], changes: Change[], onDark = false): boolean | undefined {
+export function convertElementInfo(text: string, el: ElementInfo, opts: FileOptions, edits: Edit[], changes: Change[], onDark?: boolean): boolean | undefined {
 	const { tag, isRoot, attrs, staticClass, bindings } = el;
 	const masked = staticClass?.masked;
 	const staticValue = masked?.value ?? staticClass?.value ?? '';
@@ -248,7 +248,8 @@ export function convertElementInfo(text: string, el: ElementInfo, opts: FileOpti
 		const lookText = withMark(bare ? give('', dynColored ? 'base' : 'both', []) : '');
 		if (lookText.trim()) edits.push({ start: el.insert.at, end: el.insert.at, text: ` ${el.insert.attr}="${lookText.trim()}"` });
 	}
-	const dark = paintsDark([...staticTokens, ...look]);
+	// The band as it will look: its converted fill, so a second run reads the same band the first one wrote.
+	const dark = paintsDark([...(opts.general && !isPlain && staticValue ? convertClassList(staticValue, { tag }).split(/\s+/).filter(Boolean) : staticTokens), ...look]);
 	if (!opts.general) return dark;
 	if (!isPlain) {
 		for (const d of el.directives) {

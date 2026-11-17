@@ -247,7 +247,7 @@ function logoBody(size: VideoSize, palette: Theme, t: number, ease: (n: number) 
 	const r = rhythm(size.id);
 	const column = size.width - r.padX * 2;
 	const budget = size.height - r.padBottom - r.mark - r.footerGap - 12 - r.padTop;
-	const graphic = readGraphic('primary-logo.svg');
+	const graphic = readGraphic('horizontal-white.svg');
 	let width = column * (size.id === 'vertical' ? 0.92 : 0.78);
 	let height = width * (graphic.vh / graphic.vw);
 	if (height > budget) {
@@ -257,7 +257,7 @@ function logoBody(size: VideoSize, palette: Theme, t: number, ease: (n: number) 
 	const p = phase(t, 0.06, 0.64, ease);
 	const x = r.padX + (column - width) / 2;
 	const y = r.padTop + Math.max(0, (budget - height) / 2);
-	return `<g opacity="${op(p)}" transform="translate(0 ${fmt((1 - p) * 18)})">${placed('primary-logo.svg', palette.fg, x, y, width)}</g>`;
+	return `<g opacity="${op(p)}" transform="translate(0 ${fmt((1 - p) * 18)})">${placed('horizontal-white.svg', palette.fg, x, y, width)}</g>`;
 }
 
 type Tag = { height: number; draw: (x: number, y: number, opacity: number) => string };
@@ -321,7 +321,7 @@ function footer(size: VideoSize, r: Rhythm, loaded: Faces, palette: Theme, ruleP
 	const urlW = measure(loaded.text, host, urlSize, 0);
 	return [
 		rect(r.padX, ruleY, (size.width - r.padX * 2) * ruleP, 1, palette.edge),
-		`<g opacity="${op(markP)}">${placed('mark.svg', palette.fg, r.padX, y, r.mark)}${textAt(loaded.text, host, size.width - r.padX - urlW, baseline, urlSize, 0, palette.fgMuted)}</g>`,
+		`<g opacity="${op(markP)}">${placed('mark-white.svg', palette.fg, r.padX, y, r.mark)}${textAt(loaded.text, host, size.width - r.padX - urlW, baseline, urlSize, 0, palette.fgMuted)}</g>`,
 	].join('');
 }
 

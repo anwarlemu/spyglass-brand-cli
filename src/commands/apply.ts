@@ -307,7 +307,7 @@ export function formatApply(r: ApplyResult): string {
 	if (r.files.length > 40) lines.push(`    ... and ${r.files.length - 40} more (--json lists them all)`);
 	if (r.sharedLeftOut.length) lines.push(`  Left out, shared with other pages or the shell (name them or pass --with-shared): ${r.sharedLeftOut.join(', ')}`);
 	for (const s of r.skipped) lines.push(`  ${s.file}: ${s.reason}`);
-	lines.push(`  Shared setup: ${r.setup.filter((s) => !/fonts$|textures$/.test(s)).join(', ') || 'already in place'} (theme, fonts, contract).`);
+	lines.push(`  Shared setup: ${r.setup.filter((s) => !/fonts$|logo$/.test(s)).join(', ') || 'already in place'} (theme, fonts, contract).`);
 	for (const w of r.warnings) lines.push(`  warning: ${w}`);
 	if (!r.dryRun) lines.push(`  Scope recorded in .ds/state.json: \`${b.bin} apply --redo\` repeats it, \`${b.bin} check\` checks ${r.state?.whole ? 'the whole app' : `the ${r.state?.checked.length ?? 0} files in it`}.`);
 	return lines.join('\n');
