@@ -1,0 +1,15 @@
+<!-- New creatives found per day by category over two weeks: six series in the brand's order, the neutrals first, then
+     the spectrum. Point at the plot to read a day. Sample data. -->
+<div class="w-full max-w-238">
+  <spyglass-line-chart id="categories-chart" heading="New creatives per day"></spyglass-line-chart>
+</div>
+<script type="module">
+  const day = (i) => Date.UTC(2026, 10, 2 + i)
+  const categories = ['Skincare', 'Snacks', 'Fitness', 'Beverages', 'Apparel', 'Home']
+  const chart = document.getElementById('categories-chart')
+  chart.format = (v) => `${Math.round(v)} creatives`
+  chart.series = categories.map((label, k) => ({
+    label,
+    points: Array.from({ length: 14 }, (_, i) => ({ t: day(i), v: Math.round(120 - k * 16 + ((i * (k + 3) * 7) % 11) * 4 + i * (3 - k * 0.4)) })),
+  }))
+</script>

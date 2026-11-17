@@ -1,0 +1,15 @@
+<!-- A month of searches on a #171717 card: the total in Funnel Display, the bars per day under it. Point at a bar to
+     read it. Sample data. -->
+<div class="flex w-full max-w-150 flex-col gap-6 rounded-container bg-surface-raised p-6 max-sm:p-4">
+  <div class="flex flex-col gap-2">
+    <p class="type-label text-fg-muted">Searches, October</p>
+    <p id="searches-total" class="type-heading-1 tabular-nums"></p>
+  </div>
+  <spyglass-bar-chart id="searches-chart" label="Searches per day" height="140"></spyglass-bar-chart>
+</div>
+<script type="module">
+  const days = Array.from({ length: 30 }, (_, i) => `2026-10-${String(i + 2).padStart(2, '0')}`)
+  const points = days.map((day, i) => ({ day, value: Math.round(1800 * (0.2 + (((i * 7) % 23) / 23) ** 2 * 0.8)) }))
+  document.getElementById('searches-total').textContent = new Intl.NumberFormat('en-US').format(points.reduce((a, p) => a + p.value, 0))
+  document.getElementById('searches-chart').points = points
+</script>

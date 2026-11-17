@@ -1,0 +1,12 @@
+<!-- A report's start date in a form: a label over the field, a hint under it. -->
+<div class="flex h-110 w-full max-w-80 flex-col gap-2">
+  <label for="report-start" class="type-label text-fg-muted">Report starts</label>
+  <spyglass-date-picker id="report-start" aria-label="Report starts" aria-description="Creatives running since this day."></spyglass-date-picker>
+  <p id="report-start-hint" class="type-caption text-fg-muted">Creatives running since this day.</p>
+</div>
+<script type="module">
+  const picker = document.getElementById('report-start')
+  picker.addEventListener('change', () => {
+    document.getElementById('report-start-hint').textContent = picker.value ? `Creatives running since ${picker.value.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}.` : 'Creatives running since this day.'
+  })
+</script>

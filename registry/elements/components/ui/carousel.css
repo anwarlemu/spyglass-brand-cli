@@ -1,0 +1,8 @@
+/* Carousel.tsx's styles. */
+.ds-carousel { scrollbar-width: none; }
+.ds-carousel::-webkit-scrollbar { display: none; }
+.ds-carousel-slide { width: 100%; }
+@media (min-width: 768px) {
+  .ds-carousel[data-per-view="2"] .ds-carousel-slide { width: calc((100% - var(--ds-space-lg)) / 2); }
+  .ds-carousel[data-per-view="3"] .ds-carousel-slide { width: calc((100% - 2 * var(--ds-space-lg)) / 3); }
+}

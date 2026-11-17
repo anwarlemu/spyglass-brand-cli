@@ -1,0 +1,11 @@
+<!-- The day a campaign goes live; the picked day reads under the month. -->
+<div class="flex flex-col items-center gap-3">
+  <spyglass-calendar id="launch-day" label="Launch day" value="2026-11-20"></spyglass-calendar>
+  <p id="launch-day-line" class="type-caption text-fg-muted" aria-live="polite">Goes live Friday, November 20.</p>
+</div>
+<script type="module">
+  const cal = document.getElementById('launch-day')
+  cal.addEventListener('change', () => {
+    document.getElementById('launch-day-line').textContent = cal.value ? `Goes live ${cal.value.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}.` : 'Pick a day.'
+  })
+</script>

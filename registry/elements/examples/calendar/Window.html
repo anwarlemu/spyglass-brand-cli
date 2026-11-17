@@ -1,0 +1,5 @@
+<!-- A flight window: weeks start on Monday, only days from November 9 to December 11 can be picked, and never a Sunday. -->
+<spyglass-calendar id="flight-start" label="Flight start" week-starts-on="1" value="2026-11-24" min="2026-11-09" max="2026-12-11"></spyglass-calendar>
+<script type="module">
+  document.getElementById('flight-start').disabled = (d) => d.getDay() === 0
+</script>

@@ -1,0 +1,30 @@
+<!-- A board's creatives on sample data: filter by format and status, sort by days running, spend or impressions, five
+     to a page. -->
+<div class="min-h-110 w-full">
+  <spyglass-data-table id="board-creatives" row-key="id" label="Board creatives"></spyglass-data-table>
+</div>
+<script type="module">
+  const formats = ['Video', 'Carousel', 'Image']
+  const statuses = ['Active', 'Paused']
+  const names = ['Summer UGC', 'Serum launch', 'Founder story', 'Bundle offer', 'Before and after', 'Unboxing', 'Routine in 30 seconds', 'Holiday gift set']
+  const table = document.getElementById('board-creatives')
+  table.rows = Array.from({ length: 17 }, (_, i) => ({
+    id: `cr-${i + 1}`,
+    name: `Acme ${names[i % names.length].toLowerCase()}${i >= names.length ? ` ${Math.floor(i / names.length) + 1}` : ''}`,
+    format: formats[i % 3],
+    status: statuses[i % 4 === 3 ? 1 : 0],
+    days: ((i * 17) % 80) + 3,
+    spend: ((i * 7919) % 42000) + 1800,
+    impressions: ((i * 104729) % 2400000) + 86000,
+  }))
+  table.columns = [
+    { key: 'name', label: 'Creative', sortable: true },
+    { key: 'format', label: 'Format' },
+    { key: 'status', label: 'Status', muted: true },
+    { key: 'days', label: 'Days running', align: 'right', sortable: true },
+    { key: 'spend', label: 'Spend', align: 'right', sortable: true },
+    { key: 'impressions', label: 'Impressions', align: 'right', sortable: true },
+  ]
+  table.filters = [{ key: 'format', label: 'Format', options: formats }, { key: 'status', label: 'Status', options: statuses }]
+  table.cells = { spend: ({ value }) => `$${Number(value).toLocaleString('en-US')}` }
+</script>

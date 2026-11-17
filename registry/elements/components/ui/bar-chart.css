@@ -1,0 +1,4 @@
+/* BarChart.tsx's styles: a bar rises from the axis once, then only its color changes. */
+.ds-bar { transform-origin: bottom; animation: ds-bar-in var(--ds-duration-entrance) var(--ds-easing-out) both; animation-delay: calc(var(--i, 0) * 1ms); transition: background-color var(--ds-duration-glide) var(--ds-easing-standard); }
+@keyframes ds-bar-in { from { transform: scaleY(0.02); } }
+@media (prefers-reduced-motion: reduce) { .ds-bar { animation: none; } }
