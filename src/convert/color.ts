@@ -140,14 +140,30 @@ export function brandColor(name: string): Color | undefined {
 	return brandColors.get(name) ?? brandColors.get(name.replace(/^ds-/, '')) ?? SHADCN[name];
 }
 
+// The app's ground (convert/ground.ts), set by apply before it converts. The role tables read lightness as a light
+// page does; on a dark app a neutral's lightness is read mirrored, and its page color (within 0.03 of the ground) is
+// the brand's surface, so the app's ground becomes the brand's.
+let ground: { dark: boolean; l: number } | undefined;
+export function setGround(g: { dark: boolean; l: number } | undefined) {
+	ground = g;
+}
+function asOnLight(c: Color, use: Use): Color {
+	if (!ground?.dark || c.family !== 'neutral') return c;
+	return { ...c, l: use === 'bg' && Math.abs(c.l - ground.l) < 0.03 ? 1 : 1 - c.l };
+}
+
 /** The brand role for a color by what it colors. */
-export function roleFor(c: Color, use: Use): string {
+export function roleFor(color: Color, use: Use): string {
+	const c = asOnLight(color, use);
 	const table = elements().roles[use][c.family];
 	for (const [min, role] of table) if (c.l >= min) return role;
 	return table[table.length - 1][1];
 }
 
-export const hoverRole = (c: Color) => (c.l < 0.86 ? elements().roles.hover[c.family] : undefined);
+export const hoverRole = (color: Color) => {
+	const c = asOnLight(color, 'bg');
+	return c.l < 0.86 ? elements().roles.hover[c.family] : undefined;
+};
 
 /** CSS for a role, keeping the color's alpha. */
 export function cssRole(roleWithAlpha: string, alphaIn = 1) {

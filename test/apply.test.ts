@@ -71,6 +71,44 @@ describe('apply', () => {
 		expect(snapshot(dir)).toEqual(once);
 		expect(json(dir, 'check').findings).toEqual([]);
 	});
+	it('keeps a dark site dark: its page is the brand surface and its pale text the brand fg (it used to turn inside out)', () => {
+		const dir = mkdtempSync(join(tmpdir(), 'spyglass-apply-'));
+		write(dir, {
+			'index.html': '<!doctype html><html><head><link rel="stylesheet" href="styles.css"></head><body><h1 class="title">Acme</h1><p class="lead">Fast.</p></body></html>\n',
+			'styles.css': ':root { --bg: #111111; --fg: #EFEAE8; }\nhtml::-webkit-scrollbar-thumb { background: #666666; }\nbody { background: var(--bg); color: var(--fg); }\n.lead { color: rgba(239, 234, 232, 0.6); }\n.card { background: #1c1c1c; }\n',
+		});
+		cli(dir, 'apply');
+		const css = readFileSync(join(dir, 'styles.css'), 'utf8');
+		expect(css).toContain('--bg: var(--ds-color-surface);');
+		expect(css).toContain('--fg: var(--ds-color-fg);');
+		expect(css).not.toContain('surface-inverse');
+		expect(css).not.toContain('fg-inverse');
+	});
+	it('keeps a light site light-reading: its page is the brand surface and its dark text the brand fg', () => {
+		const dir = mkdtempSync(join(tmpdir(), 'spyglass-apply-'));
+		write(dir, { 'index.html': '<!doctype html><html><head><link rel="stylesheet" href="styles.css"></head><body><h1>Acme</h1></body></html>\n', 'styles.css': 'body { background: #ffffff; color: #111111; }\n' });
+		cli(dir, 'apply');
+		const css = readFileSync(join(dir, 'styles.css'), 'utf8');
+		expect(css).toContain('background: var(--ds-color-surface);');
+		expect(css).toContain('color: var(--ds-color-fg);');
+	});
+	it('gives a button the app sized itself (w-10, no padding) no side padding, so its icon is not squeezed', () => {
+		const dir = mkdtempSync(join(tmpdir(), 'spyglass-apply-'));
+		write(dir, {
+			'package.json': JSON.stringify({ dependencies: { next: '16.0.0', react: '19.2.0', 'react-dom': '19.2.0' }, devDependencies: { tailwindcss: '^4.2.2', '@tailwindcss/postcss': '^4.2.2' } }),
+			'app/globals.css': '@import "tailwindcss";\n',
+			'app/layout.tsx': "import './globals.css'\nexport default function Layout({ children }: { children: React.ReactNode }) { return <html><body>{children}</body></html> }\n",
+			'app/page.tsx': 'export default function Page() { return <main><button className="inline-flex h-full w-10 items-center text-white" aria-label="Menu">=</button><button className="rounded px-4 py-2 bg-blue-600 text-white">Start</button></main> }\n',
+		});
+		cli(dir, 'apply');
+		const page = readFileSync(join(dir, 'app/page.tsx'), 'utf8');
+		const menu = page.match(/className="([^"]*)" aria-label="Menu"/)![1].split(' ');
+		expect(menu).toContain('w-10');
+		expect(menu).toContain('px-0');
+		expect(menu).not.toContain('px-4');
+		const start = page.match(/className="([^"]*)">Start/)![1].split(' ');
+		expect(start).toContain('px-4');
+	});
 	it('applies to a page and only the components it alone uses; shared files are listed, not touched', () => {
 		const dir = nuxtApp();
 		const before = snapshot(dir);
