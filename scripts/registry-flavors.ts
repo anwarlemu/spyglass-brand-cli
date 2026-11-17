@@ -12,7 +12,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { join, posix } from 'node:path';
 import ts from 'typescript';
 
-export type Example = { name: string; label: string; center: boolean; half: boolean };
+export type Example = { name: string; label: string; center: boolean; half: boolean; bleed?: boolean };
 export type FlavorDoc = { name: string; title: string; type: string; description: string; files: string[]; examples: Example[]; elements_files?: string[] };
 type Ctx = { root: string; reg: string; outDir: string; brand: { name: string; registryHost?: string; registryUrl: string; assetBase?: string; elementPrefix?: string }; fail: (msg: string) => void; pinned: (p: string) => string };
 

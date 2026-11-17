@@ -49,6 +49,8 @@
     "ui": "Components",
     "product": "Product",
     "site": "Site",
-    "visuals": "Brand"
+    "visuals": "Brand",
+    "blocks": "Blocks",
+    "pages": "Pages"
   }
 }

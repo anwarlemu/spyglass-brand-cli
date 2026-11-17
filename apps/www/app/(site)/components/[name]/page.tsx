@@ -40,7 +40,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
         <div id="preview" className="grid scroll-mt-6 gap-10">
           {item.examples.map((e) => {
             const Demo = all[e.name];
-            return Demo ? <Preview key={e.name} example={Demo} label={e.label} center={e.center} href={`/preview/${item.name}/${e.name}`} /> : null;
+            return Demo ? <Preview key={e.name} example={Demo} label={e.label} center={e.center} bleed={e.bleed} href={`/preview/${item.name}/${e.name}`} /> : null;
           })}
         </div>
 
@@ -126,7 +126,7 @@ function Usage({ item }: { item: Item }) {
       {item.body && <p className="max-w-180 type-ui text-fg-soft"><Prose text={item.body.replace(/\n/g, " ")} /></p>}
       {(item.requires.length > 0 || item.dependencies.length > 0) && (
         <p className="type-ui text-fg-muted">
-          Adds with it: {item.requires.map((d) => <Link key={d} href={`/components/${d}`} className="text-fg underline decoration-edge-strong underline-offset-4">{d}</Link>)}
+          Adds with it: {item.requires.map((d, i) => <span key={d}>{i > 0 && ", "}<Link href={`/components/${d}`} className="text-fg underline decoration-edge-strong underline-offset-4">{d}</Link></span>)}
           {item.dependencies.length > 0 && <> packages {item.dependencies.map((p) => <InlineCode key={p}>{p}</InlineCode>)}</>}
         </p>
       )}

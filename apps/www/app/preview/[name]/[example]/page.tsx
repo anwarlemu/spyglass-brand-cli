@@ -18,7 +18,7 @@ export default async function ExamplePage({ params }: { params: Promise<{ name: 
   const meta = item?.examples.find((e) => e.name === example);
   if (!item || !Example || !meta) notFound();
   return (
-    <div className={cn("min-h-dvh bg-surface", meta.center ? "flex items-center justify-center px-8 py-10" : "p-8 max-sm:p-4")}>
+    <div className={cn("min-h-dvh bg-surface", meta.bleed ? "" : meta.center ? "flex items-center justify-center px-8 py-10" : "p-8 max-sm:p-4")}>
       <div className={meta.center ? "min-w-0 max-w-full" : "min-w-0 max-w-full w-full"}>
         <Example />
       </div>

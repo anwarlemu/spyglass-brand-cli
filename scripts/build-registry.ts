@@ -27,7 +27,7 @@ const ranges: Record<string, string> = { ...rootPkg.dependencies, ...rootPkg.dev
 const pinned = (p: string) => (ranges[p] ? `${p}@${ranges[p]}` : p);
 const fail = (msg: string) => errors.push(msg);
 
-type Example = { name: string; label: string; center: boolean; half: boolean };
+type Example = { name: string; label: string; center: boolean; half: boolean; bleed?: boolean };
 type Doc = { name: string; title: string; type: string; group: string; description: string; use_for: string; never: string[]; source: string; files: string[]; examples: Example[]; body: string; elements_files?: string[] };
 
 /** The frontmatter this registry writes: `key: value` (plain or JSON-quoted) and `key:` followed by `  - item` lines. */
@@ -64,7 +64,7 @@ const docs: Doc[] = readdirSync(join(reg, 'docs'))
 		if (!brand.groups[fm.group as string]) fail(`docs/${f}: group \`${fm.group}\` is not one of ${Object.keys(brand.groups).join(', ')}`);
 		const examples = ((fm.examples as string[]) ?? []).map((e) => {
 			const [ex, label, opts = ''] = e.split('|').map((s) => s.trim());
-			return { name: ex, label: label || ex, center: /\bcenter\b/.test(opts), half: /\bhalf\b/.test(opts) };
+			return { name: ex, label: label || ex, center: /\bcenter\b/.test(opts), half: /\bhalf\b/.test(opts), ...(/\bbleed\b/.test(opts) ? { bleed: true } : {}) };
 		});
 		return { name, title: fm.title as string, type: fm.type as string, group: fm.group as string, description: fm.description as string, use_for: fm.use_for as string, never: (fm.never as string[]) ?? [], source: fm.source as string, files: (fm.files as string[]) ?? [], examples, body: fm.body, elements_files: fm.elements_files as string[] | undefined };
 	});

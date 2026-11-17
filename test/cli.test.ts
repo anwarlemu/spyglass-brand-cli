@@ -81,6 +81,29 @@ describe('cli', () => {
 		expect(existsSync(join(dir, 'public/spyglass-ds/elements/shared.js'))).toBe(true);
 		expect(readFileSync(join(dir, 'nuxt.config.ts'), 'utf8')).toContain("isCustomElement: (tag) => tag.startsWith('spyglass-')");
 	});
+	it('add copies a page template with its copy file and every item it is built from', () => {
+		const dir = reactApp();
+		const out = JSON.parse(run(dir, 'add', 'home-page', '--no-install'));
+		expect(out.flavor).toBe('react');
+		for (const item of ['home-page', 'hero-block', 'offer-block', 'stat-block', 'site-header', 'footer-row', 'creative-card', 'creative-corridor', 'creative-ring', 'testimonial', 'search-bar', 'card']) expect(out.items, item).toContain(item);
+		for (const f of ['components/pages/HomePage.tsx', 'lib/pages/home.ts', 'lib/creative-layouts.ts', 'components/blocks/HeroBlock.tsx', 'components/site/CreativeCorridor.tsx']) expect(existsSync(join(dir, f)), f).toBe(true);
+		const page = readFileSync(join(dir, 'components/pages/HomePage.tsx'), 'utf8');
+		expect(page).toContain("from '@/lib/pages/home'");
+		expect(page).not.toContain('@/react/');
+	});
+	it('add gives a Vue app a page template as one web component and the elements it renders', () => {
+		const dir = nuxtApp();
+		const out = JSON.parse(run(dir, 'add', 'pricing-page', '--no-install'));
+		expect(out.flavor).toBe('elements');
+		for (const f of ['pricing-page', 'plan-card', 'offer-block', 'site-header', 'footer-row']) expect(existsSync(join(dir, `public/spyglass-ds/elements/${f}.js`)), f).toBe(true);
+	});
+	it('manifest lists the page templates and blocks with the command that adds each', () => {
+		const doc = JSON.parse(run(mkdtempSync(join(tmpdir(), 'spyglass-ds-')), 'manifest'));
+		expect(doc.pages.map((p: { name: string }) => p.name).sort()).toEqual(['about-page', 'blog-page', 'blog-post-page', 'changelog-page', 'home-page', 'legal-page', 'not-found-page', 'pricing-page', 'product-page']);
+		expect(doc.blocks.map((b: { name: string }) => b.name).sort()).toEqual(['hero-block', 'offer-block', 'stat-block']);
+		expect(doc.pages.find((p: { name: string }) => p.name === 'home-page').add).toBe('spyglass-ds add home-page');
+		expect(doc.groups.map((g: { id: string }) => g.id)).toEqual(expect.arrayContaining(['pages', 'blocks']));
+	});
 	it('check exits 1 on findings and 0 when clean', () => {
 		const dir = nuxtApp();
 		writeFileSync(join(dir, 'app/bad.vue'), '<template><div class="bg-red-500 transition-all" /></template>\n');

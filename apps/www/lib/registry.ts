@@ -17,7 +17,7 @@ export type Item = {
   requires: string[];
   dependencies: string[];
   files: string[];
-  examples: { name: string; label: string; center: boolean; half: boolean }[];
+  examples: { name: string; label: string; center: boolean; half: boolean; bleed?: boolean }[];
   api?: { components: { name: string; file: string; props: Prop[] }[] };
   flavors: { react?: { files: string[] }; elements?: { files: string[]; tag: string; tags: string[]; modules: string[] } };
 };

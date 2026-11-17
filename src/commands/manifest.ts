@@ -17,7 +17,7 @@ const COMMANDS = [
 	{ name: 'video', summary: 'Short Motion JPEG MP4 clips from the tokens, faces and logos.', flags: ['title', 'text', 'subtitle', 'eyebrow', 'template', 'size', 'ground', 'out', 'list', 'help'] },
 	{ name: 'light', summary: 'The brand light as SVG or PNG, seeded: windows onto the brand heat map or a generated one.', flags: ['variant', 'seed', 'source', 'width', 'height', 'out', 'format', 'ground', 'list', 'help'] },
 	{ name: 'ascii', summary: 'The ASCII texture as SVG or PNG, seeded.', flags: ['seed', 'width', 'height', 'density', 'out', 'format', 'ground', 'help'] },
-	{ name: 'list', summary: 'Every library item. In JSON, group is the label and groupId is the id (ui, product, site, visuals).', flags: [] },
+	{ name: 'list', summary: 'Every library item. In JSON, group is the label and groupId is the id (the groups in this document).', flags: [] },
 	{ name: 'view', summary: 'How to use an item: rules, props, slots, events, examples. show is the same command.', flags: ['source', 'full'] },
 	{ name: 'add', summary: 'Copy items and what they need into an app: React in React apps, web components everywhere else.', flags: ['dry-run', 'overwrite', 'install', 'framework', 'update'] },
 	{ name: 'search', summary: 'Find items by what they do.', flags: [] },
@@ -63,6 +63,10 @@ export async function manifest(): Promise<Record<string, unknown>> {
 		principles: { surfaces: [...SURFACE_IDS], also: 'all', rules },
 		groups: Object.entries(brand().groups).map(([id, label]) => ({ id, label })),
 		components: components.map((item) => ({ name: item.name, group: item.group, part: item.part, parts: item.parts, states: item.states, examples: item.examples, description: item.description, use_for: item.use_for, never: item.never })),
+		// Page templates and blocks are library items too (groups pages and blocks): `add <name>` copies one with the items
+		// it is built from, and its copy lives in a lib file beside it.
+		pages: components.filter((item) => item.group === 'pages').map((item) => ({ name: item.name, title: item.title, description: item.description, add: `${brand().bin} add ${item.name}` })),
+		blocks: components.filter((item) => item.group === 'blocks').map((item) => ({ name: item.name, title: item.title, description: item.description, add: `${brand().bin} add ${item.name}` })),
 		image,
 		video,
 		gaps: [...logo.missing, principles.website.gap].filter((gap): gap is string => Boolean(gap)),
@@ -74,6 +78,8 @@ export function formatManifest(doc: Record<string, unknown>): string {
 	const image = doc.image as { templates: { id: string }[]; sizes: { id: string; width: number; height: number }[] };
 	const video = doc.video as { templates: { id: string }[]; sizes: { id: string; width: number; height: number }[]; fps: number; frames: number; codec: string };
 	const components = doc.components as { name: string; group: string }[];
+	const pages = (doc.pages as { name: string }[] | undefined) ?? [];
+	const blocks = (doc.blocks as { name: string }[] | undefined) ?? [];
 	const rules = (doc.principles as { rules: { surface: string; id: string }[] }).rules;
 	const gaps = doc.gaps as string[];
 	const brandInfo = doc.brand as { sections: string[]; tokens: unknown[] };
@@ -91,6 +97,9 @@ export function formatManifest(doc: Record<string, unknown>): string {
 		`Video templates: ${video.templates.map((template) => template.id).join(', ')}`,
 		`Video sizes: ${video.sizes.map((size) => `${size.id} ${size.width}x${size.height}`).join(', ')}`,
 		`Video: ${video.frames} frames at ${video.fps} fps, ${video.codec}.`,
+		'',
+		`Page templates: ${pages.map((page) => page.name).join(', ') || 'none'}`,
+		`Blocks: ${blocks.map((block) => block.name).join(', ') || 'none'}`,
 		'',
 		`Components (${components.length})`,
 		...components.map((item) => `  ${item.name.padEnd(22)} ${item.group}`),
