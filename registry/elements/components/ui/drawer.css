@@ -1,0 +1,14 @@
+/* Drawer.tsx's styles. */
+.ds-drawer { position: fixed; max-width: none; max-height: none; margin: 0; padding: 0; border: 0 solid var(--ds-color-edge); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); transition: transform var(--ds-duration-enter) var(--ds-easing-drawer); }
+.ds-drawer[open] { display: flex; flex-direction: column; }
+.ds-drawer:focus { outline: none; }
+.ds-drawer[data-side="bottom"] { inset: auto 0 0; width: 100vw; max-height: 85dvh; border-top-width: var(--ds-border-hairline); border-radius: var(--ds-radius-container) var(--ds-radius-container) 0 0; transform: translateY(100%); padding-bottom: env(safe-area-inset-bottom); }
+.ds-drawer[data-side="left"] { inset: 0 auto 0 0; width: min(320px, 85vw); height: 100dvh; border-right-width: var(--ds-border-hairline); transform: translateX(-100%); }
+.ds-drawer[data-side="right"] { inset: 0 0 0 auto; width: min(320px, 85vw); height: 100dvh; border-left-width: var(--ds-border-hairline); transform: translateX(100%); }
+.ds-drawer[data-shown] { transform: none; transition-duration: var(--ds-duration-entrance); }
+.ds-drawer::backdrop { background: var(--ds-color-scrim); opacity: 0; transition: opacity var(--ds-duration-enter) var(--ds-easing-drawer); }
+.ds-drawer[data-shown]::backdrop { opacity: 1; transition-duration: var(--ds-duration-entrance); }
+@media (prefers-reduced-motion: reduce) {
+  .ds-drawer, .ds-drawer[data-side] { transform: none; opacity: 0; transition: opacity var(--ds-duration-enter) var(--ds-easing-out); }
+  .ds-drawer[data-shown] { opacity: 1; }
+}
