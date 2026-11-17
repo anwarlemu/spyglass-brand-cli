@@ -1,0 +1,26 @@
+<!-- Navigation on a phone: the menu button slides the pages in from the left. Pick one, press the scrim or Escape to close. -->
+<div class="flex min-h-72 flex-col items-center justify-center gap-3">
+  <spyglass-button id="nav-open" variant="secondary" icon aria-label="Open menu"><i data-lucide="menu" data-size="16" data-stroke-width="1.5" aria-hidden="true"></i></spyglass-button>
+  <p id="nav-page" class="type-caption text-fg-muted" aria-live="polite">On Search.</p>
+  <spyglass-drawer id="nav-drawer" heading="Spyglass" side="left">
+    <nav class="flex flex-col gap-1" aria-label="Pages">
+      <a href="#" aria-current="page" data-page="Search" class="flex h-10 items-center gap-3 rounded-ds-sm px-3 type-ui text-fg-soft outline-none transition-[background-color,color] duration-150 ease-standard hover:bg-ds-neutral-4 hover:text-fg focus-visible:bg-ds-neutral-4 aria-[current=page]:bg-ds-neutral-4 aria-[current=page]:text-fg"><i data-lucide="search" data-size="16" data-stroke-width="1.5" aria-hidden="true"></i>Search</a>
+      <a href="#" data-page="Boards" class="flex h-10 items-center gap-3 rounded-ds-sm px-3 type-ui text-fg-soft outline-none transition-[background-color,color] duration-150 ease-standard hover:bg-ds-neutral-4 hover:text-fg focus-visible:bg-ds-neutral-4 aria-[current=page]:bg-ds-neutral-4 aria-[current=page]:text-fg"><i data-lucide="bookmark" data-size="16" data-stroke-width="1.5" aria-hidden="true"></i>Boards</a>
+      <a href="#" data-page="Brands" class="flex h-10 items-center gap-3 rounded-ds-sm px-3 type-ui text-fg-soft outline-none transition-[background-color,color] duration-150 ease-standard hover:bg-ds-neutral-4 hover:text-fg focus-visible:bg-ds-neutral-4 aria-[current=page]:bg-ds-neutral-4 aria-[current=page]:text-fg"><i data-lucide="building-2" data-size="16" data-stroke-width="1.5" aria-hidden="true"></i>Brands</a>
+      <a href="#" data-page="Settings" class="flex h-10 items-center gap-3 rounded-ds-sm px-3 type-ui text-fg-soft outline-none transition-[background-color,color] duration-150 ease-standard hover:bg-ds-neutral-4 hover:text-fg focus-visible:bg-ds-neutral-4 aria-[current=page]:bg-ds-neutral-4 aria-[current=page]:text-fg"><i data-lucide="settings" data-size="16" data-stroke-width="1.5" aria-hidden="true"></i>Settings</a>
+    </nav>
+  </spyglass-drawer>
+</div>
+<script type="module">
+  const drawer = document.getElementById('nav-drawer')
+  document.getElementById('nav-open').addEventListener('click', () => { drawer.open = true })
+  for (const a of drawer.querySelectorAll('[data-page]')) {
+    a.addEventListener('click', (e) => {
+      e.preventDefault()
+      for (const o of drawer.querySelectorAll('[data-page]')) o.toggleAttribute('aria-current', false)
+      a.setAttribute('aria-current', 'page')
+      document.getElementById('nav-page').textContent = `On ${a.dataset.page}.`
+      drawer.open = false
+    })
+  }
+</script>

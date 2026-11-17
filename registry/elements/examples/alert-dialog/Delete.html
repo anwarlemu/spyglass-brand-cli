@@ -1,0 +1,13 @@
+<!-- Deleting a board asks first: focus starts on Cancel, and only a choice closes it. The line under says what happened. -->
+<div class="flex min-h-72 flex-col items-center justify-center gap-3">
+  <spyglass-button id="delete-board" variant="secondary">Delete board</spyglass-button>
+  <p id="delete-board-note" class="type-caption text-fg-muted" aria-live="polite">Acme summer ads: 48 saved creatives.</p>
+  <spyglass-alert-dialog id="delete-board-dialog" heading="Delete this board?" description="Acme summer ads and its 48 saved creatives go away for everyone on the team. This can't be undone." action="Delete board"></spyglass-alert-dialog>
+</div>
+<script type="module">
+  const dialog = document.getElementById('delete-board-dialog')
+  const note = document.getElementById('delete-board-note')
+  document.getElementById('delete-board').addEventListener('click', () => { dialog.open = true })
+  dialog.addEventListener('confirm', () => { note.textContent = 'Board deleted.' })
+  dialog.addEventListener('cancel', () => { note.textContent = 'Kept the board.' })
+</script>

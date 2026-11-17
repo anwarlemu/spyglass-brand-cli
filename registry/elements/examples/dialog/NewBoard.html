@@ -1,0 +1,28 @@
+<!-- A new board in a short form: the button opens it on the Name field, Enter creates it, Escape or the scrim closes it. -->
+<div class="flex min-h-96 flex-col items-center justify-center gap-3">
+  <spyglass-button id="new-board">New board</spyglass-button>
+  <p id="new-board-note" class="type-caption text-fg-muted" aria-live="polite">Boards keep the creatives you save.</p>
+  <spyglass-dialog id="new-board-dialog" heading="New board" description="Save creatives to it from any search.">
+    <form class="flex flex-col gap-6">
+      <div class="flex flex-col gap-2">
+        <label for="new-board-name" class="type-label text-fg-soft">Name</label>
+        <spyglass-input id="new-board-name" name="name" placeholder="Acme summer ads" aria-label="Name"></spyglass-input>
+      </div>
+      <div class="flex flex-wrap justify-end gap-2">
+        <spyglass-button variant="secondary" data-close>Cancel</spyglass-button>
+        <spyglass-button type="submit">Create board</spyglass-button>
+      </div>
+    </form>
+  </spyglass-dialog>
+</div>
+<script type="module">
+  const dialog = document.getElementById('new-board-dialog')
+  document.getElementById('new-board').addEventListener('click', () => { dialog.open = true })
+  dialog.querySelector('[data-close]').addEventListener('click', () => { dialog.open = false })
+  dialog.querySelector('form').addEventListener('submit', (event) => {
+    event.preventDefault()
+    const name = new FormData(event.currentTarget).get('name') || 'Untitled board'
+    document.getElementById('new-board-note').textContent = `Created ${name}.`
+    dialog.open = false
+  })
+</script>
