@@ -1,0 +1,4 @@
+/* The host is the list's box (ItemGroup.tsx's <ul>). The hairline between rows is set on the slotted <li>s, important
+   because the page's reset (no border on any element) outranks ::slotted. */
+:host { display: flex; flex-direction: column; }
+::slotted(:not(:first-child)) { border-top: var(--ds-border-hairline) solid var(--ds-color-edge) !important; }

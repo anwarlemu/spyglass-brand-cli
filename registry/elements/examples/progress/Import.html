@@ -1,0 +1,22 @@
+<!-- An import with a count, a step that moves it on, and a search with no known end. -->
+<div class="flex w-80 max-w-full flex-col gap-8">
+  <div class="flex flex-col gap-3">
+    <div class="flex items-baseline justify-between gap-4">
+      <p class="type-ui text-fg">Importing Acme ads</p>
+      <p id="import-count" class="type-caption text-fg-muted tabular-nums">40%</p>
+    </div>
+    <spyglass-progress id="import-progress" value="40" label="Importing Acme ads"></spyglass-progress>
+    <spyglass-button id="import-more" variant="secondary" size="sm" class="self-start">Import more</spyglass-button>
+  </div>
+  <div class="flex flex-col gap-3">
+    <p class="type-ui text-fg">Finding new creatives</p>
+    <spyglass-progress label="Finding new creatives"></spyglass-progress>
+  </div>
+</div>
+<script type="module">
+  const bar = document.getElementById('import-progress')
+  document.getElementById('import-more').addEventListener('click', () => {
+    bar.value = Math.min(100, bar.value + 20)
+    document.getElementById('import-count').textContent = `${bar.value}%`
+  })
+</script>

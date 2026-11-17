@@ -1,0 +1,4 @@
+/* The host is the line (Separator.tsx's root div): across by default, down with orientation="vertical". A class on the
+   element wins over these, as a class on <Separator> does. */
+:host { @apply block shrink-0 bg-edge h-px w-full; }
+:host([orientation="vertical"]) { @apply h-auto w-px self-stretch; }

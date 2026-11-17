@@ -1,0 +1,5 @@
+/* Progress.tsx's styles, as they are. */
+.ds-progress-sweep { animation: ds-progress-sweep 1.5s var(--ds-easing-in-out) infinite; }
+@keyframes ds-progress-sweep { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+@keyframes ds-progress-breathe { 50% { opacity: 0.5; } }
+@media (prefers-reduced-motion: reduce) { .ds-progress-sweep { width: 100%; animation: ds-progress-breathe 2s var(--ds-easing-in-out) infinite; } }
