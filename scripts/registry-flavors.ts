@@ -83,6 +83,11 @@ export function needsUseClient(text: string) {
 	return /\buse(?!Id\b)(State|Effect|LayoutEffect|Ref|Reducer|Callback|Memo|Context|Transition|SyncExternalStore|ImperativeHandle|Controllable|[A-Z]\w*)\s*[(<]/.test(code) || /\bcreatePortal\b/.test(code);
 }
 
+/** An example is the page's root: a function it writes for an event prop cannot cross from the server, so it is a client file. */
+export function exampleNeedsUseClient(path: string, text: string) {
+	return path.startsWith('react/examples/') && /\son[A-Z]\w*=\{/.test(text.replace(/\/\/.*$/gm, '')) && !/^\s*['"]use client['"]/.test(text);
+}
+
 export type ReactFlavor = { files: Array<{ path: string; content: string; target?: string }>; dependencies: string[]; registryDependencies: string[]; api?: ReactApi; examples: Array<Example & { path: string; content: string; registryDependencies: string[]; dependencies: string[] }> };
 export type ElementsFlavor = { files: Array<{ path: string; content: string; target?: string }>; modules: string[]; tag: string; tags: string[]; dependencies: string[]; registryDependencies: string[]; api?: ElementsApi; examples: Array<Example & { path: string; content: string }> };
 export type ReactApi = { components: Array<{ name: string; file: string; props: Array<{ name: string; type: string; required: boolean; default?: string; description?: string }>; extends?: string[] }> };
@@ -143,6 +148,7 @@ export async function buildFlavors(docs: FlavorDoc[], ctx: Ctx) {
 		if (/from\s+['"]vue['"]/.test(text)) fail(`${f}: imports vue`);
 		if (f.startsWith('lib/') && /from\s+['"](react|lit|lucide)/.test(text)) fail(`${f}: lib/ files are framework-free (both flavors import them)`);
 		if (needsUseClient(text) && !/^\s*['"]use client['"]/.test(text)) fail(`${f}: uses hooks; start it with 'use client' so it works in Next's App Router`);
+		if (exampleNeedsUseClient(f, text)) fail(`${f}: an example that writes an event handler (onClick={...}) is rendered on the server unless it starts with 'use client'`);
 		glued(f, text);
 		if (f.startsWith('react/components/') && !/(\sdata-ds=["{]|['"]data-ds['"]\s*:)/.test(text)) fail(`${f}: its root element needs data-ds="<name>" (the scoped base styles the library by it)`);
 	}

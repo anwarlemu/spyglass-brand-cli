@@ -1,3 +1,4 @@
+'use client'
 import { HoverCard } from '@/react/components/ui/HoverCard'
 // A brand named in a sentence; rest the pointer on it (or tab to it) and its card shows what Spyglass tracks for it.
 // The link still works on its own.

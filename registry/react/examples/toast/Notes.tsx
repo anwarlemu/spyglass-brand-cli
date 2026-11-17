@@ -1,3 +1,4 @@
+'use client'
 import { Toast } from '@/react/components/ui/Toast'
 // Two notes as they read on their own: one with something to do, one that only says what happened.
 
