@@ -22,6 +22,8 @@ const X = { width: 1500, height: 500 }, LI = { width: 1584, height: 396 }, LC = 
 // behind the tagline, and a diagonal behind the row of creatives.
 const BG = { tx: [-20,-661,2913,1821], tl: [-16,-523,2307,1442], tc: [-10,-330,1457,911], rx: [-250,-510,4661,2914], rl: [-198,-404,3692,2308], rc: [-96,-195,1781,1113] };
 const DOMAIN = '{domain}';
+/** A light's B box scaled by k about (cx, cy), then moved down by dy. */
+const scaleAbout = ([x, y, w, h], k, cx, cy, dy = 0) => [+(cx + (x - cx) * k).toFixed(1), +(cy + (y - cy) * k + dy).toFixed(1), +(w * k).toFixed(1), +(h * k).toFixed(1)];
 const TAGLINE = '{tagline}';
 
 const templates = [
@@ -189,13 +191,20 @@ const templates = [
     sizes: { landscape: { width: 1920, height: 1080, ground: 'black', layers: [logo([720, 421, 480, 239], 'center', 'mark', 'white')] } } },
 
   // ----- Derived from the same rules: Open Graph and story -----
-  { id: 'og', group: 'derived', name: 'Open Graph card', figma: 'derived from Post, headline over a band (966:4489) at 1200 by 630', description: 'Lockup and domain on top, the headline, a light band across the foot.',
+  { id: 'og', group: 'derived', name: 'Open Graph card', figma: 'derived from Post, headline over a band (966:4489) at 1200 by 630 and the 1200 by 675 landscape post', description: 'Lockup and domain on top, the headline, a light band across the foot.',
     slots: { headline: TAGLINE, url: DOMAIN },
     sizes: { og: { width: 1200, height: 630, layers: [A(),
       L([-1479, -33.3, 3237, 2023.7], 49.1, [0, 452, 1200, 178]),
       logo([64, 64, 183, 28], 'left'),
       url(736, 69, 400, 'right'),
-      T('headline', 'display', 72, 77, 64, 192, 760, { maxLines: 3 })] } } },
+      T('headline', 'display', 72, 77, 64, 192, 760, { maxLines: 3 })] },
+      // The landscape post (1200 by 675): the same card, 45px taller; the band stays at the foot, the headline moves
+      // down by half the difference.
+      landscape: { width: 1200, height: 675, layers: [A(),
+      L([-1479, -33.3, 3237, 2023.7], 49.1, [0, 497, 1200, 178]),
+      logo([64, 64, 183, 28], 'left'),
+      url(736, 69, 400, 'right'),
+      T('headline', 'display', 72, 77, 64, 214.5, 760, { maxLines: 3 })] } } },
   { id: 'og-offer', group: 'derived', name: 'Open Graph offer', figma: 'derived from Post, offer (966:4421) at 1200 by 630', description: 'The corner light around a centered headline and button, lockup and domain at the foot.',
     slots: { headline: 'Stop screenshotting at midnight.', cta: 'Start Creator for 50% off', url: DOMAIN },
     sizes: { og: { width: 1200, height: 630, layers: [A(),
@@ -203,7 +212,15 @@ const templates = [
       T('headline', 'display', 64, 72, 260, 230, 680, { align: 'center', maxLines: 2 }),
       btn([440, 430, 320, 56]),
       logo([64, 538, 183, 28], 'left'),
-      url(736, 543, 400, 'right')] } } },
+      url(736, 543, 400, 'right')] },
+      // The landscape post (1200 by 675): the corner light scaled with the frame's height about its center, the
+      // middle moved down by half the difference, the foot kept 64px from the bottom.
+      landscape: { width: 1200, height: 675, layers: [A(),
+      L(scaleAbout([-592.2, -36.7, 1917.3, 1236.4], 675 / 630, 600, 315, 22.5), 29.1 * 675 / 630),
+      T('headline', 'display', 64, 72, 260, 252.5, 680, { align: 'center', maxLines: 2 }),
+      btn([440, 452.5, 320, 56]),
+      logo([64, 583, 183, 28], 'left'),
+      url(736, 588, 400, 'right')] } } },
   { id: 'story', group: 'derived', name: 'Story', figma: 'derived from Post, offer (966:4421) at 1080 by 1920', description: 'The corner light around the frame, headline, line and button inside the story safe area (250px top and bottom).',
     slots: { headline: TAGLINE, body: 'AI search across millions of creatives. Ask a question and get instant, structured results.', cta: 'Get 50% off', url: DOMAIN },
     sizes: { story: { width: 1080, height: 1920, layers: [A(),

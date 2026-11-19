@@ -2760,7 +2760,7 @@
    "id": "og",
    "group": "derived",
    "name": "Open Graph card",
-   "figma": "derived from Post, headline over a band (966:4489) at 1200 by 630",
+   "figma": "derived from Post, headline over a band (966:4489) at 1200 by 630 and the 1200 by 675 landscape post",
    "description": "Lockup and domain on top, the headline, a light band across the foot.",
    "slots": {
     "headline": "{tagline}",
@@ -2822,6 +2822,66 @@
        "leading": 77,
        "x": 64,
        "top": 192,
+       "w": 760,
+       "maxLines": 3
+      }
+     ]
+    },
+    "landscape": {
+     "width": 1200,
+     "height": 675,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "window": [
+        0,
+        497,
+        1200,
+        178
+       ],
+       "b": [
+        -1479,
+        -33.3,
+        3237,
+        2023.7
+       ],
+       "shift": 49.1
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        64,
+        64,
+        183,
+        28
+       ],
+       "align": "left"
+      },
+      {
+       "type": "text",
+       "slot": "url",
+       "face": "body",
+       "size": 20,
+       "leading": 26,
+       "x": 736,
+       "top": 69,
+       "w": 400,
+       "align": "right",
+       "maxLines": 1
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 72,
+       "leading": 77,
+       "x": 64,
+       "top": 214.5,
        "w": 760,
        "maxLines": 3
       }
@@ -2901,6 +2961,72 @@
        "leading": 26,
        "x": 736,
        "top": 543,
+       "w": 400,
+       "align": "right",
+       "maxLines": 1
+      }
+     ]
+    },
+    "landscape": {
+     "width": 1200,
+     "height": 675,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "b": [
+        -677.4,
+        -39.3,
+        2054.3,
+        1324.7
+       ],
+       "shift": 31.178571428571427
+      },
+      {
+       "type": "text",
+       "slot": "headline",
+       "face": "display",
+       "size": 64,
+       "leading": 72,
+       "x": 260,
+       "top": 252.5,
+       "w": 680,
+       "align": "center",
+       "maxLines": 2
+      },
+      {
+       "type": "button",
+       "box": [
+        440,
+        452.5,
+        320,
+        56
+       ],
+       "slot": "cta",
+       "size": 20
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        64,
+        583,
+        183,
+        28
+       ],
+       "align": "left"
+      },
+      {
+       "type": "text",
+       "slot": "url",
+       "face": "body",
+       "size": 20,
+       "leading": 26,
+       "x": 736,
+       "top": 588,
        "w": 400,
        "align": "right",
        "maxLines": 1

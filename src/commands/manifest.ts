@@ -9,6 +9,9 @@ import { DECK_FLAGS } from './deck.js';
 import { VIDEO_FLAGS } from './video.js';
 import { MERCH_FLAGS } from './merch.js';
 import { slotNames } from '../assets/templates.js';
+import { ILLUSTRATE_FLAGS } from './illustrate.js';
+import { FIGMA_ACTIONS, FIGMA_FLAGS, PUSH_KINDS } from './figma.js';
+import { illustrateData, LIGHT_FRAMES } from '../illustrate/build.js';
 
 // The one document an agent reads first. It names every command, template, size, component, token and rule.
 // Commands reject anything that is not in here.
@@ -25,6 +28,8 @@ const COMMANDS = [
 	{ name: 'merch', summary: 'Merch print files: SVG at physical size and PNG at 300 dpi with bleed and safe area.', flags: [...MERCH_FLAGS, 'help'] },
 	{ name: 'light', summary: 'The brand light as SVG or PNG, seeded: windows onto the brand heat map or a generated one.', flags: ['variant', 'seed', 'source', 'width', 'height', 'out', 'format', 'ground', 'list', 'help'] },
 	{ name: 'ascii', summary: 'The ASCII texture as SVG or PNG, seeded.', flags: ['seed', 'width', 'height', 'density', 'out', 'format', 'ground', 'help'] },
+	{ name: 'illustrate', summary: "The brand's own imagery as PNG and SVG: pattern (the light with the texture behind it), light (any variant), texture, split (a picture split into its color channels) and shader (a subject or picture turned into spectral light).", flags: [...ILLUSTRATE_FLAGS, 'help'] },
+	{ name: 'figma', summary: 'Figma through its MCP tools, which the CLI never calls itself: tokens (variables and use_figma scripts), push (illustration, asset, slide, component, page), pull (read steps for a frame), check (off-brand values with the nearest token; exit 1).', flags: [...FIGMA_FLAGS, 'help'] },
 	{ name: 'list', summary: 'Every library item. In JSON, group is the label and groupId is the id (the groups in this document).', flags: [] },
 	{ name: 'view', summary: 'How to use an item: rules, props, slots, events, examples. show is the same command.', flags: ['source', 'full'] },
 	{ name: 'add', summary: 'Copy items and what they need into an app: React in React apps, web components everywhere else.', flags: ['dry-run', 'overwrite', 'install', 'framework', 'update'] },
@@ -49,6 +54,17 @@ export async function manifest(): Promise<Record<string, unknown>> {
 	const video = videoCatalog();
 	const merch = { items: merchCatalog() };
 	const logo = logos();
+	const ill = illustrateData();
+	const illustrate = {
+		styles: Object.entries(ill.styles).map(([id, st]) => ({ id, name: st.name, description: st.description, from: st.from, subjects: st.subjects, image: st.image })),
+		subjects: Object.entries(ill.subjects).map(([id, st]) => ({ id, name: st.name, from: st.from })),
+		variants: Object.entries(LIGHT_FRAMES).map(([id, [width, height]]) => ({ id, width, height })),
+		presets: Object.entries(ill.shader.presets).map(([id, p]) => ({ id, name: p.name, width: p.width, height: p.height, effect: p.effect })),
+		looks: Object.entries(ill.shader.looks).map(([id, l]) => ({ id, name: l.name, from: l.from })),
+		settings: { ranges: ill.shader.ranges, choices: { ...ill.shader.choices, look: Object.keys(ill.shader.looks) } },
+		rules: 'brand/illustration.md',
+	};
+	const figma = { actions: [...FIGMA_ACTIONS], push: [...PUSH_KINDS], callsFigma: false, workflow: 'brand/agent-guide.md (Work in Figma)' };
 	const rules = (['product', 'website'] as const).flatMap((id) => {
 		const surface = principles[id];
 		return [...surface.do, ...surface.dont, ...surface.rules].map((rule) => ({ surface: id, id: rule.id, text: rule.text, source: rule.source ?? surface.source }));
@@ -81,6 +97,8 @@ export async function manifest(): Promise<Record<string, unknown>> {
 		deck,
 		video,
 		merch,
+		illustrate,
+		figma,
 		gaps: [...logo.missing, principles.website.gap].filter((gap): gap is string => Boolean(gap)),
 	};
 }
@@ -111,6 +129,8 @@ export function formatManifest(doc: Record<string, unknown>): string {
 		`Video templates: ${video.templates.map((template) => template.id).join(', ')}`,
 		`Video sizes: ${video.sizes.map((size) => `${size.id} ${size.width}x${size.height}`).join(', ')}; ${video.seconds} s at ${video.fps} fps`,
 		`Merch: ${merch.items.map((i) => `${i.id} ${i.trim.width}x${i.trim.height} in`).join(', ')}`,
+		`Illustrate: styles ${(doc.illustrate as { styles: { id: string }[] }).styles.map((x) => x.id).join(', ')}; subjects ${(doc.illustrate as { subjects: { id: string }[] }).subjects.map((x) => x.id).join(', ')}; presets ${(doc.illustrate as { presets: { id: string }[] }).presets.map((x) => x.id).join(', ')}`,
+		`Figma: ${(doc.figma as { actions: string[] }).actions.join(', ')} (push ${(doc.figma as { push: string[] }).push.join(', ')})`,
 		'',
 		`Page templates: ${pages.map((page) => page.name).join(', ') || 'none'}`,
 		`Blocks: ${blocks.map((block) => block.name).join(', ') || 'none'}`,

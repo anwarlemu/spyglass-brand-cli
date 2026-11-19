@@ -25,7 +25,7 @@ const GROUPS = [
   ["ad", "Social ads", "1080 by 1350, including the plan offer and the search bar ad. Pictures come from --image; without one a slot is the card fill."],
   ["banner", "Banners", "X (1500 by 500), LinkedIn (1584 by 396) and LinkedIn company (1128 by 191) for each banner layout."],
   ["logo", "Avatar and logo backgrounds", "The logomark on the approved backgrounds only, the 3D logomark, the avatar and the primary 1920 by 1080."],
-  ["derived", "Open Graph and story", "1200 by 630 and 1080 by 1920, derived from the same rules (stories keep 250px clear at the top and bottom)."],
+  ["derived", "Open Graph, landscape and story", "1200 by 630, 1200 by 675 and 1080 by 1920, derived from the same rules (stories keep 250px clear at the top and bottom)."],
 ] as const;
 
 function Tile({ shot, caption, detail }: { shot: Shot; caption: string; detail?: string }) {
@@ -53,13 +53,15 @@ export default function AssetsPage() {
     <>
       <PageHead eyebrow="Brand" title="Assets" description="Posts, ads, banners, decks, light loops and merch print files, drawn by the CLI from the layouts on the brand assets page. The previews below are its output with the default copy and seed 0." />
       <PageBody className="max-w-250">
-        <Section id="commands" title="Make them" description="Text goes in by slot, pictures by --image, and --seed moves the texture (and a generated light with --light generated). Unknown names exit 1 with the closest match; manifest --json lists everything.">
+        <Section id="commands" title="Make them" description="Text goes in by slot, pictures by --image, and --seed moves the texture (and a generated light with --light generated). Unknown names exit 1 with the closest match; manifest --json lists everything. The brand imagery on its own is on Illustrations; taking any of it into Figma is on Figma.">
           <div className="grid gap-2">
             <Command command={`${CLI} image --template ad-creator-plan --headline "Stop screenshotting at midnight."`} />
             <Command command={`${CLI} image --template post-agents --image photo.jpg --seed 3`} />
             <Command command={`${CLI} deck --input deck.json --out deck`} />
             <Command command={`${CLI} video --template light-band --size vertical`} />
             <Command command={`${CLI} merch --item tee-front --variant full-color`} />
+            <Command command={`${CLI} illustrate shader lockup`} />
+            <Command command={`${CLI} figma push asset imagery/post-offer.svg`} />
           </div>
         </Section>
 
