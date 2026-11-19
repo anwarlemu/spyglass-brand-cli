@@ -132,6 +132,12 @@ describe('css', () => {
 		expect(out).toContain('border: var(--ds-border-hairline) solid var(--ds-color-edge);');
 		expect(convertCss(out)).toBe(out);
 	});
+	it('drops glows in filter like shadows, keeping other filters', () => {
+		const out = convertCss('.logo:hover { filter: drop-shadow(0 0 2em #646cffaa); }\n.b { filter: blur(2px) drop-shadow(0 1px 2px rgba(0,0,0,.2)); }');
+		expect(out).toContain('.logo:hover { filter: none; }');
+		expect(out).toContain('.b { filter: blur(2px); }');
+		expect(convertCss(out)).toBe(out);
+	});
 	it('converts @apply lists as classes', () => {
 		expect(convertCss('.b { @apply bg-blue-600 text-white rounded-lg; }')).toBe('.b { @apply bg-action-primary text-fg-inverse rounded-container; }');
 	});

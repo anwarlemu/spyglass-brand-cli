@@ -101,6 +101,12 @@ export function convertDeclaration(prop: string, value: string, selector: string
 		const next = convertColors(value, use, /:hover|:active/.test(selector), record);
 		return next === value ? undefined : next;
 	}
+	if (p === 'filter' && /drop-shadow\(/i.test(value)) {
+		// The brand has no shadows or glows: drop-shadow() goes like box-shadow, other filters stay.
+		const to = value.replace(/drop-shadow\((?:[^()]|\([^()]*\))*\)/gi, '').replace(/\s+/g, ' ').trim() || 'none';
+		record(value.trim(), to);
+		return to;
+	}
 	if (p === 'box-shadow') {
 		if (/^(none|inherit|initial|unset|0)$/.test(value.trim())) return undefined;
 		record(value.trim(), 'none');
