@@ -13,7 +13,7 @@ spyglass-ds manifest --json
 ```
 
 `describe` is the same command. The JSON document lists every command, flag, brand section, token name, principle,
-group, component (with parts, states and examples), image, deck, video and merch template, slide, item and size. If a name is not in the
+group, component (with parts, states and examples), image, deck, video and merch template, slide, item and size, illustrate style, subject and preset, and figma action. If a name is not in the
 document, the command exits 1 and names what is allowed. Do not substitute a nearby value.
 
 ## Brand
@@ -48,6 +48,18 @@ spyglass-ds light --variant band --seed 1 --out band.svg
 spyglass-ds light --variant corner --source generated --seed 7 --format png --out corner.png
 spyglass-ds ascii --seed 4 --width 1080 --height 1350 --out texture.svg
 ```
+
+```sh
+spyglass-ds illustrate --list
+spyglass-ds illustrate pattern --variant corner --seed 2
+spyglass-ds illustrate shader mark --preset glass-icon
+spyglass-ds illustrate split --image photo.jpg
+spyglass-ds figma tokens
+spyglass-ds figma push asset imagery/post-offer.svg
+```
+
+`illustrate` follows `brand/illustration.md` (each rule with its source). `figma` never calls Figma: it writes files and
+prints the MCP calls in order; `figma check` flags off-brand values in saved Figma output.
 
 The light and the texture are generated from a seed; never paste them as images or draw them by hand. Logos are the
 files `brand --section logos` lists; never redraw, recolor or stretch them.

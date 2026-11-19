@@ -78,8 +78,34 @@ Angular needs `schemas: [CUSTOM_ELEMENTS_SCHEMA]` for the elements; Vue and Nuxt
 ## Assets
 
 `{{cli}} light` and `{{cli}} ascii` write the brand light and the ASCII texture as SVG at any size (`--variant`,
-`--seed`, `--width`, `--height`). `{{cli}} image` and `{{cli}} video` render cards and clips from the tokens, the fonts
-and the logo files. `{{cli}} brand --section logos` lists every lockup in Black and White; use those files as they are.
+`--seed`, `--width`, `--height`). `{{cli}} image` (posts, ads, banners, avatar, logo backgrounds, Open Graph, landscape
+and story), `{{cli}} deck`, `{{cli}} video` and `{{cli}} merch` render from the brand assets layouts, the tokens, the
+fonts and the logo files; `--list` on each names every template, size and slot. `{{cli}} brand --section logos` lists
+every lockup in Black and White; use those files as they are.
+
+## Illustrations
+
+`{{cli}} illustrate <style> [subject]` writes the brand's own imagery as PNG and SVG: `pattern` (the light flowing in
+with the texture behind it), `light` (any variant), `texture`, `split` (a picture split into its color channels,
+`--image` required) and `shader` (the lockup, logomark, orb or wave, or `--image`, turned into spectral light; presets
+`--preset`, any setting with `--set key=value`). The rules and their sources are `brand/illustration.md`; follow them:
+the light flows in from the edges on Black, the texture is an accent and never the subject, photos keep their own
+color, the subject stays White on top. `{{cli}} illustrate --list` names every style, subject, preset, look and setting.
+
+## Work in Figma
+
+The CLI never calls Figma; it writes files and prints the Figma MCP calls to make, in order.
+
+1. `{{cli}} figma tokens`: the tokens as variables (modes Dark and Light). Run the printed `use_figma` scripts.
+2. `{{cli}} figma push <illustration|asset|slide|component|page> [target]`: an illustration (as `illustrate` takes it),
+   any SVG or picture the CLI wrote (small SVGs as a script that imports editable layers and loads the brand fonts,
+   bigger files through `upload_assets`), a library preview or a page as HTML for `html_to_figma`.
+3. `{{cli}} figma pull <frame url>`: the reads to make (`get_variable_defs`, `get_design_context`) and where to save them.
+4. `{{cli}} figma check <saved files>`: every off-brand color, font, size, radius or spacing with the nearest token
+   (exit 1). Build from library items and tokens, never the raw values.
+
+Load the figma-use skill before any `use_figma` call and figma-design-to-code before `get_design_context`; start every
+file with `create_session`.
 
 ## Motion
 

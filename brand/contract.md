@@ -21,7 +21,10 @@
 - Black is the ground and White the type. The spectrum colors come only from the brand light and small accents. No
   shadows, no bold weights, no ease-in, no transition-all, icons never move on hover.
 - The brand light and the ASCII texture are generated, never drawn by hand or pasted as images: use the `brand-light`
-  and `ascii-texture` components, or `{{cli}} light` and `{{cli}} ascii` for SVG files. Use the logo files from
+  and `ascii-texture` components, or `{{cli}} light` and `{{cli}} ascii` for SVG files. Brand imagery (the pattern,
+  the photo light split, the shader) comes from `{{cli}} illustrate`, following `brand/illustration.md`; social posts,
+  decks, video and merch from `image`, `deck`, `video` and `merch`. Figma work goes through `{{cli}} figma` (tokens,
+  push, pull, check): it writes files and prints the Figma MCP calls. Use the logo files from
   `{{cli}} brand --section logos` (or the `logo` component); never redraw, recolor, stretch or outline them.
 - Icons are Lucide at a 1.5 stroke.
 - Example and sample data use Acme. Never use another brand's photos or a real person's name.

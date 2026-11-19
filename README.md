@@ -45,7 +45,9 @@ behavior, in every file type the stack uses.
 | `tokens [term...]`, `brand`, `principles` | Tokens by name or value; color, type, spacing, radii, motion, fonts, logos and voice; the product and website rules. |
 | `component list\|inspect\|emit` | The real components, their props and states; `emit` writes React for one state. |
 | `light`, `ascii` | The brand light (`--variant band\|field\|corner\|strip-left\|strip-right\|tile\|close-up\|curved-strip`, `--seed`, `--source brand\|generated`) and the ASCII texture as SVG or PNG. |
-| `image`, `deck`, `video`, `merch` | Posts, ads, banners, logo backgrounds, Open Graph and story images from the brand assets layouts; pitch deck slides (PNG and PDF); seamless loops of the light; merch print files at physical size with bleed. `--list` on each. |
+| `image`, `deck`, `video`, `merch` | Posts, ads, banners, logo backgrounds, Open Graph, landscape (1200x675) and story images from the brand assets layouts; pitch deck slides (PNG and PDF); seamless loops of the light; merch print files at physical size with bleed. `--list` on each. |
+| `illustrate <style> [subject]` | The brand's own imagery as PNG and SVG: `pattern`, `light`, `texture`, `split` (`--image`) and `shader` (lockup, mark, orb, wave or `--image`; `--preset`, `--set key=value`). Rules with sources in `brand/illustration.md`. |
+| `figma tokens\|push\|pull\|check` | Figma through its MCP tools, which the CLI never calls: variables and `use_figma` scripts, push files as editable layers or HTML, the read steps for a frame, and off-brand values with the nearest token (exit 1). |
 | `manifest` (`describe`) | Every command, template, size, component, token and rule, for an agent (`--json`). |
 
 All commands take `--cwd <dir>` and `--json`; an unknown option or name is an error.
