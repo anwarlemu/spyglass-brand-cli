@@ -1,0 +1,12 @@
+import { FeatureGridBlock } from '@/react/components/blocks/FeatureGridBlock'
+// The three jobs the assets name, three across.
+
+const features = [
+  { title: 'Know what changed before your next meeting.', body: 'Spyglass follows the brands, creators, and niches that matter to you then turns the changes into a brief you actually want to read.' },
+  { title: 'Understand what is working in any category.', body: 'Compare brands, creators, campaigns, and formats to uncover what is gaining traction, what is falling behind, and why.' },
+  { title: 'Search millions of creators in one place.', body: 'Spyglass monitors millions of brands and creators across Meta Ads, Instagram, and TikTok.' },
+]
+
+export default function Three() {
+  return <FeatureGridBlock features={features} />
+}

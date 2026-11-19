@@ -91,6 +91,12 @@ describe('cli', () => {
 		expect(page).toContain("from '@/lib/pages/home'");
 		expect(page).not.toContain('@/react/');
 	});
+	it('add copies the contact page with its form controls, and the new blocks with what they wrap', () => {
+		const dir = reactApp();
+		const out = JSON.parse(run(dir, 'add', 'contact-page', 'pricing-table-block', 'testimonial-block', 'footer-block', '--no-install'));
+		for (const item of ['contact-page', 'field', 'input', 'textarea', 'button', 'site-header', 'footer-row', 'plan-card', 'testimonial']) expect(out.items, item).toContain(item);
+		for (const f of ['components/pages/ContactPage.tsx', 'lib/pages/contact.ts', 'components/blocks/PricingTableBlock.tsx', 'components/blocks/FooterBlock.tsx']) expect(existsSync(join(dir, f)), f).toBe(true);
+	});
 	it('add gives a Vue app a page template as one web component and the elements it renders', () => {
 		const dir = nuxtApp();
 		const out = JSON.parse(run(dir, 'add', 'pricing-page', '--no-install'));
@@ -99,8 +105,8 @@ describe('cli', () => {
 	});
 	it('manifest lists the page templates and blocks with the command that adds each', () => {
 		const doc = JSON.parse(run(mkdtempSync(join(tmpdir(), 'spyglass-ds-')), 'manifest'));
-		expect(doc.pages.map((p: { name: string }) => p.name).sort()).toEqual(['about-page', 'blog-page', 'blog-post-page', 'changelog-page', 'home-page', 'legal-page', 'not-found-page', 'pricing-page', 'product-page']);
-		expect(doc.blocks.map((b: { name: string }) => b.name).sort()).toEqual(['hero-block', 'offer-block', 'stat-block']);
+		expect(doc.pages.map((p: { name: string }) => p.name).sort()).toEqual(['about-page', 'blog-page', 'blog-post-page', 'changelog-page', 'contact-page', 'home-page', 'legal-page', 'not-found-page', 'pricing-page', 'product-page']);
+		expect(doc.blocks.map((b: { name: string }) => b.name).sort()).toEqual(['faq-block', 'feature-grid-block', 'footer-block', 'hero-block', 'logo-strip-block', 'offer-block', 'pricing-table-block', 'stat-block', 'testimonial-block']);
 		expect(doc.pages.find((p: { name: string }) => p.name === 'home-page').add).toBe('spyglass-ds add home-page');
 		expect(doc.groups.map((g: { id: string }) => g.id)).toEqual(expect.arrayContaining(['pages', 'blocks']));
 	});
