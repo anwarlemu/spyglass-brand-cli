@@ -3,6 +3,7 @@ import { brand } from '../lib/brand.js';
 import { drawScene, rasterizeScene, FitError } from '../assets/scene.js';
 import { catalogOf, findTemplate, sceneFor, slotNames, templates, type Template } from '../assets/templates.js';
 import { display, format, int, lightSource, list, readPhoto, str, write, type Flags } from '../assets/io.js';
+import { helpRow } from '../lib/help-row.js';
 
 // `image` draws the brand's layouts (brand/assets/image.json: every post, ad, banner and logo background on the brand
 // assets page, plus Open Graph and story sizes derived from them) with your copy and pictures.
@@ -14,7 +15,7 @@ const ALIASES: Record<string, string> = { title: 'headline', text: 'body' };
 
 export function imageHelp(): string {
 	const b = brand().bin;
-	const row = (cmd: string, what: string) => `  ${cmd.padEnd(58)}${what}`;
+	const row = (cmd: string, what: string) => helpRow(cmd, what, 58);
 	const groups = [...new Set(templates('image').map((t) => t.group))];
 	return [
 		'Social posts, ads, banners, avatars, logo backgrounds, Open Graph cards and stories: the layouts on the brand',

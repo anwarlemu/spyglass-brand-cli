@@ -16,10 +16,11 @@ import { formatManifest, manifest, manifestHelp } from './commands/manifest.js';
 import { findTokens, list } from './commands/small.js';
 import { runVideo, VIDEO_FLAGS, videoHelp } from './commands/video.js';
 import { patternHelp, runAscii, runLight } from './commands/pattern.js';
+import { helpRow } from './lib/help-row.js';
 
 const HELP = () => {
 	const b = brand().bin;
-	const row = (cmd: string, what: string) => `  ${`${b} ${cmd}`.padEnd(44)}${what}`;
+	const row = (cmd: string, what: string) => helpRow(`${b} ${cmd}`, what, 44);
 	const more = (text: string) => `      ${text}`;
 	return [
 		`${brand().name} design system (${b})`,

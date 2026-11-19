@@ -219,3 +219,15 @@ describe('png', () => {
 });
 
 void execFileSync;
+
+describe('help examples', () => {
+	it('never run a long example into its description', () => {
+		for (const args of [['--help'], ['image', '--help'], ['deck', '--help']]) {
+			const out = spawnSync('node', [bin, ...args], { encoding: 'utf8' }).stdout;
+			expect(out).toMatch(/\S/);
+			expect(out).not.toMatch(/^ +$/m);
+			for (const line of out.split('\n').filter((l) => /^ {2}spyglass-ds /.test(l))) expect(line, line).not.toMatch(/\.(png|svg)[A-Z]|[a-z0-9][A-Z][a-z]+ (the|in|of|only|a|come|fill)\b/);
+		}
+		expect(spawnSync('node', [bin, 'image', '--help'], { encoding: 'utf8' }).stdout).toMatch(/--image b\.png\n {2,}Pictures fill/);
+	});
+});

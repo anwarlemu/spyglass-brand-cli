@@ -6,6 +6,7 @@ import { catalogOf, findTemplate, sceneFor, slotNames } from '../assets/template
 import { imagesToPdf } from '../assets/pdf.js';
 import { rgbOf } from '../assets/png.js';
 import { display, format, int, lightSource, list, readPhoto, str, write, type Flags } from '../assets/io.js';
+import { helpRow } from '../lib/help-row.js';
 
 // `deck` draws pitch deck slides at 1920 by 1080 (brand/assets/deck.json: the three covers from the brand assets and
 // content slides derived from their rules), one PNG per slide and the whole deck as one PDF.
@@ -14,7 +15,7 @@ export const DECK_FLAGS = ['input', 'slide', 'image', 'seed', 'light', 'format',
 
 export function deckHelp(): string {
 	const b = brand().bin;
-	const row = (cmd: string, what: string) => `  ${cmd.padEnd(50)}${what}`;
+	const row = (cmd: string, what: string) => helpRow(cmd, what, 50);
 	return [
 		'Pitch deck slides at 1920 by 1080: PNG per slide and one PDF (16:9 pages, 13.33 by 7.5 in).',
 		'',
