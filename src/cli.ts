@@ -17,6 +17,9 @@ import { findTokens, list } from './commands/small.js';
 import { runVideo, VIDEO_FLAGS, videoHelp } from './commands/video.js';
 import { patternHelp, runAscii, runLight } from './commands/pattern.js';
 import { helpRow } from './lib/help-row.js';
+import { ILLUSTRATE_FLAGS, illustrateHelp, runIllustrate } from './commands/illustrate.js';
+import { FIGMA_FLAGS, figmaHelp, runFigma } from './commands/figma.js';
+import { suggest } from './lib/names.js';
 
 const HELP = () => {
 	const b = brand().bin;
@@ -65,6 +68,8 @@ const HELP = () => {
 		'Brand graphics:',
 		row('light --variant band --seed 1', 'The brand light as SVG or PNG, seeded (--source brand|generated, --list)'),
 		row('ascii --seed 4', 'The ASCII texture as SVG or PNG, seeded (--density, --ground)'),
+		row('illustrate <style> [subject]', 'Brand imagery: pattern, light, texture, split (--image), shader (--list)'),
+		row('figma tokens|push|pull|check', 'Files and the ordered Figma MCP calls; the CLI never calls Figma'),
 		'',
 		'Assets (PNG and SVG from the brand assets page; --list on each shows templates, sizes and slots):',
 		row('image --template post-offer --headline "..."', 'Posts, ads, banners, avatar, logo backgrounds, Open Graph, story'),
@@ -78,8 +83,8 @@ const HELP = () => {
 	].join('\n');
 };
 
-const VALUE_FLAGS = new Set(['headline', 'body', 'label', 'cta', 'price', 'plan', 'features', 'prompt', 'quote', 'name', 'role', 'url', 'kicker', 'items', 'stat', 'light', 'input', 'slide', 'item', 'dpi', 'fps', 'seconds', 'variant', 'seed', 'source', 'width', 'height', 'density', 'cwd', 'components', 'pages', 'framework', 'title', 'text', 'subtitle', 'eyebrow', 'by', 'author', 'image', 'template', 'size', 'ground', 'out', 'format', 'section', 'token', 'surface', 'group', 'state', 'part', 'prop']);
-const REPEAT_FLAGS = new Set(['prop', 'image']);
+const VALUE_FLAGS = new Set(['headline', 'body', 'label', 'cta', 'price', 'plan', 'features', 'prompt', 'quote', 'name', 'role', 'url', 'kicker', 'items', 'stat', 'light', 'input', 'slide', 'item', 'dpi', 'fps', 'seconds', 'variant', 'seed', 'source', 'width', 'height', 'density', 'cwd', 'components', 'pages', 'framework', 'title', 'text', 'subtitle', 'eyebrow', 'by', 'author', 'image', 'template', 'size', 'ground', 'out', 'format', 'section', 'token', 'surface', 'group', 'state', 'part', 'prop', 'set', 'preset', 'texture', 'example', 'browser', 'file']);
+const REPEAT_FLAGS = new Set(['prop', 'image', 'set']);
 
 export function parse(argv: string[]) {
 	const flags: Record<string, string | boolean | string[]> = {};
@@ -132,6 +137,8 @@ const FLAGS: Record<string, string[]> = {
 	describe: [],
 	light: ['variant', 'seed', 'source', 'width', 'height', 'out', 'format', 'ground', 'list'],
 	ascii: ['seed', 'width', 'height', 'density', 'out', 'format', 'ground'],
+	illustrate: ILLUSTRATE_FLAGS,
+	figma: FIGMA_FLAGS,
 };
 
 async function main() {
@@ -144,7 +151,7 @@ async function main() {
 	const cwd = resolve(typeof flags.cwd === 'string' ? flags.cwd : process.cwd());
 	const json = flags.json === true;
 	const out = (value: unknown, text: string) => console.log(json ? JSON.stringify(value, null, 2) : text);
-	const ownHelp = new Set(['image', 'deck', 'merch', 'video', 'brand', 'principles', 'component', 'manifest', 'describe', 'light', 'ascii']);
+	const ownHelp = new Set(['image', 'deck', 'merch', 'video', 'brand', 'principles', 'component', 'manifest', 'describe', 'light', 'ascii', 'illustrate', 'figma']);
 	if (flags.help && command && !ownHelp.has(command)) {
 		console.log(HELP());
 		return;
@@ -318,6 +325,25 @@ async function main() {
 			out(r.json, r.text);
 			return;
 		}
+		case 'illustrate': {
+			if (flags.help) {
+				console.log(illustrateHelp());
+				return;
+			}
+			const r = await runIllustrate(cwd, args, flags);
+			out(r.json, r.text);
+			return;
+		}
+		case 'figma': {
+			if (flags.help) {
+				console.log(figmaHelp());
+				return;
+			}
+			const r = await runFigma(cwd, args, flags);
+			out(r.json, r.text);
+			if (r.exitCode) process.exitCode = r.exitCode;
+			return;
+		}
 		case 'manifest':
 		case 'describe': {
 			if (flags.help) {
@@ -332,7 +358,8 @@ async function main() {
 		default:
 			console.log(HELP());
 			if (command && command !== 'help' && command !== '--help') {
-				console.error(`\nUnknown command \`${command}\`.`);
+				const near = suggest(command, [...Object.keys(FLAGS), 'show', 'help']);
+				console.error(`\nUnknown command \`${command}\`.${near.length ? ` Did you mean ${near.map((n) => `\`${n}\``).join(' or ')}?` : ''}`);
 				process.exitCode = 1;
 			}
 	}

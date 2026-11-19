@@ -36,7 +36,8 @@ describe('image templates', () => {
 		expect(size('ad-creator-plan')).toEqual([[1080, 1350]]);
 		expect(size('banner-tagline')).toEqual([[1500, 500], [1584, 396], [1128, 191]]);
 		expect(size('avatar')).toEqual([[400, 400]]);
-		expect(size('og')).toEqual([[1200, 630]]);
+		expect(size('og')).toEqual([[1200, 630], [1200, 675]]);
+		expect(size('og-offer')).toEqual([[1200, 630], [1200, 675]]);
 		expect(size('story')).toEqual([[1080, 1920]]);
 		expect(Object.keys(findTemplate('image', 'logo-background').variants!)).toEqual(['black', 'white', 'blue', 'red', 'magenta', 'yellow', 'green']);
 	});
@@ -223,7 +224,7 @@ void execFileSync;
 
 describe('help examples', () => {
 	it('never run a long example into its description', () => {
-		for (const args of [['--help'], ['image', '--help'], ['deck', '--help']]) {
+		for (const args of [['--help'], ['image', '--help'], ['deck', '--help'], ['illustrate', '--help'], ['figma', '--help']]) {
 			const out = spawnSync('node', [bin, ...args], { encoding: 'utf8' }).stdout;
 			expect(out).toMatch(/\S/);
 			expect(out).not.toMatch(/^ +$/m);
