@@ -119,12 +119,17 @@ export function logos() {
 		.filter((asset) => asset.fills?.length)
 		.map((asset) => `${asset.path} is filled ${asset.fills!.map((fill) => (fill.token ? `${fill.hex} (${fill.token})` : fill.hex)).join(', ')}.`);
 	rules.push('image redraws brand/logo/svg/mark-white.svg in the foreground of the chosen ground. video logo redraws brand/logo/svg/horizontal-white.svg the same way, and every video draws mark-white.svg in the footer.');
-	return {
-		source: 'brand/logo',
-		assets,
-		rules,
-		missing: ['The guidelines set clear space and minimum sizes for the logo, but their values are not in this repository. Do not invent them.'],
-	};
+	const spec = brand().logo;
+	const missing: string[] = [];
+	if (spec) {
+		rules.push(spec.clearSpaceText);
+		rules.push(`Clear space as a share of each lockup's height: ${Object.entries(spec.markHeight).map(([lockup, share]) => `${lockup} ${+(share * spec.clearSpace).toFixed(3)}`).join(', ')}.`);
+		rules.push(`Minimum heights: ${Object.entries(spec.minHeight).map(([lockup, px]) => `${lockup} ${px}px`).join(', ')}. Source: ${spec.source}.`);
+		const lockups = [...new Set(assets.map((asset) => /^brand\/logo\/svg\/(.+)-(black|white)\.svg$/.exec(asset.path)?.[1]).filter((name): name is string => Boolean(name)))];
+		const unsized = lockups.filter((lockup) => !(lockup in spec.minHeight));
+		if (unsized.length) missing.push(`The guidelines set no minimum size for ${unsized.join(', ')}. Do not invent one.`);
+	} else missing.push('The guidelines set clear space and minimum sizes for the logo, but their values are not in this repository. Do not invent them.');
+	return { source: 'brand/logo', assets, rules, missing };
 }
 
 const squash = (text: string) => text.replace(/\s+/g, ' ').trim();

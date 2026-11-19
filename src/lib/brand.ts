@@ -22,6 +22,9 @@ export type Brand = {
 	icons: { name: string; packages: string[]; stroke?: number };
 	type: { caps: boolean; bold: boolean };
 	groups: Record<string, string>;
+	/** Logo rules from the guidelines: clear space as a share of the logomark's height, the logomark's share of each
+	 * lockup's height, and minimum heights in pixels per lockup. */
+	logo?: { source: string; clearSpace: number; clearSpaceText: string; markHeight: Record<string, number>; minHeight: Record<string, number> };
 };
 
 let cached: Brand | undefined;

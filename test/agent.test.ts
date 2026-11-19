@@ -37,7 +37,9 @@ describe('brand system', () => {
 		for (const lockup of ['mark', 'wordmark', 'horizontal', 'vertical', 'mark-3d', 'horizontal-3d', 'vertical-3d']) for (const tone of ['black', 'white']) expect(logo.assets.some((asset) => asset.path === `brand/logo/svg/${lockup}-${tone}.svg`), `${lockup}-${tone}`).toBe(true);
 		expect(logo.rules.some((rule) => rule.includes('brand/logo/svg/mark-white.svg') && rule.includes('#FFFFFF'))).toBe(true);
 		expect(logo.rules.some((rule) => rule.includes('brand/logo/svg/mark-black.svg') && rule.includes('#000000'))).toBe(true);
-		expect(logo.missing[0]).toMatch(/clear space/);
+		expect(logo.rules.some((rule) => /half the height of the logomark/.test(rule))).toBe(true);
+		expect(logo.rules.some((rule) => /mark 16px, horizontal 16px, vertical 32px/.test(rule))).toBe(true);
+		expect(logo.missing.join(' ')).not.toMatch(/clear space/);
 		const said = voice();
 		expect(said.never).toContain('delve');
 		expect(said.never).toContain('seamless');
@@ -87,7 +89,7 @@ describe('manifest', () => {
 		const rules = (doc.principles as { rules: { id: string; surface: string; text: string }[] }).rules;
 		expect(rules.some((rule) => rule.surface === 'product' && /Black is the ground/.test(rule.text))).toBe(true);
 		expect(rules.some((rule) => rule.surface === 'website' && /plus-lighter/.test(rule.text))).toBe(true);
-		expect((doc.gaps as string[]).some((gap) => /clear space/.test(gap))).toBe(true);
+		expect((doc.gaps as string[]).some((gap) => /clear space/.test(gap))).toBe(false);
 		const again = JSON.stringify(await manifest());
 		expect(again).toBe(JSON.stringify(doc));
 	});

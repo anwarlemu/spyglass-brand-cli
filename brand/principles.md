@@ -37,7 +37,9 @@ type, pattern, imagery and applications pages) and the Figma brand assets page.
   "spyglass.so" bottom right. Margins are 64px on ads, 72px on posts, 96px on decks (1080px and 1920px canvases).
 - Logo: the logomark (a rounded rectangle with a lens cut out), the 3D logomark, the wordmark, horizontal and vertical
   combination marks and the 3D combination marks. Primary background is Black with a White mark; secondary
-  backgrounds are White (Black mark), Blue, Red and Magenta (White mark), Yellow and Green (Black mark).
+  backgrounds are White (Black mark), Blue, Red and Magenta (White mark), Yellow and Green (Black mark). Clear space is
+  half the logomark's height on all four sides (a minimum); minimum heights are 16px for the logomark and the
+  horizontal combination mark, 32px for the vertical one.
 
 ## Always
 

@@ -5,7 +5,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { inflateSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
-import { drawScene, fitText, allFaces, rasterizeScene } from '../src/assets/scene.js';
+import { drawScene, fitText, allFaces, rasterizeScene, logoRatio } from '../src/assets/scene.js';
+import { brand } from '../src/lib/brand.js';
 import { findTemplate, sceneFor, templates } from '../src/assets/templates.js';
 import { merchItems, merchScene, PX_PER_IN } from '../src/assets/merch.js';
 import { videoDoc, videoFrame } from '../src/commands/video.js';
@@ -229,5 +230,41 @@ describe('help examples', () => {
 			for (const line of out.split('\n').filter((l) => /^ {2}spyglass-ds /.test(l))) expect(line, line).not.toMatch(/\.(png|svg)[A-Z]|[a-z0-9][A-Z][a-z]+ (the|in|of|only|a|come|fill)\b/);
 		}
 		expect(spawnSync('node', [bin, 'image', '--help'], { encoding: 'utf8' }).stdout).toMatch(/--image b\.png\n {2,}Pictures fill/);
+	});
+});
+
+describe('logo rules', () => {
+	it('every template keeps each logo above its minimum height and its clear space free', () => {
+		const spec = brand().logo!;
+		type B = [number, number, number, number];
+		const hit = (a: B, b: B) => a[0] < b[0] + b[2] && b[0] < a[0] + a[2] && a[1] < b[1] + b[3] && b[1] < a[1] + a[3];
+		let checked = 0;
+		for (const kind of ['image', 'deck'] as const)
+			for (const t of templates(kind))
+				for (const size of Object.keys(t.sizes))
+					for (const variant of t.variants ? Object.keys(t.variants) : [undefined]) {
+						const { scene } = sceneFor(t, { size, variant });
+						for (const l of scene.layers) {
+							if (l.type !== 'logo') continue;
+							const id = `${kind} ${t.id} ${size}${variant ? ` ${variant}` : ''} ${l.lockup}`;
+							const [x, y, w, h] = l.box;
+							const r = logoRatio(l.lockup);
+							const lh = Math.min(h, w / r);
+							const lw = lh * r;
+							const lx = l.align === 'left' ? x : l.align === 'right' ? x + w - lw : x + (w - lw) / 2;
+							const ly = y + (h - lh) / 2;
+							if (spec.minHeight[l.lockup]) expect(lh, id).toBeGreaterThanOrEqual(spec.minHeight[l.lockup]);
+							const share = spec.markHeight[l.lockup];
+							if (share === undefined) continue;
+							checked++;
+							const c = spec.clearSpace * share * lh;
+							const zone: B = [lx - c, ly - c, lw + 2 * c, lh + 2 * c];
+							for (const o of scene.layers) {
+								const b: B | undefined = o.type === 'text' || o.type === 'list' ? [o.x, o.top, o.w, o.size] : o.type === 'photo' || o.type === 'button' || o.type === 'search' || o.type === 'split' ? o.box : undefined;
+								if (b) expect(hit(zone, b), `${id} clear space holds a ${o.type}`).toBe(false);
+							}
+						}
+					}
+		expect(checked).toBeGreaterThan(30);
 	});
 });

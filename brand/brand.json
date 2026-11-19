@@ -45,6 +45,13 @@
     "leading": 1.2,
     "opacity": 0.35
   },
+  "logo": {
+    "source": "Figma file Qx2i6GhXZD1V4O7RE7hYQi, page 7. Brand guidelines: Clear Space (node 913:193) and minimum sizes (node 913:320)",
+    "clearSpace": 0.5,
+    "clearSpaceText": "Clear space is half the height of the logomark (x) on all four sides, for every version of the logo, kept free of text, images and other elements. It is a minimum: give the logo more room wherever the layout allows.",
+    "markHeight": { "mark": 1, "horizontal": 0.8333, "vertical": 0.5077, "mark-3d": 1, "horizontal-3d": 1 },
+    "minHeight": { "mark": 16, "horizontal": 16, "vertical": 32 }
+  },
   "groups": {
     "ui": "Components",
     "product": "Product",
