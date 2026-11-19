@@ -29,7 +29,7 @@ export class PlanCard extends DsElement {
 
 	render() {
 		const features = this.features ?? []
-		return html`<div data-ds="plan-card" class="flex flex-col rounded-container bg-surface-raised p-8 text-fg max-sm:p-6"><h3 class="type-heading-2">${this.heading}</h3>${this.price ? html`<p class="mt-4 type-body text-fg">${this.price}</p>` : nothing}${features.length ? html`<ul class="mt-6 flex flex-col gap-2 type-ui text-fg">${features.map((f) => html`<li>${f}</li>`)}</ul>` : nothing}${this.cta ? html`<spyglass-button href=${ifDefined(this.href)} class="mt-6 w-full" @click=${() => this.emit('select')}>${this.cta}</spyglass-button>` : nothing}</div>`
+		return html`<div data-ds="plan-card" class="flex flex-col rounded-container bg-surface-raised p-8 text-fg max-sm:p-6"><h3 class="type-heading-2">${this.heading}</h3>${this.price ? html`<p class="mt-4 type-body text-fg">${this.price}</p>` : nothing}${features.length ? html`<ul class="mt-6 flex grow flex-col gap-2 type-ui text-fg">${features.map((f) => html`<li>${f}</li>`)}</ul>` : nothing}${this.cta ? html`<spyglass-button href=${ifDefined(this.href)} class="mt-6 w-full" @click=${() => this.emit('select')}>${this.cta}</spyglass-button>` : nothing}</div>`
 	}
 }
 
