@@ -1,0 +1,217 @@
+{
+  "name": "creative-row",
+  "title": "Creative row",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "A row of 4/5 creatives: even, as the banners line them up 16px apart, or peak, rising to the middle and centered on one line, as the deck cover sets them.",
+  "use_for": "A strip of proof beside a headline: a banner, a deck cover, the band under a hero. The row shrinks with its box and never scrolls.",
+  "never": [
+    "A row that scrolls sideways: show fewer creatives",
+    "More than seven creatives in a row"
+  ],
+  "source": "Figma page 8: X banner, Creative row (six 120x150, 16px apart); Pitch deck cover, Row of creatives (200x250, 240x300, 304x380, 240x300, 200x250, 16px apart)",
+  "body": "",
+  "requires": [
+    "brand-light",
+    "creative-card"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/CreativeRow.tsx",
+      "content": "import { BrandLight } from '@/react/components/visuals/BrandLight'\nimport { CreativeCard, type CreativeItem } from '@/react/components/site/CreativeCard'\nimport { peakWeights } from '@/lib/creative-layouts'\nimport { cn } from '@/react/lib/cn'\n\n// A row of creatives, all 4/5. `even`: the banners' row, every creative the same size, 16px apart (X banner, Creative\n// row). `peak`: the deck cover's row, rising to the middle (200, 240, 304, 240, 200 on the canvas) and centered on one\n// line (Pitch deck cover, Row of creatives). The row keeps to its box: the creatives shrink with it, never scroll.\nexport interface CreativeRowProps {\n  items: CreativeItem[]\n  /** even (one size) or peak (rising to the middle). */\n  variant?: 'even' | 'peak'\n  className?: string\n}\n\nexport function CreativeRow({ items, variant = 'even', className }: CreativeRowProps) {\n  const weights = variant === 'peak' ? peakWeights(items.length) : items.map(() => 1)\n  return (\n    <div data-ds=\"creative-row\" className={cn('flex items-center gap-4 max-sm:gap-2', className)}>\n      {items.map(({ light, seed, ...item }, i) => (\n        <div key={i} className=\"min-w-0 basis-0\" style={{ flexGrow: weights[i], aspectRatio: '4 / 5' }}>\n          {light ? <BrandLight variant=\"tile\" seed={seed ?? i} cover className=\"size-full rounded-container\" /> : <CreativeCard {...item} ratio=\"fill\" />}\n        </div>\n      ))}\n    </div>\n  )\n}\n\nexport default CreativeRow\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Even",
+      "label": "Even",
+      "center": false,
+      "half": false,
+      "path": "react/examples/creative-row/Even.tsx",
+      "content": "import { CreativeRow } from '@/react/components/site/CreativeRow'\n// The banner's row: six creatives of one size.\n\nconst items = [\n  { brand: 'Acme Skin', tone: 2 as const },\n  { brand: 'Acme Drinks', tone: 3 as const },\n  { brand: 'Acme Studio', tone: 1 as const },\n  { brand: 'Acme Fit', tone: 4 as const },\n  { brand: 'Acme Drinks', tone: 2 as const },\n  { brand: 'Acme Motors', tone: 3 as const },\n]\n\nexport default function Even() {\n  return <CreativeRow items={items} />\n}\n",
+      "requires": [
+        "brand-light",
+        "creative-card"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Peak",
+      "label": "Rising to the middle",
+      "center": false,
+      "half": false,
+      "path": "react/examples/creative-row/Peak.tsx",
+      "content": "import { CreativeRow } from '@/react/components/site/CreativeRow'\n// The deck cover's row: five creatives rising to the middle.\n\nconst items = [\n  { brand: 'Acme Drinks', tone: 3 as const },\n  { brand: 'Acme Fit', caption: 'Ten minute plan.', tone: 2 as const },\n  { brand: 'Acme Studio', caption: 'Made to move.', tone: 4 as const },\n  { brand: 'Acme Skin', caption: 'Does it work?', tone: 1 as const },\n  { brand: 'Acme Drinks', tone: 3 as const },\n]\n\nexport default function Peak() {\n  return <CreativeRow items={items} variant=\"peak\" />\n}\n",
+      "requires": [
+        "brand-light",
+        "creative-card"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/CreativeRow.tsx",
+          "content": "import { BrandLight } from '@/react/components/visuals/BrandLight'\nimport { CreativeCard, type CreativeItem } from '@/react/components/site/CreativeCard'\nimport { peakWeights } from '@/lib/creative-layouts'\nimport { cn } from '@/react/lib/cn'\n\n// A row of creatives, all 4/5. `even`: the banners' row, every creative the same size, 16px apart (X banner, Creative\n// row). `peak`: the deck cover's row, rising to the middle (200, 240, 304, 240, 200 on the canvas) and centered on one\n// line (Pitch deck cover, Row of creatives). The row keeps to its box: the creatives shrink with it, never scroll.\nexport interface CreativeRowProps {\n  items: CreativeItem[]\n  /** even (one size) or peak (rising to the middle). */\n  variant?: 'even' | 'peak'\n  className?: string\n}\n\nexport function CreativeRow({ items, variant = 'even', className }: CreativeRowProps) {\n  const weights = variant === 'peak' ? peakWeights(items.length) : items.map(() => 1)\n  return (\n    <div data-ds=\"creative-row\" className={cn('flex items-center gap-4 max-sm:gap-2', className)}>\n      {items.map(({ light, seed, ...item }, i) => (\n        <div key={i} className=\"min-w-0 basis-0\" style={{ flexGrow: weights[i], aspectRatio: '4 / 5' }}>\n          {light ? <BrandLight variant=\"tile\" seed={seed ?? i} cover className=\"size-full rounded-container\" /> : <CreativeCard {...item} ratio=\"fill\" />}\n        </div>\n      ))}\n    </div>\n  )\n}\n\nexport default CreativeRow\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "brand-light",
+        "creative-card"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "CreativeRow",
+            "file": "react/components/site/CreativeRow.tsx",
+            "props": [
+              {
+                "name": "items",
+                "type": "CreativeItem[]",
+                "required": true
+              },
+              {
+                "name": "variant",
+                "type": "'even' | 'peak'",
+                "required": false,
+                "default": "'even'",
+                "description": "even (one size) or peak (rising to the middle)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Even",
+          "label": "Even",
+          "center": false,
+          "half": false,
+          "path": "react/examples/creative-row/Even.tsx",
+          "content": "import { CreativeRow } from '@/react/components/site/CreativeRow'\n// The banner's row: six creatives of one size.\n\nconst items = [\n  { brand: 'Acme Skin', tone: 2 as const },\n  { brand: 'Acme Drinks', tone: 3 as const },\n  { brand: 'Acme Studio', tone: 1 as const },\n  { brand: 'Acme Fit', tone: 4 as const },\n  { brand: 'Acme Drinks', tone: 2 as const },\n  { brand: 'Acme Motors', tone: 3 as const },\n]\n\nexport default function Even() {\n  return <CreativeRow items={items} />\n}\n",
+          "registryDependencies": [
+            "brand-light",
+            "creative-card"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Peak",
+          "label": "Rising to the middle",
+          "center": false,
+          "half": false,
+          "path": "react/examples/creative-row/Peak.tsx",
+          "content": "import { CreativeRow } from '@/react/components/site/CreativeRow'\n// The deck cover's row: five creatives rising to the middle.\n\nconst items = [\n  { brand: 'Acme Drinks', tone: 3 as const },\n  { brand: 'Acme Fit', caption: 'Ten minute plan.', tone: 2 as const },\n  { brand: 'Acme Studio', caption: 'Made to move.', tone: 4 as const },\n  { brand: 'Acme Skin', caption: 'Does it work?', tone: 1 as const },\n  { brand: 'Acme Drinks', tone: 3 as const },\n]\n\nexport default function Peak() {\n  return <CreativeRow items={items} variant=\"peak\" />\n}\n",
+          "registryDependencies": [
+            "brand-light",
+            "creative-card"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/creative-row.ts",
+          "content": "import { html } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { peakWeights } from '@/lib/creative-layouts'\nimport '@/elements/components/site/creative-card'\nimport '@/elements/components/visuals/brand-light'\nimport styles from 'virtual:tw'\n\n// CreativeRow.tsx as <spyglass-creative-row>: a row of 4/5 creatives, `even` (one size) or `peak` (rising to the\n// middle, as the deck cover). `items` is a list (JSON attribute or property).\nexport interface CreativeItem { src?: string; alt?: string; brand?: string; caption?: string; tone?: 1 | 2 | 3 | 4; href?: string; light?: boolean; seed?: number }\n\n/**\n * @summary A row of creatives, even or rising to the middle.\n */\nexport class CreativeRow extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"creative-row\"]'))\n\tstatic properties = { items: { type: Array }, variant: {} }\n\t/** The creatives. */\n\titems: CreativeItem[] = []\n\t/** even or peak. */\n\tvariant: 'even' | 'peak' = 'even'\n\n\trender() {\n\t\tconst items = this.items ?? []\n\t\tconst weights = this.variant === 'peak' ? peakWeights(items.length) : items.map(() => 1)\n\t\treturn html`<div data-ds=\"creative-row\" class=\"flex items-center gap-4 max-sm:gap-2\">${items.map((it, i) => html`<div class=\"min-w-0 basis-0\" style=\"flex-grow: ${weights[i]}; aspect-ratio: 4 / 5;\">${it.light ? html`<spyglass-brand-light variant=\"tile\" seed=${it.seed ?? i} cover class=\"size-full rounded-container\"></spyglass-brand-light>` : html`<spyglass-creative-card ratio=\"fill\" src=${ifDefined(it.src)} alt=${ifDefined(it.alt)} brand=${ifDefined(it.brand)} caption=${ifDefined(it.caption)} tone=${ifDefined(it.tone)} href=${ifDefined(it.href)}></spyglass-creative-card>`}</div>`)}</div>`\n\t}\n}\n\ndefine('creative-row', CreativeRow)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/creative-row.js",
+        "elements/creative-card.js",
+        "elements/brand-light.js"
+      ],
+      "tag": "spyglass-creative-row",
+      "tags": [
+        "spyglass-creative-row"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "brand-light",
+        "creative-card"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-creative-row",
+            "name": "CreativeRow",
+            "module": "elements/creative-row.js",
+            "description": "A row of creatives, even or rising to the middle.",
+            "attributes": [
+              {
+                "name": "items",
+                "field": "items",
+                "type": "CreativeItem[]",
+                "default": "[]",
+                "description": "The creatives."
+              },
+              {
+                "name": "variant",
+                "field": "variant",
+                "type": "\"even\" | \"peak\"",
+                "default": "'even'",
+                "description": "even or peak."
+              }
+            ],
+            "properties": [
+              {
+                "name": "items",
+                "type": "CreativeItem[]",
+                "default": "[]",
+                "description": "The creatives.",
+                "attribute": "items"
+              },
+              {
+                "name": "variant",
+                "type": "\"even\" | \"peak\"",
+                "default": "'even'",
+                "description": "even or peak.",
+                "attribute": "variant"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Even",
+          "label": "Even",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/creative-row/Even.html",
+          "content": "<!-- The banner's row: six creatives of one size. -->\n<spyglass-creative-row items='[{\"brand\":\"Acme Skin\",\"tone\":2},{\"brand\":\"Acme Drinks\",\"tone\":3},{\"brand\":\"Acme Studio\",\"tone\":1},{\"brand\":\"Acme Fit\",\"tone\":4},{\"brand\":\"Acme Drinks\",\"tone\":2},{\"brand\":\"Acme Motors\",\"tone\":3}]'></spyglass-creative-row>\n"
+        },
+        {
+          "name": "Peak",
+          "label": "Rising to the middle",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/creative-row/Peak.html",
+          "content": "<!-- The deck cover's row: five creatives rising to the middle. -->\n<spyglass-creative-row variant=\"peak\" items='[{\"brand\":\"Acme Drinks\",\"tone\":3},{\"brand\":\"Acme Fit\",\"caption\":\"Ten minute plan.\",\"tone\":2},{\"brand\":\"Acme Studio\",\"caption\":\"Made to move.\",\"tone\":4},{\"brand\":\"Acme Skin\",\"caption\":\"Does it work?\",\"tone\":1},{\"brand\":\"Acme Drinks\",\"tone\":3}]'></spyglass-creative-row>\n"
+        }
+      ]
+    }
+  }
+}

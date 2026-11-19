@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "card",
+  "type": "registry:ui",
+  "title": "Card",
+  "description": "The brand's card: a #171717 fill on Black with the brand corner, a Funnel Display title, a line of DM Sans and the body, with actions at the foot. No border, no shadow.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/ui/Card.tsx",
+      "type": "registry:ui",
+      "content": "import type { HTMLAttributes, ReactNode } from 'react'\nimport { cn } from '@/lib/cn'\n\n// The brand's card: a #171717 fill on Black with the brand corner, no border and no shadow (the plan card in the\n// ads: 48px in on the canvas, 32px here). `title` is a Funnel Display card title (40px at 1.0 on the canvas, 28px\n// here), `description` a line of DM Sans under it, the children the body, and `actions` a row at the foot (a full\n// width button in the plan card).\nexport interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {\n  title?: ReactNode\n  description?: ReactNode\n  /** Buttons or links at the foot. */\n  actions?: ReactNode\n}\n\nexport function Card({ title, description, actions, className, children, ...rest }: CardProps) {\n  return (\n    <div data-ds=\"card\" {...rest} className={cn('flex flex-col gap-6 rounded-container bg-surface-raised p-8 text-fg max-sm:p-6', className)}>\n      {(title || description) && (\n        <div className=\"flex flex-col gap-4\">\n          {title && <h3 className=\"type-heading-2\">{title}</h3>}\n          {description && <p className=\"type-body text-fg\">{description}</p>}\n        </div>\n      )}\n      {children}\n      {actions && <div className=\"mt-2 flex flex-wrap gap-3\">{actions}</div>}\n    </div>\n  )\n}\n\nexport default Card\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

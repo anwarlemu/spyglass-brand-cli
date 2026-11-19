@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "logo-strip-block",
+  "type": "registry:block",
+  "title": "Logo strip block",
+  "description": "A row of customer names under a label in capitals, each set as a Funnel Display wordmark in the muted gray, so no third-party logo is drawn; their own marks go in the slot when you have permission.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/blocks/LogoStripBlock.tsx",
+      "type": "registry:ui",
+      "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/lib/cn'\n\n// A row of customer names under a label in capitals: each name set as a wordmark in Funnel Display, in the muted\n// gray, so no third-party logo is ever drawn. Pass your customers' names (placeholders say Acme); with permission to\n// show real marks, put their SVGs in `children` instead, in White. The row wraps on phones. Nothing moves on hover.\nexport interface LogoStripBlockProps {\n  /** The names, each set as a wordmark. */\n  names?: string[]\n  /** A line in capitals above the row. */\n  label?: ReactNode\n  /** Instead of the names: the marks themselves. */\n  children?: ReactNode\n  className?: string\n}\n\nexport function LogoStripBlock({ names = [], label, children, className }: LogoStripBlockProps) {\n  return (\n    <section data-ds=\"logo-strip-block\" className={cn('grid gap-8 text-fg max-sm:gap-6', className)}>\n      {label && <p className=\"type-label text-fg-muted\">{label}</p>}\n      {children ? (\n        <div className=\"flex flex-wrap items-center justify-between gap-x-12 gap-y-6\">{children}</div>\n      ) : (\n        <ul className=\"flex flex-wrap items-center justify-between gap-x-12 gap-y-6\">\n          {names.map((n) => <li key={n} className=\"type-heading-3 text-fg-muted\">{n}</li>)}\n        </ul>\n      )}\n    </section>\n  )\n}\n\nexport default LogoStripBlock\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

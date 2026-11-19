@@ -1,0 +1,319 @@
+{
+  "name": "slider",
+  "title": "Slider",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A value on a range: a 4px #363636 track, White up to the value, and a White thumb with the small corner. It follows the hand without easing.",
+  "use_for": "A rough value where the range matters more than the digit: how long an ad has run, a share, a budget. Show the value beside it.",
+  "never": [
+    "Exact values a person would rather type: use Input",
+    "A round, glowing or growing thumb",
+    "Animating the thumb: it follows the hand"
+  ],
+  "source": "Derived from the brand guidelines (no slider in the brand assets): White for the filled part, the neutral steps for the track, the small corner",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Slider.tsx",
+      "content": "'use client'\nimport type { CSSProperties } from 'react'\nimport { useControllable } from '@/react/hooks/useControllable'\n\n// A value on a range: a 4px #363636 track, White up to the value, and a 16px White thumb with the small corner, the\n// White focus ring around it. It follows the pointer with no easing, since the hand is moving it; arrows step it, Page\n// Up and Down by tens, Home and End to the ends. The whole 32px row takes the pointer (44px on phones). Show the value\n// beside it in tabular figures. `value` with `onValueChange` controls it (or `defaultValue` alone).\nexport interface SliderProps {\n  /** The name for assistive tech. */\n  label: string\n  min?: number\n  max?: number\n  step?: number\n  disabled?: boolean\n  /** What a screen reader says for the value (\"$40 a day\" for 40). */\n  valueText?: string\n  value?: number\n  defaultValue?: number\n  onValueChange?: (value: number) => void\n  className?: string\n}\n\nexport function Slider({ label, min = 0, max = 100, step = 1, disabled, valueText, value, defaultValue = 0, onValueChange, className }: SliderProps) {\n  const [current, setCurrent] = useControllable(value, defaultValue, onValueChange)\n  const share = max > min ? ((current - min) / (max - min)) * 100 : 0\n  return (\n    <>\n      <style href=\"ds-slider\" precedence=\"ds\">{css}</style>\n      <span data-ds=\"slider\" className={className ? `ds-slider ${className}` : 'ds-slider'} style={{ '--p': `${share}%` } as CSSProperties} data-disabled={disabled || undefined}>\n        <span className=\"ds-slider-track\" aria-hidden=\"true\"><span /></span>\n        <input type=\"range\" value={current} onChange={e => setCurrent(Number(e.target.value))} min={min} max={max} step={step} disabled={disabled} aria-label={label} aria-valuetext={valueText} />\n      </span>\n    </>\n  )\n}\n\nexport default Slider\n\nconst css = `\n.ds-slider { position: relative; display: flex; width: 100%; height: var(--ds-size-control-sm); align-items: center; }\n.ds-slider-track { position: absolute; right: 0; left: 0; height: var(--ds-space-xs); overflow: hidden; border-radius: var(--ds-radius-sm); background: var(--ds-color-edge-strong); pointer-events: none; }\n.ds-slider-track > span { display: block; width: var(--p); height: 100%; background: var(--ds-color-action-primary); }\n.ds-slider[data-disabled] .ds-slider-track > span { background: var(--ds-color-action-disabled-fg); }\n.ds-slider > input { position: relative; width: 100%; height: 100%; margin: 0; background: transparent; appearance: none; cursor: pointer; }\n.ds-slider > input:disabled { cursor: not-allowed; }\n.ds-slider > input:focus-visible { outline: none; }\n.ds-slider > input::-webkit-slider-runnable-track { height: var(--ds-space-xs); background: transparent; }\n.ds-slider > input::-moz-range-track { height: var(--ds-space-xs); background: transparent; }\n.ds-slider > input::-webkit-slider-thumb { width: var(--ds-size-icon-sm); height: var(--ds-size-icon-sm); margin-top: calc((var(--ds-space-xs) - var(--ds-size-icon-sm)) / 2); border: 0; border-radius: var(--ds-radius-sm); background: var(--ds-color-action-primary); appearance: none; }\n.ds-slider > input::-moz-range-thumb { width: var(--ds-size-icon-sm); height: var(--ds-size-icon-sm); border: 0; border-radius: var(--ds-radius-sm); background: var(--ds-color-action-primary); }\n.ds-slider > input:disabled::-webkit-slider-thumb { background: var(--ds-color-action-disabled-fg); }\n.ds-slider > input:disabled::-moz-range-thumb { background: var(--ds-color-action-disabled-fg); }\n.ds-slider > input:focus-visible::-webkit-slider-thumb { outline: var(--ds-border-focus) solid var(--ds-color-edge-focus); outline-offset: var(--ds-border-focus); }\n.ds-slider > input:focus-visible::-moz-range-thumb { outline: var(--ds-border-focus) solid var(--ds-color-edge-focus); outline-offset: var(--ds-border-focus); }\n@media (pointer: coarse), (max-width: 767px) { .ds-slider { height: var(--ds-size-control-touch); } }\n`\n"
+    },
+    {
+      "path": "react/hooks/useControllable.ts",
+      "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Filter",
+      "label": "As a filter",
+      "center": true,
+      "half": false,
+      "path": "react/examples/slider/Filter.tsx",
+      "content": "'use client'\nimport { useState } from 'react'\nimport { Slider } from '@/react/components/ui/Slider'\n// A filter over a search: only ads that have run at least this many days, the count beside it.\n\nexport default function Filter() {\n  const [days, setDays] = useState(30)\n  return (\n    <div className=\"flex w-96 max-w-full flex-col gap-2\">\n      <div className=\"flex items-baseline justify-between gap-4\">\n        <p className=\"type-label text-fg-soft\">Running for at least</p>\n        <p className=\"type-ui text-fg tabular-nums\">{days} days</p>\n      </div>\n      <Slider label=\"Running for at least\" min={0} max={90} value={days} onValueChange={setDays} valueText={`${days} days`} />\n      <p className=\"type-caption text-fg-muted\">Ads that run longer are the ones that work.</p>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    },
+    {
+      "name": "States",
+      "label": "States",
+      "center": true,
+      "half": false,
+      "path": "react/examples/slider/States.tsx",
+      "content": "import { Slider } from '@/react/components/ui/Slider'\n// The range's ends and middle, and one that can't be changed.\n\nexport default function States() {\n  return (\n    <div className=\"flex w-80 max-w-full flex-col gap-4\">\n      <Slider label=\"Share of video ads\" defaultValue={0} />\n      <Slider label=\"Share of image ads\" defaultValue={50} />\n      <Slider label=\"Share of new creatives\" defaultValue={100} />\n      <Slider label=\"Locked share\" defaultValue={40} disabled />\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Slider.tsx",
+          "content": "'use client'\nimport type { CSSProperties } from 'react'\nimport { useControllable } from '@/react/hooks/useControllable'\n\n// A value on a range: a 4px #363636 track, White up to the value, and a 16px White thumb with the small corner, the\n// White focus ring around it. It follows the pointer with no easing, since the hand is moving it; arrows step it, Page\n// Up and Down by tens, Home and End to the ends. The whole 32px row takes the pointer (44px on phones). Show the value\n// beside it in tabular figures. `value` with `onValueChange` controls it (or `defaultValue` alone).\nexport interface SliderProps {\n  /** The name for assistive tech. */\n  label: string\n  min?: number\n  max?: number\n  step?: number\n  disabled?: boolean\n  /** What a screen reader says for the value (\"$40 a day\" for 40). */\n  valueText?: string\n  value?: number\n  defaultValue?: number\n  onValueChange?: (value: number) => void\n  className?: string\n}\n\nexport function Slider({ label, min = 0, max = 100, step = 1, disabled, valueText, value, defaultValue = 0, onValueChange, className }: SliderProps) {\n  const [current, setCurrent] = useControllable(value, defaultValue, onValueChange)\n  const share = max > min ? ((current - min) / (max - min)) * 100 : 0\n  return (\n    <>\n      <style href=\"ds-slider\" precedence=\"ds\">{css}</style>\n      <span data-ds=\"slider\" className={className ? `ds-slider ${className}` : 'ds-slider'} style={{ '--p': `${share}%` } as CSSProperties} data-disabled={disabled || undefined}>\n        <span className=\"ds-slider-track\" aria-hidden=\"true\"><span /></span>\n        <input type=\"range\" value={current} onChange={e => setCurrent(Number(e.target.value))} min={min} max={max} step={step} disabled={disabled} aria-label={label} aria-valuetext={valueText} />\n      </span>\n    </>\n  )\n}\n\nexport default Slider\n\nconst css = `\n.ds-slider { position: relative; display: flex; width: 100%; height: var(--ds-size-control-sm); align-items: center; }\n.ds-slider-track { position: absolute; right: 0; left: 0; height: var(--ds-space-xs); overflow: hidden; border-radius: var(--ds-radius-sm); background: var(--ds-color-edge-strong); pointer-events: none; }\n.ds-slider-track > span { display: block; width: var(--p); height: 100%; background: var(--ds-color-action-primary); }\n.ds-slider[data-disabled] .ds-slider-track > span { background: var(--ds-color-action-disabled-fg); }\n.ds-slider > input { position: relative; width: 100%; height: 100%; margin: 0; background: transparent; appearance: none; cursor: pointer; }\n.ds-slider > input:disabled { cursor: not-allowed; }\n.ds-slider > input:focus-visible { outline: none; }\n.ds-slider > input::-webkit-slider-runnable-track { height: var(--ds-space-xs); background: transparent; }\n.ds-slider > input::-moz-range-track { height: var(--ds-space-xs); background: transparent; }\n.ds-slider > input::-webkit-slider-thumb { width: var(--ds-size-icon-sm); height: var(--ds-size-icon-sm); margin-top: calc((var(--ds-space-xs) - var(--ds-size-icon-sm)) / 2); border: 0; border-radius: var(--ds-radius-sm); background: var(--ds-color-action-primary); appearance: none; }\n.ds-slider > input::-moz-range-thumb { width: var(--ds-size-icon-sm); height: var(--ds-size-icon-sm); border: 0; border-radius: var(--ds-radius-sm); background: var(--ds-color-action-primary); }\n.ds-slider > input:disabled::-webkit-slider-thumb { background: var(--ds-color-action-disabled-fg); }\n.ds-slider > input:disabled::-moz-range-thumb { background: var(--ds-color-action-disabled-fg); }\n.ds-slider > input:focus-visible::-webkit-slider-thumb { outline: var(--ds-border-focus) solid var(--ds-color-edge-focus); outline-offset: var(--ds-border-focus); }\n.ds-slider > input:focus-visible::-moz-range-thumb { outline: var(--ds-border-focus) solid var(--ds-color-edge-focus); outline-offset: var(--ds-border-focus); }\n@media (pointer: coarse), (max-width: 767px) { .ds-slider { height: var(--ds-size-control-touch); } }\n`\n"
+        },
+        {
+          "path": "react/hooks/useControllable.ts",
+          "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Slider",
+            "file": "react/components/ui/Slider.tsx",
+            "props": [
+              {
+                "name": "label",
+                "type": "string",
+                "required": true,
+                "description": "The name for assistive tech."
+              },
+              {
+                "name": "min",
+                "type": "number",
+                "required": false,
+                "default": "0"
+              },
+              {
+                "name": "max",
+                "type": "number",
+                "required": false,
+                "default": "100"
+              },
+              {
+                "name": "step",
+                "type": "number",
+                "required": false,
+                "default": "1"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "required": false
+              },
+              {
+                "name": "valueText",
+                "type": "string",
+                "required": false,
+                "description": "What a screen reader says for the value (\"$40 a day\" for 40)."
+              },
+              {
+                "name": "value",
+                "type": "number",
+                "required": false
+              },
+              {
+                "name": "defaultValue",
+                "type": "number",
+                "required": false,
+                "default": "0"
+              },
+              {
+                "name": "onValueChange",
+                "type": "(value: number) => void",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Filter",
+          "label": "As a filter",
+          "center": true,
+          "half": false,
+          "path": "react/examples/slider/Filter.tsx",
+          "content": "'use client'\nimport { useState } from 'react'\nimport { Slider } from '@/react/components/ui/Slider'\n// A filter over a search: only ads that have run at least this many days, the count beside it.\n\nexport default function Filter() {\n  const [days, setDays] = useState(30)\n  return (\n    <div className=\"flex w-96 max-w-full flex-col gap-2\">\n      <div className=\"flex items-baseline justify-between gap-4\">\n        <p className=\"type-label text-fg-soft\">Running for at least</p>\n        <p className=\"type-ui text-fg tabular-nums\">{days} days</p>\n      </div>\n      <Slider label=\"Running for at least\" min={0} max={90} value={days} onValueChange={setDays} valueText={`${days} days`} />\n      <p className=\"type-caption text-fg-muted\">Ads that run longer are the ones that work.</p>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        },
+        {
+          "name": "States",
+          "label": "States",
+          "center": true,
+          "half": false,
+          "path": "react/examples/slider/States.tsx",
+          "content": "import { Slider } from '@/react/components/ui/Slider'\n// The range's ends and middle, and one that can't be changed.\n\nexport default function States() {\n  return (\n    <div className=\"flex w-80 max-w-full flex-col gap-4\">\n      <Slider label=\"Share of video ads\" defaultValue={0} />\n      <Slider label=\"Share of image ads\" defaultValue={50} />\n      <Slider label=\"Share of new creatives\" defaultValue={100} />\n      <Slider label=\"Locked share\" defaultValue={40} disabled />\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/slider.ts",
+          "content": "import { html, LitElement, type PropertyValues } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { live } from 'lit/directives/live.js'\nimport { styleMap } from 'lit/directives/style-map.js'\nimport { DsFormElement, define } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Slider.tsx as <spyglass-slider>: a value on a range: a 4px #363636 track, White up to the value, and a 16px White\n// thumb with the small corner. It follows the pointer with no easing; arrows step it, Page Up and Down by tens, Home and\n// End to the ends. The value is a numeric `value` with `input` (while it moves) and `change` (when it is let go), as a\n// native range's. Form-associated: its `name` goes with the form.\n\n/**\n * @summary A value on a range.\n * @fires input - While it moves (read `value`).\n * @fires change - When it is let go (read `value`).\n */\nexport class Slider extends DsFormElement {\n\tstatic styles = [DsFormElement.styles, styles]\n\tstatic shadowRootOptions = { ...LitElement.shadowRootOptions, delegatesFocus: true }\n\tstatic dsField = true\n\tstatic properties = {\n\t\tvalue: { type: Number },\n\t\tlabel: {},\n\t\tmin: { type: Number },\n\t\tmax: { type: Number },\n\t\tstep: { type: Number },\n\t\tdisabled: { type: Boolean, reflect: true },\n\t\tvalueText: { attribute: 'value-text' },\n\t\tname: {},\n\t}\n\n\tvalue = 0\n\t/** The name for assistive tech. */\n\tlabel = ''\n\tmin = 0\n\tmax = 100\n\tstep = 1\n\tdisabled = false\n\t/** What a screen reader says for the value (\"$40 a day\" for 40). */\n\tvalueText?: string\n\tname?: string\n\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\tif (changed.has('value')) this.internals.setFormValue(String(this.value))\n\t}\n\tprotected validityControl() {\n\t\treturn this.renderRoot.querySelector<HTMLInputElement>('input')\n\t}\n\tformResetCallback() {\n\t\tthis.value = Number(this.getAttribute('value') ?? 0)\n\t}\n\tprivate onInput(event: Event) {\n\t\tthis.value = Number((event.target as HTMLInputElement).value)\n\t}\n\t// The inner change does not leave the shadow root: the element sends its own.\n\tprivate onChange() {\n\t\tthis.dispatchEvent(new Event('change', { bubbles: true, composed: true }))\n\t}\n\n\trender() {\n\t\tconst share = this.max > this.min ? ((this.value - this.min) / (this.max - this.min)) * 100 : 0\n\t\treturn html`<span data-ds=\"slider\" class=\"ds-slider\" style=${styleMap({ '--p': `${share}%` })} data-disabled=${ifDefined(this.inactive ? 'true' : undefined)}>\n\t\t\t<span class=\"ds-slider-track\" aria-hidden=\"true\"><span></span></span>\n\t\t\t<input type=\"range\" min=${this.min} max=${this.max} step=${this.step} .value=${live(String(this.value))} ?disabled=${this.inactive} aria-label=${this.label} aria-valuetext=${ifDefined(this.valueText)} @input=${this.onInput} @change=${this.onChange}>\n\t\t</span>`\n\t}\n}\n\ndefine('slider', Slider)\n"
+        },
+        {
+          "path": "elements/components/ui/slider.css",
+          "content": "/* Slider.tsx's styles, as they are. */\n.ds-slider { position: relative; display: flex; width: 100%; height: var(--ds-size-control-sm); align-items: center; }\n.ds-slider-track { position: absolute; right: 0; left: 0; height: var(--ds-space-xs); overflow: hidden; border-radius: var(--ds-radius-sm); background: var(--ds-color-edge-strong); pointer-events: none; }\n.ds-slider-track > span { display: block; width: var(--p); height: 100%; background: var(--ds-color-action-primary); }\n.ds-slider[data-disabled] .ds-slider-track > span { background: var(--ds-color-action-disabled-fg); }\n.ds-slider > input { position: relative; width: 100%; height: 100%; margin: 0; background: transparent; appearance: none; cursor: pointer; }\n.ds-slider > input:disabled { cursor: not-allowed; }\n.ds-slider > input:focus-visible { outline: none; }\n.ds-slider > input::-webkit-slider-runnable-track { height: var(--ds-space-xs); background: transparent; }\n.ds-slider > input::-moz-range-track { height: var(--ds-space-xs); background: transparent; }\n.ds-slider > input::-webkit-slider-thumb { width: var(--ds-size-icon-sm); height: var(--ds-size-icon-sm); margin-top: calc((var(--ds-space-xs) - var(--ds-size-icon-sm)) / 2); border: 0; border-radius: var(--ds-radius-sm); background: var(--ds-color-action-primary); appearance: none; }\n.ds-slider > input::-moz-range-thumb { width: var(--ds-size-icon-sm); height: var(--ds-size-icon-sm); border: 0; border-radius: var(--ds-radius-sm); background: var(--ds-color-action-primary); }\n.ds-slider > input:disabled::-webkit-slider-thumb { background: var(--ds-color-action-disabled-fg); }\n.ds-slider > input:disabled::-moz-range-thumb { background: var(--ds-color-action-disabled-fg); }\n.ds-slider > input:focus-visible::-webkit-slider-thumb { outline: var(--ds-border-focus) solid var(--ds-color-edge-focus); outline-offset: var(--ds-border-focus); }\n.ds-slider > input:focus-visible::-moz-range-thumb { outline: var(--ds-border-focus) solid var(--ds-color-edge-focus); outline-offset: var(--ds-border-focus); }\n@media (pointer: coarse), (max-width: 767px) { .ds-slider { height: var(--ds-size-control-touch); } }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/slider.js"
+      ],
+      "tag": "spyglass-slider",
+      "tags": [
+        "spyglass-slider"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-slider",
+            "name": "Slider",
+            "module": "elements/slider.js",
+            "description": "A value on a range.",
+            "attributes": [
+              {
+                "name": "value",
+                "field": "value",
+                "type": "number",
+                "default": "0"
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The name for assistive tech."
+              },
+              {
+                "name": "min",
+                "field": "min",
+                "type": "number",
+                "default": "0"
+              },
+              {
+                "name": "max",
+                "field": "max",
+                "type": "number",
+                "default": "100"
+              },
+              {
+                "name": "step",
+                "field": "step",
+                "type": "number",
+                "default": "1"
+              },
+              {
+                "name": "disabled",
+                "field": "disabled",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "value-text",
+                "field": "valueText",
+                "type": "string | undefined",
+                "description": "What a screen reader says for the value (\"$40 a day\" for 40)."
+              },
+              {
+                "name": "name",
+                "field": "name",
+                "type": "string | undefined"
+              }
+            ],
+            "properties": [
+              {
+                "name": "value",
+                "type": "number",
+                "default": "0",
+                "attribute": "value"
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The name for assistive tech.",
+                "attribute": "label"
+              },
+              {
+                "name": "min",
+                "type": "number",
+                "default": "0",
+                "attribute": "min"
+              },
+              {
+                "name": "max",
+                "type": "number",
+                "default": "100",
+                "attribute": "max"
+              },
+              {
+                "name": "step",
+                "type": "number",
+                "default": "1",
+                "attribute": "step"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "disabled"
+              },
+              {
+                "name": "valueText",
+                "type": "string | undefined",
+                "description": "What a screen reader says for the value (\"$40 a day\" for 40).",
+                "attribute": "value-text"
+              },
+              {
+                "name": "name",
+                "type": "string | undefined",
+                "attribute": "name"
+              }
+            ],
+            "events": [
+              {
+                "name": "change",
+                "description": "When it is let go (read `value`)."
+              },
+              {
+                "name": "input",
+                "description": "While it moves (read `value`)."
+              }
+            ],
+            "slots": [],
+            "methods": [
+              {
+                "name": "formResetCallback"
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Filter",
+          "label": "As a filter",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/slider/Filter.html",
+          "content": "<!-- A filter over a search: only ads that have run at least this many days, the count beside it. -->\n<div class=\"flex w-96 max-w-full flex-col gap-2\">\n  <div class=\"flex items-baseline justify-between gap-4\">\n    <p class=\"type-label text-fg-soft\">Running for at least</p>\n    <p id=\"slider-days\" class=\"type-ui text-fg tabular-nums\">30 days</p>\n  </div>\n  <spyglass-slider id=\"slider-filter\" label=\"Running for at least\" min=\"0\" max=\"90\" value=\"30\" value-text=\"30 days\"></spyglass-slider>\n  <p class=\"type-caption text-fg-muted\">Ads that run longer are the ones that work.</p>\n</div>\n<script type=\"module\">\n  const slider = document.getElementById('slider-filter')\n  const out = document.getElementById('slider-days')\n  slider.addEventListener('input', () => {\n    out.textContent = `${slider.value} days`\n    slider.valueText = `${slider.value} days`\n  })\n</script>\n"
+        },
+        {
+          "name": "States",
+          "label": "States",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/slider/States.html",
+          "content": "<!-- The range's ends and middle, and one that can't be changed. -->\n<div class=\"flex w-80 max-w-full flex-col gap-4\">\n  <spyglass-slider label=\"Share of video ads\" value=\"0\"></spyglass-slider>\n  <spyglass-slider label=\"Share of image ads\" value=\"50\"></spyglass-slider>\n  <spyglass-slider label=\"Share of new creatives\" value=\"100\"></spyglass-slider>\n  <spyglass-slider label=\"Locked share\" value=\"40\" disabled></spyglass-slider>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

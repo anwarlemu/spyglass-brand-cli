@@ -1,0 +1,536 @@
+{
+  "name": "menubar",
+  "title": "Menubar",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "Menu triggers in a row: a Black strip in a hairline with the brand corner, triggers in DM Sans Medium, each opening a panel of rows in the card's #171717 fill. Arrow keys move along the bar and through the rows.",
+  "use_for": "A tool's commands grouped under a few words, as in an editor: a board's actions, its view, its sharing. Three to five menus.",
+  "never": [
+    "Site or app navigation: use the Sidebar or Navigation Menu",
+    "One menu alone: use Dropdown Menu",
+    "A spectrum color for the open trigger: it takes the #262626 fill"
+  ],
+  "source": "Derived from the brand guidelines (no menubar in the brand assets): Black ground, the neutral steps for fills and hairlines, DM Sans Medium for triggers, the plan card's #171717 fill for panels",
+  "body": "",
+  "requires": [
+    "popover"
+  ],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/ui/Menubar.tsx",
+      "content": "'use client'\nimport { createContext, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'\n\n// Menu triggers in a row (shadcn's menubar): a Black strip in a hairline with the brand corner, 32px triggers in DM Sans\n// Medium, each opening a panel of rows in the card's #171717 fill (MenubarMenu with MenubarItem, MenubarLabel and\n// MenubarSeparator). One trigger is in the tab order; Left and Right move along the row, Down, Enter or Space open, and\n// with a menu open Left and Right open the next one. While one is open, pointing at another trigger switches to it at\n// once. Menus opened from the keyboard show without motion.\nexport interface MenubarEntry { key: string, el: () => HTMLElement | null, open: () => Promise<void> }\nexport interface MenubarContextValue {\n  active: string | null\n  setActive: Dispatch<SetStateAction<string | null>>\n  focused: string | null\n  setFocused: Dispatch<SetStateAction<string | null>>\n  entries: MenubarEntry[]\n  move: (from: string, step: number, open: boolean) => void\n}\nexport const MenubarContext = createContext<MenubarContextValue | null>(null)\n/** Closes the menu a row is in (refocusing its trigger). */\nexport const MenubarClose = createContext<() => void>(() => {})\n\nexport interface MenubarProps {\n  /** The bar's name for assistive tech. */\n  label: string\n  /** MenubarMenu elements. */\n  children?: ReactNode\n}\n\nexport function Menubar({ label, children }: MenubarProps) {\n  const [active, setActive] = useState<string | null>(null)\n  const [focused, setFocused] = useState<string | null>(null)\n  const entries = useRef<MenubarEntry[]>([]).current\n  function move(from: string, step: number, open: boolean) {\n    const at = entries.findIndex((e) => e.key === from)\n    const next = entries[(at + step + entries.length) % entries.length]\n    if (!next) return\n    setFocused(next.key)\n    next.el()?.focus()\n    if (open) void next.open()\n  }\n  return (\n    <MenubarContext.Provider value={{ active, setActive, focused, setFocused, entries, move }}>\n      <div data-ds=\"menubar\" role=\"menubar\" aria-label={label} className=\"inline-flex items-center gap-1 rounded-control border border-edge bg-surface p-1\">\n        {children}\n      </div>\n    </MenubarContext.Provider>\n  )\n}\n\nexport default Menubar\n"
+    },
+    {
+      "path": "react/components/ui/MenubarMenu.tsx",
+      "content": "'use client'\nimport { useContext, useEffect, useId, useRef, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'\nimport { MenubarClose, MenubarContext } from '@/react/components/ui/Menubar'\nimport { PopoverPanel } from '@/react/components/ui/PopoverPanel'\nimport { onMenuRows, usePopover } from '@/react/hooks/usePopover'\n\n// One menu of a Menubar: its trigger and a panel of rows under it (MenubarItem, MenubarLabel, MenubarSeparator). The\n// open trigger takes the #262626 fill; the others fill on hover.\nexport interface MenubarMenuProps {\n  /** The trigger's label. */\n  label: string\n  /** The panel's width (a CSS length). */\n  width?: string\n  children?: ReactNode\n}\n\nexport function MenubarMenu({ label, width = '224px', children }: MenubarMenuProps) {\n  const bar = useContext(MenubarContext)!\n  const key = useId()\n  const pop = usePopover({ side: 'bottom', align: 'start', gap: 8 })\n\n  async function open(focus: 'first' | 'last' | 'none' = 'first', keyboard = true) {\n    await pop.show({ keyboard })\n    if (focus === 'none') return pop.panel.current?.focus({ preventScroll: true })\n    const rows = [...(pop.panel.current?.querySelectorAll<HTMLElement>('[role^=\"menuitem\"]:not([disabled])') ?? [])]\n    ;(focus === 'last' ? rows.at(-1) : rows[0])?.focus()\n  }\n  const openRef = useRef(open)\n  openRef.current = open\n  useEffect(() => {\n    const entry = { key, el: () => pop.anchor.current, open: () => openRef.current('first') }\n    bar.entries.push(entry)\n    bar.setFocused((f) => f ?? key)\n    return () => { bar.entries.splice(bar.entries.indexOf(entry), 1) }\n  }, []) // eslint-disable-line react-hooks/exhaustive-deps\n\n  useEffect(() => {\n    if (pop.open) bar.setActive(key)\n    else bar.setActive((a) => (a === key ? null : a))\n  }, [pop.open]) // eslint-disable-line react-hooks/exhaustive-deps\n  useEffect(() => {\n    if (bar.active !== key && pop.open) pop.hide(false, true)\n  }, [bar.active]) // eslint-disable-line react-hooks/exhaustive-deps\n\n  function onClick(event: MouseEvent) {\n    if (pop.open) return pop.hide(event.detail === 0, event.detail === 0)\n    void open(event.detail === 0 ? 'first' : 'none', event.detail === 0)\n  }\n  function onEnter() {\n    if (bar.active && bar.active !== key) void open('none', true)\n  }\n  function onTriggerKey(event: KeyboardEvent) {\n    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {\n      event.preventDefault()\n      bar.move(key, event.key === 'ArrowRight' ? 1 : -1, false)\n    }\n    else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {\n      event.preventDefault()\n      void open(event.key === 'ArrowDown' ? 'first' : 'last')\n    }\n  }\n  function onPanelKey(event: KeyboardEvent) {\n    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {\n      event.preventDefault()\n      pop.hide(false, true)\n      bar.move(key, event.key === 'ArrowRight' ? 1 : -1, true)\n      return\n    }\n    onMenuRows(event, pop.panel.current, pop.hide)\n  }\n  return (\n    <MenubarClose.Provider value={() => pop.hide(true)}>\n      <button\n        data-ds=\"menubar-menu\"\n        ref={(el) => { pop.anchor.current = el }}\n        type=\"button\"\n        role=\"menuitem\"\n        aria-haspopup=\"menu\"\n        aria-expanded={pop.open}\n        tabIndex={bar.focused === key ? 0 : -1}\n        className=\"inline-flex h-control-sm cursor-pointer items-center rounded-ds-sm px-3 type-ui-strong text-fg-soft -outline-offset-2 transition-[background-color,color] duration-150 ease-standard hover:not-aria-expanded:bg-action-ghost-hover hover:text-fg aria-expanded:bg-action-secondary aria-expanded:text-fg max-md:h-control-touch\"\n        onClick={onClick}\n        onPointerEnter={onEnter}\n        onFocus={() => bar.setFocused(key)}\n        onKeyDown={onTriggerKey}\n      >\n        {label}\n      </button>\n      <PopoverPanel data-ds=\"menubar-menu\" pop={pop} role=\"menu\" aria-label={label} tabIndex={-1} className=\"flex flex-col p-1\" style={{ width }} onKeyDown={onPanelKey}>\n        {children}\n      </PopoverPanel>\n    </MenubarClose.Provider>\n  )\n}\n\nexport default MenubarMenu\n"
+    },
+    {
+      "path": "react/components/ui/MenubarItem.tsx",
+      "content": "'use client'\nimport { useContext, type PointerEvent, type ReactNode } from 'react'\nimport { Check } from 'lucide-react'\nimport { MenubarClose } from '@/react/components/ui/Menubar'\nimport { cn } from '@/react/lib/cn'\n\n// One row of a MenubarMenu: 32px (44px on phones), DM Sans soft gray, the brand's small corner; the row under the\n// pointer or focus takes the #262626 fill and White type. Put a 16px Lucide icon first, and a `shortcut` shows muted at\n// the end. `checked` makes it a radio or checkbox row with a check (`role`). `danger` is a destructive row's red.\n// Choosing it calls `onSelect` and closes the menu, unless `keepOpen`.\nexport interface MenubarItemProps {\n  /** A key or keys, shown muted at the end. */\n  shortcut?: string\n  /** A destructive row (red). */\n  danger?: boolean\n  disabled?: boolean\n  /** Keeps the menu open after it is chosen. */\n  keepOpen?: boolean\n  /** Checked, for a radio or checkbox row. */\n  checked?: boolean\n  role?: 'menuitem' | 'menuitemradio' | 'menuitemcheckbox'\n  onSelect?: () => void\n  className?: string\n  children?: ReactNode\n}\n\nexport function MenubarItem({ shortcut, danger, disabled, keepOpen, checked, role = 'menuitem', onSelect, className, children }: MenubarItemProps) {\n  const close = useContext(MenubarClose)\n  function choose() {\n    onSelect?.()\n    if (!keepOpen) close()\n  }\n  // The row under the pointer takes focus, so the pointer and the keys share one highlight.\n  function onPointerMove(event: PointerEvent<HTMLButtonElement>) {\n    if (!disabled && document.activeElement !== event.currentTarget) event.currentTarget.focus({ preventScroll: true })\n  }\n  return (\n    <button\n      data-ds=\"menubar-item\"\n      type=\"button\"\n      role={role}\n      aria-checked={role === 'menuitem' ? undefined : !!checked}\n      disabled={disabled}\n      data-danger={danger || undefined}\n      className={cn('flex h-control-sm w-full shrink-0 cursor-pointer items-center gap-3 rounded-ds-sm px-2 text-left type-ui text-fg-soft outline-none transition-[background-color,color] duration-150 ease-standard focus:bg-action-secondary focus:text-fg disabled:cursor-not-allowed disabled:text-fg-faint data-danger:text-fg-danger max-md:h-control-touch', className)}\n      onPointerMove={onPointerMove}\n      onClick={choose}\n    >\n      <span className=\"flex min-w-0 flex-1 items-center gap-3\">{children}</span>\n      {shortcut && <span className=\"type-caption text-fg-muted\">{shortcut}</span>}\n      {role !== 'menuitem' && checked && <Check size={16} strokeWidth={1.5} aria-hidden=\"true\" className=\"shrink-0\" />}\n    </button>\n  )\n}\n\nexport default MenubarItem\n"
+    },
+    {
+      "path": "react/components/ui/MenubarLabel.tsx",
+      "content": "import type { ReactNode } from 'react'\n\n// A group's name in a MenubarMenu: DM Sans Medium in capitals at 6%, muted.\nexport interface MenubarLabelProps {\n  children?: ReactNode\n}\n\nexport function MenubarLabel({ children }: MenubarLabelProps) {\n  return <p data-ds=\"menubar-label\" className=\"px-2 pt-2 pb-1 type-label text-fg-muted\">{children}</p>\n}\n\nexport default MenubarLabel\n"
+    },
+    {
+      "path": "react/components/ui/MenubarSeparator.tsx",
+      "content": "// A hairline between groups of rows in a MenubarMenu.\nexport function MenubarSeparator() {\n  return <div data-ds=\"menubar-separator\" role=\"separator\" className=\"-mx-1 my-1 h-px shrink-0 bg-edge\" />\n}\n\nexport default MenubarSeparator\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Board",
+      "label": "A board's tools",
+      "center": false,
+      "half": false,
+      "path": "react/examples/menubar/Board.tsx",
+      "content": "'use client'\nimport { useState } from 'react'\nimport { Copy, Download, FolderPlus, Link, Trash2, UserPlus } from 'lucide-react'\nimport { Menubar } from '@/react/components/ui/Menubar'\nimport { MenubarItem } from '@/react/components/ui/MenubarItem'\nimport { MenubarLabel } from '@/react/components/ui/MenubarLabel'\nimport { MenubarMenu } from '@/react/components/ui/MenubarMenu'\nimport { MenubarSeparator } from '@/react/components/ui/MenubarSeparator'\n// A board's tools as a menubar: the board itself, how its creatives are sorted, and who sees it. Open one, then point\n// at the next or press Right.\nconst sorts = [{ id: 'newest', label: 'Newest first' }, { id: 'longest', label: 'Longest running' }, { id: 'saved', label: 'Most saved' }] as const\n\nexport default function Board() {\n  const [sort, setSort] = useState<'newest' | 'longest' | 'saved'>('newest')\n  return (\n    <div className=\"min-h-72\">\n      <Menubar label=\"Board\">\n        <MenubarMenu label=\"Board\">\n          <MenubarItem shortcut=\"⌘N\"><FolderPlus size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />New board</MenubarItem>\n          <MenubarItem><Copy size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Duplicate</MenubarItem>\n          <MenubarItem><Download size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Export as PDF</MenubarItem>\n          <MenubarSeparator />\n          <MenubarItem danger><Trash2 size={16} strokeWidth={1.5} className=\"shrink-0\" aria-hidden=\"true\" />Delete board</MenubarItem>\n        </MenubarMenu>\n        <MenubarMenu label=\"View\">\n          <MenubarLabel>Sort creatives</MenubarLabel>\n          {sorts.map((s) => (\n            <MenubarItem key={s.id} role=\"menuitemradio\" checked={sort === s.id} onSelect={() => setSort(s.id)}>{s.label}</MenubarItem>\n          ))}\n        </MenubarMenu>\n        <MenubarMenu label=\"Share\">\n          <MenubarItem><Link size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Copy link</MenubarItem>\n          <MenubarItem><UserPlus size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Invite a teammate</MenubarItem>\n        </MenubarMenu>\n      </Menubar>\n    </div>\n  )\n}\n",
+      "requires": [
+        "popover"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Menubar.tsx",
+          "content": "'use client'\nimport { createContext, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'\n\n// Menu triggers in a row (shadcn's menubar): a Black strip in a hairline with the brand corner, 32px triggers in DM Sans\n// Medium, each opening a panel of rows in the card's #171717 fill (MenubarMenu with MenubarItem, MenubarLabel and\n// MenubarSeparator). One trigger is in the tab order; Left and Right move along the row, Down, Enter or Space open, and\n// with a menu open Left and Right open the next one. While one is open, pointing at another trigger switches to it at\n// once. Menus opened from the keyboard show without motion.\nexport interface MenubarEntry { key: string, el: () => HTMLElement | null, open: () => Promise<void> }\nexport interface MenubarContextValue {\n  active: string | null\n  setActive: Dispatch<SetStateAction<string | null>>\n  focused: string | null\n  setFocused: Dispatch<SetStateAction<string | null>>\n  entries: MenubarEntry[]\n  move: (from: string, step: number, open: boolean) => void\n}\nexport const MenubarContext = createContext<MenubarContextValue | null>(null)\n/** Closes the menu a row is in (refocusing its trigger). */\nexport const MenubarClose = createContext<() => void>(() => {})\n\nexport interface MenubarProps {\n  /** The bar's name for assistive tech. */\n  label: string\n  /** MenubarMenu elements. */\n  children?: ReactNode\n}\n\nexport function Menubar({ label, children }: MenubarProps) {\n  const [active, setActive] = useState<string | null>(null)\n  const [focused, setFocused] = useState<string | null>(null)\n  const entries = useRef<MenubarEntry[]>([]).current\n  function move(from: string, step: number, open: boolean) {\n    const at = entries.findIndex((e) => e.key === from)\n    const next = entries[(at + step + entries.length) % entries.length]\n    if (!next) return\n    setFocused(next.key)\n    next.el()?.focus()\n    if (open) void next.open()\n  }\n  return (\n    <MenubarContext.Provider value={{ active, setActive, focused, setFocused, entries, move }}>\n      <div data-ds=\"menubar\" role=\"menubar\" aria-label={label} className=\"inline-flex items-center gap-1 rounded-control border border-edge bg-surface p-1\">\n        {children}\n      </div>\n    </MenubarContext.Provider>\n  )\n}\n\nexport default Menubar\n"
+        },
+        {
+          "path": "react/components/ui/MenubarMenu.tsx",
+          "content": "'use client'\nimport { useContext, useEffect, useId, useRef, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'\nimport { MenubarClose, MenubarContext } from '@/react/components/ui/Menubar'\nimport { PopoverPanel } from '@/react/components/ui/PopoverPanel'\nimport { onMenuRows, usePopover } from '@/react/hooks/usePopover'\n\n// One menu of a Menubar: its trigger and a panel of rows under it (MenubarItem, MenubarLabel, MenubarSeparator). The\n// open trigger takes the #262626 fill; the others fill on hover.\nexport interface MenubarMenuProps {\n  /** The trigger's label. */\n  label: string\n  /** The panel's width (a CSS length). */\n  width?: string\n  children?: ReactNode\n}\n\nexport function MenubarMenu({ label, width = '224px', children }: MenubarMenuProps) {\n  const bar = useContext(MenubarContext)!\n  const key = useId()\n  const pop = usePopover({ side: 'bottom', align: 'start', gap: 8 })\n\n  async function open(focus: 'first' | 'last' | 'none' = 'first', keyboard = true) {\n    await pop.show({ keyboard })\n    if (focus === 'none') return pop.panel.current?.focus({ preventScroll: true })\n    const rows = [...(pop.panel.current?.querySelectorAll<HTMLElement>('[role^=\"menuitem\"]:not([disabled])') ?? [])]\n    ;(focus === 'last' ? rows.at(-1) : rows[0])?.focus()\n  }\n  const openRef = useRef(open)\n  openRef.current = open\n  useEffect(() => {\n    const entry = { key, el: () => pop.anchor.current, open: () => openRef.current('first') }\n    bar.entries.push(entry)\n    bar.setFocused((f) => f ?? key)\n    return () => { bar.entries.splice(bar.entries.indexOf(entry), 1) }\n  }, []) // eslint-disable-line react-hooks/exhaustive-deps\n\n  useEffect(() => {\n    if (pop.open) bar.setActive(key)\n    else bar.setActive((a) => (a === key ? null : a))\n  }, [pop.open]) // eslint-disable-line react-hooks/exhaustive-deps\n  useEffect(() => {\n    if (bar.active !== key && pop.open) pop.hide(false, true)\n  }, [bar.active]) // eslint-disable-line react-hooks/exhaustive-deps\n\n  function onClick(event: MouseEvent) {\n    if (pop.open) return pop.hide(event.detail === 0, event.detail === 0)\n    void open(event.detail === 0 ? 'first' : 'none', event.detail === 0)\n  }\n  function onEnter() {\n    if (bar.active && bar.active !== key) void open('none', true)\n  }\n  function onTriggerKey(event: KeyboardEvent) {\n    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {\n      event.preventDefault()\n      bar.move(key, event.key === 'ArrowRight' ? 1 : -1, false)\n    }\n    else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {\n      event.preventDefault()\n      void open(event.key === 'ArrowDown' ? 'first' : 'last')\n    }\n  }\n  function onPanelKey(event: KeyboardEvent) {\n    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {\n      event.preventDefault()\n      pop.hide(false, true)\n      bar.move(key, event.key === 'ArrowRight' ? 1 : -1, true)\n      return\n    }\n    onMenuRows(event, pop.panel.current, pop.hide)\n  }\n  return (\n    <MenubarClose.Provider value={() => pop.hide(true)}>\n      <button\n        data-ds=\"menubar-menu\"\n        ref={(el) => { pop.anchor.current = el }}\n        type=\"button\"\n        role=\"menuitem\"\n        aria-haspopup=\"menu\"\n        aria-expanded={pop.open}\n        tabIndex={bar.focused === key ? 0 : -1}\n        className=\"inline-flex h-control-sm cursor-pointer items-center rounded-ds-sm px-3 type-ui-strong text-fg-soft -outline-offset-2 transition-[background-color,color] duration-150 ease-standard hover:not-aria-expanded:bg-action-ghost-hover hover:text-fg aria-expanded:bg-action-secondary aria-expanded:text-fg max-md:h-control-touch\"\n        onClick={onClick}\n        onPointerEnter={onEnter}\n        onFocus={() => bar.setFocused(key)}\n        onKeyDown={onTriggerKey}\n      >\n        {label}\n      </button>\n      <PopoverPanel data-ds=\"menubar-menu\" pop={pop} role=\"menu\" aria-label={label} tabIndex={-1} className=\"flex flex-col p-1\" style={{ width }} onKeyDown={onPanelKey}>\n        {children}\n      </PopoverPanel>\n    </MenubarClose.Provider>\n  )\n}\n\nexport default MenubarMenu\n"
+        },
+        {
+          "path": "react/components/ui/MenubarItem.tsx",
+          "content": "'use client'\nimport { useContext, type PointerEvent, type ReactNode } from 'react'\nimport { Check } from 'lucide-react'\nimport { MenubarClose } from '@/react/components/ui/Menubar'\nimport { cn } from '@/react/lib/cn'\n\n// One row of a MenubarMenu: 32px (44px on phones), DM Sans soft gray, the brand's small corner; the row under the\n// pointer or focus takes the #262626 fill and White type. Put a 16px Lucide icon first, and a `shortcut` shows muted at\n// the end. `checked` makes it a radio or checkbox row with a check (`role`). `danger` is a destructive row's red.\n// Choosing it calls `onSelect` and closes the menu, unless `keepOpen`.\nexport interface MenubarItemProps {\n  /** A key or keys, shown muted at the end. */\n  shortcut?: string\n  /** A destructive row (red). */\n  danger?: boolean\n  disabled?: boolean\n  /** Keeps the menu open after it is chosen. */\n  keepOpen?: boolean\n  /** Checked, for a radio or checkbox row. */\n  checked?: boolean\n  role?: 'menuitem' | 'menuitemradio' | 'menuitemcheckbox'\n  onSelect?: () => void\n  className?: string\n  children?: ReactNode\n}\n\nexport function MenubarItem({ shortcut, danger, disabled, keepOpen, checked, role = 'menuitem', onSelect, className, children }: MenubarItemProps) {\n  const close = useContext(MenubarClose)\n  function choose() {\n    onSelect?.()\n    if (!keepOpen) close()\n  }\n  // The row under the pointer takes focus, so the pointer and the keys share one highlight.\n  function onPointerMove(event: PointerEvent<HTMLButtonElement>) {\n    if (!disabled && document.activeElement !== event.currentTarget) event.currentTarget.focus({ preventScroll: true })\n  }\n  return (\n    <button\n      data-ds=\"menubar-item\"\n      type=\"button\"\n      role={role}\n      aria-checked={role === 'menuitem' ? undefined : !!checked}\n      disabled={disabled}\n      data-danger={danger || undefined}\n      className={cn('flex h-control-sm w-full shrink-0 cursor-pointer items-center gap-3 rounded-ds-sm px-2 text-left type-ui text-fg-soft outline-none transition-[background-color,color] duration-150 ease-standard focus:bg-action-secondary focus:text-fg disabled:cursor-not-allowed disabled:text-fg-faint data-danger:text-fg-danger max-md:h-control-touch', className)}\n      onPointerMove={onPointerMove}\n      onClick={choose}\n    >\n      <span className=\"flex min-w-0 flex-1 items-center gap-3\">{children}</span>\n      {shortcut && <span className=\"type-caption text-fg-muted\">{shortcut}</span>}\n      {role !== 'menuitem' && checked && <Check size={16} strokeWidth={1.5} aria-hidden=\"true\" className=\"shrink-0\" />}\n    </button>\n  )\n}\n\nexport default MenubarItem\n"
+        },
+        {
+          "path": "react/components/ui/MenubarLabel.tsx",
+          "content": "import type { ReactNode } from 'react'\n\n// A group's name in a MenubarMenu: DM Sans Medium in capitals at 6%, muted.\nexport interface MenubarLabelProps {\n  children?: ReactNode\n}\n\nexport function MenubarLabel({ children }: MenubarLabelProps) {\n  return <p data-ds=\"menubar-label\" className=\"px-2 pt-2 pb-1 type-label text-fg-muted\">{children}</p>\n}\n\nexport default MenubarLabel\n"
+        },
+        {
+          "path": "react/components/ui/MenubarSeparator.tsx",
+          "content": "// A hairline between groups of rows in a MenubarMenu.\nexport function MenubarSeparator() {\n  return <div data-ds=\"menubar-separator\" role=\"separator\" className=\"-mx-1 my-1 h-px shrink-0 bg-edge\" />\n}\n\nexport default MenubarSeparator\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "popover"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "Menubar",
+            "file": "react/components/ui/Menubar.tsx",
+            "props": [
+              {
+                "name": "label",
+                "type": "string",
+                "required": true,
+                "description": "The bar's name for assistive tech."
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false,
+                "description": "MenubarMenu elements."
+              }
+            ]
+          },
+          {
+            "name": "MenubarMenu",
+            "file": "react/components/ui/MenubarMenu.tsx",
+            "props": [
+              {
+                "name": "label",
+                "type": "string",
+                "required": true,
+                "description": "The trigger's label."
+              },
+              {
+                "name": "width",
+                "type": "string",
+                "required": false,
+                "default": "'224px'",
+                "description": "The panel's width (a CSS length)."
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              }
+            ]
+          },
+          {
+            "name": "MenubarItem",
+            "file": "react/components/ui/MenubarItem.tsx",
+            "props": [
+              {
+                "name": "shortcut",
+                "type": "string",
+                "required": false,
+                "description": "A key or keys, shown muted at the end."
+              },
+              {
+                "name": "danger",
+                "type": "boolean",
+                "required": false,
+                "description": "A destructive row (red)."
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "required": false
+              },
+              {
+                "name": "keepOpen",
+                "type": "boolean",
+                "required": false,
+                "description": "Keeps the menu open after it is chosen."
+              },
+              {
+                "name": "checked",
+                "type": "boolean",
+                "required": false,
+                "description": "Checked, for a radio or checkbox row."
+              },
+              {
+                "name": "role",
+                "type": "'menuitem' | 'menuitemradio' | 'menuitemcheckbox'",
+                "required": false,
+                "default": "'menuitem'"
+              },
+              {
+                "name": "onSelect",
+                "type": "() => void",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              }
+            ]
+          },
+          {
+            "name": "MenubarLabel",
+            "file": "react/components/ui/MenubarLabel.tsx",
+            "props": [
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              }
+            ]
+          },
+          {
+            "name": "MenubarSeparator",
+            "file": "react/components/ui/MenubarSeparator.tsx",
+            "props": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Board",
+          "label": "A board's tools",
+          "center": false,
+          "half": false,
+          "path": "react/examples/menubar/Board.tsx",
+          "content": "'use client'\nimport { useState } from 'react'\nimport { Copy, Download, FolderPlus, Link, Trash2, UserPlus } from 'lucide-react'\nimport { Menubar } from '@/react/components/ui/Menubar'\nimport { MenubarItem } from '@/react/components/ui/MenubarItem'\nimport { MenubarLabel } from '@/react/components/ui/MenubarLabel'\nimport { MenubarMenu } from '@/react/components/ui/MenubarMenu'\nimport { MenubarSeparator } from '@/react/components/ui/MenubarSeparator'\n// A board's tools as a menubar: the board itself, how its creatives are sorted, and who sees it. Open one, then point\n// at the next or press Right.\nconst sorts = [{ id: 'newest', label: 'Newest first' }, { id: 'longest', label: 'Longest running' }, { id: 'saved', label: 'Most saved' }] as const\n\nexport default function Board() {\n  const [sort, setSort] = useState<'newest' | 'longest' | 'saved'>('newest')\n  return (\n    <div className=\"min-h-72\">\n      <Menubar label=\"Board\">\n        <MenubarMenu label=\"Board\">\n          <MenubarItem shortcut=\"⌘N\"><FolderPlus size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />New board</MenubarItem>\n          <MenubarItem><Copy size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Duplicate</MenubarItem>\n          <MenubarItem><Download size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Export as PDF</MenubarItem>\n          <MenubarSeparator />\n          <MenubarItem danger><Trash2 size={16} strokeWidth={1.5} className=\"shrink-0\" aria-hidden=\"true\" />Delete board</MenubarItem>\n        </MenubarMenu>\n        <MenubarMenu label=\"View\">\n          <MenubarLabel>Sort creatives</MenubarLabel>\n          {sorts.map((s) => (\n            <MenubarItem key={s.id} role=\"menuitemradio\" checked={sort === s.id} onSelect={() => setSort(s.id)}>{s.label}</MenubarItem>\n          ))}\n        </MenubarMenu>\n        <MenubarMenu label=\"Share\">\n          <MenubarItem><Link size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Copy link</MenubarItem>\n          <MenubarItem><UserPlus size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Invite a teammate</MenubarItem>\n        </MenubarMenu>\n      </Menubar>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "popover"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/menubar.ts",
+          "content": "import { html, type PropertyValues } from 'lit'\nimport { DsElement, define, tagName } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Menubar.tsx as <spyglass-menubar>: menu triggers in a row: a Black strip in a hairline with the brand corner, 32px\n// triggers in DM Sans Medium, each opening a panel of rows in the card's #171717 fill (<spyglass-menubar-menu> with\n// <spyglass-menubar-item>, -label and -separator). One trigger is in the tab order; Left and Right move along the row,\n// Down, Enter or Space open, and with a menu open Left and Right open the next one. While one is open, pointing at\n// another trigger switches to it at once.\n\n/** What a <spyglass-menubar-menu> offers its bar. */\nexport interface MenubarEntry extends HTMLElement { focusTrigger(): void, openMenu(focus?: 'first' | 'last' | 'none'): Promise<void> }\n\n/**\n * @summary Menu triggers in a row.\n * @slot - The menus: <spyglass-menubar-menu>.\n */\nexport class Menubar extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { label: {} }\n\n\t/** The bar's name for assistive tech. */\n\tlabel = ''\n\t/** The open menu, if any. */\n\tactive: Element | null = null\n\t/** The trigger in the tab order (the first until another takes focus). */\n\tfocused: Element | null = null\n\n\t/** The menus, in the order they sit. */\n\tentries() {\n\t\treturn [...this.querySelectorAll<MenubarEntry>(tagName('menubar-menu'))]\n\t}\n\t/** The trigger in the tab order. */\n\tcurrent() {\n\t\treturn this.focused ?? this.entries()[0] ?? null\n\t}\n\tprivate refresh() {\n\t\tfor (const m of this.entries()) (m as unknown as { requestUpdate(): void }).requestUpdate?.()\n\t}\n\tsetActive(menu: Element | null) {\n\t\tif (this.active === menu) return\n\t\tthis.active = menu\n\t\tthis.refresh()\n\t}\n\tsetFocused(menu: Element) {\n\t\tif (this.focused === menu) return\n\t\tthis.focused = menu\n\t\tthis.refresh()\n\t}\n\tmove(from: Element, step: number, open: boolean) {\n\t\tconst list = this.entries()\n\t\tconst at = list.indexOf(from as MenubarEntry)\n\t\tconst next = list[(at + step + list.length) % list.length]\n\t\tif (!next) return\n\t\tthis.setFocused(next)\n\t\tnext.focusTrigger()\n\t\tif (open) void next.openMenu('first')\n\t}\n\n\tprotected firstUpdated(changed: PropertyValues<this>) {\n\t\tsuper.firstUpdated(changed)\n\t\t// Menus that drew before the bar was defined learn which trigger is in the tab order.\n\t\tthis.refresh()\n\t}\n\n\trender() {\n\t\treturn html`<div data-ds=\"menubar\" role=\"menubar\" aria-label=${this.label} class=\"inline-flex items-center gap-1 rounded-control border border-edge bg-surface p-1\"><slot></slot></div>`\n\t}\n}\n\ndefine('menubar', Menubar)\n"
+        },
+        {
+          "path": "elements/components/ui/menubar-menu.ts",
+          "content": "import { html, nothing, type PropertyValues } from 'lit'\nimport { DsElement, define, tagName } from '@/elements/lib/element'\nimport { onMenuRows } from '@/elements/lib/menu'\nimport { PopoverController, popoverStyles } from '@/elements/lib/popover'\nimport type { Menubar } from '@/elements/components/ui/menubar'\nimport styles from 'virtual:tw'\n\n// MenubarMenu.tsx as <spyglass-menubar-menu>: one menu of a <spyglass-menubar>: its trigger and a panel of rows\n// (<spyglass-menubar-item>, -label, -separator) under it, in the top layer. The open trigger takes the #262626 fill.\n\ntype Row = HTMLElement & { disabled?: boolean, keepOpen?: boolean }\n\n/**\n * @summary One menu of a menubar.\n * @slot - The rows.\n */\nexport class MenubarMenu extends DsElement {\n\tstatic styles = [DsElement.styles, popoverStyles, styles]\n\tstatic properties = { label: {}, width: {} }\n\n\t/** The trigger's text and the menu's name. */\n\tlabel = ''\n\t/** The panel's width (a CSS length). */\n\twidth = '224px'\n\tprivate wasOpen = false\n\tprivate pop = new PopoverController(this, {\n\t\tside: 'bottom',\n\t\talign: 'start',\n\t\tgap: 8,\n\t\tanchor: () => this.renderRoot.querySelector<HTMLElement>('button[role=\"menuitem\"]'),\n\t\tpanel: () => this.renderRoot.querySelector<HTMLElement>('.ds-pop'),\n\t})\n\n\tprivate get bar() {\n\t\tconst b = this.closest(tagName('menubar')) as Menubar | null\n\t\treturn b && typeof b.setActive === 'function' ? b : null\n\t}\n\n\t// A chosen row closes the menu, focus back on the trigger, unless the row keeps it open.\n\tprivate onSelect = (event: Event) => {\n\t\tconst row = event.composedPath()[0] as Row\n\t\tif (row?.localName !== tagName('menubar-item')) return\n\t\tif (!row.keepOpen) this.pop.hide(true)\n\t}\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\tthis.addEventListener('select', this.onSelect)\n\t}\n\tdisconnectedCallback() {\n\t\tsuper.disconnectedCallback()\n\t\tthis.removeEventListener('select', this.onSelect)\n\t}\n\n\tprivate rows() {\n\t\treturn [...this.querySelectorAll<Row>(tagName('menubar-item'))].filter((r) => !r.disabled)\n\t}\n\t/** Focuses the trigger (the bar's arrows). */\n\tfocusTrigger() {\n\t\tthis.renderRoot.querySelector<HTMLElement>('button[role=\"menuitem\"]')?.focus()\n\t}\n\t/** Opens the menu, focusing its first or last row, or the panel. */\n\tasync openMenu(focus: 'first' | 'last' | 'none' = 'first', keyboard = true) {\n\t\tawait this.pop.show({ keyboard })\n\t\tawait this.updateComplete\n\t\tif (focus === 'none') return this.renderRoot.querySelector<HTMLElement>('.ds-pop')?.focus({ preventScroll: true })\n\t\tconst rows = this.rows()\n\t\t;(focus === 'last' ? rows.at(-1) : rows[0])?.focus()\n\t}\n\n\tprivate onClick = (event: MouseEvent) => {\n\t\tif (this.pop.open) return this.pop.hide(event.detail === 0, event.detail === 0)\n\t\tvoid this.openMenu(event.detail === 0 ? 'first' : 'none', event.detail === 0)\n\t}\n\tprivate onEnter = () => {\n\t\tconst bar = this.bar\n\t\tif (bar?.active && bar.active !== this) void this.openMenu('none', true)\n\t}\n\tprivate onTriggerKey = (event: KeyboardEvent) => {\n\t\tif (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {\n\t\t\tevent.preventDefault()\n\t\t\tthis.bar?.move(this, event.key === 'ArrowRight' ? 1 : -1, false)\n\t\t} else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {\n\t\t\tevent.preventDefault()\n\t\t\tvoid this.openMenu(event.key === 'ArrowDown' ? 'first' : 'last')\n\t\t}\n\t}\n\t// The rows' keys, after Left and Right, which open the next menu.\n\tprivate onPanelKey = (event: KeyboardEvent) => {\n\t\tif (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {\n\t\t\tevent.preventDefault()\n\t\t\tthis.pop.hide(false, true)\n\t\t\tthis.bar?.move(this, event.key === 'ArrowRight' ? 1 : -1, true)\n\t\t\treturn\n\t\t}\n\t\tonMenuRows(event, this.rows(), (refocus) => this.pop.hide(refocus))\n\t}\n\tprotected updated(changed: PropertyValues<this>) {\n\t\tsuper.updated(changed)\n\t\tconst bar = this.bar\n\t\tif (!bar) return\n\t\tif (this.pop.open !== this.wasOpen) {\n\t\t\tthis.wasOpen = this.pop.open\n\t\t\tif (this.pop.open) bar.setActive(this)\n\t\t\telse if (bar.active === this) bar.setActive(null)\n\t\t}\n\t\tif (bar.active !== this && this.pop.open) this.pop.hide(false, true)\n\t}\n\n\trender() {\n\t\tconst bar = this.bar\n\t\tconst tabbable = !bar || bar.current() === this\n\t\tconst panel = this.pop.rendered\n\t\t\t? html`<div data-ds=\"menubar-menu\" popover=\"manual\" class=\"ds-pop flex flex-col p-1\" role=\"menu\" aria-label=${this.label} tabindex=\"-1\" data-side=${this.pop.pos.side} ?data-instant=${this.pop.instant} ?data-placed=${this.pop.pos.placed} style=${this.pop.style(`width: ${this.width}`)} @keydown=${this.onPanelKey} @focusout=${this.pop.onFocusOut}><slot></slot></div>`\n\t\t\t: nothing\n\t\treturn html`<button data-ds=\"menubar-menu\" type=\"button\" role=\"menuitem\" aria-haspopup=\"menu\" aria-expanded=${String(this.pop.open)} tabindex=${tabbable ? 0 : -1} class=\"inline-flex h-control-sm cursor-pointer items-center rounded-ds-sm px-3 type-ui-strong text-fg-soft -outline-offset-2 transition-[background-color,color] duration-150 ease-standard hover:not-aria-expanded:bg-action-ghost-hover hover:text-fg aria-expanded:bg-action-secondary aria-expanded:text-fg max-md:h-control-touch\" @click=${this.onClick} @pointerenter=${this.onEnter} @focus=${() => this.bar?.setFocused(this)} @keydown=${this.onTriggerKey}>${this.label}</button>${panel}`\n\t}\n}\n\ndefine('menubar-menu', MenubarMenu)\n"
+        },
+        {
+          "path": "elements/components/ui/menubar-item.ts",
+          "content": "import { html, LitElement, nothing } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { Check } from 'lucide'\nimport { DsElement, define } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport styles from 'virtual:tw'\n\n// MenubarItem.tsx as <spyglass-menubar-item>: one row of a menubar menu: 32px (44px on phones), DM Sans soft gray, the\n// small corner; the row under the pointer or focus takes the #262626 fill and White type. Put a 16px Lucide icon first;\n// `shortcut` shows muted at the end. `item-role` menuitemradio or menuitemcheckbox with `checked` makes a checked row.\n// `danger` is a destructive row's red. Choosing it fires `select` and closes the menu, unless `keep-open`.\n\n/**\n * @summary One row of a menubar menu.\n * @slot - The row: an icon and the label.\n * @fires select - The row was chosen.\n */\nexport class MenubarItem extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic shadowRootOptions = { ...LitElement.shadowRootOptions, delegatesFocus: true }\n\tstatic properties = { shortcut: {}, danger: { type: Boolean }, disabled: { type: Boolean, reflect: true }, keepOpen: { type: Boolean, attribute: 'keep-open' }, checked: { type: Boolean }, itemRole: { attribute: 'item-role' } }\n\n\t/** A key or keys, shown muted at the end. */\n\tshortcut?: string\n\t/** A destructive row (red). */\n\tdanger = false\n\tdisabled = false\n\t/** Choosing it leaves the menu open. */\n\tkeepOpen = false\n\t/** Checked, for a radio or checkbox row. */\n\tchecked = false\n\t/** menuitem, menuitemradio or menuitemcheckbox. */\n\titemRole: 'menuitem' | 'menuitemradio' | 'menuitemcheckbox' = 'menuitem'\n\n\t// The row under the pointer takes focus, so the pointer and the keys share one highlight.\n\tprivate onPointerMove = (event: PointerEvent) => {\n\t\tconst el = event.currentTarget as HTMLElement\n\t\tif (!this.disabled && (this.renderRoot as ShadowRoot).activeElement !== el) el.focus({ preventScroll: true })\n\t}\n\n\trender() {\n\t\tconst role = this.itemRole\n\t\treturn html`<button data-ds=\"menubar-item\" type=\"button\" role=${role} aria-checked=${ifDefined(role === 'menuitem' ? undefined : String(this.checked))} ?disabled=${this.disabled} ?data-danger=${this.danger} class=\"flex h-control-sm w-full shrink-0 cursor-pointer items-center gap-3 rounded-ds-sm px-2 text-left type-ui text-fg-soft outline-none transition-[background-color,color] duration-150 ease-standard focus:bg-action-secondary focus:text-fg disabled:cursor-not-allowed disabled:text-fg-faint data-danger:text-fg-danger max-md:h-control-touch\" @pointermove=${this.onPointerMove} @click=${() => this.emit('select')}><span class=\"flex min-w-0 flex-1 items-center gap-3\"><slot></slot></span>${this.shortcut ? html`<span class=\"type-caption text-fg-muted\">${this.shortcut}</span>` : nothing}${role !== 'menuitem' && this.checked ? icon(Check, 'check', { size: 16, strokeWidth: 1.5, class: 'shrink-0', attrs: { 'aria-hidden': 'true' } }) : nothing}</button>`\n\t}\n}\n\ndefine('menubar-item', MenubarItem)\n"
+        },
+        {
+          "path": "elements/components/ui/menubar-label.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// MenubarLabel.tsx as <spyglass-menubar-label>: a group's name in a menubar menu, DM Sans Medium in capitals at 6%,\n// muted.\n\n/**\n * @summary A group's name in a menubar menu.\n * @slot - The name.\n */\nexport class MenubarLabel extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\trender() {\n\t\treturn html`<p data-ds=\"menubar-label\" class=\"px-2 pt-2 pb-1 type-label text-fg-muted\"><slot></slot></p>`\n\t}\n}\n\ndefine('menubar-label', MenubarLabel)\n"
+        },
+        {
+          "path": "elements/components/ui/menubar-separator.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// MenubarSeparator.tsx as <spyglass-menubar-separator>: a hairline between groups of rows in a menubar menu.\n\n/**\n * @summary A hairline between groups of rows.\n */\nexport class MenubarSeparator extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\trender() {\n\t\treturn html`<div data-ds=\"menubar-separator\" role=\"separator\" class=\"-mx-1 my-1 h-px shrink-0 bg-edge\"></div>`\n\t}\n}\n\ndefine('menubar-separator', MenubarSeparator)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/menubar.js",
+        "elements/menubar-menu.js",
+        "elements/menubar-item.js",
+        "elements/menubar-label.js",
+        "elements/menubar-separator.js"
+      ],
+      "tag": "spyglass-menubar",
+      "tags": [
+        "spyglass-menubar",
+        "spyglass-menubar-menu",
+        "spyglass-menubar-item",
+        "spyglass-menubar-label",
+        "spyglass-menubar-separator"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-menubar",
+            "name": "Menubar",
+            "module": "elements/menubar.js",
+            "description": "Menu triggers in a row.",
+            "attributes": [
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The bar's name for assistive tech."
+              }
+            ],
+            "properties": [
+              {
+                "name": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The bar's name for assistive tech.",
+                "attribute": "label"
+              },
+              {
+                "name": "active",
+                "type": "Element | null",
+                "default": "null",
+                "description": "The open menu, if any."
+              },
+              {
+                "name": "focused",
+                "type": "Element | null",
+                "default": "null",
+                "description": "The trigger in the tab order (the first until another takes focus)."
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The menus: <spyglass-menubar-menu>."
+              }
+            ],
+            "methods": [
+              {
+                "name": "entries",
+                "description": "The menus, in the order they sit."
+              },
+              {
+                "name": "current",
+                "description": "The trigger in the tab order."
+              },
+              {
+                "name": "setActive"
+              },
+              {
+                "name": "setFocused"
+              },
+              {
+                "name": "move"
+              }
+            ]
+          },
+          {
+            "tag": "spyglass-menubar-menu",
+            "name": "MenubarMenu",
+            "module": "elements/menubar-menu.js",
+            "description": "One menu of a menubar.",
+            "attributes": [
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The trigger's text and the menu's name."
+              },
+              {
+                "name": "width",
+                "field": "width",
+                "type": "string",
+                "default": "'224px'",
+                "description": "The panel's width (a CSS length)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The trigger's text and the menu's name.",
+                "attribute": "label"
+              },
+              {
+                "name": "width",
+                "type": "string",
+                "default": "'224px'",
+                "description": "The panel's width (a CSS length).",
+                "attribute": "width"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The rows."
+              }
+            ],
+            "methods": [
+              {
+                "name": "focusTrigger",
+                "description": "Focuses the trigger (the bar's arrows)."
+              },
+              {
+                "name": "openMenu",
+                "description": "Opens the menu, focusing its first or last row, or the panel."
+              }
+            ]
+          },
+          {
+            "tag": "spyglass-menubar-item",
+            "name": "MenubarItem",
+            "module": "elements/menubar-item.js",
+            "description": "One row of a menubar menu.",
+            "attributes": [
+              {
+                "name": "shortcut",
+                "field": "shortcut",
+                "type": "string | undefined",
+                "description": "A key or keys, shown muted at the end."
+              },
+              {
+                "name": "danger",
+                "field": "danger",
+                "type": "boolean",
+                "default": "false",
+                "description": "A destructive row (red)."
+              },
+              {
+                "name": "disabled",
+                "field": "disabled",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "keep-open",
+                "field": "keepOpen",
+                "type": "boolean",
+                "default": "false",
+                "description": "Choosing it leaves the menu open."
+              },
+              {
+                "name": "checked",
+                "field": "checked",
+                "type": "boolean",
+                "default": "false",
+                "description": "Checked, for a radio or checkbox row."
+              },
+              {
+                "name": "item-role",
+                "field": "itemRole",
+                "type": "\"menuitem\" | \"menuitemradio\" | \"menuitemcheckbox\"",
+                "default": "'menuitem'",
+                "description": "menuitem, menuitemradio or menuitemcheckbox."
+              }
+            ],
+            "properties": [
+              {
+                "name": "shortcut",
+                "type": "string | undefined",
+                "description": "A key or keys, shown muted at the end.",
+                "attribute": "shortcut"
+              },
+              {
+                "name": "danger",
+                "type": "boolean",
+                "default": "false",
+                "description": "A destructive row (red).",
+                "attribute": "danger"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "disabled"
+              },
+              {
+                "name": "keepOpen",
+                "type": "boolean",
+                "default": "false",
+                "description": "Choosing it leaves the menu open.",
+                "attribute": "keep-open"
+              },
+              {
+                "name": "checked",
+                "type": "boolean",
+                "default": "false",
+                "description": "Checked, for a radio or checkbox row.",
+                "attribute": "checked"
+              },
+              {
+                "name": "itemRole",
+                "type": "\"menuitem\" | \"menuitemradio\" | \"menuitemcheckbox\"",
+                "default": "'menuitem'",
+                "description": "menuitem, menuitemradio or menuitemcheckbox.",
+                "attribute": "item-role"
+              }
+            ],
+            "events": [
+              {
+                "name": "select",
+                "description": "The row was chosen."
+              }
+            ],
+            "slots": [
+              {
+                "name": "",
+                "description": "The row: an icon and the label."
+              }
+            ],
+            "methods": []
+          },
+          {
+            "tag": "spyglass-menubar-label",
+            "name": "MenubarLabel",
+            "module": "elements/menubar-label.js",
+            "description": "A group's name in a menubar menu.",
+            "attributes": [],
+            "properties": [],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The name."
+              }
+            ],
+            "methods": []
+          },
+          {
+            "tag": "spyglass-menubar-separator",
+            "name": "MenubarSeparator",
+            "module": "elements/menubar-separator.js",
+            "description": "A hairline between groups of rows.",
+            "attributes": [],
+            "properties": [],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Board",
+          "label": "A board's tools",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/menubar/Board.html",
+          "content": "<!-- A board's tools as a menubar: the board itself, how its creatives are sorted, and who sees it. Open one, then point\n     at the next or press Right. -->\n<div class=\"min-h-72\">\n  <spyglass-menubar label=\"Board\">\n    <spyglass-menubar-menu label=\"Board\">\n      <spyglass-menubar-item shortcut=\"⌘N\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-folder-plus shrink-0 text-fg-muted\" aria-hidden=\"true\"><path d=\"M12 10v6\"></path><path d=\"M9 13h6\"></path><path d=\"M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z\"></path></svg>New board</spyglass-menubar-item>\n      <spyglass-menubar-item><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-copy shrink-0 text-fg-muted\" aria-hidden=\"true\"><rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\" ry=\"2\"></rect><path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\"></path></svg>Duplicate</spyglass-menubar-item>\n      <spyglass-menubar-item><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-download shrink-0 text-fg-muted\" aria-hidden=\"true\"><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"></path><polyline points=\"7 10 12 15 17 10\"></polyline><line x1=\"12\" x2=\"12\" y1=\"15\" y2=\"3\"></line></svg>Export as PDF</spyglass-menubar-item>\n      <spyglass-menubar-separator></spyglass-menubar-separator>\n      <spyglass-menubar-item danger><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-trash-2 shrink-0\" aria-hidden=\"true\"><path d=\"M3 6h18\"></path><path d=\"M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6\"></path><path d=\"M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2\"></path><line x1=\"10\" x2=\"10\" y1=\"11\" y2=\"17\"></line><line x1=\"14\" x2=\"14\" y1=\"11\" y2=\"17\"></line></svg>Delete board</spyglass-menubar-item>\n    </spyglass-menubar-menu>\n    <spyglass-menubar-menu label=\"View\">\n      <spyglass-menubar-label>Sort creatives</spyglass-menubar-label>\n      <spyglass-menubar-item item-role=\"menuitemradio\" data-sort=\"newest\" checked>Newest first</spyglass-menubar-item>\n      <spyglass-menubar-item item-role=\"menuitemradio\" data-sort=\"longest\">Longest running</spyglass-menubar-item>\n      <spyglass-menubar-item item-role=\"menuitemradio\" data-sort=\"saved\">Most saved</spyglass-menubar-item>\n    </spyglass-menubar-menu>\n    <spyglass-menubar-menu label=\"Share\">\n      <spyglass-menubar-item><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-link shrink-0 text-fg-muted\" aria-hidden=\"true\"><path d=\"M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71\"></path><path d=\"M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71\"></path></svg>Copy link</spyglass-menubar-item>\n      <spyglass-menubar-item><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-user-plus shrink-0 text-fg-muted\" aria-hidden=\"true\"><path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"></path><circle cx=\"9\" cy=\"7\" r=\"4\"></circle><line x1=\"19\" x2=\"19\" y1=\"8\" y2=\"14\"></line><line x1=\"22\" x2=\"16\" y1=\"11\" y2=\"11\"></line></svg>Invite a teammate</spyglass-menubar-item>\n    </spyglass-menubar-menu>\n  </spyglass-menubar>\n</div>\n<script type=\"module\">\n  const rows = document.querySelectorAll('spyglass-menubar-item[data-sort]')\n  for (const row of rows) row.addEventListener('select', () => { for (const r of rows) r.checked = r === row })\n</script>\n"
+        }
+      ]
+    }
+  }
+}

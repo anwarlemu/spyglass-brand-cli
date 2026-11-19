@@ -1,0 +1,45 @@
+/* Base layer: what every Spyglass page sets once. Black ground, White DM Sans type, a White focus ring. */
+@layer base {
+  html {
+    background-color: var(--ds-color-surface);
+    color-scheme: dark;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ds-color-neutral-5) transparent;
+  }
+  /* A border with no color is a hairline. */
+  *, ::before, ::after, ::backdrop { border-color: var(--ds-color-edge); }
+  body {
+    background-color: var(--ds-color-surface);
+    color: var(--ds-color-fg);
+    font-family: var(--ds-font-text);
+    font-size: var(--ds-text-body);
+    line-height: var(--ds-text-body-leading);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  :where(h1, h2, h3, h4) {
+    font-family: var(--ds-font-heading);
+    font-weight: var(--ds-font-weight-regular);
+    line-height: var(--ds-text-heading-1-leading);
+  }
+  :focus-visible {
+    outline: var(--ds-border-focus) solid var(--ds-color-edge-focus);
+    outline-offset: var(--ds-border-focus);
+  }
+  ::selection {
+    background: var(--ds-color-white);
+    color: var(--ds-color-black);
+  }
+  a,
+  button,
+  [role="button"],
+  [role="tab"] {
+    touch-action: manipulation;
+  }
+  /* Phones and touch: fields at 16px so iOS Safari does not zoom. */
+  @media (pointer: coarse), (max-width: 767px) {
+    input:not([type="checkbox"], [type="radio"], [type="file"]), textarea, select {
+      font-size: var(--ds-text-input);
+    }
+  }
+}

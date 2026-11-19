@@ -1,0 +1,26 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "kbd",
+  "type": "registry:ui",
+  "title": "Kbd",
+  "description": "A key: DM Sans 12px in the soft neutral, in a 20px #1A1A1A box with a hairline and the small corner. KbdGroup holds the keys of one shortcut.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/ui/Kbd.tsx",
+      "type": "registry:ui",
+      "content": "import type { HTMLAttributes, ReactNode } from 'react'\nimport { cn } from '@/lib/cn'\n\n// A key: DM Sans 12px in the soft neutral, in a 20px #1A1A1A box with a #363636 hairline and the small corner. Key\n// names as words or symbols (⌘, Shift, K), never in capitals or mono. Put a shortcut's keys in KbdGroup.\nexport interface KbdProps extends HTMLAttributes<HTMLElement> {\n  children?: ReactNode\n}\n\nexport const kbdClasses = 'inline-flex h-5 min-w-5 shrink-0 items-center justify-center gap-1 rounded-ds-sm border border-edge-strong bg-surface-subtle px-1 type-caption whitespace-nowrap text-fg-soft select-none'\n\nexport function Kbd({ className, children, ...rest }: KbdProps) {\n  return <kbd data-ds=\"kbd\" className={cn(kbdClasses, className)} {...rest}>{children}</kbd>\n}\n\nexport default Kbd\n"
+    },
+    {
+      "path": "components/ui/KbdGroup.tsx",
+      "type": "registry:ui",
+      "content": "import type { HTMLAttributes, ReactNode } from 'react'\nimport { cn } from '@/lib/cn'\n\n// The keys of one shortcut, 4px apart: <KbdGroup><Kbd>⌘</Kbd><Kbd>K</Kbd></KbdGroup>.\nexport interface KbdGroupProps extends HTMLAttributes<HTMLElement> {\n  children?: ReactNode\n}\n\nexport function KbdGroup({ className, children, ...rest }: KbdGroupProps) {\n  return <kbd data-ds=\"kbd-group\" className={cn('inline-flex items-center gap-1', className)} {...rest}>{children}</kbd>\n}\n\nexport default KbdGroup\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

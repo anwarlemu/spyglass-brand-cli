@@ -1,0 +1,212 @@
+{
+  "name": "about-page",
+  "title": "About page",
+  "type": "registry:block",
+  "group": "pages",
+  "description": "The about page template, built only from library items: the deck's line centered under the light field, a row of creatives, what the company keeps to, the numbers and a way in.",
+  "use_for": "A website's about page. Edit lib/pages/about.ts or pass `content`.",
+  "never": [
+    "New colors, shadows or type sizes added to a section: use the items' props",
+    "More than one White button in a section",
+    "Team photos with filters or tints"
+  ],
+  "source": "Built from the library (site header, hero block, creative row, card, stat block, button, footer row); Figma page 8: the deck's line (The largest historical record of creative data.); guidelines page 36 (Brand imagery) for what the company keeps to",
+  "body": "",
+  "requires": [
+    "button",
+    "card",
+    "creative-row",
+    "footer-row",
+    "hero-block",
+    "site-header",
+    "stat-block"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/pages/AboutPage.tsx",
+      "content": "import { Button } from '@/react/components/ui/Button'\nimport { Card } from '@/react/components/ui/Card'\nimport { CreativeRow } from '@/react/components/site/CreativeRow'\nimport { FooterRow } from '@/react/components/site/FooterRow'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { HeroBlock } from '@/react/components/blocks/HeroBlock'\nimport { StatBlock } from '@/react/components/blocks/StatBlock'\nimport { aboutContent, type AboutContent } from '@/lib/pages/about'\nimport { cn } from '@/react/lib/cn'\n\n// The about page from library items: the deck's line centered under the light field, a row of creatives, what the\n// company keeps to (three cards, from the guidelines' imagery rules), the numbers and a way in. `content` replaces the\n// copy (lib/pages/about.ts).\nexport interface AboutPageProps {\n  content?: AboutContent\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'\n\nexport function AboutPage({ content: c = aboutContent, className }: AboutPageProps) {\n  return (\n    <div data-ds=\"about-page\" className={cn('bg-surface text-fg', className)}>\n      <div className={WRAP}>\n        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      </div>\n      <main>\n        <HeroBlock eyebrow={c.hero.eyebrow} headline={c.hero.headline} body={c.hero.body} placement=\"center\" light=\"field\" />\n        <div className={cn(WRAP, 'pb-24 max-sm:pb-16')}>\n          <CreativeRow items={c.row} />\n        </div>\n        <section className={cn(WRAP, 'grid gap-10 py-24 max-sm:gap-8 max-sm:py-16')}>\n          <h2 className=\"type-heading-1 text-balance max-sm:type-heading-2\">{c.beliefs.title}</h2>\n          <div className=\"grid grid-cols-3 gap-4 max-md:grid-cols-1\">\n            {c.beliefs.items.map((b) => <Card key={b.title} title={b.title} description={b.body} />)}\n          </div>\n        </section>\n        <div className={cn(WRAP, 'py-24 max-sm:py-16')}>\n          <StatBlock title={c.stats.title} stats={c.stats.items} />\n        </div>\n        <section className={cn(WRAP, 'flex flex-col items-start gap-6 py-24 max-sm:py-16')}>\n          <h2 className=\"type-heading-1 text-balance max-sm:type-heading-2\">{c.join.title}</h2>\n          <p className=\"max-w-140 type-body-lg text-fg-soft\">{c.join.body}</p>\n          <Button href={c.join.cta.href} className=\"mt-2\">{c.join.cta.label}</Button>\n        </section>\n      </main>\n      <footer className=\"border-t border-edge\">\n        <div className={cn(WRAP, 'py-10')}>\n          <FooterRow domain={c.footer.domain} homeHref=\"/\" links={c.footer.links} />\n        </div>\n      </footer>\n    </div>\n  )\n}\n\nexport default AboutPage\n"
+    },
+    {
+      "path": "lib/pages/about.ts",
+      "content": "// The about page template's copy: the deck's headline, the imagery principles from the guidelines and the assets' facts; the rest is neutral template copy. Both flavors read this file.\n/** An Acme placeholder creative: the advertiser, a neutral tone (1 to 4) and a headline. */\nconst creative = (brand: string, tone: 1 | 2 | 3 | 4, caption?: string) => (caption ? { brand, tone, caption } : { brand, tone })\n\nconst nav = [\n\t{ label: 'Product', href: '/product' },\n\t{ label: 'Pricing', href: '/pricing' },\n\t{ label: 'Changelog', href: '/changelog' },\n\t{ label: 'Blog', href: '/blog' },\n]\nconst footer = {\n\tdomain: 'spyglass.so',\n\tlinks: [\n\t\t{ label: 'Product', href: '/product' },\n\t\t{ label: 'Pricing', href: '/pricing' },\n\t\t{ label: 'About', href: '/about' },\n\t\t{ label: 'Changelog', href: '/changelog' },\n\t\t{ label: 'Blog', href: '/blog' },\n\t\t{ label: 'Terms', href: '/legal' },\n\t],\n}\nconst header = { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get 50% off', href: '/pricing' } }\n\nexport const aboutContent = {\n\theader,\n\thero: {\n\t\teyebrow: 'About',\n\t\theadline: 'The largest historical record of creative data.',\n\t\tbody: 'Spyglass keeps the ads, posts and videos brands and creators publish, and makes every one of them searchable in plain words.',\n\t},\n\trow: [creative('Acme Skin', 2), creative('Acme Drinks', 3), creative('Acme Studio', 1), creative('Acme Fit', 4), creative('Acme Drinks', 2), creative('Acme Motors', 3)],\n\tbeliefs: {\n\t\ttitle: 'What we keep to.',\n\t\titems: [\n\t\t\t{ title: 'Real creative.', body: 'Ads, product shots and UGC, from the brands people track. Never a mock-up.' },\n\t\t\t{ title: 'Color as posted.', body: 'No grading, no filters, no neon. What you see is what ran.' },\n\t\t\t{ title: 'One index.', body: 'Meta, TikTok, Instagram, and YouTube creatives in one index.' },\n\t\t],\n\t},\n\tstats: {\n\t\ttitle: 'Every creative in one place.',\n\t\titems: [\n\t\t\t{ value: '4', label: 'Networks in one index: Meta, TikTok, Instagram and YouTube.' },\n\t\t\t{ value: '1 min', label: 'To add any brand or creator.' },\n\t\t\t{ value: 'Unlimited', label: 'Team seats on the Creator plan.' },\n\t\t\t{ value: '$10', label: 'For your first month, then $20/month.' },\n\t\t],\n\t},\n\tjoin: { title: 'Build the archive with us.', body: 'We are a small team. We read every note.', cta: { label: 'See open roles', href: '/careers' } },\n\tfooter,\n}\n\nexport type AboutContent = typeof aboutContent\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Page",
+      "label": "About page",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/about-page/Page.tsx",
+      "content": "import { AboutPage } from '@/react/components/pages/AboutPage'\n// The about page template with its own copy.\n\nexport default function Page() {\n  return <AboutPage />\n}\n",
+      "requires": [
+        "button",
+        "card",
+        "creative-row",
+        "footer-row",
+        "hero-block",
+        "site-header",
+        "stat-block"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/pages/AboutPage.tsx",
+          "content": "import { Button } from '@/react/components/ui/Button'\nimport { Card } from '@/react/components/ui/Card'\nimport { CreativeRow } from '@/react/components/site/CreativeRow'\nimport { FooterRow } from '@/react/components/site/FooterRow'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { HeroBlock } from '@/react/components/blocks/HeroBlock'\nimport { StatBlock } from '@/react/components/blocks/StatBlock'\nimport { aboutContent, type AboutContent } from '@/lib/pages/about'\nimport { cn } from '@/react/lib/cn'\n\n// The about page from library items: the deck's line centered under the light field, a row of creatives, what the\n// company keeps to (three cards, from the guidelines' imagery rules), the numbers and a way in. `content` replaces the\n// copy (lib/pages/about.ts).\nexport interface AboutPageProps {\n  content?: AboutContent\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'\n\nexport function AboutPage({ content: c = aboutContent, className }: AboutPageProps) {\n  return (\n    <div data-ds=\"about-page\" className={cn('bg-surface text-fg', className)}>\n      <div className={WRAP}>\n        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      </div>\n      <main>\n        <HeroBlock eyebrow={c.hero.eyebrow} headline={c.hero.headline} body={c.hero.body} placement=\"center\" light=\"field\" />\n        <div className={cn(WRAP, 'pb-24 max-sm:pb-16')}>\n          <CreativeRow items={c.row} />\n        </div>\n        <section className={cn(WRAP, 'grid gap-10 py-24 max-sm:gap-8 max-sm:py-16')}>\n          <h2 className=\"type-heading-1 text-balance max-sm:type-heading-2\">{c.beliefs.title}</h2>\n          <div className=\"grid grid-cols-3 gap-4 max-md:grid-cols-1\">\n            {c.beliefs.items.map((b) => <Card key={b.title} title={b.title} description={b.body} />)}\n          </div>\n        </section>\n        <div className={cn(WRAP, 'py-24 max-sm:py-16')}>\n          <StatBlock title={c.stats.title} stats={c.stats.items} />\n        </div>\n        <section className={cn(WRAP, 'flex flex-col items-start gap-6 py-24 max-sm:py-16')}>\n          <h2 className=\"type-heading-1 text-balance max-sm:type-heading-2\">{c.join.title}</h2>\n          <p className=\"max-w-140 type-body-lg text-fg-soft\">{c.join.body}</p>\n          <Button href={c.join.cta.href} className=\"mt-2\">{c.join.cta.label}</Button>\n        </section>\n      </main>\n      <footer className=\"border-t border-edge\">\n        <div className={cn(WRAP, 'py-10')}>\n          <FooterRow domain={c.footer.domain} homeHref=\"/\" links={c.footer.links} />\n        </div>\n      </footer>\n    </div>\n  )\n}\n\nexport default AboutPage\n"
+        },
+        {
+          "path": "lib/pages/about.ts",
+          "content": "// The about page template's copy: the deck's headline, the imagery principles from the guidelines and the assets' facts; the rest is neutral template copy. Both flavors read this file.\n/** An Acme placeholder creative: the advertiser, a neutral tone (1 to 4) and a headline. */\nconst creative = (brand: string, tone: 1 | 2 | 3 | 4, caption?: string) => (caption ? { brand, tone, caption } : { brand, tone })\n\nconst nav = [\n\t{ label: 'Product', href: '/product' },\n\t{ label: 'Pricing', href: '/pricing' },\n\t{ label: 'Changelog', href: '/changelog' },\n\t{ label: 'Blog', href: '/blog' },\n]\nconst footer = {\n\tdomain: 'spyglass.so',\n\tlinks: [\n\t\t{ label: 'Product', href: '/product' },\n\t\t{ label: 'Pricing', href: '/pricing' },\n\t\t{ label: 'About', href: '/about' },\n\t\t{ label: 'Changelog', href: '/changelog' },\n\t\t{ label: 'Blog', href: '/blog' },\n\t\t{ label: 'Terms', href: '/legal' },\n\t],\n}\nconst header = { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get 50% off', href: '/pricing' } }\n\nexport const aboutContent = {\n\theader,\n\thero: {\n\t\teyebrow: 'About',\n\t\theadline: 'The largest historical record of creative data.',\n\t\tbody: 'Spyglass keeps the ads, posts and videos brands and creators publish, and makes every one of them searchable in plain words.',\n\t},\n\trow: [creative('Acme Skin', 2), creative('Acme Drinks', 3), creative('Acme Studio', 1), creative('Acme Fit', 4), creative('Acme Drinks', 2), creative('Acme Motors', 3)],\n\tbeliefs: {\n\t\ttitle: 'What we keep to.',\n\t\titems: [\n\t\t\t{ title: 'Real creative.', body: 'Ads, product shots and UGC, from the brands people track. Never a mock-up.' },\n\t\t\t{ title: 'Color as posted.', body: 'No grading, no filters, no neon. What you see is what ran.' },\n\t\t\t{ title: 'One index.', body: 'Meta, TikTok, Instagram, and YouTube creatives in one index.' },\n\t\t],\n\t},\n\tstats: {\n\t\ttitle: 'Every creative in one place.',\n\t\titems: [\n\t\t\t{ value: '4', label: 'Networks in one index: Meta, TikTok, Instagram and YouTube.' },\n\t\t\t{ value: '1 min', label: 'To add any brand or creator.' },\n\t\t\t{ value: 'Unlimited', label: 'Team seats on the Creator plan.' },\n\t\t\t{ value: '$10', label: 'For your first month, then $20/month.' },\n\t\t],\n\t},\n\tjoin: { title: 'Build the archive with us.', body: 'We are a small team. We read every note.', cta: { label: 'See open roles', href: '/careers' } },\n\tfooter,\n}\n\nexport type AboutContent = typeof aboutContent\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button",
+        "card",
+        "creative-row",
+        "footer-row",
+        "hero-block",
+        "site-header",
+        "stat-block"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "AboutPage",
+            "file": "react/components/pages/AboutPage.tsx",
+            "props": [
+              {
+                "name": "content",
+                "type": "AboutContent",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "About page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/about-page/Page.tsx",
+          "content": "import { AboutPage } from '@/react/components/pages/AboutPage'\n// The about page template with its own copy.\n\nexport default function Page() {\n  return <AboutPage />\n}\n",
+          "registryDependencies": [
+            "button",
+            "card",
+            "creative-row",
+            "footer-row",
+            "hero-block",
+            "site-header",
+            "stat-block"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/pages/about-page.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { aboutContent, type AboutContent } from '@/lib/pages/about'\nimport '@/elements/components/ui/button'\nimport '@/elements/components/ui/card'\nimport '@/elements/components/site/creative-row'\nimport '@/elements/components/blocks/hero-block'\nimport '@/elements/components/blocks/stat-block'\nimport '@/elements/components/site/footer-row'\nimport '@/elements/components/site/site-header'\nimport styles from 'virtual:tw'\n\n// AboutPage.tsx as <spyglass-about-page>: the deck's line under the light, a row of creatives, what the company keeps to, the numbers and a way in. `content` replaces the copy.\nconst WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'\n\n/**\n * @summary The about page template.\n */\nexport class AboutPage extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"about-page\"]'))\n\tstatic properties = { content: { type: Object } }\n\t/** The page's copy (lib/pages/about.ts by default). */\n\tcontent: AboutContent = aboutContent\n\n\trender() {\n\t\tconst c = this.content ?? aboutContent\n\t\treturn html`<div data-ds=\"about-page\" class=\"bg-surface text-fg\">\n<div class=${WRAP}><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header></div>\n<main>\n<spyglass-hero-block eyebrow=${c.hero.eyebrow} headline=${c.hero.headline} body=${c.hero.body} placement=\"center\" light=\"field\"></spyglass-hero-block>\n<div class=${`${WRAP} pb-24 max-sm:pb-16`}><spyglass-creative-row .items=${c.row}></spyglass-creative-row></div>\n<section class=${`${WRAP} grid gap-10 py-24 max-sm:gap-8 max-sm:py-16`}><h2 class=\"type-heading-1 text-balance max-sm:type-heading-2\">${c.beliefs.title}</h2><div class=\"grid grid-cols-3 gap-4 max-md:grid-cols-1\">${c.beliefs.items.map((b) => html`<spyglass-card heading=${b.title} description=${b.body}></spyglass-card>`)}</div></section>\n<div class=${`${WRAP} py-24 max-sm:py-16`}><spyglass-stat-block heading=${c.stats.title} .stats=${c.stats.items}></spyglass-stat-block></div>\n<section class=${`${WRAP} flex flex-col items-start gap-6 py-24 max-sm:py-16`}><h2 class=\"type-heading-1 text-balance max-sm:type-heading-2\">${c.join.title}</h2><p class=\"max-w-140 type-body-lg text-fg-soft\">${c.join.body}</p><spyglass-button href=${c.join.cta.href} class=\"mt-2\">${c.join.cta.label}</spyglass-button></section>\n</main>\n<footer class=\"border-t border-edge\"><div class=${`${WRAP} py-10`}><spyglass-footer-row domain=${c.footer.domain} home-href=\"/\" .links=${c.footer.links}></spyglass-footer-row></div></footer>\n</div>`\n\t}\n}\n\ndefine('about-page', AboutPage)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/about-page.js",
+        "elements/button.js",
+        "elements/card.js",
+        "elements/creative-row.js",
+        "elements/hero-block.js",
+        "elements/stat-block.js",
+        "elements/footer-row.js",
+        "elements/site-header.js",
+        "elements/creative-card.js",
+        "elements/brand-light.js",
+        "elements/ascii-texture.js",
+        "elements/logo.js"
+      ],
+      "tag": "spyglass-about-page",
+      "tags": [
+        "spyglass-about-page"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-texture",
+        "brand-light",
+        "button",
+        "card",
+        "creative-card",
+        "creative-row",
+        "footer-row",
+        "hero-block",
+        "logo",
+        "site-header",
+        "stat-block"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-about-page",
+            "name": "AboutPage",
+            "module": "elements/about-page.js",
+            "description": "The about page template.",
+            "attributes": [
+              {
+                "name": "content",
+                "field": "content",
+                "type": "{ header: { nav: { label: string; href: string; }[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; }; }; hero: { eyebrow: string; headline: string; body: string; }; row: ({ brand: string; tone: 1 | 2 | 3 | 4; caption: string; } | { brand: string; tone: 1 | 2 | 3 | 4; caption?: undefined; })[]; beliefs: { title: string; items: { title: string; body: string; }[]; }; stats: { title: string; items: { value: string; label: string; }[]; }; join: { title: string; body: string; cta: { label: string; href: string; }; }; footer: { domain: string; links: { label: string; href: string; }[]; }; }",
+                "default": "aboutContent",
+                "description": "The page's copy (lib/pages/about.ts by default)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "content",
+                "type": "{ header: { nav: { label: string; href: string; }[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; }; }; hero: { eyebrow: string; headline: string; body: string; }; row: ({ brand: string; tone: 1 | 2 | 3 | 4; caption: string; } | { brand: string; tone: 1 | 2 | 3 | 4; caption?: undefined; })[]; beliefs: { title: string; items: { title: string; body: string; }[]; }; stats: { title: string; items: { value: string; label: string; }[]; }; join: { title: string; body: string; cta: { label: string; href: string; }; }; footer: { domain: string; links: { label: string; href: string; }[]; }; }",
+                "default": "aboutContent",
+                "description": "The page's copy (lib/pages/about.ts by default).",
+                "attribute": "content"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "About page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/about-page/Page.html",
+          "content": "<!-- The about page template with its own copy. -->\n<spyglass-about-page></spyglass-about-page>\n"
+        }
+      ]
+    }
+  }
+}

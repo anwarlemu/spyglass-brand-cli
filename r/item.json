@@ -1,0 +1,359 @@
+{
+  "name": "item",
+  "title": "Item",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A row: media, a title in DM Sans Medium with a muted line under it, and actions at the end. No fill, a hairline box or the card's #171717 fill. ItemGroup puts a hairline between rows.",
+  "use_for": "A board, a tracked brand, a setting or a notification as one row; a list of them in a card. With href the whole row is a link.",
+  "never": [
+    "Buttons inside a row that is a link",
+    "A chevron or arrow that moves on hover",
+    "A row of rows for many columns: use Table",
+    "A shadow under an outlined row"
+  ],
+  "source": "Derived from the brand guidelines (no list row in the brand assets): the plan card's fill and corner, DM Sans Medium for titles, the neutral steps for the hairline and the muted line",
+  "body": "",
+  "requires": [],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/ui/Item.tsx",
+      "content": "import { ChevronRight } from 'lucide-react'\nimport type { ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// A row: media, a title in DM Sans Medium with a muted line under it, and what goes at the end. `variant` default has\n// no fill (rows in a list, split by ItemGroup's hairlines), outline a #262626 hairline box, muted the card's #171717\n// fill; both boxes take the brand corner. `size` sm is tighter. With `href` the whole row is one link that takes the\n// ghost fill under the pointer (150ms), and `arrow` adds a chevron that brightens with it and never moves. A link holds\n// no buttons: `actions` only show on a row without `href`.\nexport type ItemVariant = 'default' | 'outline' | 'muted'\nexport type ItemSize = 'default' | 'sm'\n\nconst VARIANTS: Record<ItemVariant, string> = {\n  default: 'bg-transparent',\n  outline: 'rounded-container border border-edge',\n  muted: 'rounded-container bg-surface-raised',\n}\nconst SIZES: Record<ItemSize, string> = { default: 'gap-4 p-4', sm: 'gap-3 px-4 py-3' }\n\nexport interface ItemProps {\n  /** The title. */\n  title?: string\n  /** A muted line under the title (two lines at most). */\n  description?: string\n  /** default (no fill), outline (a hairline box) or muted (the card's fill). */\n  variant?: ItemVariant\n  /** default or sm (tighter). */\n  size?: ItemSize\n  /** The whole row opens this. */\n  href?: string\n  /** A chevron at the end of a link row. */\n  arrow?: boolean\n  /** Before the title: an icon, a logo, a thumbnail. */\n  media?: ReactNode\n  /** At the end, on a row without href: buttons, a tag, a time. */\n  actions?: ReactNode\n  className?: string\n  /** The title, in place of `title`. */\n  children?: ReactNode\n}\n\nexport function Item({ title, description, variant = 'default', size = 'default', href, arrow, media, actions, className, children }: ItemProps) {\n  const classes = cn('group/item flex min-w-0 items-center', VARIANTS[variant] ?? VARIANTS.default, SIZES[size] ?? SIZES.default)\n  const body = (\n    <>\n      {media && <span className=\"flex shrink-0 items-center justify-center text-fg-soft\">{media}</span>}\n      <span className=\"flex min-w-0 flex-1 flex-col gap-1\">\n        <span className=\"truncate type-ui-strong text-fg\">{children ?? title}</span>\n        {description && <span className=\"line-clamp-2 type-ui text-fg-muted\">{description}</span>}\n      </span>\n    </>\n  )\n  if (href) {\n    return (\n      <a data-ds=\"item\" href={href} className={cn(classes, 'cursor-pointer rounded-container transition-[background-color] duration-150 ease-standard hover:bg-action-ghost-hover', className)}>\n        {body}\n        {arrow && <ChevronRight size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted transition-[color] duration-150 ease-standard group-hover/item:text-fg\" aria-hidden=\"true\" />}\n      </a>\n    )\n  }\n  return (\n    <div data-ds=\"item\" className={cn(classes, className)}>\n      {body}\n      {actions && <span className=\"flex shrink-0 items-center gap-2\">{actions}</span>}\n    </div>\n  )\n}\n\nexport default Item\n"
+    },
+    {
+      "path": "react/components/ui/ItemGroup.tsx",
+      "content": "import type { HTMLAttributes } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// Rows of one list, a #262626 hairline between each. Put Item rows in it, one per <li>.\nexport type ItemGroupProps = HTMLAttributes<HTMLUListElement>\n\nexport function ItemGroup({ className, children, ...rest }: ItemGroupProps) {\n  return <ul data-ds=\"item-group\" className={cn('flex flex-col [&>*+*]:border-t [&>*+*]:border-edge', className)} {...rest}>{children}</ul>\n}\n\nexport default ItemGroup\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Variants",
+      "label": "Variants",
+      "center": true,
+      "half": false,
+      "path": "react/examples/item/Variants.tsx",
+      "content": "import { Bookmark, Sparkles } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { Item } from '@/react/components/ui/Item'\n// A board in a hairline box with its action, a tighter row on the card's fill, and a plain row.\n\nexport default function Variants() {\n  return (\n    <div className=\"flex w-full max-w-md flex-col gap-4\">\n      <Item variant=\"outline\" title=\"Acme hooks\" description=\"48 creatives from 12 brands, updated today.\" media={<Bookmark size={20} strokeWidth={1.5} aria-hidden=\"true\" />} actions={<Button variant=\"secondary\" size=\"sm\">Open</Button>} />\n      <Item variant=\"muted\" size=\"sm\" title=\"New creatives found\" description=\"12 since your last visit.\" media={<Sparkles size={16} strokeWidth={1.5} aria-hidden=\"true\" />} actions={<Button variant=\"ghost\" size=\"sm\">Review</Button>} />\n      <Item title=\"Weekly digest\" description=\"Every Monday, the ads your rivals started running.\" actions={<Button variant=\"secondary\" size=\"sm\">Turn on</Button>} />\n    </div>\n  )\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "Boards",
+      "label": "Rows in a card",
+      "center": true,
+      "half": false,
+      "path": "react/examples/item/Boards.tsx",
+      "content": "import { Item } from '@/react/components/ui/Item'\nimport { ItemGroup } from '@/react/components/ui/ItemGroup'\n// Boards in a card, each row a link with a chevron, a hairline between them.\n\nconst BOARDS = [\n  { name: 'Acme hooks', count: '48 creatives' },\n  { name: 'Acme summer launch', count: '112 creatives' },\n  { name: 'UGC openers', count: '36 creatives' },\n]\n\nexport default function Boards() {\n  return (\n    <div className=\"w-full max-w-md rounded-container bg-surface-raised p-2\">\n      <ItemGroup>\n        {BOARDS.map((b) => (\n          <li key={b.name}><Item href=\"#boards\" arrow size=\"sm\" title={b.name} description={b.count} /></li>\n        ))}\n      </ItemGroup>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Item.tsx",
+          "content": "import { ChevronRight } from 'lucide-react'\nimport type { ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// A row: media, a title in DM Sans Medium with a muted line under it, and what goes at the end. `variant` default has\n// no fill (rows in a list, split by ItemGroup's hairlines), outline a #262626 hairline box, muted the card's #171717\n// fill; both boxes take the brand corner. `size` sm is tighter. With `href` the whole row is one link that takes the\n// ghost fill under the pointer (150ms), and `arrow` adds a chevron that brightens with it and never moves. A link holds\n// no buttons: `actions` only show on a row without `href`.\nexport type ItemVariant = 'default' | 'outline' | 'muted'\nexport type ItemSize = 'default' | 'sm'\n\nconst VARIANTS: Record<ItemVariant, string> = {\n  default: 'bg-transparent',\n  outline: 'rounded-container border border-edge',\n  muted: 'rounded-container bg-surface-raised',\n}\nconst SIZES: Record<ItemSize, string> = { default: 'gap-4 p-4', sm: 'gap-3 px-4 py-3' }\n\nexport interface ItemProps {\n  /** The title. */\n  title?: string\n  /** A muted line under the title (two lines at most). */\n  description?: string\n  /** default (no fill), outline (a hairline box) or muted (the card's fill). */\n  variant?: ItemVariant\n  /** default or sm (tighter). */\n  size?: ItemSize\n  /** The whole row opens this. */\n  href?: string\n  /** A chevron at the end of a link row. */\n  arrow?: boolean\n  /** Before the title: an icon, a logo, a thumbnail. */\n  media?: ReactNode\n  /** At the end, on a row without href: buttons, a tag, a time. */\n  actions?: ReactNode\n  className?: string\n  /** The title, in place of `title`. */\n  children?: ReactNode\n}\n\nexport function Item({ title, description, variant = 'default', size = 'default', href, arrow, media, actions, className, children }: ItemProps) {\n  const classes = cn('group/item flex min-w-0 items-center', VARIANTS[variant] ?? VARIANTS.default, SIZES[size] ?? SIZES.default)\n  const body = (\n    <>\n      {media && <span className=\"flex shrink-0 items-center justify-center text-fg-soft\">{media}</span>}\n      <span className=\"flex min-w-0 flex-1 flex-col gap-1\">\n        <span className=\"truncate type-ui-strong text-fg\">{children ?? title}</span>\n        {description && <span className=\"line-clamp-2 type-ui text-fg-muted\">{description}</span>}\n      </span>\n    </>\n  )\n  if (href) {\n    return (\n      <a data-ds=\"item\" href={href} className={cn(classes, 'cursor-pointer rounded-container transition-[background-color] duration-150 ease-standard hover:bg-action-ghost-hover', className)}>\n        {body}\n        {arrow && <ChevronRight size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted transition-[color] duration-150 ease-standard group-hover/item:text-fg\" aria-hidden=\"true\" />}\n      </a>\n    )\n  }\n  return (\n    <div data-ds=\"item\" className={cn(classes, className)}>\n      {body}\n      {actions && <span className=\"flex shrink-0 items-center gap-2\">{actions}</span>}\n    </div>\n  )\n}\n\nexport default Item\n"
+        },
+        {
+          "path": "react/components/ui/ItemGroup.tsx",
+          "content": "import type { HTMLAttributes } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// Rows of one list, a #262626 hairline between each. Put Item rows in it, one per <li>.\nexport type ItemGroupProps = HTMLAttributes<HTMLUListElement>\n\nexport function ItemGroup({ className, children, ...rest }: ItemGroupProps) {\n  return <ul data-ds=\"item-group\" className={cn('flex flex-col [&>*+*]:border-t [&>*+*]:border-edge', className)} {...rest}>{children}</ul>\n}\n\nexport default ItemGroup\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Item",
+            "file": "react/components/ui/Item.tsx",
+            "props": [
+              {
+                "name": "title",
+                "type": "string",
+                "required": false,
+                "description": "The title."
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "required": false,
+                "description": "A muted line under the title (two lines at most)."
+              },
+              {
+                "name": "variant",
+                "type": "ItemVariant",
+                "required": false,
+                "default": "'default'",
+                "description": "default (no fill), outline (a hairline box) or muted (the card's fill)."
+              },
+              {
+                "name": "size",
+                "type": "ItemSize",
+                "required": false,
+                "default": "'default'",
+                "description": "default or sm (tighter)."
+              },
+              {
+                "name": "href",
+                "type": "string",
+                "required": false,
+                "description": "The whole row opens this."
+              },
+              {
+                "name": "arrow",
+                "type": "boolean",
+                "required": false,
+                "description": "A chevron at the end of a link row."
+              },
+              {
+                "name": "media",
+                "type": "ReactNode",
+                "required": false,
+                "description": "Before the title: an icon, a logo, a thumbnail."
+              },
+              {
+                "name": "actions",
+                "type": "ReactNode",
+                "required": false,
+                "description": "At the end, on a row without href: buttons, a tag, a time."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false,
+                "description": "The title, in place of `title`."
+              }
+            ]
+          },
+          {
+            "name": "ItemGroup",
+            "file": "react/components/ui/ItemGroup.tsx",
+            "props": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Variants",
+          "label": "Variants",
+          "center": true,
+          "half": false,
+          "path": "react/examples/item/Variants.tsx",
+          "content": "import { Bookmark, Sparkles } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { Item } from '@/react/components/ui/Item'\n// A board in a hairline box with its action, a tighter row on the card's fill, and a plain row.\n\nexport default function Variants() {\n  return (\n    <div className=\"flex w-full max-w-md flex-col gap-4\">\n      <Item variant=\"outline\" title=\"Acme hooks\" description=\"48 creatives from 12 brands, updated today.\" media={<Bookmark size={20} strokeWidth={1.5} aria-hidden=\"true\" />} actions={<Button variant=\"secondary\" size=\"sm\">Open</Button>} />\n      <Item variant=\"muted\" size=\"sm\" title=\"New creatives found\" description=\"12 since your last visit.\" media={<Sparkles size={16} strokeWidth={1.5} aria-hidden=\"true\" />} actions={<Button variant=\"ghost\" size=\"sm\">Review</Button>} />\n      <Item title=\"Weekly digest\" description=\"Every Monday, the ads your rivals started running.\" actions={<Button variant=\"secondary\" size=\"sm\">Turn on</Button>} />\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        },
+        {
+          "name": "Boards",
+          "label": "Rows in a card",
+          "center": true,
+          "half": false,
+          "path": "react/examples/item/Boards.tsx",
+          "content": "import { Item } from '@/react/components/ui/Item'\nimport { ItemGroup } from '@/react/components/ui/ItemGroup'\n// Boards in a card, each row a link with a chevron, a hairline between them.\n\nconst BOARDS = [\n  { name: 'Acme hooks', count: '48 creatives' },\n  { name: 'Acme summer launch', count: '112 creatives' },\n  { name: 'UGC openers', count: '36 creatives' },\n]\n\nexport default function Boards() {\n  return (\n    <div className=\"w-full max-w-md rounded-container bg-surface-raised p-2\">\n      <ItemGroup>\n        {BOARDS.map((b) => (\n          <li key={b.name}><Item href=\"#boards\" arrow size=\"sm\" title={b.name} description={b.count} /></li>\n        ))}\n      </ItemGroup>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/item.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { ChevronRight } from 'lucide'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport styles from 'virtual:tw'\n\n// Item.tsx as <spyglass-item>: a row with media, a title in DM Sans Medium with a muted line under it, and actions at\n// the end. `variant` default (no fill), outline (a hairline box) or muted (the card's fill); `size` sm is tighter. With\n// `href` the whole row is one link that takes the ghost fill under the pointer; `arrow` adds a chevron that brightens\n// with it and never moves. A link holds no buttons: the actions slot only shows on a row without href.\n\nconst VARIANTS = {\n\tdefault: 'bg-transparent',\n\toutline: 'rounded-container border border-edge',\n\tmuted: 'rounded-container bg-surface-raised',\n} as const\nconst SIZES = { default: 'gap-4 p-4', sm: 'gap-3 px-4 py-3' } as const\n\n/**\n * @summary A row: media, a title and a muted line, and actions; with href, the whole row is a link.\n * @slot - The title, in place of `heading`.\n * @slot media - Before the title: an icon, a logo, a thumbnail.\n * @slot actions - At the end, on a row without href only.\n */\nexport class Item extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"item\"]'))\n\tstatic properties = { heading: {}, description: {}, variant: { reflect: true }, size: { reflect: true }, href: {}, arrow: { type: Boolean } }\n\n\t/** The title (React's `title`; `title` is HTML's tooltip attribute). */\n\theading?: string\n\t/** A muted line under the title. */\n\tdescription?: string\n\t/** default, outline or muted. */\n\tvariant: keyof typeof VARIANTS = 'default'\n\t/** default or sm. */\n\tsize: keyof typeof SIZES = 'default'\n\t/** The whole row opens this. */\n\thref?: string\n\t/** A chevron at the end of a link row. */\n\tarrow = false\n\n\trender() {\n\t\tconst classes = ['group/item flex min-w-0 items-center', VARIANTS[this.variant] ?? VARIANTS.default, SIZES[this.size] ?? SIZES.default].join(' ')\n\t\tconst body = html`${this.hasSlot('media') ? html`<span class=\"flex shrink-0 items-center justify-center text-fg-soft\"><slot name=\"media\"></slot></span>` : nothing}<span class=\"flex min-w-0 flex-1 flex-col gap-1\"><span class=\"truncate type-ui-strong text-fg\"><slot></slot>${this.hasSlot() ? nothing : this.heading}</span>${this.description ? html`<span class=\"line-clamp-2 type-ui text-fg-muted\">${this.description}</span>` : nothing}</span>`\n\t\tif (this.href) {\n\t\t\treturn html`<a data-ds=\"item\" href=${this.href} class=${`${classes} cursor-pointer rounded-container transition-[background-color] duration-150 ease-standard hover:bg-action-ghost-hover`}>${body}${this.arrow ? icon(ChevronRight, 'chevron-right', { size: 16, strokeWidth: 1.5, class: 'shrink-0 text-fg-muted transition-[color] duration-150 ease-standard group-hover/item:text-fg', attrs: { 'aria-hidden': 'true' } }) : nothing}</a>`\n\t\t}\n\t\treturn html`<div data-ds=\"item\" class=${classes}>${body}${this.hasSlot('actions') ? html`<span class=\"flex shrink-0 items-center gap-2\"><slot name=\"actions\"></slot></span>` : nothing}</div>`\n\t}\n}\n\ndefine('item', Item)\n"
+        },
+        {
+          "path": "elements/components/ui/item-group.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// ItemGroup.tsx as <spyglass-item-group>: rows of one list, a #262626 hairline between each. The host is the list's\n// box, so a class on the element lands on it; the <ul> inside keeps the list's meaning and lays out nothing. The rows\n// are the page's <li>s, each holding a <spyglass-item>.\n\n/**\n * @summary Rows of one list, a hairline between each.\n * @slot - <li> elements, each holding a <spyglass-item>.\n */\nexport class ItemGroup extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\n\trender() {\n\t\treturn html`<ul class=\"contents\"><slot></slot></ul>`\n\t}\n}\n\ndefine('item-group', ItemGroup)\n"
+        },
+        {
+          "path": "elements/components/ui/item-group.css",
+          "content": "/* The host is the list's box (ItemGroup.tsx's <ul>). The hairline between rows is set on the slotted <li>s, important\n   because the page's reset (no border on any element) outranks ::slotted. */\n:host { display: flex; flex-direction: column; }\n::slotted(:not(:first-child)) { border-top: var(--ds-border-hairline) solid var(--ds-color-edge) !important; }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/item.js",
+        "elements/item-group.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-item",
+      "tags": [
+        "spyglass-item",
+        "spyglass-item-group"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-item",
+            "name": "Item",
+            "module": "elements/item.js",
+            "description": "A row: media, a title and a muted line, and actions; with href, the whole row is a link.",
+            "attributes": [
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string | undefined",
+                "description": "The title (React's `title`; `title` is HTML's tooltip attribute)."
+              },
+              {
+                "name": "description",
+                "field": "description",
+                "type": "string | undefined",
+                "description": "A muted line under the title."
+              },
+              {
+                "name": "variant",
+                "field": "variant",
+                "type": "\"default\" | \"outline\" | \"muted\"",
+                "default": "'default'",
+                "description": "default, outline or muted."
+              },
+              {
+                "name": "size",
+                "field": "size",
+                "type": "\"default\" | \"sm\"",
+                "default": "'default'",
+                "description": "default or sm."
+              },
+              {
+                "name": "href",
+                "field": "href",
+                "type": "string | undefined",
+                "description": "The whole row opens this."
+              },
+              {
+                "name": "arrow",
+                "field": "arrow",
+                "type": "boolean",
+                "default": "false",
+                "description": "A chevron at the end of a link row."
+              }
+            ],
+            "properties": [
+              {
+                "name": "heading",
+                "type": "string | undefined",
+                "description": "The title (React's `title`; `title` is HTML's tooltip attribute).",
+                "attribute": "heading"
+              },
+              {
+                "name": "description",
+                "type": "string | undefined",
+                "description": "A muted line under the title.",
+                "attribute": "description"
+              },
+              {
+                "name": "variant",
+                "type": "\"default\" | \"outline\" | \"muted\"",
+                "default": "'default'",
+                "description": "default, outline or muted.",
+                "attribute": "variant"
+              },
+              {
+                "name": "size",
+                "type": "\"default\" | \"sm\"",
+                "default": "'default'",
+                "description": "default or sm.",
+                "attribute": "size"
+              },
+              {
+                "name": "href",
+                "type": "string | undefined",
+                "description": "The whole row opens this.",
+                "attribute": "href"
+              },
+              {
+                "name": "arrow",
+                "type": "boolean",
+                "default": "false",
+                "description": "A chevron at the end of a link row.",
+                "attribute": "arrow"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The title, in place of `heading`."
+              },
+              {
+                "name": "media",
+                "description": "Before the title: an icon, a logo, a thumbnail."
+              },
+              {
+                "name": "actions",
+                "description": "At the end, on a row without href only."
+              }
+            ],
+            "methods": []
+          },
+          {
+            "tag": "spyglass-item-group",
+            "name": "ItemGroup",
+            "module": "elements/item-group.js",
+            "description": "Rows of one list, a hairline between each.",
+            "attributes": [],
+            "properties": [],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "<li> elements, each holding a <spyglass-item>."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Variants",
+          "label": "Variants",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/item/Variants.html",
+          "content": "<!-- A board in a hairline box with its action, a tighter row on the card's fill, and a plain row. -->\n<div class=\"flex w-full max-w-md flex-col gap-4\">\n  <spyglass-item variant=\"outline\" heading=\"Acme hooks\" description=\"48 creatives from 12 brands, updated today.\">\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-bookmark\" slot=\"media\" aria-hidden=\"true\"><path d=\"m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z\"></path></svg>\n    <spyglass-button slot=\"actions\" variant=\"secondary\" size=\"sm\">Open</spyglass-button>\n  </spyglass-item>\n  <spyglass-item variant=\"muted\" size=\"sm\" heading=\"New creatives found\" description=\"12 since your last visit.\">\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-sparkles\" slot=\"media\" aria-hidden=\"true\"><path d=\"M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z\"></path><path d=\"M20 3v4\"></path><path d=\"M22 5h-4\"></path><path d=\"M4 17v2\"></path><path d=\"M5 18H3\"></path></svg>\n    <spyglass-button slot=\"actions\" variant=\"ghost\" size=\"sm\">Review</spyglass-button>\n  </spyglass-item>\n  <spyglass-item heading=\"Weekly digest\" description=\"Every Monday, the ads your rivals started running.\">\n    <spyglass-button slot=\"actions\" variant=\"secondary\" size=\"sm\">Turn on</spyglass-button>\n  </spyglass-item>\n</div>\n"
+        },
+        {
+          "name": "Boards",
+          "label": "Rows in a card",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/item/Boards.html",
+          "content": "<!-- Boards in a card, each row a link with a chevron, a hairline between them. -->\n<div class=\"w-full max-w-md rounded-container bg-surface-raised p-2\">\n  <spyglass-item-group>\n    <li><spyglass-item href=\"#boards\" arrow size=\"sm\" heading=\"Acme hooks\" description=\"48 creatives\"></spyglass-item></li>\n    <li><spyglass-item href=\"#boards\" arrow size=\"sm\" heading=\"Acme summer launch\" description=\"112 creatives\"></spyglass-item></li>\n    <li><spyglass-item href=\"#boards\" arrow size=\"sm\" heading=\"UGC openers\" description=\"36 creatives\"></spyglass-item></li>\n  </spyglass-item-group>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

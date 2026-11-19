@@ -1,0 +1,28 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "item",
+  "type": "registry:ui",
+  "title": "Item",
+  "description": "A row: media, a title in DM Sans Medium with a muted line under it, and actions at the end. No fill, a hairline box or the card's #171717 fill. ItemGroup puts a hairline between rows.",
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/ui/Item.tsx",
+      "type": "registry:ui",
+      "content": "import { ChevronRight } from 'lucide-react'\nimport type { ReactNode } from 'react'\nimport { cn } from '@/lib/cn'\n\n// A row: media, a title in DM Sans Medium with a muted line under it, and what goes at the end. `variant` default has\n// no fill (rows in a list, split by ItemGroup's hairlines), outline a #262626 hairline box, muted the card's #171717\n// fill; both boxes take the brand corner. `size` sm is tighter. With `href` the whole row is one link that takes the\n// ghost fill under the pointer (150ms), and `arrow` adds a chevron that brightens with it and never moves. A link holds\n// no buttons: `actions` only show on a row without `href`.\nexport type ItemVariant = 'default' | 'outline' | 'muted'\nexport type ItemSize = 'default' | 'sm'\n\nconst VARIANTS: Record<ItemVariant, string> = {\n  default: 'bg-transparent',\n  outline: 'rounded-container border border-edge',\n  muted: 'rounded-container bg-surface-raised',\n}\nconst SIZES: Record<ItemSize, string> = { default: 'gap-4 p-4', sm: 'gap-3 px-4 py-3' }\n\nexport interface ItemProps {\n  /** The title. */\n  title?: string\n  /** A muted line under the title (two lines at most). */\n  description?: string\n  /** default (no fill), outline (a hairline box) or muted (the card's fill). */\n  variant?: ItemVariant\n  /** default or sm (tighter). */\n  size?: ItemSize\n  /** The whole row opens this. */\n  href?: string\n  /** A chevron at the end of a link row. */\n  arrow?: boolean\n  /** Before the title: an icon, a logo, a thumbnail. */\n  media?: ReactNode\n  /** At the end, on a row without href: buttons, a tag, a time. */\n  actions?: ReactNode\n  className?: string\n  /** The title, in place of `title`. */\n  children?: ReactNode\n}\n\nexport function Item({ title, description, variant = 'default', size = 'default', href, arrow, media, actions, className, children }: ItemProps) {\n  const classes = cn('group/item flex min-w-0 items-center', VARIANTS[variant] ?? VARIANTS.default, SIZES[size] ?? SIZES.default)\n  const body = (\n    <>\n      {media && <span className=\"flex shrink-0 items-center justify-center text-fg-soft\">{media}</span>}\n      <span className=\"flex min-w-0 flex-1 flex-col gap-1\">\n        <span className=\"truncate type-ui-strong text-fg\">{children ?? title}</span>\n        {description && <span className=\"line-clamp-2 type-ui text-fg-muted\">{description}</span>}\n      </span>\n    </>\n  )\n  if (href) {\n    return (\n      <a data-ds=\"item\" href={href} className={cn(classes, 'cursor-pointer rounded-container transition-[background-color] duration-150 ease-standard hover:bg-action-ghost-hover', className)}>\n        {body}\n        {arrow && <ChevronRight size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted transition-[color] duration-150 ease-standard group-hover/item:text-fg\" aria-hidden=\"true\" />}\n      </a>\n    )\n  }\n  return (\n    <div data-ds=\"item\" className={cn(classes, className)}>\n      {body}\n      {actions && <span className=\"flex shrink-0 items-center gap-2\">{actions}</span>}\n    </div>\n  )\n}\n\nexport default Item\n"
+    },
+    {
+      "path": "components/ui/ItemGroup.tsx",
+      "type": "registry:ui",
+      "content": "import type { HTMLAttributes } from 'react'\nimport { cn } from '@/lib/cn'\n\n// Rows of one list, a #262626 hairline between each. Put Item rows in it, one per <li>.\nexport type ItemGroupProps = HTMLAttributes<HTMLUListElement>\n\nexport function ItemGroup({ className, children, ...rest }: ItemGroupProps) {\n  return <ul data-ds=\"item-group\" className={cn('flex flex-col [&>*+*]:border-t [&>*+*]:border-edge', className)} {...rest}>{children}</ul>\n}\n\nexport default ItemGroup\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

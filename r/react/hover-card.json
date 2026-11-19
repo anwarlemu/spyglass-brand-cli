@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "hover-card",
+  "type": "registry:ui",
+  "title": "Hover Card",
+  "description": "More about a link while the pointer rests on it: the card's #171717 fill, a hairline and the brand corner. The pointer can cross into it; on touch the link just works.",
+  "dependencies": [],
+  "registryDependencies": [
+    "https://spyglass-ds.vercel.app/r/react/popover.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/HoverCard.tsx",
+      "type": "registry:ui",
+      "content": "'use client'\nimport { useEffect, useId, useRef, type FocusEvent, type PointerEvent, type ReactNode } from 'react'\nimport { PopoverPanel } from '@/components/ui/PopoverPanel'\nimport { usePopover, type Align, type Side } from '@/hooks/usePopover'\n\n// More about a link, shown while the pointer rests on it: the card's #171717 fill on Black with a hairline and the\n// brand corner, 16px in, opened after the tooltip's 300ms wait and, on keyboard focus, at once. The pointer can cross\n// into the card to select or follow what is in it; leaving both closes it after a short grace. It is a preview, never\n// the only way to the content: on touch the link just works. Wrap one link; the card is the `card` prop.\nexport interface HoverCardProps {\n  /** The side it opens on (it flips when there is no room). */\n  side?: Side\n  align?: Align\n  /** The card's width (a CSS length). */\n  width?: string\n  /** What the card shows. */\n  card?: ReactNode\n  /** One link. */\n  children?: ReactNode\n}\n\nconst WAIT = 300\nconst GRACE = 120\n\nexport function HoverCard({ side = 'bottom', align = 'start', width = '288px', card, children }: HoverCardProps) {\n  const pop = usePopover({ side, align, gap: 8, sticky: true })\n  const id = `card-${useId()}`\n  const root = useRef<HTMLSpanElement | null>(null)\n  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)\n\n  useEffect(() => {\n    const trigger = root.current?.firstElementChild as HTMLElement | null\n    pop.anchor.current = trigger\n    trigger?.setAttribute('aria-describedby', id)\n  }, [id]) // eslint-disable-line react-hooks/exhaustive-deps\n  useEffect(() => () => clearTimeout(timer.current), [])\n\n  function enter(event: PointerEvent) {\n    if (event.pointerType !== 'mouse') return\n    clearTimeout(timer.current)\n    // ds-latency: the wait keeps a passing pointer from opening it.\n    if (!pop.open) timer.current = setTimeout(() => void pop.show(), WAIT)\n  }\n  function leave(event: PointerEvent) {\n    if (event.pointerType !== 'mouse') return\n    clearTimeout(timer.current)\n    // ds-latency: a grace to cross the gap into the card.\n    timer.current = setTimeout(() => pop.hide(), GRACE)\n  }\n  function focus(event: FocusEvent) {\n    if ((event.target as HTMLElement).matches(':focus-visible')) void pop.show({ keyboard: true })\n  }\n  function blur(event: FocusEvent) {\n    const next = event.relatedTarget as Node | null\n    if (!next || !pop.panel.current?.contains(next)) pop.hide()\n  }\n  return (\n    <>\n      <span data-ds=\"hover-card\" ref={root} className=\"inline-flex\" onPointerEnter={enter} onPointerLeave={leave} onFocus={focus} onBlur={blur}>\n        {children}\n      </span>\n      <PopoverPanel data-ds=\"hover-card\" id={id} pop={pop} className=\"p-4\" style={{ width }} onPointerEnter={enter} onPointerLeave={leave}>\n        {card}\n      </PopoverPanel>\n    </>\n  )\n}\n\nexport default HoverCard\n"
+    }
+  ]
+}

@@ -1,0 +1,211 @@
+{
+  "name": "contact-page",
+  "title": "Contact page",
+  "type": "registry:block",
+  "group": "pages",
+  "description": "The contact page template, built only from library items: the heading and a line beside a form on the #171717 fill (name, work email, message, one White button), the header and the footer row.",
+  "use_for": "A website's contact page. Edit lib/pages/contact.ts or pass `content`; the form posts to `content.form.action`, or `onSubmit` (the element's `send` event) takes the values.",
+  "never": [
+    "An address, phone number or reply time you cannot keep",
+    "More fields than you need, or a second White button",
+    "New colors, shadows or type sizes added to a section: use the items' props"
+  ],
+  "source": "Built from the library (site header, field, input, textarea, button, footer row); the brand assets have no contact layout, so it follows the page templates and the plan card's fill",
+  "body": "",
+  "requires": [
+    "button",
+    "field",
+    "footer-row",
+    "input",
+    "site-header",
+    "textarea"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/pages/ContactPage.tsx",
+      "content": "'use client'\nimport { Button } from '@/react/components/ui/Button'\nimport { Field } from '@/react/components/ui/Field'\nimport { Input } from '@/react/components/ui/Input'\nimport { Textarea } from '@/react/components/ui/Textarea'\nimport { FooterRow } from '@/react/components/site/FooterRow'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { contactContent, type ContactContent } from '@/lib/pages/contact'\nimport { cn } from '@/react/lib/cn'\n\n// The contact page from library items: the heading and a line in the first column, the form on the card fill in the\n// other (name, work email, message and one White button), one column on phones. The form posts to `content.form.action`\n// unless `onSubmit` takes it. `content` replaces the copy (lib/pages/contact.ts).\nexport interface ContactPageProps {\n  content?: ContactContent\n  /** Receives the form's values instead of posting it. */\n  onSubmit?: (values: { name: string; email: string; message: string }) => void\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'\n\nexport function ContactPage({ content: c = contactContent, onSubmit, className }: ContactPageProps) {\n  const f = c.form\n  return (\n    <div data-ds=\"contact-page\" className={cn('flex min-h-dvh flex-col bg-surface text-fg', className)}>\n      <div className={WRAP}>\n        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      </div>\n      <main className={cn(WRAP, 'grid flex-1 grid-cols-2 items-start gap-12 py-24 max-md:grid-cols-1 max-md:gap-8 max-sm:py-16')}>\n        <div className=\"grid max-w-xl gap-6\">\n          <h1 className=\"type-display max-md:type-hero max-sm:type-heading-1\">{c.headline}</h1>\n          <p className=\"type-body-lg text-fg-soft\">{c.body}</p>\n        </div>\n        <form\n          aria-label={f.label}\n          action={f.action}\n          method=\"post\"\n          onSubmit={onSubmit ? (e) => {\n            e.preventDefault()\n            const d = new FormData(e.currentTarget)\n            onSubmit({ name: String(d.get('name') ?? ''), email: String(d.get('email') ?? ''), message: String(d.get('message') ?? '') })\n          } : undefined}\n          className=\"grid gap-6 rounded-container bg-surface-raised p-8 max-sm:p-6\"\n        >\n          <Field label={f.name.label}>\n            {({ id }) => <Input id={id} name=\"name\" autoComplete=\"name\" placeholder={f.name.placeholder} required />}\n          </Field>\n          <Field label={f.email.label} description={f.email.description}>\n            {({ id, describedBy }) => <Input id={id} name=\"email\" type=\"email\" autoComplete=\"email\" placeholder={f.email.placeholder} aria-describedby={describedBy} required />}\n          </Field>\n          <Field label={f.message.label}>\n            {({ id }) => <Textarea id={id} name=\"message\" rows={6} placeholder={f.message.placeholder} required />}\n          </Field>\n          <Button type=\"submit\" className=\"w-full\">{f.submit}</Button>\n        </form>\n      </main>\n      <footer className=\"border-t border-edge\">\n        <div className={cn(WRAP, 'py-10')}>\n          <FooterRow domain={c.footer.domain} homeHref=\"/\" links={c.footer.links} />\n        </div>\n      </footer>\n    </div>\n  )\n}\n\nexport default ContactPage\n"
+    },
+    {
+      "path": "lib/pages/contact.ts",
+      "content": "// The contact page template's copy: short declarative sentences and a form with three fields. No address, phone\n// number or reply time is stated: the brand assets give none. Both flavors read this file.\nconst nav = [\n\t{ label: 'Product', href: '/product' },\n\t{ label: 'Pricing', href: '/pricing' },\n\t{ label: 'Changelog', href: '/changelog' },\n\t{ label: 'Blog', href: '/blog' },\n]\nconst footer = {\n\tdomain: 'spyglass.so',\n\tlinks: [\n\t\t{ label: 'Product', href: '/product' },\n\t\t{ label: 'Pricing', href: '/pricing' },\n\t\t{ label: 'About', href: '/about' },\n\t\t{ label: 'Changelog', href: '/changelog' },\n\t\t{ label: 'Blog', href: '/blog' },\n\t\t{ label: 'Terms', href: '/legal' },\n\t],\n}\nconst header = { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get 50% off', href: '/pricing' } }\n\nexport const contactContent = {\n\theader,\n\theadline: 'Talk to us.',\n\tbody: 'Questions about a plan, your team or the index. Send a note and a person reads it.',\n\tform: {\n\t\tlabel: 'Contact',\n\t\taction: '/contact',\n\t\tname: { label: 'Name', placeholder: 'Alex at Acme' },\n\t\temail: { label: 'Work email', placeholder: 'you@acme.com', description: 'Where we write back.' },\n\t\tmessage: { label: 'Message', placeholder: 'What would you like to know?' },\n\t\tsubmit: 'Send message',\n\t},\n\tfooter,\n}\n\nexport type ContactContent = typeof contactContent\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Page",
+      "label": "Contact page",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/contact-page/Page.tsx",
+      "content": "import { ContactPage } from '@/react/components/pages/ContactPage'\n// The contact page template with its own copy.\n\nexport default function Page() {\n  return <ContactPage />\n}\n",
+      "requires": [
+        "button",
+        "field",
+        "footer-row",
+        "input",
+        "site-header",
+        "textarea"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/pages/ContactPage.tsx",
+          "content": "'use client'\nimport { Button } from '@/react/components/ui/Button'\nimport { Field } from '@/react/components/ui/Field'\nimport { Input } from '@/react/components/ui/Input'\nimport { Textarea } from '@/react/components/ui/Textarea'\nimport { FooterRow } from '@/react/components/site/FooterRow'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { contactContent, type ContactContent } from '@/lib/pages/contact'\nimport { cn } from '@/react/lib/cn'\n\n// The contact page from library items: the heading and a line in the first column, the form on the card fill in the\n// other (name, work email, message and one White button), one column on phones. The form posts to `content.form.action`\n// unless `onSubmit` takes it. `content` replaces the copy (lib/pages/contact.ts).\nexport interface ContactPageProps {\n  content?: ContactContent\n  /** Receives the form's values instead of posting it. */\n  onSubmit?: (values: { name: string; email: string; message: string }) => void\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'\n\nexport function ContactPage({ content: c = contactContent, onSubmit, className }: ContactPageProps) {\n  const f = c.form\n  return (\n    <div data-ds=\"contact-page\" className={cn('flex min-h-dvh flex-col bg-surface text-fg', className)}>\n      <div className={WRAP}>\n        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      </div>\n      <main className={cn(WRAP, 'grid flex-1 grid-cols-2 items-start gap-12 py-24 max-md:grid-cols-1 max-md:gap-8 max-sm:py-16')}>\n        <div className=\"grid max-w-xl gap-6\">\n          <h1 className=\"type-display max-md:type-hero max-sm:type-heading-1\">{c.headline}</h1>\n          <p className=\"type-body-lg text-fg-soft\">{c.body}</p>\n        </div>\n        <form\n          aria-label={f.label}\n          action={f.action}\n          method=\"post\"\n          onSubmit={onSubmit ? (e) => {\n            e.preventDefault()\n            const d = new FormData(e.currentTarget)\n            onSubmit({ name: String(d.get('name') ?? ''), email: String(d.get('email') ?? ''), message: String(d.get('message') ?? '') })\n          } : undefined}\n          className=\"grid gap-6 rounded-container bg-surface-raised p-8 max-sm:p-6\"\n        >\n          <Field label={f.name.label}>\n            {({ id }) => <Input id={id} name=\"name\" autoComplete=\"name\" placeholder={f.name.placeholder} required />}\n          </Field>\n          <Field label={f.email.label} description={f.email.description}>\n            {({ id, describedBy }) => <Input id={id} name=\"email\" type=\"email\" autoComplete=\"email\" placeholder={f.email.placeholder} aria-describedby={describedBy} required />}\n          </Field>\n          <Field label={f.message.label}>\n            {({ id }) => <Textarea id={id} name=\"message\" rows={6} placeholder={f.message.placeholder} required />}\n          </Field>\n          <Button type=\"submit\" className=\"w-full\">{f.submit}</Button>\n        </form>\n      </main>\n      <footer className=\"border-t border-edge\">\n        <div className={cn(WRAP, 'py-10')}>\n          <FooterRow domain={c.footer.domain} homeHref=\"/\" links={c.footer.links} />\n        </div>\n      </footer>\n    </div>\n  )\n}\n\nexport default ContactPage\n"
+        },
+        {
+          "path": "lib/pages/contact.ts",
+          "content": "// The contact page template's copy: short declarative sentences and a form with three fields. No address, phone\n// number or reply time is stated: the brand assets give none. Both flavors read this file.\nconst nav = [\n\t{ label: 'Product', href: '/product' },\n\t{ label: 'Pricing', href: '/pricing' },\n\t{ label: 'Changelog', href: '/changelog' },\n\t{ label: 'Blog', href: '/blog' },\n]\nconst footer = {\n\tdomain: 'spyglass.so',\n\tlinks: [\n\t\t{ label: 'Product', href: '/product' },\n\t\t{ label: 'Pricing', href: '/pricing' },\n\t\t{ label: 'About', href: '/about' },\n\t\t{ label: 'Changelog', href: '/changelog' },\n\t\t{ label: 'Blog', href: '/blog' },\n\t\t{ label: 'Terms', href: '/legal' },\n\t],\n}\nconst header = { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get 50% off', href: '/pricing' } }\n\nexport const contactContent = {\n\theader,\n\theadline: 'Talk to us.',\n\tbody: 'Questions about a plan, your team or the index. Send a note and a person reads it.',\n\tform: {\n\t\tlabel: 'Contact',\n\t\taction: '/contact',\n\t\tname: { label: 'Name', placeholder: 'Alex at Acme' },\n\t\temail: { label: 'Work email', placeholder: 'you@acme.com', description: 'Where we write back.' },\n\t\tmessage: { label: 'Message', placeholder: 'What would you like to know?' },\n\t\tsubmit: 'Send message',\n\t},\n\tfooter,\n}\n\nexport type ContactContent = typeof contactContent\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button",
+        "field",
+        "footer-row",
+        "input",
+        "site-header",
+        "textarea"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "ContactPage",
+            "file": "react/components/pages/ContactPage.tsx",
+            "props": [
+              {
+                "name": "content",
+                "type": "ContactContent",
+                "required": false
+              },
+              {
+                "name": "onSubmit",
+                "type": "(values: { name: string; email: string; message: string }) => void",
+                "required": false,
+                "description": "Receives the form's values instead of posting it."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Contact page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/contact-page/Page.tsx",
+          "content": "import { ContactPage } from '@/react/components/pages/ContactPage'\n// The contact page template with its own copy.\n\nexport default function Page() {\n  return <ContactPage />\n}\n",
+          "registryDependencies": [
+            "button",
+            "field",
+            "footer-row",
+            "input",
+            "site-header",
+            "textarea"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/pages/contact-page.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { contactContent, type ContactContent } from '@/lib/pages/contact'\nimport '@/elements/components/ui/button'\nimport '@/elements/components/ui/field'\nimport '@/elements/components/ui/input'\nimport '@/elements/components/ui/textarea'\nimport '@/elements/components/site/footer-row'\nimport '@/elements/components/site/site-header'\nimport styles from 'virtual:tw'\n\n// ContactPage.tsx as <spyglass-contact-page>: the heading and a line beside the form on the card fill. The form posts\n// to `content.form.action`; it first fires a cancelable `send` event with { name, email, message }, and a listener\n// that calls preventDefault() takes the values instead (React's `onSubmit`).\nconst WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'\n\n/**\n * @summary The contact page template.\n * @fires send - On submit, with { name, email, message }; preventDefault() keeps the form from posting.\n */\nexport class ContactPage extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"contact-page\"]'))\n\tstatic properties = { content: { type: Object } }\n\t/** The page's copy (lib/pages/contact.ts by default). */\n\tcontent: ContactContent = contactContent\n\n\tprivate onSubmit(e: SubmitEvent) {\n\t\tconst form = e.currentTarget as HTMLFormElement\n\t\tconst d = new FormData(form)\n\t\tconst detail = { name: String(d.get('name') ?? ''), email: String(d.get('email') ?? ''), message: String(d.get('message') ?? '') }\n\t\tconst ev = new CustomEvent('send', { detail, bubbles: true, composed: true, cancelable: true })\n\t\tif (!this.dispatchEvent(ev)) e.preventDefault()\n\t}\n\n\trender() {\n\t\tconst c = this.content ?? contactContent\n\t\tconst f = c.form\n\t\treturn html`<div data-ds=\"contact-page\" class=\"flex min-h-dvh flex-col bg-surface text-fg\">\n<div class=${WRAP}><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header></div>\n<main class=${`${WRAP} grid flex-1 grid-cols-2 items-start gap-12 py-24 max-md:grid-cols-1 max-md:gap-8 max-sm:py-16`}>\n<div class=\"grid max-w-xl gap-6\"><h1 class=\"type-display max-md:type-hero max-sm:type-heading-1\">${c.headline}</h1><p class=\"type-body-lg text-fg-soft\">${c.body}</p></div>\n<form aria-label=${f.label} action=${f.action} method=\"post\" @submit=${this.onSubmit} class=\"grid gap-6 rounded-container bg-surface-raised p-8 max-sm:p-6\">\n<spyglass-field label=${f.name.label}><spyglass-input name=\"name\" autocomplete=\"name\" placeholder=${f.name.placeholder} required></spyglass-input></spyglass-field>\n<spyglass-field label=${f.email.label} description=${f.email.description}><spyglass-input name=\"email\" type=\"email\" autocomplete=\"email\" placeholder=${f.email.placeholder} required></spyglass-input></spyglass-field>\n<spyglass-field label=${f.message.label}><spyglass-textarea name=\"message\" rows=\"6\" placeholder=${f.message.placeholder} required></spyglass-textarea></spyglass-field>\n<spyglass-button type=\"submit\" class=\"w-full\">${f.submit}</spyglass-button>\n</form>\n</main>\n<footer class=\"border-t border-edge\"><div class=${`${WRAP} py-10`}><spyglass-footer-row domain=${c.footer.domain} home-href=\"/\" .links=${c.footer.links}></spyglass-footer-row></div></footer>\n</div>`\n\t}\n}\n\ndefine('contact-page', ContactPage)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/contact-page.js",
+        "elements/button.js",
+        "elements/field.js",
+        "elements/input.js",
+        "elements/textarea.js",
+        "elements/footer-row.js",
+        "elements/site-header.js",
+        "elements/logo.js"
+      ],
+      "tag": "spyglass-contact-page",
+      "tags": [
+        "spyglass-contact-page"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button",
+        "field",
+        "footer-row",
+        "input",
+        "logo",
+        "site-header",
+        "textarea"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-contact-page",
+            "name": "ContactPage",
+            "module": "elements/contact-page.js",
+            "description": "The contact page template.",
+            "attributes": [
+              {
+                "name": "content",
+                "field": "content",
+                "type": "{ header: { nav: { label: string; href: string; }[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; }; }; headline: string; body: string; form: { label: string; action: string; name: { label: string; placeholder: string; }; email: { label: string; placeholder: string; description: string; }; message: { label: string; placeholder: string; }; submit: string; }; footer: { domain: string; links: { label: string; href: string; }[]; }; }",
+                "default": "contactContent",
+                "description": "The page's copy (lib/pages/contact.ts by default)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "content",
+                "type": "{ header: { nav: { label: string; href: string; }[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; }; }; headline: string; body: string; form: { label: string; action: string; name: { label: string; placeholder: string; }; email: { label: string; placeholder: string; description: string; }; message: { label: string; placeholder: string; }; submit: string; }; footer: { domain: string; links: { label: string; href: string; }[]; }; }",
+                "default": "contactContent",
+                "description": "The page's copy (lib/pages/contact.ts by default).",
+                "attribute": "content"
+              }
+            ],
+            "events": [
+              {
+                "name": "send",
+                "description": "On submit, with { name, email, message }; preventDefault() keeps the form from posting."
+              }
+            ],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Contact page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/contact-page/Page.html",
+          "content": "<!-- The contact page template with its own copy. -->\n<spyglass-contact-page></spyglass-contact-page>\n"
+        }
+      ]
+    }
+  }
+}

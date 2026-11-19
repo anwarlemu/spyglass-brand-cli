@@ -1,0 +1,315 @@
+{
+  "name": "data-table",
+  "title": "Data table",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A table people filter, sort and page through: a dropdown per filter, heads in capitals that sort, 40px rows on neutral hairlines that take the #171717 fill under the pointer, numbers in tabular figures, Previous and Next under it.",
+  "use_for": "A board's creatives, a brand's ads, a team's searches: rows of one kind of thing that people narrow and order.",
+  "never": [
+    "Zebra stripes or a shadow: hairlines separate rows",
+    "Bold heads: DM Sans Medium capitals at 6%",
+    "A spectrum color for a sorted column or a picked filter",
+    "A table wider than the page without its own scroll"
+  ],
+  "source": "Derived from the guidelines: DM Sans for cells and capital labels for heads, neutral hairlines, the #171717 card fill for the hovered row and the filter menus, the 10px canvas corner (8px here). shadcn's data table (filters, sortable heads, pagination) for anatomy and ARIA.",
+  "body": "",
+  "requires": [
+    "button",
+    "dropdown-menu"
+  ],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/ui/DataTable.tsx",
+      "content": "'use client'\nimport { useState, type ReactNode } from 'react'\nimport { ArrowDown, ArrowUp, ArrowUpDown, Check, ChevronDown } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { DropdownMenu } from '@/react/components/ui/DropdownMenu'\nimport { MenuItem } from '@/react/components/ui/MenuItem'\nimport { cn } from '@/react/lib/cn'\n\n// shadcn's data table in the brand: a table people filter, sort and page through. Over it, a dropdown per filter\n// (radio rows, the trigger saying what is picked) and a way to clear them; heads in DM Sans Medium capitals, muted,\n// that sort when they can (aria-sort; the arrow shows the order, a faint pair where it could); 40px rows on hairlines\n// that take the #171717 fill under the pointer; numbers right-aligned in tabular figures; the whole in a hairline box\n// with the 8px corner that scrolls sideways on its own, so a phone never scrolls the page. Under it, where the page is\n// and Previous and Next. Filters and sort go back to the first page. Cells render the value (numbers in en-US), or\n// `cell[key]({ row, value })`. Nothing matching shows one line with a way to clear the filters (`empty` replaces it).\nexport type DataColumn = { key: string, label: string, align?: 'left' | 'right', sortable?: boolean, muted?: boolean }\nexport type DataFilter = { key: string, label: string, options: string[], any?: string }\nexport interface DataTableProps<Row extends Record<string, unknown>> {\n  /** The columns: key, label, align, sortable, muted. */\n  columns: DataColumn[]\n  rows: Row[]\n  /** The field that tells rows apart. */\n  rowKey: string\n  /** The table's name for assistive tech. */\n  label: string\n  /** A dropdown per filter: key, label, options, and what \"any\" reads as. */\n  filters?: DataFilter[]\n  /** Rows per page. */\n  pageSize?: number\n  /** How a column's cells render, by key. */\n  cell?: Partial<Record<string, (slot: { row: Row, value: unknown }) => ReactNode>>\n  /** In place of the line shown when nothing matches. */\n  empty?: ReactNode\n  className?: string\n}\n\nconst display = (v: unknown) => (typeof v === 'number' ? v.toLocaleString('en-US') : String(v ?? ''))\nexport const FILTER = 'inline-flex h-control-sm cursor-pointer items-center gap-1.5 rounded-control border border-edge-strong bg-surface px-3 type-ui text-fg transition-[border-color] duration-150 ease-standard hover:border-action-secondary-edge-hover aria-expanded:border-edge-focus max-md:h-control-touch'\nexport const SORT = '-mx-1 inline-flex cursor-pointer items-center gap-1 rounded-ds-sm px-1 align-middle uppercase transition-[color] duration-150 ease-standard hover:text-fg'\n\nexport function DataTable<Row extends Record<string, unknown>>({ columns, rows, rowKey, label, filters = [], pageSize = 5, cell = {}, empty, className }: DataTableProps<Row>) {\n  const [picked, setPicked] = useState<Record<string, string>>({})\n  const [sort, setSort] = useState<{ key: string, dir: 'ascending' | 'descending' } | null>(null)\n  const [page, setPage] = useState(0)\n\n  const filtered = rows.filter(r => filters.every(f => !picked[f.key] || String(r[f.key]) === picked[f.key]))\n  const sorted = (() => {\n    if (!sort) return filtered\n    const sign = sort.dir === 'ascending' ? 1 : -1\n    return [...filtered].sort((a, b) => {\n      const x = a[sort.key]\n      const y = b[sort.key]\n      return sign * (typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y)))\n    })\n  })()\n  const pages = Math.max(1, Math.ceil(sorted.length / pageSize))\n  const at = Math.min(page, pages - 1)\n  const visible = sorted.slice(at * pageSize, at * pageSize + pageSize)\n  const anyOn = Object.values(picked).some(Boolean)\n\n  function pick(next: Record<string, string>) {\n    setPicked(next)\n    setPage(0)\n  }\n  function toggleSort(key: string) {\n    setSort(s => (s?.key !== key ? { key, dir: 'ascending' } : s.dir === 'ascending' ? { key, dir: 'descending' } : null))\n    setPage(0)\n  }\n\n  return (\n    <div data-ds=\"data-table\" className={cn('flex min-w-0 flex-col gap-3', className)}>\n      {filters.length > 0 && (\n        <div className=\"flex flex-wrap items-center gap-2\">\n          {filters.map(f => (\n            <DropdownMenu key={f.key} label={f.label} width=\"200px\" triggerClass={FILTER} trigger={<><span>{`${f.label}: ${picked[f.key] || (f.any ?? 'Any')}`}</span><ChevronDown size={16} strokeWidth={1.5} className=\"text-fg-muted\" aria-hidden=\"true\" /></>}>\n              {['', ...f.options].map(o => (\n                <MenuItem key={o || 'any'} role=\"menuitemradio\" aria-checked={(picked[f.key] ?? '') === o} onSelect={() => pick({ ...picked, [f.key]: o })}>\n                  <span className=\"min-w-0 flex-1 truncate\">{o || (f.any ?? 'Any')}</span>\n                  {(picked[f.key] ?? '') === o && <Check size={16} strokeWidth={1.5} className=\"shrink-0\" aria-hidden=\"true\" />}\n                </MenuItem>\n              ))}\n            </DropdownMenu>\n          ))}\n          {anyOn && <Button variant=\"ghost\" size=\"sm\" onClick={() => pick({})}>Clear filters</Button>}\n        </div>\n      )}\n      <div className=\"overflow-x-auto rounded-container border border-edge\" role=\"region\" aria-label={label} tabIndex={0}>\n        <table className=\"w-full border-collapse type-ui\">\n          <thead>\n            <tr>\n              {columns.map(c => (\n                <th key={c.key} scope=\"col\" className={cn('h-10 border-b border-edge px-3 align-middle type-label whitespace-nowrap text-fg-muted', c.align === 'right' ? 'text-right' : 'text-left')} aria-sort={sort?.key === c.key ? sort.dir : c.sortable ? 'none' : undefined}>\n                  {c.sortable\n                    ? (\n                        <button type=\"button\" className={cn(SORT, c.align === 'right' && 'flex-row-reverse')} onClick={() => toggleSort(c.key)}>\n                          {c.label}\n                          {sort?.key === c.key && sort.dir === 'ascending'\n                            ? <ArrowUp size={14} strokeWidth={1.5} className=\"text-fg\" aria-hidden=\"true\" />\n                            : sort?.key === c.key\n                              ? <ArrowDown size={14} strokeWidth={1.5} className=\"text-fg\" aria-hidden=\"true\" />\n                              : <ArrowUpDown size={14} strokeWidth={1.5} className=\"text-fg-faint\" aria-hidden=\"true\" />}\n                        </button>\n                      )\n                    : c.label}\n                </th>\n              ))}\n            </tr>\n          </thead>\n          <tbody>\n            {visible.map(r => (\n              <tr key={String(r[rowKey])} className=\"transition-[background-color] duration-150 ease-standard hover:bg-surface-raised\">\n                {columns.map(c => (\n                  <td key={c.key} className={cn('h-row border-b border-edge px-3 py-1 whitespace-nowrap [tr:last-child>&]:border-b-0', c.align === 'right' && 'text-right tabular-nums', c.muted && 'text-fg-muted')}>\n                    {cell[c.key] ? cell[c.key]!({ row: r, value: r[c.key] }) : display(r[c.key])}\n                  </td>\n                ))}\n              </tr>\n            ))}\n            {!visible.length && (\n              <tr>\n                <td colSpan={columns.length} className=\"px-3 py-6 text-center text-fg-muted\">\n                  {empty ?? <>Nothing matches these filters. <button type=\"button\" className=\"cursor-pointer font-medium text-fg underline-offset-4 hover:underline\" onClick={() => pick({})}>Clear filters</button></>}\n                </td>\n              </tr>\n            )}\n          </tbody>\n        </table>\n      </div>\n      {sorted.length > pageSize && (\n        <div className=\"flex items-center justify-between gap-3\">\n          <span className=\"type-caption text-fg-muted tabular-nums\" aria-live=\"polite\">{`${at * pageSize + 1} to ${at * pageSize + visible.length} of ${sorted.length}`}</span>\n          <div className=\"flex gap-2\">\n            <Button variant=\"secondary\" size=\"sm\" disabled={at === 0} onClick={() => setPage(at - 1)}>Previous</Button>\n            <Button variant=\"secondary\" size=\"sm\" disabled={at >= pages - 1} onClick={() => setPage(at + 1)}>Next</Button>\n          </div>\n        </div>\n      )}\n    </div>\n  )\n}\n\nexport default DataTable\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Creatives",
+      "label": "A board's creatives",
+      "center": false,
+      "half": false,
+      "path": "react/examples/data-table/Creatives.tsx",
+      "content": "'use client'\nimport { DataTable } from '@/react/components/ui/DataTable'\n// A board's creatives on sample data: filter by format and status, sort by days running, spend or impressions, five\n// to a page.\nconst formats = ['Video', 'Carousel', 'Image']\nconst statuses = ['Active', 'Paused']\nconst names = ['summer UGC', 'serum launch', 'founder story', 'bundle offer', 'before and after', 'unboxing', 'routine in 30 seconds', 'holiday gift set']\nconst rows = Array.from({ length: 17 }, (_, i) => ({\n  id: `cr-${i + 1}`,\n  name: `Acme ${names[i % names.length]!}${i >= names.length ? ` ${Math.floor(i / names.length) + 1}` : ''}`,\n  format: formats[i % 3]!,\n  status: statuses[i % 4 === 3 ? 1 : 0]!,\n  days: ((i * 17) % 80) + 3,\n  spend: ((i * 7919) % 42000) + 1800,\n  impressions: ((i * 104729) % 2400000) + 86000,\n}))\nconst columns = [\n  { key: 'name', label: 'Creative', sortable: true },\n  { key: 'format', label: 'Format' },\n  { key: 'status', label: 'Status', muted: true },\n  { key: 'days', label: 'Days running', align: 'right' as const, sortable: true },\n  { key: 'spend', label: 'Spend', align: 'right' as const, sortable: true },\n  { key: 'impressions', label: 'Impressions', align: 'right' as const, sortable: true },\n]\nconst filters = [{ key: 'format', label: 'Format', options: formats }, { key: 'status', label: 'Status', options: statuses }]\n\nexport default function Creatives() {\n  return (\n    <div className=\"min-h-110 w-full\">\n      <DataTable columns={columns} rows={rows} rowKey=\"id\" label=\"Board creatives\" filters={filters} cell={{ spend: ({ value }) => `$${Number(value).toLocaleString('en-US')}` }} />\n    </div>\n  )\n}\n",
+      "requires": [
+        "button",
+        "dropdown-menu"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/DataTable.tsx",
+          "content": "'use client'\nimport { useState, type ReactNode } from 'react'\nimport { ArrowDown, ArrowUp, ArrowUpDown, Check, ChevronDown } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { DropdownMenu } from '@/react/components/ui/DropdownMenu'\nimport { MenuItem } from '@/react/components/ui/MenuItem'\nimport { cn } from '@/react/lib/cn'\n\n// shadcn's data table in the brand: a table people filter, sort and page through. Over it, a dropdown per filter\n// (radio rows, the trigger saying what is picked) and a way to clear them; heads in DM Sans Medium capitals, muted,\n// that sort when they can (aria-sort; the arrow shows the order, a faint pair where it could); 40px rows on hairlines\n// that take the #171717 fill under the pointer; numbers right-aligned in tabular figures; the whole in a hairline box\n// with the 8px corner that scrolls sideways on its own, so a phone never scrolls the page. Under it, where the page is\n// and Previous and Next. Filters and sort go back to the first page. Cells render the value (numbers in en-US), or\n// `cell[key]({ row, value })`. Nothing matching shows one line with a way to clear the filters (`empty` replaces it).\nexport type DataColumn = { key: string, label: string, align?: 'left' | 'right', sortable?: boolean, muted?: boolean }\nexport type DataFilter = { key: string, label: string, options: string[], any?: string }\nexport interface DataTableProps<Row extends Record<string, unknown>> {\n  /** The columns: key, label, align, sortable, muted. */\n  columns: DataColumn[]\n  rows: Row[]\n  /** The field that tells rows apart. */\n  rowKey: string\n  /** The table's name for assistive tech. */\n  label: string\n  /** A dropdown per filter: key, label, options, and what \"any\" reads as. */\n  filters?: DataFilter[]\n  /** Rows per page. */\n  pageSize?: number\n  /** How a column's cells render, by key. */\n  cell?: Partial<Record<string, (slot: { row: Row, value: unknown }) => ReactNode>>\n  /** In place of the line shown when nothing matches. */\n  empty?: ReactNode\n  className?: string\n}\n\nconst display = (v: unknown) => (typeof v === 'number' ? v.toLocaleString('en-US') : String(v ?? ''))\nexport const FILTER = 'inline-flex h-control-sm cursor-pointer items-center gap-1.5 rounded-control border border-edge-strong bg-surface px-3 type-ui text-fg transition-[border-color] duration-150 ease-standard hover:border-action-secondary-edge-hover aria-expanded:border-edge-focus max-md:h-control-touch'\nexport const SORT = '-mx-1 inline-flex cursor-pointer items-center gap-1 rounded-ds-sm px-1 align-middle uppercase transition-[color] duration-150 ease-standard hover:text-fg'\n\nexport function DataTable<Row extends Record<string, unknown>>({ columns, rows, rowKey, label, filters = [], pageSize = 5, cell = {}, empty, className }: DataTableProps<Row>) {\n  const [picked, setPicked] = useState<Record<string, string>>({})\n  const [sort, setSort] = useState<{ key: string, dir: 'ascending' | 'descending' } | null>(null)\n  const [page, setPage] = useState(0)\n\n  const filtered = rows.filter(r => filters.every(f => !picked[f.key] || String(r[f.key]) === picked[f.key]))\n  const sorted = (() => {\n    if (!sort) return filtered\n    const sign = sort.dir === 'ascending' ? 1 : -1\n    return [...filtered].sort((a, b) => {\n      const x = a[sort.key]\n      const y = b[sort.key]\n      return sign * (typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y)))\n    })\n  })()\n  const pages = Math.max(1, Math.ceil(sorted.length / pageSize))\n  const at = Math.min(page, pages - 1)\n  const visible = sorted.slice(at * pageSize, at * pageSize + pageSize)\n  const anyOn = Object.values(picked).some(Boolean)\n\n  function pick(next: Record<string, string>) {\n    setPicked(next)\n    setPage(0)\n  }\n  function toggleSort(key: string) {\n    setSort(s => (s?.key !== key ? { key, dir: 'ascending' } : s.dir === 'ascending' ? { key, dir: 'descending' } : null))\n    setPage(0)\n  }\n\n  return (\n    <div data-ds=\"data-table\" className={cn('flex min-w-0 flex-col gap-3', className)}>\n      {filters.length > 0 && (\n        <div className=\"flex flex-wrap items-center gap-2\">\n          {filters.map(f => (\n            <DropdownMenu key={f.key} label={f.label} width=\"200px\" triggerClass={FILTER} trigger={<><span>{`${f.label}: ${picked[f.key] || (f.any ?? 'Any')}`}</span><ChevronDown size={16} strokeWidth={1.5} className=\"text-fg-muted\" aria-hidden=\"true\" /></>}>\n              {['', ...f.options].map(o => (\n                <MenuItem key={o || 'any'} role=\"menuitemradio\" aria-checked={(picked[f.key] ?? '') === o} onSelect={() => pick({ ...picked, [f.key]: o })}>\n                  <span className=\"min-w-0 flex-1 truncate\">{o || (f.any ?? 'Any')}</span>\n                  {(picked[f.key] ?? '') === o && <Check size={16} strokeWidth={1.5} className=\"shrink-0\" aria-hidden=\"true\" />}\n                </MenuItem>\n              ))}\n            </DropdownMenu>\n          ))}\n          {anyOn && <Button variant=\"ghost\" size=\"sm\" onClick={() => pick({})}>Clear filters</Button>}\n        </div>\n      )}\n      <div className=\"overflow-x-auto rounded-container border border-edge\" role=\"region\" aria-label={label} tabIndex={0}>\n        <table className=\"w-full border-collapse type-ui\">\n          <thead>\n            <tr>\n              {columns.map(c => (\n                <th key={c.key} scope=\"col\" className={cn('h-10 border-b border-edge px-3 align-middle type-label whitespace-nowrap text-fg-muted', c.align === 'right' ? 'text-right' : 'text-left')} aria-sort={sort?.key === c.key ? sort.dir : c.sortable ? 'none' : undefined}>\n                  {c.sortable\n                    ? (\n                        <button type=\"button\" className={cn(SORT, c.align === 'right' && 'flex-row-reverse')} onClick={() => toggleSort(c.key)}>\n                          {c.label}\n                          {sort?.key === c.key && sort.dir === 'ascending'\n                            ? <ArrowUp size={14} strokeWidth={1.5} className=\"text-fg\" aria-hidden=\"true\" />\n                            : sort?.key === c.key\n                              ? <ArrowDown size={14} strokeWidth={1.5} className=\"text-fg\" aria-hidden=\"true\" />\n                              : <ArrowUpDown size={14} strokeWidth={1.5} className=\"text-fg-faint\" aria-hidden=\"true\" />}\n                        </button>\n                      )\n                    : c.label}\n                </th>\n              ))}\n            </tr>\n          </thead>\n          <tbody>\n            {visible.map(r => (\n              <tr key={String(r[rowKey])} className=\"transition-[background-color] duration-150 ease-standard hover:bg-surface-raised\">\n                {columns.map(c => (\n                  <td key={c.key} className={cn('h-row border-b border-edge px-3 py-1 whitespace-nowrap [tr:last-child>&]:border-b-0', c.align === 'right' && 'text-right tabular-nums', c.muted && 'text-fg-muted')}>\n                    {cell[c.key] ? cell[c.key]!({ row: r, value: r[c.key] }) : display(r[c.key])}\n                  </td>\n                ))}\n              </tr>\n            ))}\n            {!visible.length && (\n              <tr>\n                <td colSpan={columns.length} className=\"px-3 py-6 text-center text-fg-muted\">\n                  {empty ?? <>Nothing matches these filters. <button type=\"button\" className=\"cursor-pointer font-medium text-fg underline-offset-4 hover:underline\" onClick={() => pick({})}>Clear filters</button></>}\n                </td>\n              </tr>\n            )}\n          </tbody>\n        </table>\n      </div>\n      {sorted.length > pageSize && (\n        <div className=\"flex items-center justify-between gap-3\">\n          <span className=\"type-caption text-fg-muted tabular-nums\" aria-live=\"polite\">{`${at * pageSize + 1} to ${at * pageSize + visible.length} of ${sorted.length}`}</span>\n          <div className=\"flex gap-2\">\n            <Button variant=\"secondary\" size=\"sm\" disabled={at === 0} onClick={() => setPage(at - 1)}>Previous</Button>\n            <Button variant=\"secondary\" size=\"sm\" disabled={at >= pages - 1} onClick={() => setPage(at + 1)}>Next</Button>\n          </div>\n        </div>\n      )}\n    </div>\n  )\n}\n\nexport default DataTable\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "button",
+        "dropdown-menu"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "DataTable",
+            "file": "react/components/ui/DataTable.tsx",
+            "props": [
+              {
+                "name": "columns",
+                "type": "DataColumn[]",
+                "required": true,
+                "description": "The columns: key, label, align, sortable, muted."
+              },
+              {
+                "name": "rows",
+                "type": "Row[]",
+                "required": true
+              },
+              {
+                "name": "rowKey",
+                "type": "string",
+                "required": true,
+                "description": "The field that tells rows apart."
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": true,
+                "description": "The table's name for assistive tech."
+              },
+              {
+                "name": "filters",
+                "type": "DataFilter[]",
+                "required": false,
+                "default": "[]",
+                "description": "A dropdown per filter: key, label, options, and what \"any\" reads as."
+              },
+              {
+                "name": "pageSize",
+                "type": "number",
+                "required": false,
+                "default": "5",
+                "description": "Rows per page."
+              },
+              {
+                "name": "cell",
+                "type": "Partial<Record<string, (slot: { row: Row, value: unknown }) => ReactNode>>",
+                "required": false,
+                "default": "{}",
+                "description": "How a column's cells render, by key."
+              },
+              {
+                "name": "empty",
+                "type": "ReactNode",
+                "required": false,
+                "description": "In place of the line shown when nothing matches."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Creatives",
+          "label": "A board's creatives",
+          "center": false,
+          "half": false,
+          "path": "react/examples/data-table/Creatives.tsx",
+          "content": "'use client'\nimport { DataTable } from '@/react/components/ui/DataTable'\n// A board's creatives on sample data: filter by format and status, sort by days running, spend or impressions, five\n// to a page.\nconst formats = ['Video', 'Carousel', 'Image']\nconst statuses = ['Active', 'Paused']\nconst names = ['summer UGC', 'serum launch', 'founder story', 'bundle offer', 'before and after', 'unboxing', 'routine in 30 seconds', 'holiday gift set']\nconst rows = Array.from({ length: 17 }, (_, i) => ({\n  id: `cr-${i + 1}`,\n  name: `Acme ${names[i % names.length]!}${i >= names.length ? ` ${Math.floor(i / names.length) + 1}` : ''}`,\n  format: formats[i % 3]!,\n  status: statuses[i % 4 === 3 ? 1 : 0]!,\n  days: ((i * 17) % 80) + 3,\n  spend: ((i * 7919) % 42000) + 1800,\n  impressions: ((i * 104729) % 2400000) + 86000,\n}))\nconst columns = [\n  { key: 'name', label: 'Creative', sortable: true },\n  { key: 'format', label: 'Format' },\n  { key: 'status', label: 'Status', muted: true },\n  { key: 'days', label: 'Days running', align: 'right' as const, sortable: true },\n  { key: 'spend', label: 'Spend', align: 'right' as const, sortable: true },\n  { key: 'impressions', label: 'Impressions', align: 'right' as const, sortable: true },\n]\nconst filters = [{ key: 'format', label: 'Format', options: formats }, { key: 'status', label: 'Status', options: statuses }]\n\nexport default function Creatives() {\n  return (\n    <div className=\"min-h-110 w-full\">\n      <DataTable columns={columns} rows={rows} rowKey=\"id\" label=\"Board creatives\" filters={filters} cell={{ spend: ({ value }) => `$${Number(value).toLocaleString('en-US')}` }} />\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button",
+            "dropdown-menu"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/data-table.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { ArrowDown, ArrowUp, ArrowUpDown, Check, ChevronDown } from 'lucide'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { repeat } from 'lit/directives/repeat.js'\nimport { DsElement, define } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport '@/elements/components/ui/button'\nimport '@/elements/components/ui/dropdown-menu'\nimport '@/elements/components/ui/menu-item'\nimport styles from 'virtual:tw'\n\n// DataTable.tsx as <spyglass-data-table>: a table people filter, sort and page through. Over it, a dropdown per filter\n// (radio rows, the trigger saying what is picked) and a way to clear them; heads in DM Sans Medium capitals, muted,\n// that sort when they can (aria-sort; the arrow shows the order, a faint pair where it could); 40px rows on hairlines\n// that take the #171717 fill under the pointer; numbers right-aligned in tabular figures; the whole in a hairline box\n// with the 8px corner that scrolls sideways on its own. Under it, where the page is and Previous and Next. Filters and\n// sort go back to the first page. Cells render the value (numbers in en-US), or what `cells[key]({ row, value })`\n// returns (a node or text: React's `cell`). Nothing matching shows one line with a way to clear the filters, or the\n// `empty` slot. `columns`, `rows` and `filters` are JSON attributes or properties.\n\nexport type DataColumn = { key: string, label: string, align?: 'left' | 'right', sortable?: boolean, muted?: boolean }\nexport type DataFilter = { key: string, label: string, options: string[], any?: string }\nexport type DataRow = Record<string, unknown>\nexport type DataCell = (slot: { row: DataRow, value: unknown }) => unknown\n\nconst display = (v: unknown) => (typeof v === 'number' ? v.toLocaleString('en-US') : String(v ?? ''))\nconst FILTER = 'inline-flex h-control-sm cursor-pointer items-center gap-1.5 rounded-control border border-edge-strong bg-surface px-3 type-ui text-fg transition-[border-color] duration-150 ease-standard hover:border-action-secondary-edge-hover aria-expanded:border-edge-focus max-md:h-control-touch'\nconst SORT = '-mx-1 inline-flex cursor-pointer items-center gap-1 rounded-ds-sm px-1 align-middle uppercase transition-[color] duration-150 ease-standard hover:text-fg'\n\n/**\n * @summary A table people filter, sort and page through.\n * @slot empty - In place of the line shown when nothing matches the filters.\n */\nexport class DataTable extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = {\n\t\tcolumns: { type: Array },\n\t\trows: { type: Array },\n\t\trowKey: { attribute: 'row-key' },\n\t\tlabel: {},\n\t\tfilters: { type: Array },\n\t\tpageSize: { type: Number, attribute: 'page-size' },\n\t\tcells: { attribute: false },\n\t\tpicked: { state: true },\n\t\tsort: { state: true },\n\t\tpage: { state: true },\n\t}\n\n\t/** The columns: key, label, align, sortable, muted. */\n\tcolumns: DataColumn[] = []\n\trows: DataRow[] = []\n\t/** The field that tells rows apart. */\n\trowKey = 'id'\n\t/** The table's name for assistive tech. */\n\tlabel = ''\n\t/** A dropdown per filter: key, label, options, and what \"any\" reads as. */\n\tfilters: DataFilter[] = []\n\t/** Rows per page. */\n\tpageSize = 5\n\t/** How a column's cells render, by key (a property): table.cells = { spend: ({ value }) => text }. */\n\tcells: Partial<Record<string, DataCell>> = {}\n\tprivate picked: Record<string, string> = {}\n\tprivate sort: { key: string, dir: 'ascending' | 'descending' } | null = null\n\tprivate page = 0\n\n\tprivate get sorted() {\n\t\tconst filtered = (this.rows ?? []).filter((r) => (this.filters ?? []).every((f) => !this.picked[f.key] || String(r[f.key]) === this.picked[f.key]))\n\t\tconst s = this.sort\n\t\tif (!s) return filtered\n\t\tconst sign = s.dir === 'ascending' ? 1 : -1\n\t\treturn [...filtered].sort((a, b) => {\n\t\t\tconst x = a[s.key]\n\t\t\tconst y = b[s.key]\n\t\t\treturn sign * (typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y)))\n\t\t})\n\t}\n\tprivate pick(next: Record<string, string>) {\n\t\tthis.picked = next\n\t\tthis.page = 0\n\t}\n\tprivate toggleSort(key: string) {\n\t\tconst s = this.sort\n\t\tthis.sort = s?.key !== key ? { key, dir: 'ascending' } : s.dir === 'ascending' ? { key, dir: 'descending' } : null\n\t\tthis.page = 0\n\t}\n\n\trender() {\n\t\tconst filters = this.filters ?? []\n\t\tconst columns = this.columns ?? []\n\t\tconst sorted = this.sorted\n\t\tconst size = this.pageSize\n\t\tconst pages = Math.max(1, Math.ceil(sorted.length / size))\n\t\tconst at = Math.min(this.page, pages - 1)\n\t\tconst visible = sorted.slice(at * size, at * size + size)\n\t\tconst anyOn = Object.values(this.picked).some(Boolean)\n\t\tconst sort = this.sort\n\t\tconst arrow = (c: DataColumn) => sort?.key === c.key && sort.dir === 'ascending'\n\t\t\t? icon(ArrowUp, 'arrow-up', { size: 14, strokeWidth: 1.5, class: 'text-fg', attrs: { 'aria-hidden': 'true' } })\n\t\t\t: sort?.key === c.key\n\t\t\t\t? icon(ArrowDown, 'arrow-down', { size: 14, strokeWidth: 1.5, class: 'text-fg', attrs: { 'aria-hidden': 'true' } })\n\t\t\t\t: icon(ArrowUpDown, 'arrow-up-down', { size: 14, strokeWidth: 1.5, class: 'text-fg-faint', attrs: { 'aria-hidden': 'true' } })\n\t\tconst filterBar = filters.length\n\t\t\t? html`<div class=\"flex flex-wrap items-center gap-2\">${filters.map((f) => {\n\t\t\t\tconst any = f.any ?? 'Any'\n\t\t\t\tconst now = this.picked[f.key] ?? ''\n\t\t\t\treturn html`<spyglass-dropdown-menu label=${f.label} width=\"200px\"><button slot=\"trigger\" type=\"button\" class=${FILTER}><span>${`${f.label}: ${now || any}`}</span>${icon(ChevronDown, 'chevron-down', { size: 16, strokeWidth: 1.5, class: 'text-fg-muted', attrs: { 'aria-hidden': 'true' } })}</button>${['', ...f.options].map((o) => html`<spyglass-menu-item role=\"menuitemradio\" aria-checked=${String(now === o)} @select=${() => this.pick({ ...this.picked, [f.key]: o })}><span class=\"min-w-0 flex-1 truncate\">${o || any}</span>${now === o ? icon(Check, 'check', { size: 16, strokeWidth: 1.5, class: 'shrink-0', attrs: { 'aria-hidden': 'true' } }) : nothing}</spyglass-menu-item>`)}</spyglass-dropdown-menu>`\n\t\t\t})}${anyOn ? html`<spyglass-button variant=\"ghost\" size=\"sm\" @click=${() => this.pick({})}>Clear filters</spyglass-button>` : nothing}</div>`\n\t\t\t: nothing\n\t\treturn html`<div data-ds=\"data-table\" class=\"flex min-w-0 flex-col gap-3\">${filterBar}<div class=\"overflow-x-auto rounded-container border border-edge\" role=\"region\" aria-label=${this.label} tabindex=\"0\"><table class=\"w-full border-collapse type-ui\">\n\t\t\t<thead><tr>${columns.map((c) => html`<th scope=\"col\" class=${['h-10 border-b border-edge px-3 align-middle type-label whitespace-nowrap text-fg-muted', c.align === 'right' ? 'text-right' : 'text-left'].join(' ')} aria-sort=${ifDefined(sort?.key === c.key ? sort.dir : c.sortable ? 'none' : undefined)}>${c.sortable ? html`<button type=\"button\" class=${[SORT, c.align === 'right' ? 'flex-row-reverse' : ''].filter(Boolean).join(' ')} @click=${() => this.toggleSort(c.key)}>${c.label}${arrow(c)}</button>` : c.label}</th>`)}</tr></thead>\n\t\t\t<tbody>${repeat(visible, (r) => String(r[this.rowKey]), (r) => html`<tr class=\"transition-[background-color] duration-150 ease-standard hover:bg-surface-raised\">${columns.map((c) => html`<td class=${['h-row border-b border-edge px-3 py-1 whitespace-nowrap [tr:last-child>&]:border-b-0', c.align === 'right' ? 'text-right tabular-nums' : '', c.muted ? 'text-fg-muted' : ''].filter(Boolean).join(' ')}>${this.cells?.[c.key] ? this.cells[c.key]!({ row: r, value: r[c.key] }) : display(r[c.key])}</td>`)}</tr>`)}${!visible.length ? html`<tr><td colspan=${columns.length} class=\"px-3 py-6 text-center text-fg-muted\"><slot name=\"empty\">Nothing matches these filters. <button type=\"button\" class=\"cursor-pointer font-medium text-fg underline-offset-4 hover:underline\" @click=${() => this.pick({})}>Clear filters</button></slot></td></tr>` : nothing}</tbody>\n\t\t</table></div>${sorted.length > size ? html`<div class=\"flex items-center justify-between gap-3\"><span class=\"type-caption text-fg-muted tabular-nums\" aria-live=\"polite\">${`${at * size + 1} to ${at * size + visible.length} of ${sorted.length}`}</span><div class=\"flex gap-2\"><spyglass-button variant=\"secondary\" size=\"sm\" ?disabled=${at === 0} @click=${() => { this.page = at - 1 }}>Previous</spyglass-button><spyglass-button variant=\"secondary\" size=\"sm\" ?disabled=${at >= pages - 1} @click=${() => { this.page = at + 1 }}>Next</spyglass-button></div></div>` : nothing}</div>`\n\t}\n}\n\ndefine('data-table', DataTable)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/data-table.js",
+        "elements/button.js",
+        "elements/dropdown-menu.js",
+        "elements/menu-item.js"
+      ],
+      "tag": "spyglass-data-table",
+      "tags": [
+        "spyglass-data-table"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button",
+        "dropdown-menu"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-data-table",
+            "name": "DataTable",
+            "module": "elements/data-table.js",
+            "description": "A table people filter, sort and page through.",
+            "attributes": [
+              {
+                "name": "columns",
+                "field": "columns",
+                "type": "DataColumn[]",
+                "default": "[]",
+                "description": "The columns: key, label, align, sortable, muted."
+              },
+              {
+                "name": "rows",
+                "field": "rows",
+                "type": "DataRow[]",
+                "default": "[]"
+              },
+              {
+                "name": "row-key",
+                "field": "rowKey",
+                "type": "string",
+                "default": "'id'",
+                "description": "The field that tells rows apart."
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The table's name for assistive tech."
+              },
+              {
+                "name": "filters",
+                "field": "filters",
+                "type": "DataFilter[]",
+                "default": "[]",
+                "description": "A dropdown per filter: key, label, options, and what \"any\" reads as."
+              },
+              {
+                "name": "page-size",
+                "field": "pageSize",
+                "type": "number",
+                "default": "5",
+                "description": "Rows per page."
+              },
+              {
+                "name": "picked",
+                "field": "picked",
+                "type": "Record<string, string>",
+                "default": "{}"
+              },
+              {
+                "name": "sort",
+                "field": "sort",
+                "type": "{ key: string, dir: 'ascending' | 'descending' } | null",
+                "default": "null"
+              },
+              {
+                "name": "page",
+                "field": "page",
+                "type": "number",
+                "default": "0"
+              }
+            ],
+            "properties": [
+              {
+                "name": "columns",
+                "type": "DataColumn[]",
+                "default": "[]",
+                "description": "The columns: key, label, align, sortable, muted.",
+                "attribute": "columns"
+              },
+              {
+                "name": "rows",
+                "type": "DataRow[]",
+                "default": "[]",
+                "attribute": "rows"
+              },
+              {
+                "name": "rowKey",
+                "type": "string",
+                "default": "'id'",
+                "description": "The field that tells rows apart.",
+                "attribute": "row-key"
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The table's name for assistive tech.",
+                "attribute": "label"
+              },
+              {
+                "name": "filters",
+                "type": "DataFilter[]",
+                "default": "[]",
+                "description": "A dropdown per filter: key, label, options, and what \"any\" reads as.",
+                "attribute": "filters"
+              },
+              {
+                "name": "pageSize",
+                "type": "number",
+                "default": "5",
+                "description": "Rows per page.",
+                "attribute": "page-size"
+              },
+              {
+                "name": "cells",
+                "type": "Partial<Record<string, DataCell>>",
+                "default": "{}",
+                "description": "How a column's cells render, by key (a property): table.cells = { spend: ({ value }) => text }."
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "empty",
+                "description": "In place of the line shown when nothing matches the filters."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Creatives",
+          "label": "A board's creatives",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/data-table/Creatives.html",
+          "content": "<!-- A board's creatives on sample data: filter by format and status, sort by days running, spend or impressions, five\n     to a page. -->\n<div class=\"min-h-110 w-full\">\n  <spyglass-data-table id=\"board-creatives\" row-key=\"id\" label=\"Board creatives\"></spyglass-data-table>\n</div>\n<script type=\"module\">\n  const formats = ['Video', 'Carousel', 'Image']\n  const statuses = ['Active', 'Paused']\n  const names = ['summer UGC', 'serum launch', 'founder story', 'bundle offer', 'before and after', 'unboxing', 'routine in 30 seconds', 'holiday gift set']\n  const table = document.getElementById('board-creatives')\n  table.rows = Array.from({ length: 17 }, (_, i) => ({\n    id: `cr-${i + 1}`,\n    name: `Acme ${names[i % names.length]}${i >= names.length ? ` ${Math.floor(i / names.length) + 1}` : ''}`,\n    format: formats[i % 3],\n    status: statuses[i % 4 === 3 ? 1 : 0],\n    days: ((i * 17) % 80) + 3,\n    spend: ((i * 7919) % 42000) + 1800,\n    impressions: ((i * 104729) % 2400000) + 86000,\n  }))\n  table.columns = [\n    { key: 'name', label: 'Creative', sortable: true },\n    { key: 'format', label: 'Format' },\n    { key: 'status', label: 'Status', muted: true },\n    { key: 'days', label: 'Days running', align: 'right', sortable: true },\n    { key: 'spend', label: 'Spend', align: 'right', sortable: true },\n    { key: 'impressions', label: 'Impressions', align: 'right', sortable: true },\n  ]\n  table.filters = [{ key: 'format', label: 'Format', options: formats }, { key: 'status', label: 'Status', options: statuses }]\n  table.cells = { spend: ({ value }) => `$${Number(value).toLocaleString('en-US')}` }\n</script>\n"
+        }
+      ]
+    }
+  }
+}

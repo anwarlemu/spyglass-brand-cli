@@ -1,0 +1,289 @@
+{
+  "name": "footer-row",
+  "title": "Footer row",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "The row every post, ad and deck ends on: the lockup on the left, the domain on the right. Links between them make it a website footer.",
+  "use_for": "The foot of a page, a post, an ad or a slide. The domain in DM Sans, or in capitals as the posts set it.",
+  "never": [
+    "The lockup on the right or centered with the domain",
+    "A colored or redrawn lockup",
+    "Social icons in place of the domain"
+  ],
+  "source": "Figma page 8: every post and ad's Spyglass lockup (183x28 at 64 or 72 from the edge) and spyglass.so text on one line; posts set the domain in capitals",
+  "body": "",
+  "requires": [
+    "logo"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/FooterRow.tsx",
+      "content": "import { Logo } from '@/react/components/visuals/Logo'\nimport { cn } from '@/react/lib/cn'\n\n// The row every post, ad and deck ends on: the lockup on the left and the domain on the right (the lockup 183x28 on\n// the canvas, 20px tall here; the domain in DM Sans, or in capitals with `caps` as the posts set it). `links` puts a\n// row of DM Sans links between them for a website footer; on phones they wrap onto their own line. Links change color\n// on hover, nothing moves.\nexport interface FooterLink {\n  label: string\n  href: string\n}\n\nexport interface FooterRowProps {\n  /** The domain on the right. */\n  domain: string\n  /** Where the domain links (https://<domain> by default). */\n  domainHref?: string\n  /** Where the lockup links; without it the lockup is not a link. */\n  homeHref?: string\n  /** The domain in capitals with 6% tracking, as the posts set it. */\n  caps?: boolean\n  /** Links between the lockup and the domain. */\n  links?: FooterLink[]\n  /** The lockup's accessible name. */\n  label?: string\n  className?: string\n}\n\nconst LINK = 'rounded-control text-fg-muted transition-[color] duration-150 ease-standard hover:text-fg'\n\nexport function FooterRow({ domain, domainHref, homeHref, caps = false, links = [], label = 'Spyglass', className }: FooterRowProps) {\n  return (\n    <div data-ds=\"footer-row\" className={cn('flex flex-wrap items-center justify-between gap-x-8 gap-y-6 text-fg', className)}>\n      {homeHref ? (\n        <a href={homeHref} aria-label={label} className=\"rounded-control\"><Logo height={20} label={label} /></a>\n      ) : (\n        <Logo height={20} label={label} />\n      )}\n      {links.length > 0 && (\n        <nav aria-label=\"Footer\" className=\"max-sm:order-last max-sm:w-full\">\n          <ul className=\"flex flex-wrap gap-x-6 gap-y-2 type-ui\">\n            {links.map((l) => <li key={l.href}><a href={l.href} className={LINK}>{l.label}</a></li>)}\n          </ul>\n        </nav>\n      )}\n      <a href={domainHref ?? `https://${domain}`} className={cn('rounded-control text-fg', caps ? 'type-label' : 'type-ui')}>{domain}</a>\n    </div>\n  )\n}\n\nexport default FooterRow\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Asset",
+      "label": "As the ads end",
+      "center": false,
+      "half": false,
+      "path": "react/examples/footer-row/Asset.tsx",
+      "content": "import { FooterRow } from '@/react/components/site/FooterRow'\n// As the ads end: the lockup and the domain, and the posts' capitals.\n\nexport default function Asset() {\n  return (\n    <div className=\"grid gap-10\">\n      <FooterRow domain=\"spyglass.so\" />\n      <FooterRow domain=\"spyglass.so\" caps />\n    </div>\n  )\n}\n",
+      "requires": [
+        "logo"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Site",
+      "label": "Website footer",
+      "center": false,
+      "half": false,
+      "path": "react/examples/footer-row/Site.tsx",
+      "content": "import { FooterRow } from '@/react/components/site/FooterRow'\n// A website footer: the pages between the lockup and the domain.\n\nconst links = [\n  { label: 'Product', href: '#product' },\n  { label: 'Pricing', href: '#pricing' },\n  { label: 'Changelog', href: '#changelog' },\n  { label: 'Blog', href: '#blog' },\n  { label: 'Terms', href: '#terms' },\n]\n\nexport default function Site() {\n  return <FooterRow domain=\"spyglass.so\" homeHref=\"#home\" links={links} />\n}\n",
+      "requires": [
+        "logo"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/FooterRow.tsx",
+          "content": "import { Logo } from '@/react/components/visuals/Logo'\nimport { cn } from '@/react/lib/cn'\n\n// The row every post, ad and deck ends on: the lockup on the left and the domain on the right (the lockup 183x28 on\n// the canvas, 20px tall here; the domain in DM Sans, or in capitals with `caps` as the posts set it). `links` puts a\n// row of DM Sans links between them for a website footer; on phones they wrap onto their own line. Links change color\n// on hover, nothing moves.\nexport interface FooterLink {\n  label: string\n  href: string\n}\n\nexport interface FooterRowProps {\n  /** The domain on the right. */\n  domain: string\n  /** Where the domain links (https://<domain> by default). */\n  domainHref?: string\n  /** Where the lockup links; without it the lockup is not a link. */\n  homeHref?: string\n  /** The domain in capitals with 6% tracking, as the posts set it. */\n  caps?: boolean\n  /** Links between the lockup and the domain. */\n  links?: FooterLink[]\n  /** The lockup's accessible name. */\n  label?: string\n  className?: string\n}\n\nconst LINK = 'rounded-control text-fg-muted transition-[color] duration-150 ease-standard hover:text-fg'\n\nexport function FooterRow({ domain, domainHref, homeHref, caps = false, links = [], label = 'Spyglass', className }: FooterRowProps) {\n  return (\n    <div data-ds=\"footer-row\" className={cn('flex flex-wrap items-center justify-between gap-x-8 gap-y-6 text-fg', className)}>\n      {homeHref ? (\n        <a href={homeHref} aria-label={label} className=\"rounded-control\"><Logo height={20} label={label} /></a>\n      ) : (\n        <Logo height={20} label={label} />\n      )}\n      {links.length > 0 && (\n        <nav aria-label=\"Footer\" className=\"max-sm:order-last max-sm:w-full\">\n          <ul className=\"flex flex-wrap gap-x-6 gap-y-2 type-ui\">\n            {links.map((l) => <li key={l.href}><a href={l.href} className={LINK}>{l.label}</a></li>)}\n          </ul>\n        </nav>\n      )}\n      <a href={domainHref ?? `https://${domain}`} className={cn('rounded-control text-fg', caps ? 'type-label' : 'type-ui')}>{domain}</a>\n    </div>\n  )\n}\n\nexport default FooterRow\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "logo"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "FooterRow",
+            "file": "react/components/site/FooterRow.tsx",
+            "props": [
+              {
+                "name": "domain",
+                "type": "string",
+                "required": true,
+                "description": "The domain on the right."
+              },
+              {
+                "name": "domainHref",
+                "type": "string",
+                "required": false,
+                "description": "Where the domain links (https://<domain> by default)."
+              },
+              {
+                "name": "homeHref",
+                "type": "string",
+                "required": false,
+                "description": "Where the lockup links; without it the lockup is not a link."
+              },
+              {
+                "name": "caps",
+                "type": "boolean",
+                "required": false,
+                "default": "false",
+                "description": "The domain in capitals with 6% tracking, as the posts set it."
+              },
+              {
+                "name": "links",
+                "type": "FooterLink[]",
+                "required": false,
+                "default": "[]",
+                "description": "Links between the lockup and the domain."
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "default": "'Spyglass'",
+                "description": "The lockup's accessible name."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Asset",
+          "label": "As the ads end",
+          "center": false,
+          "half": false,
+          "path": "react/examples/footer-row/Asset.tsx",
+          "content": "import { FooterRow } from '@/react/components/site/FooterRow'\n// As the ads end: the lockup and the domain, and the posts' capitals.\n\nexport default function Asset() {\n  return (\n    <div className=\"grid gap-10\">\n      <FooterRow domain=\"spyglass.so\" />\n      <FooterRow domain=\"spyglass.so\" caps />\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "logo"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Site",
+          "label": "Website footer",
+          "center": false,
+          "half": false,
+          "path": "react/examples/footer-row/Site.tsx",
+          "content": "import { FooterRow } from '@/react/components/site/FooterRow'\n// A website footer: the pages between the lockup and the domain.\n\nconst links = [\n  { label: 'Product', href: '#product' },\n  { label: 'Pricing', href: '#pricing' },\n  { label: 'Changelog', href: '#changelog' },\n  { label: 'Blog', href: '#blog' },\n  { label: 'Terms', href: '#terms' },\n]\n\nexport default function Site() {\n  return <FooterRow domain=\"spyglass.so\" homeHref=\"#home\" links={links} />\n}\n",
+          "registryDependencies": [
+            "logo"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/footer-row.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport '@/elements/components/visuals/logo'\nimport styles from 'virtual:tw'\n\n// FooterRow.tsx as <spyglass-footer-row>: the lockup on the left, the domain on the right (`caps` for capitals), and\n// `links` (a list of { label, href }) between them for a website footer.\nexport interface FooterLink { label: string; href: string }\n\nconst LINK = 'rounded-control text-fg-muted transition-[color] duration-150 ease-standard hover:text-fg'\n\n/**\n * @summary The footer row: lockup left, domain right, links between.\n */\nexport class FooterRow extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"footer-row\"]'))\n\tstatic properties = { domain: {}, domainHref: { attribute: 'domain-href' }, homeHref: { attribute: 'home-href' }, caps: { type: Boolean }, links: { type: Array }, label: { attribute: 'logo-label' } }\n\t/** The domain on the right. */\n\tdomain = ''\n\t/** Where the domain links (https://<domain> by default). */\n\tdomainHref?: string\n\t/** Where the lockup links. */\n\thomeHref?: string\n\t/** The domain in capitals. */\n\tcaps = false\n\t/** Links between the lockup and the domain. */\n\tlinks: FooterLink[] = []\n\t/** The lockup's accessible name. */\n\tlabel = 'Spyglass'\n\n\trender() {\n\t\tconst links = this.links ?? []\n\t\tconst logo = html`<spyglass-logo height=\"20\" aria-label=${this.label}></spyglass-logo>`\n\t\treturn html`<div data-ds=\"footer-row\" class=\"flex flex-wrap items-center justify-between gap-x-8 gap-y-6 text-fg\">${this.homeHref ? html`<a href=${this.homeHref} aria-label=${this.label} class=\"rounded-control\">${logo}</a>` : logo}${links.length ? html`<nav aria-label=\"Footer\" class=\"max-sm:order-last max-sm:w-full\"><ul class=\"flex flex-wrap gap-x-6 gap-y-2 type-ui\">${links.map((l) => html`<li><a href=${l.href} class=${LINK}>${l.label}</a></li>`)}</ul></nav>` : nothing}<a href=${this.domainHref ?? `https://${this.domain}`} class=${['rounded-control text-fg', this.caps ? 'type-label' : 'type-ui'].join(' ')}>${this.domain}</a></div>`\n\t}\n}\n\ndefine('footer-row', FooterRow)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/footer-row.js",
+        "elements/logo.js"
+      ],
+      "tag": "spyglass-footer-row",
+      "tags": [
+        "spyglass-footer-row"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "logo"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-footer-row",
+            "name": "FooterRow",
+            "module": "elements/footer-row.js",
+            "description": "The footer row: lockup left, domain right, links between.",
+            "attributes": [
+              {
+                "name": "domain",
+                "field": "domain",
+                "type": "string",
+                "default": "''",
+                "description": "The domain on the right."
+              },
+              {
+                "name": "domain-href",
+                "field": "domainHref",
+                "type": "string | undefined",
+                "description": "Where the domain links (https://<domain> by default)."
+              },
+              {
+                "name": "home-href",
+                "field": "homeHref",
+                "type": "string | undefined",
+                "description": "Where the lockup links."
+              },
+              {
+                "name": "caps",
+                "field": "caps",
+                "type": "boolean",
+                "default": "false",
+                "description": "The domain in capitals."
+              },
+              {
+                "name": "links",
+                "field": "links",
+                "type": "FooterLink[]",
+                "default": "[]",
+                "description": "Links between the lockup and the domain."
+              },
+              {
+                "name": "logo-label",
+                "field": "label",
+                "type": "string",
+                "default": "'Spyglass'",
+                "description": "The lockup's accessible name."
+              }
+            ],
+            "properties": [
+              {
+                "name": "domain",
+                "type": "string",
+                "default": "''",
+                "description": "The domain on the right.",
+                "attribute": "domain"
+              },
+              {
+                "name": "domainHref",
+                "type": "string | undefined",
+                "description": "Where the domain links (https://<domain> by default).",
+                "attribute": "domain-href"
+              },
+              {
+                "name": "homeHref",
+                "type": "string | undefined",
+                "description": "Where the lockup links.",
+                "attribute": "home-href"
+              },
+              {
+                "name": "caps",
+                "type": "boolean",
+                "default": "false",
+                "description": "The domain in capitals.",
+                "attribute": "caps"
+              },
+              {
+                "name": "links",
+                "type": "FooterLink[]",
+                "default": "[]",
+                "description": "Links between the lockup and the domain.",
+                "attribute": "links"
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "default": "'Spyglass'",
+                "description": "The lockup's accessible name.",
+                "attribute": "logo-label"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Asset",
+          "label": "As the ads end",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/footer-row/Asset.html",
+          "content": "<!-- As the ads end: the lockup and the domain, and the posts' capitals. -->\n<div class=\"grid gap-10\">\n  <spyglass-footer-row domain=\"spyglass.so\"></spyglass-footer-row>\n  <spyglass-footer-row domain=\"spyglass.so\" caps></spyglass-footer-row>\n</div>\n"
+        },
+        {
+          "name": "Site",
+          "label": "Website footer",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/footer-row/Site.html",
+          "content": "<!-- A website footer: the pages between the lockup and the domain. -->\n<spyglass-footer-row domain=\"spyglass.so\" home-href=\"#home\" links='[{\"label\":\"Product\",\"href\":\"#product\"},{\"label\":\"Pricing\",\"href\":\"#pricing\"},{\"label\":\"Changelog\",\"href\":\"#changelog\"},{\"label\":\"Blog\",\"href\":\"#blog\"},{\"label\":\"Terms\",\"href\":\"#terms\"}]'></spyglass-footer-row>\n"
+        }
+      ]
+    }
+  }
+}

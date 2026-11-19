@@ -1,0 +1,32 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "not-found-page",
+  "type": "registry:block",
+  "title": "404 page",
+  "description": "The 404 page template, built only from library items: a centered hero with the light flowing in from the corners, the headline as a plain sentence, the search bar and the way home.",
+  "dependencies": [],
+  "registryDependencies": [
+    "https://spyglass-ds.vercel.app/r/react/button.json",
+    "https://spyglass-ds.vercel.app/r/react/footer-row.json",
+    "https://spyglass-ds.vercel.app/r/react/hero-block.json",
+    "https://spyglass-ds.vercel.app/r/react/search-bar.json",
+    "https://spyglass-ds.vercel.app/r/react/site-header.json"
+  ],
+  "files": [
+    {
+      "path": "components/pages/NotFoundPage.tsx",
+      "type": "registry:ui",
+      "content": "import { Button } from '@/components/ui/Button'\nimport { SearchBar } from '@/components/product/SearchBar'\nimport { FooterRow } from '@/components/site/FooterRow'\nimport { SiteHeader } from '@/components/site/SiteHeader'\nimport { HeroBlock } from '@/components/blocks/HeroBlock'\nimport { notFoundContent, type NotFoundContent } from '@/lib/pages/not-found'\nimport { cn } from '@/lib/cn'\n\n// The 404 page from library items: a centered hero with the light flowing in from the corners, the headline as a\n// plain sentence, the search bar and the way home. The page fills the window, the footer at the foot. `content`\n// replaces the copy (lib/pages/not-found.ts); `onSearch` receives the query.\nexport interface NotFoundPageProps {\n  content?: NotFoundContent\n  onSearch?: (query: string) => void\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'\n\nexport function NotFoundPage({ content: c = notFoundContent, onSearch, className }: NotFoundPageProps) {\n  return (\n    <div data-ds=\"not-found-page\" className={cn('flex min-h-dvh flex-col bg-surface text-fg', className)}>\n      <div className={WRAP}>\n        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      </div>\n      <main className=\"flex flex-1 flex-col\">\n        <HeroBlock eyebrow={c.eyebrow} headline={c.headline} body={c.body} actions={<Button href={c.home.href} variant=\"secondary\">{c.home.label}</Button>} placement=\"center\" light=\"corner\" className=\"flex-1\">\n          <SearchBar placeholder={c.search} label=\"Search\" onSearch={onSearch} className=\"mx-auto max-w-160\" />\n        </HeroBlock>\n      </main>\n      <footer className=\"border-t border-edge\">\n        <div className={cn(WRAP, 'py-10')}>\n          <FooterRow domain={c.footer.domain} homeHref=\"/\" links={c.footer.links} />\n        </div>\n      </footer>\n    </div>\n  )\n}\n\nexport default NotFoundPage\n"
+    },
+    {
+      "path": "lib/pages/not-found.ts",
+      "type": "registry:lib",
+      "content": "// The 404 page template's copy: short declarative sentences, a search and the way home. Both flavors read this file.\nconst nav = [\n\t{ label: 'Product', href: '/product' },\n\t{ label: 'Pricing', href: '/pricing' },\n\t{ label: 'Changelog', href: '/changelog' },\n\t{ label: 'Blog', href: '/blog' },\n]\nconst footer = {\n\tdomain: 'spyglass.so',\n\tlinks: [\n\t\t{ label: 'Product', href: '/product' },\n\t\t{ label: 'Pricing', href: '/pricing' },\n\t\t{ label: 'About', href: '/about' },\n\t\t{ label: 'Changelog', href: '/changelog' },\n\t\t{ label: 'Blog', href: '/blog' },\n\t\t{ label: 'Terms', href: '/legal' },\n\t],\n}\nconst header = { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get 50% off', href: '/pricing' } }\n\nexport const notFoundContent = {\n\theader,\n\teyebrow: '404',\n\theadline: 'This page is not here.',\n\tbody: 'The link may be old or mistyped. Search for what you came for, or go home.',\n\tsearch: 'Search creatives, brands and creators',\n\thome: { label: 'Go home', href: '/' },\n\tfooter,\n}\n\nexport type NotFoundContent = typeof notFoundContent\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

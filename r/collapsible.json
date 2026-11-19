@@ -1,0 +1,236 @@
+{
+  "name": "collapsible",
+  "title": "Collapsible",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A part that opens in place and pushes what follows: a quiet DM Sans Medium trigger with a muted chevron that turns, and content that grows to its height and settles in.",
+  "use_for": "More filters under a search, the rest of a list, details a person asks for. Several questions in a stack are an accordion.",
+  "never": [
+    "Hiding what most people need",
+    "A chevron that moves on hover",
+    "Animating it when it is toggled from the keyboard"
+  ],
+  "source": "Derived from the guidelines: DM Sans Medium labels, muted neutrals for secondary text, the #171717 card fill. shadcn's collapsible for anatomy and ARIA.",
+  "body": "",
+  "requires": [],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/ui/Collapsible.tsx",
+      "content": "'use client'\nimport { useId, useState, type MouseEvent, type ReactNode } from 'react'\nimport { ChevronDown } from 'lucide-react'\nimport { useControllable } from '@/react/hooks/useControllable'\n\n// shadcn's collapsible in the brand: a part that opens in place and pushes what follows. The part grows to its\n// content's height over 250ms on the strong ease-out and closes in 150ms; the content fades and settles 4px down; the\n// muted chevron turns half a circle. Toggled from the keyboard it opens at once. The trigger's content is `trigger` (a\n// node, or a function of `open`), drawn as a quiet DM Sans Medium row unless `triggerClass` says otherwise; it is a\n// real button with aria-expanded and aria-controls. `open` with `onOpenChange` (or `defaultOpen` alone).\nexport interface CollapsibleProps {\n  /** Classes for the trigger button, in place of the quiet row. */\n  triggerClass?: string\n  /** The trigger's content, or a function of whether it is open. */\n  trigger?: ReactNode | ((open: boolean) => ReactNode)\n  open?: boolean\n  defaultOpen?: boolean\n  onOpenChange?: (open: boolean) => void\n  children?: ReactNode\n}\n\nexport function Collapsible({ triggerClass, trigger, open: openProp, defaultOpen = false, onOpenChange, children }: CollapsibleProps) {\n  const [open, setOpen] = useControllable(openProp, defaultOpen, onOpenChange)\n  const [instant, setInstant] = useState(false)\n  const id = `collapse-${useId()}`\n  function toggle(event: MouseEvent) {\n    setInstant(event.detail === 0)\n    setOpen(!open)\n  }\n  return (\n    <>\n      <style href=\"ds-collapsible\" precedence=\"ds\">{css}</style>\n      <div data-ds=\"collapsible\" className=\"ds-collapsible\" data-open={open || undefined} data-instant={instant || undefined}>\n        <button\n          type=\"button\"\n          className={triggerClass ?? 'flex w-full cursor-pointer items-center gap-2 rounded-control py-2 text-left type-ui-strong text-fg max-md:min-h-control-touch'}\n          aria-expanded={open}\n          aria-controls={id}\n          onClick={toggle}\n        >\n          {typeof trigger === 'function' ? trigger(open) : trigger}\n          <ChevronDown size={16} strokeWidth={1.5} className=\"ds-collapsible-chev ml-auto shrink-0 text-fg-muted\" aria-hidden=\"true\" />\n        </button>\n        <div id={id} className=\"ds-collapsible-region\" inert={!open || undefined}>\n          <div><div className=\"ds-collapsible-content\">{children}</div></div>\n        </div>\n      </div>\n    </>\n  )\n}\n\nexport default Collapsible\n\nconst css = `\n/* The part opens to its content's height (0fr to 1fr) over 250ms and closes in 150ms, on the strong ease-out; the\n   content fades and settles 4px down. The chevron turns half a circle (250ms, ease-in-out). Toggled from the keyboard\n   it opens at once. Reduced motion: no height, move or turn, opacity only. */\n.ds-collapsible-region { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--ds-duration-exit) var(--ds-easing-out); }\n.ds-collapsible[data-open] > .ds-collapsible-region { grid-template-rows: 1fr; transition-duration: var(--ds-duration-glide); }\n.ds-collapsible-region > div { min-height: 0; overflow: hidden; }\n.ds-collapsible-content { opacity: 0; transform: translateY(-4px); transition: opacity var(--ds-duration-exit) var(--ds-easing-standard), transform var(--ds-duration-exit) var(--ds-easing-out); }\n.ds-collapsible[data-open] > .ds-collapsible-region .ds-collapsible-content { opacity: 1; transform: none; transition-duration: var(--ds-duration-glide); }\n.ds-collapsible-chev { transition: rotate var(--ds-duration-glide) var(--ds-easing-in-out); }\n.ds-collapsible[data-open] > button .ds-collapsible-chev { rotate: 180deg; }\n.ds-collapsible[data-instant] :is(.ds-collapsible-region, .ds-collapsible-content, .ds-collapsible-chev) { transition: none; }\n@media (prefers-reduced-motion: reduce) {\n  .ds-collapsible-region, .ds-collapsible-chev { transition: none; }\n  .ds-collapsible-content, .ds-collapsible[data-open] > .ds-collapsible-region .ds-collapsible-content { transform: none; }\n}\n`\n"
+    },
+    {
+      "path": "react/hooks/useControllable.ts",
+      "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Filters",
+      "label": "More filters",
+      "center": true,
+      "half": false,
+      "path": "react/examples/collapsible/Filters.tsx",
+      "content": "import { Checkbox } from '@/react/components/ui/Checkbox'\nimport { Collapsible } from '@/react/components/ui/Collapsible'\n// More filters, tucked under the search until a person asks for them.\n\nexport default function Filters() {\n  return (\n    <div className=\"w-100 max-w-full rounded-container bg-surface-raised px-4 py-2\">\n      <Collapsible trigger=\"More filters\">\n        <div className=\"flex flex-col pb-2\">\n          <Checkbox label=\"Still running\" defaultChecked />\n          <Checkbox label=\"Has a voiceover\" />\n          <Checkbox label=\"Under 30 seconds\" />\n        </div>\n      </Collapsible>\n    </div>\n  )\n}\n",
+      "requires": [
+        "checkbox"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "Boards",
+      "label": "The rest of a list",
+      "center": true,
+      "half": false,
+      "path": "react/examples/collapsible/Boards.tsx",
+      "content": "'use client'\nimport { Collapsible } from '@/react/components/ui/Collapsible'\n// A list that shows its first boards and opens to the rest, open with the page.\nconst boards = ['Acme skincare', 'Acme summer UGC', 'Acme founder stories']\n\nexport default function Boards() {\n  return (\n    <div className=\"w-100 max-w-full\">\n      <p className=\"py-2 type-ui text-fg\">Acme hooks that work</p>\n      <Collapsible defaultOpen trigger={(open) => <span className=\"text-fg-muted\">{open ? 'Show fewer boards' : 'Show 3 more boards'}</span>}>\n        <ul className=\"flex flex-col\">\n          {boards.map((b) => <li key={b} className=\"py-2 type-ui text-fg\">{b}</li>)}\n        </ul>\n      </Collapsible>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Collapsible.tsx",
+          "content": "'use client'\nimport { useId, useState, type MouseEvent, type ReactNode } from 'react'\nimport { ChevronDown } from 'lucide-react'\nimport { useControllable } from '@/react/hooks/useControllable'\n\n// shadcn's collapsible in the brand: a part that opens in place and pushes what follows. The part grows to its\n// content's height over 250ms on the strong ease-out and closes in 150ms; the content fades and settles 4px down; the\n// muted chevron turns half a circle. Toggled from the keyboard it opens at once. The trigger's content is `trigger` (a\n// node, or a function of `open`), drawn as a quiet DM Sans Medium row unless `triggerClass` says otherwise; it is a\n// real button with aria-expanded and aria-controls. `open` with `onOpenChange` (or `defaultOpen` alone).\nexport interface CollapsibleProps {\n  /** Classes for the trigger button, in place of the quiet row. */\n  triggerClass?: string\n  /** The trigger's content, or a function of whether it is open. */\n  trigger?: ReactNode | ((open: boolean) => ReactNode)\n  open?: boolean\n  defaultOpen?: boolean\n  onOpenChange?: (open: boolean) => void\n  children?: ReactNode\n}\n\nexport function Collapsible({ triggerClass, trigger, open: openProp, defaultOpen = false, onOpenChange, children }: CollapsibleProps) {\n  const [open, setOpen] = useControllable(openProp, defaultOpen, onOpenChange)\n  const [instant, setInstant] = useState(false)\n  const id = `collapse-${useId()}`\n  function toggle(event: MouseEvent) {\n    setInstant(event.detail === 0)\n    setOpen(!open)\n  }\n  return (\n    <>\n      <style href=\"ds-collapsible\" precedence=\"ds\">{css}</style>\n      <div data-ds=\"collapsible\" className=\"ds-collapsible\" data-open={open || undefined} data-instant={instant || undefined}>\n        <button\n          type=\"button\"\n          className={triggerClass ?? 'flex w-full cursor-pointer items-center gap-2 rounded-control py-2 text-left type-ui-strong text-fg max-md:min-h-control-touch'}\n          aria-expanded={open}\n          aria-controls={id}\n          onClick={toggle}\n        >\n          {typeof trigger === 'function' ? trigger(open) : trigger}\n          <ChevronDown size={16} strokeWidth={1.5} className=\"ds-collapsible-chev ml-auto shrink-0 text-fg-muted\" aria-hidden=\"true\" />\n        </button>\n        <div id={id} className=\"ds-collapsible-region\" inert={!open || undefined}>\n          <div><div className=\"ds-collapsible-content\">{children}</div></div>\n        </div>\n      </div>\n    </>\n  )\n}\n\nexport default Collapsible\n\nconst css = `\n/* The part opens to its content's height (0fr to 1fr) over 250ms and closes in 150ms, on the strong ease-out; the\n   content fades and settles 4px down. The chevron turns half a circle (250ms, ease-in-out). Toggled from the keyboard\n   it opens at once. Reduced motion: no height, move or turn, opacity only. */\n.ds-collapsible-region { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--ds-duration-exit) var(--ds-easing-out); }\n.ds-collapsible[data-open] > .ds-collapsible-region { grid-template-rows: 1fr; transition-duration: var(--ds-duration-glide); }\n.ds-collapsible-region > div { min-height: 0; overflow: hidden; }\n.ds-collapsible-content { opacity: 0; transform: translateY(-4px); transition: opacity var(--ds-duration-exit) var(--ds-easing-standard), transform var(--ds-duration-exit) var(--ds-easing-out); }\n.ds-collapsible[data-open] > .ds-collapsible-region .ds-collapsible-content { opacity: 1; transform: none; transition-duration: var(--ds-duration-glide); }\n.ds-collapsible-chev { transition: rotate var(--ds-duration-glide) var(--ds-easing-in-out); }\n.ds-collapsible[data-open] > button .ds-collapsible-chev { rotate: 180deg; }\n.ds-collapsible[data-instant] :is(.ds-collapsible-region, .ds-collapsible-content, .ds-collapsible-chev) { transition: none; }\n@media (prefers-reduced-motion: reduce) {\n  .ds-collapsible-region, .ds-collapsible-chev { transition: none; }\n  .ds-collapsible-content, .ds-collapsible[data-open] > .ds-collapsible-region .ds-collapsible-content { transform: none; }\n}\n`\n"
+        },
+        {
+          "path": "react/hooks/useControllable.ts",
+          "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Collapsible",
+            "file": "react/components/ui/Collapsible.tsx",
+            "props": [
+              {
+                "name": "triggerClass",
+                "type": "string",
+                "required": false,
+                "description": "Classes for the trigger button, in place of the quiet row."
+              },
+              {
+                "name": "trigger",
+                "type": "ReactNode | ((open: boolean) => ReactNode)",
+                "required": false,
+                "description": "The trigger's content, or a function of whether it is open."
+              },
+              {
+                "name": "open",
+                "type": "boolean",
+                "required": false
+              },
+              {
+                "name": "defaultOpen",
+                "type": "boolean",
+                "required": false,
+                "default": "false"
+              },
+              {
+                "name": "onOpenChange",
+                "type": "(open: boolean) => void",
+                "required": false
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Filters",
+          "label": "More filters",
+          "center": true,
+          "half": false,
+          "path": "react/examples/collapsible/Filters.tsx",
+          "content": "import { Checkbox } from '@/react/components/ui/Checkbox'\nimport { Collapsible } from '@/react/components/ui/Collapsible'\n// More filters, tucked under the search until a person asks for them.\n\nexport default function Filters() {\n  return (\n    <div className=\"w-100 max-w-full rounded-container bg-surface-raised px-4 py-2\">\n      <Collapsible trigger=\"More filters\">\n        <div className=\"flex flex-col pb-2\">\n          <Checkbox label=\"Still running\" defaultChecked />\n          <Checkbox label=\"Has a voiceover\" />\n          <Checkbox label=\"Under 30 seconds\" />\n        </div>\n      </Collapsible>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "checkbox"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        },
+        {
+          "name": "Boards",
+          "label": "The rest of a list",
+          "center": true,
+          "half": false,
+          "path": "react/examples/collapsible/Boards.tsx",
+          "content": "'use client'\nimport { Collapsible } from '@/react/components/ui/Collapsible'\n// A list that shows its first boards and opens to the rest, open with the page.\nconst boards = ['Acme skincare', 'Acme summer UGC', 'Acme founder stories']\n\nexport default function Boards() {\n  return (\n    <div className=\"w-100 max-w-full\">\n      <p className=\"py-2 type-ui text-fg\">Acme hooks that work</p>\n      <Collapsible defaultOpen trigger={(open) => <span className=\"text-fg-muted\">{open ? 'Show fewer boards' : 'Show 3 more boards'}</span>}>\n        <ul className=\"flex flex-col\">\n          {boards.map((b) => <li key={b} className=\"py-2 type-ui text-fg\">{b}</li>)}\n        </ul>\n      </Collapsible>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/collapsible.ts",
+          "content": "import { html, type PropertyValues } from 'lit'\nimport { ChevronDown } from 'lucide'\nimport { DsElement, define, uid } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport styles from 'virtual:tw'\n\n// Collapsible.tsx as <spyglass-collapsible>: a part that opens in place and pushes what follows. The part grows to its\n// content's height over 250ms on the strong ease-out and closes in 150ms; the content fades and settles 4px down; the\n// muted chevron turns half a circle. Toggled from the keyboard it opens at once. The trigger: content in the `trigger`\n// slot, drawn as a quiet DM Sans Medium row with the chevron, or a <button slot=\"trigger\"> you style yourself (React's\n// triggerClass; draw your own chevron in it). `open` (the attribute) with `open-change`.\n\n/**\n * @summary A part that opens in place and pushes what follows.\n * @slot - What opens.\n * @slot trigger - The trigger's content, or a <button> to use as the trigger.\n * @fires open-change - It opened or closed (detail.value).\n */\nexport class Collapsible extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { open: { type: Boolean, reflect: true }, instant: { state: true } }\n\n\topen = false\n\tprivate instant = false\n\tprivate regionId = uid('collapse')\n\n\tprivate toggle = (event: MouseEvent) => {\n\t\tthis.instant = event.detail === 0\n\t\tthis.commit(!this.open, 'open')\n\t}\n\n\t// The page's own trigger button gets the button's attributes and the press.\n\tprivate wired: HTMLElement | null = null\n\tprotected updated(changed: PropertyValues<this>) {\n\t\tsuper.updated(changed)\n\t\tconst own = this.querySelector<HTMLElement>(':scope > button[slot=\"trigger\"]')\n\t\tif (own !== this.wired) {\n\t\t\tthis.wired?.removeEventListener('click', this.toggle)\n\t\t\town?.addEventListener('click', this.toggle)\n\t\t\tthis.wired = own\n\t\t}\n\t\town?.setAttribute('aria-expanded', String(this.open))\n\t}\n\tdisconnectedCallback() {\n\t\tsuper.disconnectedCallback()\n\t\tthis.wired?.removeEventListener('click', this.toggle)\n\t\tthis.wired = null\n\t}\n\n\trender() {\n\t\tconst own = !!this.querySelector(':scope > button[slot=\"trigger\"]')\n\t\tconst trigger = own\n\t\t\t? html`<slot name=\"trigger\"></slot>`\n\t\t\t: html`<button type=\"button\" class=\"flex w-full cursor-pointer items-center gap-2 rounded-control py-2 text-left type-ui-strong text-fg max-md:min-h-control-touch\" aria-expanded=${String(this.open)} aria-controls=${this.regionId} @click=${this.toggle}><slot name=\"trigger\"></slot>${icon(ChevronDown, 'chevron-down', { size: 16, strokeWidth: 1.5, class: 'ds-collapsible-chev ml-auto shrink-0 text-fg-muted', attrs: { 'aria-hidden': 'true' } })}</button>`\n\t\treturn html`<div data-ds=\"collapsible\" class=\"ds-collapsible\" ?data-open=${this.open} ?data-instant=${this.instant}>\n\t\t\t${trigger}\n\t\t\t<div id=${this.regionId} class=\"ds-collapsible-region\" ?inert=${!this.open}>\n\t\t\t\t<div><div class=\"ds-collapsible-content\"><slot></slot></div></div>\n\t\t\t</div>\n\t\t</div>`\n\t}\n}\n\ndefine('collapsible', Collapsible)\n"
+        },
+        {
+          "path": "elements/components/ui/collapsible.css",
+          "content": "/* Collapsible.tsx's styles, as they are. */\n/* The part opens to its content's height (0fr to 1fr) over 250ms and closes in 150ms, on the strong ease-out; the\n   content fades and settles 4px down. The chevron turns half a circle (250ms, ease-in-out). Toggled from the keyboard\n   it opens at once. Reduced motion: no height, move or turn, opacity only. */\n.ds-collapsible-region { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--ds-duration-exit) var(--ds-easing-out); }\n.ds-collapsible[data-open] > .ds-collapsible-region { grid-template-rows: 1fr; transition-duration: var(--ds-duration-glide); }\n.ds-collapsible-region > div { min-height: 0; overflow: hidden; }\n.ds-collapsible-content { opacity: 0; transform: translateY(-4px); transition: opacity var(--ds-duration-exit) var(--ds-easing-standard), transform var(--ds-duration-exit) var(--ds-easing-out); }\n.ds-collapsible[data-open] > .ds-collapsible-region .ds-collapsible-content { opacity: 1; transform: none; transition-duration: var(--ds-duration-glide); }\n.ds-collapsible-chev { transition: rotate var(--ds-duration-glide) var(--ds-easing-in-out); }\n.ds-collapsible[data-open] > button .ds-collapsible-chev { rotate: 180deg; }\n.ds-collapsible[data-instant] :is(.ds-collapsible-region, .ds-collapsible-content, .ds-collapsible-chev) { transition: none; }\n@media (prefers-reduced-motion: reduce) {\n  .ds-collapsible-region, .ds-collapsible-chev { transition: none; }\n  .ds-collapsible-content, .ds-collapsible[data-open] > .ds-collapsible-region .ds-collapsible-content { transform: none; }\n}\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/collapsible.js",
+        "elements/checkbox.js"
+      ],
+      "tag": "spyglass-collapsible",
+      "tags": [
+        "spyglass-collapsible"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-collapsible",
+            "name": "Collapsible",
+            "module": "elements/collapsible.js",
+            "description": "A part that opens in place and pushes what follows.",
+            "attributes": [
+              {
+                "name": "open",
+                "field": "open",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "instant",
+                "field": "instant",
+                "type": "boolean",
+                "default": "false"
+              }
+            ],
+            "properties": [
+              {
+                "name": "open",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "open"
+              }
+            ],
+            "events": [
+              {
+                "name": "open-change",
+                "description": "It opened or closed (detail.value)."
+              }
+            ],
+            "slots": [
+              {
+                "name": "",
+                "description": "What opens."
+              },
+              {
+                "name": "trigger",
+                "description": "The trigger's content, or a <button> to use as the trigger."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Filters",
+          "label": "More filters",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/collapsible/Filters.html",
+          "content": "<!-- More filters, tucked under the search until a person asks for them. -->\n<div class=\"w-100 max-w-full rounded-container bg-surface-raised px-4 py-2\">\n  <spyglass-collapsible>\n    <span slot=\"trigger\" class=\"contents\">More filters</span>\n    <div class=\"flex flex-col pb-2\">\n      <spyglass-checkbox label=\"Still running\" checked></spyglass-checkbox>\n      <spyglass-checkbox label=\"Has a voiceover\"></spyglass-checkbox>\n      <spyglass-checkbox label=\"Under 30 seconds\"></spyglass-checkbox>\n    </div>\n  </spyglass-collapsible>\n</div>\n"
+        },
+        {
+          "name": "Boards",
+          "label": "The rest of a list",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/collapsible/Boards.html",
+          "content": "<!-- A list that shows its first boards and opens to the rest, open with the page. -->\n<div class=\"w-100 max-w-full\">\n  <p class=\"py-2 type-ui text-fg\">Acme hooks that work</p>\n  <spyglass-collapsible id=\"boards-more\" open>\n    <span slot=\"trigger\" class=\"contents\"><span class=\"text-fg-muted\" data-label>Show fewer boards</span></span>\n    <ul class=\"flex flex-col\">\n      <li class=\"py-2 type-ui text-fg\">Acme skincare</li>\n      <li class=\"py-2 type-ui text-fg\">Acme summer UGC</li>\n      <li class=\"py-2 type-ui text-fg\">Acme founder stories</li>\n    </ul>\n  </spyglass-collapsible>\n</div>\n<script type=\"module\">\n  const more = document.getElementById('boards-more')\n  more.addEventListener('open-change', (e) => {\n    more.querySelector('[data-label]').textContent = e.detail.value ? 'Show fewer boards' : 'Show 3 more boards'\n  })\n</script>\n"
+        }
+      ]
+    }
+  }
+}

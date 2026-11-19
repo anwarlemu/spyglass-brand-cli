@@ -1,0 +1,188 @@
+{
+  "name": "avatar",
+  "title": "Avatar",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "Who or what something belongs to, in a circle: a picture cropped round, or the name's initials in White DM Sans Medium on #262626. Three sizes.",
+  "use_for": "A board's members, the account in a header, who saved a creative.",
+  "never": [
+    "A real person's photo or name in examples: use Acme",
+    "A spectrum color behind the initials",
+    "The logomark as an avatar for anything but the brand itself"
+  ],
+  "source": "Derived from the guidelines: the neutral steps (#262626 fill), White DM Sans Medium labels. shadcn's avatar for anatomy and the image fallback.",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Avatar.tsx",
+      "content": "'use client'\nimport { useState, type HTMLAttributes } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// shadcn's avatar in the brand: who or what something belongs to, in a circle. A `src` shows a picture cropped round;\n// without one, or if it fails to load, the name's initials (two at most) in White DM Sans Medium on #262626. Sizes sm\n// (24px, in a row), md (32px) and lg (40px). The name is read out; the picture is decoration.\nexport type AvatarSize = 'sm' | 'md' | 'lg'\n\nconst SIZES: Record<AvatarSize, string> = { sm: 'size-6 text-label', md: 'size-8 text-caption', lg: 'size-10 text-ui' }\n\nexport interface AvatarProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'children'> {\n  /** Whose it is: its initials, and the name for assistive tech. */\n  name?: string\n  /** A picture, cropped round. */\n  src?: string\n  /** sm (24px), md (32px) or lg (40px). */\n  size?: AvatarSize\n}\n\n/** The first letters of the first two words. */\nexport function initials(name = '') {\n  return name.trim().split(/\\s+/).slice(0, 2).map((w) => w[0] ?? '').join('').toUpperCase()\n}\n\nexport function Avatar({ name, src, size = 'md', className, ...rest }: AvatarProps) {\n  const [failed, setFailed] = useState(false)\n  return (\n    <span\n      data-ds=\"avatar\"\n      className={cn('inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-action-secondary leading-none font-medium text-fg select-none', SIZES[size] ?? SIZES.md, className)}\n      role={name ? 'img' : undefined}\n      aria-label={name}\n      aria-hidden={name ? undefined : 'true'}\n      {...rest}\n    >\n      {src && !failed ? <img src={src} alt=\"\" className=\"size-full object-cover\" onError={() => setFailed(true)} /> : initials(name)}\n    </span>\n  )\n}\n\nexport default Avatar\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Sizes",
+      "label": "Sizes and a stack",
+      "center": true,
+      "half": false,
+      "path": "react/examples/avatar/Sizes.tsx",
+      "content": "import { Avatar } from '@/react/components/ui/Avatar'\n// Initials in three sizes, and a board's members stacked with a Black ring between them.\nconst members = ['Acme Studio', 'Acme Growth', 'Acme Brand', 'Acme Social']\n\nexport default function Sizes() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-8\">\n      <div className=\"flex items-center gap-3\">\n        <Avatar name=\"Acme Studio\" size=\"sm\" />\n        <Avatar name=\"Acme Studio\" size=\"md\" />\n        <Avatar name=\"Acme Studio\" size=\"lg\" />\n      </div>\n      <div className=\"flex items-center\">\n        {members.map((m, i) => <span key={m} className={i ? '-ml-2 inline-flex rounded-full border-2 border-surface' : 'inline-flex rounded-full border-2 border-surface'}><Avatar name={m} /></span>)}\n        <span className=\"ml-3 type-caption text-fg-muted\">4 members</span>\n      </div>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Avatar.tsx",
+          "content": "'use client'\nimport { useState, type HTMLAttributes } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// shadcn's avatar in the brand: who or what something belongs to, in a circle. A `src` shows a picture cropped round;\n// without one, or if it fails to load, the name's initials (two at most) in White DM Sans Medium on #262626. Sizes sm\n// (24px, in a row), md (32px) and lg (40px). The name is read out; the picture is decoration.\nexport type AvatarSize = 'sm' | 'md' | 'lg'\n\nconst SIZES: Record<AvatarSize, string> = { sm: 'size-6 text-label', md: 'size-8 text-caption', lg: 'size-10 text-ui' }\n\nexport interface AvatarProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'children'> {\n  /** Whose it is: its initials, and the name for assistive tech. */\n  name?: string\n  /** A picture, cropped round. */\n  src?: string\n  /** sm (24px), md (32px) or lg (40px). */\n  size?: AvatarSize\n}\n\n/** The first letters of the first two words. */\nexport function initials(name = '') {\n  return name.trim().split(/\\s+/).slice(0, 2).map((w) => w[0] ?? '').join('').toUpperCase()\n}\n\nexport function Avatar({ name, src, size = 'md', className, ...rest }: AvatarProps) {\n  const [failed, setFailed] = useState(false)\n  return (\n    <span\n      data-ds=\"avatar\"\n      className={cn('inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-action-secondary leading-none font-medium text-fg select-none', SIZES[size] ?? SIZES.md, className)}\n      role={name ? 'img' : undefined}\n      aria-label={name}\n      aria-hidden={name ? undefined : 'true'}\n      {...rest}\n    >\n      {src && !failed ? <img src={src} alt=\"\" className=\"size-full object-cover\" onError={() => setFailed(true)} /> : initials(name)}\n    </span>\n  )\n}\n\nexport default Avatar\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Avatar",
+            "file": "react/components/ui/Avatar.tsx",
+            "props": [
+              {
+                "name": "name",
+                "type": "string",
+                "required": false,
+                "description": "Whose it is: its initials, and the name for assistive tech."
+              },
+              {
+                "name": "src",
+                "type": "string",
+                "required": false,
+                "description": "A picture, cropped round."
+              },
+              {
+                "name": "size",
+                "type": "AvatarSize",
+                "required": false,
+                "default": "'md'",
+                "description": "sm (24px), md (32px) or lg (40px)."
+              }
+            ],
+            "extends": [
+              "Omit<HTMLAttributes<HTMLSpanElement>, 'children'>"
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Sizes",
+          "label": "Sizes and a stack",
+          "center": true,
+          "half": false,
+          "path": "react/examples/avatar/Sizes.tsx",
+          "content": "import { Avatar } from '@/react/components/ui/Avatar'\n// Initials in three sizes, and a board's members stacked with a Black ring between them.\nconst members = ['Acme Studio', 'Acme Growth', 'Acme Brand', 'Acme Social']\n\nexport default function Sizes() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-8\">\n      <div className=\"flex items-center gap-3\">\n        <Avatar name=\"Acme Studio\" size=\"sm\" />\n        <Avatar name=\"Acme Studio\" size=\"md\" />\n        <Avatar name=\"Acme Studio\" size=\"lg\" />\n      </div>\n      <div className=\"flex items-center\">\n        {members.map((m, i) => <span key={m} className={i ? '-ml-2 inline-flex rounded-full border-2 border-surface' : 'inline-flex rounded-full border-2 border-surface'}><Avatar name={m} /></span>)}\n        <span className=\"ml-3 type-caption text-fg-muted\">4 members</span>\n      </div>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/avatar.ts",
+          "content": "import { html } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Avatar.tsx as <spyglass-avatar>: who or what something belongs to, in a circle. A `src` shows a picture cropped round;\n// without one, or if it fails to load, the name's initials (two at most) in White DM Sans Medium on #262626. Sizes sm\n// (24px), md (32px) and lg (40px). The name is read out; the picture is decoration.\nexport type AvatarSize = 'sm' | 'md' | 'lg'\nconst SIZES: Record<AvatarSize, string> = { sm: 'size-6 text-label', md: 'size-8 text-caption', lg: 'size-10 text-ui' }\n\nconst initials = (name = '') => name.trim().split(/\\s+/).slice(0, 2).map((w) => w[0] ?? '').join('').toUpperCase()\n\n/**\n * @summary Who or what something belongs to: a picture or initials in a circle.\n */\nexport class Avatar extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"avatar\"]'))\n\tstatic properties = { name: {}, src: {}, size: { reflect: true }, failed: { state: true } }\n\n\t/** Whose it is: its initials, and the name for assistive tech. */\n\tname?: string\n\t/** A picture, cropped round. */\n\tsrc?: string\n\t/** sm (24px), md (32px) or lg (40px). */\n\tsize: AvatarSize = 'md'\n\tprivate failed = false\n\n\trender() {\n\t\tconst classes = ['inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-action-secondary leading-none font-medium text-fg select-none', SIZES[this.size] ?? SIZES.md].join(' ')\n\t\treturn html`<span data-ds=\"avatar\" class=${classes} role=${ifDefined(this.name ? 'img' : undefined)} aria-label=${ifDefined(this.name)} aria-hidden=${ifDefined(this.name ? undefined : 'true')}>${this.src && !this.failed ? html`<img src=${this.src} alt=\"\" class=\"size-full object-cover\" @error=${() => { this.failed = true }}>` : initials(this.name)}</span>`\n\t}\n}\n\ndefine('avatar', Avatar)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/avatar.js"
+      ],
+      "tag": "spyglass-avatar",
+      "tags": [
+        "spyglass-avatar"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-avatar",
+            "name": "Avatar",
+            "module": "elements/avatar.js",
+            "description": "Who or what something belongs to: a picture or initials in a circle.",
+            "attributes": [
+              {
+                "name": "name",
+                "field": "name",
+                "type": "string | undefined",
+                "description": "Whose it is: its initials, and the name for assistive tech."
+              },
+              {
+                "name": "src",
+                "field": "src",
+                "type": "string | undefined",
+                "description": "A picture, cropped round."
+              },
+              {
+                "name": "size",
+                "field": "size",
+                "type": "AvatarSize",
+                "default": "'md'",
+                "description": "sm (24px), md (32px) or lg (40px)."
+              },
+              {
+                "name": "failed",
+                "field": "failed",
+                "type": "boolean",
+                "default": "false"
+              }
+            ],
+            "properties": [
+              {
+                "name": "name",
+                "type": "string | undefined",
+                "description": "Whose it is: its initials, and the name for assistive tech.",
+                "attribute": "name"
+              },
+              {
+                "name": "src",
+                "type": "string | undefined",
+                "description": "A picture, cropped round.",
+                "attribute": "src"
+              },
+              {
+                "name": "size",
+                "type": "AvatarSize",
+                "default": "'md'",
+                "description": "sm (24px), md (32px) or lg (40px).",
+                "attribute": "size"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Sizes",
+          "label": "Sizes and a stack",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/avatar/Sizes.html",
+          "content": "<!-- Initials in three sizes, and a board's members stacked with a Black ring between them. -->\n<div class=\"flex flex-wrap items-center gap-8\">\n  <div class=\"flex items-center gap-3\">\n    <spyglass-avatar name=\"Acme Studio\" size=\"sm\"></spyglass-avatar>\n    <spyglass-avatar name=\"Acme Studio\" size=\"md\"></spyglass-avatar>\n    <spyglass-avatar name=\"Acme Studio\" size=\"lg\"></spyglass-avatar>\n  </div>\n  <div class=\"flex items-center\">\n    <span class=\"inline-flex rounded-full border-2 border-surface\"><spyglass-avatar name=\"Acme Studio\"></spyglass-avatar></span>\n    <span class=\"-ml-2 inline-flex rounded-full border-2 border-surface\"><spyglass-avatar name=\"Acme Growth\"></spyglass-avatar></span>\n    <span class=\"-ml-2 inline-flex rounded-full border-2 border-surface\"><spyglass-avatar name=\"Acme Brand\"></spyglass-avatar></span>\n    <span class=\"-ml-2 inline-flex rounded-full border-2 border-surface\"><spyglass-avatar name=\"Acme Social\"></spyglass-avatar></span>\n    <span class=\"ml-3 type-caption text-fg-muted\">4 members</span>\n  </div>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

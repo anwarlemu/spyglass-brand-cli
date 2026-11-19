@@ -1,0 +1,204 @@
+{
+  "name": "typography",
+  "title": "Typography",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "The brand's type scale as one part. Funnel Display Regular for titles, DM Sans for text, Medium for small and labels, labels in capitals with 6% tracking, Geist Mono for code. Every variant is a type utility from the tokens.",
+  "use_for": "Any text: page and card titles, a lead under a hero, body copy, captions, the capital label over a field or a plan, inline code. Pick the step by role, not by look.",
+  "never": [
+    "A size, weight or line height outside the scale: every step comes from tokens.css",
+    "Bold or semibold: Funnel Display and DM Sans run at Regular and Medium only",
+    "Capitals anywhere but labels, and labels without the 6% tracking",
+    "Funnel Display for body text, or DM Sans for titles",
+    "Spectrum colors on text: type is White on Black, muted in the neutral steps"
+  ],
+  "source": "The type pages of the brand guidelines (Funnel Display, DM Sans) and the sizes measured on the 1080 canvas, scaled to the product (tokens.css header); Geist Mono from the ASCII texture",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Text.tsx",
+      "content": "import type { ElementType, HTMLAttributes, ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// The brand's type scale as one part, every variant one of the theme's type utilities and nothing else (tokens.css):\n// Funnel Display Regular for titles (display 64px, hero 48px, h1 36px, h2 28px, h3 24px, h4 20px, at 1.07, the card\n// title's 1.0 for h2), DM Sans for text (lead and large 18px, p 16px at 1.33, ui 14px, small 14px Medium, caption\n// 12px), labels in capitals with 6% tracking (DM Sans Medium 12px), and Geist Mono for inline code. Muted text is the\n// #A3A3A3 neutral step. `as` overrides the tag; className is appended last (a margin, a width).\nexport type TextVariant = 'display' | 'hero' | 'h1' | 'h2' | 'h3' | 'h4' | 'lead' | 'large' | 'p' | 'ui' | 'small' | 'muted' | 'caption' | 'label' | 'blockquote' | 'code'\n\nexport const TEXT_TAGS: Record<TextVariant, string> = {\n  display: 'h1', hero: 'h1', h1: 'h1', h2: 'h2', h3: 'h3', h4: 'h4',\n  lead: 'p', large: 'p', p: 'p', ui: 'p', small: 'p', muted: 'p', caption: 'p', label: 'p', blockquote: 'blockquote', code: 'code',\n}\n\nexport const TEXT_CLASSES: Record<TextVariant, string> = {\n  display: 'type-display text-fg',\n  hero: 'type-hero text-fg',\n  h1: 'type-heading-1 text-fg',\n  h2: 'type-heading-2 text-fg',\n  h3: 'type-heading-3 text-fg',\n  h4: 'type-heading-4 text-fg',\n  lead: 'type-body-lg text-fg-muted',\n  large: 'type-body-lg text-fg',\n  p: 'type-body text-fg',\n  ui: 'type-ui text-fg',\n  small: 'type-ui-strong text-fg',\n  muted: 'type-ui text-fg-muted',\n  caption: 'type-caption text-fg-muted',\n  label: 'type-label text-fg-soft',\n  blockquote: 'border-l-2 border-edge-strong pl-6 type-body-lg text-fg-soft',\n  code: 'rounded-ds-sm bg-surface-subtle px-1 py-0.5 type-code text-fg',\n}\n\nexport interface TextProps extends HTMLAttributes<HTMLElement> {\n  /** The step of the scale: display, hero, h1 to h4 (Funnel Display), lead, large, p, ui, small, muted, caption (DM Sans), label (capitals), blockquote or code. */\n  variant?: TextVariant\n  /** The tag, in place of the variant's own (an h2 drawn as h1, a span drawn as caption). */\n  as?: string\n  children?: ReactNode\n}\n\nexport function Text({ variant = 'p', as, className, children, ...rest }: TextProps) {\n  const v = TEXT_CLASSES[variant] ? variant : 'p'\n  const Tag = (as ?? TEXT_TAGS[v]) as ElementType\n  return <Tag data-ds=\"text\" className={cn(TEXT_CLASSES[v], className)} {...rest}>{children}</Tag>\n}\n\nexport default Text\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Scale",
+      "label": "The scale",
+      "center": false,
+      "half": false,
+      "path": "react/examples/typography/Scale.tsx",
+      "content": "import { Text } from '@/react/components/ui/Text'\n// Every step of the brand's type scale, with the face, size and line height it takes from the tokens.\n\nexport default function Scale() {\n  return (\n    <div className=\"flex flex-col\">\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Display</Text><Text variant=\"caption\">Funnel Display 64px at 1.07</Text></div>\n        <Text variant=\"display\">Find the ads that work.</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Hero</Text><Text variant=\"caption\">Funnel Display 48px at 1.07</Text></div>\n        <Text variant=\"hero\">The only creative search engine.</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Heading 1</Text><Text variant=\"caption\">Funnel Display 36px at 1.07</Text></div>\n        <Text variant=\"h1\">Search ads by what is in them.</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Heading 2</Text><Text variant=\"caption\">Funnel Display 28px at 1.0</Text></div>\n        <Text variant=\"h2\">Creator plan</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Heading 3</Text><Text variant=\"caption\">Funnel Display 24px at 1.07</Text></div>\n        <Text variant=\"h3\">Boards for every brand</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Heading 4</Text><Text variant=\"caption\">Funnel Display 20px at 1.07</Text></div>\n        <Text variant=\"h4\">Track a competitor</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Lead</Text><Text variant=\"caption\">DM Sans 18px at 1.33, muted</Text></div>\n        <Text variant=\"lead\">Type what you are looking for and find the creative that matches.</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Paragraph</Text><Text variant=\"caption\">DM Sans 16px at 1.33</Text></div>\n        <Text variant=\"p\">Save the ads that work to a board, and come back to them when you brief the next one.</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Interface</Text><Text variant=\"caption\">DM Sans 14px at 1.3</Text></div>\n        <Text variant=\"ui\">Saved to Acme hooks.</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Small</Text><Text variant=\"caption\">DM Sans Medium 14px at 1.3</Text></div>\n        <Text variant=\"small\">12 new creatives</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Muted</Text><Text variant=\"caption\">DM Sans 14px, muted</Text></div>\n        <Text variant=\"muted\">Updated 4 minutes ago.</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Caption</Text><Text variant=\"caption\">DM Sans 12px at 1.3, muted</Text></div>\n        <Text variant=\"caption\">$10 for your first month, then $20/month.</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Label</Text><Text variant=\"caption\">DM Sans Medium 12px, capitals, 6% tracking</Text></div>\n        <Text variant=\"label\">Most popular</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Code</Text><Text variant=\"caption\">Geist Mono 14px at 1.3</Text></div>\n        <Text variant=\"code\">acme-hooks</Text>\n      </div>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    },
+    {
+      "name": "Article",
+      "label": "An article",
+      "center": false,
+      "half": false,
+      "path": "react/examples/typography/Article.tsx",
+      "content": "import { Text } from '@/react/components/ui/Text'\n// shadcn's typography page in the brand: headings, a lead, paragraphs, a quote, a list and inline code, each a step of\n// the scale.\n\nexport default function Article() {\n  return (\n    <article className=\"flex max-w-2xl flex-col\">\n      <Text variant=\"label\">Field notes</Text>\n      <Text variant=\"h1\" className=\"mt-4\">How Acme found its best hook.</Text>\n      <Text variant=\"lead\" className=\"mt-4\">Three weeks, one board and every ad in its category.</Text>\n      <Text variant=\"p\" className=\"mt-6\">Acme searched for the creative its rivals ran longest. Long runs mean an ad pays for itself, so the board filled with the ones worth studying.</Text>\n      <Text variant=\"h2\" className=\"mt-10\">What the board showed</Text>\n      <Text variant=\"p\" className=\"mt-4\">The ads that lasted opened on the product in a hand, not on a logo. They said the price in the first line.</Text>\n      <Text variant=\"blockquote\" className=\"mt-6\">The first second sells the next ten.</Text>\n      <Text variant=\"h3\" className=\"mt-10\">What Acme changed</Text>\n      <ul className=\"mt-4 flex list-disc flex-col gap-2 pl-6 type-body text-fg\">\n        <li>Open on the product, in use.</li>\n        <li>Say the offer in the first line.</li>\n        <li>Cut every ad to under fifteen seconds.</li>\n      </ul>\n      <Text variant=\"h4\" className=\"mt-10\">Try it on your category</Text>\n      <Text variant=\"p\" className=\"mt-4\">Save a search to a board named <Text variant=\"code\" as=\"code\">acme-hooks</Text> and check it each week.</Text>\n      <Text variant=\"large\" className=\"mt-6\">$10 for your first month, then $20/month.</Text>\n      <Text variant=\"small\" className=\"mt-2\">Acme Studio plan</Text>\n      <Text variant=\"muted\" className=\"mt-1\">Billed monthly.</Text>\n    </article>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Text.tsx",
+          "content": "import type { ElementType, HTMLAttributes, ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// The brand's type scale as one part, every variant one of the theme's type utilities and nothing else (tokens.css):\n// Funnel Display Regular for titles (display 64px, hero 48px, h1 36px, h2 28px, h3 24px, h4 20px, at 1.07, the card\n// title's 1.0 for h2), DM Sans for text (lead and large 18px, p 16px at 1.33, ui 14px, small 14px Medium, caption\n// 12px), labels in capitals with 6% tracking (DM Sans Medium 12px), and Geist Mono for inline code. Muted text is the\n// #A3A3A3 neutral step. `as` overrides the tag; className is appended last (a margin, a width).\nexport type TextVariant = 'display' | 'hero' | 'h1' | 'h2' | 'h3' | 'h4' | 'lead' | 'large' | 'p' | 'ui' | 'small' | 'muted' | 'caption' | 'label' | 'blockquote' | 'code'\n\nexport const TEXT_TAGS: Record<TextVariant, string> = {\n  display: 'h1', hero: 'h1', h1: 'h1', h2: 'h2', h3: 'h3', h4: 'h4',\n  lead: 'p', large: 'p', p: 'p', ui: 'p', small: 'p', muted: 'p', caption: 'p', label: 'p', blockquote: 'blockquote', code: 'code',\n}\n\nexport const TEXT_CLASSES: Record<TextVariant, string> = {\n  display: 'type-display text-fg',\n  hero: 'type-hero text-fg',\n  h1: 'type-heading-1 text-fg',\n  h2: 'type-heading-2 text-fg',\n  h3: 'type-heading-3 text-fg',\n  h4: 'type-heading-4 text-fg',\n  lead: 'type-body-lg text-fg-muted',\n  large: 'type-body-lg text-fg',\n  p: 'type-body text-fg',\n  ui: 'type-ui text-fg',\n  small: 'type-ui-strong text-fg',\n  muted: 'type-ui text-fg-muted',\n  caption: 'type-caption text-fg-muted',\n  label: 'type-label text-fg-soft',\n  blockquote: 'border-l-2 border-edge-strong pl-6 type-body-lg text-fg-soft',\n  code: 'rounded-ds-sm bg-surface-subtle px-1 py-0.5 type-code text-fg',\n}\n\nexport interface TextProps extends HTMLAttributes<HTMLElement> {\n  /** The step of the scale: display, hero, h1 to h4 (Funnel Display), lead, large, p, ui, small, muted, caption (DM Sans), label (capitals), blockquote or code. */\n  variant?: TextVariant\n  /** The tag, in place of the variant's own (an h2 drawn as h1, a span drawn as caption). */\n  as?: string\n  children?: ReactNode\n}\n\nexport function Text({ variant = 'p', as, className, children, ...rest }: TextProps) {\n  const v = TEXT_CLASSES[variant] ? variant : 'p'\n  const Tag = (as ?? TEXT_TAGS[v]) as ElementType\n  return <Tag data-ds=\"text\" className={cn(TEXT_CLASSES[v], className)} {...rest}>{children}</Tag>\n}\n\nexport default Text\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Text",
+            "file": "react/components/ui/Text.tsx",
+            "props": [
+              {
+                "name": "variant",
+                "type": "TextVariant",
+                "required": false,
+                "default": "'p'",
+                "description": "The step of the scale: display, hero, h1 to h4 (Funnel Display), lead, large, p, ui, small, muted, caption (DM Sans), label (capitals), blockquote or code."
+              },
+              {
+                "name": "as",
+                "type": "string",
+                "required": false,
+                "description": "The tag, in place of the variant's own (an h2 drawn as h1, a span drawn as caption)."
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              }
+            ],
+            "extends": [
+              "HTMLAttributes<HTMLElement>"
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Scale",
+          "label": "The scale",
+          "center": false,
+          "half": false,
+          "path": "react/examples/typography/Scale.tsx",
+          "content": "import { Text } from '@/react/components/ui/Text'\n// Every step of the brand's type scale, with the face, size and line height it takes from the tokens.\n\nexport default function Scale() {\n  return (\n    <div className=\"flex flex-col\">\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Display</Text><Text variant=\"caption\">Funnel Display 64px at 1.07</Text></div>\n        <Text variant=\"display\">Find the ads that work.</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Hero</Text><Text variant=\"caption\">Funnel Display 48px at 1.07</Text></div>\n        <Text variant=\"hero\">The only creative search engine.</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Heading 1</Text><Text variant=\"caption\">Funnel Display 36px at 1.07</Text></div>\n        <Text variant=\"h1\">Search ads by what is in them.</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Heading 2</Text><Text variant=\"caption\">Funnel Display 28px at 1.0</Text></div>\n        <Text variant=\"h2\">Creator plan</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Heading 3</Text><Text variant=\"caption\">Funnel Display 24px at 1.07</Text></div>\n        <Text variant=\"h3\">Boards for every brand</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Heading 4</Text><Text variant=\"caption\">Funnel Display 20px at 1.07</Text></div>\n        <Text variant=\"h4\">Track a competitor</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Lead</Text><Text variant=\"caption\">DM Sans 18px at 1.33, muted</Text></div>\n        <Text variant=\"lead\">Type what you are looking for and find the creative that matches.</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Paragraph</Text><Text variant=\"caption\">DM Sans 16px at 1.33</Text></div>\n        <Text variant=\"p\">Save the ads that work to a board, and come back to them when you brief the next one.</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Interface</Text><Text variant=\"caption\">DM Sans 14px at 1.3</Text></div>\n        <Text variant=\"ui\">Saved to Acme hooks.</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Small</Text><Text variant=\"caption\">DM Sans Medium 14px at 1.3</Text></div>\n        <Text variant=\"small\">12 new creatives</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Muted</Text><Text variant=\"caption\">DM Sans 14px, muted</Text></div>\n        <Text variant=\"muted\">Updated 4 minutes ago.</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Caption</Text><Text variant=\"caption\">DM Sans 12px at 1.3, muted</Text></div>\n        <Text variant=\"caption\">$10 for your first month, then $20/month.</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Label</Text><Text variant=\"caption\">DM Sans Medium 12px, capitals, 6% tracking</Text></div>\n        <Text variant=\"label\">Most popular</Text>\n      </div>\n      <div className=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n        <div className=\"flex shrink-0 flex-col gap-1 md:w-56\"><Text variant=\"label\">Code</Text><Text variant=\"caption\">Geist Mono 14px at 1.3</Text></div>\n        <Text variant=\"code\">acme-hooks</Text>\n      </div>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        },
+        {
+          "name": "Article",
+          "label": "An article",
+          "center": false,
+          "half": false,
+          "path": "react/examples/typography/Article.tsx",
+          "content": "import { Text } from '@/react/components/ui/Text'\n// shadcn's typography page in the brand: headings, a lead, paragraphs, a quote, a list and inline code, each a step of\n// the scale.\n\nexport default function Article() {\n  return (\n    <article className=\"flex max-w-2xl flex-col\">\n      <Text variant=\"label\">Field notes</Text>\n      <Text variant=\"h1\" className=\"mt-4\">How Acme found its best hook.</Text>\n      <Text variant=\"lead\" className=\"mt-4\">Three weeks, one board and every ad in its category.</Text>\n      <Text variant=\"p\" className=\"mt-6\">Acme searched for the creative its rivals ran longest. Long runs mean an ad pays for itself, so the board filled with the ones worth studying.</Text>\n      <Text variant=\"h2\" className=\"mt-10\">What the board showed</Text>\n      <Text variant=\"p\" className=\"mt-4\">The ads that lasted opened on the product in a hand, not on a logo. They said the price in the first line.</Text>\n      <Text variant=\"blockquote\" className=\"mt-6\">The first second sells the next ten.</Text>\n      <Text variant=\"h3\" className=\"mt-10\">What Acme changed</Text>\n      <ul className=\"mt-4 flex list-disc flex-col gap-2 pl-6 type-body text-fg\">\n        <li>Open on the product, in use.</li>\n        <li>Say the offer in the first line.</li>\n        <li>Cut every ad to under fifteen seconds.</li>\n      </ul>\n      <Text variant=\"h4\" className=\"mt-10\">Try it on your category</Text>\n      <Text variant=\"p\" className=\"mt-4\">Save a search to a board named <Text variant=\"code\" as=\"code\">acme-hooks</Text> and check it each week.</Text>\n      <Text variant=\"large\" className=\"mt-6\">$10 for your first month, then $20/month.</Text>\n      <Text variant=\"small\" className=\"mt-2\">Acme Studio plan</Text>\n      <Text variant=\"muted\" className=\"mt-1\">Billed monthly.</Text>\n    </article>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/text.ts",
+          "content": "import { html, unsafeStatic } from 'lit/static-html.js'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Text.tsx as <spyglass-text>: the brand's type scale as one part, every variant one of the theme's type utilities\n// (Funnel Display titles, DM Sans text, capital labels with 6% tracking, Geist Mono code). It draws the variant's tag\n// in its shadow root with the same classes as React; `as` overrides the tag. Layout classes on the element (a margin,\n// a width) land on the tag it draws.\nexport type TextVariant = 'display' | 'hero' | 'h1' | 'h2' | 'h3' | 'h4' | 'lead' | 'large' | 'p' | 'ui' | 'small' | 'muted' | 'caption' | 'label' | 'blockquote' | 'code'\n\nconst TAGS: Record<TextVariant, string> = {\n\tdisplay: 'h1', hero: 'h1', h1: 'h1', h2: 'h2', h3: 'h3', h4: 'h4',\n\tlead: 'p', large: 'p', p: 'p', ui: 'p', small: 'p', muted: 'p', caption: 'p', label: 'p', blockquote: 'blockquote', code: 'code',\n}\nconst CLASSES: Record<TextVariant, string> = {\n\tdisplay: 'type-display text-fg',\n\thero: 'type-hero text-fg',\n\th1: 'type-heading-1 text-fg',\n\th2: 'type-heading-2 text-fg',\n\th3: 'type-heading-3 text-fg',\n\th4: 'type-heading-4 text-fg',\n\tlead: 'type-body-lg text-fg-muted',\n\tlarge: 'type-body-lg text-fg',\n\tp: 'type-body text-fg',\n\tui: 'type-ui text-fg',\n\tsmall: 'type-ui-strong text-fg',\n\tmuted: 'type-ui text-fg-muted',\n\tcaption: 'type-caption text-fg-muted',\n\tlabel: 'type-label text-fg-soft',\n\tblockquote: 'border-l-2 border-edge-strong pl-6 type-body-lg text-fg-soft',\n\tcode: 'rounded-ds-sm bg-surface-subtle px-1 py-0.5 type-code text-fg',\n}\n// The tags a page may ask for.\nconst ALLOWED = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'div', 'blockquote', 'code', 'strong', 'em', 'small', 'label', 'li', 'figcaption'])\n\n/**\n * @summary The brand's type scale: Funnel Display titles, DM Sans text, capital labels, Geist Mono code.\n * @slot - The text.\n */\nexport class Text extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"text\"]'))\n\tstatic properties = { variant: { reflect: true }, as: {} }\n\n\t/** The step of the scale: display, hero, h1 to h4, lead, large, p, ui, small, muted, caption, label, blockquote or code. */\n\tvariant: TextVariant = 'p'\n\t/** The tag, in place of the variant's own. */\n\tas?: string\n\n\tprivate get tag() {\n\t\tconst v = CLASSES[this.variant] ? this.variant : 'p'\n\t\tconst t = (this.as ?? TAGS[v]).toLowerCase()\n\t\treturn ALLOWED.has(t) ? t : TAGS[v]\n\t}\n\n\trender() {\n\t\tconst v = CLASSES[this.variant] ? this.variant : 'p'\n\t\tconst t = unsafeStatic(this.tag)\n\t\treturn html`<${t} data-ds=\"text\" class=${CLASSES[v]}><slot></slot></${t}>`\n\t}\n}\n\ndefine('text', Text)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/text.js"
+      ],
+      "tag": "spyglass-text",
+      "tags": [
+        "spyglass-text"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-text",
+            "name": "Text",
+            "module": "elements/text.js",
+            "description": "The brand's type scale: Funnel Display titles, DM Sans text, capital labels, Geist Mono code.",
+            "attributes": [
+              {
+                "name": "variant",
+                "field": "variant",
+                "type": "TextVariant",
+                "default": "'p'",
+                "description": "The step of the scale: display, hero, h1 to h4, lead, large, p, ui, small, muted, caption, label, blockquote or code."
+              },
+              {
+                "name": "as",
+                "field": "as",
+                "type": "string | undefined",
+                "description": "The tag, in place of the variant's own."
+              }
+            ],
+            "properties": [
+              {
+                "name": "variant",
+                "type": "TextVariant",
+                "default": "'p'",
+                "description": "The step of the scale: display, hero, h1 to h4, lead, large, p, ui, small, muted, caption, label, blockquote or code.",
+                "attribute": "variant"
+              },
+              {
+                "name": "as",
+                "type": "string | undefined",
+                "description": "The tag, in place of the variant's own.",
+                "attribute": "as"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The text."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Scale",
+          "label": "The scale",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/typography/Scale.html",
+          "content": "<!-- Every step of the brand's type scale, with the face, size and line height it takes from the tokens. -->\n<div class=\"flex flex-col\">\n  <div class=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n    <div class=\"flex shrink-0 flex-col gap-1 md:w-56\"><spyglass-text variant=\"label\">Display</spyglass-text><spyglass-text variant=\"caption\">Funnel Display 64px at 1.07</spyglass-text></div>\n    <spyglass-text variant=\"display\">Find the ads that work.</spyglass-text>\n  </div>\n  <div class=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n    <div class=\"flex shrink-0 flex-col gap-1 md:w-56\"><spyglass-text variant=\"label\">Hero</spyglass-text><spyglass-text variant=\"caption\">Funnel Display 48px at 1.07</spyglass-text></div>\n    <spyglass-text variant=\"hero\">The only creative search engine.</spyglass-text>\n  </div>\n  <div class=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n    <div class=\"flex shrink-0 flex-col gap-1 md:w-56\"><spyglass-text variant=\"label\">Heading 1</spyglass-text><spyglass-text variant=\"caption\">Funnel Display 36px at 1.07</spyglass-text></div>\n    <spyglass-text variant=\"h1\">Search ads by what is in them.</spyglass-text>\n  </div>\n  <div class=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n    <div class=\"flex shrink-0 flex-col gap-1 md:w-56\"><spyglass-text variant=\"label\">Heading 2</spyglass-text><spyglass-text variant=\"caption\">Funnel Display 28px at 1.0</spyglass-text></div>\n    <spyglass-text variant=\"h2\">Creator plan</spyglass-text>\n  </div>\n  <div class=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n    <div class=\"flex shrink-0 flex-col gap-1 md:w-56\"><spyglass-text variant=\"label\">Heading 3</spyglass-text><spyglass-text variant=\"caption\">Funnel Display 24px at 1.07</spyglass-text></div>\n    <spyglass-text variant=\"h3\">Boards for every brand</spyglass-text>\n  </div>\n  <div class=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n    <div class=\"flex shrink-0 flex-col gap-1 md:w-56\"><spyglass-text variant=\"label\">Heading 4</spyglass-text><spyglass-text variant=\"caption\">Funnel Display 20px at 1.07</spyglass-text></div>\n    <spyglass-text variant=\"h4\">Track a competitor</spyglass-text>\n  </div>\n  <div class=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n    <div class=\"flex shrink-0 flex-col gap-1 md:w-56\"><spyglass-text variant=\"label\">Lead</spyglass-text><spyglass-text variant=\"caption\">DM Sans 18px at 1.33, muted</spyglass-text></div>\n    <spyglass-text variant=\"lead\">Type what you are looking for and find the creative that matches.</spyglass-text>\n  </div>\n  <div class=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n    <div class=\"flex shrink-0 flex-col gap-1 md:w-56\"><spyglass-text variant=\"label\">Paragraph</spyglass-text><spyglass-text variant=\"caption\">DM Sans 16px at 1.33</spyglass-text></div>\n    <spyglass-text variant=\"p\">Save the ads that work to a board, and come back to them when you brief the next one.</spyglass-text>\n  </div>\n  <div class=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n    <div class=\"flex shrink-0 flex-col gap-1 md:w-56\"><spyglass-text variant=\"label\">Interface</spyglass-text><spyglass-text variant=\"caption\">DM Sans 14px at 1.3</spyglass-text></div>\n    <spyglass-text variant=\"ui\">Saved to Acme hooks.</spyglass-text>\n  </div>\n  <div class=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n    <div class=\"flex shrink-0 flex-col gap-1 md:w-56\"><spyglass-text variant=\"label\">Small</spyglass-text><spyglass-text variant=\"caption\">DM Sans Medium 14px at 1.3</spyglass-text></div>\n    <spyglass-text variant=\"small\">12 new creatives</spyglass-text>\n  </div>\n  <div class=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n    <div class=\"flex shrink-0 flex-col gap-1 md:w-56\"><spyglass-text variant=\"label\">Muted</spyglass-text><spyglass-text variant=\"caption\">DM Sans 14px, muted</spyglass-text></div>\n    <spyglass-text variant=\"muted\">Updated 4 minutes ago.</spyglass-text>\n  </div>\n  <div class=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n    <div class=\"flex shrink-0 flex-col gap-1 md:w-56\"><spyglass-text variant=\"label\">Caption</spyglass-text><spyglass-text variant=\"caption\">DM Sans 12px at 1.3, muted</spyglass-text></div>\n    <spyglass-text variant=\"caption\">$10 for your first month, then $20/month.</spyglass-text>\n  </div>\n  <div class=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n    <div class=\"flex shrink-0 flex-col gap-1 md:w-56\"><spyglass-text variant=\"label\">Label</spyglass-text><spyglass-text variant=\"caption\">DM Sans Medium 12px, capitals, 6% tracking</spyglass-text></div>\n    <spyglass-text variant=\"label\">Most popular</spyglass-text>\n  </div>\n  <div class=\"flex flex-col gap-2 border-b border-edge py-6 md:flex-row md:items-baseline md:gap-8\">\n    <div class=\"flex shrink-0 flex-col gap-1 md:w-56\"><spyglass-text variant=\"label\">Code</spyglass-text><spyglass-text variant=\"caption\">Geist Mono 14px at 1.3</spyglass-text></div>\n    <spyglass-text variant=\"code\">acme-hooks</spyglass-text>\n  </div>\n</div>\n"
+        },
+        {
+          "name": "Article",
+          "label": "An article",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/typography/Article.html",
+          "content": "<!-- shadcn's typography page in the brand: headings, a lead, paragraphs, a quote, a list and inline code, each a step of\n     the scale. -->\n<article class=\"flex max-w-2xl flex-col\">\n  <spyglass-text variant=\"label\">Field notes</spyglass-text>\n  <spyglass-text variant=\"h1\" class=\"mt-4\">How Acme found its best hook.</spyglass-text>\n  <spyglass-text variant=\"lead\" class=\"mt-4\">Three weeks, one board and every ad in its category.</spyglass-text>\n  <spyglass-text variant=\"p\" class=\"mt-6\">Acme searched for the creative its rivals ran longest. Long runs mean an ad pays for itself, so the board filled with the ones worth studying.</spyglass-text>\n  <spyglass-text variant=\"h2\" class=\"mt-10\">What the board showed</spyglass-text>\n  <spyglass-text variant=\"p\" class=\"mt-4\">The ads that lasted opened on the product in a hand, not on a logo. They said the price in the first line.</spyglass-text>\n  <spyglass-text variant=\"blockquote\" class=\"mt-6\">The first second sells the next ten.</spyglass-text>\n  <spyglass-text variant=\"h3\" class=\"mt-10\">What Acme changed</spyglass-text>\n  <ul class=\"mt-4 flex list-disc flex-col gap-2 pl-6 type-body text-fg\">\n    <li>Open on the product, in use.</li>\n    <li>Say the offer in the first line.</li>\n    <li>Cut every ad to under fifteen seconds.</li>\n  </ul>\n  <spyglass-text variant=\"h4\" class=\"mt-10\">Try it on your category</spyglass-text>\n  <spyglass-text variant=\"p\" class=\"mt-4\">Save a search to a board named <spyglass-text variant=\"code\" as=\"code\">acme-hooks</spyglass-text> and check it each week.</spyglass-text>\n  <spyglass-text variant=\"large\" class=\"mt-6\">$10 for your first month, then $20/month.</spyglass-text>\n  <spyglass-text variant=\"small\" class=\"mt-2\">Acme Studio plan</spyglass-text>\n  <spyglass-text variant=\"muted\" class=\"mt-1\">Billed monthly.</spyglass-text>\n</article>\n"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "name": "label",
+  "title": "Label",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A field's label: DM Sans Medium in capitals with 6% tracking, in the soft gray, over the control it names. A muted hint can follow it.",
+  "use_for": "Naming a field or a control when Field's layout does not fit: a label beside a switch, over a slider, over a group of radios.",
+  "never": [
+    "A placeholder in place of a label",
+    "Bold, color or a spectrum accent on a label",
+    "Sentence case or long text in a label: say it in two or three words, and put the rest in a hint under the field"
+  ],
+  "source": "Derived from the brand guidelines: labels in DM Sans Medium, capitals, 6% letter spacing (type page), the neutral steps for the gray",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Label.tsx",
+      "content": "import type { LabelHTMLAttributes, ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// A field's label on its own: the brand's label voice, DM Sans Medium in capitals with 6% tracking at 12px, in the soft\n// gray (#D4D4D4), over or beside the control it names, never in place of one. `htmlFor` ties it to the control's id;\n// `hint` adds a muted note after it, such as \"Optional\". Every other prop lands on the <label>.\nexport interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {\n  /** A muted note after the label, such as \"Optional\". */\n  hint?: string\n  children?: ReactNode\n}\n\nexport function Label({ hint, className, children, ...rest }: LabelProps) {\n  return <label data-ds=\"label\" {...rest} className={cn('inline-flex items-baseline gap-1.5 type-label text-fg-soft', className)}>{children}{hint && <span className=\"text-fg-muted\">{hint}</span>}</label>\n}\n\nexport default Label\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Fields",
+      "label": "Over fields",
+      "center": true,
+      "half": false,
+      "path": "react/examples/label/Fields.tsx",
+      "content": "import { Input } from '@/react/components/ui/Input'\nimport { Label } from '@/react/components/ui/Label'\n// Labels over the fields they name, one with a note that it can stay empty.\n\nexport default function Fields() {\n  return (\n    <div className=\"flex w-80 max-w-full flex-col gap-6\">\n      <div className=\"flex flex-col gap-2\">\n        <Label htmlFor=\"label-email\">Work email</Label>\n        <Input id=\"label-email\" type=\"email\" placeholder=\"you@acme.com\" />\n      </div>\n      <div className=\"flex flex-col gap-2\">\n        <Label htmlFor=\"label-team\" hint=\"Optional\">Team name</Label>\n        <Input id=\"label-team\" placeholder=\"Acme growth\" />\n      </div>\n    </div>\n  )\n}\n",
+      "requires": [
+        "input"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Label.tsx",
+          "content": "import type { LabelHTMLAttributes, ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// A field's label on its own: the brand's label voice, DM Sans Medium in capitals with 6% tracking at 12px, in the soft\n// gray (#D4D4D4), over or beside the control it names, never in place of one. `htmlFor` ties it to the control's id;\n// `hint` adds a muted note after it, such as \"Optional\". Every other prop lands on the <label>.\nexport interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {\n  /** A muted note after the label, such as \"Optional\". */\n  hint?: string\n  children?: ReactNode\n}\n\nexport function Label({ hint, className, children, ...rest }: LabelProps) {\n  return <label data-ds=\"label\" {...rest} className={cn('inline-flex items-baseline gap-1.5 type-label text-fg-soft', className)}>{children}{hint && <span className=\"text-fg-muted\">{hint}</span>}</label>\n}\n\nexport default Label\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Label",
+            "file": "react/components/ui/Label.tsx",
+            "props": [
+              {
+                "name": "hint",
+                "type": "string",
+                "required": false,
+                "description": "A muted note after the label, such as \"Optional\"."
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              }
+            ],
+            "extends": [
+              "LabelHTMLAttributes<HTMLLabelElement>"
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Fields",
+          "label": "Over fields",
+          "center": true,
+          "half": false,
+          "path": "react/examples/label/Fields.tsx",
+          "content": "import { Input } from '@/react/components/ui/Input'\nimport { Label } from '@/react/components/ui/Label'\n// Labels over the fields they name, one with a note that it can stay empty.\n\nexport default function Fields() {\n  return (\n    <div className=\"flex w-80 max-w-full flex-col gap-6\">\n      <div className=\"flex flex-col gap-2\">\n        <Label htmlFor=\"label-email\">Work email</Label>\n        <Input id=\"label-email\" type=\"email\" placeholder=\"you@acme.com\" />\n      </div>\n      <div className=\"flex flex-col gap-2\">\n        <Label htmlFor=\"label-team\" hint=\"Optional\">Team name</Label>\n        <Input id=\"label-team\" placeholder=\"Acme growth\" />\n      </div>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "input"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/label.ts",
+          "content": "import { html, nothing, type PropertyValues } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Label.tsx as <spyglass-label>: a field's label on its own, DM Sans Medium in capitals with 6% tracking at 12px in the\n// soft gray, over or beside the control it names; `hint` adds a muted note after it, such as \"Optional\". A <label for>\n// in a shadow root cannot reach a control outside it, so `for` names the control's id in the same document (or shadow\n// root) and the element does what the label would: it gives that control its text as aria-label (an element such as\n// <spyglass-input> passes it to its inner field) and a press on it focuses and presses the control.\n\n/**\n * @summary A label for one control.\n * @slot - The label's text.\n */\nexport class Label extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { htmlFor: { attribute: 'for' }, hint: {} }\n\n\t/** The id of the control it names (the `for` attribute). */\n\thtmlFor?: string\n\t/** A muted note after the label, such as \"Optional\". */\n\thint?: string\n\n\tprivate target() {\n\t\tif (!this.htmlFor) return null\n\t\tconst root = this.getRootNode() as Document | ShadowRoot\n\t\treturn root.getElementById?.(this.htmlFor) ?? null\n\t}\n\tprivate name() {\n\t\treturn [this.textContent?.replace(/\\s+/g, ' ').trim(), this.hint].filter(Boolean).join(' ')\n\t}\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\tthis.target()?.setAttribute('aria-label', this.name())\n\t}\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\t// The control may come after the label in the page: name it once the page around is in place.\n\t\tqueueMicrotask(() => this.requestUpdate())\n\t}\n\tprivate onClick() {\n\t\tconst t = this.target()\n\t\tif (!t) return\n\t\t// A press on a label is a pointer focus: no keyboard ring, as a native label gives its field.\n\t\tt.focus({ focusVisible: false } as FocusOptions)\n\t\tt.click()\n\t}\n\n\trender() {\n\t\treturn html`<label data-ds=\"label\" class=\"inline-flex items-baseline gap-1.5 type-label text-fg-soft\" @click=${this.onClick}><slot @slotchange=${() => this.requestUpdate()}></slot>${this.hint ? html`<span class=\"text-fg-muted\">${this.hint}</span>` : nothing}</label>`\n\t}\n}\n\ndefine('label', Label)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/label.js",
+        "elements/input.js"
+      ],
+      "tag": "spyglass-label",
+      "tags": [
+        "spyglass-label"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-label",
+            "name": "Label",
+            "module": "elements/label.js",
+            "description": "A label for one control.",
+            "attributes": [
+              {
+                "name": "for",
+                "field": "htmlFor",
+                "type": "string | undefined",
+                "description": "The id of the control it names (the `for` attribute)."
+              },
+              {
+                "name": "hint",
+                "field": "hint",
+                "type": "string | undefined",
+                "description": "A muted note after the label, such as \"Optional\"."
+              }
+            ],
+            "properties": [
+              {
+                "name": "htmlFor",
+                "type": "string | undefined",
+                "description": "The id of the control it names (the `for` attribute).",
+                "attribute": "for"
+              },
+              {
+                "name": "hint",
+                "type": "string | undefined",
+                "description": "A muted note after the label, such as \"Optional\".",
+                "attribute": "hint"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The label's text."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Fields",
+          "label": "Over fields",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/label/Fields.html",
+          "content": "<!-- Labels over the fields they name, one with a note that it can stay empty. -->\n<div class=\"flex w-80 max-w-full flex-col gap-6\">\n  <div class=\"flex flex-col gap-2\">\n    <spyglass-label for=\"label-email\">Work email</spyglass-label>\n    <spyglass-input id=\"label-email\" type=\"email\" placeholder=\"you@acme.com\"></spyglass-input>\n  </div>\n  <div class=\"flex flex-col gap-2\">\n    <spyglass-label for=\"label-team\" hint=\"Optional\">Team name</spyglass-label>\n    <spyglass-input id=\"label-team\" placeholder=\"Acme growth\"></spyglass-input>\n  </div>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

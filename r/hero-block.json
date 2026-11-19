@@ -1,0 +1,393 @@
+{
+  "name": "hero-block",
+  "title": "Hero block",
+  "type": "registry:block",
+  "group": "blocks",
+  "description": "The top of a page as the slides, posts and ads set it: a Funnel Display headline, a line of DM Sans and one White button on Black, with the light flowing in and the media (a search bar, a row of creatives) under the copy.",
+  "use_for": "The first thing on a website page. Left with a search bar on a band of the light (the ad), centered under the light field (the offer post), or right-aligned over creatives on the curved strip (the deck cover).",
+  "never": [
+    "A headline that does not end with a period, or in title case",
+    "Two White buttons",
+    "The light boxed in the middle of the copy, recolored or moving",
+    "Text over the creatives"
+  ],
+  "source": "Figma page 8: Ad, The only creative search engine (headline at 64,168, the line at 312, the search bar on a Light band); Post, Offer and Ad, Creator plan offer (centered under the Light field); Pitch deck cover, Curved strip (headline at the top right, creatives over the curved strip)",
+  "body": "`light` sets where the light flows: `field` from the top edge, `corner` from the bottom right, `band` across the media\nand `strip` above it, or `none`. `texture` adds the ASCII texture behind it. The headline takes inline nodes in React\n(the deck's creatives between the words) and a `headline` slot in the web component.",
+  "requires": [
+    "ascii-texture",
+    "brand-light"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/blocks/HeroBlock.tsx",
+      "content": "import type { ReactNode } from 'react'\nimport { AsciiTexture } from '@/react/components/visuals/AsciiTexture'\nimport { BrandLight } from '@/react/components/visuals/BrandLight'\nimport { cn } from '@/react/lib/cn'\n\n// The top of a page as the slides, posts and ads set it: a Funnel Display headline (64px, the deck's 96px times 2/3),\n// a line of DM Sans and the actions, on Black with the light and, if asked, the ASCII texture behind. The children are\n// the media under the copy (a search bar, a creative row, a ring). The placements in the assets:\n//   left   the ad and the first deck cover: copy at the top left, the media under it\n//   center the offer post and the Creator plan ad: everything centered, the light field above\n//   right  the third deck cover: the headline at the top right, the creatives on a curved strip below\n// `light` picks where the light flows: `field` from the top edge (fading out before the copy, never a hard edge),\n// `corner` in from the corners (on phones, the field above the copy), `band` and `strip` behind the media (a band of the light across it, the curved strip\n// running under it). The texture keeps clear of the copy. Nothing moves.\nexport type HeroPlacement = 'left' | 'center' | 'right'\nexport type HeroLight = 'field' | 'corner' | 'band' | 'strip' | 'none'\n\nexport interface HeroBlockProps {\n  headline: ReactNode\n  /** A line or two of DM Sans under the headline. */\n  body?: ReactNode\n  /** A label in capitals above the headline. */\n  eyebrow?: ReactNode\n  /** Buttons (one White primary). */\n  actions?: ReactNode\n  /** left, center or right. */\n  placement?: HeroPlacement\n  /** Where the light flows: field, corner, band, strip or none. */\n  light?: HeroLight\n  /** The light's (and the texture's) seed. */\n  seed?: number\n  /** The ASCII texture behind everything. */\n  texture?: boolean\n  /** The media under the copy. */\n  children?: ReactNode\n  className?: string\n}\n\nconst ALIGN: Record<HeroPlacement, string> = {\n  left: 'items-start text-left',\n  center: 'items-center text-center',\n  right: 'items-end text-right',\n}\n\n// Where the texture keeps clear of the copy, in its 1440x900 frame: the copy's side of the block.\nconst CLEAR: Record<HeroPlacement, { x: number; y: number; w: number; h: number }[]> = {\n  left: [{ x: 0, y: 0, w: 920, h: 720 }],\n  center: [{ x: 200, y: 80, w: 1040, h: 680 }],\n  right: [{ x: 520, y: 0, w: 920, h: 720 }],\n}\n\nexport function HeroBlock({ headline, body, eyebrow, actions, placement = 'left', light = 'field', seed = 0, texture = false, children, className }: HeroBlockProps) {\n  const media = light === 'band' || light === 'strip'\n  return (\n    <section data-ds=\"hero-block\" className={cn('relative isolate overflow-hidden bg-surface text-fg', className)}>\n      {texture && <AsciiTexture seed={seed} width={1440} height={900} density={0.4} clear={CLEAR[placement] ?? CLEAR.left} cover className=\"absolute inset-0 -z-10 size-full\" />}\n      {light === 'field' && <BrandLight variant=\"field\" seed={seed} ground={false} cover className=\"absolute inset-x-0 top-0 -z-10 h-80 mask-b-from-40% max-sm:h-48\" />}\n      {light === 'corner' && <BrandLight variant=\"corner\" seed={seed} ground={false} cover className=\"absolute inset-0 -z-10 size-full max-sm:hidden\" />}\n      {light === 'corner' && <BrandLight variant=\"field\" seed={seed} ground={false} cover className=\"absolute inset-x-0 top-0 -z-10 h-48 mask-b-from-40% sm:hidden\" />}\n      <div className={cn('mx-auto flex w-full max-w-page-wide flex-col gap-6 px-12 max-sm:px-4', ALIGN[placement] ?? ALIGN.left, light === 'field' ? 'pt-72 max-sm:pt-44' : light === 'corner' ? 'pt-24 max-sm:pt-44' : 'pt-24 max-sm:pt-16', children ? 'pb-12 max-sm:pb-10' : 'pb-24 max-sm:pb-16')}>\n        {eyebrow && <p className=\"type-label text-fg-muted\">{eyebrow}</p>}\n        <h1 className=\"max-w-4xl type-display text-balance max-md:type-hero max-sm:type-heading-1\">{headline}</h1>\n        {body && <p className=\"max-w-140 type-body-lg text-fg-soft\">{body}</p>}\n        {actions && <div className=\"mt-2 flex flex-wrap gap-3\">{actions}</div>}\n      </div>\n      {children && (\n        <div className={cn('relative', media ? 'py-14 max-sm:py-10' : 'pb-24 max-sm:pb-16')}>\n          {light === 'band' && <BrandLight variant=\"band\" seed={seed} ground={false} cover className=\"absolute inset-0 -z-10 size-full\" />}\n          {light === 'strip' && <BrandLight variant=\"curved-strip\" seed={seed} ground={false} cover className=\"absolute inset-0 -z-10 size-full\" />}\n          <div className=\"mx-auto w-full max-w-page-wide px-12 max-sm:px-4\">{children}</div>\n        </div>\n      )}\n    </section>\n  )\n}\n\nexport default HeroBlock\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Search",
+      "label": "Left, with the search bar on a band",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/hero-block/Search.tsx",
+      "content": "import { Button } from '@/react/components/ui/Button'\nimport { SearchBar } from '@/react/components/product/SearchBar'\nimport { HeroBlock } from '@/react/components/blocks/HeroBlock'\n// The ad's top: the headline and the line, the search bar across a band of the light.\n\nexport default function Search() {\n  return (\n    <HeroBlock\n      headline=\"The only creative search engine.\"\n      body=\"AI search across millions of creatives. Ask a question and get instant, structured results.\"\n      actions={<Button href=\"#pricing\">Get 50% off</Button>}\n      light=\"band\"\n      seed={2}\n      texture\n    >\n      <SearchBar placeholder=\"Show me UGC ads for skincare brands using before/after hooks\" label=\"Search creatives\" />\n    </HeroBlock>\n  )\n}\n",
+      "requires": [
+        "ascii-texture",
+        "brand-light",
+        "button",
+        "search-bar"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Strip",
+      "label": "Right, over the curved strip",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/hero-block/Strip.tsx",
+      "content": "import { HeroBlock } from '@/react/components/blocks/HeroBlock'\nimport { CreativeRow } from '@/react/components/site/CreativeRow'\n// The third deck cover: the headline at the top right, creatives over the curved strip.\n\nconst items = [\n  { brand: 'Acme Studio', tone: 2 as const },\n  { brand: 'Acme Fit', tone: 3 as const },\n  { brand: 'Acme Drinks', tone: 4 as const },\n  { brand: 'Acme Skin', tone: 1 as const },\n  { brand: 'Acme Studio', tone: 3 as const },\n  { brand: 'Acme Drinks', tone: 2 as const },\n  { brand: 'Acme Fit', tone: 4 as const },\n]\n\nexport default function Strip() {\n  return (\n    <HeroBlock headline=\"The only creative search engine.\" placement=\"right\" light=\"strip\" seed={0} texture>\n      <CreativeRow items={items} className=\"mt-32 max-sm:mt-16\" />\n    </HeroBlock>\n  )\n}\n",
+      "requires": [
+        "ascii-texture",
+        "brand-light",
+        "creative-row"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Centered",
+      "label": "Centered under the light",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/hero-block/Centered.tsx",
+      "content": "import { Button } from '@/react/components/ui/Button'\nimport { HeroBlock } from '@/react/components/blocks/HeroBlock'\n// Centered under the light field, as the offer post sets it.\n\nexport default function Centered() {\n  return (\n    <HeroBlock\n      headline=\"Know what changed before your next meeting.\"\n      body=\"Spyglass follows the brands, creators, and niches that matter to you then turns the changes into a brief you actually want to read.\"\n      actions={<><Button href=\"#pricing\">Get 50% off</Button><Button href=\"#product\" variant=\"secondary\">Explore the product</Button></>}\n      placement=\"center\"\n      light=\"field\"\n      seed={0}\n    />\n  )\n}\n",
+      "requires": [
+        "ascii-texture",
+        "brand-light",
+        "button"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/blocks/HeroBlock.tsx",
+          "content": "import type { ReactNode } from 'react'\nimport { AsciiTexture } from '@/react/components/visuals/AsciiTexture'\nimport { BrandLight } from '@/react/components/visuals/BrandLight'\nimport { cn } from '@/react/lib/cn'\n\n// The top of a page as the slides, posts and ads set it: a Funnel Display headline (64px, the deck's 96px times 2/3),\n// a line of DM Sans and the actions, on Black with the light and, if asked, the ASCII texture behind. The children are\n// the media under the copy (a search bar, a creative row, a ring). The placements in the assets:\n//   left   the ad and the first deck cover: copy at the top left, the media under it\n//   center the offer post and the Creator plan ad: everything centered, the light field above\n//   right  the third deck cover: the headline at the top right, the creatives on a curved strip below\n// `light` picks where the light flows: `field` from the top edge (fading out before the copy, never a hard edge),\n// `corner` in from the corners (on phones, the field above the copy), `band` and `strip` behind the media (a band of the light across it, the curved strip\n// running under it). The texture keeps clear of the copy. Nothing moves.\nexport type HeroPlacement = 'left' | 'center' | 'right'\nexport type HeroLight = 'field' | 'corner' | 'band' | 'strip' | 'none'\n\nexport interface HeroBlockProps {\n  headline: ReactNode\n  /** A line or two of DM Sans under the headline. */\n  body?: ReactNode\n  /** A label in capitals above the headline. */\n  eyebrow?: ReactNode\n  /** Buttons (one White primary). */\n  actions?: ReactNode\n  /** left, center or right. */\n  placement?: HeroPlacement\n  /** Where the light flows: field, corner, band, strip or none. */\n  light?: HeroLight\n  /** The light's (and the texture's) seed. */\n  seed?: number\n  /** The ASCII texture behind everything. */\n  texture?: boolean\n  /** The media under the copy. */\n  children?: ReactNode\n  className?: string\n}\n\nconst ALIGN: Record<HeroPlacement, string> = {\n  left: 'items-start text-left',\n  center: 'items-center text-center',\n  right: 'items-end text-right',\n}\n\n// Where the texture keeps clear of the copy, in its 1440x900 frame: the copy's side of the block.\nconst CLEAR: Record<HeroPlacement, { x: number; y: number; w: number; h: number }[]> = {\n  left: [{ x: 0, y: 0, w: 920, h: 720 }],\n  center: [{ x: 200, y: 80, w: 1040, h: 680 }],\n  right: [{ x: 520, y: 0, w: 920, h: 720 }],\n}\n\nexport function HeroBlock({ headline, body, eyebrow, actions, placement = 'left', light = 'field', seed = 0, texture = false, children, className }: HeroBlockProps) {\n  const media = light === 'band' || light === 'strip'\n  return (\n    <section data-ds=\"hero-block\" className={cn('relative isolate overflow-hidden bg-surface text-fg', className)}>\n      {texture && <AsciiTexture seed={seed} width={1440} height={900} density={0.4} clear={CLEAR[placement] ?? CLEAR.left} cover className=\"absolute inset-0 -z-10 size-full\" />}\n      {light === 'field' && <BrandLight variant=\"field\" seed={seed} ground={false} cover className=\"absolute inset-x-0 top-0 -z-10 h-80 mask-b-from-40% max-sm:h-48\" />}\n      {light === 'corner' && <BrandLight variant=\"corner\" seed={seed} ground={false} cover className=\"absolute inset-0 -z-10 size-full max-sm:hidden\" />}\n      {light === 'corner' && <BrandLight variant=\"field\" seed={seed} ground={false} cover className=\"absolute inset-x-0 top-0 -z-10 h-48 mask-b-from-40% sm:hidden\" />}\n      <div className={cn('mx-auto flex w-full max-w-page-wide flex-col gap-6 px-12 max-sm:px-4', ALIGN[placement] ?? ALIGN.left, light === 'field' ? 'pt-72 max-sm:pt-44' : light === 'corner' ? 'pt-24 max-sm:pt-44' : 'pt-24 max-sm:pt-16', children ? 'pb-12 max-sm:pb-10' : 'pb-24 max-sm:pb-16')}>\n        {eyebrow && <p className=\"type-label text-fg-muted\">{eyebrow}</p>}\n        <h1 className=\"max-w-4xl type-display text-balance max-md:type-hero max-sm:type-heading-1\">{headline}</h1>\n        {body && <p className=\"max-w-140 type-body-lg text-fg-soft\">{body}</p>}\n        {actions && <div className=\"mt-2 flex flex-wrap gap-3\">{actions}</div>}\n      </div>\n      {children && (\n        <div className={cn('relative', media ? 'py-14 max-sm:py-10' : 'pb-24 max-sm:pb-16')}>\n          {light === 'band' && <BrandLight variant=\"band\" seed={seed} ground={false} cover className=\"absolute inset-0 -z-10 size-full\" />}\n          {light === 'strip' && <BrandLight variant=\"curved-strip\" seed={seed} ground={false} cover className=\"absolute inset-0 -z-10 size-full\" />}\n          <div className=\"mx-auto w-full max-w-page-wide px-12 max-sm:px-4\">{children}</div>\n        </div>\n      )}\n    </section>\n  )\n}\n\nexport default HeroBlock\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-texture",
+        "brand-light"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "HeroBlock",
+            "file": "react/components/blocks/HeroBlock.tsx",
+            "props": [
+              {
+                "name": "headline",
+                "type": "ReactNode",
+                "required": true
+              },
+              {
+                "name": "body",
+                "type": "ReactNode",
+                "required": false,
+                "description": "A line or two of DM Sans under the headline."
+              },
+              {
+                "name": "eyebrow",
+                "type": "ReactNode",
+                "required": false,
+                "description": "A label in capitals above the headline."
+              },
+              {
+                "name": "actions",
+                "type": "ReactNode",
+                "required": false,
+                "description": "Buttons (one White primary)."
+              },
+              {
+                "name": "placement",
+                "type": "HeroPlacement",
+                "required": false,
+                "default": "'left'",
+                "description": "left, center or right."
+              },
+              {
+                "name": "light",
+                "type": "HeroLight",
+                "required": false,
+                "default": "'field'",
+                "description": "Where the light flows: field, corner, band, strip or none."
+              },
+              {
+                "name": "seed",
+                "type": "number",
+                "required": false,
+                "default": "0",
+                "description": "The light's (and the texture's) seed."
+              },
+              {
+                "name": "texture",
+                "type": "boolean",
+                "required": false,
+                "default": "false",
+                "description": "The ASCII texture behind everything."
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false,
+                "description": "The media under the copy."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Search",
+          "label": "Left, with the search bar on a band",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/hero-block/Search.tsx",
+          "content": "import { Button } from '@/react/components/ui/Button'\nimport { SearchBar } from '@/react/components/product/SearchBar'\nimport { HeroBlock } from '@/react/components/blocks/HeroBlock'\n// The ad's top: the headline and the line, the search bar across a band of the light.\n\nexport default function Search() {\n  return (\n    <HeroBlock\n      headline=\"The only creative search engine.\"\n      body=\"AI search across millions of creatives. Ask a question and get instant, structured results.\"\n      actions={<Button href=\"#pricing\">Get 50% off</Button>}\n      light=\"band\"\n      seed={2}\n      texture\n    >\n      <SearchBar placeholder=\"Show me UGC ads for skincare brands using before/after hooks\" label=\"Search creatives\" />\n    </HeroBlock>\n  )\n}\n",
+          "registryDependencies": [
+            "ascii-texture",
+            "brand-light",
+            "button",
+            "search-bar"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Strip",
+          "label": "Right, over the curved strip",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/hero-block/Strip.tsx",
+          "content": "import { HeroBlock } from '@/react/components/blocks/HeroBlock'\nimport { CreativeRow } from '@/react/components/site/CreativeRow'\n// The third deck cover: the headline at the top right, creatives over the curved strip.\n\nconst items = [\n  { brand: 'Acme Studio', tone: 2 as const },\n  { brand: 'Acme Fit', tone: 3 as const },\n  { brand: 'Acme Drinks', tone: 4 as const },\n  { brand: 'Acme Skin', tone: 1 as const },\n  { brand: 'Acme Studio', tone: 3 as const },\n  { brand: 'Acme Drinks', tone: 2 as const },\n  { brand: 'Acme Fit', tone: 4 as const },\n]\n\nexport default function Strip() {\n  return (\n    <HeroBlock headline=\"The only creative search engine.\" placement=\"right\" light=\"strip\" seed={0} texture>\n      <CreativeRow items={items} className=\"mt-32 max-sm:mt-16\" />\n    </HeroBlock>\n  )\n}\n",
+          "registryDependencies": [
+            "ascii-texture",
+            "brand-light",
+            "creative-row"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Centered",
+          "label": "Centered under the light",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/hero-block/Centered.tsx",
+          "content": "import { Button } from '@/react/components/ui/Button'\nimport { HeroBlock } from '@/react/components/blocks/HeroBlock'\n// Centered under the light field, as the offer post sets it.\n\nexport default function Centered() {\n  return (\n    <HeroBlock\n      headline=\"Know what changed before your next meeting.\"\n      body=\"Spyglass follows the brands, creators, and niches that matter to you then turns the changes into a brief you actually want to read.\"\n      actions={<><Button href=\"#pricing\">Get 50% off</Button><Button href=\"#product\" variant=\"secondary\">Explore the product</Button></>}\n      placement=\"center\"\n      light=\"field\"\n      seed={0}\n    />\n  )\n}\n",
+          "registryDependencies": [
+            "ascii-texture",
+            "brand-light",
+            "button"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/blocks/hero-block.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport '@/elements/components/visuals/ascii-texture'\nimport '@/elements/components/visuals/brand-light'\nimport styles from 'virtual:tw'\n\n// HeroBlock.tsx as <spyglass-hero-block>: the Funnel Display headline (`headline`, or a `headline` slot for inline\n// creatives), `body`, `eyebrow`, the `actions` slot and the media in the default slot, on Black with the light\n// (`light`: field, corner, band, strip or none) and the `texture`. `placement` is left, center or right.\nexport type HeroPlacement = 'left' | 'center' | 'right'\nexport type HeroLight = 'field' | 'corner' | 'band' | 'strip' | 'none'\n\nconst ALIGN: Record<HeroPlacement, string> = {\n\tleft: 'items-start text-left',\n\tcenter: 'items-center text-center',\n\tright: 'items-end text-right',\n}\n\nconst CLEAR: Record<HeroPlacement, { x: number; y: number; w: number; h: number }[]> = {\n\tleft: [{ x: 0, y: 0, w: 920, h: 720 }],\n\tcenter: [{ x: 200, y: 80, w: 1040, h: 680 }],\n\tright: [{ x: 520, y: 0, w: 920, h: 720 }],\n}\n\n/**\n * @summary The top of a page: headline, a line, actions and media, over the light.\n * @slot - The media under the copy.\n * @slot headline - The headline with inline creatives (instead of the attribute).\n * @slot actions - Buttons.\n */\nexport class HeroBlock extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"hero-block\"]'))\n\tstatic properties = { headline: {}, body: {}, eyebrow: {}, placement: {}, light: {}, seed: { type: Number }, texture: { type: Boolean } }\n\theadline = ''\n\t/** A line or two of DM Sans under the headline. */\n\tbody?: string\n\t/** A label in capitals above the headline. */\n\teyebrow?: string\n\t/** left, center or right (not `align`, which the browser reads as a text alignment). */\n\tplacement: HeroPlacement = 'left'\n\t/** field, corner, band, strip or none. */\n\tlight: HeroLight = 'field'\n\tseed = 0\n\t/** The ASCII texture behind everything. */\n\ttexture = false\n\n\trender() {\n\t\tconst light = this.light\n\t\tconst media = light === 'band' || light === 'strip'\n\t\tconst kids = this.hasSlot()\n\t\tconst top = ['mx-auto flex w-full max-w-page-wide flex-col gap-6 px-12 max-sm:px-4', ALIGN[this.placement] ?? ALIGN.left, light === 'field' ? 'pt-72 max-sm:pt-44' : light === 'corner' ? 'pt-24 max-sm:pt-44' : 'pt-24 max-sm:pt-16', kids ? 'pb-12 max-sm:pb-10' : 'pb-24 max-sm:pb-16'].join(' ')\n\t\treturn html`<section data-ds=\"hero-block\" class=\"relative isolate overflow-hidden bg-surface text-fg\">${this.texture ? html`<spyglass-ascii-texture seed=${this.seed} width=\"1440\" height=\"900\" density=\"0.4\" .clear=${CLEAR[this.placement] ?? CLEAR.left} cover class=\"absolute inset-0 -z-10 size-full\"></spyglass-ascii-texture>` : nothing}${light === 'field' ? html`<spyglass-brand-light variant=\"field\" seed=${this.seed} ground=\"false\" cover class=\"absolute inset-x-0 top-0 -z-10 h-80 mask-b-from-40% max-sm:h-48\"></spyglass-brand-light>` : nothing}${light === 'corner' ? html`<spyglass-brand-light variant=\"corner\" seed=${this.seed} ground=\"false\" cover class=\"absolute inset-0 -z-10 size-full max-sm:hidden\"></spyglass-brand-light><spyglass-brand-light variant=\"field\" seed=${this.seed} ground=\"false\" cover class=\"absolute inset-x-0 top-0 -z-10 h-48 mask-b-from-40% sm:hidden\"></spyglass-brand-light>` : nothing}<div class=${top}>${this.eyebrow ? html`<p class=\"type-label text-fg-muted\">${this.eyebrow}</p>` : nothing}<h1 class=\"max-w-4xl type-display text-balance max-md:type-hero max-sm:type-heading-1\">${this.hasSlot('headline') ? html`<slot name=\"headline\"></slot>` : this.headline}</h1>${this.body ? html`<p class=\"max-w-140 type-body-lg text-fg-soft\">${this.body}</p>` : nothing}${this.hasSlot('actions') ? html`<div class=\"mt-2 flex flex-wrap gap-3\"><slot name=\"actions\"></slot></div>` : nothing}</div>${kids ? html`<div class=${['relative', media ? 'py-14 max-sm:py-10' : 'pb-24 max-sm:pb-16'].join(' ')}>${light === 'band' ? html`<spyglass-brand-light variant=\"band\" seed=${this.seed} ground=\"false\" cover class=\"absolute inset-0 -z-10 size-full\"></spyglass-brand-light>` : nothing}${light === 'strip' ? html`<spyglass-brand-light variant=\"curved-strip\" seed=${this.seed} ground=\"false\" cover class=\"absolute inset-0 -z-10 size-full\"></spyglass-brand-light>` : nothing}<div class=\"mx-auto w-full max-w-page-wide px-12 max-sm:px-4\"><slot></slot></div></div>` : nothing}</section>`\n\t}\n}\n\ndefine('hero-block', HeroBlock)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/hero-block.js",
+        "elements/ascii-texture.js",
+        "elements/brand-light.js",
+        "elements/button.js",
+        "elements/search-bar.js",
+        "elements/creative-row.js"
+      ],
+      "tag": "spyglass-hero-block",
+      "tags": [
+        "spyglass-hero-block"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-texture",
+        "brand-light"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-hero-block",
+            "name": "HeroBlock",
+            "module": "elements/hero-block.js",
+            "description": "The top of a page: headline, a line, actions and media, over the light.",
+            "attributes": [
+              {
+                "name": "headline",
+                "field": "headline",
+                "type": "string",
+                "default": "''"
+              },
+              {
+                "name": "body",
+                "field": "body",
+                "type": "string | undefined",
+                "description": "A line or two of DM Sans under the headline."
+              },
+              {
+                "name": "eyebrow",
+                "field": "eyebrow",
+                "type": "string | undefined",
+                "description": "A label in capitals above the headline."
+              },
+              {
+                "name": "placement",
+                "field": "placement",
+                "type": "HeroPlacement",
+                "default": "'left'",
+                "description": "left, center or right (not `align`, which the browser reads as a text alignment)."
+              },
+              {
+                "name": "light",
+                "field": "light",
+                "type": "HeroLight",
+                "default": "'field'",
+                "description": "field, corner, band, strip or none."
+              },
+              {
+                "name": "seed",
+                "field": "seed",
+                "type": "number",
+                "default": "0"
+              },
+              {
+                "name": "texture",
+                "field": "texture",
+                "type": "boolean",
+                "default": "false",
+                "description": "The ASCII texture behind everything."
+              }
+            ],
+            "properties": [
+              {
+                "name": "headline",
+                "type": "string",
+                "default": "''",
+                "attribute": "headline"
+              },
+              {
+                "name": "body",
+                "type": "string | undefined",
+                "description": "A line or two of DM Sans under the headline.",
+                "attribute": "body"
+              },
+              {
+                "name": "eyebrow",
+                "type": "string | undefined",
+                "description": "A label in capitals above the headline.",
+                "attribute": "eyebrow"
+              },
+              {
+                "name": "placement",
+                "type": "HeroPlacement",
+                "default": "'left'",
+                "description": "left, center or right (not `align`, which the browser reads as a text alignment).",
+                "attribute": "placement"
+              },
+              {
+                "name": "light",
+                "type": "HeroLight",
+                "default": "'field'",
+                "description": "field, corner, band, strip or none.",
+                "attribute": "light"
+              },
+              {
+                "name": "seed",
+                "type": "number",
+                "default": "0",
+                "attribute": "seed"
+              },
+              {
+                "name": "texture",
+                "type": "boolean",
+                "default": "false",
+                "description": "The ASCII texture behind everything.",
+                "attribute": "texture"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The media under the copy."
+              },
+              {
+                "name": "headline",
+                "description": "The headline with inline creatives (instead of the attribute)."
+              },
+              {
+                "name": "actions",
+                "description": "Buttons."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Search",
+          "label": "Left, with the search bar on a band",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/hero-block/Search.html",
+          "content": "<!-- The ad's top: the headline and the line, the search bar across a band of the light. -->\n<spyglass-hero-block headline=\"The only creative search engine.\" body=\"AI search across millions of creatives. Ask a question and get instant, structured results.\" light=\"band\" seed=\"2\" texture>\n  <spyglass-button slot=\"actions\" href=\"#pricing\">Get 50% off</spyglass-button>\n  <spyglass-search-bar placeholder=\"Show me UGC ads for skincare brands using before/after hooks\" aria-label=\"Search creatives\"></spyglass-search-bar>\n</spyglass-hero-block>\n"
+        },
+        {
+          "name": "Strip",
+          "label": "Right, over the curved strip",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/hero-block/Strip.html",
+          "content": "<!-- The third deck cover: the headline at the top right, creatives over the curved strip. -->\n<spyglass-hero-block headline=\"The only creative search engine.\" placement=\"right\" light=\"strip\" seed=\"0\" texture>\n  <spyglass-creative-row class=\"mt-32 max-sm:mt-16\" items='[{\"brand\":\"Acme Studio\",\"tone\":2},{\"brand\":\"Acme Fit\",\"tone\":3},{\"brand\":\"Acme Drinks\",\"tone\":4},{\"brand\":\"Acme Skin\",\"tone\":1},{\"brand\":\"Acme Studio\",\"tone\":3},{\"brand\":\"Acme Drinks\",\"tone\":2},{\"brand\":\"Acme Fit\",\"tone\":4}]'></spyglass-creative-row>\n</spyglass-hero-block>\n"
+        },
+        {
+          "name": "Centered",
+          "label": "Centered under the light",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/hero-block/Centered.html",
+          "content": "<!-- Centered under the light field, as the offer post sets it. -->\n<spyglass-hero-block headline=\"Know what changed before your next meeting.\" body=\"Spyglass follows the brands, creators, and niches that matter to you then turns the changes into a brief you actually want to read.\" placement=\"center\" light=\"field\" seed=\"0\">\n  <spyglass-button slot=\"actions\" href=\"#pricing\">Get 50% off</spyglass-button>\n  <spyglass-button slot=\"actions\" href=\"#product\" variant=\"secondary\">Explore the product</spyglass-button>\n</spyglass-hero-block>\n"
+        }
+      ]
+    }
+  }
+}

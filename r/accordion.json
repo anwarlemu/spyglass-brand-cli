@@ -1,0 +1,372 @@
+{
+  "name": "accordion",
+  "title": "Accordion",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A stack of disclosures on Black: neutral hairlines between the rows, a DM Sans question, a muted answer that opens in place and a chevron that turns. One open at a time, or several.",
+  "use_for": "Questions on a pricing or help page, filters a person opens one by one, settings that would crowd a view.",
+  "never": [
+    "Hiding the one thing a person came for: put it on the page",
+    "A #171717 card per row: rows are hairlines on Black",
+    "A chevron that moves on hover"
+  ],
+  "source": "Derived from the guidelines: Black ground, neutral hairlines, DM Sans for body text. shadcn's accordion for anatomy, ARIA and keys.",
+  "body": "",
+  "requires": [],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/ui/Accordion.tsx",
+      "content": "'use client'\nimport type { ReactNode } from 'react'\nimport { AccordionContext } from '@/react/hooks/useAccordion'\nimport { useControllable } from '@/react/hooks/useControllable'\nimport { cn } from '@/react/lib/cn'\n\n// shadcn's accordion in the brand: a stack of disclosures on Black with neutral hairlines between the rows, a muted\n// chevron that turns as a row opens, the row opening to its content's height over 250ms on the strong ease-out and\n// closing in 150ms. One open at a time by default (a second press closes it); `multiple` lets several stay open.\n// `value` with `onValueChange` (or `defaultValue` alone) is the open row's value, or the list of them with `multiple`.\n// Compose with AccordionItem.\nexport type AccordionValue = string | string[] | null\nexport interface AccordionProps {\n  /** Several rows stay open. */\n  multiple?: boolean\n  /** The open row's value, or the list of them with `multiple`. */\n  value?: AccordionValue\n  defaultValue?: AccordionValue\n  onValueChange?: (value: AccordionValue) => void\n  className?: string\n  children?: ReactNode\n}\n\nexport function Accordion({ multiple, value, defaultValue = null, onValueChange, className, children }: AccordionProps) {\n  const [model, setModel] = useControllable<AccordionValue>(value, defaultValue, onValueChange)\n  const list = Array.isArray(model) ? model : model ? [model] : []\n  const ctx = {\n    isOpen: (v: string) => list.includes(v),\n    toggle: (v: string) => {\n      if (multiple) setModel(list.includes(v) ? list.filter(x => x !== v) : [...list, v])\n      else setModel(list.includes(v) ? null : v)\n    },\n  }\n  return (\n    <AccordionContext.Provider value={ctx}>\n      <div data-ds=\"accordion\" className={cn('border-t border-edge', className)}>{children}</div>\n    </AccordionContext.Provider>\n  )\n}\n\nexport default Accordion\n"
+    },
+    {
+      "path": "react/components/ui/AccordionItem.tsx",
+      "content": "'use client'\nimport { useId, type ReactNode } from 'react'\nimport { ChevronDown } from 'lucide-react'\nimport { useAccordion } from '@/react/hooks/useAccordion'\n\n// One row of an Accordion: the question as a full-width button (DM Sans 16px, soft White that turns full White under\n// the pointer and while open) over a neutral hairline, and the answer under it in muted DM Sans 14px. The chevron turns\n// half a circle as the row opens (250ms, ease-in-out); it never moves on hover. The closed answer is inert, so its\n// links leave the tab order. `title` names the row; children are the answer.\nexport interface AccordionItemProps {\n  /** The value the accordion opens it by. */\n  value: string\n  /** The question. */\n  title?: ReactNode\n  disabled?: boolean\n  children?: ReactNode\n}\n\nexport function AccordionItem({ value, title, disabled, children }: AccordionItemProps) {\n  const ctx = useAccordion()\n  const open = ctx?.isOpen(value) ?? false\n  const id = useId()\n  return (\n    <>\n      <style href=\"ds-accordion-item\" precedence=\"ds\">{css}</style>\n      <div data-ds=\"accordion-item\" className=\"border-b border-edge\" data-open={open}>\n        <h3>\n          <button\n            id={`${id}-head`}\n            type=\"button\"\n            aria-expanded={open}\n            aria-controls={`${id}-body`}\n            disabled={disabled}\n            className=\"flex w-full cursor-pointer items-center justify-between gap-4 py-4 text-left type-body text-fg-soft transition-[color] duration-150 ease-standard hover:text-fg aria-expanded:text-fg disabled:cursor-not-allowed disabled:text-fg-faint\"\n            onClick={() => ctx?.toggle(value)}\n          >\n            {title}\n            <ChevronDown size={16} strokeWidth={1.5} aria-hidden=\"true\" className=\"ds-accordion-chev shrink-0 text-fg-muted\" />\n          </button>\n        </h3>\n        <div id={`${id}-body`} role=\"region\" aria-labelledby={`${id}-head`} inert={!open} className=\"ds-collapse\" data-open={open}>\n          <div><div className=\"ds-collapse-body pb-4 type-ui text-fg-muted\">{children}</div></div>\n        </div>\n      </div>\n    </>\n  )\n}\n\nexport default AccordionItem\n\nconst css = `\n/* The row opens to its content's height (0fr to 1fr) over 250ms and closes in 150ms, on the strong ease-out; the words\n   fade and settle 4px down, so they never pop. Reduced motion: no height or move, opacity only. */\n.ds-collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--ds-duration-exit) var(--ds-easing-out); }\n.ds-collapse[data-open=\"true\"] { grid-template-rows: 1fr; transition-duration: var(--ds-duration-glide); }\n.ds-collapse > div { min-height: 0; overflow: hidden; }\n.ds-collapse-body { opacity: 0; transform: translateY(-4px); transition: opacity var(--ds-duration-exit) var(--ds-easing-standard), transform var(--ds-duration-exit) var(--ds-easing-out); }\n.ds-collapse[data-open=\"true\"] .ds-collapse-body { opacity: 1; transform: none; transition-duration: var(--ds-duration-glide); }\n.ds-accordion-chev { transition: rotate var(--ds-duration-glide) var(--ds-easing-in-out); }\n[aria-expanded=\"true\"] > .ds-accordion-chev { rotate: 180deg; }\n@media (prefers-reduced-motion: reduce) {\n  .ds-collapse, .ds-collapse[data-open=\"true\"], .ds-accordion-chev { transition: none; }\n  .ds-collapse-body, .ds-collapse[data-open=\"true\"] .ds-collapse-body { transform: none; transition: opacity var(--ds-duration-micro) var(--ds-easing-standard); }\n}\n`\n"
+    },
+    {
+      "path": "react/hooks/useAccordion.ts",
+      "content": "'use client'\nimport { createContext, useContext } from 'react'\n\n// What an Accordion gives its items: whether a value is open, and the press that opens or closes it.\nexport type AccordionContextValue = { isOpen: (v: string) => boolean, toggle: (v: string) => void }\nexport const AccordionContext = createContext<AccordionContextValue | null>(null)\n\n/** The Accordion around an item, or null outside one. */\nexport function useAccordion() {\n  return useContext(AccordionContext)\n}\n"
+    },
+    {
+      "path": "react/hooks/useControllable.ts",
+      "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Faq",
+      "label": "Questions",
+      "center": true,
+      "half": false,
+      "path": "react/examples/accordion/Faq.tsx",
+      "content": "import { Accordion } from '@/react/components/ui/Accordion'\nimport { AccordionItem } from '@/react/components/ui/AccordionItem'\n// Questions on a pricing page, one open at a time; the first opens with the page.\n\nexport default function Faq() {\n  return (\n    <Accordion defaultValue=\"what\" className=\"w-160 max-w-full\">\n      <AccordionItem value=\"what\" title=\"What is Spyglass?\">The only creative search engine. Ask in words for ads, product shots and UGC, and see what is running.</AccordionItem>\n      <AccordionItem value=\"price\" title=\"How much does it cost?\">$10 for your first month, then $20/month.</AccordionItem>\n      <AccordionItem value=\"boards\" title=\"Can I share a board with my team?\">Yes. Save creatives to a board and send the link to Acme's whole team.</AccordionItem>\n    </Accordion>\n  )\n}\n",
+      "requires": [],
+      "packages": [
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "Multiple",
+      "label": "Several open",
+      "center": true,
+      "half": false,
+      "path": "react/examples/accordion/Multiple.tsx",
+      "content": "import { Accordion } from '@/react/components/ui/Accordion'\nimport { AccordionItem } from '@/react/components/ui/AccordionItem'\n// Several rows open at once, for filters a person compares side by side; the last is not available yet.\n\nexport default function Multiple() {\n  return (\n    <Accordion multiple defaultValue={['format', 'platform']} className=\"w-120 max-w-full\">\n      <AccordionItem value=\"format\" title=\"Format\">Video, carousel, static image.</AccordionItem>\n      <AccordionItem value=\"platform\" title=\"Platform\">Meta, TikTok, YouTube.</AccordionItem>\n      <AccordionItem value=\"spend\" title=\"Estimated spend\" disabled>Coming soon.</AccordionItem>\n    </Accordion>\n  )\n}\n",
+      "requires": [],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Accordion.tsx",
+          "content": "'use client'\nimport type { ReactNode } from 'react'\nimport { AccordionContext } from '@/react/hooks/useAccordion'\nimport { useControllable } from '@/react/hooks/useControllable'\nimport { cn } from '@/react/lib/cn'\n\n// shadcn's accordion in the brand: a stack of disclosures on Black with neutral hairlines between the rows, a muted\n// chevron that turns as a row opens, the row opening to its content's height over 250ms on the strong ease-out and\n// closing in 150ms. One open at a time by default (a second press closes it); `multiple` lets several stay open.\n// `value` with `onValueChange` (or `defaultValue` alone) is the open row's value, or the list of them with `multiple`.\n// Compose with AccordionItem.\nexport type AccordionValue = string | string[] | null\nexport interface AccordionProps {\n  /** Several rows stay open. */\n  multiple?: boolean\n  /** The open row's value, or the list of them with `multiple`. */\n  value?: AccordionValue\n  defaultValue?: AccordionValue\n  onValueChange?: (value: AccordionValue) => void\n  className?: string\n  children?: ReactNode\n}\n\nexport function Accordion({ multiple, value, defaultValue = null, onValueChange, className, children }: AccordionProps) {\n  const [model, setModel] = useControllable<AccordionValue>(value, defaultValue, onValueChange)\n  const list = Array.isArray(model) ? model : model ? [model] : []\n  const ctx = {\n    isOpen: (v: string) => list.includes(v),\n    toggle: (v: string) => {\n      if (multiple) setModel(list.includes(v) ? list.filter(x => x !== v) : [...list, v])\n      else setModel(list.includes(v) ? null : v)\n    },\n  }\n  return (\n    <AccordionContext.Provider value={ctx}>\n      <div data-ds=\"accordion\" className={cn('border-t border-edge', className)}>{children}</div>\n    </AccordionContext.Provider>\n  )\n}\n\nexport default Accordion\n"
+        },
+        {
+          "path": "react/components/ui/AccordionItem.tsx",
+          "content": "'use client'\nimport { useId, type ReactNode } from 'react'\nimport { ChevronDown } from 'lucide-react'\nimport { useAccordion } from '@/react/hooks/useAccordion'\n\n// One row of an Accordion: the question as a full-width button (DM Sans 16px, soft White that turns full White under\n// the pointer and while open) over a neutral hairline, and the answer under it in muted DM Sans 14px. The chevron turns\n// half a circle as the row opens (250ms, ease-in-out); it never moves on hover. The closed answer is inert, so its\n// links leave the tab order. `title` names the row; children are the answer.\nexport interface AccordionItemProps {\n  /** The value the accordion opens it by. */\n  value: string\n  /** The question. */\n  title?: ReactNode\n  disabled?: boolean\n  children?: ReactNode\n}\n\nexport function AccordionItem({ value, title, disabled, children }: AccordionItemProps) {\n  const ctx = useAccordion()\n  const open = ctx?.isOpen(value) ?? false\n  const id = useId()\n  return (\n    <>\n      <style href=\"ds-accordion-item\" precedence=\"ds\">{css}</style>\n      <div data-ds=\"accordion-item\" className=\"border-b border-edge\" data-open={open}>\n        <h3>\n          <button\n            id={`${id}-head`}\n            type=\"button\"\n            aria-expanded={open}\n            aria-controls={`${id}-body`}\n            disabled={disabled}\n            className=\"flex w-full cursor-pointer items-center justify-between gap-4 py-4 text-left type-body text-fg-soft transition-[color] duration-150 ease-standard hover:text-fg aria-expanded:text-fg disabled:cursor-not-allowed disabled:text-fg-faint\"\n            onClick={() => ctx?.toggle(value)}\n          >\n            {title}\n            <ChevronDown size={16} strokeWidth={1.5} aria-hidden=\"true\" className=\"ds-accordion-chev shrink-0 text-fg-muted\" />\n          </button>\n        </h3>\n        <div id={`${id}-body`} role=\"region\" aria-labelledby={`${id}-head`} inert={!open} className=\"ds-collapse\" data-open={open}>\n          <div><div className=\"ds-collapse-body pb-4 type-ui text-fg-muted\">{children}</div></div>\n        </div>\n      </div>\n    </>\n  )\n}\n\nexport default AccordionItem\n\nconst css = `\n/* The row opens to its content's height (0fr to 1fr) over 250ms and closes in 150ms, on the strong ease-out; the words\n   fade and settle 4px down, so they never pop. Reduced motion: no height or move, opacity only. */\n.ds-collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--ds-duration-exit) var(--ds-easing-out); }\n.ds-collapse[data-open=\"true\"] { grid-template-rows: 1fr; transition-duration: var(--ds-duration-glide); }\n.ds-collapse > div { min-height: 0; overflow: hidden; }\n.ds-collapse-body { opacity: 0; transform: translateY(-4px); transition: opacity var(--ds-duration-exit) var(--ds-easing-standard), transform var(--ds-duration-exit) var(--ds-easing-out); }\n.ds-collapse[data-open=\"true\"] .ds-collapse-body { opacity: 1; transform: none; transition-duration: var(--ds-duration-glide); }\n.ds-accordion-chev { transition: rotate var(--ds-duration-glide) var(--ds-easing-in-out); }\n[aria-expanded=\"true\"] > .ds-accordion-chev { rotate: 180deg; }\n@media (prefers-reduced-motion: reduce) {\n  .ds-collapse, .ds-collapse[data-open=\"true\"], .ds-accordion-chev { transition: none; }\n  .ds-collapse-body, .ds-collapse[data-open=\"true\"] .ds-collapse-body { transform: none; transition: opacity var(--ds-duration-micro) var(--ds-easing-standard); }\n}\n`\n"
+        },
+        {
+          "path": "react/hooks/useAccordion.ts",
+          "content": "'use client'\nimport { createContext, useContext } from 'react'\n\n// What an Accordion gives its items: whether a value is open, and the press that opens or closes it.\nexport type AccordionContextValue = { isOpen: (v: string) => boolean, toggle: (v: string) => void }\nexport const AccordionContext = createContext<AccordionContextValue | null>(null)\n\n/** The Accordion around an item, or null outside one. */\nexport function useAccordion() {\n  return useContext(AccordionContext)\n}\n"
+        },
+        {
+          "path": "react/hooks/useControllable.ts",
+          "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Accordion",
+            "file": "react/components/ui/Accordion.tsx",
+            "props": [
+              {
+                "name": "multiple",
+                "type": "boolean",
+                "required": false,
+                "description": "Several rows stay open."
+              },
+              {
+                "name": "value",
+                "type": "AccordionValue",
+                "required": false,
+                "description": "The open row's value, or the list of them with `multiple`."
+              },
+              {
+                "name": "defaultValue",
+                "type": "AccordionValue",
+                "required": false,
+                "default": "null"
+              },
+              {
+                "name": "onValueChange",
+                "type": "(value: AccordionValue) => void",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              }
+            ]
+          },
+          {
+            "name": "AccordionItem",
+            "file": "react/components/ui/AccordionItem.tsx",
+            "props": [
+              {
+                "name": "value",
+                "type": "string",
+                "required": true,
+                "description": "The value the accordion opens it by."
+              },
+              {
+                "name": "title",
+                "type": "ReactNode",
+                "required": false,
+                "description": "The question."
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "required": false
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Faq",
+          "label": "Questions",
+          "center": true,
+          "half": false,
+          "path": "react/examples/accordion/Faq.tsx",
+          "content": "import { Accordion } from '@/react/components/ui/Accordion'\nimport { AccordionItem } from '@/react/components/ui/AccordionItem'\n// Questions on a pricing page, one open at a time; the first opens with the page.\n\nexport default function Faq() {\n  return (\n    <Accordion defaultValue=\"what\" className=\"w-160 max-w-full\">\n      <AccordionItem value=\"what\" title=\"What is Spyglass?\">The only creative search engine. Ask in words for ads, product shots and UGC, and see what is running.</AccordionItem>\n      <AccordionItem value=\"price\" title=\"How much does it cost?\">$10 for your first month, then $20/month.</AccordionItem>\n      <AccordionItem value=\"boards\" title=\"Can I share a board with my team?\">Yes. Save creatives to a board and send the link to Acme's whole team.</AccordionItem>\n    </Accordion>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        },
+        {
+          "name": "Multiple",
+          "label": "Several open",
+          "center": true,
+          "half": false,
+          "path": "react/examples/accordion/Multiple.tsx",
+          "content": "import { Accordion } from '@/react/components/ui/Accordion'\nimport { AccordionItem } from '@/react/components/ui/AccordionItem'\n// Several rows open at once, for filters a person compares side by side; the last is not available yet.\n\nexport default function Multiple() {\n  return (\n    <Accordion multiple defaultValue={['format', 'platform']} className=\"w-120 max-w-full\">\n      <AccordionItem value=\"format\" title=\"Format\">Video, carousel, static image.</AccordionItem>\n      <AccordionItem value=\"platform\" title=\"Platform\">Meta, TikTok, YouTube.</AccordionItem>\n      <AccordionItem value=\"spend\" title=\"Estimated spend\" disabled>Coming soon.</AccordionItem>\n    </Accordion>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/accordion.ts",
+          "content": "import { html, type PropertyValues } from 'lit'\nimport { DsElement, define, HostLayoutController, tagName } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Accordion.tsx as <spyglass-accordion>: a stack of disclosures on Black with neutral hairlines between the rows, a\n// muted chevron that turns as a row opens, the row opening to its content's height over 250ms on the strong ease-out\n// and closing in 150ms. One open at a time by default (a second press closes it); `multiple` lets several stay open.\n// `value` is the open row's value (or a JSON list of them with `multiple`), with `input` and `change` events. Compose\n// with <spyglass-accordion-item>.\nexport type AccordionValue = string | string[] | null\n\n/**\n * @summary A stack of disclosures, one open at a time or several.\n * @slot - The rows: <spyglass-accordion-item>.\n * @fires input - A row opened or closed (read `value`).\n * @fires change - A row opened or closed (read `value`).\n */\nexport class Accordion extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\t// Layout classes on the element (w-full, max-w-160) land on the stack, as on the React root.\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"accordion\"]'))\n\tstatic properties = {\n\t\tmultiple: { type: Boolean },\n\t\tvalue: { converter: { fromAttribute: (v: string | null) => (v?.trim().startsWith('[') ? JSON.parse(v) : v || null), toAttribute: (v: AccordionValue) => (Array.isArray(v) ? JSON.stringify(v) : v) } },\n\t}\n\n\t/** Several rows stay open. */\n\tmultiple = false\n\t/** The open row's value, or the list of them with `multiple`. */\n\tvalue: AccordionValue = null\n\n\tprivate list() {\n\t\treturn Array.isArray(this.value) ? this.value : this.value ? [this.value] : []\n\t}\n\t/** Whether the row with this value is open (read by the items). */\n\tisOpen(v: string) {\n\t\treturn this.list().includes(v)\n\t}\n\t/** Opens or closes the row with this value (the items' press). */\n\ttoggle(v: string) {\n\t\tconst open = this.list()\n\t\tif (this.multiple) this.commit(open.includes(v) ? open.filter((x) => x !== v) : [...open, v])\n\t\telse this.commit(open.includes(v) ? null : v)\n\t}\n\n\tprotected updated(changed: PropertyValues<this>) {\n\t\tsuper.updated(changed)\n\t\tif (changed.has('value')) for (const item of this.querySelectorAll<HTMLElement & { requestUpdate(): void }>(tagName('accordion-item'))) item.requestUpdate()\n\t}\n\n\trender() {\n\t\treturn html`<div data-ds=\"accordion\" class=\"border-t border-edge\"><slot></slot></div>`\n\t}\n}\n\ndefine('accordion', Accordion)\n"
+        },
+        {
+          "path": "elements/components/ui/accordion-item.ts",
+          "content": "import { html } from 'lit'\nimport { ChevronDown } from 'lucide'\nimport { accordionOf } from '@/elements/controllers/accordion'\nimport { DsElement, define, uid } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport styles from 'virtual:tw'\n\n// AccordionItem.tsx as <spyglass-accordion-item>: one row of an accordion: the question as a full-width button (DM Sans\n// 16px, soft White that turns full White under the pointer and while open) over a neutral hairline, and the answer\n// under it in muted DM Sans 14px. The chevron turns half a circle as the row opens; it never moves on hover. The closed\n// answer is inert, so its links leave the tab order. `heading` (React's `title`) or the `title` slot names the row; the\n// default slot is the answer.\n\n/**\n * @summary One row of an accordion.\n * @slot - The answer.\n * @slot title - The question, in place of `heading`.\n */\nexport class AccordionItem extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { value: {}, heading: {}, disabled: { type: Boolean } }\n\n\t/** The value the accordion opens it by. */\n\tvalue = ''\n\t/** The question (React's `title`). */\n\theading?: string\n\tdisabled = false\n\tprivate rowId = uid('accordion')\n\n\trender() {\n\t\tconst ctx = accordionOf(this)\n\t\tconst open = ctx?.isOpen(this.value) ?? false\n\t\treturn html`<div data-ds=\"accordion-item\" class=\"border-b border-edge\" data-open=${String(open)}>\n\t\t\t<h3>\n\t\t\t\t<button id=${`${this.rowId}-head`} type=\"button\" aria-expanded=${String(open)} aria-controls=${`${this.rowId}-body`} ?disabled=${this.disabled} class=\"flex w-full cursor-pointer items-center justify-between gap-4 py-4 text-left type-body text-fg-soft transition-[color] duration-150 ease-standard hover:text-fg aria-expanded:text-fg disabled:cursor-not-allowed disabled:text-fg-faint\" @click=${() => ctx?.toggle(this.value)}><slot name=\"title\">${this.heading}</slot>${icon(ChevronDown, 'chevron-down', { size: 16, strokeWidth: 1.5, class: 'ds-accordion-chev shrink-0 text-fg-muted', attrs: { 'aria-hidden': 'true' } })}</button>\n\t\t\t</h3>\n\t\t\t<div id=${`${this.rowId}-body`} role=\"region\" aria-labelledby=${`${this.rowId}-head`} ?inert=${!open} class=\"ds-collapse\" data-open=${String(open)}>\n\t\t\t\t<div><div class=\"ds-collapse-body pb-4 type-ui text-fg-muted\"><slot></slot></div></div>\n\t\t\t</div>\n\t\t</div>`\n\t}\n}\n\ndefine('accordion-item', AccordionItem)\n"
+        },
+        {
+          "path": "elements/components/ui/accordion-item.css",
+          "content": "/* AccordionItem.tsx's styles, as they are. */\n/* The row opens to its content's height (0fr to 1fr) over 250ms and closes in 150ms, on the strong ease-out; the words\n   fade and settle 4px down, so they never pop. Reduced motion: no height or move, opacity only. */\n.ds-collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--ds-duration-exit) var(--ds-easing-out); }\n.ds-collapse[data-open=\"true\"] { grid-template-rows: 1fr; transition-duration: var(--ds-duration-glide); }\n.ds-collapse > div { min-height: 0; overflow: hidden; }\n.ds-collapse-body { opacity: 0; transform: translateY(-4px); transition: opacity var(--ds-duration-exit) var(--ds-easing-standard), transform var(--ds-duration-exit) var(--ds-easing-out); }\n.ds-collapse[data-open=\"true\"] .ds-collapse-body { opacity: 1; transform: none; transition-duration: var(--ds-duration-glide); }\n.ds-accordion-chev { transition: rotate var(--ds-duration-glide) var(--ds-easing-in-out); }\n[aria-expanded=\"true\"] > .ds-accordion-chev { rotate: 180deg; }\n@media (prefers-reduced-motion: reduce) {\n  .ds-collapse, .ds-collapse[data-open=\"true\"], .ds-accordion-chev { transition: none; }\n  .ds-collapse-body, .ds-collapse[data-open=\"true\"] .ds-collapse-body { transform: none; transition: opacity var(--ds-duration-micro) var(--ds-easing-standard); }\n}\n"
+        },
+        {
+          "path": "elements/controllers/accordion.ts",
+          "content": "import { tagName } from '@/elements/lib/element'\n\n// useAccordion for elements: what a <spyglass-accordion> gives its items (whether a value is open, and the press that\n// opens or closes it). An item finds its accordion as its closest ancestor, so accordions nest.\nexport type AccordionContext = { isOpen: (v: string) => boolean, toggle: (v: string) => void }\n\n/** The accordion around an item, or null outside one (or while it is not defined yet: it renders its items again once\n * it is). */\nexport function accordionOf(item: Element): AccordionContext | null {\n\tconst a = item.parentElement?.closest(tagName('accordion')) as (Element & Partial<AccordionContext>) | null\n\treturn a && typeof a.isOpen === 'function' ? (a as AccordionContext) : null\n}\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/accordion.js",
+        "elements/accordion-item.js"
+      ],
+      "tag": "spyglass-accordion",
+      "tags": [
+        "spyglass-accordion",
+        "spyglass-accordion-item"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-accordion",
+            "name": "Accordion",
+            "module": "elements/accordion.js",
+            "description": "A stack of disclosures, one open at a time or several.",
+            "attributes": [
+              {
+                "name": "multiple",
+                "field": "multiple",
+                "type": "boolean",
+                "default": "false",
+                "description": "Several rows stay open."
+              },
+              {
+                "name": "value",
+                "field": "value",
+                "type": "AccordionValue",
+                "default": "null",
+                "description": "The open row's value, or the list of them with `multiple`."
+              }
+            ],
+            "properties": [
+              {
+                "name": "multiple",
+                "type": "boolean",
+                "default": "false",
+                "description": "Several rows stay open.",
+                "attribute": "multiple"
+              },
+              {
+                "name": "value",
+                "type": "AccordionValue",
+                "default": "null",
+                "description": "The open row's value, or the list of them with `multiple`.",
+                "attribute": "value"
+              }
+            ],
+            "events": [
+              {
+                "name": "input",
+                "description": "A row opened or closed (read `value`)."
+              },
+              {
+                "name": "change",
+                "description": "A row opened or closed (read `value`)."
+              }
+            ],
+            "slots": [
+              {
+                "name": "",
+                "description": "The rows: <spyglass-accordion-item>."
+              }
+            ],
+            "methods": [
+              {
+                "name": "isOpen",
+                "description": "Whether the row with this value is open (read by the items)."
+              },
+              {
+                "name": "toggle",
+                "description": "Opens or closes the row with this value (the items' press)."
+              }
+            ]
+          },
+          {
+            "tag": "spyglass-accordion-item",
+            "name": "AccordionItem",
+            "module": "elements/accordion-item.js",
+            "description": "One row of an accordion.",
+            "attributes": [
+              {
+                "name": "value",
+                "field": "value",
+                "type": "string",
+                "default": "''",
+                "description": "The value the accordion opens it by."
+              },
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string | undefined",
+                "description": "The question (React's `title`)."
+              },
+              {
+                "name": "disabled",
+                "field": "disabled",
+                "type": "boolean",
+                "default": "false"
+              }
+            ],
+            "properties": [
+              {
+                "name": "value",
+                "type": "string",
+                "default": "''",
+                "description": "The value the accordion opens it by.",
+                "attribute": "value"
+              },
+              {
+                "name": "heading",
+                "type": "string | undefined",
+                "description": "The question (React's `title`).",
+                "attribute": "heading"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "disabled"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The answer."
+              },
+              {
+                "name": "title",
+                "description": "The question, in place of `heading`."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Faq",
+          "label": "Questions",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/accordion/Faq.html",
+          "content": "<!-- Questions on a pricing page, one open at a time; the first opens with the page. -->\n<spyglass-accordion value=\"what\" class=\"w-160 max-w-full\">\n  <spyglass-accordion-item value=\"what\" heading=\"What is Spyglass?\">The only creative search engine. Ask in words for ads, product shots and UGC, and see what is running.</spyglass-accordion-item>\n  <spyglass-accordion-item value=\"price\" heading=\"How much does it cost?\">$10 for your first month, then $20/month.</spyglass-accordion-item>\n  <spyglass-accordion-item value=\"boards\" heading=\"Can I share a board with my team?\">Yes. Save creatives to a board and send the link to Acme's whole team.</spyglass-accordion-item>\n</spyglass-accordion>\n"
+        },
+        {
+          "name": "Multiple",
+          "label": "Several open",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/accordion/Multiple.html",
+          "content": "<!-- Several rows open at once, for filters a person compares side by side; the last is not available yet. -->\n<spyglass-accordion multiple value='[\"format\",\"platform\"]' class=\"w-120 max-w-full\">\n  <spyglass-accordion-item value=\"format\" heading=\"Format\">Video, carousel, static image.</spyglass-accordion-item>\n  <spyglass-accordion-item value=\"platform\" heading=\"Platform\">Meta, TikTok, YouTube.</spyglass-accordion-item>\n  <spyglass-accordion-item value=\"spend\" heading=\"Estimated spend\" disabled>Coming soon.</spyglass-accordion-item>\n</spyglass-accordion>\n"
+        }
+      ]
+    }
+  }
+}

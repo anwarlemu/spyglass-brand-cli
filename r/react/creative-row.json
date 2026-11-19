@@ -1,0 +1,24 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "creative-row",
+  "type": "registry:ui",
+  "title": "Creative row",
+  "description": "A row of 4/5 creatives: even, as the banners line them up 16px apart, or peak, rising to the middle and centered on one line, as the deck cover sets them.",
+  "dependencies": [],
+  "registryDependencies": [
+    "https://spyglass-ds.vercel.app/r/react/brand-light.json",
+    "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+  ],
+  "files": [
+    {
+      "path": "components/site/CreativeRow.tsx",
+      "type": "registry:ui",
+      "content": "import { BrandLight } from '@/components/visuals/BrandLight'\nimport { CreativeCard, type CreativeItem } from '@/components/site/CreativeCard'\nimport { peakWeights } from '@/lib/creative-layouts'\nimport { cn } from '@/lib/cn'\n\n// A row of creatives, all 4/5. `even`: the banners' row, every creative the same size, 16px apart (X banner, Creative\n// row). `peak`: the deck cover's row, rising to the middle (200, 240, 304, 240, 200 on the canvas) and centered on one\n// line (Pitch deck cover, Row of creatives). The row keeps to its box: the creatives shrink with it, never scroll.\nexport interface CreativeRowProps {\n  items: CreativeItem[]\n  /** even (one size) or peak (rising to the middle). */\n  variant?: 'even' | 'peak'\n  className?: string\n}\n\nexport function CreativeRow({ items, variant = 'even', className }: CreativeRowProps) {\n  const weights = variant === 'peak' ? peakWeights(items.length) : items.map(() => 1)\n  return (\n    <div data-ds=\"creative-row\" className={cn('flex items-center gap-4 max-sm:gap-2', className)}>\n      {items.map(({ light, seed, ...item }, i) => (\n        <div key={i} className=\"min-w-0 basis-0\" style={{ flexGrow: weights[i], aspectRatio: '4 / 5' }}>\n          {light ? <BrandLight variant=\"tile\" seed={seed ?? i} cover className=\"size-full rounded-container\" /> : <CreativeCard {...item} ratio=\"fill\" />}\n        </div>\n      ))}\n    </div>\n  )\n}\n\nexport default CreativeRow\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "alert",
+  "type": "registry:ui",
+  "title": "Alert",
+  "description": "A note or a problem in a #171717 box on Black: a Lucide icon, the subject in DM Sans Medium, a muted line under it and the button that goes with it. Red for what broke.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/ui/Alert.tsx",
+      "type": "registry:ui",
+      "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/lib/cn'\n\n// shadcn's alert in the brand: a #171717 box on Black with the brand corner and no border or shadow, a 16px Lucide\n// icon, the subject in DM Sans Medium and a line of muted DM Sans under it, and a button at the end if one helps.\n// `destructive` turns the icon and the subject red for what broke. role=\"alert\" so it is read out; for a note that\n// was there from the start, pass role=\"status\".\nexport type AlertVariant = 'default' | 'destructive'\n\nconst VARIANTS: Record<AlertVariant, string> = {\n  default: 'text-fg',\n  destructive: 'text-fg-danger',\n}\n\nexport interface AlertProps {\n  /** The subject, in DM Sans Medium. */\n  title: ReactNode\n  /** default, or destructive (red) for what broke. */\n  variant?: AlertVariant\n  /** A 16px Lucide icon before it. */\n  icon?: ReactNode\n  /** A button at the end. */\n  action?: ReactNode\n  /** alert (read out at once) or status (polite). */\n  role?: 'alert' | 'status'\n  className?: string\n  /** The line under the subject. */\n  children?: ReactNode\n}\n\nexport function Alert({ title, variant = 'default', icon, action, role = 'alert', className, children }: AlertProps) {\n  return (\n    <div data-ds=\"alert\" role={role} className={cn('flex w-full items-start gap-3 rounded-container bg-surface-raised p-4 max-sm:flex-wrap', className)}>\n      {icon && <span className={cn('mt-0.5 flex shrink-0', VARIANTS[variant] ?? VARIANTS.default)} aria-hidden=\"true\">{icon}</span>}\n      <div className=\"flex min-w-0 flex-1 flex-col gap-1\">\n        <p className={cn('type-ui-strong', VARIANTS[variant] ?? VARIANTS.default)}>{title}</p>\n        {children && <div className=\"type-ui text-fg-muted\">{children}</div>}\n      </div>\n      {action && <div className=\"shrink-0 self-center max-sm:basis-full max-sm:pl-7\">{action}</div>}\n    </div>\n  )\n}\n\nexport default Alert\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

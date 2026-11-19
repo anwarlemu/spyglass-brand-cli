@@ -1,0 +1,205 @@
+{
+  "name": "card",
+  "title": "Card",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "The brand's card: a #171717 fill on Black with the brand corner, a Funnel Display title, a line of DM Sans and the body, with actions at the foot. No border, no shadow.",
+  "use_for": "A plan, an offer, a stat or a group of settings set apart from the Black ground. The plan card in the ads is the model.",
+  "never": [
+    "A shadow or a glow around it",
+    "A border instead of the fill",
+    "A card on a card"
+  ],
+  "source": "Brand assets (Figma page 8): Card, Creator plan (600x452, #171717, radius 10, 48px in; Creator in Funnel Display 40px at 1.0, DM Sans 24px lines, a 504x56 White button)",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Card.tsx",
+      "content": "import type { HTMLAttributes, ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// The brand's card: a #171717 fill on Black with the brand corner, no border and no shadow (the plan card in the\n// ads: 48px in on the canvas, 32px here). `title` is a Funnel Display card title (40px at 1.0 on the canvas, 28px\n// here), `description` a line of DM Sans under it, the children the body, and `actions` a row at the foot (a full\n// width button in the plan card).\nexport interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {\n  title?: ReactNode\n  description?: ReactNode\n  /** Buttons or links at the foot. */\n  actions?: ReactNode\n}\n\nexport function Card({ title, description, actions, className, children, ...rest }: CardProps) {\n  return (\n    <div data-ds=\"card\" {...rest} className={cn('flex flex-col gap-6 rounded-container bg-surface-raised p-8 text-fg max-sm:p-6', className)}>\n      {(title || description) && (\n        <div className=\"flex flex-col gap-4\">\n          {title && <h3 className=\"type-heading-2\">{title}</h3>}\n          {description && <p className=\"type-body text-fg\">{description}</p>}\n        </div>\n      )}\n      {children}\n      {actions && <div className=\"mt-2 flex flex-wrap gap-3\">{actions}</div>}\n    </div>\n  )\n}\n\nexport default Card\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Plan",
+      "label": "Plan",
+      "center": true,
+      "half": false,
+      "path": "react/examples/card/Plan.tsx",
+      "content": "import { Button } from '@/react/components/ui/Button'\nimport { Card } from '@/react/components/ui/Card'\n// The plan card from the Creator plan ad: the plan, its price, what it includes and the one action.\n\nexport default function Plan() {\n  return (\n    <Card\n      className=\"w-150 max-w-full\"\n      title=\"Creator\"\n      description=\"$10 for your first month, then $20/month\"\n      actions={<Button className=\"w-full\">Start Creator for 50% off</Button>}\n    >\n      <ul className=\"flex flex-col gap-2 type-ui text-fg\">\n        <li>AI-powered research across brands, creators, ads, and campaigns</li>\n        <li>Unlimited board swipe files, alerts, and tracked brands</li>\n        <li>Unlimited team seats</li>\n      </ul>\n    </Card>\n  )\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Stats",
+      "label": "Stats",
+      "center": false,
+      "half": false,
+      "path": "react/examples/card/Stats.tsx",
+      "content": "import { Card } from '@/react/components/ui/Card'\n// Cards for a dashboard: one number each, with what it counts under it.\n\nexport default function Stats() {\n  return (\n    <div className=\"grid gap-4 sm:grid-cols-3\">\n      <Card title=\"1,240\" description=\"New Acme creatives this week\" />\n      <Card title=\"38\" description=\"Brands tracked by the Acme team\" />\n      <Card title=\"6\" description=\"Boards shared with the agency\" />\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Card.tsx",
+          "content": "import type { HTMLAttributes, ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// The brand's card: a #171717 fill on Black with the brand corner, no border and no shadow (the plan card in the\n// ads: 48px in on the canvas, 32px here). `title` is a Funnel Display card title (40px at 1.0 on the canvas, 28px\n// here), `description` a line of DM Sans under it, the children the body, and `actions` a row at the foot (a full\n// width button in the plan card).\nexport interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {\n  title?: ReactNode\n  description?: ReactNode\n  /** Buttons or links at the foot. */\n  actions?: ReactNode\n}\n\nexport function Card({ title, description, actions, className, children, ...rest }: CardProps) {\n  return (\n    <div data-ds=\"card\" {...rest} className={cn('flex flex-col gap-6 rounded-container bg-surface-raised p-8 text-fg max-sm:p-6', className)}>\n      {(title || description) && (\n        <div className=\"flex flex-col gap-4\">\n          {title && <h3 className=\"type-heading-2\">{title}</h3>}\n          {description && <p className=\"type-body text-fg\">{description}</p>}\n        </div>\n      )}\n      {children}\n      {actions && <div className=\"mt-2 flex flex-wrap gap-3\">{actions}</div>}\n    </div>\n  )\n}\n\nexport default Card\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Card",
+            "file": "react/components/ui/Card.tsx",
+            "props": [
+              {
+                "name": "title",
+                "type": "ReactNode",
+                "required": false
+              },
+              {
+                "name": "description",
+                "type": "ReactNode",
+                "required": false
+              },
+              {
+                "name": "actions",
+                "type": "ReactNode",
+                "required": false,
+                "description": "Buttons or links at the foot."
+              }
+            ],
+            "extends": [
+              "Omit<HTMLAttributes<HTMLDivElement>, 'title'>"
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Plan",
+          "label": "Plan",
+          "center": true,
+          "half": false,
+          "path": "react/examples/card/Plan.tsx",
+          "content": "import { Button } from '@/react/components/ui/Button'\nimport { Card } from '@/react/components/ui/Card'\n// The plan card from the Creator plan ad: the plan, its price, what it includes and the one action.\n\nexport default function Plan() {\n  return (\n    <Card\n      className=\"w-150 max-w-full\"\n      title=\"Creator\"\n      description=\"$10 for your first month, then $20/month\"\n      actions={<Button className=\"w-full\">Start Creator for 50% off</Button>}\n    >\n      <ul className=\"flex flex-col gap-2 type-ui text-fg\">\n        <li>AI-powered research across brands, creators, ads, and campaigns</li>\n        <li>Unlimited board swipe files, alerts, and tracked brands</li>\n        <li>Unlimited team seats</li>\n      </ul>\n    </Card>\n  )\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Stats",
+          "label": "Stats",
+          "center": false,
+          "half": false,
+          "path": "react/examples/card/Stats.tsx",
+          "content": "import { Card } from '@/react/components/ui/Card'\n// Cards for a dashboard: one number each, with what it counts under it.\n\nexport default function Stats() {\n  return (\n    <div className=\"grid gap-4 sm:grid-cols-3\">\n      <Card title=\"1,240\" description=\"New Acme creatives this week\" />\n      <Card title=\"38\" description=\"Brands tracked by the Acme team\" />\n      <Card title=\"6\" description=\"Boards shared with the agency\" />\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/card.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Card.tsx as <spyglass-card>: a #171717 fill on Black with the brand corner, no border, no shadow. `heading` is the\n// Funnel Display card title (React's `title`; `title` is HTML's tooltip), `description` a line under it, the default\n// slot the body and the `actions` slot a row at the foot.\n\n/**\n * @summary A card: the brand's #171717 fill, a title, a line and actions.\n * @slot - The body.\n * @slot actions - Buttons or links at the foot.\n */\nexport class Card extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\t// Layout classes on the element (w-150, max-w-full) land on the card, as on the React root.\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"card\"]'))\n\tstatic properties = { heading: {}, description: {} }\n\t/** The card title (React's `title`). */\n\theading?: string\n\tdescription?: string\n\n\trender() {\n\t\tconst head = this.heading || this.description\n\t\treturn html`<div data-ds=\"card\" class=\"flex flex-col gap-6 rounded-container bg-surface-raised p-8 text-fg max-sm:p-6\">${head ? html`<div class=\"flex flex-col gap-4\">${this.heading ? html`<h3 class=\"type-heading-2\">${this.heading}</h3>` : nothing}${this.description ? html`<p class=\"type-body text-fg\">${this.description}</p>` : nothing}</div>` : nothing}<slot></slot>${this.hasSlot('actions') ? html`<div class=\"mt-2 flex flex-wrap gap-3\"><slot name=\"actions\"></slot></div>` : nothing}</div>`\n\t}\n}\n\ndefine('card', Card)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/card.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-card",
+      "tags": [
+        "spyglass-card"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-card",
+            "name": "Card",
+            "module": "elements/card.js",
+            "description": "A card: the brand's #171717 fill, a title, a line and actions.",
+            "attributes": [
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string | undefined",
+                "description": "The card title (React's `title`)."
+              },
+              {
+                "name": "description",
+                "field": "description",
+                "type": "string | undefined"
+              }
+            ],
+            "properties": [
+              {
+                "name": "heading",
+                "type": "string | undefined",
+                "description": "The card title (React's `title`).",
+                "attribute": "heading"
+              },
+              {
+                "name": "description",
+                "type": "string | undefined",
+                "attribute": "description"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The body."
+              },
+              {
+                "name": "actions",
+                "description": "Buttons or links at the foot."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Plan",
+          "label": "Plan",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/card/Plan.html",
+          "content": "<!-- The plan card from the Creator plan ad: the plan, its price, what it includes and the one action. -->\n<spyglass-card class=\"w-150 max-w-full\" heading=\"Creator\" description=\"$10 for your first month, then $20/month\">\n  <ul class=\"flex flex-col gap-2 type-ui text-fg\">\n    <li>AI-powered research across brands, creators, ads, and campaigns</li>\n    <li>Unlimited board swipe files, alerts, and tracked brands</li>\n    <li>Unlimited team seats</li>\n  </ul>\n  <spyglass-button slot=\"actions\" class=\"w-full\">Start Creator for 50% off</spyglass-button>\n</spyglass-card>\n"
+        },
+        {
+          "name": "Stats",
+          "label": "Stats",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/card/Stats.html",
+          "content": "<!-- Cards for a dashboard: one number each, with what it counts under it. -->\n<div class=\"grid gap-4 sm:grid-cols-3\">\n  <spyglass-card heading=\"1,240\" description=\"New Acme creatives this week\"></spyglass-card>\n  <spyglass-card heading=\"38\" description=\"Brands tracked by the Acme team\"></spyglass-card>\n  <spyglass-card heading=\"6\" description=\"Boards shared with the agency\"></spyglass-card>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

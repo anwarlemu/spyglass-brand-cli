@@ -1,0 +1,354 @@
+{
+  "name": "checkbox",
+  "title": "Checkbox",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A yes or no that is part of a form: a 16px box in a #363636 hairline on Black that fills White with a Black check, a bar for a group partly on, and a DM Sans label beside it. Form-associated.",
+  "use_for": "Filters a person combines, consent in a form, picking rows. A setting that takes effect at once is a switch.",
+  "never": [
+    "A spectrum color for the checked box",
+    "A checkbox that acts at once without a form or an apply step",
+    "Faded labels for disabled: they go to the faint neutral"
+  ],
+  "source": "Derived from the guidelines: White on Black for what is on, neutral hairlines, the 4px small corner, DM Sans labels. shadcn's checkbox for anatomy and the indeterminate state.",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Checkbox.tsx",
+      "content": "'use client'\nimport { useEffect, useId, useRef, type ReactNode } from 'react'\nimport { useControllable } from '@/react/hooks/useControllable'\n\n// shadcn's checkbox in the brand: a yes or no that is part of a form. A 16px box with a 4px corner in a #363636\n// hairline on Black that lifts to #4D4D4D under the pointer; checked, it fills White and a Black check draws its stroke\n// (250ms on the strong ease-out); `indeterminate` shows a bar for a group partly on. Focus is the White ring. The label\n// sits right of it in DM Sans 14px, the whole row pressable, 32px tall (44px on phones); `hint` is a muted line under\n// it. `invalid` turns the hairline red. A setting that takes effect at once is a switch. `checked` with\n// `onCheckedChange` (or `defaultChecked` alone); the label goes in `label` or `children`.\nexport interface CheckboxProps {\n  /** The label, when children do not give it. */\n  label?: string\n  /** A muted line under the label. */\n  hint?: string\n  /** A bar in place of the check, for a group partly on. */\n  indeterminate?: boolean\n  disabled?: boolean\n  /** A red hairline. */\n  invalid?: boolean\n  id?: string\n  name?: string\n  value?: string\n  checked?: boolean\n  defaultChecked?: boolean\n  onCheckedChange?: (checked: boolean) => void\n  className?: string\n  children?: ReactNode\n}\n\nexport function Checkbox({ label, hint, indeterminate, disabled, invalid, id: given, name, value, checked, defaultChecked = false, onCheckedChange, className, children }: CheckboxProps) {\n  const [on, setOn] = useControllable(checked, defaultChecked, onCheckedChange)\n  const auto = useId()\n  const id = given ?? `checkbox-${auto}`\n  const input = useRef<HTMLInputElement | null>(null)\n  // `indeterminate` is the input's property; React has no attribute for it.\n  useEffect(() => {\n    if (input.current) input.current.indeterminate = !!indeterminate\n  }, [indeterminate])\n  return (\n    <>\n      <style href=\"ds-checkbox\" precedence=\"ds\">{css}</style>\n      <label data-ds=\"checkbox\" className={className ? `ds-checkrow ${className}` : 'ds-checkrow'} htmlFor={id} data-disabled={disabled || undefined}>\n        <span className=\"ds-checkbox\">\n          <input ref={input} id={id} type=\"checkbox\" checked={on} onChange={e => setOn(e.target.checked)} name={name} value={value} disabled={disabled} aria-invalid={invalid || undefined} aria-describedby={hint ? `${id}-hint` : undefined} />\n          {indeterminate\n            ? <svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M4 8h8\" /></svg>\n            : <svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M3.5 8.5 6.5 11.5 12.5 4.5\" pathLength=\"1\" /></svg>}\n        </span>\n        {(label || children || hint) && (\n          <span className=\"flex min-w-0 flex-col\">\n            <span>{children ?? label}</span>\n            {hint && <span id={`${id}-hint`} className=\"type-caption text-fg-muted\">{hint}</span>}\n          </span>\n        )}\n      </label>\n    </>\n  )\n}\n\nexport default Checkbox\n\nconst css = `\n/* The row: the box and its label, 32px tall (44px on phones), the whole row pressable. */\n.ds-checkrow { display: inline-flex; min-height: var(--ds-size-control-sm); align-items: flex-start; gap: var(--ds-space-md); padding-block: 6px; color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); cursor: pointer; }\n.ds-checkrow[data-disabled] { color: var(--ds-color-fg-faint); cursor: not-allowed; }\n.ds-checkbox { position: relative; display: inline-grid; width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }\n.ds-checkbox > * { grid-area: 1 / 1; }\n.ds-checkbox > input { width: 16px; height: 16px; margin: 0; border: var(--ds-border-hairline) solid var(--ds-color-edge-strong); border-radius: var(--ds-radius-sm); background: var(--ds-color-surface); appearance: none; cursor: inherit; transition: border-color var(--ds-duration-micro) var(--ds-easing-standard), background-color var(--ds-duration-micro) var(--ds-easing-standard); }\n.ds-checkbox > input:is(:checked, :indeterminate) { border-color: var(--ds-color-action-primary); background: var(--ds-color-action-primary); }\n.ds-checkbox > input:focus-visible { outline: var(--ds-border-focus) solid var(--ds-color-edge-focus); outline-offset: var(--ds-border-focus); }\n.ds-checkbox > input[aria-invalid=\"true\"]:not(:checked) { border-color: var(--ds-color-action-danger); }\n.ds-checkbox > input:disabled { border-color: var(--ds-color-edge); background: var(--ds-color-action-disabled); }\n.ds-checkbox > input:disabled:is(:checked, :indeterminate) { border-color: var(--ds-color-edge-strong); background: var(--ds-color-edge-strong); }\n.ds-checkbox > svg { width: 16px; height: 16px; fill: none; stroke: var(--ds-color-action-primary-fg); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }\n.ds-checkbox > svg path[pathLength] { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset var(--ds-duration-micro) var(--ds-easing-standard); }\n.ds-checkbox > input:checked + svg path[pathLength] { stroke-dashoffset: 0; transition: stroke-dashoffset var(--ds-duration-glide) var(--ds-easing-out); }\n.ds-checkbox > input:not(:indeterminate) + svg path:not([pathLength]) { opacity: 0; }\n@media (hover: hover) and (pointer: fine) { .ds-checkrow:hover > .ds-checkbox > input:not(:disabled, :checked, :indeterminate) { border-color: var(--ds-color-action-secondary-edge-hover); } }\n@media (pointer: coarse), (max-width: 767px) { .ds-checkrow { min-height: var(--ds-size-control-touch); align-items: center; padding-block: 8px; font-size: var(--ds-text-body); } .ds-checkbox { margin-top: 0; } }\n@media (prefers-reduced-motion: reduce) { .ds-checkbox > svg path[pathLength], .ds-checkbox > input:checked + svg path[pathLength] { transition: none; } }\n`\n"
+    },
+    {
+      "path": "react/hooks/useControllable.ts",
+      "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "States",
+      "label": "States",
+      "center": true,
+      "half": false,
+      "path": "react/examples/checkbox/States.tsx",
+      "content": "import { Checkbox } from '@/react/components/ui/Checkbox'\n// Off, on, with a hint, invalid until it is checked, and disabled.\n\nexport default function States() {\n  return (\n    <div className=\"flex flex-col gap-1\">\n      <Checkbox label=\"Email me when a saved search finds new creatives\" />\n      <Checkbox label=\"Show ads that are still running\" defaultChecked />\n      <Checkbox label=\"Include UGC\" hint=\"Creator videos posted by the brand.\" defaultChecked />\n      <Checkbox label=\"I agree to the terms\" invalid />\n      <Checkbox label=\"Audio ads\" hint=\"Coming soon.\" disabled />\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    },
+    {
+      "name": "Group",
+      "label": "A filter group",
+      "center": true,
+      "half": false,
+      "path": "react/examples/checkbox/Group.tsx",
+      "content": "'use client'\nimport { useState } from 'react'\nimport { Checkbox } from '@/react/components/ui/Checkbox'\n// A filter group: the parent is on when every format is, a bar when some are, and turns them all on or off.\nconst formats = ['Video', 'Carousel', 'Static image']\n\nexport default function Group() {\n  const [picked, setPicked] = useState<string[]>(['Video'])\n  const all = picked.length === formats.length\n  return (\n    <fieldset className=\"flex flex-col\">\n      <legend className=\"mb-2 type-label text-fg-muted\">Format</legend>\n      <Checkbox label=\"All formats\" checked={all} indeterminate={!all && picked.length > 0} onCheckedChange={(on) => setPicked(on ? formats : [])} />\n      <div className=\"flex flex-col pl-7\">\n        {formats.map((f) => (\n          <Checkbox key={f} label={f} checked={picked.includes(f)} onCheckedChange={(on) => setPicked(on ? [...picked, f] : picked.filter((p) => p !== f))} />\n        ))}\n      </div>\n    </fieldset>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Checkbox.tsx",
+          "content": "'use client'\nimport { useEffect, useId, useRef, type ReactNode } from 'react'\nimport { useControllable } from '@/react/hooks/useControllable'\n\n// shadcn's checkbox in the brand: a yes or no that is part of a form. A 16px box with a 4px corner in a #363636\n// hairline on Black that lifts to #4D4D4D under the pointer; checked, it fills White and a Black check draws its stroke\n// (250ms on the strong ease-out); `indeterminate` shows a bar for a group partly on. Focus is the White ring. The label\n// sits right of it in DM Sans 14px, the whole row pressable, 32px tall (44px on phones); `hint` is a muted line under\n// it. `invalid` turns the hairline red. A setting that takes effect at once is a switch. `checked` with\n// `onCheckedChange` (or `defaultChecked` alone); the label goes in `label` or `children`.\nexport interface CheckboxProps {\n  /** The label, when children do not give it. */\n  label?: string\n  /** A muted line under the label. */\n  hint?: string\n  /** A bar in place of the check, for a group partly on. */\n  indeterminate?: boolean\n  disabled?: boolean\n  /** A red hairline. */\n  invalid?: boolean\n  id?: string\n  name?: string\n  value?: string\n  checked?: boolean\n  defaultChecked?: boolean\n  onCheckedChange?: (checked: boolean) => void\n  className?: string\n  children?: ReactNode\n}\n\nexport function Checkbox({ label, hint, indeterminate, disabled, invalid, id: given, name, value, checked, defaultChecked = false, onCheckedChange, className, children }: CheckboxProps) {\n  const [on, setOn] = useControllable(checked, defaultChecked, onCheckedChange)\n  const auto = useId()\n  const id = given ?? `checkbox-${auto}`\n  const input = useRef<HTMLInputElement | null>(null)\n  // `indeterminate` is the input's property; React has no attribute for it.\n  useEffect(() => {\n    if (input.current) input.current.indeterminate = !!indeterminate\n  }, [indeterminate])\n  return (\n    <>\n      <style href=\"ds-checkbox\" precedence=\"ds\">{css}</style>\n      <label data-ds=\"checkbox\" className={className ? `ds-checkrow ${className}` : 'ds-checkrow'} htmlFor={id} data-disabled={disabled || undefined}>\n        <span className=\"ds-checkbox\">\n          <input ref={input} id={id} type=\"checkbox\" checked={on} onChange={e => setOn(e.target.checked)} name={name} value={value} disabled={disabled} aria-invalid={invalid || undefined} aria-describedby={hint ? `${id}-hint` : undefined} />\n          {indeterminate\n            ? <svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M4 8h8\" /></svg>\n            : <svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M3.5 8.5 6.5 11.5 12.5 4.5\" pathLength=\"1\" /></svg>}\n        </span>\n        {(label || children || hint) && (\n          <span className=\"flex min-w-0 flex-col\">\n            <span>{children ?? label}</span>\n            {hint && <span id={`${id}-hint`} className=\"type-caption text-fg-muted\">{hint}</span>}\n          </span>\n        )}\n      </label>\n    </>\n  )\n}\n\nexport default Checkbox\n\nconst css = `\n/* The row: the box and its label, 32px tall (44px on phones), the whole row pressable. */\n.ds-checkrow { display: inline-flex; min-height: var(--ds-size-control-sm); align-items: flex-start; gap: var(--ds-space-md); padding-block: 6px; color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); cursor: pointer; }\n.ds-checkrow[data-disabled] { color: var(--ds-color-fg-faint); cursor: not-allowed; }\n.ds-checkbox { position: relative; display: inline-grid; width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }\n.ds-checkbox > * { grid-area: 1 / 1; }\n.ds-checkbox > input { width: 16px; height: 16px; margin: 0; border: var(--ds-border-hairline) solid var(--ds-color-edge-strong); border-radius: var(--ds-radius-sm); background: var(--ds-color-surface); appearance: none; cursor: inherit; transition: border-color var(--ds-duration-micro) var(--ds-easing-standard), background-color var(--ds-duration-micro) var(--ds-easing-standard); }\n.ds-checkbox > input:is(:checked, :indeterminate) { border-color: var(--ds-color-action-primary); background: var(--ds-color-action-primary); }\n.ds-checkbox > input:focus-visible { outline: var(--ds-border-focus) solid var(--ds-color-edge-focus); outline-offset: var(--ds-border-focus); }\n.ds-checkbox > input[aria-invalid=\"true\"]:not(:checked) { border-color: var(--ds-color-action-danger); }\n.ds-checkbox > input:disabled { border-color: var(--ds-color-edge); background: var(--ds-color-action-disabled); }\n.ds-checkbox > input:disabled:is(:checked, :indeterminate) { border-color: var(--ds-color-edge-strong); background: var(--ds-color-edge-strong); }\n.ds-checkbox > svg { width: 16px; height: 16px; fill: none; stroke: var(--ds-color-action-primary-fg); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }\n.ds-checkbox > svg path[pathLength] { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset var(--ds-duration-micro) var(--ds-easing-standard); }\n.ds-checkbox > input:checked + svg path[pathLength] { stroke-dashoffset: 0; transition: stroke-dashoffset var(--ds-duration-glide) var(--ds-easing-out); }\n.ds-checkbox > input:not(:indeterminate) + svg path:not([pathLength]) { opacity: 0; }\n@media (hover: hover) and (pointer: fine) { .ds-checkrow:hover > .ds-checkbox > input:not(:disabled, :checked, :indeterminate) { border-color: var(--ds-color-action-secondary-edge-hover); } }\n@media (pointer: coarse), (max-width: 767px) { .ds-checkrow { min-height: var(--ds-size-control-touch); align-items: center; padding-block: 8px; font-size: var(--ds-text-body); } .ds-checkbox { margin-top: 0; } }\n@media (prefers-reduced-motion: reduce) { .ds-checkbox > svg path[pathLength], .ds-checkbox > input:checked + svg path[pathLength] { transition: none; } }\n`\n"
+        },
+        {
+          "path": "react/hooks/useControllable.ts",
+          "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Checkbox",
+            "file": "react/components/ui/Checkbox.tsx",
+            "props": [
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "description": "The label, when children do not give it."
+              },
+              {
+                "name": "hint",
+                "type": "string",
+                "required": false,
+                "description": "A muted line under the label."
+              },
+              {
+                "name": "indeterminate",
+                "type": "boolean",
+                "required": false,
+                "description": "A bar in place of the check, for a group partly on."
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "required": false
+              },
+              {
+                "name": "invalid",
+                "type": "boolean",
+                "required": false,
+                "description": "A red hairline."
+              },
+              {
+                "name": "id",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "name",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "value",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "checked",
+                "type": "boolean",
+                "required": false
+              },
+              {
+                "name": "defaultChecked",
+                "type": "boolean",
+                "required": false,
+                "default": "false"
+              },
+              {
+                "name": "onCheckedChange",
+                "type": "(checked: boolean) => void",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "States",
+          "label": "States",
+          "center": true,
+          "half": false,
+          "path": "react/examples/checkbox/States.tsx",
+          "content": "import { Checkbox } from '@/react/components/ui/Checkbox'\n// Off, on, with a hint, invalid until it is checked, and disabled.\n\nexport default function States() {\n  return (\n    <div className=\"flex flex-col gap-1\">\n      <Checkbox label=\"Email me when a saved search finds new creatives\" />\n      <Checkbox label=\"Show ads that are still running\" defaultChecked />\n      <Checkbox label=\"Include UGC\" hint=\"Creator videos posted by the brand.\" defaultChecked />\n      <Checkbox label=\"I agree to the terms\" invalid />\n      <Checkbox label=\"Audio ads\" hint=\"Coming soon.\" disabled />\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        },
+        {
+          "name": "Group",
+          "label": "A filter group",
+          "center": true,
+          "half": false,
+          "path": "react/examples/checkbox/Group.tsx",
+          "content": "'use client'\nimport { useState } from 'react'\nimport { Checkbox } from '@/react/components/ui/Checkbox'\n// A filter group: the parent is on when every format is, a bar when some are, and turns them all on or off.\nconst formats = ['Video', 'Carousel', 'Static image']\n\nexport default function Group() {\n  const [picked, setPicked] = useState<string[]>(['Video'])\n  const all = picked.length === formats.length\n  return (\n    <fieldset className=\"flex flex-col\">\n      <legend className=\"mb-2 type-label text-fg-muted\">Format</legend>\n      <Checkbox label=\"All formats\" checked={all} indeterminate={!all && picked.length > 0} onCheckedChange={(on) => setPicked(on ? formats : [])} />\n      <div className=\"flex flex-col pl-7\">\n        {formats.map((f) => (\n          <Checkbox key={f} label={f} checked={picked.includes(f)} onCheckedChange={(on) => setPicked(on ? [...picked, f] : picked.filter((p) => p !== f))} />\n        ))}\n      </div>\n    </fieldset>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/checkbox.ts",
+          "content": "import { html, LitElement, nothing, type PropertyValues } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { live } from 'lit/directives/live.js'\nimport { DsFormElement, define, uid } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Checkbox.tsx as <spyglass-checkbox>: a yes or no that is part of a form. A 16px box with a 4px corner in a #363636\n// hairline on Black that lifts to #4D4D4D under the pointer; checked, it fills White and a Black check draws its\n// stroke; `indeterminate` shows a bar for a group partly on. Focus is the White ring. The label sits right of it in\n// DM Sans 14px, the whole row pressable, 32px tall (44px on phones). The host is the row (React's root label), so a\n// class on the element lands on it. `checked` (the attribute is the starting state, as a native checkbox's) with the\n// native `input` and `change` events and `checked-change`. Form-associated: its `name` goes with the form as `value`\n// (or \"on\") while checked.\n\n/**\n * @summary A yes or no that is part of a form.\n * @slot - The label (or set `label`).\n * @fires input - It was turned (read `checked`).\n * @fires change - It was turned (read `checked`).\n * @fires checked-change - It was turned; detail.value is the new state.\n */\nexport class Checkbox extends DsFormElement {\n\tstatic styles = [DsFormElement.styles, styles]\n\tstatic shadowRootOptions = { ...LitElement.shadowRootOptions, delegatesFocus: true }\n\tstatic dsField = true\n\tstatic properties = {\n\t\tchecked: { type: Boolean },\n\t\tlabel: {},\n\t\thint: {},\n\t\tindeterminate: { type: Boolean },\n\t\tdisabled: { type: Boolean, reflect: true },\n\t\tinvalid: { type: Boolean, reflect: true },\n\t\trequired: { type: Boolean },\n\t\tname: {},\n\t\tvalue: {},\n\t}\n\n\tchecked = false\n\tlabel?: string\n\t/** A muted line under the label. */\n\thint?: string\n\t/** A bar in place of the check, for a group partly on. */\n\tindeterminate = false\n\tdisabled = false\n\tinvalid = false\n\t/** It must be checked for its form to send. */\n\trequired = false\n\tname?: string\n\t/** What the form gets while it is checked (\"on\" when unset). */\n\tvalue?: string\n\tprivate inputId = uid('checkbox')\n\n\tconstructor() {\n\t\tsuper()\n\t\t// The whole row is pressable, its padding too (React's root is the <label>).\n\t\tthis.addEventListener('click', (event) => {\n\t\t\tif (event.composedPath()[0] === this) this.renderRoot.querySelector('input')?.click()\n\t\t})\n\t}\n\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\tif (changed.has('checked') || changed.has('value')) this.internals.setFormValue(this.checked ? (this.value ?? 'on') : null)\n\t}\n\tprotected validityControl() {\n\t\treturn this.renderRoot.querySelector<HTMLInputElement>('input')\n\t}\n\tformResetCallback() {\n\t\tthis.checked = this.hasAttribute('checked')\n\t}\n\tprivate onInput(event: Event) {\n\t\tthis.checked = (event.target as HTMLInputElement).checked\n\t}\n\t// The inner change does not leave the shadow root: the element sends its own.\n\tprivate onChange() {\n\t\tthis.dispatchEvent(new Event('change', { bubbles: true, composed: true }))\n\t\tthis.emit('checked-change', { value: this.checked })\n\t}\n\n\trender() {\n\t\tconst id = this.inputId\n\t\tconst text = this.label || this.hasSlot() || this.hint\n\t\treturn html`<label for=${id} class=\"contents\">\n\t\t\t<span class=\"ds-checkbox\">\n\t\t\t\t<input id=${id} type=\"checkbox\" .checked=${live(this.checked)} .indeterminate=${this.indeterminate} name=${ifDefined(this.name)} value=${ifDefined(this.value)} ?disabled=${this.inactive} ?required=${this.required} aria-invalid=${ifDefined(this.invalid ? 'true' : undefined)} aria-describedby=${ifDefined(this.hint ? `${id}-hint` : undefined)} @input=${this.onInput} @change=${this.onChange}>\n\t\t\t\t${this.indeterminate\n\t\t\t\t\t? html`<svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M4 8h8\"></path></svg>`\n\t\t\t\t\t: html`<svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M3.5 8.5 6.5 11.5 12.5 4.5\" pathLength=\"1\"></path></svg>`}\n\t\t\t</span>\n\t\t\t${text\n\t\t\t\t? html`<span class=\"flex min-w-0 flex-col\">\n\t\t\t\t\t\t<span><slot>${this.label}</slot></span>\n\t\t\t\t\t\t${this.hint ? html`<span id=${`${id}-hint`} class=\"type-caption text-fg-muted\">${this.hint}</span>` : nothing}\n\t\t\t\t\t</span>`\n\t\t\t\t: html`<slot></slot>`}\n\t\t</label>`\n\t}\n}\n\ndefine('checkbox', Checkbox)\n"
+        },
+        {
+          "path": "elements/components/ui/checkbox.css",
+          "content": "/* Checkbox.tsx's styles, with the row (.ds-checkrow, the React root) as the host. */\n/* The host rules are !important: the page's preflight and scoped base (padding: 0, border: 0, the root's type) win over a plain :host rule, and React's unlayered rule wins over them, as an important shadow rule does. */\n:host { display: inline-flex !important; min-height: var(--ds-size-control-sm) !important; align-items: flex-start !important; gap: var(--ds-space-md) !important; padding-block: 6px !important; color: var(--ds-color-fg) !important; font-family: var(--ds-font-text) !important; font-size: var(--ds-text-ui) !important; line-height: var(--ds-text-ui-leading) !important; cursor: pointer !important; }\n:host([disabled]) { color: var(--ds-color-fg-faint) !important; cursor: not-allowed !important; }\n.ds-checkbox { position: relative; display: inline-grid; width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }\n.ds-checkbox > * { grid-area: 1 / 1; }\n.ds-checkbox > input { width: 16px; height: 16px; margin: 0; border: var(--ds-border-hairline) solid var(--ds-color-edge-strong); border-radius: var(--ds-radius-sm); background: var(--ds-color-surface); appearance: none; cursor: inherit; transition: border-color var(--ds-duration-micro) var(--ds-easing-standard), background-color var(--ds-duration-micro) var(--ds-easing-standard); }\n.ds-checkbox > input:is(:checked, :indeterminate) { border-color: var(--ds-color-action-primary); background: var(--ds-color-action-primary); }\n.ds-checkbox > input:focus-visible { outline: var(--ds-border-focus) solid var(--ds-color-edge-focus); outline-offset: var(--ds-border-focus); }\n.ds-checkbox > input[aria-invalid=\"true\"]:not(:checked) { border-color: var(--ds-color-action-danger); }\n.ds-checkbox > input:disabled { border-color: var(--ds-color-edge); background: var(--ds-color-action-disabled); }\n.ds-checkbox > input:disabled:is(:checked, :indeterminate) { border-color: var(--ds-color-edge-strong); background: var(--ds-color-edge-strong); }\n.ds-checkbox > svg { width: 16px; height: 16px; fill: none; stroke: var(--ds-color-action-primary-fg); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }\n.ds-checkbox > svg path[pathLength] { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset var(--ds-duration-micro) var(--ds-easing-standard); }\n.ds-checkbox > input:checked + svg path[pathLength] { stroke-dashoffset: 0; transition: stroke-dashoffset var(--ds-duration-glide) var(--ds-easing-out); }\n.ds-checkbox > input:not(:indeterminate) + svg path:not([pathLength]) { opacity: 0; }\n@media (hover: hover) and (pointer: fine) { :host(:hover) .ds-checkbox > input:not(:disabled, :checked, :indeterminate) { border-color: var(--ds-color-action-secondary-edge-hover) !important; } }\n@media (pointer: coarse), (max-width: 767px) { :host { min-height: var(--ds-size-control-touch) !important; align-items: center !important; padding-block: 8px !important; font-size: var(--ds-text-body) !important; } .ds-checkbox { margin-top: 0; } }\n@media (prefers-reduced-motion: reduce) { .ds-checkbox > svg path[pathLength], .ds-checkbox > input:checked + svg path[pathLength] { transition: none; } }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/checkbox.js"
+      ],
+      "tag": "spyglass-checkbox",
+      "tags": [
+        "spyglass-checkbox"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-checkbox",
+            "name": "Checkbox",
+            "module": "elements/checkbox.js",
+            "description": "A yes or no that is part of a form.",
+            "attributes": [
+              {
+                "name": "checked",
+                "field": "checked",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string | undefined"
+              },
+              {
+                "name": "hint",
+                "field": "hint",
+                "type": "string | undefined",
+                "description": "A muted line under the label."
+              },
+              {
+                "name": "indeterminate",
+                "field": "indeterminate",
+                "type": "boolean",
+                "default": "false",
+                "description": "A bar in place of the check, for a group partly on."
+              },
+              {
+                "name": "disabled",
+                "field": "disabled",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "invalid",
+                "field": "invalid",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "required",
+                "field": "required",
+                "type": "boolean",
+                "default": "false",
+                "description": "It must be checked for its form to send."
+              },
+              {
+                "name": "name",
+                "field": "name",
+                "type": "string | undefined"
+              },
+              {
+                "name": "value",
+                "field": "value",
+                "type": "string | undefined",
+                "description": "What the form gets while it is checked (\"on\" when unset)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "checked",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "checked"
+              },
+              {
+                "name": "label",
+                "type": "string | undefined",
+                "attribute": "label"
+              },
+              {
+                "name": "hint",
+                "type": "string | undefined",
+                "description": "A muted line under the label.",
+                "attribute": "hint"
+              },
+              {
+                "name": "indeterminate",
+                "type": "boolean",
+                "default": "false",
+                "description": "A bar in place of the check, for a group partly on.",
+                "attribute": "indeterminate"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "disabled"
+              },
+              {
+                "name": "invalid",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "invalid"
+              },
+              {
+                "name": "required",
+                "type": "boolean",
+                "default": "false",
+                "description": "It must be checked for its form to send.",
+                "attribute": "required"
+              },
+              {
+                "name": "name",
+                "type": "string | undefined",
+                "attribute": "name"
+              },
+              {
+                "name": "value",
+                "type": "string | undefined",
+                "description": "What the form gets while it is checked (\"on\" when unset).",
+                "attribute": "value"
+              }
+            ],
+            "events": [
+              {
+                "name": "change",
+                "description": "It was turned (read `checked`)."
+              },
+              {
+                "name": "input",
+                "description": "It was turned (read `checked`)."
+              },
+              {
+                "name": "checked-change",
+                "description": "It was turned; detail.value is the new state."
+              }
+            ],
+            "slots": [
+              {
+                "name": "",
+                "description": "The label (or set `label`)."
+              }
+            ],
+            "methods": [
+              {
+                "name": "formResetCallback"
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "States",
+          "label": "States",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/checkbox/States.html",
+          "content": "<!-- Off, on, with a hint, invalid until it is checked, and disabled. -->\n<div class=\"flex flex-col gap-1\">\n  <spyglass-checkbox label=\"Email me when a saved search finds new creatives\"></spyglass-checkbox>\n  <spyglass-checkbox label=\"Show ads that are still running\" checked></spyglass-checkbox>\n  <spyglass-checkbox label=\"Include UGC\" hint=\"Creator videos posted by the brand.\" checked></spyglass-checkbox>\n  <spyglass-checkbox label=\"I agree to the terms\" invalid></spyglass-checkbox>\n  <spyglass-checkbox label=\"Audio ads\" hint=\"Coming soon.\" disabled></spyglass-checkbox>\n</div>\n"
+        },
+        {
+          "name": "Group",
+          "label": "A filter group",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/checkbox/Group.html",
+          "content": "<!-- A filter group: the parent is on when every format is, a bar when some are, and turns them all on or off. -->\n<fieldset id=\"format-group\" class=\"flex flex-col\">\n  <legend class=\"mb-2 type-label text-fg-muted\">Format</legend>\n  <spyglass-checkbox data-all label=\"All formats\" indeterminate></spyglass-checkbox>\n  <div class=\"flex flex-col pl-7\">\n    <spyglass-checkbox data-format label=\"Video\" checked></spyglass-checkbox>\n    <spyglass-checkbox data-format label=\"Carousel\"></spyglass-checkbox>\n    <spyglass-checkbox data-format label=\"Static image\"></spyglass-checkbox>\n  </div>\n</fieldset>\n<script type=\"module\">\n  const group = document.getElementById('format-group')\n  const all = group.querySelector('[data-all]')\n  const formats = [...group.querySelectorAll('[data-format]')]\n  const sync = () => {\n    const on = formats.filter((f) => f.checked).length\n    all.checked = on === formats.length\n    all.indeterminate = on > 0 && on < formats.length\n  }\n  all.addEventListener('checked-change', (e) => {\n    for (const f of formats) f.checked = e.detail.value\n    sync()\n  })\n  for (const f of formats) f.addEventListener('checked-change', sync)\n</script>\n"
+        }
+      ]
+    }
+  }
+}

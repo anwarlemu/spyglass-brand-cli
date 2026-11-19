@@ -1,0 +1,164 @@
+{
+  "name": "faq-block",
+  "title": "FAQ block",
+  "type": "registry:block",
+  "group": "blocks",
+  "description": "Questions and answers as the pricing page sets them: the heading in the first of three columns, each question under a hairline in Funnel Display with its answer in DM Sans in the soft gray.",
+  "use_for": "The questions section of a pricing, product or contact page.",
+  "never": [
+    "Answers the product does not state",
+    "Accordions that hide a short answer",
+    "Colored question marks or icons"
+  ],
+  "source": "Built from the pricing page template's questions (hairlines on Black, Funnel Display and DM Sans per the guidelines); the answers are the plan's and the assets' own copy",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/blocks/FaqBlock.tsx",
+      "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// Questions and answers, as the pricing page sets them: the heading in the first of three columns, the questions in\n// the other two, each under a hairline, the question in Funnel Display and the answer in DM Sans in the soft gray.\n// One column on smaller screens. Answer only with what the product states.\nexport interface FaqItem {\n  q: string\n  a: string\n}\n\nexport interface FaqBlockProps {\n  items: FaqItem[]\n  title?: ReactNode\n  className?: string\n}\n\nexport function FaqBlock({ items, title = 'Questions.', className }: FaqBlockProps) {\n  return (\n    <section data-ds=\"faq-block\" className={cn('grid grid-cols-3 gap-12 text-fg max-md:grid-cols-1 max-md:gap-8', className)}>\n      <h2 className=\"type-heading-1 max-sm:type-heading-2\">{title}</h2>\n      <dl className=\"col-span-2 m-0 grid max-md:col-span-1\">\n        {items.map((i) => (\n          <div key={i.q} className=\"grid gap-2 border-t border-edge py-6\">\n            <dt className=\"type-heading-4\">{i.q}</dt>\n            <dd className=\"m-0 type-body text-fg-soft\">{i.a}</dd>\n          </div>\n        ))}\n      </dl>\n    </section>\n  )\n}\n\nexport default FaqBlock\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Questions",
+      "label": "Questions about the plan",
+      "center": false,
+      "half": false,
+      "path": "react/examples/faq-block/Questions.tsx",
+      "content": "import { FaqBlock } from '@/react/components/blocks/FaqBlock'\n// Questions answered only with what the plan and the assets say.\n\nconst items = [\n  {\n    q: \"What does the Creator plan cost?\",\n    a: \"$10 for your first month, then $20/month.\"\n  },\n  {\n    q: \"How many people can use it?\",\n    a: \"Unlimited team seats come with the plan.\"\n  },\n  {\n    q: \"Which networks are in the index?\",\n    a: \"Meta, TikTok, Instagram, and YouTube creatives in one index.\"\n  },\n  {\n    q: \"How long does it take to add a brand?\",\n    a: \"Add any brand or creator in under a minute.\"\n  }\n]\n\nexport default function Questions() {\n  return <FaqBlock items={items} />\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/blocks/FaqBlock.tsx",
+          "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// Questions and answers, as the pricing page sets them: the heading in the first of three columns, the questions in\n// the other two, each under a hairline, the question in Funnel Display and the answer in DM Sans in the soft gray.\n// One column on smaller screens. Answer only with what the product states.\nexport interface FaqItem {\n  q: string\n  a: string\n}\n\nexport interface FaqBlockProps {\n  items: FaqItem[]\n  title?: ReactNode\n  className?: string\n}\n\nexport function FaqBlock({ items, title = 'Questions.', className }: FaqBlockProps) {\n  return (\n    <section data-ds=\"faq-block\" className={cn('grid grid-cols-3 gap-12 text-fg max-md:grid-cols-1 max-md:gap-8', className)}>\n      <h2 className=\"type-heading-1 max-sm:type-heading-2\">{title}</h2>\n      <dl className=\"col-span-2 m-0 grid max-md:col-span-1\">\n        {items.map((i) => (\n          <div key={i.q} className=\"grid gap-2 border-t border-edge py-6\">\n            <dt className=\"type-heading-4\">{i.q}</dt>\n            <dd className=\"m-0 type-body text-fg-soft\">{i.a}</dd>\n          </div>\n        ))}\n      </dl>\n    </section>\n  )\n}\n\nexport default FaqBlock\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "FaqBlock",
+            "file": "react/components/blocks/FaqBlock.tsx",
+            "props": [
+              {
+                "name": "items",
+                "type": "FaqItem[]",
+                "required": true
+              },
+              {
+                "name": "title",
+                "type": "ReactNode",
+                "required": false,
+                "default": "'Questions.'"
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Questions",
+          "label": "Questions about the plan",
+          "center": false,
+          "half": false,
+          "path": "react/examples/faq-block/Questions.tsx",
+          "content": "import { FaqBlock } from '@/react/components/blocks/FaqBlock'\n// Questions answered only with what the plan and the assets say.\n\nconst items = [\n  {\n    q: \"What does the Creator plan cost?\",\n    a: \"$10 for your first month, then $20/month.\"\n  },\n  {\n    q: \"How many people can use it?\",\n    a: \"Unlimited team seats come with the plan.\"\n  },\n  {\n    q: \"Which networks are in the index?\",\n    a: \"Meta, TikTok, Instagram, and YouTube creatives in one index.\"\n  },\n  {\n    q: \"How long does it take to add a brand?\",\n    a: \"Add any brand or creator in under a minute.\"\n  }\n]\n\nexport default function Questions() {\n  return <FaqBlock items={items} />\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/blocks/faq-block.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// FaqBlock.tsx as <spyglass-faq-block>: the `heading` (React's `title`) in the first of three columns, the `items`\n// ({ q, a }) in the other two, each under a hairline.\nexport interface FaqItem { q: string; a: string }\n\n/**\n * @summary Questions and answers.\n */\nexport class FaqBlock extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"faq-block\"]'))\n\tstatic properties = { items: { type: Array }, heading: {} }\n\titems: FaqItem[] = []\n\t/** The heading (React's `title`). */\n\theading = 'Questions.'\n\n\trender() {\n\t\treturn html`<section data-ds=\"faq-block\" class=\"grid grid-cols-3 gap-12 text-fg max-md:grid-cols-1 max-md:gap-8\"><h2 class=\"type-heading-1 max-sm:type-heading-2\">${this.heading}</h2><dl class=\"col-span-2 m-0 grid max-md:col-span-1\">${(this.items ?? []).map((i) => html`<div class=\"grid gap-2 border-t border-edge py-6\"><dt class=\"type-heading-4\">${i.q}</dt><dd class=\"m-0 type-body text-fg-soft\">${i.a}</dd></div>`)}</dl></section>`\n\t}\n}\n\ndefine('faq-block', FaqBlock)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/faq-block.js"
+      ],
+      "tag": "spyglass-faq-block",
+      "tags": [
+        "spyglass-faq-block"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-faq-block",
+            "name": "FaqBlock",
+            "module": "elements/faq-block.js",
+            "description": "Questions and answers.",
+            "attributes": [
+              {
+                "name": "items",
+                "field": "items",
+                "type": "FaqItem[]",
+                "default": "[]"
+              },
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string",
+                "default": "'Questions.'",
+                "description": "The heading (React's `title`)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "items",
+                "type": "FaqItem[]",
+                "default": "[]",
+                "attribute": "items"
+              },
+              {
+                "name": "heading",
+                "type": "string",
+                "default": "'Questions.'",
+                "description": "The heading (React's `title`).",
+                "attribute": "heading"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Questions",
+          "label": "Questions about the plan",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/faq-block/Questions.html",
+          "content": "<!-- Questions answered only with what the plan and the assets say. -->\n<spyglass-faq-block items='[{\"q\":\"What does the Creator plan cost?\",\"a\":\"$10 for your first month, then $20/month.\"},{\"q\":\"How many people can use it?\",\"a\":\"Unlimited team seats come with the plan.\"},{\"q\":\"Which networks are in the index?\",\"a\":\"Meta, TikTok, Instagram, and YouTube creatives in one index.\"},{\"q\":\"How long does it take to add a brand?\",\"a\":\"Add any brand or creator in under a minute.\"}]'></spyglass-faq-block>\n"
+        }
+      ]
+    }
+  }
+}

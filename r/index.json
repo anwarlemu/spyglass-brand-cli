@@ -1,0 +1,2897 @@
+{
+  "name": "Spyglass",
+  "registryUrl": "https://spyglass-ds.vercel.app",
+  "registryHost": "https://spyglass-ds.vercel.app",
+  "elementPrefix": "spyglass",
+  "coverage": {
+    "total": 92,
+    "react": 92,
+    "elements": 92
+  },
+  "items": [
+    {
+      "name": "about-page",
+      "title": "About page",
+      "type": "registry:block",
+      "group": "pages",
+      "description": "The about page template, built only from library items: the deck's line centered under the light field, a row of creatives, what the company keeps to, the numbers and a way in.",
+      "use_for": "A website's about page. Edit lib/pages/about.ts or pass `content`.",
+      "never": [
+        "New colors, shadows or type sizes added to a section: use the items' props",
+        "More than one White button in a section",
+        "Team photos with filters or tints"
+      ],
+      "source": "Built from the library (site header, hero block, creative row, card, stat block, button, footer row); Figma page 8: the deck's line (The largest historical record of creative data.); guidelines page 36 (Brand imagery) for what the company keeps to",
+      "body": "",
+      "requires": [
+        "button",
+        "card",
+        "creative-row",
+        "footer-row",
+        "hero-block",
+        "site-header",
+        "stat-block"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/pages/AboutPage.tsx",
+        "lib/pages/about.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Page"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "accordion",
+      "title": "Accordion",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A stack of disclosures on Black: neutral hairlines between the rows, a DM Sans question, a muted answer that opens in place and a chevron that turns. One open at a time, or several.",
+      "use_for": "Questions on a pricing or help page, filters a person opens one by one, settings that would crowd a view.",
+      "never": [
+        "Hiding the one thing a person came for: put it on the page",
+        "A #171717 card per row: rows are hairlines on Black",
+        "A chevron that moves on hover"
+      ],
+      "source": "Derived from the guidelines: Black ground, neutral hairlines, DM Sans for body text. shadcn's accordion for anatomy, ARIA and keys.",
+      "body": "",
+      "requires": [],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/Accordion.tsx",
+        "react/components/ui/AccordionItem.tsx",
+        "react/hooks/useAccordion.ts",
+        "react/hooks/useControllable.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Faq",
+        "Multiple"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "alert-dialog",
+      "title": "Alert dialog",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A question that needs an answer before anything else, on the #171717 overlay surface over a Black scrim: a Funnel Display title, one line saying what happens, Cancel and the action (red for what removes something).",
+      "use_for": "Confirming what can't be undone: deleting a board, removing a teammate, canceling a plan. Say exactly what goes away.",
+      "never": [
+        "Confirming what can be undone: do it and offer undo",
+        "A scrim that closes it: only a choice does",
+        "A vague action label (\"OK\", \"Yes\"): name the action (\"Delete board\")",
+        "A shadow around the window"
+      ],
+      "source": "Derived from the guidelines: the #171717 card fill on Black, neutral hairlines, the 10px canvas corner (8px here), Funnel Display titles, DM Sans lines, the White primary and #262626 secondary buttons. shadcn's alert dialog for anatomy, focus and keys.",
+      "body": "",
+      "requires": [
+        "button"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/AlertDialog.tsx",
+        "react/hooks/useControllable.ts"
+      ],
+      "examples": [
+        "Delete"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "alert",
+      "title": "Alert",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A note or a problem in a #171717 box on Black: a Lucide icon, the subject in DM Sans Medium, a muted line under it and the button that goes with it. Red for what broke.",
+      "use_for": "A plan note, a failed payment, a search that needs a change: one box per message, with the action that settles it.",
+      "never": [
+        "A spectrum color fill or a glow",
+        "A border or a shadow around the box",
+        "Red for anything that did not break",
+        "Several messages in one box"
+      ],
+      "source": "Derived from the guidelines: the #171717 card fill on Black with the 10px canvas corner (8px here), DM Sans Medium for labels, the brand's voice (\"$10 for your first month, then $20/month\"). shadcn's alert for anatomy.",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Alert.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Variants"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "ascii-texture",
+      "title": "ASCII texture",
+      "type": "registry:ui",
+      "group": "visuals",
+      "description": "The brand's ASCII texture, generated: Geist Mono characters from \" .:-=+*#\" read off a soft heat map, White at 0.35 opacity on Black. Seeded, with areas kept clear.",
+      "use_for": "A quiet grain behind the light and around the content of a hero, a post or a deck slide, where the light fades out.",
+      "never": [
+        "As the main graphic",
+        "Over text, the logo or a photo: keep those areas clear",
+        "At full opacity, or in a color"
+      ],
+      "source": "Brand guidelines page 34 (ASCII texture); Figma page 8: ASCII texture (native) text layers, Geist Mono 13.333px at 1.2, opacity 0.35",
+      "body": "",
+      "requires": [
+        "brand-light"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/visuals/AsciiTexture.tsx",
+        "lib/ascii.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Field",
+        "Clear"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "aspect-ratio",
+      "title": "Aspect ratio",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A box that keeps its shape as it grows: a 1:1 post, a 4:5 ad, a 16:9 slide. It draws nothing itself; the brand corner and a #171717 ground are classes on it.",
+      "use_for": "Creatives in a grid, previews of posts and ads, a video or a slide that must not reflow while it loads.",
+      "never": [
+        "Stretching or cropping a logo to fit the box",
+        "Grading or filtering the creative inside: show it as posted"
+      ],
+      "source": "Derived from the brand assets' canvases (posts 1080x1080, ads 1080x1350, decks 1920x1080). shadcn's aspect ratio for anatomy.",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/AspectRatio.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Formats"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "avatar",
+      "title": "Avatar",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "Who or what something belongs to, in a circle: a picture cropped round, or the name's initials in White DM Sans Medium on #262626. Three sizes.",
+      "use_for": "A board's members, the account in a header, who saved a creative.",
+      "never": [
+        "A real person's photo or name in examples: use Acme",
+        "A spectrum color behind the initials",
+        "The logomark as an avatar for anything but the brand itself"
+      ],
+      "source": "Derived from the guidelines: the neutral steps (#262626 fill), White DM Sans Medium labels. shadcn's avatar for anatomy and the image fallback.",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Avatar.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Sizes"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "badge",
+      "title": "Badge",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A short label for a state or a kind, in DM Sans Medium capitals with 6% tracking: White, #262626, a hairline, or a red wash. A small spectrum dot can lead it.",
+      "use_for": "A creative's format or status, a plan's \"New\", a count beside a tab.",
+      "never": [
+        "A spectrum color as the badge's fill: a dot is as far as color goes",
+        "Color alone for the meaning: the word says it",
+        "More than one White badge in a group",
+        "Sentences in a badge"
+      ],
+      "source": "Derived from the guidelines: labels in DM Sans Medium capitals at 6%, Black and White first, spectrum colors as small accents only. shadcn's badge for variants.",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Badge.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Variants"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "blog-page",
+      "title": "Blog page",
+      "type": "registry:block",
+      "group": "pages",
+      "description": "The blog index template, built only from library items: the title, the newest post large and every other post in a grid of three, each with an image, the date and category in capitals and a Funnel Display title.",
+      "use_for": "A website's blog index. The posts are neutral examples: replace them in lib/pages/blog.ts or pass `content`.",
+      "never": [
+        "New colors, shadows or type sizes added to a section: use the items' props",
+        "More than one White button in a section",
+        "Another brand's photo as a post image"
+      ],
+      "source": "Built from the library (site header, creative card, button, footer row) and the brand's type: Funnel Display titles, DM Sans excerpts, labels in capitals",
+      "body": "",
+      "requires": [
+        "button",
+        "creative-card",
+        "footer-row",
+        "site-header"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/pages/BlogPage.tsx",
+        "lib/pages/blog.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Page"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "blog-post-page",
+      "title": "Blog post page",
+      "type": "registry:block",
+      "group": "pages",
+      "description": "A blog post template, built only from library items: the way back, the title in Funnel Display, a wide image, the body in a 720px column (paragraphs, subheads, a list, a quote, a figure of creatives), more posts and the offer.",
+      "use_for": "One post of a website's blog. The body is a list of blocks in lib/pages/blog-post.ts; pass `content` for each post.",
+      "never": [
+        "New colors, shadows or type sizes added to a section: use the items' props",
+        "More than one White button in a section",
+        "A body wider than 720px"
+      ],
+      "source": "Built from the library (site header, creative card, creative grid, offer block, footer row) and the brand's type",
+      "body": "",
+      "requires": [
+        "creative-card",
+        "creative-grid",
+        "footer-row",
+        "offer-block",
+        "site-header"
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/pages/BlogPostPage.tsx",
+        "lib/pages/blog-post.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Page"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "brand-light",
+      "title": "Brand light",
+      "type": "registry:ui",
+      "group": "visuals",
+      "description": "The brand pattern, generated: one shape drawn three times in Red #DF0000 (0.85), Green #00FF29 (0.782) and Blue #1B1DFF (0.782), each shifted sideways, blurred and blended plus-lighter on Black. Seeded, in every variant the brand assets use.",
+      "use_for": "Behind a hero, along a section's edge, beside a photo or under a search bar: a band, a field, a corner flow, strips down the sides, a tile, a close-up or a curved strip. A main mass and a smaller counterpart elsewhere.",
+      "never": [
+        "Boxed in with hard edges in the middle of a layout: it flows in from edges and corners",
+        "On any ground but Black",
+        "As a screenshot or an image file: draw it from the generator",
+        "Recolored, or animated in a loop"
+      ],
+      "source": "Brand guidelines page 33 (Brand pattern); Figma page 8: Heat map (slide 1 light), Light R, G and B layers (opacity 0.85, 0.782, 0.782; offset 1.52% of the heat map's width; blur 7.8 of 2913), and every Light band, field, strip, tile and close-up window",
+      "body": "`source=\"brand\"` (the default) cuts its windows from the brand's own heat map: seeds 0 up to the number of brand windows\nfor a variant reproduce the brand assets' windows exactly, and higher seeds move and scale them a little.\n`source=\"generated\"` builds a new heat map from the seed, the same way. The same seed draws the same light everywhere:\nin React, in the web component, in `spyglass-ds light` and in the image and video templates.",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/visuals/BrandLight.tsx",
+        "lib/light.ts",
+        "lib/light-master.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Band",
+        "Variants",
+        "Generated"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "breadcrumb",
+      "title": "Breadcrumb",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "Where you are, in DM Sans: each step back a muted link that turns White under the pointer, a small chevron between, the page itself in White.",
+      "use_for": "A creative inside a board, a setting inside a section: two or more levels deep.",
+      "never": [
+        "A breadcrumb on a page one level deep",
+        "Spectrum colors for the links",
+        "Icons that move on hover"
+      ],
+      "source": "Derived from the guidelines: DM Sans for UI text, White on Black with neutral muted steps. shadcn's breadcrumb for anatomy and aria-current.",
+      "body": "",
+      "requires": [],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/Breadcrumb.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Board"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "button-group",
+      "title": "Button group",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "Buttons that belong together, joined into one block: the brand corner on the outer corners only and a 1px Black seam between them. A field with its button, a button with its menu arrow, or a vertical stack.",
+      "use_for": "Paging, a pair of views, save with a choice of board, an email field with its Invite button.",
+      "never": [
+        "Unrelated actions in one group",
+        "Two primary buttons in one group",
+        "A border around the whole group"
+      ],
+      "source": "Derived from the guidelines: the brand button (White primary, #262626 secondary, the 10px canvas corner, 8px here) on Black. shadcn's button group for anatomy.",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/ButtonGroup.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Toolbar",
+        "Field"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "button",
+      "title": "Button",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "The brand's button: a White fill with a Black DM Sans Medium label for the one main action, a #262626 secondary for the rest, and a ghost for tools in rows. Three sizes and a square icon button.",
+      "use_for": "Any action: search, start a plan, explore the product, save. One primary button per view or asset; the rest secondary or ghost. 40px tall by default (56px on the 1080 canvas).",
+      "never": [
+        "Two primary buttons in one view",
+        "A spectrum color as a button fill",
+        "A faded button for \"not yet\": disabled is a #1A1A1A fill with a #4D4D4D label",
+        "An icon that moves on hover, or a size change on hover"
+      ],
+      "source": "Brand assets (Figma page 8): Button, Get 50% off (258x56, radius 10, White fill, Black DM Sans Medium 20px label); Button, Search (136x56); Button, Start Creator for 50% off (504x56)",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Button.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Variants",
+        "Sizes",
+        "States"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "calendar",
+      "title": "Calendar",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A month to pick a day from: 40px day cells with the 4px corner, the picked day a White fill with a Black figure, today in a neutral hairline ring, the months either side faint. Arrows, Home, End and Page Up and Down move; Enter picks.",
+      "use_for": "Picking a launch day, a flight start or a report's range on a page with room for the month. In a field, use the date picker.",
+      "never": [
+        "A spectrum color for the picked day or today",
+        "Animating the change of month: it is pressed many times in a row",
+        "A calendar where a typed date would do (a birthday)"
+      ],
+      "source": "Derived from the guidelines: White on Black for the one choice, neutral hairlines, DM Sans for figures and labels, the 10px canvas corner scaled to the product (4px inside small cells). shadcn's calendar for anatomy, keys and ARIA (a grid with a roving day).",
+      "body": "",
+      "requires": [
+        "button"
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/Calendar.tsx",
+        "react/lib/cn.ts",
+        "react/hooks/useControllable.ts"
+      ],
+      "examples": [
+        "Single",
+        "Window"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "card",
+      "title": "Card",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "The brand's card: a #171717 fill on Black with the brand corner, a Funnel Display title, a line of DM Sans and the body, with actions at the foot. No border, no shadow.",
+      "use_for": "A plan, an offer, a stat or a group of settings set apart from the Black ground. The plan card in the ads is the model.",
+      "never": [
+        "A shadow or a glow around it",
+        "A border instead of the fill",
+        "A card on a card"
+      ],
+      "source": "Brand assets (Figma page 8): Card, Creator plan (600x452, #171717, radius 10, 48px in; Creator in Funnel Display 40px at 1.0, DM Sans 24px lines, a 504x56 White button)",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Card.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Plan",
+        "Stats"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "carousel",
+      "title": "Carousel",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "Slides in a row on the Black ground, 16px apart, one to three in view, with ghost arrow buttons and the place in tabular figures. Native scroll snap: a swipe, a trackpad, the arrows and the arrow keys all move it. It never plays on its own.",
+      "use_for": "A row of saved creatives, quotes or offers that would crowd the page side by side. One slide in view on phones.",
+      "never": [
+        "Autoplay",
+        "Icons that move when the arrows are hovered",
+        "Dots in spectrum colors: the place reads in figures",
+        "Hiding the only copy of something important on a later slide"
+      ],
+      "source": "Derived from the guidelines: creatives on Black with the #171717 card fill, the 10px canvas corner (8px here), DM Sans figures. shadcn's carousel (a region with slide groups and previous and next) for anatomy and ARIA.",
+      "body": "",
+      "requires": [
+        "button"
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/Carousel.tsx"
+      ],
+      "examples": [
+        "Creatives",
+        "Quotes"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "changelog-page",
+      "title": "Changelog page",
+      "type": "registry:block",
+      "group": "pages",
+      "description": "The changelog template, built only from library items: every release newest first under a hairline, its date in capitals on the left, the change as a Funnel Display sentence, its details and a picture when there is one.",
+      "use_for": "A website's changelog. The entries are examples drawn from what the assets say the product does, and their dates are placeholders: replace them in lib/pages/changelog.ts.",
+      "never": [
+        "New colors, shadows or type sizes added to a section: use the items' props",
+        "More than one White button in a section",
+        "A release date that is not real"
+      ],
+      "source": "Built from the library (site header, creative card, footer row); the entries' sentences are the posts' own lines",
+      "body": "",
+      "requires": [
+        "creative-card",
+        "footer-row",
+        "site-header"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/pages/ChangelogPage.tsx",
+        "lib/pages/changelog.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Page"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "chart",
+      "title": "Chart",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "How a number is drawn: White bars per day under a total, and lines over time in the brand's series order (White, #A3A3A3, #4D4D4D, then the spectrum from Magenta to Blue). Axes from 0 on #262626 hairlines; pointing reads a value.",
+      "use_for": "Searches per day, creatives found per category, spend over a flight. Every chart has a caption; every series is named in the legend.",
+      "never": [
+        "Series colors out of order, or spectrum colors before the neutrals",
+        "Color alone to tell series apart: the third series is dashed and every series is in the legend",
+        "An axis that starts above 0",
+        "Bars that regrow on every hover: they rise once"
+      ],
+      "source": "Derived from the guidelines: Black ground, White primary, the neutral spectrum for the first series and the seven spectrum colors in their fixed order after them, DM Sans figures and capital labels at 6%, the #171717 card fill. shadcn's chart for the parts (caption, legend, tooltip).",
+      "body": "`lib/chart.ts` holds the series colors (`CHART_COLORS`, ten in order) and the axis helpers both flavors use; draw your\nown charts with them so the order stays the brand's.",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/BarChart.tsx",
+        "react/components/ui/LineChart.tsx",
+        "lib/chart.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Searches",
+        "Categories"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "checkbox",
+      "title": "Checkbox",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A yes or no that is part of a form: a 16px box in a #363636 hairline on Black that fills White with a Black check, a bar for a group partly on, and a DM Sans label beside it. Form-associated.",
+      "use_for": "Filters a person combines, consent in a form, picking rows. A setting that takes effect at once is a switch.",
+      "never": [
+        "A spectrum color for the checked box",
+        "A checkbox that acts at once without a form or an apply step",
+        "Faded labels for disabled: they go to the faint neutral"
+      ],
+      "source": "Derived from the guidelines: White on Black for what is on, neutral hairlines, the 4px small corner, DM Sans labels. shadcn's checkbox for anatomy and the indeterminate state.",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Checkbox.tsx",
+        "react/hooks/useControllable.ts"
+      ],
+      "examples": [
+        "States",
+        "Group"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "collapsible",
+      "title": "Collapsible",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A part that opens in place and pushes what follows: a quiet DM Sans Medium trigger with a muted chevron that turns, and content that grows to its height and settles in.",
+      "use_for": "More filters under a search, the rest of a list, details a person asks for. Several questions in a stack are an accordion.",
+      "never": [
+        "Hiding what most people need",
+        "A chevron that moves on hover",
+        "Animating it when it is toggled from the keyboard"
+      ],
+      "source": "Derived from the guidelines: DM Sans Medium labels, muted neutrals for secondary text, the #171717 card fill. shadcn's collapsible for anatomy and ARIA.",
+      "body": "",
+      "requires": [],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/Collapsible.tsx",
+        "react/hooks/useControllable.ts"
+      ],
+      "examples": [
+        "Filters",
+        "Boards"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "combobox",
+      "title": "Combobox",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A field-like trigger that opens a list to pick one option from, with a filter over it, on the #171717 overlay panel: the menus' rows, a #262626 fill on the row the arrows or the pointer are on, the pick checked at the end.",
+      "use_for": "One choice from a list long enough to filter: a category, a brand, a board. With the filter off it is a plain listbox for a handful of options.",
+      "never": [
+        "Many picks at once: it holds one value",
+        "Writing your own arrow, Escape or outside-press handling",
+        "A shadow under the panel, or a spectrum color on the highlighted row"
+      ],
+      "source": "Derived from the guidelines: the input's #363636 hairline and the brand corner for the trigger, the #171717 card fill and neutral hairlines for the panel, DM Sans 14px rows. shadcn's combobox (a popover and a command list) for anatomy and keys.",
+      "body": "The value is `value` with `onValueChange` (React) or the `value` property with `change` (web component). `pinned`\noptions stay above a hairline and are never filtered (\"All formats\").",
+      "requires": [
+        "popover"
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/Combobox.tsx",
+        "react/hooks/useControllable.ts"
+      ],
+      "examples": [
+        "Category",
+        "Format"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "command",
+      "title": "Command",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A box to type in over a list of actions and places, on the #171717 overlay surface: the field on top over a hairline, groups with a capital label, the menus' rows with an icon and a shortcut. On the page, or in a window opened with Cmd+K.",
+      "use_for": "Jumping anywhere and running anything from the keyboard: searches, boards, brands, settings. CommandDialog for the app-wide Cmd+K menu.",
+      "never": [
+        "Motion on opening or closing: it opens many times a day",
+        "Tab between rows: the field keeps focus and the arrows move",
+        "A spectrum color on the highlighted row",
+        "The only way to an action: keep it in the interface too"
+      ],
+      "source": "Derived from the guidelines: the #171717 card fill on Black, neutral hairlines, the 10px canvas corner (8px here), DM Sans 14px rows, capital labels at 6%. shadcn's command (cmdk) for anatomy, filtering and keys.",
+      "body": "Rows are data: `groups` of `{ heading, items: [{ id, label, keywords, shortcut, icon, disabled }] }`. In the web\ncomponent, a row's icon is page content with `slot=\"icon-<id>\"`.",
+      "requires": [],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/Command.tsx",
+        "react/components/ui/CommandDialog.tsx",
+        "react/hooks/useControllable.ts"
+      ],
+      "examples": [
+        "Menu",
+        "Palette"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "contact-page",
+      "title": "Contact page",
+      "type": "registry:block",
+      "group": "pages",
+      "description": "The contact page template, built only from library items: the heading and a line beside a form on the #171717 fill (name, work email, message, one White button), the header and the footer row.",
+      "use_for": "A website's contact page. Edit lib/pages/contact.ts or pass `content`; the form posts to `content.form.action`, or `onSubmit` (the element's `send` event) takes the values.",
+      "never": [
+        "An address, phone number or reply time you cannot keep",
+        "More fields than you need, or a second White button",
+        "New colors, shadows or type sizes added to a section: use the items' props"
+      ],
+      "source": "Built from the library (site header, field, input, textarea, button, footer row); the brand assets have no contact layout, so it follows the page templates and the plan card's fill",
+      "body": "",
+      "requires": [
+        "button",
+        "field",
+        "footer-row",
+        "input",
+        "site-header",
+        "textarea"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/pages/ContactPage.tsx",
+        "lib/pages/contact.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Page"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "context-menu",
+      "title": "Context menu",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "The dropdown menu's rows on the #171717 overlay panel, opened where the pointer right-clicks, or under the focused row with Shift+F10 or the menu key. Arrows, Home, End and Escape are handled; focus returns to what was clicked.",
+      "use_for": "Shortcuts for a row in a dense list (open, copy a link, save, remove), alongside a visible way to do the same.",
+      "never": [
+        "The only way to an action: right-clicks are hidden; keep a dropdown menu or a button in the row",
+        "Destructive actions that don't confirm: confirm with an alert dialog",
+        "A shadow under the panel"
+      ],
+      "source": "Derived from the guidelines: the #171717 card fill on Black, neutral hairlines, the 10px canvas corner (8px here). shadcn's context menu for anatomy and keys.",
+      "body": "Put `data-context=\"<id>\"` on each row; `onOpen` (React) or the `open` event (web component) gets the id of the row\nthat was clicked, so one menu serves the list. `PopoverPanel` is the floating panel every overlay here draws (the\ncontext menu, the combobox, the date picker): portalled, placed beside its anchor or the pointer, flipped to the side\nwith room.",
+      "requires": [
+        "dropdown-menu",
+        "popover"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/ContextMenu.tsx"
+      ],
+      "examples": [
+        "Board"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "creative-card",
+      "title": "Creative card",
+      "type": "registry:ui",
+      "group": "site",
+      "description": "A creative as the brand shows it: an ad, a product shot or a UGC frame in the brand corner, its color exactly as posted. Without an image it draws a neutral placeholder, so no layout needs a third-party photo.",
+      "use_for": "Every creative on a page or in a view: search results, boards, the hero's row, a ring or a corridor. Pass the image as `src` (the user's own creative); the placeholder stands in until there is one.",
+      "never": [
+        "A filter, a tint, a grade or neon over the image: color as posted",
+        "A border, a shadow or a glow around it",
+        "Another brand's photo in a template or an example: use the placeholder or the user's image",
+        "Moving or zooming on hover"
+      ],
+      "source": "Brand guidelines page 36 (Brand imagery: real creative, color as posted, on Black); Figma page 8: every Creative rounded rectangle (ads 4/5, the post's 200 squares, the ad's 296x400 three up, the ring's 160x114 and 112x146)",
+      "body": "`src` is used exactly as given: object-fit cover, no filter. Without `src` the card is a neutral gradient from two\nneutral steps (`tone` 1 to 4) with the advertiser in capitals (from 112px wide) and a headline (from 192px wide), named\nfor assistive tech by `alt` or by those two. The arrangements (creative grid, row, ring and corridor) take the same\nfields as a list.",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/site/CreativeCard.tsx",
+        "lib/creative-layouts.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Placeholder",
+        "Shapes"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "creative-corridor",
+      "title": "Creative corridor",
+      "type": "registry:ui",
+      "group": "site",
+      "description": "Creatives as walls on both sides, receding in perspective to a small light at the vanishing point, in the ad's exact places.",
+      "use_for": "The one picture of scale on a page: an index of every network, the depth of the archive. Headline above, a line of copy below.",
+      "never": [
+        "Text over the corridor",
+        "A corridor that moves or scrolls",
+        "Two corridors on one page"
+      ],
+      "source": "Figma page 8: Ad, The world's largest creative search engine (Corridor L0 to L5 and R0 to R5, Light, end of corridor 140x104 at the vanishing point)",
+      "body": "",
+      "requires": [
+        "brand-light",
+        "creative-card"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/site/CreativeCorridor.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Corridor"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "creative-grid",
+      "title": "Creative grid",
+      "type": "registry:ui",
+      "group": "site",
+      "description": "Creatives in a grid, every cell the same shape: the post's three by three of squares 8px apart with a light tile among them, or the ad's three up in 3/4.",
+      "use_for": "A board, the results of a search, or the proof under a hero: many creatives at once, read as a set.",
+      "never": [
+        "Cells of different sizes in one grid: use the creative row or the ring",
+        "More than one light tile in nine",
+        "A grid on a card"
+      ],
+      "source": "Figma page 8: Post, Any brand or creator (200x200 creatives 8px apart, a Light tile in the middle); Ad, The only creative search engine (three creatives 296x400, 32px apart)",
+      "body": "`items` takes the creative card's fields; `light: true` makes a cell a tile of the brand light (`seed` picks it).",
+      "requires": [
+        "brand-light",
+        "creative-card"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/site/CreativeGrid.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Tiles",
+        "ThreeUp"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "creative-ring",
+      "title": "Creative ring",
+      "type": "registry:ui",
+      "group": "site",
+      "description": "Twelve tiles around the middle of a square in the post's exact places: eight creatives, four tiles of the brand light, and the lockup inside.",
+      "use_for": "A cover, a social post or the center of a section that says everything is in one place. The middle holds the lockup, nothing else.",
+      "never": [
+        "A headline or a paragraph in the middle: only the lockup",
+        "Tiles moved off the post's places, or spun"
+      ],
+      "source": "Figma page 8: Post, Creative ring (1080x1080; creatives 128x128, 112x146 and 160x114; Light tile 112x145 and 128x128; Spyglass lockup 261x40 in the middle)",
+      "body": "",
+      "requires": [
+        "brand-light",
+        "creative-card"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/site/CreativeRing.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Ring"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "creative-row",
+      "title": "Creative row",
+      "type": "registry:ui",
+      "group": "site",
+      "description": "A row of 4/5 creatives: even, as the banners line them up 16px apart, or peak, rising to the middle and centered on one line, as the deck cover sets them.",
+      "use_for": "A strip of proof beside a headline: a banner, a deck cover, the band under a hero. The row shrinks with its box and never scrolls.",
+      "never": [
+        "A row that scrolls sideways: show fewer creatives",
+        "More than seven creatives in a row"
+      ],
+      "source": "Figma page 8: X banner, Creative row (six 120x150, 16px apart); Pitch deck cover, Row of creatives (200x250, 240x300, 304x380, 240x300, 200x250, 16px apart)",
+      "body": "",
+      "requires": [
+        "brand-light",
+        "creative-card"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/site/CreativeRow.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Even",
+        "Peak"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "data-table",
+      "title": "Data table",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A table people filter, sort and page through: a dropdown per filter, heads in capitals that sort, 40px rows on neutral hairlines that take the #171717 fill under the pointer, numbers in tabular figures, Previous and Next under it.",
+      "use_for": "A board's creatives, a brand's ads, a team's searches: rows of one kind of thing that people narrow and order.",
+      "never": [
+        "Zebra stripes or a shadow: hairlines separate rows",
+        "Bold heads: DM Sans Medium capitals at 6%",
+        "A spectrum color for a sorted column or a picked filter",
+        "A table wider than the page without its own scroll"
+      ],
+      "source": "Derived from the guidelines: DM Sans for cells and capital labels for heads, neutral hairlines, the #171717 card fill for the hovered row and the filter menus, the 10px canvas corner (8px here). shadcn's data table (filters, sortable heads, pagination) for anatomy and ARIA.",
+      "body": "",
+      "requires": [
+        "button",
+        "dropdown-menu"
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/DataTable.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Creatives"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "date-picker",
+      "title": "Date picker",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A date in a field: a button drawn as the text field that opens the calendar on the #171717 overlay panel under it. Opening puts focus on the picked day, picking closes it and returns focus, Escape closes it unchanged.",
+      "use_for": "A single date in a form: when a report starts, when a campaign ends. The field reads the day in words.",
+      "never": [
+        "A shadow under the panel: the hairline and the #171717 fill set it apart",
+        "Typing a date into the button: it is picked from the calendar",
+        "A red edge for anything but an error"
+      ],
+      "source": "Derived from the guidelines: the input's field (40px, the 8px corner, a #363636 hairline that turns White on focus), the #171717 card fill for the overlay. shadcn's date picker (a popover holding a calendar) for anatomy and keys.",
+      "body": "The web component is form-associated: give it a `name` and the form sends the day as an ISO date (2026-11-03).",
+      "requires": [
+        "calendar",
+        "popover"
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/DatePicker.tsx",
+        "react/lib/cn.ts",
+        "react/hooks/useControllable.ts"
+      ],
+      "examples": [
+        "Field",
+        "Picked"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "dialog",
+      "title": "Dialog",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A modal window on the #171717 overlay surface over a Black scrim: a Funnel Display title, a line under it, a ghost close button, a short form or an offer, and buttons at the foot.",
+      "use_for": "A short task that needs the whole attention for a moment: naming a new board, an offer, a setting with a few fields. Escape, the close button and the scrim close it.",
+      "never": [
+        "A long flow or a whole page in a window",
+        "Two primary buttons in the foot",
+        "A shadow or a glow around the window",
+        "Opening one with the page"
+      ],
+      "source": "Derived from the guidelines: the #171717 card fill on Black, neutral hairlines, the 10px canvas corner (8px here), Funnel Display titles, DM Sans text, the White primary button; the offer copy from the plan card. shadcn's dialog for anatomy, focus and keys.",
+      "body": "",
+      "requires": [
+        "button"
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/Dialog.tsx",
+        "react/hooks/useControllable.ts"
+      ],
+      "examples": [
+        "NewBoard",
+        "Plan"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "direction",
+      "title": "Direction",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "Sets the reading direction for what is inside it, so logical spacing and the components follow right-to-left text. Code stays left to right.",
+      "use_for": "An interface in Arabic or Hebrew, or one block of right-to-left text inside a left-to-right page.",
+      "never": [
+        "Mirroring the logo or the brand light",
+        "Flipping code, IDs or numbers"
+      ],
+      "source": "shadcn's direction provider; nothing visual of its own.",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Direction.tsx",
+        "react/hooks/useDirection.ts"
+      ],
+      "examples": [
+        "Rtl"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "drawer",
+      "title": "Drawer",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A panel that slides in from an edge over a Black scrim, on the #171717 overlay surface: from the bottom with the brand corner on its top edge and a grab handle, or from the left or right at full height.",
+      "use_for": "A choice or a short list on a phone (a format, a sort, the pages), where a dropdown would be cramped. The scrim, Escape and the close button close it.",
+      "never": [
+        "A long form: use a page",
+        "A shadow on its edge: the hairline sets it apart",
+        "Corners on the edge it slides from"
+      ],
+      "source": "Derived from the guidelines: the #171717 card fill on Black, neutral hairlines, the 10px canvas corner (8px here), Funnel Display titles, 44px touch rows. shadcn's drawer for anatomy and behavior (no drag to dismiss yet).",
+      "body": "",
+      "requires": [
+        "button",
+        "popover"
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/Drawer.tsx",
+        "react/hooks/useControllable.ts",
+        "react/hooks/useSheet.ts"
+      ],
+      "examples": [
+        "Format",
+        "Navigation"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "dropdown-menu",
+      "title": "Dropdown menu",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A button that opens a short list of actions or choices on the #171717 overlay surface: a neutral hairline, the brand corner, rows that take a #262626 fill under the pointer. Arrows, Home, End, Escape and Tab are handled.",
+      "use_for": "A creative's actions, a sort order, account actions: a handful of choices that don't need to stay on screen. Radio rows for one choice from a few.",
+      "never": [
+        "Writing your own outside-click or arrow handling",
+        "A shadow under the panel: the hairline and the #171717 fill set it apart",
+        "A spectrum color for a row or its marker",
+        "Two or three views of one thing (use tabs)"
+      ],
+      "source": "Derived from the guidelines: the #171717 card fill on Black, neutral hairlines, the 10px canvas corner (8px here), DM Sans 14px rows and capital labels at 6%. shadcn's dropdown menu for anatomy and keys.",
+      "body": "`MenuItem`, `MenuLabel` and `MenuSeparator` are the rows of every menu here (the context menu uses them too); they are\nalso exported under shadcn's names (`DropdownMenuItem`, `DropdownMenuLabel`, `DropdownMenuSeparator`).",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/DropdownMenu.tsx",
+        "react/components/ui/MenuItem.tsx",
+        "react/components/ui/MenuLabel.tsx",
+        "react/components/ui/MenuSeparator.tsx",
+        "react/hooks/useMenu.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Actions",
+        "Sort"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "empty",
+      "title": "Empty",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "What shows where a list has nothing in it yet: a dashed hairline with the brand corner, a Lucide icon in a #171717 tile, a Funnel Display title, one muted line and the actions that fill it.",
+      "use_for": "A new board, a search with no results, a list before the first item.",
+      "never": [
+        "Illustrations or the brand light inside it",
+        "An empty state with no way forward",
+        "A spectrum color for the icon"
+      ],
+      "source": "Derived from the guidelines: Funnel Display titles, DM Sans muted lines, the #171717 card fill, neutral hairlines and the brand's voice (short declarative sentences ending with a period). shadcn's empty for anatomy.",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Empty.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Board",
+        "Search"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "faq-block",
+      "title": "FAQ block",
+      "type": "registry:block",
+      "group": "blocks",
+      "description": "Questions and answers as the pricing page sets them: the heading in the first of three columns, each question under a hairline in Funnel Display with its answer in DM Sans in the soft gray.",
+      "use_for": "The questions section of a pricing, product or contact page.",
+      "never": [
+        "Answers the product does not state",
+        "Accordions that hide a short answer",
+        "Colored question marks or icons"
+      ],
+      "source": "Built from the pricing page template's questions (hairlines on Black, Funnel Display and DM Sans per the guidelines); the answers are the plan's and the assets' own copy",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/blocks/FaqBlock.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Questions"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "feature-grid-block",
+      "title": "Feature grid block",
+      "type": "registry:block",
+      "group": "blocks",
+      "description": "What the product does, as cards: an optional Funnel Display heading and line over a grid of cards on the #171717 fill, each a title and a sentence, three or two across.",
+      "use_for": "The section of a home or product page that says what the product does, one card per job.",
+      "never": [
+        "Icons, colored cards or images inside the cards",
+        "More than six cards, or a card without a sentence",
+        "Claims the product does not make"
+      ],
+      "source": "Built from the library (card); the home page's three cards (copy from Post, Know what changed; Post, Every market; Ad, One photo)",
+      "body": "",
+      "requires": [
+        "card"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/blocks/FeatureGridBlock.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Three",
+        "Two"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "field",
+      "title": "Field",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A label over one control, with a description or an error under it. The label speaks in capitals; the help is muted; an error takes the help's place in red.",
+      "use_for": "Every labeled control in a form: an email, a board name, a note, a pick from a list. One Field per control.",
+      "never": [
+        "A placeholder in place of the label",
+        "A red hairline before anything is wrong: errors show once a field is left or the form is sent",
+        "Fields under 16px on phones (the input switches to 16px there)"
+      ],
+      "source": "Derived from the brand guidelines (no form in the brand assets): the label voice from the type page, the neutral steps for help text, the red tints for errors",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Field.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Fields"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "footer-block",
+      "title": "Footer block",
+      "type": "registry:block",
+      "group": "blocks",
+      "description": "A website's footer band: a hairline above, the footer row (the lockup, links and the domain) inside the page width, and an optional legal line in the muted gray.",
+      "use_for": "The foot of every website page.",
+      "never": [
+        "A second logo, social icons in color or a newsletter box inside it",
+        "Links that move on hover",
+        "The lockup recolored or resized below its minimum"
+      ],
+      "source": "Built from the library (footer row); the posts' and ads' footer row (lockup left, domain right) and the page templates' footer band",
+      "body": "",
+      "requires": [
+        "footer-row"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/blocks/FooterBlock.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Site"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "footer-row",
+      "title": "Footer row",
+      "type": "registry:ui",
+      "group": "site",
+      "description": "The row every post, ad and deck ends on: the lockup on the left, the domain on the right. Links between them make it a website footer.",
+      "use_for": "The foot of a page, a post, an ad or a slide. The domain in DM Sans, or in capitals as the posts set it.",
+      "never": [
+        "The lockup on the right or centered with the domain",
+        "A colored or redrawn lockup",
+        "Social icons in place of the domain"
+      ],
+      "source": "Figma page 8: every post and ad's Spyglass lockup (183x28 at 64 or 72 from the edge) and spyglass.so text on one line; posts set the domain in capitals",
+      "body": "",
+      "requires": [
+        "logo"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/site/FooterRow.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Asset",
+        "Site"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "form",
+      "title": "Form",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "Fields stacked 24px apart, a failure from the server in a dark red box, and the actions at the end, the main one last. Errors wait until a field is left or the form is sent.",
+      "use_for": "Any form with more than one field: tracking a brand, inviting a teammate, account settings. useForm holds the values, the rules and the send.",
+      "never": [
+        "Errors while the first value is still being typed",
+        "The browser's own error bubbles",
+        "A red hairline at rest",
+        "Two primary buttons: one White action, the rest secondary or ghost"
+      ],
+      "source": "Derived from the brand guidelines (no form in the brand assets): Field, Input and Button, the red tints for the failure, one White primary",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Form.tsx",
+        "react/hooks/useForm.ts"
+      ],
+      "examples": [
+        "Track"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "hero-block",
+      "title": "Hero block",
+      "type": "registry:block",
+      "group": "blocks",
+      "description": "The top of a page as the slides, posts and ads set it: a Funnel Display headline, a line of DM Sans and one White button on Black, with the light flowing in and the media (a search bar, a row of creatives) under the copy.",
+      "use_for": "The first thing on a website page. Left with a search bar on a band of the light (the ad), centered under the light field (the offer post), or right-aligned over creatives on the curved strip (the deck cover).",
+      "never": [
+        "A headline that does not end with a period, or in title case",
+        "Two White buttons",
+        "The light boxed in the middle of the copy, recolored or moving",
+        "Text over the creatives"
+      ],
+      "source": "Figma page 8: Ad, The only creative search engine (headline at 64,168, the line at 312, the search bar on a Light band); Post, Offer and Ad, Creator plan offer (centered under the Light field); Pitch deck cover, Curved strip (headline at the top right, creatives over the curved strip)",
+      "body": "`light` sets where the light flows: `field` from the top edge, `corner` from the bottom right, `band` across the media\nand `strip` above it, or `none`. `texture` adds the ASCII texture behind it. The headline takes inline nodes in React\n(the deck's creatives between the words) and a `headline` slot in the web component.",
+      "requires": [
+        "ascii-texture",
+        "brand-light"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/blocks/HeroBlock.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Search",
+        "Strip",
+        "Centered"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "home-page",
+      "title": "Home page",
+      "type": "registry:block",
+      "group": "pages",
+      "description": "The home page template, built only from library items: the search on a band of the light, the index as a corridor, what it does, the numbers, agents around the lockup, one customer and the offer.",
+      "use_for": "A website's home. Add it, then edit the copy in lib/pages/home.ts or pass `content`; the sections are library items you can reorder or drop.",
+      "never": [
+        "New colors, shadows or type sizes added to a section: use the items' props",
+        "More than one White button in a section",
+        "Invented numbers in the stat block"
+      ],
+      "source": "Built from the library (site header, hero block, search bar, creative grid, creative corridor, card, stat block, creative ring, testimonial, offer block, footer row); the story follows the social ads; the copy is the assets' own lines (Ad, The only creative search engine; Ad, The world's largest creative search engine; Posts) and Acme placeholders",
+      "body": "",
+      "requires": [
+        "button",
+        "card",
+        "creative-corridor",
+        "creative-grid",
+        "creative-ring",
+        "footer-row",
+        "hero-block",
+        "logo",
+        "offer-block",
+        "search-bar",
+        "site-header",
+        "stat-block",
+        "testimonial"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/pages/HomePage.tsx",
+        "lib/pages/home.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Page"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "hover-card",
+      "title": "Hover Card",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "More about a link while the pointer rests on it: the card's #171717 fill, a hairline and the brand corner. The pointer can cross into it; on touch the link just works.",
+      "use_for": "A preview of a brand, a creator or a board named in text, with a few numbers. The link must lead to the same thing on its own.",
+      "never": [
+        "The only way to reach what it shows: the link must work on its own",
+        "Actions someone has to take: use Popover or Dropdown Menu",
+        "A shadow or a glow: the fill and the hairline set it apart"
+      ],
+      "source": "Derived from the brand guidelines (no hover card in the brand assets): the plan card's #171717 fill and corner, the neutral steps for the hairline",
+      "body": "",
+      "requires": [
+        "popover"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/HoverCard.tsx"
+      ],
+      "examples": [
+        "Brand"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "input-group",
+      "title": "Input Group",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A field with an icon, a prefix, a unit or a small button inside its hairline, drawn and sized as the input is. The hairline turns White while the field has focus.",
+      "use_for": "Fields that read better with their context attached: a search icon, a link's fixed start, a currency and its period, an invite button beside an email.",
+      "never": [
+        "A primary search: use the search bar",
+        "Icons that do nothing at the end of a field",
+        "More than one button inside a field"
+      ],
+      "source": "Derived from the brand guidelines (no grouped field in the brand assets): the input's hairline, fill and corner, and the search bar's button set inside the field",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/InputGroup.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Addons",
+        "Sizes"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "input-otp",
+      "title": "Input OTP",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A one-time code, one cell per character, each cell drawn as the input. It is one real field, so paste and the phone's code suggestion work.",
+      "use_for": "Sign-in and verification codes sent by email or text. Say under it where the code went.",
+      "never": [
+        "Passwords or keys",
+        "Cells that move focus on their own: it is one field",
+        "A colored or glowing cell for the one being typed: its hairline turns White"
+      ],
+      "source": "Derived from the brand guidelines (no code field in the brand assets): the input's hairline, fill and corner, DM Sans for the digits",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/InputOtp.tsx",
+        "react/hooks/useControllable.ts"
+      ],
+      "examples": [
+        "Verify",
+        "States"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "input",
+      "title": "Input",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A text field on Black: a #363636 hairline that turns White on focus, DM Sans, a #A3A3A3 placeholder and the brand corner. Sizes match the button's.",
+      "use_for": "Free text in forms and filters: an email, a brand or creator to track, a board name. Label every field (a visible label, or aria-label).",
+      "never": [
+        "A placeholder as the only label",
+        "A colored or glowing focus ring: the hairline turns White",
+        "A filled or gray field on Black"
+      ],
+      "source": "Derived from the brand guidelines (no field in the brand assets): the search bar's Black field and corner, the neutral steps for the hairline and placeholder",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Input.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Field",
+        "Sizes",
+        "Invalid"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "item",
+      "title": "Item",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A row: media, a title in DM Sans Medium with a muted line under it, and actions at the end. No fill, a hairline box or the card's #171717 fill. ItemGroup puts a hairline between rows.",
+      "use_for": "A board, a tracked brand, a setting or a notification as one row; a list of them in a card. With href the whole row is a link.",
+      "never": [
+        "Buttons inside a row that is a link",
+        "A chevron or arrow that moves on hover",
+        "A row of rows for many columns: use Table",
+        "A shadow under an outlined row"
+      ],
+      "source": "Derived from the brand guidelines (no list row in the brand assets): the plan card's fill and corner, DM Sans Medium for titles, the neutral steps for the hairline and the muted line",
+      "body": "",
+      "requires": [],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/Item.tsx",
+        "react/components/ui/ItemGroup.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Variants",
+        "Boards"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "kbd",
+      "title": "Kbd",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A key: DM Sans 12px in the soft neutral, in a 20px #1A1A1A box with a hairline and the small corner. KbdGroup holds the keys of one shortcut.",
+      "use_for": "Keyboard shortcuts beside the action they run (in a menu, a tooltip, a help list) and a key named in a sentence.",
+      "never": [
+        "The only way to learn an action: the action must be visible on its own",
+        "Key names in capitals or in mono",
+        "Shortcuts shown on touch screens with no keyboard"
+      ],
+      "source": "Derived from the brand guidelines (no key in the brand assets): DM Sans, the neutral steps for the box and its hairline, the small corner",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Kbd.tsx",
+        "react/components/ui/KbdGroup.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Shortcuts"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "label",
+      "title": "Label",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A field's label: DM Sans Medium in capitals with 6% tracking, in the soft gray, over the control it names. A muted hint can follow it.",
+      "use_for": "Naming a field or a control when Field's layout does not fit: a label beside a switch, over a slider, over a group of radios.",
+      "never": [
+        "A placeholder in place of a label",
+        "Bold, color or a spectrum accent on a label",
+        "Sentence case or long text in a label: say it in two or three words, and put the rest in a hint under the field"
+      ],
+      "source": "Derived from the brand guidelines: labels in DM Sans Medium, capitals, 6% letter spacing (type page), the neutral steps for the gray",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Label.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Fields"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "legal-page",
+      "title": "Legal page",
+      "type": "registry:block",
+      "group": "pages",
+      "description": "A legal page template (terms, privacy), built only from library items: the title and the date it changed, a list of the sections that stays in view, and the sections in a 720px column.",
+      "use_for": "Terms of service, privacy, cookies. The text is a placeholder: put the terms your counsel approves in lib/pages/legal.ts or pass `content`.",
+      "never": [
+        "New colors, shadows or type sizes added to a section: use the items' props",
+        "More than one White button in a section",
+        "Shipping the placeholder text"
+      ],
+      "source": "Built from the library (site header, footer row) and the brand's type; the section names are the usual ones of a terms page",
+      "body": "",
+      "requires": [
+        "footer-row",
+        "site-header"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/pages/LegalPage.tsx",
+        "lib/pages/legal.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Page"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "logo-strip-block",
+      "title": "Logo strip block",
+      "type": "registry:block",
+      "group": "blocks",
+      "description": "A row of customer names under a label in capitals, each set as a Funnel Display wordmark in the muted gray, so no third-party logo is drawn; their own marks go in the slot when you have permission.",
+      "use_for": "Showing who uses the product, on a home or pricing page, with names you are allowed to show.",
+      "never": [
+        "Third-party logos without permission, or recolored marks",
+        "Names of customers who have not agreed to be named",
+        "Motion or color on hover"
+      ],
+      "source": "Derived from the guidelines (Funnel Display, neutrals for muted text, labels in capitals with 6% tracking); no customer logos are in the brand assets, so the names are Acme placeholders",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/blocks/LogoStripBlock.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Names"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "logo",
+      "title": "Logo",
+      "type": "registry:ui",
+      "group": "visuals",
+      "description": "Every lockup from the brand's own files, in Black or White: the logomark, the 3D logomark, the wordmark, and the horizontal, vertical and 3D combination marks.",
+      "use_for": "The lockup at the top of a page, post or slide (183 by 28 on the 1080 canvas), the logomark where space is tight, the 3D marks for brand moments. White on Black is the primary; Black on White the secondary.",
+      "never": [
+        "Stretched, rotated, recolored, outlined or with effects",
+        "A spectrum color on the mark: the colored backgrounds take a White or Black mark",
+        "Redrawn or retyped: use these files"
+      ],
+      "source": "Brand guidelines (Logo system); Figma page 8: Logomark, 3D logomark, Wordmark, Horizontal, Vertical and 3D combination marks; logo-horizontal.svg and logo-3d-horizontal.svg",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/visuals/Logo.tsx",
+        "lib/logos.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Lockups",
+        "Tones"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "menubar",
+      "title": "Menubar",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "Menu triggers in a row: a Black strip in a hairline with the brand corner, triggers in DM Sans Medium, each opening a panel of rows in the card's #171717 fill. Arrow keys move along the bar and through the rows.",
+      "use_for": "A tool's commands grouped under a few words, as in an editor: a board's actions, its view, its sharing. Three to five menus.",
+      "never": [
+        "Site or app navigation: use the Sidebar or Navigation Menu",
+        "One menu alone: use Dropdown Menu",
+        "A spectrum color for the open trigger: it takes the #262626 fill"
+      ],
+      "source": "Derived from the brand guidelines (no menubar in the brand assets): Black ground, the neutral steps for fills and hairlines, DM Sans Medium for triggers, the plan card's #171717 fill for panels",
+      "body": "",
+      "requires": [
+        "popover"
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/Menubar.tsx",
+        "react/components/ui/MenubarMenu.tsx",
+        "react/components/ui/MenubarItem.tsx",
+        "react/components/ui/MenubarLabel.tsx",
+        "react/components/ui/MenubarSeparator.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Board"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "native-select",
+      "title": "Native Select",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "The browser's own select, drawn as the input: a #363636 hairline on Black that turns White on focus, the brand corner and a muted chevron. Phones open the system picker.",
+      "use_for": "A pick of one from a short, plain list in a form or a filter row: a platform, a date range, a sort order.",
+      "never": [
+        "A list that needs search or custom rows: use Select",
+        "Options that do something at once: use Dropdown Menu",
+        "A filled or gray field on Black"
+      ],
+      "source": "Derived from the brand guidelines (no select in the brand assets): the input's hairline, fill and corner, the neutral steps for the chevron",
+      "body": "",
+      "requires": [],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/NativeSelect.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Filters",
+        "Sizes"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "navigation-menu",
+      "title": "Navigation Menu",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A site's top navigation: triggers and links in DM Sans Medium, each trigger opening a panel of links in the card's #171717 fill. It opens under a resting pointer, switches at once between triggers, and opens at once from the keyboard.",
+      "use_for": "The website's header: the product's parts, resources, pricing. A few entries, each panel a handful of links with a line each.",
+      "never": [
+        "App navigation: use the Sidebar",
+        "Actions: use Dropdown Menu or Menubar",
+        "A chevron that turns or moves on hover"
+      ],
+      "source": "Derived from the brand guidelines (no navigation menu in the brand assets): Black ground, DM Sans Medium for entries, the plan card's #171717 fill for panels, the neutral steps for fills",
+      "body": "",
+      "requires": [
+        "popover"
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/NavigationMenu.tsx",
+        "react/components/ui/NavigationMenuItem.tsx",
+        "react/components/ui/NavigationMenuLink.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Site"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "not-found-page",
+      "title": "404 page",
+      "type": "registry:block",
+      "group": "pages",
+      "description": "The 404 page template, built only from library items: a centered hero with the light flowing in from the corners, the headline as a plain sentence, the search bar and the way home.",
+      "use_for": "A website's not-found page. The search bar's query goes to `onSearch` (React) or the `search` event (web component).",
+      "never": [
+        "New colors, shadows or type sizes added to a section: use the items' props",
+        "More than one White button in a section",
+        "A joke or an error code as the headline"
+      ],
+      "source": "Built from the library (site header, hero block, search bar, button, footer row); the voice from the assets' copy",
+      "body": "",
+      "requires": [
+        "button",
+        "footer-row",
+        "hero-block",
+        "search-bar",
+        "site-header"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/pages/NotFoundPage.tsx",
+        "lib/pages/not-found.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Page"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "offer-block",
+      "title": "Offer block",
+      "type": "registry:block",
+      "group": "blocks",
+      "description": "The offer as the posts and the Creator plan ad close: a centered Funnel Display headline, the terms in capitals with concrete numbers and one White button, with the light flowing in around them or from the top over a plan card.",
+      "use_for": "The last section of a page, or the pricing page's top: one offer, one action.",
+      "never": [
+        "Terms without numbers",
+        "Two offers in one block",
+        "The light boxed in behind the headline"
+      ],
+      "source": "Figma page 8: Post, Offer (Stop screenshotting at midnight. at 404; $10 for your first month, then $20/month in capitals at 580; Button, Start Creator for 50% off 320x64 at 626); Ad, Creator plan offer (Light field 1080x612 over the headline and the plan card)",
+      "body": "",
+      "requires": [
+        "ascii-texture",
+        "brand-light",
+        "button"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/blocks/OfferBlock.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Post",
+        "Plan"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "pagination",
+      "title": "Pagination",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "Previous and Next around the page numbers: 32px ghost buttons that fill under the pointer, the current page in a #363636 hairline box in White. First and last always show, an ellipsis stands for the rest.",
+      "use_for": "Pages of a long list people come back to by place: a board's results, an archive of ads.",
+      "never": [
+        "A filled White current page: one primary per view, and this is not it",
+        "Infinite scroll for a list people need to come back to",
+        "Pages for a short list that fits on one screen"
+      ],
+      "source": "Derived from the brand guidelines (no pagination in the brand assets): the ghost button, the neutral steps for the hairline and muted numbers",
+      "body": "",
+      "requires": [],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/Pagination.tsx",
+        "react/hooks/useControllable.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Results"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "plan-card",
+      "title": "Plan card",
+      "type": "registry:ui",
+      "group": "site",
+      "description": "The Creator plan card from the ad: the plan's name in Funnel Display, the price as a sentence with concrete numbers, the lines it includes and one full-width White button, on the #171717 fill with the brand corner.",
+      "use_for": "A plan on a pricing page or under an offer headline. One plan card per plan, the button saying what it starts.",
+      "never": [
+        "A border, a shadow or a glow",
+        "A colored or second button in the card",
+        "Check marks or icons before the lines: the ad sets them as plain lines",
+        "A price without numbers (\"Affordable\")"
+      ],
+      "source": "Figma page 8: Ad, Creator plan offer: Card, Creator plan (600x452, #171717, radius 10, 48px in; Creator at 48, the price at 112, the lines from 184, 24px apart; Button, Start Creator for 50% off 504x56 at 348)",
+      "body": "The copy in the example is the ad's own. `onSelect` (React) and the `select` event (web component) fire when the button\nis pressed; `href` makes the button a link.",
+      "requires": [
+        "button"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/site/PlanCard.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Creator"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "popover",
+      "title": "Popover",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A panel for any content, opened from a button: the card's #171717 fill on Black, a hairline and the brand corner. It grows from its trigger and flips to the side with room.",
+      "use_for": "A short form or a few settings beside the button that opens them: save to a board, a filter with two fields. Focus moves into it; Escape closes it and returns focus.",
+      "never": [
+        "A list of actions: use Dropdown Menu",
+        "Content someone must read to go on: put it on the page",
+        "A shadow or a glow: the fill and the hairline set it apart"
+      ],
+      "source": "Derived from the brand guidelines (no popover in the brand assets): the plan card's #171717 fill and corner, the neutral steps for the hairline",
+      "body": "",
+      "requires": [
+        "button"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Popover.tsx",
+        "react/components/ui/PopoverPanel.tsx",
+        "react/hooks/usePopover.ts",
+        "react/lib/transition.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Board"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "pricing-page",
+      "title": "Pricing page",
+      "type": "registry:block",
+      "group": "pages",
+      "description": "The pricing page template, built only from library items: the Creator plan ad as the top (the offer headline under the light field, the plan card) and the questions, answered with what the plan says.",
+      "use_for": "A website's pricing. Each plan is a plan card; edit lib/pages/pricing.ts or pass `content`.",
+      "never": [
+        "New colors, shadows or type sizes added to a section: use the items' props",
+        "More than one White button in a section",
+        "A price or a feature the plan does not state"
+      ],
+      "source": "Built from the library (site header, offer block, plan card, footer row); Figma page 8: Ad, Creator plan offer; the plan's copy is the ad's own",
+      "body": "",
+      "requires": [
+        "footer-row",
+        "offer-block",
+        "plan-card",
+        "site-header"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/pages/PricingPage.tsx",
+        "lib/pages/pricing.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Page"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "pricing-table-block",
+      "title": "Pricing table block",
+      "type": "registry:block",
+      "group": "blocks",
+      "description": "Plans side by side: an optional centered heading and line over plan cards on the #171717 fill, each the same width, centered as a row; one plan sits alone in the middle.",
+      "use_for": "A pricing section with one to three plans, each stated exactly as sold.",
+      "never": [
+        "A price or feature the plan does not state",
+        "A highlighted plan in a spectrum color or with a glow",
+        "More than three plans in a row"
+      ],
+      "source": "Built from the library (plan card); Figma page 8: Ad, Creator plan offer (the Creator plan's copy is the ad's own)",
+      "body": "",
+      "requires": [
+        "plan-card"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/blocks/PricingTableBlock.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Creator",
+        "Plans"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "product-page",
+      "title": "Product page",
+      "type": "registry:block",
+      "group": "pages",
+      "description": "The product page template, built only from library items: the deck cover's hero, one section per thing the product does (search, the brief, the category, adding a brand, agents), copy and picture side by side, and the offer.",
+      "use_for": "A website's product tour. Each section is a library item beside a headline from the assets; reorder or drop them.",
+      "never": [
+        "New colors, shadows or type sizes added to a section: use the items' props",
+        "More than one White button in a section",
+        "A section without a picture from the library"
+      ],
+      "source": "Built from the library (site header, hero block, creative row, search bar, creative grid, card, stat block, creative ring, offer block, footer row); Figma page 8: Pitch deck cover, Curved strip; the headlines are the posts' and ads' own",
+      "body": "",
+      "requires": [
+        "button",
+        "card",
+        "creative-grid",
+        "creative-ring",
+        "creative-row",
+        "footer-row",
+        "hero-block",
+        "logo",
+        "offer-block",
+        "search-bar",
+        "site-header",
+        "stat-block"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/pages/ProductPage.tsx",
+        "lib/pages/product.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Page"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "progress",
+      "title": "Progress",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "How far a task has got: a White bar on a 6px #262626 track with round ends, sliding to each new value on transform. Without a value, a short bar sweeps across at a steady pace.",
+      "use_for": "An import, an upload or a scan that can be counted, with the number in text beside it; a long search with no known end.",
+      "never": [
+        "Percentages with no label or number beside the bar",
+        "A striped, glowing or spectrum-colored bar",
+        "Work that ends in under a second: show nothing"
+      ],
+      "source": "Derived from the brand guidelines (no progress bar in the brand assets): White on Black, the neutral steps for the track",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Progress.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Import"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "radio-group",
+      "title": "Radio Group",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "One of a few, all in view: round marks in a hairline, the picked one edged in White with a White dot. Arrows move the pick.",
+      "use_for": "A pick of one from two to five choices that each need a word of explanation: who can see a board, how often to send a digest.",
+      "never": [
+        "More than five options: use Native Select or Select",
+        "Views of one thing: use Tabs",
+        "A spectrum color for the picked mark"
+      ],
+      "source": "Derived from the brand guidelines (no radio in the brand assets): White for the picked state, the neutral steps for the hairline, the circle of the logomark's lens",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/RadioGroup.tsx",
+        "react/hooks/useControllable.ts"
+      ],
+      "examples": [
+        "Visibility",
+        "Inline"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "resizable",
+      "title": "Resizable",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "Two panes and the #262626 hairline between them. The hairline is the handle: it turns White under the pointer, while dragged and when focused, and can carry a small grip. Arrow keys move it too.",
+      "use_for": "A list beside the thing that is open (boards and a creative), or results over notes, where people want to choose how much room each gets.",
+      "never": [
+        "A thick or colored divider: the hairline is the handle",
+        "Panes that can close to nothing: set a minimum",
+        "Easing on the drag: the split follows the hand"
+      ],
+      "source": "Derived from the brand guidelines (no split view in the brand assets): the neutral steps for the hairline, White for the active state, the plan card's fill for the grip",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Resizable.tsx",
+        "react/hooks/useControllable.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Panes",
+        "Vertical"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "scroll-area",
+      "title": "Scroll Area",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A region that scrolls on its own with thin scrollbars: a #363636 thumb on a clear track. Native scrolling, so wheel, touch and keyboard all work; overscroll stays inside.",
+      "use_for": "A long list in a short box (boards in a side panel) or a row of creatives that scrolls across. Give it a label so a keyboard can reach it.",
+      "never": [
+        "Custom drawn scrollbars that break native scrolling",
+        "A scroll box a keyboard can't reach: give it a label",
+        "Hiding the scrollbar on content people need to find",
+        "A scroll box inside a scroll box going the same way"
+      ],
+      "source": "Derived from the brand guidelines (no scrolling region in the brand assets): the base layer's thin scrollbar in the neutral steps",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/ScrollArea.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Lists"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "search-bar",
+      "title": "Search bar",
+      "type": "registry:ui",
+      "group": "product",
+      "description": "The ad's search bar: a Black field with the brand corner, the prompt in White DM Sans and a White Search button inside it. Enter or the button runs the search.",
+      "use_for": "The one search of a page or a product view: searching creatives, ads, brands and creators by asking in words. Usually the first thing on the page, often over the brand light.",
+      "never": [
+        "Two search bars on one page",
+        "A colored search button: it is the White primary button",
+        "The search bar inside a card"
+      ],
+      "source": "Brand assets (Figma page 8): Ad, The only creative search engine: Search bar (952x88, radius 10, Black), Button, Search (136x56, 16px in), prompt in White DM Sans 24px",
+      "body": "",
+      "requires": [
+        "button"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/product/SearchBar.tsx",
+        "react/hooks/useControllable.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Default",
+        "OnLight"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "select",
+      "title": "Select",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "One choice from a short list, drawn as the field is: a Black field, a hairline that turns White while open, a chevron. The list opens in the card's #171717 panel, the chosen row checked.",
+      "use_for": "Picking one of a few known values in a form or a filter: a platform, an order, a plan. Label it as any field.",
+      "never": [
+        "A list that needs a filter: use Combobox",
+        "Options that do something at once: use Dropdown Menu",
+        "A colored or glowing focus ring: the hairline turns White"
+      ],
+      "source": "Derived from the brand guidelines (no select in the brand assets): the Input's Black field and hairline, the plan card's #171717 fill for the list",
+      "body": "",
+      "requires": [
+        "popover"
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/Select.tsx",
+        "react/hooks/useControllable.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Filters"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "separator",
+      "title": "Separator",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "The hairline: 1px in the #262626 edge step, across or down. Spyglass separates with a fill or a hairline, never a shadow.",
+      "use_for": "Splitting a card's head from its body, or links in a row. Decorative by default; mark it semantic when it splits content a screen reader should hear as split.",
+      "never": [
+        "A shadow or a thicker rule to separate",
+        "A rule where spacing already separates",
+        "A colored or glowing line: the spectrum belongs to the light"
+      ],
+      "source": "Derived from the brand guidelines (no separator in the brand assets): the neutral steps for the hairline",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Separator.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Profile"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "sheet",
+      "title": "Sheet",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A modal panel at an edge of the screen: the card's #171717 fill with a hairline on its inner edge, a Funnel Display title, the body scrolling on its own and buttons at the foot. It slides in on the drawer curve; Escape closes it at once.",
+      "use_for": "Details, filters or settings beside what someone is doing: a search's filters, a brand's details. Right is the default; left, top and bottom when the layout asks for it.",
+      "never": [
+        "A short question or a confirmation: use Dialog or Alert Dialog",
+        "A shadow or a glow: the fill, the hairline and the scrim set it apart",
+        "Two sheets open at once"
+      ],
+      "source": "Derived from the brand guidelines (no sheet in the brand assets): the plan card's #171717 fill, Funnel Display for its title, the neutral steps for the hairline and the scrim",
+      "body": "",
+      "requires": [
+        "popover"
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/Sheet.tsx",
+        "react/hooks/useControllable.ts"
+      ],
+      "examples": [
+        "Filters",
+        "Sides"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "sidebar",
+      "title": "Sidebar",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "The app's rail: Black with a hairline at its edge, the logo at the top, groups named in capitals, the page you are on in White, the account at the foot. It folds to icons with one button.",
+      "use_for": "The main navigation of the product: search, boards, brands, creators and settings. One per app, at the left.",
+      "never": [
+        "A second level of rows: a page's own sections go in Tabs",
+        "A spectrum color for the page you are on: it is White, as the primary button",
+        "Animating the fold: it is pressed many times a day"
+      ],
+      "source": "Derived from the brand guidelines (no app rail in the brand assets): Black ground, DM Sans labels in capitals at 6%, the White primary fill for the current page, the brand corner",
+      "body": "",
+      "requires": [],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/Sidebar.tsx",
+        "react/components/ui/SidebarLabel.tsx",
+        "react/components/ui/SidebarLink.tsx",
+        "react/hooks/useControllable.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "App"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "site-header",
+      "title": "Site header",
+      "type": "registry:ui",
+      "group": "site",
+      "description": "A website's header: the lockup on the left, the page links in DM Sans, a ghost sign-in and the one White button. On phones the links fold behind a menu button.",
+      "use_for": "The top of every website page. The White button is the page's main action (\"Get 50% off\"); the sign-in stays a ghost.",
+      "never": [
+        "Two White buttons in the header",
+        "A colored or centered lockup",
+        "A header that animates as it opens on phones"
+      ],
+      "source": "Derived from the guidelines (Brand applications) and the assets' top row: the Spyglass lockup at the top left (183x28 at 64,64), the domain or a label at the right; buttons from Button, Get 50% off",
+      "body": "The panel on phones opens in place, without motion: it is a tool opened often. Escape closes it and returns focus to\nthe menu button.",
+      "requires": [
+        "button",
+        "logo"
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/site/SiteHeader.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Default"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "skeleton",
+      "title": "Skeleton",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A placeholder in the shape of what is loading: a #1A1A1A block with the brand corner, or a circle, that breathes between full and half opacity. Never a shimmer; still with reduced motion.",
+      "use_for": "Holding the place of a creative card, a row or a chart while it loads, sized to the part it stands for so nothing moves when it lands.",
+      "never": [
+        "A shimmer, a gradient sweep or a spectrum color",
+        "A layout that jumps when the content lands: size each block to its part",
+        "A skeleton for something that loads in under 300ms"
+      ],
+      "source": "Derived from the brand guidelines (no loading state in the brand assets): the neutral steps for the block, the brand corner",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Skeleton.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Creative"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "slider",
+      "title": "Slider",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A value on a range: a 4px #363636 track, White up to the value, and a White thumb with the small corner. It follows the hand without easing.",
+      "use_for": "A rough value where the range matters more than the digit: how long an ad has run, a share, a budget. Show the value beside it.",
+      "never": [
+        "Exact values a person would rather type: use Input",
+        "A round, glowing or growing thumb",
+        "Animating the thumb: it follows the hand"
+      ],
+      "source": "Derived from the brand guidelines (no slider in the brand assets): White for the filled part, the neutral steps for the track, the small corner",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Slider.tsx",
+        "react/hooks/useControllable.ts"
+      ],
+      "examples": [
+        "Filter",
+        "States"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "sonner",
+      "title": "Sonner",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "The corner where notes from toast() show: the newest in front, two more peeking out above. Pointing at the stack spreads it out and holds their time. A note rises in from below and leaves faster.",
+      "use_for": "Saying something just happened, for a moment: saved to a board, a brand added, a link copied. Mount one Toaster per app and call toast(title, { description, action }) from anywhere.",
+      "never": [
+        "Errors that need an answer: keep them where they happened",
+        "What the page already shows",
+        "Notes that leave while someone is reading them: the time holds while the stack is pointed at"
+      ],
+      "source": "Derived from the brand guidelines (no toast in the brand assets): the Toast note, stacked in the corner of Black",
+      "body": "",
+      "requires": [
+        "toast"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Sonner.tsx",
+        "lib/sonner.ts"
+      ],
+      "examples": [
+        "Board"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "spinner",
+      "title": "Spinner",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "Work with no known end: a quarter arc in the color around it, White on Black, turning on a #363636 ring at a constant speed. With reduced motion it breathes instead of turning.",
+      "use_for": "A search, a save or a load that takes more than a moment, beside the words that say what is happening or inside the busy button.",
+      "never": [
+        "A spinner where the shape of the content is known: use Skeleton",
+        "Progress that can be counted: use Progress",
+        "A colored, glowing or spectrum spinner",
+        "A blank screen with only a spinner"
+      ],
+      "source": "Derived from the brand guidelines (no loading state in the brand assets): White on Black, the neutral steps for the ring",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Spinner.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "States"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "stat-block",
+      "title": "Stat block",
+      "type": "registry:block",
+      "group": "blocks",
+      "description": "Numbers that say what the product does: Funnel Display figures over a line of DM Sans each, under a hairline or on the #171717 fill, four across.",
+      "use_for": "A section of facts on a home, product or about page. Every figure is true and checkable.",
+      "never": [
+        "Invented, rounded-up or unsourced numbers",
+        "Colored figures or icons beside them",
+        "More than four numbers in a row"
+      ],
+      "source": "Derived from the guidelines (voice: concrete numbers) and the card on Black; the figures in the example come from the assets' copy (four networks, a brand added in under a minute, unlimited seats, $10 for the first month)",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/blocks/StatBlock.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Rule",
+        "Cards"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "switch",
+      "title": "Switch",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "On or off, with no words: a #262626 track with a gray thumb when off, White with a Black thumb when on. The thumb slides on the strong ease-out.",
+      "use_for": "A setting that takes effect at once: a digest, an alert, a sharing option. The row beside it says what it turns.",
+      "never": [
+        "On and Off written beside it",
+        "A switch with no line saying what it does",
+        "A spectrum color for the on state",
+        "A choice that waits for a Save button: use a checkbox"
+      ],
+      "source": "Derived from the brand guidelines (no switch in the brand assets): White as the one primary state, the button's secondary fill, the brand corner",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Switch.tsx",
+        "react/hooks/useControllable.ts"
+      ],
+      "examples": [
+        "Settings"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "table",
+      "title": "Table",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "Rows of one kind of thing on Black: heads as capital labels in muted DM Sans Medium, cells in DM Sans 14px, a #262626 hairline between rows and the ghost fill under the pointer. Framed, it sits in a hairline box with the brand corner.",
+      "use_for": "Boards, tracked brands, ads with a few columns to compare. Numbers right-aligned in tabular figures; a total in the footer; a caption under it.",
+      "never": [
+        "A table for one record: use Item or a card",
+        "Zebra stripes, colored rows or shadows: the hairline separates",
+        "A scroll box a keyboard can't reach: give a framed table a label",
+        "Bold heads: labels are Medium in capitals with 6% tracking"
+      ],
+      "source": "Derived from the brand guidelines (no table in the brand assets): the label style for heads, DM Sans for cells, the neutral steps for hairlines, the plan card's fill for the footer",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Table.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Boards",
+        "Tracked"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "tabs",
+      "title": "Tabs",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "Views of one thing, one at a time. The default is a segmented control: a #171717 track, the current view a White block with a Black label. Line tabs sit over a hairline with a 2px White line under the current one.",
+      "use_for": "Two to six views of the same thing: kinds of creative in a search, a board's sections. Arrow keys move between tabs; the panel follows.",
+      "never": [
+        "Actions: use Button",
+        "More than six views: use a Select or a menu",
+        "Bold or a color on the current tab: the White block or the White line marks it",
+        "A sliding or bouncing indicator"
+      ],
+      "source": "Derived from the brand guidelines (no tabs in the brand assets): the primary button's White fill and Black label for the current view, the plan card's fill for the track, the neutral steps for the hairline",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Tabs.tsx",
+        "react/hooks/useControllable.ts",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Segmented",
+        "Line"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "testimonial-block",
+      "title": "Testimonial block",
+      "type": "registry:block",
+      "group": "blocks",
+      "description": "One customer as a section: an optional label in capitals over the testimonial, the headshot beside the words or above them, on Black or on the #171717 fill.",
+      "use_for": "A customer's own words on a home, product or pricing page.",
+      "never": [
+        "A quote written for a customer, or a real person's name without permission",
+        "Several testimonials in one block",
+        "Stars, ratings or company logos beside the quote"
+      ],
+      "source": "Built from the library (testimonial); Figma page 8: Ad, Testimonial (the quote, name and role; the Figma's named person and photo are never shipped)",
+      "body": "",
+      "requires": [
+        "testimonial"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/blocks/TestimonialBlock.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Side",
+        "Card"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "testimonial",
+      "title": "Testimonial",
+      "type": "registry:ui",
+      "group": "site",
+      "description": "The testimonial ad: a 4/5 headshot in the brand corner, the quote in Funnel Display in curly quotes, the name in DM Sans and the role and company in capitals.",
+      "use_for": "One customer's words on a page or in an ad, with their real name, role and photo. Stacked as the ad sets it, or side by side on a wide page.",
+      "never": [
+        "A made-up quote presented as a real customer's",
+        "Stars, logos or a card around it",
+        "More than one testimonial in view at once"
+      ],
+      "source": "Figma page 8: Ad, Testimonial (Headshot 464x580 at 64,160; the quote 920 wide at 812; the name at 1010; the role in capitals at 1050)",
+      "body": "The examples are Acme placeholders: put a real customer's quote, name, `position` and headshot (`image`) in their place.\n`image={false}` (React) or `image=\"false\"` leaves the headshot out.",
+      "requires": [
+        "creative-card"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/site/Testimonial.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Stacked",
+        "Side"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "textarea",
+      "title": "Textarea",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "Several lines of text, drawn as the input is: a #363636 hairline on Black that turns White on focus, DM Sans, the brand corner. It grows by hand downward.",
+      "use_for": "Text longer than a line: a board brief, a note on a creative, feedback. Label it, and say under it what the text is for.",
+      "never": [
+        "A question to search: use the search bar",
+        "A red hairline before anything is wrong",
+        "Under 16px on phones (it switches to 16px there)"
+      ],
+      "source": "Derived from the brand guidelines (no text area in the brand assets): the input's hairline, fill and corner",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Textarea.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Brief",
+        "Invalid"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "toast",
+      "title": "Toast",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "One note, what just happened: the card's #171717 fill, a hairline and the brand corner, a DM Sans Medium title, a muted line, one small White button when there is something to do, and a close button.",
+      "use_for": "The surface of a note: Sonner stacks and times these in a corner. On its own, a note that stays where it is.",
+      "never": [
+        "Errors that need an answer: keep them where they happened",
+        "More than one button in a note",
+        "A colored fill or an icon in a spectrum color for success"
+      ],
+      "source": "Derived from the brand guidelines (no toast in the brand assets): the plan card's #171717 fill and corner, DM Sans Medium for the title, the White primary button",
+      "body": "",
+      "requires": [
+        "button"
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "files": [
+        "react/components/ui/Toast.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Notes"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "toggle-group",
+      "title": "Toggle Group",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "Buttons that stay pressed, side by side on one track with the brand corner. Each pressed one is a White block with Black text.",
+      "use_for": "Options that are on or off together in a filter row: which formats to show, a grid size. `multiple` for several at once.",
+      "never": [
+        "Views of one thing: use Tabs",
+        "Actions: use Button",
+        "A spectrum color or a glow on the pressed block"
+      ],
+      "source": "Derived from the brand guidelines (no segmented control in the brand assets): the input's hairline and corner, White as the one pressed state",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/ToggleGroup.tsx",
+        "react/lib/cn.ts",
+        "react/hooks/useControllable.ts"
+      ],
+      "examples": [
+        "Formats"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "toggle",
+      "title": "Toggle",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A button that stays pressed: no fill or a hairline at rest, the primary White with Black text while it is on. Sizes match the button's.",
+      "use_for": "One option that is on or off in a row of filters or tools: video only, saved only, show captions.",
+      "never": [
+        "A setting saved at once: use Switch",
+        "A pick of one from several: use Toggle Group or Tabs",
+        "A spectrum color for the pressed state"
+      ],
+      "source": "Derived from the brand guidelines (no toggle in the brand assets): the button's sizes, corner and press, White as the one pressed state",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Toggle.tsx",
+        "react/lib/cn.ts",
+        "react/hooks/useControllable.ts"
+      ],
+      "examples": [
+        "Toolbar",
+        "Sizes"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "tooltip",
+      "title": "Tooltip",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "A control's name, for icon buttons: a White fill with Black caption text and the small corner. It waits 300ms under the pointer, shows at once on keyboard focus, and the next one in a row shows at once.",
+      "use_for": "Naming icon buttons in a row of tools: save, copy link, download. The button still carries its aria-label.",
+      "never": [
+        "Anything someone needs to read or act on: put it on the page",
+        "A tooltip on a button that already shows its label",
+        "Showing on touch: a tap presses the button"
+      ],
+      "source": "Derived from the brand guidelines (no tooltip in the brand assets): White on Black as the brand's type, DM Sans caption size, the small corner",
+      "body": "",
+      "requires": [
+        "popover"
+      ],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Tooltip.tsx"
+      ],
+      "examples": [
+        "Tools"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    },
+    {
+      "name": "typography",
+      "title": "Typography",
+      "type": "registry:ui",
+      "group": "ui",
+      "description": "The brand's type scale as one part. Funnel Display Regular for titles, DM Sans for text, Medium for small and labels, labels in capitals with 6% tracking, Geist Mono for code. Every variant is a type utility from the tokens.",
+      "use_for": "Any text: page and card titles, a lead under a hero, body copy, captions, the capital label over a field or a plan, inline code. Pick the step by role, not by look.",
+      "never": [
+        "A size, weight or line height outside the scale: every step comes from tokens.css",
+        "Bold or semibold: Funnel Display and DM Sans run at Regular and Medium only",
+        "Capitals anywhere but labels, and labels without the 6% tracking",
+        "Funnel Display for body text, or DM Sans for titles",
+        "Spectrum colors on text: type is White on Black, muted in the neutral steps"
+      ],
+      "source": "The type pages of the brand guidelines (Funnel Display, DM Sans) and the sizes measured on the 1080 canvas, scaled to the product (tokens.css header); Geist Mono from the ASCII texture",
+      "body": "",
+      "requires": [],
+      "dependencies": [],
+      "files": [
+        "react/components/ui/Text.tsx",
+        "react/lib/cn.ts"
+      ],
+      "examples": [
+        "Scale",
+        "Article"
+      ],
+      "flavors": [
+        "react",
+        "elements"
+      ]
+    }
+  ]
+}

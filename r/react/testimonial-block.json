@@ -1,0 +1,23 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "testimonial-block",
+  "type": "registry:block",
+  "title": "Testimonial block",
+  "description": "One customer as a section: an optional label in capitals over the testimonial, the headshot beside the words or above them, on Black or on the #171717 fill.",
+  "dependencies": [],
+  "registryDependencies": [
+    "https://spyglass-ds.vercel.app/r/react/testimonial.json"
+  ],
+  "files": [
+    {
+      "path": "components/blocks/TestimonialBlock.tsx",
+      "type": "registry:ui",
+      "content": "import type { ReactNode } from 'react'\nimport { Testimonial } from '@/components/site/Testimonial'\nimport { cn } from '@/lib/cn'\n\n// One customer, as a section: an optional label in capitals, then the testimonial with the headshot beside the words\n// (`side`, as a page sets it) or above them (`stacked`, as the ad does). `card` sets it on the #171717 fill. The quote\n// is a customer's own words: never write one for them.\nexport interface TestimonialBlockProps {\n  /** The words, without quote marks. */\n  quote: string\n  name: string\n  /** Role and company, shown in capitals. */\n  position?: string\n  /** The headshot (src), the placeholder (undefined) or none (false). */\n  image?: string | false\n  /** A line in capitals above it. */\n  label?: ReactNode\n  /** side or stacked. */\n  layout?: 'side' | 'stacked'\n  /** On the card fill. */\n  card?: boolean\n  className?: string\n}\n\nexport function TestimonialBlock({ quote, name, position, image, label, layout = 'side', card = false, className }: TestimonialBlockProps) {\n  return (\n    <section data-ds=\"testimonial-block\" className={cn('grid gap-8 text-fg', card && 'rounded-container bg-surface-raised p-12 max-sm:p-6', className)}>\n      {label && <p className=\"type-label text-fg-muted\">{label}</p>}\n      <Testimonial quote={quote} name={name} position={position} image={image} layout={layout} />\n    </section>\n  )\n}\n\nexport default TestimonialBlock\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

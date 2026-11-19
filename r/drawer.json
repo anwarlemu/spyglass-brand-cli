@@ -1,0 +1,308 @@
+{
+  "name": "drawer",
+  "title": "Drawer",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A panel that slides in from an edge over a Black scrim, on the #171717 overlay surface: from the bottom with the brand corner on its top edge and a grab handle, or from the left or right at full height.",
+  "use_for": "A choice or a short list on a phone (a format, a sort, the pages), where a dropdown would be cramped. The scrim, Escape and the close button close it.",
+  "never": [
+    "A long form: use a page",
+    "A shadow on its edge: the hairline sets it apart",
+    "Corners on the edge it slides from"
+  ],
+  "source": "Derived from the guidelines: the #171717 card fill on Black, neutral hairlines, the 10px canvas corner (8px here), Funnel Display titles, 44px touch rows. shadcn's drawer for anatomy and behavior (no drag to dismiss yet).",
+  "body": "",
+  "requires": [
+    "button",
+    "popover"
+  ],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/ui/Drawer.tsx",
+      "content": "'use client'\nimport { X } from 'lucide-react'\nimport { useRef, type ReactNode } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { useControllable } from '@/react/hooks/useControllable'\nimport { useSheet } from '@/react/hooks/useSheet'\n\n// shadcn's drawer in the brand: a panel that slides in from an edge over a Black scrim, on the #171717 overlay surface\n// with a neutral hairline on its inner edge. `bottom` (the default) is the screen's width and up to 85% of its\n// height, with the 8px corner on its top edge only and a grab handle; `left` and `right` are min(320px, 85vw) and full\n// height. A Funnel Display title, an optional line under it and a ghost close button head it; the children are the\n// body. It slides its own size in over 300ms on the drawer curve and out in 200ms; the scrim fades with it. A press on\n// the scrim or Escape (at once, keyboard actions don't animate) closes it, and focus returns to what opened it.\n// Reduced motion fades instead of sliding. `open` with `onOpenChange`; children may be a function of `close`.\nexport interface DrawerProps {\n  /** The title, and the panel's name. */\n  title: string\n  /** A line under the title. */\n  description?: string\n  /** The edge it comes from. */\n  side?: 'bottom' | 'left' | 'right'\n  open?: boolean\n  defaultOpen?: boolean\n  onOpenChange?: (open: boolean) => void\n  children?: ReactNode | ((close: () => void) => ReactNode)\n}\n\nexport function Drawer({ title, description, side = 'bottom', open: given, defaultOpen = false, onOpenChange, children }: DrawerProps) {\n  const [open, setOpen] = useControllable(given, defaultOpen, onOpenChange)\n  const dialog = useRef<HTMLDialogElement | null>(null)\n  const { shown, onCancel, onClick } = useSheet(dialog, open, setOpen)\n  const close = () => setOpen(false)\n  return (\n    <dialog data-ds=\"drawer\" ref={dialog} className=\"ds-drawer\" data-side={side} data-shown={shown || undefined} aria-label={title} tabIndex={-1} onCancel={onCancel} onClick={onClick}>\n      <style href=\"ds-drawer\" precedence=\"ds\">{css}</style>\n      {side === 'bottom' && <div className=\"mx-auto mt-3 h-1 w-10 shrink-0 rounded-full bg-ds-neutral-5\" aria-hidden=\"true\" />}\n      <div className=\"flex shrink-0 items-start gap-4 pt-4 pr-4 pb-2 pl-6\">\n        <div className=\"flex min-w-0 flex-1 flex-col gap-1.5 pt-1.5\">\n          <h2 className=\"type-heading-4\">{title}</h2>\n          {description && <p className=\"type-ui text-fg-muted\">{description}</p>}\n        </div>\n        <Button variant=\"ghost\" size=\"sm\" icon aria-label=\"Close\" onClick={close}><X size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n      </div>\n      <div className=\"flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-3 pb-6\" data-sheet-body=\"\">\n        {typeof children === 'function' ? children(close) : children}\n      </div>\n    </dialog>\n  )\n}\n\nexport default Drawer\n\nconst css = `\n.ds-drawer { position: fixed; max-width: none; max-height: none; margin: 0; padding: 0; border: 0 solid var(--ds-color-edge); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); transition: transform var(--ds-duration-enter) var(--ds-easing-drawer); }\n.ds-drawer[open] { display: flex; flex-direction: column; }\n.ds-drawer:focus { outline: none; }\n.ds-drawer[data-side=\"bottom\"] { inset: auto 0 0; width: 100vw; max-height: 85dvh; border-top-width: var(--ds-border-hairline); border-radius: var(--ds-radius-container) var(--ds-radius-container) 0 0; transform: translateY(100%); padding-bottom: env(safe-area-inset-bottom); }\n.ds-drawer[data-side=\"left\"] { inset: 0 auto 0 0; width: min(320px, 85vw); height: 100dvh; border-right-width: var(--ds-border-hairline); transform: translateX(-100%); }\n.ds-drawer[data-side=\"right\"] { inset: 0 0 0 auto; width: min(320px, 85vw); height: 100dvh; border-left-width: var(--ds-border-hairline); transform: translateX(100%); }\n.ds-drawer[data-shown] { transform: none; transition-duration: var(--ds-duration-entrance); }\n.ds-drawer::backdrop { background: var(--ds-color-scrim); opacity: 0; transition: opacity var(--ds-duration-enter) var(--ds-easing-drawer); }\n.ds-drawer[data-shown]::backdrop { opacity: 1; transition-duration: var(--ds-duration-entrance); }\n@media (prefers-reduced-motion: reduce) {\n  .ds-drawer, .ds-drawer[data-side] { transform: none; opacity: 0; transition: opacity var(--ds-duration-enter) var(--ds-easing-out); }\n  .ds-drawer[data-shown] { opacity: 1; }\n}\n`\n"
+    },
+    {
+      "path": "react/hooks/useControllable.ts",
+      "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+    },
+    {
+      "path": "react/hooks/useSheet.ts",
+      "content": "'use client'\nimport { useEffect, useRef, useState, type RefObject } from 'react'\nimport { firstFocusable } from '@/react/hooks/usePopover'\n\n/**\n * A native modal dialog that slides (Sheet, Drawer): showModal keeps focus inside and the page inert; the panel and its\n * scrim come in on `data-shown` and leave on its removal, closing once the exit transition has run (read from CSS, so\n * reduced motion and the tokens decide). Escape closes at once (keyboard actions don't animate); the scrim closes it;\n * focus returns to what opened it. Focus starts on the first control in `[data-autofocus]` or the body, else the panel.\n * `open` and `setOpen` are the component's controllable open state (Vue's v-model:open).\n */\nexport function useSheet(dialog: RefObject<HTMLDialogElement | null>, open: boolean, setOpen: (open: boolean) => void, options: { dismissable?: () => boolean } = {}) {\n  const [shown, setShownState] = useState(false)\n  const isShown = useRef(false)\n  const setShown = (v: boolean) => {\n    isShown.current = v\n    setShownState(v)\n  }\n  const returnTo = useRef<HTMLElement | null>(null)\n  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)\n  const exiting = useRef(false)\n\n  function exitMs(el: HTMLElement) {\n    const parts = getComputedStyle(el).transitionDuration.split(',').map(s => Number.parseFloat(s) * (s.trim().endsWith('ms') ? 1 : 1000))\n    return Math.max(0, ...parts.filter(n => !Number.isNaN(n)))\n  }\n  async function show() {\n    const d = dialog.current\n    if (!d || d.open) return\n    clearTimeout(timer.current)\n    returnTo.current = document.activeElement instanceof HTMLElement ? document.activeElement : null\n    d.showModal()\n    const start = d.querySelector<HTMLElement>('[data-autofocus]') ?? firstFocusable(d.querySelector<HTMLElement>('[data-sheet-body]'))\n    ;(start ?? d).focus({ preventScroll: true })\n    // One frame at the closed state, so the transition has somewhere to start.\n    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))\n    setShown(true)\n  }\n  function finish() {\n    dialog.current?.close()\n    returnTo.current?.focus({ preventScroll: true })\n    returnTo.current = null\n  }\n  function hide(instant = false) {\n    const d = dialog.current\n    if (!d?.open) return\n    if (instant) {\n      setShown(false)\n      return finish()\n    }\n    // ds-latency: the dialog stays in the top layer until its exit has played (timed once the panel has re-rendered\n    // without data-shown, as Vue's nextTick, so its exit duration is the one read).\n    if (!isShown.current) timer.current = setTimeout(finish, exitMs(d))\n    else {\n      exiting.current = true\n      setShown(false)\n    }\n  }\n  useEffect(() => {\n    const d = dialog.current\n    if (shown || !exiting.current || !d) return\n    exiting.current = false\n    timer.current = setTimeout(finish, exitMs(d))\n  }, [shown]) // eslint-disable-line react-hooks/exhaustive-deps\n\n  // Vue's watch(open) and onMounted: show when it opens (or starts open), hide when it closes.\n  const mounted = useRef(false)\n  useEffect(() => {\n    if (!mounted.current) {\n      mounted.current = true\n      if (open) void show()\n      return\n    }\n    if (open) void show()\n    else hide()\n  }, [open]) // eslint-disable-line react-hooks/exhaustive-deps\n  useEffect(() => () => clearTimeout(timer.current), [])\n\n  /** Escape: at once, no exit motion. */\n  function onCancel(event: { preventDefault: () => void }) {\n    event.preventDefault()\n    if (options.dismissable && !options.dismissable()) return\n    setOpen(false)\n    hide(true)\n  }\n  /** A press on the scrim lands on the dialog element itself. */\n  function onClick(event: { target: EventTarget | null }) {\n    if (event.target === dialog.current && (!options.dismissable || options.dismissable())) setOpen(false)\n  }\n  return { shown, onCancel, onClick, hide }\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Format",
+      "label": "From the bottom",
+      "center": true,
+      "half": false,
+      "path": "react/examples/drawer/Format.tsx",
+      "content": "'use client'\nimport { useState } from 'react'\nimport { Check, SlidersHorizontal } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { Drawer } from '@/react/components/ui/Drawer'\n// A choice on a phone, from the bottom edge: which format to search. The rows are 44px to land a thumb on.\nconst formats = ['All formats', 'Video', 'Image', 'Carousel', 'UGC']\n\nexport default function Format() {\n  const [open, setOpen] = useState(false)\n  const [format, setFormat] = useState('All formats')\n  return (\n    <div className=\"flex min-h-72 items-center justify-center\">\n      <Button variant=\"secondary\" onClick={() => setOpen(true)}><SlidersHorizontal size={16} strokeWidth={1.5} aria-hidden=\"true\" />{format}</Button>\n      <Drawer open={open} onOpenChange={setOpen} title=\"Format\" description=\"Search one format, or all of them.\">\n        {(close) => (\n          <ul className=\"flex flex-col gap-1\">\n            {formats.map((f) => (\n              <li key={f}>\n                <button type=\"button\" aria-pressed={format === f} data-autofocus={format === f || undefined} className=\"flex h-11 w-full cursor-pointer items-center gap-3 rounded-ds-sm px-3 text-left type-body text-fg outline-none transition-[background-color] duration-150 ease-standard hover:bg-ds-neutral-4 focus-visible:bg-ds-neutral-4\" onClick={() => { setFormat(f); close() }}>\n                  <span className=\"min-w-0 flex-1\">{f}</span>\n                  {format === f && <Check size={16} strokeWidth={1.5} aria-hidden=\"true\" />}\n                </button>\n              </li>\n            ))}\n          </ul>\n        )}\n      </Drawer>\n    </div>\n  )\n}\n",
+      "requires": [
+        "button",
+        "popover"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "Navigation",
+      "label": "From the left",
+      "center": true,
+      "half": false,
+      "path": "react/examples/drawer/Navigation.tsx",
+      "content": "'use client'\nimport { useState } from 'react'\nimport { Bookmark, Building2, Menu, Search, Settings } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { Drawer } from '@/react/components/ui/Drawer'\n// Navigation on a phone: the menu button slides the pages in from the left. Pick one, press the scrim or Escape to close.\nconst pages = [\n  { label: 'Search', icon: Search },\n  { label: 'Boards', icon: Bookmark },\n  { label: 'Brands', icon: Building2 },\n  { label: 'Settings', icon: Settings },\n]\n\nexport default function Navigation() {\n  const [open, setOpen] = useState(false)\n  const [page, setPage] = useState('Search')\n  return (\n    <div className=\"flex min-h-72 flex-col items-center justify-center gap-3\">\n      <Button variant=\"secondary\" icon aria-label=\"Open menu\" onClick={() => setOpen(true)}><Menu size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n      <p className=\"type-caption text-fg-muted\" aria-live=\"polite\">On {page}.</p>\n      <Drawer open={open} onOpenChange={setOpen} title=\"Spyglass\" side=\"left\">\n        <nav className=\"flex flex-col gap-1\" aria-label=\"Pages\">\n          {pages.map(({ label, icon: Icon }) => (\n            <a key={label} href=\"#\" aria-current={page === label ? 'page' : undefined} className=\"flex h-10 items-center gap-3 rounded-ds-sm px-3 type-ui text-fg-soft outline-none transition-[background-color,color] duration-150 ease-standard hover:bg-ds-neutral-4 hover:text-fg focus-visible:bg-ds-neutral-4 aria-[current=page]:bg-ds-neutral-4 aria-[current=page]:text-fg\" onClick={(e) => { e.preventDefault(); setPage(label); setOpen(false) }}>\n              <Icon size={16} strokeWidth={1.5} aria-hidden=\"true\" />{label}\n            </a>\n          ))}\n        </nav>\n      </Drawer>\n    </div>\n  )\n}\n",
+      "requires": [
+        "button",
+        "popover"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Drawer.tsx",
+          "content": "'use client'\nimport { X } from 'lucide-react'\nimport { useRef, type ReactNode } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { useControllable } from '@/react/hooks/useControllable'\nimport { useSheet } from '@/react/hooks/useSheet'\n\n// shadcn's drawer in the brand: a panel that slides in from an edge over a Black scrim, on the #171717 overlay surface\n// with a neutral hairline on its inner edge. `bottom` (the default) is the screen's width and up to 85% of its\n// height, with the 8px corner on its top edge only and a grab handle; `left` and `right` are min(320px, 85vw) and full\n// height. A Funnel Display title, an optional line under it and a ghost close button head it; the children are the\n// body. It slides its own size in over 300ms on the drawer curve and out in 200ms; the scrim fades with it. A press on\n// the scrim or Escape (at once, keyboard actions don't animate) closes it, and focus returns to what opened it.\n// Reduced motion fades instead of sliding. `open` with `onOpenChange`; children may be a function of `close`.\nexport interface DrawerProps {\n  /** The title, and the panel's name. */\n  title: string\n  /** A line under the title. */\n  description?: string\n  /** The edge it comes from. */\n  side?: 'bottom' | 'left' | 'right'\n  open?: boolean\n  defaultOpen?: boolean\n  onOpenChange?: (open: boolean) => void\n  children?: ReactNode | ((close: () => void) => ReactNode)\n}\n\nexport function Drawer({ title, description, side = 'bottom', open: given, defaultOpen = false, onOpenChange, children }: DrawerProps) {\n  const [open, setOpen] = useControllable(given, defaultOpen, onOpenChange)\n  const dialog = useRef<HTMLDialogElement | null>(null)\n  const { shown, onCancel, onClick } = useSheet(dialog, open, setOpen)\n  const close = () => setOpen(false)\n  return (\n    <dialog data-ds=\"drawer\" ref={dialog} className=\"ds-drawer\" data-side={side} data-shown={shown || undefined} aria-label={title} tabIndex={-1} onCancel={onCancel} onClick={onClick}>\n      <style href=\"ds-drawer\" precedence=\"ds\">{css}</style>\n      {side === 'bottom' && <div className=\"mx-auto mt-3 h-1 w-10 shrink-0 rounded-full bg-ds-neutral-5\" aria-hidden=\"true\" />}\n      <div className=\"flex shrink-0 items-start gap-4 pt-4 pr-4 pb-2 pl-6\">\n        <div className=\"flex min-w-0 flex-1 flex-col gap-1.5 pt-1.5\">\n          <h2 className=\"type-heading-4\">{title}</h2>\n          {description && <p className=\"type-ui text-fg-muted\">{description}</p>}\n        </div>\n        <Button variant=\"ghost\" size=\"sm\" icon aria-label=\"Close\" onClick={close}><X size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n      </div>\n      <div className=\"flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-3 pb-6\" data-sheet-body=\"\">\n        {typeof children === 'function' ? children(close) : children}\n      </div>\n    </dialog>\n  )\n}\n\nexport default Drawer\n\nconst css = `\n.ds-drawer { position: fixed; max-width: none; max-height: none; margin: 0; padding: 0; border: 0 solid var(--ds-color-edge); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); transition: transform var(--ds-duration-enter) var(--ds-easing-drawer); }\n.ds-drawer[open] { display: flex; flex-direction: column; }\n.ds-drawer:focus { outline: none; }\n.ds-drawer[data-side=\"bottom\"] { inset: auto 0 0; width: 100vw; max-height: 85dvh; border-top-width: var(--ds-border-hairline); border-radius: var(--ds-radius-container) var(--ds-radius-container) 0 0; transform: translateY(100%); padding-bottom: env(safe-area-inset-bottom); }\n.ds-drawer[data-side=\"left\"] { inset: 0 auto 0 0; width: min(320px, 85vw); height: 100dvh; border-right-width: var(--ds-border-hairline); transform: translateX(-100%); }\n.ds-drawer[data-side=\"right\"] { inset: 0 0 0 auto; width: min(320px, 85vw); height: 100dvh; border-left-width: var(--ds-border-hairline); transform: translateX(100%); }\n.ds-drawer[data-shown] { transform: none; transition-duration: var(--ds-duration-entrance); }\n.ds-drawer::backdrop { background: var(--ds-color-scrim); opacity: 0; transition: opacity var(--ds-duration-enter) var(--ds-easing-drawer); }\n.ds-drawer[data-shown]::backdrop { opacity: 1; transition-duration: var(--ds-duration-entrance); }\n@media (prefers-reduced-motion: reduce) {\n  .ds-drawer, .ds-drawer[data-side] { transform: none; opacity: 0; transition: opacity var(--ds-duration-enter) var(--ds-easing-out); }\n  .ds-drawer[data-shown] { opacity: 1; }\n}\n`\n"
+        },
+        {
+          "path": "react/hooks/useControllable.ts",
+          "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+        },
+        {
+          "path": "react/hooks/useSheet.ts",
+          "content": "'use client'\nimport { useEffect, useRef, useState, type RefObject } from 'react'\nimport { firstFocusable } from '@/react/hooks/usePopover'\n\n/**\n * A native modal dialog that slides (Sheet, Drawer): showModal keeps focus inside and the page inert; the panel and its\n * scrim come in on `data-shown` and leave on its removal, closing once the exit transition has run (read from CSS, so\n * reduced motion and the tokens decide). Escape closes at once (keyboard actions don't animate); the scrim closes it;\n * focus returns to what opened it. Focus starts on the first control in `[data-autofocus]` or the body, else the panel.\n * `open` and `setOpen` are the component's controllable open state (Vue's v-model:open).\n */\nexport function useSheet(dialog: RefObject<HTMLDialogElement | null>, open: boolean, setOpen: (open: boolean) => void, options: { dismissable?: () => boolean } = {}) {\n  const [shown, setShownState] = useState(false)\n  const isShown = useRef(false)\n  const setShown = (v: boolean) => {\n    isShown.current = v\n    setShownState(v)\n  }\n  const returnTo = useRef<HTMLElement | null>(null)\n  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)\n  const exiting = useRef(false)\n\n  function exitMs(el: HTMLElement) {\n    const parts = getComputedStyle(el).transitionDuration.split(',').map(s => Number.parseFloat(s) * (s.trim().endsWith('ms') ? 1 : 1000))\n    return Math.max(0, ...parts.filter(n => !Number.isNaN(n)))\n  }\n  async function show() {\n    const d = dialog.current\n    if (!d || d.open) return\n    clearTimeout(timer.current)\n    returnTo.current = document.activeElement instanceof HTMLElement ? document.activeElement : null\n    d.showModal()\n    const start = d.querySelector<HTMLElement>('[data-autofocus]') ?? firstFocusable(d.querySelector<HTMLElement>('[data-sheet-body]'))\n    ;(start ?? d).focus({ preventScroll: true })\n    // One frame at the closed state, so the transition has somewhere to start.\n    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))\n    setShown(true)\n  }\n  function finish() {\n    dialog.current?.close()\n    returnTo.current?.focus({ preventScroll: true })\n    returnTo.current = null\n  }\n  function hide(instant = false) {\n    const d = dialog.current\n    if (!d?.open) return\n    if (instant) {\n      setShown(false)\n      return finish()\n    }\n    // ds-latency: the dialog stays in the top layer until its exit has played (timed once the panel has re-rendered\n    // without data-shown, as Vue's nextTick, so its exit duration is the one read).\n    if (!isShown.current) timer.current = setTimeout(finish, exitMs(d))\n    else {\n      exiting.current = true\n      setShown(false)\n    }\n  }\n  useEffect(() => {\n    const d = dialog.current\n    if (shown || !exiting.current || !d) return\n    exiting.current = false\n    timer.current = setTimeout(finish, exitMs(d))\n  }, [shown]) // eslint-disable-line react-hooks/exhaustive-deps\n\n  // Vue's watch(open) and onMounted: show when it opens (or starts open), hide when it closes.\n  const mounted = useRef(false)\n  useEffect(() => {\n    if (!mounted.current) {\n      mounted.current = true\n      if (open) void show()\n      return\n    }\n    if (open) void show()\n    else hide()\n  }, [open]) // eslint-disable-line react-hooks/exhaustive-deps\n  useEffect(() => () => clearTimeout(timer.current), [])\n\n  /** Escape: at once, no exit motion. */\n  function onCancel(event: { preventDefault: () => void }) {\n    event.preventDefault()\n    if (options.dismissable && !options.dismissable()) return\n    setOpen(false)\n    hide(true)\n  }\n  /** A press on the scrim lands on the dialog element itself. */\n  function onClick(event: { target: EventTarget | null }) {\n    if (event.target === dialog.current && (!options.dismissable || options.dismissable())) setOpen(false)\n  }\n  return { shown, onCancel, onClick, hide }\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "button",
+        "popover"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "Drawer",
+            "file": "react/components/ui/Drawer.tsx",
+            "props": [
+              {
+                "name": "title",
+                "type": "string",
+                "required": true,
+                "description": "The title, and the panel's name."
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "required": false,
+                "description": "A line under the title."
+              },
+              {
+                "name": "side",
+                "type": "'bottom' | 'left' | 'right'",
+                "required": false,
+                "default": "'bottom'",
+                "description": "The edge it comes from."
+              },
+              {
+                "name": "open",
+                "type": "boolean",
+                "required": false
+              },
+              {
+                "name": "defaultOpen",
+                "type": "boolean",
+                "required": false,
+                "default": "false"
+              },
+              {
+                "name": "onOpenChange",
+                "type": "(open: boolean) => void",
+                "required": false
+              },
+              {
+                "name": "children",
+                "type": "ReactNode | ((close: () => void) => ReactNode)",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Format",
+          "label": "From the bottom",
+          "center": true,
+          "half": false,
+          "path": "react/examples/drawer/Format.tsx",
+          "content": "'use client'\nimport { useState } from 'react'\nimport { Check, SlidersHorizontal } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { Drawer } from '@/react/components/ui/Drawer'\n// A choice on a phone, from the bottom edge: which format to search. The rows are 44px to land a thumb on.\nconst formats = ['All formats', 'Video', 'Image', 'Carousel', 'UGC']\n\nexport default function Format() {\n  const [open, setOpen] = useState(false)\n  const [format, setFormat] = useState('All formats')\n  return (\n    <div className=\"flex min-h-72 items-center justify-center\">\n      <Button variant=\"secondary\" onClick={() => setOpen(true)}><SlidersHorizontal size={16} strokeWidth={1.5} aria-hidden=\"true\" />{format}</Button>\n      <Drawer open={open} onOpenChange={setOpen} title=\"Format\" description=\"Search one format, or all of them.\">\n        {(close) => (\n          <ul className=\"flex flex-col gap-1\">\n            {formats.map((f) => (\n              <li key={f}>\n                <button type=\"button\" aria-pressed={format === f} data-autofocus={format === f || undefined} className=\"flex h-11 w-full cursor-pointer items-center gap-3 rounded-ds-sm px-3 text-left type-body text-fg outline-none transition-[background-color] duration-150 ease-standard hover:bg-ds-neutral-4 focus-visible:bg-ds-neutral-4\" onClick={() => { setFormat(f); close() }}>\n                  <span className=\"min-w-0 flex-1\">{f}</span>\n                  {format === f && <Check size={16} strokeWidth={1.5} aria-hidden=\"true\" />}\n                </button>\n              </li>\n            ))}\n          </ul>\n        )}\n      </Drawer>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button",
+            "popover"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        },
+        {
+          "name": "Navigation",
+          "label": "From the left",
+          "center": true,
+          "half": false,
+          "path": "react/examples/drawer/Navigation.tsx",
+          "content": "'use client'\nimport { useState } from 'react'\nimport { Bookmark, Building2, Menu, Search, Settings } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { Drawer } from '@/react/components/ui/Drawer'\n// Navigation on a phone: the menu button slides the pages in from the left. Pick one, press the scrim or Escape to close.\nconst pages = [\n  { label: 'Search', icon: Search },\n  { label: 'Boards', icon: Bookmark },\n  { label: 'Brands', icon: Building2 },\n  { label: 'Settings', icon: Settings },\n]\n\nexport default function Navigation() {\n  const [open, setOpen] = useState(false)\n  const [page, setPage] = useState('Search')\n  return (\n    <div className=\"flex min-h-72 flex-col items-center justify-center gap-3\">\n      <Button variant=\"secondary\" icon aria-label=\"Open menu\" onClick={() => setOpen(true)}><Menu size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n      <p className=\"type-caption text-fg-muted\" aria-live=\"polite\">On {page}.</p>\n      <Drawer open={open} onOpenChange={setOpen} title=\"Spyglass\" side=\"left\">\n        <nav className=\"flex flex-col gap-1\" aria-label=\"Pages\">\n          {pages.map(({ label, icon: Icon }) => (\n            <a key={label} href=\"#\" aria-current={page === label ? 'page' : undefined} className=\"flex h-10 items-center gap-3 rounded-ds-sm px-3 type-ui text-fg-soft outline-none transition-[background-color,color] duration-150 ease-standard hover:bg-ds-neutral-4 hover:text-fg focus-visible:bg-ds-neutral-4 aria-[current=page]:bg-ds-neutral-4 aria-[current=page]:text-fg\" onClick={(e) => { e.preventDefault(); setPage(label); setOpen(false) }}>\n              <Icon size={16} strokeWidth={1.5} aria-hidden=\"true\" />{label}\n            </a>\n          ))}\n        </nav>\n      </Drawer>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button",
+            "popover"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/drawer.ts",
+          "content": "import { html, nothing, type PropertyValues } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { X } from 'lucide'\nimport { DsElement, define } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport { SheetController } from '@/elements/controllers/sheet'\nimport '@/elements/components/ui/button'\nimport styles from 'virtual:tw'\n\n// Drawer.tsx as <spyglass-drawer>: a panel that slides in from an edge over a Black scrim, on the #171717 overlay\n// surface with a neutral hairline on its inner edge. `bottom` (the default) is the screen's width and up to 85% of its\n// height, with the 8px corner on its top edge and a grab handle; `left` and `right` are min(320px, 85vw) and full\n// height. A Funnel Display heading, an optional line and a ghost close button head it. It slides in over 300ms on the\n// drawer curve and out in 200ms. A press on the scrim or Escape (at once) closes it, and focus returns to what opened\n// it. React's `open` with `onOpenChange` is the reflected `open` attribute with an `open-change` event; React's\n// `title` is `heading`; React's `close` (children as a function) is the element's close().\n\n/**\n * @summary A panel that slides in from an edge over a Black scrim.\n * @slot - The panel's body.\n * @fires open-change - It opened or closed (detail.value; read `open`).\n */\nexport class Drawer extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { heading: {}, description: {}, side: { reflect: true }, open: { type: Boolean, reflect: true } }\n\n\t/** The title, and the panel's name (React's `title`). */\n\theading = ''\n\t/** A line under the heading. */\n\tdescription?: string\n\t/** The edge it comes from. */\n\tside: 'bottom' | 'left' | 'right' = 'bottom'\n\t/** Whether it is showing. */\n\topen = false\n\n\tprivate sheet = new SheetController(this, () => this.renderRoot.querySelector('dialog'), (open) => this.setOpen(open))\n\n\t/** Closes it, with its exit. */\n\tclose() {\n\t\tthis.setOpen(false)\n\t}\n\tprivate setOpen(open: boolean) {\n\t\tif (this.open === open) return\n\t\tthis.open = open\n\t\tthis.emit('open-change', { value: open })\n\t}\n\n\t// Show when it opens (or starts open), hide when it closes.\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\tif (!changed.has('open')) return\n\t\tif (this.open) void this.sheet.show()\n\t\telse if (changed.get('open') !== undefined) void this.sheet.hide()\n\t}\n\n\trender() {\n\t\treturn html`<dialog data-ds=\"drawer\" class=\"ds-drawer\" data-side=${this.side} data-shown=${ifDefined(this.sheet.shown ? 'true' : undefined)} aria-label=${this.heading} tabindex=\"-1\" @cancel=${this.sheet.onCancel} @click=${this.sheet.onClick}>\n\t\t\t${this.side === 'bottom' ? html`<div class=\"mx-auto mt-3 h-1 w-10 shrink-0 rounded-full bg-ds-neutral-5\" aria-hidden=\"true\"></div>` : nothing}\n\t\t\t<div class=\"flex shrink-0 items-start gap-4 pt-4 pr-4 pb-2 pl-6\">\n\t\t\t\t<div class=\"flex min-w-0 flex-1 flex-col gap-1.5 pt-1.5\">\n\t\t\t\t\t<h2 class=\"type-heading-4\">${this.heading}</h2>\n\t\t\t\t\t${this.description ? html`<p class=\"type-ui text-fg-muted\">${this.description}</p>` : nothing}\n\t\t\t\t</div>\n\t\t\t\t<spyglass-button variant=\"ghost\" size=\"sm\" icon aria-label=\"Close\" @click=${() => this.close()}>${icon(X, 'x', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } })}</spyglass-button>\n\t\t\t</div>\n\t\t\t<div class=\"flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-3 pb-6\" data-sheet-body><slot></slot></div>\n\t\t</dialog>`\n\t}\n}\n\ndefine('drawer', Drawer)\n"
+        },
+        {
+          "path": "elements/components/ui/drawer.css",
+          "content": "/* Drawer.tsx's styles. */\n.ds-drawer { position: fixed; max-width: none; max-height: none; margin: 0; padding: 0; border: 0 solid var(--ds-color-edge); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); transition: transform var(--ds-duration-enter) var(--ds-easing-drawer); }\n.ds-drawer[open] { display: flex; flex-direction: column; }\n.ds-drawer:focus { outline: none; }\n.ds-drawer[data-side=\"bottom\"] { inset: auto 0 0; width: 100vw; max-height: 85dvh; border-top-width: var(--ds-border-hairline); border-radius: var(--ds-radius-container) var(--ds-radius-container) 0 0; transform: translateY(100%); padding-bottom: env(safe-area-inset-bottom); }\n.ds-drawer[data-side=\"left\"] { inset: 0 auto 0 0; width: min(320px, 85vw); height: 100dvh; border-right-width: var(--ds-border-hairline); transform: translateX(-100%); }\n.ds-drawer[data-side=\"right\"] { inset: 0 0 0 auto; width: min(320px, 85vw); height: 100dvh; border-left-width: var(--ds-border-hairline); transform: translateX(100%); }\n.ds-drawer[data-shown] { transform: none; transition-duration: var(--ds-duration-entrance); }\n.ds-drawer::backdrop { background: var(--ds-color-scrim); opacity: 0; transition: opacity var(--ds-duration-enter) var(--ds-easing-drawer); }\n.ds-drawer[data-shown]::backdrop { opacity: 1; transition-duration: var(--ds-duration-entrance); }\n@media (prefers-reduced-motion: reduce) {\n  .ds-drawer, .ds-drawer[data-side] { transform: none; opacity: 0; transition: opacity var(--ds-duration-enter) var(--ds-easing-out); }\n  .ds-drawer[data-shown] { opacity: 1; }\n}\n"
+        },
+        {
+          "path": "elements/controllers/sheet.ts",
+          "content": "import type { ReactiveController, ReactiveControllerHost } from 'lit'\nimport { firstFocusable } from '@/elements/lib/popover'\n\n/**\n * useSheet as a Lit controller: a native modal dialog that slides (Sheet, Drawer): showModal keeps focus inside and\n * the page inert; the panel and its scrim come in on `data-shown` and leave on its removal, closing once the exit\n * transition has run (read from CSS, so reduced motion and the tokens decide). Escape closes at once (keyboard actions\n * don't animate); the scrim closes it; focus returns to what opened it, through shadow roots. Focus starts on the first\n * control in `[data-autofocus]` (in the page's content or the panel) or the body, else the panel. The element calls\n * show() and hide() when its `open` changes and passes `setOpen` for Escape and the scrim.\n */\nexport class SheetController implements ReactiveController {\n\tshown = false\n\tprivate returnTo: HTMLElement | null = null\n\tprivate timer?: ReturnType<typeof setTimeout>\n\n\tconstructor(\n\t\tprivate host: ReactiveControllerHost & HTMLElement,\n\t\tprivate dialog: () => HTMLDialogElement | null,\n\t\tprivate setOpen: (open: boolean) => void,\n\t\tprivate options: { dismissable?: () => boolean } = {},\n\t) {\n\t\thost.addController(this)\n\t}\n\thostDisconnected() {\n\t\tclearTimeout(this.timer)\n\t}\n\n\tprivate exitMs(el: HTMLElement) {\n\t\tconst parts = getComputedStyle(el).transitionDuration.split(',').map((s) => Number.parseFloat(s) * (s.trim().endsWith('ms') ? 1 : 1000))\n\t\treturn Math.max(0, ...parts.filter((n) => !Number.isNaN(n)))\n\t}\n\tprivate setShown(v: boolean) {\n\t\tthis.shown = v\n\t\tthis.host.requestUpdate()\n\t}\n\n\tasync show() {\n\t\tconst d = this.dialog()\n\t\tif (!d || d.open) return\n\t\tclearTimeout(this.timer)\n\t\t// The focused element itself, inside shadow roots, not the host it sits in.\n\t\tlet active = document.activeElement as HTMLElement | null\n\t\twhile (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement as HTMLElement\n\t\tthis.returnTo = active\n\t\td.showModal()\n\t\tconst start = this.host.querySelector<HTMLElement>('[data-autofocus]') ?? d.querySelector<HTMLElement>('[data-autofocus]') ?? firstFocusable(d.querySelector<HTMLElement>('[data-sheet-body]'))\n\t\t;(start ?? d).focus({ preventScroll: true })\n\t\t// One frame at the closed state, so the transition has somewhere to start.\n\t\tawait new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))\n\t\tthis.setShown(true)\n\t}\n\tprivate finish() {\n\t\tthis.dialog()?.close()\n\t\tthis.returnTo?.focus({ preventScroll: true })\n\t\tthis.returnTo = null\n\t}\n\tasync hide(instant = false) {\n\t\tconst d = this.dialog()\n\t\tif (!d?.open) return\n\t\tthis.setShown(false)\n\t\tif (instant) return this.finish()\n\t\tawait this.host.updateComplete\n\t\t// ds-latency: the dialog stays in the top layer until its exit has played.\n\t\tthis.timer = setTimeout(() => this.finish(), this.exitMs(d))\n\t}\n\n\t/** Escape: at once, no exit motion. */\n\tonCancel = (event: Event) => {\n\t\tevent.preventDefault()\n\t\tif (this.options.dismissable && !this.options.dismissable()) return\n\t\tthis.setOpen(false)\n\t\tvoid this.hide(true)\n\t}\n\t/** A press on the scrim lands on the dialog element itself. */\n\tonClick = (event: MouseEvent) => {\n\t\tif (event.target === this.dialog() && (!this.options.dismissable || this.options.dismissable())) this.setOpen(false)\n\t}\n}\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/drawer.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-drawer",
+      "tags": [
+        "spyglass-drawer"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-drawer",
+            "name": "Drawer",
+            "module": "elements/drawer.js",
+            "description": "A panel that slides in from an edge over a Black scrim.",
+            "attributes": [
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string",
+                "default": "''",
+                "description": "The title, and the panel's name (React's `title`)."
+              },
+              {
+                "name": "description",
+                "field": "description",
+                "type": "string | undefined",
+                "description": "A line under the heading."
+              },
+              {
+                "name": "side",
+                "field": "side",
+                "type": "\"right\" | \"bottom\" | \"left\"",
+                "default": "'bottom'",
+                "description": "The edge it comes from."
+              },
+              {
+                "name": "open",
+                "field": "open",
+                "type": "boolean",
+                "default": "false",
+                "description": "Whether it is showing."
+              }
+            ],
+            "properties": [
+              {
+                "name": "heading",
+                "type": "string",
+                "default": "''",
+                "description": "The title, and the panel's name (React's `title`).",
+                "attribute": "heading"
+              },
+              {
+                "name": "description",
+                "type": "string | undefined",
+                "description": "A line under the heading.",
+                "attribute": "description"
+              },
+              {
+                "name": "side",
+                "type": "\"right\" | \"bottom\" | \"left\"",
+                "default": "'bottom'",
+                "description": "The edge it comes from.",
+                "attribute": "side"
+              },
+              {
+                "name": "open",
+                "type": "boolean",
+                "default": "false",
+                "description": "Whether it is showing.",
+                "attribute": "open"
+              }
+            ],
+            "events": [
+              {
+                "name": "open-change",
+                "description": "It opened or closed (detail.value; read `open`)."
+              }
+            ],
+            "slots": [
+              {
+                "name": "",
+                "description": "The panel's body."
+              }
+            ],
+            "methods": [
+              {
+                "name": "close",
+                "description": "Closes it, with its exit."
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Format",
+          "label": "From the bottom",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/drawer/Format.html",
+          "content": "<!-- A choice on a phone, from the bottom edge: which format to search. The rows are 44px to land a thumb on. -->\n<div class=\"flex min-h-72 items-center justify-center\">\n  <spyglass-button id=\"format-open\" variant=\"secondary\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-sliders-horizontal\" aria-hidden=\"true\"><line x1=\"21\" x2=\"14\" y1=\"4\" y2=\"4\"></line><line x1=\"10\" x2=\"3\" y1=\"4\" y2=\"4\"></line><line x1=\"21\" x2=\"12\" y1=\"12\" y2=\"12\"></line><line x1=\"8\" x2=\"3\" y1=\"12\" y2=\"12\"></line><line x1=\"21\" x2=\"16\" y1=\"20\" y2=\"20\"></line><line x1=\"12\" x2=\"3\" y1=\"20\" y2=\"20\"></line><line x1=\"14\" x2=\"14\" y1=\"2\" y2=\"6\"></line><line x1=\"8\" x2=\"8\" y1=\"10\" y2=\"14\"></line><line x1=\"16\" x2=\"16\" y1=\"18\" y2=\"22\"></line></svg><span id=\"format-current\">All formats</span></spyglass-button>\n  <spyglass-drawer id=\"format-drawer\" heading=\"Format\" description=\"Search one format, or all of them.\">\n    <ul class=\"flex flex-col gap-1\">\n      <li><button type=\"button\" aria-pressed=\"true\" data-autofocus data-format=\"All formats\" class=\"flex h-11 w-full cursor-pointer items-center gap-3 rounded-ds-sm px-3 text-left type-body text-fg outline-none transition-[background-color] duration-150 ease-standard hover:bg-ds-neutral-4 focus-visible:bg-ds-neutral-4\"><span class=\"min-w-0 flex-1\">All formats</span><span data-check class=\"contents\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-check\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"></path></svg></span></button></li>\n      <li><button type=\"button\" aria-pressed=\"false\" data-format=\"Video\" class=\"flex h-11 w-full cursor-pointer items-center gap-3 rounded-ds-sm px-3 text-left type-body text-fg outline-none transition-[background-color] duration-150 ease-standard hover:bg-ds-neutral-4 focus-visible:bg-ds-neutral-4\"><span class=\"min-w-0 flex-1\">Video</span><span data-check hidden class=\"contents\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-check\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"></path></svg></span></button></li>\n      <li><button type=\"button\" aria-pressed=\"false\" data-format=\"Image\" class=\"flex h-11 w-full cursor-pointer items-center gap-3 rounded-ds-sm px-3 text-left type-body text-fg outline-none transition-[background-color] duration-150 ease-standard hover:bg-ds-neutral-4 focus-visible:bg-ds-neutral-4\"><span class=\"min-w-0 flex-1\">Image</span><span data-check hidden class=\"contents\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-check\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"></path></svg></span></button></li>\n      <li><button type=\"button\" aria-pressed=\"false\" data-format=\"Carousel\" class=\"flex h-11 w-full cursor-pointer items-center gap-3 rounded-ds-sm px-3 text-left type-body text-fg outline-none transition-[background-color] duration-150 ease-standard hover:bg-ds-neutral-4 focus-visible:bg-ds-neutral-4\"><span class=\"min-w-0 flex-1\">Carousel</span><span data-check hidden class=\"contents\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-check\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"></path></svg></span></button></li>\n      <li><button type=\"button\" aria-pressed=\"false\" data-format=\"UGC\" class=\"flex h-11 w-full cursor-pointer items-center gap-3 rounded-ds-sm px-3 text-left type-body text-fg outline-none transition-[background-color] duration-150 ease-standard hover:bg-ds-neutral-4 focus-visible:bg-ds-neutral-4\"><span class=\"min-w-0 flex-1\">UGC</span><span data-check hidden class=\"contents\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-check\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"></path></svg></span></button></li>\n    </ul>\n  </spyglass-drawer>\n</div>\n<script type=\"module\">\n  const drawer = document.getElementById('format-drawer')\n  document.getElementById('format-open').addEventListener('click', () => { drawer.open = true })\n  for (const b of drawer.querySelectorAll('[data-format]')) {\n    b.addEventListener('click', () => {\n      for (const o of drawer.querySelectorAll('[data-format]')) {\n        const on = o === b\n        o.setAttribute('aria-pressed', String(on))\n        o.toggleAttribute('data-autofocus', on)\n        o.querySelector('[data-check]').hidden = !on\n      }\n      document.getElementById('format-current').textContent = b.dataset.format\n      drawer.close()\n    })\n  }\n</script>\n"
+        },
+        {
+          "name": "Navigation",
+          "label": "From the left",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/drawer/Navigation.html",
+          "content": "<!-- Navigation on a phone: the menu button slides the pages in from the left. Pick one, press the scrim or Escape to close. -->\n<div class=\"flex min-h-72 flex-col items-center justify-center gap-3\">\n  <spyglass-button id=\"nav-open\" variant=\"secondary\" icon aria-label=\"Open menu\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-menu\" aria-hidden=\"true\"><line x1=\"4\" x2=\"20\" y1=\"12\" y2=\"12\"></line><line x1=\"4\" x2=\"20\" y1=\"6\" y2=\"6\"></line><line x1=\"4\" x2=\"20\" y1=\"18\" y2=\"18\"></line></svg></spyglass-button>\n  <p id=\"nav-page\" class=\"type-caption text-fg-muted\" aria-live=\"polite\">On Search.</p>\n  <spyglass-drawer id=\"nav-drawer\" heading=\"Spyglass\" side=\"left\">\n    <nav class=\"flex flex-col gap-1\" aria-label=\"Pages\">\n      <a href=\"#\" aria-current=\"page\" data-page=\"Search\" class=\"flex h-10 items-center gap-3 rounded-ds-sm px-3 type-ui text-fg-soft outline-none transition-[background-color,color] duration-150 ease-standard hover:bg-ds-neutral-4 hover:text-fg focus-visible:bg-ds-neutral-4 aria-[current=page]:bg-ds-neutral-4 aria-[current=page]:text-fg\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-search\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"></circle><path d=\"m21 21-4.3-4.3\"></path></svg>Search</a>\n      <a href=\"#\" data-page=\"Boards\" class=\"flex h-10 items-center gap-3 rounded-ds-sm px-3 type-ui text-fg-soft outline-none transition-[background-color,color] duration-150 ease-standard hover:bg-ds-neutral-4 hover:text-fg focus-visible:bg-ds-neutral-4 aria-[current=page]:bg-ds-neutral-4 aria-[current=page]:text-fg\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-bookmark\" aria-hidden=\"true\"><path d=\"m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z\"></path></svg>Boards</a>\n      <a href=\"#\" data-page=\"Brands\" class=\"flex h-10 items-center gap-3 rounded-ds-sm px-3 type-ui text-fg-soft outline-none transition-[background-color,color] duration-150 ease-standard hover:bg-ds-neutral-4 hover:text-fg focus-visible:bg-ds-neutral-4 aria-[current=page]:bg-ds-neutral-4 aria-[current=page]:text-fg\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-building-2\" aria-hidden=\"true\"><path d=\"M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z\"></path><path d=\"M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2\"></path><path d=\"M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2\"></path><path d=\"M10 6h4\"></path><path d=\"M10 10h4\"></path><path d=\"M10 14h4\"></path><path d=\"M10 18h4\"></path></svg>Brands</a>\n      <a href=\"#\" data-page=\"Settings\" class=\"flex h-10 items-center gap-3 rounded-ds-sm px-3 type-ui text-fg-soft outline-none transition-[background-color,color] duration-150 ease-standard hover:bg-ds-neutral-4 hover:text-fg focus-visible:bg-ds-neutral-4 aria-[current=page]:bg-ds-neutral-4 aria-[current=page]:text-fg\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-settings\" aria-hidden=\"true\"><path d=\"M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z\"></path><circle cx=\"12\" cy=\"12\" r=\"3\"></circle></svg>Settings</a>\n    </nav>\n  </spyglass-drawer>\n</div>\n<script type=\"module\">\n  const drawer = document.getElementById('nav-drawer')\n  document.getElementById('nav-open').addEventListener('click', () => { drawer.open = true })\n  for (const a of drawer.querySelectorAll('[data-page]')) {\n    a.addEventListener('click', (e) => {\n      e.preventDefault()\n      for (const o of drawer.querySelectorAll('[data-page]')) o.toggleAttribute('aria-current', false)\n      a.setAttribute('aria-current', 'page')\n      document.getElementById('nav-page').textContent = `On ${a.dataset.page}.`\n      drawer.open = false\n    })\n  }\n</script>\n"
+        }
+      ]
+    }
+  }
+}

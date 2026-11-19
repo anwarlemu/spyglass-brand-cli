@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "input-group",
+  "type": "registry:ui",
+  "title": "Input Group",
+  "description": "A field with an icon, a prefix, a unit or a small button inside its hairline, drawn and sized as the input is. The hairline turns White while the field has focus.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/ui/InputGroup.tsx",
+      "type": "registry:ui",
+      "content": "import type { InputHTMLAttributes, ReactNode, Ref } from 'react'\nimport { cn } from '@/lib/cn'\n\n// A field with something at its start or end inside the same hairline: an icon, a unit or a prefix in the muted gray,\n// or a small button. It is drawn as the Input is (a #363636 hairline on Black that turns White while the field has\n// focus, DM Sans at 14px, 16px on phones, the brand corner) and sized as it is: sm 32px, md 40px, lg 48px. A button in\n// `end` sits 4px from the edge (use a ghost or secondary sm button in md, md in lg). `invalid` turns the hairline red.\n// `className` lands on the group; every other prop on the <input> (value and onChange as React's own).\nexport type InputGroupSize = 'sm' | 'md' | 'lg'\n\nconst SIZES: Record<InputGroupSize, string> = { sm: 'h-control-sm gap-1.5 px-2.5', md: 'h-control-md gap-2 px-3', lg: 'h-control-lg gap-2 px-4' }\n// A button at the end comes 4px from the edge, whatever the group's padding.\nconst END: Record<InputGroupSize, string> = { sm: 'has-[button]:-mr-1.5', md: 'has-[button]:-mr-2', lg: 'has-[button]:-mr-3' }\n\nexport interface InputGroupProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {\n  /** What sits before the text: an icon, a prefix. */\n  start?: ReactNode\n  /** What sits after the text: a unit, a count, a small button. */\n  end?: ReactNode\n  /** sm (32px), md (40px) or lg (48px). */\n  size?: InputGroupSize\n  /** A red hairline (with the message beside it). */\n  invalid?: boolean\n  ref?: Ref<HTMLInputElement>\n}\n\nexport function InputGroup({ start, end, size = 'md', invalid, className, ...rest }: InputGroupProps) {\n  return (\n    <div\n      data-ds=\"input-group\"\n      data-invalid={invalid || undefined}\n      className={cn('flex w-full min-w-0 items-center rounded-control border border-edge-strong bg-surface text-fg transition-[border-color] duration-150 ease-standard hover:not-has-[input:disabled]:border-action-secondary-edge-hover has-[input:focus-visible]:border-edge-focus data-invalid:border-action-danger has-[input:disabled]:cursor-not-allowed', SIZES[size], className)}\n    >\n      {start && <span className=\"flex shrink-0 items-center gap-1.5 type-ui text-fg-muted\">{start}</span>}\n      <input {...rest} aria-invalid={invalid || undefined} className=\"h-full w-full min-w-0 flex-1 bg-transparent type-ui text-fg outline-none placeholder:text-fg-muted disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input\" />\n      {end && <span className={cn('flex shrink-0 items-center gap-1.5 type-ui text-fg-muted', END[size])}>{end}</span>}\n    </div>\n  )\n}\n\nexport default InputGroup\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

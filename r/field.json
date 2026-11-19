@@ -1,0 +1,206 @@
+{
+  "name": "field",
+  "title": "Field",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A label over one control, with a description or an error under it. The label speaks in capitals; the help is muted; an error takes the help's place in red.",
+  "use_for": "Every labeled control in a form: an email, a board name, a note, a pick from a list. One Field per control.",
+  "never": [
+    "A placeholder in place of the label",
+    "A red hairline before anything is wrong: errors show once a field is left or the form is sent",
+    "Fields under 16px on phones (the input switches to 16px there)"
+  ],
+  "source": "Derived from the brand guidelines (no form in the brand assets): the label voice from the type page, the neutral steps for help text, the red tints for errors",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Field.tsx",
+      "content": "import { useId, type HTMLAttributes, type ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// A label over one control, with a description or an error under it: the label in the brand's label voice (DM Sans\n// Medium, capitals, 6% tracking) in the soft gray, the description in the muted gray at caption size, the error in the\n// danger red in its place, 8px apart. children may be a function that receives the ids to wire:\n// <Field label=\"Email\">{({ id, describedBy, invalid }) => <Input id={id} aria-describedby={describedBy} invalid={invalid} />}</Field>;\n// plain children work too (give the control the field's `id`).\nexport interface FieldSlot { id: string, describedBy?: string, invalid: boolean }\nexport interface FieldProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {\n  /** The label over the control. */\n  label: string\n  /** A line under the control: what to type, or what happens next. */\n  description?: string\n  /** What is wrong, in the description's place (the control turns red). */\n  error?: string\n  /** The control's id (generated when not given). */\n  id?: string\n  children?: ReactNode | ((slot: FieldSlot) => ReactNode)\n}\n\nexport function Field({ label, description, error, id: given, className, children, ...rest }: FieldProps) {\n  const auto = useId()\n  const id = given ?? `field-${auto}`\n  const describedBy = description || error ? `${id}-description` : undefined\n  return (\n    <div data-ds=\"field\" className={cn('flex flex-col gap-2', className)} {...rest}>\n      <label htmlFor={id} className=\"type-label text-fg-soft\">{label}</label>\n      {typeof children === 'function' ? children({ id, describedBy, invalid: !!error }) : children}\n      {(error || description) && <p id={describedBy} className={cn('type-caption', error ? 'text-fg-danger' : 'text-fg-muted')} role={error ? 'alert' : undefined}>{error || description}</p>}\n    </div>\n  )\n}\n\nexport default Field\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Fields",
+      "label": "Help and errors",
+      "center": true,
+      "half": false,
+      "path": "react/examples/field/Fields.tsx",
+      "content": "import { Field } from '@/react/components/ui/Field'\nimport { Input } from '@/react/components/ui/Input'\n// A field with a line of help under it, and one that says what is wrong.\n\nexport default function Fields() {\n  return (\n    <div className=\"flex w-80 max-w-full flex-col gap-6\">\n      <Field label=\"Brand or creator\" description=\"Add any brand or creator in under a minute.\">\n        {({ id, describedBy, invalid }) => <Input id={id} name=\"brand\" placeholder=\"Acme\" aria-describedby={describedBy} invalid={invalid} />}\n      </Field>\n      <Field label=\"Work email\" error=\"Use your work email, such as you@acme.com.\">\n        {({ id, describedBy, invalid }) => <Input id={id} name=\"email\" type=\"email\" defaultValue=\"acme\" aria-describedby={describedBy} invalid={invalid} />}\n      </Field>\n    </div>\n  )\n}\n",
+      "requires": [
+        "input"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Field.tsx",
+          "content": "import { useId, type HTMLAttributes, type ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// A label over one control, with a description or an error under it: the label in the brand's label voice (DM Sans\n// Medium, capitals, 6% tracking) in the soft gray, the description in the muted gray at caption size, the error in the\n// danger red in its place, 8px apart. children may be a function that receives the ids to wire:\n// <Field label=\"Email\">{({ id, describedBy, invalid }) => <Input id={id} aria-describedby={describedBy} invalid={invalid} />}</Field>;\n// plain children work too (give the control the field's `id`).\nexport interface FieldSlot { id: string, describedBy?: string, invalid: boolean }\nexport interface FieldProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {\n  /** The label over the control. */\n  label: string\n  /** A line under the control: what to type, or what happens next. */\n  description?: string\n  /** What is wrong, in the description's place (the control turns red). */\n  error?: string\n  /** The control's id (generated when not given). */\n  id?: string\n  children?: ReactNode | ((slot: FieldSlot) => ReactNode)\n}\n\nexport function Field({ label, description, error, id: given, className, children, ...rest }: FieldProps) {\n  const auto = useId()\n  const id = given ?? `field-${auto}`\n  const describedBy = description || error ? `${id}-description` : undefined\n  return (\n    <div data-ds=\"field\" className={cn('flex flex-col gap-2', className)} {...rest}>\n      <label htmlFor={id} className=\"type-label text-fg-soft\">{label}</label>\n      {typeof children === 'function' ? children({ id, describedBy, invalid: !!error }) : children}\n      {(error || description) && <p id={describedBy} className={cn('type-caption', error ? 'text-fg-danger' : 'text-fg-muted')} role={error ? 'alert' : undefined}>{error || description}</p>}\n    </div>\n  )\n}\n\nexport default Field\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Field",
+            "file": "react/components/ui/Field.tsx",
+            "props": [
+              {
+                "name": "label",
+                "type": "string",
+                "required": true,
+                "description": "The label over the control."
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "required": false,
+                "description": "A line under the control: what to type, or what happens next."
+              },
+              {
+                "name": "error",
+                "type": "string",
+                "required": false,
+                "description": "What is wrong, in the description's place (the control turns red)."
+              },
+              {
+                "name": "id",
+                "type": "string",
+                "required": false,
+                "description": "The control's id (generated when not given)."
+              },
+              {
+                "name": "children",
+                "type": "ReactNode | ((slot: FieldSlot) => ReactNode)",
+                "required": false
+              }
+            ],
+            "extends": [
+              "Omit<HTMLAttributes<HTMLDivElement>, 'children'>"
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Fields",
+          "label": "Help and errors",
+          "center": true,
+          "half": false,
+          "path": "react/examples/field/Fields.tsx",
+          "content": "import { Field } from '@/react/components/ui/Field'\nimport { Input } from '@/react/components/ui/Input'\n// A field with a line of help under it, and one that says what is wrong.\n\nexport default function Fields() {\n  return (\n    <div className=\"flex w-80 max-w-full flex-col gap-6\">\n      <Field label=\"Brand or creator\" description=\"Add any brand or creator in under a minute.\">\n        {({ id, describedBy, invalid }) => <Input id={id} name=\"brand\" placeholder=\"Acme\" aria-describedby={describedBy} invalid={invalid} />}\n      </Field>\n      <Field label=\"Work email\" error=\"Use your work email, such as you@acme.com.\">\n        {({ id, describedBy, invalid }) => <Input id={id} name=\"email\" type=\"email\" defaultValue=\"acme\" aria-describedby={describedBy} invalid={invalid} />}\n      </Field>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "input"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/field.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Field.tsx as <spyglass-field>: a label over one control, with a description or an error under it: the label in the\n// brand's label voice in the soft gray, the description in the muted gray at caption size, the error in the danger red\n// in its place. React's render function hands the control its ids; here the field wires the control it holds: the\n// label names it (aria-label) and a press on the label focuses it, the description or error describes it\n// (aria-description), and an error sets its `invalid`.\n\n/**\n * @summary A label over one control, with a description or an error under it.\n * @slot - The control: <spyglass-input>, <spyglass-textarea>, <spyglass-native-select>, or any input.\n */\nexport class Field extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { label: {}, description: {}, error: {} }\n\n\t/** The label over the control. */\n\tlabel = ''\n\t/** A line under the control: what to type, or what happens next. */\n\tdescription?: string\n\t/** What is wrong, in the description's place (the control turns red). */\n\terror?: string\n\n\tprivate control() {\n\t\treturn [...this.children].find((c) => !c.hasAttribute('slot')) as (HTMLElement & { invalid?: boolean }) | undefined\n\t}\n\tprotected updated() {\n\t\tconst c = this.control()\n\t\tif (!c) return\n\t\tc.setAttribute('aria-label', this.label)\n\t\tconst text = this.error || this.description\n\t\tif (text) c.setAttribute('aria-description', text)\n\t\telse c.removeAttribute('aria-description')\n\t\tif ('invalid' in c) c.invalid = !!this.error\n\t}\n\n\trender() {\n\t\tconst text = this.error || this.description\n\t\treturn html`<label class=\"type-label text-fg-soft\" @click=${() => this.control()?.focus()}>${this.label}</label>\n\t\t\t<slot @slotchange=${() => this.updated()}></slot>\n\t\t\t${text ? html`<p class=${`type-caption ${this.error ? 'text-fg-danger' : 'text-fg-muted'}`} role=${ifDefined(this.error ? 'alert' : undefined)}>${text}</p>` : nothing}`\n\t}\n}\n\ndefine('field', Field)\n"
+        },
+        {
+          "path": "elements/components/ui/field.css",
+          "content": "/* The host is the field's box (Field.tsx's root div), so a class on <spyglass-field> (a width, a margin) lands on it as\n   a class on <Field> does. */\n:host { @apply flex flex-col gap-2; }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/field.js",
+        "elements/input.js"
+      ],
+      "tag": "spyglass-field",
+      "tags": [
+        "spyglass-field"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-field",
+            "name": "Field",
+            "module": "elements/field.js",
+            "description": "A label over one control, with a description or an error under it.",
+            "attributes": [
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The label over the control."
+              },
+              {
+                "name": "description",
+                "field": "description",
+                "type": "string | undefined",
+                "description": "A line under the control: what to type, or what happens next."
+              },
+              {
+                "name": "error",
+                "field": "error",
+                "type": "string | undefined",
+                "description": "What is wrong, in the description's place (the control turns red)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The label over the control.",
+                "attribute": "label"
+              },
+              {
+                "name": "description",
+                "type": "string | undefined",
+                "description": "A line under the control: what to type, or what happens next.",
+                "attribute": "description"
+              },
+              {
+                "name": "error",
+                "type": "string | undefined",
+                "description": "What is wrong, in the description's place (the control turns red).",
+                "attribute": "error"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The control: <spyglass-input>, <spyglass-textarea>, <spyglass-native-select>, or any input."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Fields",
+          "label": "Help and errors",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/field/Fields.html",
+          "content": "<!-- A field with a line of help under it, and one that says what is wrong. -->\n<div class=\"flex w-80 max-w-full flex-col gap-6\">\n  <spyglass-field label=\"Brand or creator\" description=\"Add any brand or creator in under a minute.\">\n    <spyglass-input name=\"brand\" placeholder=\"Acme\"></spyglass-input>\n  </spyglass-field>\n  <spyglass-field label=\"Work email\" error=\"Use your work email, such as you@acme.com.\">\n    <spyglass-input name=\"email\" type=\"email\" value=\"acme\"></spyglass-input>\n  </spyglass-field>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

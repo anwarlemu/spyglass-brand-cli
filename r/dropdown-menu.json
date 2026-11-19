@@ -1,0 +1,612 @@
+{
+  "name": "dropdown-menu",
+  "title": "Dropdown menu",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A button that opens a short list of actions or choices on the #171717 overlay surface: a neutral hairline, the brand corner, rows that take a #262626 fill under the pointer. Arrows, Home, End, Escape and Tab are handled.",
+  "use_for": "A creative's actions, a sort order, account actions: a handful of choices that don't need to stay on screen. Radio rows for one choice from a few.",
+  "never": [
+    "Writing your own outside-click or arrow handling",
+    "A shadow under the panel: the hairline and the #171717 fill set it apart",
+    "A spectrum color for a row or its marker",
+    "Two or three views of one thing (use tabs)"
+  ],
+  "source": "Derived from the guidelines: the #171717 card fill on Black, neutral hairlines, the 10px canvas corner (8px here), DM Sans 14px rows and capital labels at 6%. shadcn's dropdown menu for anatomy and keys.",
+  "body": "`MenuItem`, `MenuLabel` and `MenuSeparator` are the rows of every menu here (the context menu uses them too); they are\nalso exported under shadcn's names (`DropdownMenuItem`, `DropdownMenuLabel`, `DropdownMenuSeparator`).",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/DropdownMenu.tsx",
+      "content": "'use client'\nimport { createContext, useEffect, useId, useImperativeHandle, useRef, type ReactNode, type Ref } from 'react'\nimport { useMenu } from '@/react/hooks/useMenu'\nimport { cn } from '@/react/lib/cn'\n\n// shadcn's dropdown menu in the brand: a button that opens a short list of actions or choices on the #171717 overlay\n// surface, a neutral hairline, the 8px corner, no shadow, 4px inside; rows are MenuItem (shadcn's DropdownMenuItem),\n// with MenuLabel and MenuSeparator between groups. It comes in over 200ms (a 4px drop and a touch of scale from its\n// trigger's edge, ease-out), leaves at once, and does not animate when opened from the keyboard, which is how menus\n// are opened most. Arrows, Home, End, Escape, Tab and a click outside are handled (useMenu). The trigger's content is\n// `trigger` (a node, or a function of `open`), drawn as a small secondary button unless `triggerClass` says\n// otherwise. `defaultOpen` opens it with the page; `ref` gets { open, show, close }; `onOpenChange` hears it.\nexport const MenuClose = createContext<() => void>(() => {})\n\nexport interface DropdownMenuHandle { open: boolean, show: (focus?: 'first' | 'last' | 'none') => void, close: (refocus?: boolean) => void }\nexport interface DropdownMenuProps {\n  /** The menu's name for assistive tech. */\n  label: string\n  /** Opens upward. */\n  up?: boolean\n  /** The panel's edge: start, or end to line up with the trigger's end. */\n  align?: 'start' | 'end'\n  /** The panel's width. */\n  width?: string\n  /** Moves the panel in from its edge. */\n  offset?: string\n  /** Classes for the trigger button, in place of the small secondary button. */\n  triggerClass?: string\n  /** The trigger's name, when its content has none (an icon). */\n  triggerLabel?: string\n  /** The trigger's content, or a function of whether it is open. */\n  trigger?: ReactNode | ((open: boolean) => ReactNode)\n  /** Opens with the page. */\n  defaultOpen?: boolean\n  onOpenChange?: (open: boolean) => void\n  className?: string\n  children?: ReactNode\n  ref?: Ref<DropdownMenuHandle>\n}\n\nexport const MENU_TRIGGER = 'inline-flex h-control-sm cursor-pointer items-center gap-1.5 rounded-control bg-action-secondary px-3 type-ui-strong text-action-secondary-fg transition-[background-color] duration-150 ease-standard hover:bg-action-secondary-hover aria-expanded:bg-action-secondary-hover max-md:h-control-touch'\n\nexport function DropdownMenu({ label, up, align = 'start', width = '240px', offset = '0px', triggerClass, triggerLabel, trigger: triggerContent, defaultOpen, onOpenChange, className, children, ref }: DropdownMenuProps) {\n  const { open, root, trigger, show, close, toggle, onTriggerKey, onMenuKey } = useMenu(defaultOpen)\n  const report = useRef(onOpenChange)\n  report.current = onOpenChange\n  const was = useRef(open)\n  useEffect(() => {\n    if (was.current === open) return\n    was.current = open\n    report.current?.(open)\n  }, [open])\n  useImperativeHandle(ref, () => ({ open, show, close }), [open, show, close])\n  const id = `menu-${useId()}`\n  return (\n    <MenuClose.Provider value={() => close(true)}>\n      <style href=\"ds-dropdown-menu\" precedence=\"ds\">{css}</style>\n      <div data-ds=\"dropdown-menu\" ref={root} className={cn('relative inline-block', className)}>\n        <button\n          ref={trigger}\n          type=\"button\"\n          className={triggerClass ?? MENU_TRIGGER}\n          aria-haspopup=\"menu\"\n          aria-expanded={open}\n          aria-controls={id}\n          aria-label={triggerLabel}\n          onClick={toggle}\n          onKeyDown={onTriggerKey}\n        >\n          {typeof triggerContent === 'function' ? triggerContent(open) : triggerContent}\n        </button>\n        {open && (\n          <div\n            id={id}\n            className=\"ds-menu\"\n            data-up={up || undefined}\n            data-align={align}\n            style={{ width, [align === 'end' ? 'right' : 'left']: offset, [up ? 'bottom' : 'top']: 'calc(100% + 4px)' }}\n            role=\"menu\"\n            aria-label={label}\n            onKeyDown={onMenuKey}\n          >\n            {children}\n          </div>\n        )}\n      </div>\n    </MenuClose.Provider>\n  )\n}\n\nexport default DropdownMenu\n\nconst css = `\n.ds-menu { position: absolute; z-index: 40; display: flex; max-width: calc(100vw - 16px); flex-direction: column; padding: var(--ds-space-xs); border: var(--ds-border-hairline) solid var(--ds-color-edge); border-radius: var(--ds-radius-container); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); transform-origin: top left; animation: ds-menu-in var(--ds-duration-enter) var(--ds-easing-out) both; scroll-margin: 8px; }\n.ds-menu[data-align=\"end\"] { transform-origin: top right; }\n.ds-menu[data-up] { transform-origin: bottom left; animation-name: ds-menu-up; }\n.ds-menu[data-up][data-align=\"end\"] { transform-origin: bottom right; }\n/* Opened from the keyboard, focus lands on a row at once: no animation. */\n.ds-menu:has(:focus-visible) { animation: none; }\n.ds-menu > * { flex-shrink: 0; }\n@keyframes ds-menu-in { from { opacity: 0; transform: translateY(-4px) scale(0.98); } }\n@keyframes ds-menu-up { from { opacity: 0; transform: translateY(4px) scale(0.98); } }\n@media (prefers-reduced-motion: reduce) { .ds-menu, .ds-menu[data-up] { animation-name: ds-menu-fade; } }\n@keyframes ds-menu-fade { from { opacity: 0; } }\n`\n"
+    },
+    {
+      "path": "react/components/ui/MenuItem.tsx",
+      "content": "'use client'\nimport { useContext, type ReactNode } from 'react'\nimport { MenuClose } from '@/react/components/ui/DropdownMenu'\n\n// One row of a dropdown or context menu: 32px (44px on phones), DM Sans 14px, a 4px corner inside the panel's 8px. The\n// row under the pointer or focus takes a #262626 fill (150ms, hover only where a pointer hovers). `current` sets it in\n// Medium; `danger` is the red for leaving or deleting. Put a 16px Lucide icon first (muted), a shortcut or a check\n// last. Choosing it calls `onSelect` and closes the menu, unless `keepOpen`. `role` and `aria-checked` make it a radio\n// or checkbox row (role=\"menuitemradio\" aria-checked={picked}).\nexport interface MenuItemProps {\n  /** Renders a link. */\n  href?: string\n  /** The current choice, in Medium. */\n  current?: boolean\n  /** The red for leaving or deleting. */\n  danger?: boolean\n  disabled?: boolean\n  /** Choosing it leaves the menu open. */\n  keepOpen?: boolean\n  onSelect?: () => void\n  role?: 'menuitem' | 'menuitemradio' | 'menuitemcheckbox'\n  'aria-checked'?: boolean\n  className?: string\n  children?: ReactNode\n}\n\nexport const MENU_ITEM = 'flex h-control-sm w-full shrink-0 cursor-pointer items-center gap-2 rounded-ds-sm px-2 text-left type-ui text-fg outline-none transition-[background-color] duration-150 ease-standard hover:bg-ds-neutral-4 focus-visible:bg-ds-neutral-4 aria-[current=true]:font-medium disabled:cursor-not-allowed disabled:text-fg-faint disabled:hover:bg-transparent data-danger:text-fg-danger data-danger:hover:bg-surface-danger data-danger:focus-visible:bg-surface-danger max-md:h-auto max-md:min-h-control-touch'\n\nexport function MenuItem({ href, current, danger, disabled, keepOpen, onSelect, role = 'menuitem', 'aria-checked': checked, className, children }: MenuItemProps) {\n  const close = useContext(MenuClose)\n  function choose() {\n    onSelect?.()\n    if (!keepOpen) close()\n  }\n  const shared = { role, 'aria-checked': checked, className: className ? `${MENU_ITEM} ${className}` : MENU_ITEM, 'aria-current': current ? 'true' as const : undefined, 'data-danger': danger || undefined, onClick: choose }\n  return href ? <a data-ds=\"menu-item\" href={href} {...shared}>{children}</a> : <button data-ds=\"menu-item\" type=\"button\" disabled={disabled} {...shared}>{children}</button>\n}\n\n/** shadcn's name for it. */\nexport { MenuItem as DropdownMenuItem }\n\nexport default MenuItem\n"
+    },
+    {
+      "path": "react/components/ui/MenuLabel.tsx",
+      "content": "import type { ReactNode } from 'react'\n\n// A group's name in a dropdown or context menu: a DM Sans Medium label in capitals with 6% tracking, muted.\nexport function MenuLabel({ children }: { children?: ReactNode }) {\n  return <p data-ds=\"menu-label\" className=\"flex items-center justify-between gap-2 px-2 pt-2 pb-1 type-label text-fg-muted\">{children}</p>\n}\n\n/** shadcn's name for it. */\nexport { MenuLabel as DropdownMenuLabel }\n\nexport default MenuLabel\n"
+    },
+    {
+      "path": "react/components/ui/MenuSeparator.tsx",
+      "content": "// A neutral hairline between a menu's groups, edge to edge.\nexport function MenuSeparator() {\n  return <div data-ds=\"menu-separator\" className=\"-mx-1 my-1 h-px bg-edge\" role=\"separator\" />\n}\n\n/** shadcn's name for it. */\nexport { MenuSeparator as DropdownMenuSeparator }\n\nexport default MenuSeparator\n"
+    },
+    {
+      "path": "react/hooks/useMenu.ts",
+      "content": "'use client'\nimport { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'\n\n/**\n * A menu button's behavior: it opens on click, arrows move between items (opening the menu on their end of it from the\n * button), Home and End jump, Escape closes and returns focus to the button, Tab and a click outside close it.\n */\nexport function useMenu(initial = false) {\n  const [open, setOpen] = useState(initial)\n  const root = useRef<HTMLDivElement | null>(null)\n  const trigger = useRef<HTMLButtonElement | null>(null)\n  const pending = useRef<'first' | 'last' | 'none' | null>(null)\n  // Each show() renders, so an arrow on the open menu's button still focuses a row (Vue's nextTick runs either way).\n  const [, setShown] = useState(0)\n\n  const items = () => [...(root.current?.querySelectorAll<HTMLElement>('[role^=\"menuitem\"]:not([disabled])') ?? [])]\n\n  // After the menu renders: scroll it into view and focus the row asked for (Vue's nextTick).\n  useEffect(() => {\n    if (!open || !pending.current) return\n    const focus = pending.current\n    pending.current = null\n    // Opened at the fold it would land out of sight, and the button would seem to do nothing.\n    items()[0]?.closest('[role=\"menu\"]')?.scrollIntoView({ block: 'nearest' })\n    if (focus === 'none') return\n    const list = items()\n    ;(focus === 'last' ? list.at(-1) : list[0])?.focus()\n  })\n\n  const show = useCallback((focus: 'first' | 'last' | 'none' = 'first') => {\n    pending.current = focus\n    setOpen(true)\n    setShown(n => n + 1)\n  }, [])\n  const close = useCallback((refocus = false) => {\n    setOpen(false)\n    if (refocus) trigger.current?.focus()\n  }, [])\n  function toggle() {\n    if (open) close()\n    else show('none')\n  }\n  function onTriggerKey(event: KeyboardEvent) {\n    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {\n      event.preventDefault()\n      show(event.key === 'ArrowDown' ? 'first' : 'last')\n    }\n    else if (event.key === 'Escape' && open) {\n      event.preventDefault()\n      close(true)\n    }\n  }\n  function onMenuKey(event: KeyboardEvent) {\n    const list = items()\n    const at = list.indexOf(document.activeElement as HTMLElement)\n    if (event.key === 'Escape') {\n      event.preventDefault()\n      close(true)\n    }\n    else if (event.key === 'Tab') {\n      close()\n    }\n    else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {\n      event.preventDefault()\n      const step = event.key === 'ArrowDown' ? 1 : -1\n      list[(at + step + list.length) % list.length]?.focus()\n    }\n    else if (event.key === 'Home' || event.key === 'End') {\n      event.preventDefault()\n      ;(event.key === 'Home' ? list[0] : list.at(-1))?.focus()\n    }\n  }\n  useEffect(() => {\n    function outside(event: PointerEvent) {\n      if (root.current && !root.current.contains(event.target as Node)) setOpen(false)\n    }\n    document.addEventListener('pointerdown', outside)\n    return () => document.removeEventListener('pointerdown', outside)\n  }, [])\n\n  return { open, root, trigger, show, close, toggle, onTriggerKey, onMenuKey }\n}\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Actions",
+      "label": "A creative's actions",
+      "center": true,
+      "half": false,
+      "path": "react/examples/dropdown-menu/Actions.tsx",
+      "content": "import { Bookmark, Download, Ellipsis, Flag, Link } from 'lucide-react'\nimport { DropdownMenu } from '@/react/components/ui/DropdownMenu'\nimport { MenuItem } from '@/react/components/ui/MenuItem'\nimport { MenuLabel } from '@/react/components/ui/MenuLabel'\nimport { MenuSeparator } from '@/react/components/ui/MenuSeparator'\n// A creative's actions, open with the page: save, copy, download, then report on its own.\n\nexport default function Actions() {\n  return (\n    <div className=\"flex h-72 w-full items-start justify-center pt-2\">\n      <DropdownMenu label=\"Creative actions\" defaultOpen trigger={<><Ellipsis size={16} strokeWidth={1.5} aria-hidden=\"true\" />Actions</>}>\n        <MenuLabel>Acme summer UGC</MenuLabel>\n        <MenuItem><Bookmark size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Save to board</MenuItem>\n        <MenuItem><Link size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Copy link</MenuItem>\n        <MenuItem><Download size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Download</MenuItem>\n        <MenuSeparator />\n        <MenuItem danger><Flag size={16} strokeWidth={1.5} className=\"shrink-0\" aria-hidden=\"true\" />Report</MenuItem>\n      </DropdownMenu>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": [
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "Sort",
+      "label": "Radio rows",
+      "center": true,
+      "half": false,
+      "path": "react/examples/dropdown-menu/Sort.tsx",
+      "content": "'use client'\nimport { useState } from 'react'\nimport { Check, ChevronDown } from 'lucide-react'\nimport { DropdownMenu } from '@/react/components/ui/DropdownMenu'\nimport { MenuItem } from '@/react/components/ui/MenuItem'\n// One choice from a few: radio rows, the current one checked. The trigger says what is picked.\nconst orders = ['Newest', 'Longest running', 'Most engagement']\n\nexport default function Sort() {\n  const [order, setOrder] = useState('Newest')\n  return (\n    <div className=\"flex h-56 w-full items-start justify-center pt-2\">\n      <DropdownMenu label=\"Sort creatives\" width=\"200px\" trigger={<><span>Sort: {order}</span><ChevronDown size={16} strokeWidth={1.5} aria-hidden=\"true\" /></>}>\n        {orders.map((o) => (\n          <MenuItem key={o} role=\"menuitemradio\" aria-checked={o === order} onSelect={() => setOrder(o)}>\n            <span className=\"min-w-0 flex-1 truncate\">{o}</span>\n            {o === order && <Check size={16} strokeWidth={1.5} className=\"shrink-0\" aria-hidden=\"true\" />}\n          </MenuItem>\n        ))}\n      </DropdownMenu>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/DropdownMenu.tsx",
+          "content": "'use client'\nimport { createContext, useEffect, useId, useImperativeHandle, useRef, type ReactNode, type Ref } from 'react'\nimport { useMenu } from '@/react/hooks/useMenu'\nimport { cn } from '@/react/lib/cn'\n\n// shadcn's dropdown menu in the brand: a button that opens a short list of actions or choices on the #171717 overlay\n// surface, a neutral hairline, the 8px corner, no shadow, 4px inside; rows are MenuItem (shadcn's DropdownMenuItem),\n// with MenuLabel and MenuSeparator between groups. It comes in over 200ms (a 4px drop and a touch of scale from its\n// trigger's edge, ease-out), leaves at once, and does not animate when opened from the keyboard, which is how menus\n// are opened most. Arrows, Home, End, Escape, Tab and a click outside are handled (useMenu). The trigger's content is\n// `trigger` (a node, or a function of `open`), drawn as a small secondary button unless `triggerClass` says\n// otherwise. `defaultOpen` opens it with the page; `ref` gets { open, show, close }; `onOpenChange` hears it.\nexport const MenuClose = createContext<() => void>(() => {})\n\nexport interface DropdownMenuHandle { open: boolean, show: (focus?: 'first' | 'last' | 'none') => void, close: (refocus?: boolean) => void }\nexport interface DropdownMenuProps {\n  /** The menu's name for assistive tech. */\n  label: string\n  /** Opens upward. */\n  up?: boolean\n  /** The panel's edge: start, or end to line up with the trigger's end. */\n  align?: 'start' | 'end'\n  /** The panel's width. */\n  width?: string\n  /** Moves the panel in from its edge. */\n  offset?: string\n  /** Classes for the trigger button, in place of the small secondary button. */\n  triggerClass?: string\n  /** The trigger's name, when its content has none (an icon). */\n  triggerLabel?: string\n  /** The trigger's content, or a function of whether it is open. */\n  trigger?: ReactNode | ((open: boolean) => ReactNode)\n  /** Opens with the page. */\n  defaultOpen?: boolean\n  onOpenChange?: (open: boolean) => void\n  className?: string\n  children?: ReactNode\n  ref?: Ref<DropdownMenuHandle>\n}\n\nexport const MENU_TRIGGER = 'inline-flex h-control-sm cursor-pointer items-center gap-1.5 rounded-control bg-action-secondary px-3 type-ui-strong text-action-secondary-fg transition-[background-color] duration-150 ease-standard hover:bg-action-secondary-hover aria-expanded:bg-action-secondary-hover max-md:h-control-touch'\n\nexport function DropdownMenu({ label, up, align = 'start', width = '240px', offset = '0px', triggerClass, triggerLabel, trigger: triggerContent, defaultOpen, onOpenChange, className, children, ref }: DropdownMenuProps) {\n  const { open, root, trigger, show, close, toggle, onTriggerKey, onMenuKey } = useMenu(defaultOpen)\n  const report = useRef(onOpenChange)\n  report.current = onOpenChange\n  const was = useRef(open)\n  useEffect(() => {\n    if (was.current === open) return\n    was.current = open\n    report.current?.(open)\n  }, [open])\n  useImperativeHandle(ref, () => ({ open, show, close }), [open, show, close])\n  const id = `menu-${useId()}`\n  return (\n    <MenuClose.Provider value={() => close(true)}>\n      <style href=\"ds-dropdown-menu\" precedence=\"ds\">{css}</style>\n      <div data-ds=\"dropdown-menu\" ref={root} className={cn('relative inline-block', className)}>\n        <button\n          ref={trigger}\n          type=\"button\"\n          className={triggerClass ?? MENU_TRIGGER}\n          aria-haspopup=\"menu\"\n          aria-expanded={open}\n          aria-controls={id}\n          aria-label={triggerLabel}\n          onClick={toggle}\n          onKeyDown={onTriggerKey}\n        >\n          {typeof triggerContent === 'function' ? triggerContent(open) : triggerContent}\n        </button>\n        {open && (\n          <div\n            id={id}\n            className=\"ds-menu\"\n            data-up={up || undefined}\n            data-align={align}\n            style={{ width, [align === 'end' ? 'right' : 'left']: offset, [up ? 'bottom' : 'top']: 'calc(100% + 4px)' }}\n            role=\"menu\"\n            aria-label={label}\n            onKeyDown={onMenuKey}\n          >\n            {children}\n          </div>\n        )}\n      </div>\n    </MenuClose.Provider>\n  )\n}\n\nexport default DropdownMenu\n\nconst css = `\n.ds-menu { position: absolute; z-index: 40; display: flex; max-width: calc(100vw - 16px); flex-direction: column; padding: var(--ds-space-xs); border: var(--ds-border-hairline) solid var(--ds-color-edge); border-radius: var(--ds-radius-container); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); transform-origin: top left; animation: ds-menu-in var(--ds-duration-enter) var(--ds-easing-out) both; scroll-margin: 8px; }\n.ds-menu[data-align=\"end\"] { transform-origin: top right; }\n.ds-menu[data-up] { transform-origin: bottom left; animation-name: ds-menu-up; }\n.ds-menu[data-up][data-align=\"end\"] { transform-origin: bottom right; }\n/* Opened from the keyboard, focus lands on a row at once: no animation. */\n.ds-menu:has(:focus-visible) { animation: none; }\n.ds-menu > * { flex-shrink: 0; }\n@keyframes ds-menu-in { from { opacity: 0; transform: translateY(-4px) scale(0.98); } }\n@keyframes ds-menu-up { from { opacity: 0; transform: translateY(4px) scale(0.98); } }\n@media (prefers-reduced-motion: reduce) { .ds-menu, .ds-menu[data-up] { animation-name: ds-menu-fade; } }\n@keyframes ds-menu-fade { from { opacity: 0; } }\n`\n"
+        },
+        {
+          "path": "react/components/ui/MenuItem.tsx",
+          "content": "'use client'\nimport { useContext, type ReactNode } from 'react'\nimport { MenuClose } from '@/react/components/ui/DropdownMenu'\n\n// One row of a dropdown or context menu: 32px (44px on phones), DM Sans 14px, a 4px corner inside the panel's 8px. The\n// row under the pointer or focus takes a #262626 fill (150ms, hover only where a pointer hovers). `current` sets it in\n// Medium; `danger` is the red for leaving or deleting. Put a 16px Lucide icon first (muted), a shortcut or a check\n// last. Choosing it calls `onSelect` and closes the menu, unless `keepOpen`. `role` and `aria-checked` make it a radio\n// or checkbox row (role=\"menuitemradio\" aria-checked={picked}).\nexport interface MenuItemProps {\n  /** Renders a link. */\n  href?: string\n  /** The current choice, in Medium. */\n  current?: boolean\n  /** The red for leaving or deleting. */\n  danger?: boolean\n  disabled?: boolean\n  /** Choosing it leaves the menu open. */\n  keepOpen?: boolean\n  onSelect?: () => void\n  role?: 'menuitem' | 'menuitemradio' | 'menuitemcheckbox'\n  'aria-checked'?: boolean\n  className?: string\n  children?: ReactNode\n}\n\nexport const MENU_ITEM = 'flex h-control-sm w-full shrink-0 cursor-pointer items-center gap-2 rounded-ds-sm px-2 text-left type-ui text-fg outline-none transition-[background-color] duration-150 ease-standard hover:bg-ds-neutral-4 focus-visible:bg-ds-neutral-4 aria-[current=true]:font-medium disabled:cursor-not-allowed disabled:text-fg-faint disabled:hover:bg-transparent data-danger:text-fg-danger data-danger:hover:bg-surface-danger data-danger:focus-visible:bg-surface-danger max-md:h-auto max-md:min-h-control-touch'\n\nexport function MenuItem({ href, current, danger, disabled, keepOpen, onSelect, role = 'menuitem', 'aria-checked': checked, className, children }: MenuItemProps) {\n  const close = useContext(MenuClose)\n  function choose() {\n    onSelect?.()\n    if (!keepOpen) close()\n  }\n  const shared = { role, 'aria-checked': checked, className: className ? `${MENU_ITEM} ${className}` : MENU_ITEM, 'aria-current': current ? 'true' as const : undefined, 'data-danger': danger || undefined, onClick: choose }\n  return href ? <a data-ds=\"menu-item\" href={href} {...shared}>{children}</a> : <button data-ds=\"menu-item\" type=\"button\" disabled={disabled} {...shared}>{children}</button>\n}\n\n/** shadcn's name for it. */\nexport { MenuItem as DropdownMenuItem }\n\nexport default MenuItem\n"
+        },
+        {
+          "path": "react/components/ui/MenuLabel.tsx",
+          "content": "import type { ReactNode } from 'react'\n\n// A group's name in a dropdown or context menu: a DM Sans Medium label in capitals with 6% tracking, muted.\nexport function MenuLabel({ children }: { children?: ReactNode }) {\n  return <p data-ds=\"menu-label\" className=\"flex items-center justify-between gap-2 px-2 pt-2 pb-1 type-label text-fg-muted\">{children}</p>\n}\n\n/** shadcn's name for it. */\nexport { MenuLabel as DropdownMenuLabel }\n\nexport default MenuLabel\n"
+        },
+        {
+          "path": "react/components/ui/MenuSeparator.tsx",
+          "content": "// A neutral hairline between a menu's groups, edge to edge.\nexport function MenuSeparator() {\n  return <div data-ds=\"menu-separator\" className=\"-mx-1 my-1 h-px bg-edge\" role=\"separator\" />\n}\n\n/** shadcn's name for it. */\nexport { MenuSeparator as DropdownMenuSeparator }\n\nexport default MenuSeparator\n"
+        },
+        {
+          "path": "react/hooks/useMenu.ts",
+          "content": "'use client'\nimport { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'\n\n/**\n * A menu button's behavior: it opens on click, arrows move between items (opening the menu on their end of it from the\n * button), Home and End jump, Escape closes and returns focus to the button, Tab and a click outside close it.\n */\nexport function useMenu(initial = false) {\n  const [open, setOpen] = useState(initial)\n  const root = useRef<HTMLDivElement | null>(null)\n  const trigger = useRef<HTMLButtonElement | null>(null)\n  const pending = useRef<'first' | 'last' | 'none' | null>(null)\n  // Each show() renders, so an arrow on the open menu's button still focuses a row (Vue's nextTick runs either way).\n  const [, setShown] = useState(0)\n\n  const items = () => [...(root.current?.querySelectorAll<HTMLElement>('[role^=\"menuitem\"]:not([disabled])') ?? [])]\n\n  // After the menu renders: scroll it into view and focus the row asked for (Vue's nextTick).\n  useEffect(() => {\n    if (!open || !pending.current) return\n    const focus = pending.current\n    pending.current = null\n    // Opened at the fold it would land out of sight, and the button would seem to do nothing.\n    items()[0]?.closest('[role=\"menu\"]')?.scrollIntoView({ block: 'nearest' })\n    if (focus === 'none') return\n    const list = items()\n    ;(focus === 'last' ? list.at(-1) : list[0])?.focus()\n  })\n\n  const show = useCallback((focus: 'first' | 'last' | 'none' = 'first') => {\n    pending.current = focus\n    setOpen(true)\n    setShown(n => n + 1)\n  }, [])\n  const close = useCallback((refocus = false) => {\n    setOpen(false)\n    if (refocus) trigger.current?.focus()\n  }, [])\n  function toggle() {\n    if (open) close()\n    else show('none')\n  }\n  function onTriggerKey(event: KeyboardEvent) {\n    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {\n      event.preventDefault()\n      show(event.key === 'ArrowDown' ? 'first' : 'last')\n    }\n    else if (event.key === 'Escape' && open) {\n      event.preventDefault()\n      close(true)\n    }\n  }\n  function onMenuKey(event: KeyboardEvent) {\n    const list = items()\n    const at = list.indexOf(document.activeElement as HTMLElement)\n    if (event.key === 'Escape') {\n      event.preventDefault()\n      close(true)\n    }\n    else if (event.key === 'Tab') {\n      close()\n    }\n    else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {\n      event.preventDefault()\n      const step = event.key === 'ArrowDown' ? 1 : -1\n      list[(at + step + list.length) % list.length]?.focus()\n    }\n    else if (event.key === 'Home' || event.key === 'End') {\n      event.preventDefault()\n      ;(event.key === 'Home' ? list[0] : list.at(-1))?.focus()\n    }\n  }\n  useEffect(() => {\n    function outside(event: PointerEvent) {\n      if (root.current && !root.current.contains(event.target as Node)) setOpen(false)\n    }\n    document.addEventListener('pointerdown', outside)\n    return () => document.removeEventListener('pointerdown', outside)\n  }, [])\n\n  return { open, root, trigger, show, close, toggle, onTriggerKey, onMenuKey }\n}\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "DropdownMenu",
+            "file": "react/components/ui/DropdownMenu.tsx",
+            "props": [
+              {
+                "name": "label",
+                "type": "string",
+                "required": true,
+                "description": "The menu's name for assistive tech."
+              },
+              {
+                "name": "up",
+                "type": "boolean",
+                "required": false,
+                "description": "Opens upward."
+              },
+              {
+                "name": "align",
+                "type": "'start' | 'end'",
+                "required": false,
+                "default": "'start'",
+                "description": "The panel's edge: start, or end to line up with the trigger's end."
+              },
+              {
+                "name": "width",
+                "type": "string",
+                "required": false,
+                "default": "'240px'",
+                "description": "The panel's width."
+              },
+              {
+                "name": "offset",
+                "type": "string",
+                "required": false,
+                "default": "'0px'",
+                "description": "Moves the panel in from its edge."
+              },
+              {
+                "name": "triggerClass",
+                "type": "string",
+                "required": false,
+                "description": "Classes for the trigger button, in place of the small secondary button."
+              },
+              {
+                "name": "triggerLabel",
+                "type": "string",
+                "required": false,
+                "description": "The trigger's name, when its content has none (an icon)."
+              },
+              {
+                "name": "trigger",
+                "type": "ReactNode | ((open: boolean) => ReactNode)",
+                "required": false,
+                "description": "The trigger's content, or a function of whether it is open."
+              },
+              {
+                "name": "defaultOpen",
+                "type": "boolean",
+                "required": false,
+                "description": "Opens with the page."
+              },
+              {
+                "name": "onOpenChange",
+                "type": "(open: boolean) => void",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              }
+            ]
+          },
+          {
+            "name": "MenuItem",
+            "file": "react/components/ui/MenuItem.tsx",
+            "props": [
+              {
+                "name": "href",
+                "type": "string",
+                "required": false,
+                "description": "Renders a link."
+              },
+              {
+                "name": "current",
+                "type": "boolean",
+                "required": false,
+                "description": "The current choice, in Medium."
+              },
+              {
+                "name": "danger",
+                "type": "boolean",
+                "required": false,
+                "description": "The red for leaving or deleting."
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "required": false
+              },
+              {
+                "name": "keepOpen",
+                "type": "boolean",
+                "required": false,
+                "description": "Choosing it leaves the menu open."
+              },
+              {
+                "name": "onSelect",
+                "type": "() => void",
+                "required": false
+              },
+              {
+                "name": "role",
+                "type": "'menuitem' | 'menuitemradio' | 'menuitemcheckbox'",
+                "required": false,
+                "default": "'menuitem'"
+              },
+              {
+                "name": "aria-checked",
+                "type": "boolean",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              }
+            ]
+          },
+          {
+            "name": "MenuLabel",
+            "file": "react/components/ui/MenuLabel.tsx",
+            "props": [
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              }
+            ]
+          },
+          {
+            "name": "MenuSeparator",
+            "file": "react/components/ui/MenuSeparator.tsx",
+            "props": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Actions",
+          "label": "A creative's actions",
+          "center": true,
+          "half": false,
+          "path": "react/examples/dropdown-menu/Actions.tsx",
+          "content": "import { Bookmark, Download, Ellipsis, Flag, Link } from 'lucide-react'\nimport { DropdownMenu } from '@/react/components/ui/DropdownMenu'\nimport { MenuItem } from '@/react/components/ui/MenuItem'\nimport { MenuLabel } from '@/react/components/ui/MenuLabel'\nimport { MenuSeparator } from '@/react/components/ui/MenuSeparator'\n// A creative's actions, open with the page: save, copy, download, then report on its own.\n\nexport default function Actions() {\n  return (\n    <div className=\"flex h-72 w-full items-start justify-center pt-2\">\n      <DropdownMenu label=\"Creative actions\" defaultOpen trigger={<><Ellipsis size={16} strokeWidth={1.5} aria-hidden=\"true\" />Actions</>}>\n        <MenuLabel>Acme summer UGC</MenuLabel>\n        <MenuItem><Bookmark size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Save to board</MenuItem>\n        <MenuItem><Link size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Copy link</MenuItem>\n        <MenuItem><Download size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Download</MenuItem>\n        <MenuSeparator />\n        <MenuItem danger><Flag size={16} strokeWidth={1.5} className=\"shrink-0\" aria-hidden=\"true\" />Report</MenuItem>\n      </DropdownMenu>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        },
+        {
+          "name": "Sort",
+          "label": "Radio rows",
+          "center": true,
+          "half": false,
+          "path": "react/examples/dropdown-menu/Sort.tsx",
+          "content": "'use client'\nimport { useState } from 'react'\nimport { Check, ChevronDown } from 'lucide-react'\nimport { DropdownMenu } from '@/react/components/ui/DropdownMenu'\nimport { MenuItem } from '@/react/components/ui/MenuItem'\n// One choice from a few: radio rows, the current one checked. The trigger says what is picked.\nconst orders = ['Newest', 'Longest running', 'Most engagement']\n\nexport default function Sort() {\n  const [order, setOrder] = useState('Newest')\n  return (\n    <div className=\"flex h-56 w-full items-start justify-center pt-2\">\n      <DropdownMenu label=\"Sort creatives\" width=\"200px\" trigger={<><span>Sort: {order}</span><ChevronDown size={16} strokeWidth={1.5} aria-hidden=\"true\" /></>}>\n        {orders.map((o) => (\n          <MenuItem key={o} role=\"menuitemradio\" aria-checked={o === order} onSelect={() => setOrder(o)}>\n            <span className=\"min-w-0 flex-1 truncate\">{o}</span>\n            {o === order && <Check size={16} strokeWidth={1.5} className=\"shrink-0\" aria-hidden=\"true\" />}\n          </MenuItem>\n        ))}\n      </DropdownMenu>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/dropdown-menu.ts",
+          "content": "import { html, nothing, type PropertyValues } from 'lit'\nimport { styleMap } from 'lit/directives/style-map.js'\nimport { DsElement, define, uid } from '@/elements/lib/element'\nimport { CloseOnSelect, menuRows } from '@/elements/lib/menu'\nimport styles from 'virtual:tw'\n\n// DropdownMenu.tsx as <spyglass-dropdown-menu>: a button that opens a short list of actions or choices on the #171717\n// overlay surface, a neutral hairline, the 8px corner, no shadow, 4px inside; rows are <spyglass-menu-item>, with\n// <spyglass-menu-label> and <spyglass-menu-separator> between groups. It comes in over 200ms (a 4px drop and a touch\n// of scale from the trigger's edge), leaves at once, and does not animate when opened from the keyboard. Arrows, Home,\n// End, Escape, Tab and a click outside are handled. The trigger: a <button slot=\"trigger\"> you style yourself (React's\n// triggerClass), or any other content in the `trigger` slot, drawn as a small secondary button. `open` opens it;\n// show() and close() are React's handle.\n\n/**\n * @summary A button that opens a short list of choices or actions.\n * @slot - The rows: <spyglass-menu-item>, <spyglass-menu-label>, <spyglass-menu-separator>.\n * @slot trigger - A <button> to use as the trigger, or the default trigger's content.\n * @fires open-change - It opened or closed (detail.value).\n */\nexport class DropdownMenu extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = {\n\t\tlabel: {},\n\t\tup: { type: Boolean },\n\t\t// React's `align`; an `align` attribute is also HTML's old alignment hint, which the browser draws as text-align.\n\t\tplacement: {},\n\t\twidth: {},\n\t\toffset: {},\n\t\ttriggerLabel: { attribute: 'trigger-label' },\n\t\topen: { type: Boolean, reflect: true },\n\t\tinstant: { state: true },\n\t}\n\n\t/** The menu's name for assistive tech. */\n\tlabel = ''\n\t/** Opens upward. */\n\tup = false\n\t/** The panel's edge: start, or end to line up with the trigger's end (React's `align`). */\n\tplacement: 'start' | 'end' = 'start'\n\twidth = '240px'\n\t/** Moves the panel in from its edge. */\n\toffset = '0px'\n\t/** The default trigger's name, when its content has none. */\n\ttriggerLabel?: string\n\topen = false\n\tprivate instant = false\n\tprivate panelId = uid('menu')\n\tprivate pending: 'first' | 'last' | 'none' | null = null\n\n\t/** A <button slot=\"trigger\"> the page drew, or the default trigger in the shadow root. */\n\tconstructor() {\n\t\tsuper()\n\t\t// A chosen row closes the menu and returns focus to the trigger.\n\t\tnew CloseOnSelect(this, () => this.close(true))\n\t}\n\n\tprivate get trigger(): HTMLElement | null {\n\t\tconst own = this.querySelector<HTMLElement>(':scope > button[slot=\"trigger\"]')\n\t\treturn own ?? this.renderRoot.querySelector<HTMLElement>('button[data-trigger]')\n\t}\n\tprivate items() {\n\t\treturn menuRows(this)\n\t}\n\n\tshow(focus: 'first' | 'last' | 'none' = 'first') {\n\t\tthis.pending = focus\n\t\tthis.instant = focus !== 'none'\n\t\tthis.setOpen(true)\n\t\t// Already open (an arrow on the open menu's button), it still renders, and the row asked for takes focus.\n\t\tthis.requestUpdate()\n\t}\n\tclose(refocus = false) {\n\t\tthis.setOpen(false)\n\t\tif (refocus) this.trigger?.focus()\n\t}\n\tprivate setOpen(open: boolean) {\n\t\tif (this.open === open) return\n\t\tthis.open = open\n\t\tthis.emit('open-change', { value: open })\n\t}\n\tprivate toggle = () => {\n\t\tif (this.open) this.close()\n\t\telse this.show('none')\n\t}\n\tprivate onTriggerKey = (event: KeyboardEvent) => {\n\t\tif (event.key === 'ArrowDown' || event.key === 'ArrowUp') {\n\t\t\tevent.preventDefault()\n\t\t\tthis.show(event.key === 'ArrowDown' ? 'first' : 'last')\n\t\t} else if (event.key === 'Escape' && this.open) {\n\t\t\tevent.preventDefault()\n\t\t\tthis.close(true)\n\t\t}\n\t}\n\tprivate onMenuKey = (event: KeyboardEvent) => {\n\t\tconst list = this.items()\n\t\tconst at = list.findIndex((i) => i.matches(':focus-within'))\n\t\tif (event.key === 'Escape') {\n\t\t\tevent.preventDefault()\n\t\t\tthis.close(true)\n\t\t} else if (event.key === 'Tab') {\n\t\t\t// React takes the panel out of the page before the browser moves focus, so Tab from a row lands on the\n\t\t\t// trigger; here the rows stay in the page (unslotted), so the element puts focus there itself.\n\t\t\tif (!event.shiftKey) {\n\t\t\t\tevent.preventDefault()\n\t\t\t\tthis.close(true)\n\t\t\t} else this.close()\n\t\t} else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {\n\t\t\tevent.preventDefault()\n\t\t\tconst step = event.key === 'ArrowDown' ? 1 : -1\n\t\t\tlist[(at + step + list.length) % list.length]?.focus()\n\t\t} else if (event.key === 'Home' || event.key === 'End') {\n\t\t\tevent.preventDefault()\n\t\t\t;(event.key === 'Home' ? list[0] : list.at(-1))?.focus()\n\t\t}\n\t}\n\tprivate outside = (event: PointerEvent) => {\n\t\tif (this.open && !event.composedPath().includes(this)) this.close()\n\t}\n\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\tdocument.addEventListener('pointerdown', this.outside)\n\t}\n\tdisconnectedCallback() {\n\t\tsuper.disconnectedCallback()\n\t\tdocument.removeEventListener('pointerdown', this.outside)\n\t\tthis.wire(null)\n\t}\n\n\t// The page's own trigger button gets the menu button's attributes and handlers.\n\tprivate wired: HTMLElement | null = null\n\tprivate wire(button: HTMLElement | null) {\n\t\tif (this.wired && this.wired !== button) {\n\t\t\tthis.wired.removeEventListener('click', this.toggle)\n\t\t\tthis.wired.removeEventListener('keydown', this.onTriggerKey)\n\t\t}\n\t\tif (button && this.wired !== button) {\n\t\t\tbutton.addEventListener('click', this.toggle)\n\t\t\tbutton.addEventListener('keydown', this.onTriggerKey)\n\t\t\tbutton.setAttribute('aria-haspopup', 'menu')\n\t\t}\n\t\tthis.wired = button\n\t\tif (button) {\n\t\t\tbutton.setAttribute('aria-expanded', String(this.open))\n\t\t\tif (this.triggerLabel) button.setAttribute('aria-label', this.triggerLabel)\n\t\t}\n\t}\n\n\tprotected updated(changed: PropertyValues<this>) {\n\t\tsuper.updated(changed)\n\t\tthis.wire(this.querySelector<HTMLElement>(':scope > button[slot=\"trigger\"]'))\n\t\tif (changed.has('open') && !this.open) this.instant = false\n\t\tconst focus = this.pending\n\t\tthis.pending = null\n\t\tif (!this.open || !focus) return\n\t\t// Opened at the fold it would land out of sight, and the button would seem to do nothing.\n\t\tthis.renderRoot.querySelector('[role=\"menu\"]')?.scrollIntoView({ block: 'nearest' })\n\t\tif (focus === 'none') return\n\t\tconst list = this.items()\n\t\t;(focus === 'last' ? list.at(-1) : list[0])?.focus()\n\t}\n\n\trender() {\n\t\tconst own = !!this.querySelector(':scope > button[slot=\"trigger\"]')\n\t\tconst panel = this.open\n\t\t\t? html`<div id=${this.panelId} class=\"ds-menu\" ?data-up=${this.up} data-align=${this.placement === 'end' ? 'end' : 'start'} ?data-instant=${this.instant} style=${styleMap({ width: this.width, [this.placement === 'end' ? 'right' : 'left']: this.offset, [this.up ? 'bottom' : 'top']: 'calc(100% + 4px)' })} role=\"menu\" aria-label=${this.label} @keydown=${this.onMenuKey}><slot></slot></div>`\n\t\t\t: nothing\n\t\tconst trigger = own\n\t\t\t? html`<slot name=\"trigger\"></slot>`\n\t\t\t: html`<button data-trigger type=\"button\" class=\"inline-flex h-control-sm cursor-pointer items-center gap-1.5 rounded-control bg-action-secondary px-3 type-ui-strong text-action-secondary-fg transition-[background-color] duration-150 ease-standard hover:bg-action-secondary-hover aria-expanded:bg-action-secondary-hover max-md:h-control-touch\" aria-haspopup=\"menu\" aria-expanded=${String(this.open)} aria-label=${this.triggerLabel ?? nothing} @click=${this.toggle} @keydown=${this.onTriggerKey}><slot name=\"trigger\"></slot></button>`\n\t\treturn html`${trigger}${panel}`\n\t}\n}\n\ndefine('dropdown-menu', DropdownMenu)\n"
+        },
+        {
+          "path": "elements/components/ui/dropdown-menu.css",
+          "content": "/* The host is the menu's box (DropdownMenu.tsx's root div: relative inline-block), so a class on\n   <spyglass-dropdown-menu> lands on it as a class on <DropdownMenu> does. */\n:host { @apply relative inline-block; }\n/* DropdownMenu.tsx's styles. Opened from the keyboard, focus lands on a row at once: no animation. React reads that\n   from :has(:focus-visible), which cannot see rows slotted from the page, so the element marks the panel data-instant. */\n.ds-menu { position: absolute; z-index: 40; display: flex; max-width: calc(100vw - 16px); flex-direction: column; padding: var(--ds-space-xs); border: var(--ds-border-hairline) solid var(--ds-color-edge); border-radius: var(--ds-radius-container); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); transform-origin: top left; animation: ds-menu-in var(--ds-duration-enter) var(--ds-easing-out) both; scroll-margin: 8px; }\n.ds-menu[data-align=\"end\"] { transform-origin: top right; }\n.ds-menu[data-up] { transform-origin: bottom left; animation-name: ds-menu-up; }\n.ds-menu[data-up][data-align=\"end\"] { transform-origin: bottom right; }\n.ds-menu:has(:focus-visible) { animation: none; }\n.ds-menu > * { flex-shrink: 0; }\n@keyframes ds-menu-in { from { opacity: 0; transform: translateY(-4px) scale(0.98); } }\n@keyframes ds-menu-up { from { opacity: 0; transform: translateY(4px) scale(0.98); } }\n@media (prefers-reduced-motion: reduce) { .ds-menu, .ds-menu[data-up] { animation-name: ds-menu-fade; } }\n@keyframes ds-menu-fade { from { opacity: 0; } }\n.ds-menu[data-instant] { animation: none; }\n"
+        },
+        {
+          "path": "elements/components/ui/menu-item.ts",
+          "content": "import { html, LitElement } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// MenuItem.tsx as <spyglass-menu-item>: one row of a dropdown or context menu: 32px (44px on phones), DM Sans 14px, a\n// 4px corner; the row under the pointer or focus takes a #262626 fill. `current` sets it in Medium; `danger` is the\n// red for leaving or deleting. Put a 16px Lucide icon first, a shortcut or a check last. Choosing it fires `select`\n// and closes the menu around it (any element with lib/menu's CloseOnSelect), unless `keep-open`. `role` and\n// `aria-checked` on the element move to its button (role=\"menuitemradio\" aria-checked=\"true\" for a radio row), or set\n// the `itemRole` and `checked` properties.\n\n/**\n * @summary One row of a menu.\n * @slot - The row: an icon, the label, a count or a check.\n * @fires select - The row was chosen.\n */\nexport class MenuItem extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic shadowRootOptions = { ...LitElement.shadowRootOptions, delegatesFocus: true }\n\tstatic properties = { href: {}, current: { type: Boolean }, danger: { type: Boolean }, disabled: { type: Boolean, reflect: true }, keepOpen: { type: Boolean, attribute: 'keep-open' }, itemRole: { attribute: false }, checked: { attribute: false } }\n\t// role and aria-checked are read here and moved to the button, so the row is named once (a menuitemradio, checked or\n\t// not) and not twice.\n\tstatic get observedAttributes() {\n\t\treturn [...super.observedAttributes, 'role', 'aria-checked']\n\t}\n\n\thref?: string\n\t/** The current choice, in Medium. */\n\tcurrent = false\n\t/** The red for leaving or deleting. */\n\tdanger = false\n\tdisabled = false\n\t/** Choosing it leaves the menu open. */\n\tkeepOpen = false\n\t/** The button's role: menuitem, or menuitemradio and menuitemcheckbox (the `role` attribute). */\n\titemRole = 'menuitem'\n\t/** A radio or checkbox row's state (the `aria-checked` attribute). */\n\tchecked?: boolean\n\n\tattributeChangedCallback(name: string, old: string | null, value: string | null) {\n\t\tif (name === 'role' || name === 'aria-checked') {\n\t\t\tif (value === null) return\n\t\t\tif (name === 'role') this.itemRole = value\n\t\t\telse this.checked = value === 'true'\n\t\t\tthis.removeAttribute(name)\n\t\t\treturn\n\t\t}\n\t\tsuper.attributeChangedCallback(name, old, value)\n\t}\n\n\tprivate choose = () => {\n\t\tthis.emit('select')\n\t}\n\n\trender() {\n\t\tconst current = this.current ? 'true' : undefined\n\t\tconst checked = this.checked === undefined ? undefined : String(this.checked)\n\t\treturn this.href\n\t\t\t? html`<a data-ds=\"menu-item\" href=${this.href} role=${this.itemRole} class=\"flex h-control-sm w-full shrink-0 cursor-pointer items-center gap-2 rounded-ds-sm px-2 text-left type-ui text-fg outline-none transition-[background-color] duration-150 ease-standard hover:bg-ds-neutral-4 focus-visible:bg-ds-neutral-4 aria-[current=true]:font-medium disabled:cursor-not-allowed disabled:text-fg-faint disabled:hover:bg-transparent data-danger:text-fg-danger data-danger:hover:bg-surface-danger data-danger:focus-visible:bg-surface-danger max-md:h-auto max-md:min-h-control-touch\" aria-current=${ifDefined(current)} aria-checked=${ifDefined(checked)} ?data-danger=${this.danger} @click=${this.choose}><slot></slot></a>`\n\t\t\t: html`<button data-ds=\"menu-item\" type=\"button\" role=${this.itemRole} class=\"flex h-control-sm w-full shrink-0 cursor-pointer items-center gap-2 rounded-ds-sm px-2 text-left type-ui text-fg outline-none transition-[background-color] duration-150 ease-standard hover:bg-ds-neutral-4 focus-visible:bg-ds-neutral-4 aria-[current=true]:font-medium disabled:cursor-not-allowed disabled:text-fg-faint disabled:hover:bg-transparent data-danger:text-fg-danger data-danger:hover:bg-surface-danger data-danger:focus-visible:bg-surface-danger max-md:h-auto max-md:min-h-control-touch\" aria-current=${ifDefined(current)} aria-checked=${ifDefined(checked)} ?data-danger=${this.danger} ?disabled=${this.disabled} @click=${this.choose}><slot></slot></button>`\n\t}\n}\n\ndefine('menu-item', MenuItem)\n"
+        },
+        {
+          "path": "elements/components/ui/menu-label.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// MenuLabel.tsx as <spyglass-menu-label>: a group's name in a dropdown or context menu, a DM Sans Medium label in\n// capitals with 6% tracking, muted.\n\n/**\n * @summary A group's name in a menu.\n * @slot - The name.\n */\nexport class MenuLabel extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\trender() {\n\t\treturn html`<p data-ds=\"menu-label\" class=\"flex items-center justify-between gap-2 px-2 pt-2 pb-1 type-label text-fg-muted\"><slot></slot></p>`\n\t}\n}\n\ndefine('menu-label', MenuLabel)\n"
+        },
+        {
+          "path": "elements/components/ui/menu-separator.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// MenuSeparator.tsx as <spyglass-menu-separator>: a neutral hairline between a menu's groups, edge to edge.\n\n/** @summary A hairline between a menu's groups. */\nexport class MenuSeparator extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\trender() {\n\t\treturn html`<div data-ds=\"menu-separator\" class=\"-mx-1 my-1 h-px bg-edge\" role=\"separator\"></div>`\n\t}\n}\n\ndefine('menu-separator', MenuSeparator)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/dropdown-menu.js",
+        "elements/menu-item.js",
+        "elements/menu-label.js",
+        "elements/menu-separator.js"
+      ],
+      "tag": "spyglass-dropdown-menu",
+      "tags": [
+        "spyglass-dropdown-menu",
+        "spyglass-menu-item",
+        "spyglass-menu-label",
+        "spyglass-menu-separator"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-dropdown-menu",
+            "name": "DropdownMenu",
+            "module": "elements/dropdown-menu.js",
+            "description": "A button that opens a short list of choices or actions.",
+            "attributes": [
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The menu's name for assistive tech."
+              },
+              {
+                "name": "up",
+                "field": "up",
+                "type": "boolean",
+                "default": "false",
+                "description": "Opens upward."
+              },
+              {
+                "name": "placement",
+                "field": "placement",
+                "type": "\"start\" | \"end\"",
+                "default": "'start'",
+                "description": "The panel's edge: start, or end to line up with the trigger's end (React's `align`)."
+              },
+              {
+                "name": "width",
+                "field": "width",
+                "type": "string",
+                "default": "'240px'"
+              },
+              {
+                "name": "offset",
+                "field": "offset",
+                "type": "string",
+                "default": "'0px'",
+                "description": "Moves the panel in from its edge."
+              },
+              {
+                "name": "trigger-label",
+                "field": "triggerLabel",
+                "type": "string | undefined",
+                "description": "The default trigger's name, when its content has none."
+              },
+              {
+                "name": "open",
+                "field": "open",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "instant",
+                "field": "instant",
+                "type": "boolean",
+                "default": "false"
+              }
+            ],
+            "properties": [
+              {
+                "name": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The menu's name for assistive tech.",
+                "attribute": "label"
+              },
+              {
+                "name": "up",
+                "type": "boolean",
+                "default": "false",
+                "description": "Opens upward.",
+                "attribute": "up"
+              },
+              {
+                "name": "placement",
+                "type": "\"start\" | \"end\"",
+                "default": "'start'",
+                "description": "The panel's edge: start, or end to line up with the trigger's end (React's `align`).",
+                "attribute": "placement"
+              },
+              {
+                "name": "width",
+                "type": "string",
+                "default": "'240px'",
+                "attribute": "width"
+              },
+              {
+                "name": "offset",
+                "type": "string",
+                "default": "'0px'",
+                "description": "Moves the panel in from its edge.",
+                "attribute": "offset"
+              },
+              {
+                "name": "triggerLabel",
+                "type": "string | undefined",
+                "description": "The default trigger's name, when its content has none.",
+                "attribute": "trigger-label"
+              },
+              {
+                "name": "open",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "open"
+              }
+            ],
+            "events": [
+              {
+                "name": "open-change",
+                "description": "It opened or closed (detail.value)."
+              }
+            ],
+            "slots": [
+              {
+                "name": "",
+                "description": "The rows: <spyglass-menu-item>, <spyglass-menu-label>, <spyglass-menu-separator>."
+              },
+              {
+                "name": "trigger",
+                "description": "A <button> to use as the trigger, or the default trigger's content."
+              }
+            ],
+            "methods": [
+              {
+                "name": "show"
+              },
+              {
+                "name": "close"
+              }
+            ]
+          },
+          {
+            "tag": "spyglass-menu-item",
+            "name": "MenuItem",
+            "module": "elements/menu-item.js",
+            "description": "One row of a menu.",
+            "attributes": [
+              {
+                "name": "role"
+              },
+              {
+                "name": "aria-checked"
+              },
+              {
+                "name": "href",
+                "field": "href",
+                "type": "string | undefined"
+              },
+              {
+                "name": "current",
+                "field": "current",
+                "type": "boolean",
+                "default": "false",
+                "description": "The current choice, in Medium."
+              },
+              {
+                "name": "danger",
+                "field": "danger",
+                "type": "boolean",
+                "default": "false",
+                "description": "The red for leaving or deleting."
+              },
+              {
+                "name": "disabled",
+                "field": "disabled",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "keep-open",
+                "field": "keepOpen",
+                "type": "boolean",
+                "default": "false",
+                "description": "Choosing it leaves the menu open."
+              }
+            ],
+            "properties": [
+              {
+                "name": "href",
+                "type": "string | undefined",
+                "attribute": "href"
+              },
+              {
+                "name": "current",
+                "type": "boolean",
+                "default": "false",
+                "description": "The current choice, in Medium.",
+                "attribute": "current"
+              },
+              {
+                "name": "danger",
+                "type": "boolean",
+                "default": "false",
+                "description": "The red for leaving or deleting.",
+                "attribute": "danger"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "disabled"
+              },
+              {
+                "name": "keepOpen",
+                "type": "boolean",
+                "default": "false",
+                "description": "Choosing it leaves the menu open.",
+                "attribute": "keep-open"
+              },
+              {
+                "name": "itemRole",
+                "type": "string",
+                "default": "'menuitem'",
+                "description": "The button's role: menuitem, or menuitemradio and menuitemcheckbox (the `role` attribute)."
+              },
+              {
+                "name": "checked",
+                "type": "boolean | undefined",
+                "description": "A radio or checkbox row's state (the `aria-checked` attribute)."
+              }
+            ],
+            "events": [
+              {
+                "name": "select",
+                "description": "The row was chosen."
+              }
+            ],
+            "slots": [
+              {
+                "name": "",
+                "description": "The row: an icon, the label, a count or a check."
+              }
+            ],
+            "methods": []
+          },
+          {
+            "tag": "spyglass-menu-label",
+            "name": "MenuLabel",
+            "module": "elements/menu-label.js",
+            "description": "A group's name in a menu.",
+            "attributes": [],
+            "properties": [],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The name."
+              }
+            ],
+            "methods": []
+          },
+          {
+            "tag": "spyglass-menu-separator",
+            "name": "MenuSeparator",
+            "module": "elements/menu-separator.js",
+            "description": "A hairline between a menu's groups.",
+            "attributes": [],
+            "properties": [],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Actions",
+          "label": "A creative's actions",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/dropdown-menu/Actions.html",
+          "content": "<!-- A creative's actions, open with the page: save, copy, download, then report on its own. -->\n<div class=\"flex h-72 w-full items-start justify-center pt-2\">\n  <spyglass-dropdown-menu label=\"Creative actions\" open>\n    <span slot=\"trigger\" class=\"contents\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-ellipsis\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"1\"></circle><circle cx=\"19\" cy=\"12\" r=\"1\"></circle><circle cx=\"5\" cy=\"12\" r=\"1\"></circle></svg>Actions</span>\n    <spyglass-menu-label>Acme summer UGC</spyglass-menu-label>\n    <spyglass-menu-item><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-bookmark shrink-0 text-fg-muted\" aria-hidden=\"true\"><path d=\"m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z\"></path></svg>Save to board</spyglass-menu-item>\n    <spyglass-menu-item><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-link shrink-0 text-fg-muted\" aria-hidden=\"true\"><path d=\"M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71\"></path><path d=\"M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71\"></path></svg>Copy link</spyglass-menu-item>\n    <spyglass-menu-item><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-download shrink-0 text-fg-muted\" aria-hidden=\"true\"><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"></path><polyline points=\"7 10 12 15 17 10\"></polyline><line x1=\"12\" x2=\"12\" y1=\"15\" y2=\"3\"></line></svg>Download</spyglass-menu-item>\n    <spyglass-menu-separator></spyglass-menu-separator>\n    <spyglass-menu-item danger><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-flag shrink-0\" aria-hidden=\"true\"><path d=\"M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z\"></path><line x1=\"4\" x2=\"4\" y1=\"22\" y2=\"15\"></line></svg>Report</spyglass-menu-item>\n  </spyglass-dropdown-menu>\n</div>\n"
+        },
+        {
+          "name": "Sort",
+          "label": "Radio rows",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/dropdown-menu/Sort.html",
+          "content": "<!-- One choice from a few: radio rows, the current one checked. The trigger says what is picked. -->\n<div class=\"flex h-56 w-full items-start justify-center pt-2\">\n  <spyglass-dropdown-menu id=\"sort-menu\" label=\"Sort creatives\" width=\"200px\">\n    <span slot=\"trigger\" class=\"contents\"><span id=\"sort-current\">Sort: Newest</span><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-chevron-down\" aria-hidden=\"true\"><path d=\"m6 9 6 6 6-6\"></path></svg></span>\n    <spyglass-menu-item role=\"menuitemradio\" aria-checked=\"true\" data-order=\"Newest\"><span class=\"min-w-0 flex-1 truncate\">Newest</span><span data-check class=\"contents\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-check shrink-0\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"></path></svg></span></spyglass-menu-item>\n    <spyglass-menu-item role=\"menuitemradio\" aria-checked=\"false\" data-order=\"Longest running\"><span class=\"min-w-0 flex-1 truncate\">Longest running</span><span data-check hidden class=\"contents\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-check shrink-0\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"></path></svg></span></spyglass-menu-item>\n    <spyglass-menu-item role=\"menuitemradio\" aria-checked=\"false\" data-order=\"Most engagement\"><span class=\"min-w-0 flex-1 truncate\">Most engagement</span><span data-check hidden class=\"contents\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-check shrink-0\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"></path></svg></span></spyglass-menu-item>\n  </spyglass-dropdown-menu>\n</div>\n<script type=\"module\">\n  const menu = document.getElementById('sort-menu')\n  menu.addEventListener('select', (e) => {\n    const row = e.target.closest('[data-order]')\n    if (!row) return\n    for (const r of menu.querySelectorAll('[data-order]')) {\n      r.checked = r === row\n      r.querySelector('[data-check]').hidden = r !== row\n    }\n    document.getElementById('sort-current').textContent = `Sort: ${row.dataset.order}`\n  })\n</script>\n"
+        }
+      ]
+    }
+  }
+}

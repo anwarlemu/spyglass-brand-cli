@@ -1,0 +1,5498 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "spyglass-elements",
+  "homepage": "https://spyglass-ds.vercel.app",
+  "items": [
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "about-page",
+      "type": "registry:item",
+      "title": "About page",
+      "description": "The about page template, built only from library items: the deck's line centered under the light field, a row of creatives, what the company keeps to, the numbers and a way in.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/ascii-texture.json",
+        "https://spyglass-ds.vercel.app/r/elements/brand-light.json",
+        "https://spyglass-ds.vercel.app/r/elements/button.json",
+        "https://spyglass-ds.vercel.app/r/elements/card.json",
+        "https://spyglass-ds.vercel.app/r/elements/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/elements/creative-row.json",
+        "https://spyglass-ds.vercel.app/r/elements/footer-row.json",
+        "https://spyglass-ds.vercel.app/r/elements/hero-block.json",
+        "https://spyglass-ds.vercel.app/r/elements/logo.json",
+        "https://spyglass-ds.vercel.app/r/elements/site-header.json",
+        "https://spyglass-ds.vercel.app/r/elements/stat-block.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/about-page.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/about-page.js"
+        },
+        {
+          "path": "elements/about-page.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/about-page.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        },
+        {
+          "path": "elements/card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/card.js"
+        },
+        {
+          "path": "elements/card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/card.d.ts"
+        },
+        {
+          "path": "elements/creative-row.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-row.js"
+        },
+        {
+          "path": "elements/creative-row.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-row.d.ts"
+        },
+        {
+          "path": "elements/hero-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/hero-block.js"
+        },
+        {
+          "path": "elements/hero-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/hero-block.d.ts"
+        },
+        {
+          "path": "elements/stat-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/stat-block.js"
+        },
+        {
+          "path": "elements/stat-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/stat-block.d.ts"
+        },
+        {
+          "path": "elements/footer-row.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.js"
+        },
+        {
+          "path": "elements/footer-row.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.d.ts"
+        },
+        {
+          "path": "elements/site-header.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.js"
+        },
+        {
+          "path": "elements/site-header.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.d.ts"
+        },
+        {
+          "path": "elements/creative-card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.js"
+        },
+        {
+          "path": "elements/creative-card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.d.ts"
+        },
+        {
+          "path": "elements/brand-light.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.js"
+        },
+        {
+          "path": "elements/brand-light.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.d.ts"
+        },
+        {
+          "path": "elements/ascii-texture.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/ascii-texture.js"
+        },
+        {
+          "path": "elements/ascii-texture.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/ascii-texture.d.ts"
+        },
+        {
+          "path": "elements/logo.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.js"
+        },
+        {
+          "path": "elements/logo.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-about-page",
+        "tags": [
+          "spyglass-about-page"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/about-page.js",
+          "elements/button.js",
+          "elements/card.js",
+          "elements/creative-row.js",
+          "elements/hero-block.js",
+          "elements/stat-block.js",
+          "elements/footer-row.js",
+          "elements/site-header.js",
+          "elements/creative-card.js",
+          "elements/brand-light.js",
+          "elements/ascii-texture.js",
+          "elements/logo.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "accordion",
+      "type": "registry:item",
+      "title": "Accordion",
+      "description": "A stack of disclosures on Black: neutral hairlines between the rows, a DM Sans question, a muted answer that opens in place and a chevron that turns. One open at a time, or several.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/accordion.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/accordion.js"
+        },
+        {
+          "path": "elements/accordion.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/accordion.d.ts"
+        },
+        {
+          "path": "elements/accordion-item.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/accordion-item.js"
+        },
+        {
+          "path": "elements/accordion-item.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/accordion-item.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-accordion",
+        "tags": [
+          "spyglass-accordion",
+          "spyglass-accordion-item"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/accordion.js",
+          "elements/accordion-item.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "alert-dialog",
+      "type": "registry:item",
+      "title": "Alert dialog",
+      "description": "A question that needs an answer before anything else, on the #171717 overlay surface over a Black scrim: a Funnel Display title, one line saying what happens, Cancel and the action (red for what removes something).",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/button.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/alert-dialog.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/alert-dialog.js"
+        },
+        {
+          "path": "elements/alert-dialog.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/alert-dialog.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-alert-dialog",
+        "tags": [
+          "spyglass-alert-dialog"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/alert-dialog.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "alert",
+      "type": "registry:item",
+      "title": "Alert",
+      "description": "A note or a problem in a #171717 box on Black: a Lucide icon, the subject in DM Sans Medium, a muted line under it and the button that goes with it. Red for what broke.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/alert.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/alert.js"
+        },
+        {
+          "path": "elements/alert.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/alert.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-alert",
+        "tags": [
+          "spyglass-alert"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/alert.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "ascii-texture",
+      "type": "registry:item",
+      "title": "ASCII texture",
+      "description": "The brand's ASCII texture, generated: Geist Mono characters from \" .:-=+*#\" read off a soft heat map, White at 0.35 opacity on Black. Seeded, with areas kept clear.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/ascii-texture.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/ascii-texture.js"
+        },
+        {
+          "path": "elements/ascii-texture.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/ascii-texture.d.ts"
+        },
+        {
+          "path": "elements/brand-light.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.js"
+        },
+        {
+          "path": "elements/brand-light.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-ascii-texture",
+        "tags": [
+          "spyglass-ascii-texture"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/ascii-texture.js",
+          "elements/brand-light.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "aspect-ratio",
+      "type": "registry:item",
+      "title": "Aspect ratio",
+      "description": "A box that keeps its shape as it grows: a 1:1 post, a 4:5 ad, a 16:9 slide. It draws nothing itself; the brand corner and a #171717 ground are classes on it.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/aspect-ratio.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/aspect-ratio.js"
+        },
+        {
+          "path": "elements/aspect-ratio.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/aspect-ratio.d.ts"
+        },
+        {
+          "path": "elements/brand-light.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.js"
+        },
+        {
+          "path": "elements/brand-light.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-aspect-ratio",
+        "tags": [
+          "spyglass-aspect-ratio"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/aspect-ratio.js",
+          "elements/brand-light.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "avatar",
+      "type": "registry:item",
+      "title": "Avatar",
+      "description": "Who or what something belongs to, in a circle: a picture cropped round, or the name's initials in White DM Sans Medium on #262626. Three sizes.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/avatar.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/avatar.js"
+        },
+        {
+          "path": "elements/avatar.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/avatar.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-avatar",
+        "tags": [
+          "spyglass-avatar"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/avatar.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "badge",
+      "type": "registry:item",
+      "title": "Badge",
+      "description": "A short label for a state or a kind, in DM Sans Medium capitals with 6% tracking: White, #262626, a hairline, or a red wash. A small spectrum dot can lead it.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/badge.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/badge.js"
+        },
+        {
+          "path": "elements/badge.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/badge.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-badge",
+        "tags": [
+          "spyglass-badge"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/badge.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "blog-page",
+      "type": "registry:item",
+      "title": "Blog page",
+      "description": "The blog index template, built only from library items: the title, the newest post large and every other post in a grid of three, each with an image, the date and category in capitals and a Funnel Display title.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/button.json",
+        "https://spyglass-ds.vercel.app/r/elements/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/elements/footer-row.json",
+        "https://spyglass-ds.vercel.app/r/elements/logo.json",
+        "https://spyglass-ds.vercel.app/r/elements/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/blog-page.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/blog-page.js"
+        },
+        {
+          "path": "elements/blog-page.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/blog-page.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        },
+        {
+          "path": "elements/creative-card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.js"
+        },
+        {
+          "path": "elements/creative-card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.d.ts"
+        },
+        {
+          "path": "elements/footer-row.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.js"
+        },
+        {
+          "path": "elements/footer-row.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.d.ts"
+        },
+        {
+          "path": "elements/site-header.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.js"
+        },
+        {
+          "path": "elements/site-header.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.d.ts"
+        },
+        {
+          "path": "elements/logo.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.js"
+        },
+        {
+          "path": "elements/logo.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-blog-page",
+        "tags": [
+          "spyglass-blog-page"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/blog-page.js",
+          "elements/button.js",
+          "elements/creative-card.js",
+          "elements/footer-row.js",
+          "elements/site-header.js",
+          "elements/logo.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "blog-post-page",
+      "type": "registry:item",
+      "title": "Blog post page",
+      "description": "A blog post template, built only from library items: the way back, the title in Funnel Display, a wide image, the body in a 720px column (paragraphs, subheads, a list, a quote, a figure of creatives), more posts and the offer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/ascii-texture.json",
+        "https://spyglass-ds.vercel.app/r/elements/brand-light.json",
+        "https://spyglass-ds.vercel.app/r/elements/button.json",
+        "https://spyglass-ds.vercel.app/r/elements/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/elements/creative-grid.json",
+        "https://spyglass-ds.vercel.app/r/elements/footer-row.json",
+        "https://spyglass-ds.vercel.app/r/elements/logo.json",
+        "https://spyglass-ds.vercel.app/r/elements/offer-block.json",
+        "https://spyglass-ds.vercel.app/r/elements/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/blog-post-page.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/blog-post-page.js"
+        },
+        {
+          "path": "elements/blog-post-page.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/blog-post-page.d.ts"
+        },
+        {
+          "path": "elements/creative-card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.js"
+        },
+        {
+          "path": "elements/creative-card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.d.ts"
+        },
+        {
+          "path": "elements/creative-grid.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-grid.js"
+        },
+        {
+          "path": "elements/creative-grid.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-grid.d.ts"
+        },
+        {
+          "path": "elements/footer-row.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.js"
+        },
+        {
+          "path": "elements/footer-row.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.d.ts"
+        },
+        {
+          "path": "elements/site-header.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.js"
+        },
+        {
+          "path": "elements/site-header.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.d.ts"
+        },
+        {
+          "path": "elements/offer-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/offer-block.js"
+        },
+        {
+          "path": "elements/offer-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/offer-block.d.ts"
+        },
+        {
+          "path": "elements/brand-light.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.js"
+        },
+        {
+          "path": "elements/brand-light.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.d.ts"
+        },
+        {
+          "path": "elements/logo.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.js"
+        },
+        {
+          "path": "elements/logo.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        },
+        {
+          "path": "elements/ascii-texture.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/ascii-texture.js"
+        },
+        {
+          "path": "elements/ascii-texture.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/ascii-texture.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-blog-post-page",
+        "tags": [
+          "spyglass-blog-post-page"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/blog-post-page.js",
+          "elements/creative-card.js",
+          "elements/creative-grid.js",
+          "elements/footer-row.js",
+          "elements/site-header.js",
+          "elements/offer-block.js",
+          "elements/brand-light.js",
+          "elements/logo.js",
+          "elements/button.js",
+          "elements/ascii-texture.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "brand-light",
+      "type": "registry:item",
+      "title": "Brand light",
+      "description": "The brand pattern, generated: one shape drawn three times in Red #DF0000 (0.85), Green #00FF29 (0.782) and Blue #1B1DFF (0.782), each shifted sideways, blurred and blended plus-lighter on Black. Seeded, in every variant the brand assets use.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/brand-light.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.js"
+        },
+        {
+          "path": "elements/brand-light.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-brand-light",
+        "tags": [
+          "spyglass-brand-light"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/brand-light.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "breadcrumb",
+      "type": "registry:item",
+      "title": "Breadcrumb",
+      "description": "Where you are, in DM Sans: each step back a muted link that turns White under the pointer, a small chevron between, the page itself in White.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/breadcrumb.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/breadcrumb.js"
+        },
+        {
+          "path": "elements/breadcrumb.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/breadcrumb.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-breadcrumb",
+        "tags": [
+          "spyglass-breadcrumb"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/breadcrumb.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "button-group",
+      "type": "registry:item",
+      "title": "Button group",
+      "description": "Buttons that belong together, joined into one block: the brand corner on the outer corners only and a 1px Black seam between them. A field with its button, a button with its menu arrow, or a vertical stack.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/button-group.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button-group.js"
+        },
+        {
+          "path": "elements/button-group.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button-group.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        },
+        {
+          "path": "elements/input.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input.js"
+        },
+        {
+          "path": "elements/input.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-button-group",
+        "tags": [
+          "spyglass-button-group"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/button-group.js",
+          "elements/button.js",
+          "elements/input.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "button",
+      "type": "registry:item",
+      "title": "Button",
+      "description": "The brand's button: a White fill with a Black DM Sans Medium label for the one main action, a #262626 secondary for the rest, and a ghost for tools in rows. Three sizes and a square icon button.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-button",
+        "tags": [
+          "spyglass-button"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "calendar",
+      "type": "registry:item",
+      "title": "Calendar",
+      "description": "A month to pick a day from: 40px day cells with the 4px corner, the picked day a White fill with a Black figure, today in a neutral hairline ring, the months either side faint. Arrows, Home, End and Page Up and Down move; Enter picks.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/button.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/calendar.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/calendar.js"
+        },
+        {
+          "path": "elements/calendar.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/calendar.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-calendar",
+        "tags": [
+          "spyglass-calendar"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/calendar.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "card",
+      "type": "registry:item",
+      "title": "Card",
+      "description": "The brand's card: a #171717 fill on Black with the brand corner, a Funnel Display title, a line of DM Sans and the body, with actions at the foot. No border, no shadow.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/card.js"
+        },
+        {
+          "path": "elements/card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/card.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-card",
+        "tags": [
+          "spyglass-card"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/card.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "carousel",
+      "type": "registry:item",
+      "title": "Carousel",
+      "description": "Slides in a row on the Black ground, 16px apart, one to three in view, with ghost arrow buttons and the place in tabular figures. Native scroll snap: a swipe, a trackpad, the arrows and the arrow keys all move it. It never plays on its own.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/button.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/carousel.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/carousel.js"
+        },
+        {
+          "path": "elements/carousel.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/carousel.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-carousel",
+        "tags": [
+          "spyglass-carousel"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/carousel.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "changelog-page",
+      "type": "registry:item",
+      "title": "Changelog page",
+      "description": "The changelog template, built only from library items: every release newest first under a hairline, its date in capitals on the left, the change as a Funnel Display sentence, its details and a picture when there is one.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/button.json",
+        "https://spyglass-ds.vercel.app/r/elements/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/elements/footer-row.json",
+        "https://spyglass-ds.vercel.app/r/elements/logo.json",
+        "https://spyglass-ds.vercel.app/r/elements/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/changelog-page.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/changelog-page.js"
+        },
+        {
+          "path": "elements/changelog-page.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/changelog-page.d.ts"
+        },
+        {
+          "path": "elements/creative-card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.js"
+        },
+        {
+          "path": "elements/creative-card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.d.ts"
+        },
+        {
+          "path": "elements/footer-row.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.js"
+        },
+        {
+          "path": "elements/footer-row.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.d.ts"
+        },
+        {
+          "path": "elements/site-header.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.js"
+        },
+        {
+          "path": "elements/site-header.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.d.ts"
+        },
+        {
+          "path": "elements/logo.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.js"
+        },
+        {
+          "path": "elements/logo.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-changelog-page",
+        "tags": [
+          "spyglass-changelog-page"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/changelog-page.js",
+          "elements/creative-card.js",
+          "elements/footer-row.js",
+          "elements/site-header.js",
+          "elements/logo.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "chart",
+      "type": "registry:item",
+      "title": "Chart",
+      "description": "How a number is drawn: White bars per day under a total, and lines over time in the brand's series order (White, #A3A3A3, #4D4D4D, then the spectrum from Magenta to Blue). Axes from 0 on #262626 hairlines; pointing reads a value.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/bar-chart.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/bar-chart.js"
+        },
+        {
+          "path": "elements/bar-chart.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/bar-chart.d.ts"
+        },
+        {
+          "path": "elements/line-chart.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/line-chart.js"
+        },
+        {
+          "path": "elements/line-chart.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/line-chart.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-bar-chart",
+        "tags": [
+          "spyglass-bar-chart",
+          "spyglass-line-chart"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/bar-chart.js",
+          "elements/line-chart.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "checkbox",
+      "type": "registry:item",
+      "title": "Checkbox",
+      "description": "A yes or no that is part of a form: a 16px box in a #363636 hairline on Black that fills White with a Black check, a bar for a group partly on, and a DM Sans label beside it. Form-associated.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/checkbox.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/checkbox.js"
+        },
+        {
+          "path": "elements/checkbox.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/checkbox.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-checkbox",
+        "tags": [
+          "spyglass-checkbox"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/checkbox.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "collapsible",
+      "type": "registry:item",
+      "title": "Collapsible",
+      "description": "A part that opens in place and pushes what follows: a quiet DM Sans Medium trigger with a muted chevron that turns, and content that grows to its height and settles in.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/collapsible.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/collapsible.js"
+        },
+        {
+          "path": "elements/collapsible.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/collapsible.d.ts"
+        },
+        {
+          "path": "elements/checkbox.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/checkbox.js"
+        },
+        {
+          "path": "elements/checkbox.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/checkbox.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-collapsible",
+        "tags": [
+          "spyglass-collapsible"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/collapsible.js",
+          "elements/checkbox.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "combobox",
+      "type": "registry:item",
+      "title": "Combobox",
+      "description": "A field-like trigger that opens a list to pick one option from, with a filter over it, on the #171717 overlay panel: the menus' rows, a #262626 fill on the row the arrows or the pointer are on, the pick checked at the end.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/combobox.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/combobox.js"
+        },
+        {
+          "path": "elements/combobox.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/combobox.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-combobox",
+        "tags": [
+          "spyglass-combobox"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/combobox.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "command",
+      "type": "registry:item",
+      "title": "Command",
+      "description": "A box to type in over a list of actions and places, on the #171717 overlay surface: the field on top over a hairline, groups with a capital label, the menus' rows with an icon and a shortcut. On the page, or in a window opened with Cmd+K.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/command.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/command.js"
+        },
+        {
+          "path": "elements/command.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/command.d.ts"
+        },
+        {
+          "path": "elements/command-dialog.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/command-dialog.js"
+        },
+        {
+          "path": "elements/command-dialog.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/command-dialog.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-command",
+        "tags": [
+          "spyglass-command",
+          "spyglass-command-dialog"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/command.js",
+          "elements/command-dialog.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "contact-page",
+      "type": "registry:item",
+      "title": "Contact page",
+      "description": "The contact page template, built only from library items: the heading and a line beside a form on the #171717 fill (name, work email, message, one White button), the header and the footer row.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/button.json",
+        "https://spyglass-ds.vercel.app/r/elements/field.json",
+        "https://spyglass-ds.vercel.app/r/elements/footer-row.json",
+        "https://spyglass-ds.vercel.app/r/elements/input.json",
+        "https://spyglass-ds.vercel.app/r/elements/logo.json",
+        "https://spyglass-ds.vercel.app/r/elements/site-header.json",
+        "https://spyglass-ds.vercel.app/r/elements/textarea.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/contact-page.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/contact-page.js"
+        },
+        {
+          "path": "elements/contact-page.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/contact-page.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        },
+        {
+          "path": "elements/field.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/field.js"
+        },
+        {
+          "path": "elements/field.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/field.d.ts"
+        },
+        {
+          "path": "elements/input.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input.js"
+        },
+        {
+          "path": "elements/input.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input.d.ts"
+        },
+        {
+          "path": "elements/textarea.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/textarea.js"
+        },
+        {
+          "path": "elements/textarea.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/textarea.d.ts"
+        },
+        {
+          "path": "elements/footer-row.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.js"
+        },
+        {
+          "path": "elements/footer-row.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.d.ts"
+        },
+        {
+          "path": "elements/site-header.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.js"
+        },
+        {
+          "path": "elements/site-header.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.d.ts"
+        },
+        {
+          "path": "elements/logo.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.js"
+        },
+        {
+          "path": "elements/logo.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-contact-page",
+        "tags": [
+          "spyglass-contact-page"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/contact-page.js",
+          "elements/button.js",
+          "elements/field.js",
+          "elements/input.js",
+          "elements/textarea.js",
+          "elements/footer-row.js",
+          "elements/site-header.js",
+          "elements/logo.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "context-menu",
+      "type": "registry:item",
+      "title": "Context menu",
+      "description": "The dropdown menu's rows on the #171717 overlay panel, opened where the pointer right-clicks, or under the focused row with Shift+F10 or the menu key. Arrows, Home, End and Escape are handled; focus returns to what was clicked.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/context-menu.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/context-menu.js"
+        },
+        {
+          "path": "elements/context-menu.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/context-menu.d.ts"
+        },
+        {
+          "path": "elements/menu-label.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menu-label.js"
+        },
+        {
+          "path": "elements/menu-label.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menu-label.d.ts"
+        },
+        {
+          "path": "elements/menu-item.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menu-item.js"
+        },
+        {
+          "path": "elements/menu-item.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menu-item.d.ts"
+        },
+        {
+          "path": "elements/menu-separator.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menu-separator.js"
+        },
+        {
+          "path": "elements/menu-separator.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menu-separator.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-context-menu",
+        "tags": [
+          "spyglass-context-menu"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/context-menu.js",
+          "elements/menu-label.js",
+          "elements/menu-item.js",
+          "elements/menu-separator.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "creative-card",
+      "type": "registry:item",
+      "title": "Creative card",
+      "description": "A creative as the brand shows it: an ad, a product shot or a UGC frame in the brand corner, its color exactly as posted. Without an image it draws a neutral placeholder, so no layout needs a third-party photo.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/creative-card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.js"
+        },
+        {
+          "path": "elements/creative-card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-creative-card",
+        "tags": [
+          "spyglass-creative-card"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/creative-card.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "creative-corridor",
+      "type": "registry:item",
+      "title": "Creative corridor",
+      "description": "Creatives as walls on both sides, receding in perspective to a small light at the vanishing point, in the ad's exact places.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/brand-light.json",
+        "https://spyglass-ds.vercel.app/r/elements/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/creative-corridor.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-corridor.js"
+        },
+        {
+          "path": "elements/creative-corridor.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-corridor.d.ts"
+        },
+        {
+          "path": "elements/creative-card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.js"
+        },
+        {
+          "path": "elements/creative-card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.d.ts"
+        },
+        {
+          "path": "elements/brand-light.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.js"
+        },
+        {
+          "path": "elements/brand-light.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-creative-corridor",
+        "tags": [
+          "spyglass-creative-corridor"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/creative-corridor.js",
+          "elements/creative-card.js",
+          "elements/brand-light.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "creative-grid",
+      "type": "registry:item",
+      "title": "Creative grid",
+      "description": "Creatives in a grid, every cell the same shape: the post's three by three of squares 8px apart with a light tile among them, or the ad's three up in 3/4.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/brand-light.json",
+        "https://spyglass-ds.vercel.app/r/elements/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/creative-grid.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-grid.js"
+        },
+        {
+          "path": "elements/creative-grid.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-grid.d.ts"
+        },
+        {
+          "path": "elements/creative-card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.js"
+        },
+        {
+          "path": "elements/creative-card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.d.ts"
+        },
+        {
+          "path": "elements/brand-light.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.js"
+        },
+        {
+          "path": "elements/brand-light.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-creative-grid",
+        "tags": [
+          "spyglass-creative-grid"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/creative-grid.js",
+          "elements/creative-card.js",
+          "elements/brand-light.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "creative-ring",
+      "type": "registry:item",
+      "title": "Creative ring",
+      "description": "Twelve tiles around the middle of a square in the post's exact places: eight creatives, four tiles of the brand light, and the lockup inside.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/brand-light.json",
+        "https://spyglass-ds.vercel.app/r/elements/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/creative-ring.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-ring.js"
+        },
+        {
+          "path": "elements/creative-ring.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-ring.d.ts"
+        },
+        {
+          "path": "elements/creative-card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.js"
+        },
+        {
+          "path": "elements/creative-card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.d.ts"
+        },
+        {
+          "path": "elements/brand-light.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.js"
+        },
+        {
+          "path": "elements/brand-light.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.d.ts"
+        },
+        {
+          "path": "elements/logo.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.js"
+        },
+        {
+          "path": "elements/logo.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-creative-ring",
+        "tags": [
+          "spyglass-creative-ring"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/creative-ring.js",
+          "elements/creative-card.js",
+          "elements/brand-light.js",
+          "elements/logo.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "creative-row",
+      "type": "registry:item",
+      "title": "Creative row",
+      "description": "A row of 4/5 creatives: even, as the banners line them up 16px apart, or peak, rising to the middle and centered on one line, as the deck cover sets them.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/brand-light.json",
+        "https://spyglass-ds.vercel.app/r/elements/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/creative-row.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-row.js"
+        },
+        {
+          "path": "elements/creative-row.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-row.d.ts"
+        },
+        {
+          "path": "elements/creative-card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.js"
+        },
+        {
+          "path": "elements/creative-card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.d.ts"
+        },
+        {
+          "path": "elements/brand-light.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.js"
+        },
+        {
+          "path": "elements/brand-light.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-creative-row",
+        "tags": [
+          "spyglass-creative-row"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/creative-row.js",
+          "elements/creative-card.js",
+          "elements/brand-light.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "data-table",
+      "type": "registry:item",
+      "title": "Data table",
+      "description": "A table people filter, sort and page through: a dropdown per filter, heads in capitals that sort, 40px rows on neutral hairlines that take the #171717 fill under the pointer, numbers in tabular figures, Previous and Next under it.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/button.json",
+        "https://spyglass-ds.vercel.app/r/elements/dropdown-menu.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/data-table.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/data-table.js"
+        },
+        {
+          "path": "elements/data-table.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/data-table.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        },
+        {
+          "path": "elements/dropdown-menu.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/dropdown-menu.js"
+        },
+        {
+          "path": "elements/dropdown-menu.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/dropdown-menu.d.ts"
+        },
+        {
+          "path": "elements/menu-item.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menu-item.js"
+        },
+        {
+          "path": "elements/menu-item.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menu-item.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-data-table",
+        "tags": [
+          "spyglass-data-table"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/data-table.js",
+          "elements/button.js",
+          "elements/dropdown-menu.js",
+          "elements/menu-item.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "date-picker",
+      "type": "registry:item",
+      "title": "Date picker",
+      "description": "A date in a field: a button drawn as the text field that opens the calendar on the #171717 overlay panel under it. Opening puts focus on the picked day, picking closes it and returns focus, Escape closes it unchanged.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/button.json",
+        "https://spyglass-ds.vercel.app/r/elements/calendar.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/date-picker.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/date-picker.js"
+        },
+        {
+          "path": "elements/date-picker.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/date-picker.d.ts"
+        },
+        {
+          "path": "elements/calendar.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/calendar.js"
+        },
+        {
+          "path": "elements/calendar.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/calendar.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-date-picker",
+        "tags": [
+          "spyglass-date-picker"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/date-picker.js",
+          "elements/calendar.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "dialog",
+      "type": "registry:item",
+      "title": "Dialog",
+      "description": "A modal window on the #171717 overlay surface over a Black scrim: a Funnel Display title, a line under it, a ghost close button, a short form or an offer, and buttons at the foot.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/button.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/dialog.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/dialog.js"
+        },
+        {
+          "path": "elements/dialog.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/dialog.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        },
+        {
+          "path": "elements/input.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input.js"
+        },
+        {
+          "path": "elements/input.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-dialog",
+        "tags": [
+          "spyglass-dialog"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/dialog.js",
+          "elements/button.js",
+          "elements/input.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "direction",
+      "type": "registry:item",
+      "title": "Direction",
+      "description": "Sets the reading direction for what is inside it, so logical spacing and the components follow right-to-left text. Code stays left to right.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/direction.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/direction.js"
+        },
+        {
+          "path": "elements/direction.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/direction.d.ts"
+        },
+        {
+          "path": "elements/breadcrumb.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/breadcrumb.js"
+        },
+        {
+          "path": "elements/breadcrumb.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/breadcrumb.d.ts"
+        },
+        {
+          "path": "elements/badge.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/badge.js"
+        },
+        {
+          "path": "elements/badge.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/badge.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-direction",
+        "tags": [
+          "spyglass-direction"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/direction.js",
+          "elements/breadcrumb.js",
+          "elements/badge.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "drawer",
+      "type": "registry:item",
+      "title": "Drawer",
+      "description": "A panel that slides in from an edge over a Black scrim, on the #171717 overlay surface: from the bottom with the brand corner on its top edge and a grab handle, or from the left or right at full height.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/button.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/drawer.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/drawer.js"
+        },
+        {
+          "path": "elements/drawer.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/drawer.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-drawer",
+        "tags": [
+          "spyglass-drawer"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/drawer.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "dropdown-menu",
+      "type": "registry:item",
+      "title": "Dropdown menu",
+      "description": "A button that opens a short list of actions or choices on the #171717 overlay surface: a neutral hairline, the brand corner, rows that take a #262626 fill under the pointer. Arrows, Home, End, Escape and Tab are handled.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/dropdown-menu.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/dropdown-menu.js"
+        },
+        {
+          "path": "elements/dropdown-menu.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/dropdown-menu.d.ts"
+        },
+        {
+          "path": "elements/menu-item.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menu-item.js"
+        },
+        {
+          "path": "elements/menu-item.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menu-item.d.ts"
+        },
+        {
+          "path": "elements/menu-label.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menu-label.js"
+        },
+        {
+          "path": "elements/menu-label.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menu-label.d.ts"
+        },
+        {
+          "path": "elements/menu-separator.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menu-separator.js"
+        },
+        {
+          "path": "elements/menu-separator.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menu-separator.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-dropdown-menu",
+        "tags": [
+          "spyglass-dropdown-menu",
+          "spyglass-menu-item",
+          "spyglass-menu-label",
+          "spyglass-menu-separator"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/dropdown-menu.js",
+          "elements/menu-item.js",
+          "elements/menu-label.js",
+          "elements/menu-separator.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "empty",
+      "type": "registry:item",
+      "title": "Empty",
+      "description": "What shows where a list has nothing in it yet: a dashed hairline with the brand corner, a Lucide icon in a #171717 tile, a Funnel Display title, one muted line and the actions that fill it.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/empty.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/empty.js"
+        },
+        {
+          "path": "elements/empty.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/empty.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-empty",
+        "tags": [
+          "spyglass-empty"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/empty.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "faq-block",
+      "type": "registry:item",
+      "title": "FAQ block",
+      "description": "Questions and answers as the pricing page sets them: the heading in the first of three columns, each question under a hairline in Funnel Display with its answer in DM Sans in the soft gray.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/faq-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/faq-block.js"
+        },
+        {
+          "path": "elements/faq-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/faq-block.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-faq-block",
+        "tags": [
+          "spyglass-faq-block"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/faq-block.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "feature-grid-block",
+      "type": "registry:item",
+      "title": "Feature grid block",
+      "description": "What the product does, as cards: an optional Funnel Display heading and line over a grid of cards on the #171717 fill, each a title and a sentence, three or two across.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/card.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/feature-grid-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/feature-grid-block.js"
+        },
+        {
+          "path": "elements/feature-grid-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/feature-grid-block.d.ts"
+        },
+        {
+          "path": "elements/card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/card.js"
+        },
+        {
+          "path": "elements/card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/card.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-feature-grid-block",
+        "tags": [
+          "spyglass-feature-grid-block"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/feature-grid-block.js",
+          "elements/card.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "field",
+      "type": "registry:item",
+      "title": "Field",
+      "description": "A label over one control, with a description or an error under it. The label speaks in capitals; the help is muted; an error takes the help's place in red.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/field.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/field.js"
+        },
+        {
+          "path": "elements/field.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/field.d.ts"
+        },
+        {
+          "path": "elements/input.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input.js"
+        },
+        {
+          "path": "elements/input.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-field",
+        "tags": [
+          "spyglass-field"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/field.js",
+          "elements/input.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "footer-block",
+      "type": "registry:item",
+      "title": "Footer block",
+      "description": "A website's footer band: a hairline above, the footer row (the lockup, links and the domain) inside the page width, and an optional legal line in the muted gray.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/footer-row.json",
+        "https://spyglass-ds.vercel.app/r/elements/logo.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/footer-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-block.js"
+        },
+        {
+          "path": "elements/footer-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-block.d.ts"
+        },
+        {
+          "path": "elements/footer-row.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.js"
+        },
+        {
+          "path": "elements/footer-row.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.d.ts"
+        },
+        {
+          "path": "elements/logo.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.js"
+        },
+        {
+          "path": "elements/logo.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-footer-block",
+        "tags": [
+          "spyglass-footer-block"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/footer-block.js",
+          "elements/footer-row.js",
+          "elements/logo.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "footer-row",
+      "type": "registry:item",
+      "title": "Footer row",
+      "description": "The row every post, ad and deck ends on: the lockup on the left, the domain on the right. Links between them make it a website footer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/logo.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/footer-row.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.js"
+        },
+        {
+          "path": "elements/footer-row.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.d.ts"
+        },
+        {
+          "path": "elements/logo.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.js"
+        },
+        {
+          "path": "elements/logo.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-footer-row",
+        "tags": [
+          "spyglass-footer-row"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/footer-row.js",
+          "elements/logo.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "form",
+      "type": "registry:item",
+      "title": "Form",
+      "description": "Fields stacked 24px apart, a failure from the server in a dark red box, and the actions at the end, the main one last. Errors wait until a field is left or the form is sent.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/form.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/form.js"
+        },
+        {
+          "path": "elements/form.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/form.d.ts"
+        },
+        {
+          "path": "elements/field.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/field.js"
+        },
+        {
+          "path": "elements/field.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/field.d.ts"
+        },
+        {
+          "path": "elements/input.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input.js"
+        },
+        {
+          "path": "elements/input.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input.d.ts"
+        },
+        {
+          "path": "elements/native-select.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/native-select.js"
+        },
+        {
+          "path": "elements/native-select.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/native-select.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-form",
+        "tags": [
+          "spyglass-form"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/form.js",
+          "elements/field.js",
+          "elements/input.js",
+          "elements/native-select.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "hero-block",
+      "type": "registry:item",
+      "title": "Hero block",
+      "description": "The top of a page as the slides, posts and ads set it: a Funnel Display headline, a line of DM Sans and one White button on Black, with the light flowing in and the media (a search bar, a row of creatives) under the copy.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/ascii-texture.json",
+        "https://spyglass-ds.vercel.app/r/elements/brand-light.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/hero-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/hero-block.js"
+        },
+        {
+          "path": "elements/hero-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/hero-block.d.ts"
+        },
+        {
+          "path": "elements/ascii-texture.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/ascii-texture.js"
+        },
+        {
+          "path": "elements/ascii-texture.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/ascii-texture.d.ts"
+        },
+        {
+          "path": "elements/brand-light.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.js"
+        },
+        {
+          "path": "elements/brand-light.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        },
+        {
+          "path": "elements/search-bar.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/search-bar.js"
+        },
+        {
+          "path": "elements/search-bar.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/search-bar.d.ts"
+        },
+        {
+          "path": "elements/creative-row.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-row.js"
+        },
+        {
+          "path": "elements/creative-row.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-row.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-hero-block",
+        "tags": [
+          "spyglass-hero-block"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/hero-block.js",
+          "elements/ascii-texture.js",
+          "elements/brand-light.js",
+          "elements/button.js",
+          "elements/search-bar.js",
+          "elements/creative-row.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "home-page",
+      "type": "registry:item",
+      "title": "Home page",
+      "description": "The home page template, built only from library items: the search on a band of the light, the index as a corridor, what it does, the numbers, agents around the lockup, one customer and the offer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/ascii-texture.json",
+        "https://spyglass-ds.vercel.app/r/elements/brand-light.json",
+        "https://spyglass-ds.vercel.app/r/elements/button.json",
+        "https://spyglass-ds.vercel.app/r/elements/card.json",
+        "https://spyglass-ds.vercel.app/r/elements/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/elements/creative-corridor.json",
+        "https://spyglass-ds.vercel.app/r/elements/creative-grid.json",
+        "https://spyglass-ds.vercel.app/r/elements/creative-ring.json",
+        "https://spyglass-ds.vercel.app/r/elements/footer-row.json",
+        "https://spyglass-ds.vercel.app/r/elements/hero-block.json",
+        "https://spyglass-ds.vercel.app/r/elements/logo.json",
+        "https://spyglass-ds.vercel.app/r/elements/offer-block.json",
+        "https://spyglass-ds.vercel.app/r/elements/search-bar.json",
+        "https://spyglass-ds.vercel.app/r/elements/site-header.json",
+        "https://spyglass-ds.vercel.app/r/elements/stat-block.json",
+        "https://spyglass-ds.vercel.app/r/elements/testimonial.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/home-page.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/home-page.js"
+        },
+        {
+          "path": "elements/home-page.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/home-page.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        },
+        {
+          "path": "elements/card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/card.js"
+        },
+        {
+          "path": "elements/card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/card.d.ts"
+        },
+        {
+          "path": "elements/search-bar.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/search-bar.js"
+        },
+        {
+          "path": "elements/search-bar.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/search-bar.d.ts"
+        },
+        {
+          "path": "elements/creative-corridor.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-corridor.js"
+        },
+        {
+          "path": "elements/creative-corridor.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-corridor.d.ts"
+        },
+        {
+          "path": "elements/creative-grid.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-grid.js"
+        },
+        {
+          "path": "elements/creative-grid.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-grid.d.ts"
+        },
+        {
+          "path": "elements/creative-ring.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-ring.js"
+        },
+        {
+          "path": "elements/creative-ring.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-ring.d.ts"
+        },
+        {
+          "path": "elements/footer-row.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.js"
+        },
+        {
+          "path": "elements/footer-row.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.d.ts"
+        },
+        {
+          "path": "elements/site-header.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.js"
+        },
+        {
+          "path": "elements/site-header.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.d.ts"
+        },
+        {
+          "path": "elements/testimonial.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/testimonial.js"
+        },
+        {
+          "path": "elements/testimonial.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/testimonial.d.ts"
+        },
+        {
+          "path": "elements/hero-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/hero-block.js"
+        },
+        {
+          "path": "elements/hero-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/hero-block.d.ts"
+        },
+        {
+          "path": "elements/offer-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/offer-block.js"
+        },
+        {
+          "path": "elements/offer-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/offer-block.d.ts"
+        },
+        {
+          "path": "elements/stat-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/stat-block.js"
+        },
+        {
+          "path": "elements/stat-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/stat-block.d.ts"
+        },
+        {
+          "path": "elements/logo.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.js"
+        },
+        {
+          "path": "elements/logo.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.d.ts"
+        },
+        {
+          "path": "elements/creative-card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.js"
+        },
+        {
+          "path": "elements/creative-card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.d.ts"
+        },
+        {
+          "path": "elements/brand-light.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.js"
+        },
+        {
+          "path": "elements/brand-light.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.d.ts"
+        },
+        {
+          "path": "elements/ascii-texture.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/ascii-texture.js"
+        },
+        {
+          "path": "elements/ascii-texture.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/ascii-texture.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-home-page",
+        "tags": [
+          "spyglass-home-page"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/home-page.js",
+          "elements/button.js",
+          "elements/card.js",
+          "elements/search-bar.js",
+          "elements/creative-corridor.js",
+          "elements/creative-grid.js",
+          "elements/creative-ring.js",
+          "elements/footer-row.js",
+          "elements/site-header.js",
+          "elements/testimonial.js",
+          "elements/hero-block.js",
+          "elements/offer-block.js",
+          "elements/stat-block.js",
+          "elements/logo.js",
+          "elements/creative-card.js",
+          "elements/brand-light.js",
+          "elements/ascii-texture.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "hover-card",
+      "type": "registry:item",
+      "title": "Hover Card",
+      "description": "More about a link while the pointer rests on it: the card's #171717 fill, a hairline and the brand corner. The pointer can cross into it; on touch the link just works.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/hover-card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/hover-card.js"
+        },
+        {
+          "path": "elements/hover-card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/hover-card.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-hover-card",
+        "tags": [
+          "spyglass-hover-card"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/hover-card.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "input-group",
+      "type": "registry:item",
+      "title": "Input Group",
+      "description": "A field with an icon, a prefix, a unit or a small button inside its hairline, drawn and sized as the input is. The hairline turns White while the field has focus.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/input-group.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input-group.js"
+        },
+        {
+          "path": "elements/input-group.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input-group.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-input-group",
+        "tags": [
+          "spyglass-input-group"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/input-group.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "input-otp",
+      "type": "registry:item",
+      "title": "Input OTP",
+      "description": "A one-time code, one cell per character, each cell drawn as the input. It is one real field, so paste and the phone's code suggestion work.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/input-otp.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input-otp.js"
+        },
+        {
+          "path": "elements/input-otp.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input-otp.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-input-otp",
+        "tags": [
+          "spyglass-input-otp"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/input-otp.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "input",
+      "type": "registry:item",
+      "title": "Input",
+      "description": "A text field on Black: a #363636 hairline that turns White on focus, DM Sans, a #A3A3A3 placeholder and the brand corner. Sizes match the button's.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/input.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input.js"
+        },
+        {
+          "path": "elements/input.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-input",
+        "tags": [
+          "spyglass-input"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/input.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "item",
+      "type": "registry:item",
+      "title": "Item",
+      "description": "A row: media, a title in DM Sans Medium with a muted line under it, and actions at the end. No fill, a hairline box or the card's #171717 fill. ItemGroup puts a hairline between rows.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/item.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/item.js"
+        },
+        {
+          "path": "elements/item.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/item.d.ts"
+        },
+        {
+          "path": "elements/item-group.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/item-group.js"
+        },
+        {
+          "path": "elements/item-group.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/item-group.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-item",
+        "tags": [
+          "spyglass-item",
+          "spyglass-item-group"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/item.js",
+          "elements/item-group.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "kbd",
+      "type": "registry:item",
+      "title": "Kbd",
+      "description": "A key: DM Sans 12px in the soft neutral, in a 20px #1A1A1A box with a hairline and the small corner. KbdGroup holds the keys of one shortcut.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/kbd.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/kbd.js"
+        },
+        {
+          "path": "elements/kbd.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/kbd.d.ts"
+        },
+        {
+          "path": "elements/kbd-group.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/kbd-group.js"
+        },
+        {
+          "path": "elements/kbd-group.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/kbd-group.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-kbd",
+        "tags": [
+          "spyglass-kbd",
+          "spyglass-kbd-group"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/kbd.js",
+          "elements/kbd-group.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "label",
+      "type": "registry:item",
+      "title": "Label",
+      "description": "A field's label: DM Sans Medium in capitals with 6% tracking, in the soft gray, over the control it names. A muted hint can follow it.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/label.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/label.js"
+        },
+        {
+          "path": "elements/label.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/label.d.ts"
+        },
+        {
+          "path": "elements/input.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input.js"
+        },
+        {
+          "path": "elements/input.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-label",
+        "tags": [
+          "spyglass-label"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/label.js",
+          "elements/input.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "legal-page",
+      "type": "registry:item",
+      "title": "Legal page",
+      "description": "A legal page template (terms, privacy), built only from library items: the title and the date it changed, a list of the sections that stays in view, and the sections in a 720px column.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/button.json",
+        "https://spyglass-ds.vercel.app/r/elements/footer-row.json",
+        "https://spyglass-ds.vercel.app/r/elements/logo.json",
+        "https://spyglass-ds.vercel.app/r/elements/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/legal-page.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/legal-page.js"
+        },
+        {
+          "path": "elements/legal-page.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/legal-page.d.ts"
+        },
+        {
+          "path": "elements/footer-row.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.js"
+        },
+        {
+          "path": "elements/footer-row.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.d.ts"
+        },
+        {
+          "path": "elements/site-header.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.js"
+        },
+        {
+          "path": "elements/site-header.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.d.ts"
+        },
+        {
+          "path": "elements/logo.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.js"
+        },
+        {
+          "path": "elements/logo.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-legal-page",
+        "tags": [
+          "spyglass-legal-page"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/legal-page.js",
+          "elements/footer-row.js",
+          "elements/site-header.js",
+          "elements/logo.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "logo-strip-block",
+      "type": "registry:item",
+      "title": "Logo strip block",
+      "description": "A row of customer names under a label in capitals, each set as a Funnel Display wordmark in the muted gray, so no third-party logo is drawn; their own marks go in the slot when you have permission.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/logo-strip-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo-strip-block.js"
+        },
+        {
+          "path": "elements/logo-strip-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo-strip-block.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-logo-strip-block",
+        "tags": [
+          "spyglass-logo-strip-block"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/logo-strip-block.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "logo",
+      "type": "registry:item",
+      "title": "Logo",
+      "description": "Every lockup from the brand's own files, in Black or White: the logomark, the 3D logomark, the wordmark, and the horizontal, vertical and 3D combination marks.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/logo.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.js"
+        },
+        {
+          "path": "elements/logo.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-logo",
+        "tags": [
+          "spyglass-logo"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/logo.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "menubar",
+      "type": "registry:item",
+      "title": "Menubar",
+      "description": "Menu triggers in a row: a Black strip in a hairline with the brand corner, triggers in DM Sans Medium, each opening a panel of rows in the card's #171717 fill. Arrow keys move along the bar and through the rows.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/menubar.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menubar.js"
+        },
+        {
+          "path": "elements/menubar.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menubar.d.ts"
+        },
+        {
+          "path": "elements/menubar-menu.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menubar-menu.js"
+        },
+        {
+          "path": "elements/menubar-menu.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menubar-menu.d.ts"
+        },
+        {
+          "path": "elements/menubar-item.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menubar-item.js"
+        },
+        {
+          "path": "elements/menubar-item.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menubar-item.d.ts"
+        },
+        {
+          "path": "elements/menubar-label.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menubar-label.js"
+        },
+        {
+          "path": "elements/menubar-label.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menubar-label.d.ts"
+        },
+        {
+          "path": "elements/menubar-separator.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menubar-separator.js"
+        },
+        {
+          "path": "elements/menubar-separator.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/menubar-separator.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-menubar",
+        "tags": [
+          "spyglass-menubar",
+          "spyglass-menubar-menu",
+          "spyglass-menubar-item",
+          "spyglass-menubar-label",
+          "spyglass-menubar-separator"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/menubar.js",
+          "elements/menubar-menu.js",
+          "elements/menubar-item.js",
+          "elements/menubar-label.js",
+          "elements/menubar-separator.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "native-select",
+      "type": "registry:item",
+      "title": "Native Select",
+      "description": "The browser's own select, drawn as the input: a #363636 hairline on Black that turns White on focus, the brand corner and a muted chevron. Phones open the system picker.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/native-select.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/native-select.js"
+        },
+        {
+          "path": "elements/native-select.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/native-select.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-native-select",
+        "tags": [
+          "spyglass-native-select"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/native-select.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "navigation-menu",
+      "type": "registry:item",
+      "title": "Navigation Menu",
+      "description": "A site's top navigation: triggers and links in DM Sans Medium, each trigger opening a panel of links in the card's #171717 fill. It opens under a resting pointer, switches at once between triggers, and opens at once from the keyboard.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/navigation-menu.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/navigation-menu.js"
+        },
+        {
+          "path": "elements/navigation-menu.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/navigation-menu.d.ts"
+        },
+        {
+          "path": "elements/navigation-menu-item.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/navigation-menu-item.js"
+        },
+        {
+          "path": "elements/navigation-menu-item.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/navigation-menu-item.d.ts"
+        },
+        {
+          "path": "elements/navigation-menu-link.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/navigation-menu-link.js"
+        },
+        {
+          "path": "elements/navigation-menu-link.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/navigation-menu-link.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-navigation-menu",
+        "tags": [
+          "spyglass-navigation-menu",
+          "spyglass-navigation-menu-item",
+          "spyglass-navigation-menu-link"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/navigation-menu.js",
+          "elements/navigation-menu-item.js",
+          "elements/navigation-menu-link.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "not-found-page",
+      "type": "registry:item",
+      "title": "404 page",
+      "description": "The 404 page template, built only from library items: a centered hero with the light flowing in from the corners, the headline as a plain sentence, the search bar and the way home.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/ascii-texture.json",
+        "https://spyglass-ds.vercel.app/r/elements/brand-light.json",
+        "https://spyglass-ds.vercel.app/r/elements/button.json",
+        "https://spyglass-ds.vercel.app/r/elements/footer-row.json",
+        "https://spyglass-ds.vercel.app/r/elements/hero-block.json",
+        "https://spyglass-ds.vercel.app/r/elements/logo.json",
+        "https://spyglass-ds.vercel.app/r/elements/search-bar.json",
+        "https://spyglass-ds.vercel.app/r/elements/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/not-found-page.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/not-found-page.js"
+        },
+        {
+          "path": "elements/not-found-page.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/not-found-page.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        },
+        {
+          "path": "elements/search-bar.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/search-bar.js"
+        },
+        {
+          "path": "elements/search-bar.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/search-bar.d.ts"
+        },
+        {
+          "path": "elements/hero-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/hero-block.js"
+        },
+        {
+          "path": "elements/hero-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/hero-block.d.ts"
+        },
+        {
+          "path": "elements/footer-row.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.js"
+        },
+        {
+          "path": "elements/footer-row.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.d.ts"
+        },
+        {
+          "path": "elements/site-header.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.js"
+        },
+        {
+          "path": "elements/site-header.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.d.ts"
+        },
+        {
+          "path": "elements/ascii-texture.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/ascii-texture.js"
+        },
+        {
+          "path": "elements/ascii-texture.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/ascii-texture.d.ts"
+        },
+        {
+          "path": "elements/brand-light.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.js"
+        },
+        {
+          "path": "elements/brand-light.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.d.ts"
+        },
+        {
+          "path": "elements/logo.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.js"
+        },
+        {
+          "path": "elements/logo.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-not-found-page",
+        "tags": [
+          "spyglass-not-found-page"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/not-found-page.js",
+          "elements/button.js",
+          "elements/search-bar.js",
+          "elements/hero-block.js",
+          "elements/footer-row.js",
+          "elements/site-header.js",
+          "elements/ascii-texture.js",
+          "elements/brand-light.js",
+          "elements/logo.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "offer-block",
+      "type": "registry:item",
+      "title": "Offer block",
+      "description": "The offer as the posts and the Creator plan ad close: a centered Funnel Display headline, the terms in capitals with concrete numbers and one White button, with the light flowing in around them or from the top over a plan card.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/ascii-texture.json",
+        "https://spyglass-ds.vercel.app/r/elements/brand-light.json",
+        "https://spyglass-ds.vercel.app/r/elements/button.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/offer-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/offer-block.js"
+        },
+        {
+          "path": "elements/offer-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/offer-block.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        },
+        {
+          "path": "elements/ascii-texture.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/ascii-texture.js"
+        },
+        {
+          "path": "elements/ascii-texture.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/ascii-texture.d.ts"
+        },
+        {
+          "path": "elements/brand-light.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.js"
+        },
+        {
+          "path": "elements/brand-light.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.d.ts"
+        },
+        {
+          "path": "elements/plan-card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/plan-card.js"
+        },
+        {
+          "path": "elements/plan-card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/plan-card.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-offer-block",
+        "tags": [
+          "spyglass-offer-block"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/offer-block.js",
+          "elements/button.js",
+          "elements/ascii-texture.js",
+          "elements/brand-light.js",
+          "elements/plan-card.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "pagination",
+      "type": "registry:item",
+      "title": "Pagination",
+      "description": "Previous and Next around the page numbers: 32px ghost buttons that fill under the pointer, the current page in a #363636 hairline box in White. First and last always show, an ellipsis stands for the rest.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/pagination.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/pagination.js"
+        },
+        {
+          "path": "elements/pagination.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/pagination.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-pagination",
+        "tags": [
+          "spyglass-pagination"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/pagination.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "plan-card",
+      "type": "registry:item",
+      "title": "Plan card",
+      "description": "The Creator plan card from the ad: the plan's name in Funnel Display, the price as a sentence with concrete numbers, the lines it includes and one full-width White button, on the #171717 fill with the brand corner.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/button.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/plan-card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/plan-card.js"
+        },
+        {
+          "path": "elements/plan-card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/plan-card.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-plan-card",
+        "tags": [
+          "spyglass-plan-card"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/plan-card.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "popover",
+      "type": "registry:item",
+      "title": "Popover",
+      "description": "A panel for any content, opened from a button: the card's #171717 fill on Black, a hairline and the brand corner. It grows from its trigger and flips to the side with room.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/popover.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/popover.js"
+        },
+        {
+          "path": "elements/popover.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/popover.d.ts"
+        },
+        {
+          "path": "elements/popover-panel.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/popover-panel.js"
+        },
+        {
+          "path": "elements/popover-panel.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/popover-panel.d.ts"
+        },
+        {
+          "path": "elements/input.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input.js"
+        },
+        {
+          "path": "elements/input.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-popover",
+        "tags": [
+          "spyglass-popover",
+          "spyglass-popover-panel"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/popover.js",
+          "elements/popover-panel.js",
+          "elements/input.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "pricing-page",
+      "type": "registry:item",
+      "title": "Pricing page",
+      "description": "The pricing page template, built only from library items: the Creator plan ad as the top (the offer headline under the light field, the plan card) and the questions, answered with what the plan says.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/ascii-texture.json",
+        "https://spyglass-ds.vercel.app/r/elements/brand-light.json",
+        "https://spyglass-ds.vercel.app/r/elements/button.json",
+        "https://spyglass-ds.vercel.app/r/elements/footer-row.json",
+        "https://spyglass-ds.vercel.app/r/elements/logo.json",
+        "https://spyglass-ds.vercel.app/r/elements/offer-block.json",
+        "https://spyglass-ds.vercel.app/r/elements/plan-card.json",
+        "https://spyglass-ds.vercel.app/r/elements/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/pricing-page.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/pricing-page.js"
+        },
+        {
+          "path": "elements/pricing-page.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/pricing-page.d.ts"
+        },
+        {
+          "path": "elements/plan-card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/plan-card.js"
+        },
+        {
+          "path": "elements/plan-card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/plan-card.d.ts"
+        },
+        {
+          "path": "elements/offer-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/offer-block.js"
+        },
+        {
+          "path": "elements/offer-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/offer-block.d.ts"
+        },
+        {
+          "path": "elements/footer-row.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.js"
+        },
+        {
+          "path": "elements/footer-row.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.d.ts"
+        },
+        {
+          "path": "elements/site-header.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.js"
+        },
+        {
+          "path": "elements/site-header.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        },
+        {
+          "path": "elements/ascii-texture.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/ascii-texture.js"
+        },
+        {
+          "path": "elements/ascii-texture.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/ascii-texture.d.ts"
+        },
+        {
+          "path": "elements/brand-light.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.js"
+        },
+        {
+          "path": "elements/brand-light.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.d.ts"
+        },
+        {
+          "path": "elements/logo.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.js"
+        },
+        {
+          "path": "elements/logo.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-pricing-page",
+        "tags": [
+          "spyglass-pricing-page"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/pricing-page.js",
+          "elements/plan-card.js",
+          "elements/offer-block.js",
+          "elements/footer-row.js",
+          "elements/site-header.js",
+          "elements/button.js",
+          "elements/ascii-texture.js",
+          "elements/brand-light.js",
+          "elements/logo.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "pricing-table-block",
+      "type": "registry:item",
+      "title": "Pricing table block",
+      "description": "Plans side by side: an optional centered heading and line over plan cards on the #171717 fill, each the same width, centered as a row; one plan sits alone in the middle.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/button.json",
+        "https://spyglass-ds.vercel.app/r/elements/plan-card.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/pricing-table-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/pricing-table-block.js"
+        },
+        {
+          "path": "elements/pricing-table-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/pricing-table-block.d.ts"
+        },
+        {
+          "path": "elements/plan-card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/plan-card.js"
+        },
+        {
+          "path": "elements/plan-card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/plan-card.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-pricing-table-block",
+        "tags": [
+          "spyglass-pricing-table-block"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/pricing-table-block.js",
+          "elements/plan-card.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "product-page",
+      "type": "registry:item",
+      "title": "Product page",
+      "description": "The product page template, built only from library items: the deck cover's hero, one section per thing the product does (search, the brief, the category, adding a brand, agents), copy and picture side by side, and the offer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/ascii-texture.json",
+        "https://spyglass-ds.vercel.app/r/elements/brand-light.json",
+        "https://spyglass-ds.vercel.app/r/elements/button.json",
+        "https://spyglass-ds.vercel.app/r/elements/card.json",
+        "https://spyglass-ds.vercel.app/r/elements/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/elements/creative-grid.json",
+        "https://spyglass-ds.vercel.app/r/elements/creative-ring.json",
+        "https://spyglass-ds.vercel.app/r/elements/creative-row.json",
+        "https://spyglass-ds.vercel.app/r/elements/footer-row.json",
+        "https://spyglass-ds.vercel.app/r/elements/hero-block.json",
+        "https://spyglass-ds.vercel.app/r/elements/logo.json",
+        "https://spyglass-ds.vercel.app/r/elements/offer-block.json",
+        "https://spyglass-ds.vercel.app/r/elements/search-bar.json",
+        "https://spyglass-ds.vercel.app/r/elements/site-header.json",
+        "https://spyglass-ds.vercel.app/r/elements/stat-block.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/product-page.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/product-page.js"
+        },
+        {
+          "path": "elements/product-page.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/product-page.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        },
+        {
+          "path": "elements/card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/card.js"
+        },
+        {
+          "path": "elements/card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/card.d.ts"
+        },
+        {
+          "path": "elements/search-bar.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/search-bar.js"
+        },
+        {
+          "path": "elements/search-bar.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/search-bar.d.ts"
+        },
+        {
+          "path": "elements/creative-grid.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-grid.js"
+        },
+        {
+          "path": "elements/creative-grid.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-grid.d.ts"
+        },
+        {
+          "path": "elements/creative-ring.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-ring.js"
+        },
+        {
+          "path": "elements/creative-ring.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-ring.d.ts"
+        },
+        {
+          "path": "elements/creative-row.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-row.js"
+        },
+        {
+          "path": "elements/creative-row.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-row.d.ts"
+        },
+        {
+          "path": "elements/footer-row.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.js"
+        },
+        {
+          "path": "elements/footer-row.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/footer-row.d.ts"
+        },
+        {
+          "path": "elements/site-header.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.js"
+        },
+        {
+          "path": "elements/site-header.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.d.ts"
+        },
+        {
+          "path": "elements/hero-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/hero-block.js"
+        },
+        {
+          "path": "elements/hero-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/hero-block.d.ts"
+        },
+        {
+          "path": "elements/offer-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/offer-block.js"
+        },
+        {
+          "path": "elements/offer-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/offer-block.d.ts"
+        },
+        {
+          "path": "elements/stat-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/stat-block.js"
+        },
+        {
+          "path": "elements/stat-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/stat-block.d.ts"
+        },
+        {
+          "path": "elements/logo.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.js"
+        },
+        {
+          "path": "elements/logo.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.d.ts"
+        },
+        {
+          "path": "elements/creative-card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.js"
+        },
+        {
+          "path": "elements/creative-card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.d.ts"
+        },
+        {
+          "path": "elements/brand-light.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.js"
+        },
+        {
+          "path": "elements/brand-light.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.d.ts"
+        },
+        {
+          "path": "elements/ascii-texture.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/ascii-texture.js"
+        },
+        {
+          "path": "elements/ascii-texture.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/ascii-texture.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-product-page",
+        "tags": [
+          "spyglass-product-page"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/product-page.js",
+          "elements/button.js",
+          "elements/card.js",
+          "elements/search-bar.js",
+          "elements/creative-grid.js",
+          "elements/creative-ring.js",
+          "elements/creative-row.js",
+          "elements/footer-row.js",
+          "elements/site-header.js",
+          "elements/hero-block.js",
+          "elements/offer-block.js",
+          "elements/stat-block.js",
+          "elements/logo.js",
+          "elements/creative-card.js",
+          "elements/brand-light.js",
+          "elements/ascii-texture.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "progress",
+      "type": "registry:item",
+      "title": "Progress",
+      "description": "How far a task has got: a White bar on a 6px #262626 track with round ends, sliding to each new value on transform. Without a value, a short bar sweeps across at a steady pace.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/progress.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/progress.js"
+        },
+        {
+          "path": "elements/progress.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/progress.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-progress",
+        "tags": [
+          "spyglass-progress"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/progress.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "radio-group",
+      "type": "registry:item",
+      "title": "Radio Group",
+      "description": "One of a few, all in view: round marks in a hairline, the picked one edged in White with a White dot. Arrows move the pick.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/radio-group.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/radio-group.js"
+        },
+        {
+          "path": "elements/radio-group.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/radio-group.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-radio-group",
+        "tags": [
+          "spyglass-radio-group"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/radio-group.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "resizable",
+      "type": "registry:item",
+      "title": "Resizable",
+      "description": "Two panes and the #262626 hairline between them. The hairline is the handle: it turns White under the pointer, while dragged and when focused, and can carry a small grip. Arrow keys move it too.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/resizable.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/resizable.js"
+        },
+        {
+          "path": "elements/resizable.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/resizable.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-resizable",
+        "tags": [
+          "spyglass-resizable"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/resizable.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "scroll-area",
+      "type": "registry:item",
+      "title": "Scroll Area",
+      "description": "A region that scrolls on its own with thin scrollbars: a #363636 thumb on a clear track. Native scrolling, so wheel, touch and keyboard all work; overscroll stays inside.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/scroll-area.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/scroll-area.js"
+        },
+        {
+          "path": "elements/scroll-area.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/scroll-area.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-scroll-area",
+        "tags": [
+          "spyglass-scroll-area"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/scroll-area.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "search-bar",
+      "type": "registry:item",
+      "title": "Search bar",
+      "description": "The ad's search bar: a Black field with the brand corner, the prompt in White DM Sans and a White Search button inside it. Enter or the button runs the search.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/button.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/search-bar.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/search-bar.js"
+        },
+        {
+          "path": "elements/search-bar.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/search-bar.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        },
+        {
+          "path": "elements/brand-light.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.js"
+        },
+        {
+          "path": "elements/brand-light.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/brand-light.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-search-bar",
+        "tags": [
+          "spyglass-search-bar"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/search-bar.js",
+          "elements/button.js",
+          "elements/brand-light.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "select",
+      "type": "registry:item",
+      "title": "Select",
+      "description": "One choice from a short list, drawn as the field is: a Black field, a hairline that turns White while open, a chevron. The list opens in the card's #171717 panel, the chosen row checked.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/select.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/select.js"
+        },
+        {
+          "path": "elements/select.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/select.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-select",
+        "tags": [
+          "spyglass-select"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/select.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "separator",
+      "type": "registry:item",
+      "title": "Separator",
+      "description": "The hairline: 1px in the #262626 edge step, across or down. Spyglass separates with a fill or a hairline, never a shadow.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/separator.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/separator.js"
+        },
+        {
+          "path": "elements/separator.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/separator.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-separator",
+        "tags": [
+          "spyglass-separator"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/separator.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "sheet",
+      "type": "registry:item",
+      "title": "Sheet",
+      "description": "A modal panel at an edge of the screen: the card's #171717 fill with a hairline on its inner edge, a Funnel Display title, the body scrolling on its own and buttons at the foot. It slides in on the drawer curve; Escape closes it at once.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/sheet.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/sheet.js"
+        },
+        {
+          "path": "elements/sheet.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/sheet.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        },
+        {
+          "path": "elements/input.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input.js"
+        },
+        {
+          "path": "elements/input.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/input.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-sheet",
+        "tags": [
+          "spyglass-sheet"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/sheet.js",
+          "elements/button.js",
+          "elements/input.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "sidebar",
+      "type": "registry:item",
+      "title": "Sidebar",
+      "description": "The app's rail: Black with a hairline at its edge, the logo at the top, groups named in capitals, the page you are on in White, the account at the foot. It folds to icons with one button.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/sidebar.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/sidebar.js"
+        },
+        {
+          "path": "elements/sidebar.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/sidebar.d.ts"
+        },
+        {
+          "path": "elements/sidebar-label.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/sidebar-label.js"
+        },
+        {
+          "path": "elements/sidebar-label.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/sidebar-label.d.ts"
+        },
+        {
+          "path": "elements/sidebar-link.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/sidebar-link.js"
+        },
+        {
+          "path": "elements/sidebar-link.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/sidebar-link.d.ts"
+        },
+        {
+          "path": "elements/logo.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.js"
+        },
+        {
+          "path": "elements/logo.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-sidebar",
+        "tags": [
+          "spyglass-sidebar",
+          "spyglass-sidebar-label",
+          "spyglass-sidebar-link"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/sidebar.js",
+          "elements/sidebar-label.js",
+          "elements/sidebar-link.js",
+          "elements/logo.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "site-header",
+      "type": "registry:item",
+      "title": "Site header",
+      "description": "A website's header: the lockup on the left, the page links in DM Sans, a ghost sign-in and the one White button. On phones the links fold behind a menu button.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/button.json",
+        "https://spyglass-ds.vercel.app/r/elements/logo.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/site-header.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.js"
+        },
+        {
+          "path": "elements/site-header.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/site-header.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        },
+        {
+          "path": "elements/logo.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.js"
+        },
+        {
+          "path": "elements/logo.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/logo.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-site-header",
+        "tags": [
+          "spyglass-site-header"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/site-header.js",
+          "elements/button.js",
+          "elements/logo.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "skeleton",
+      "type": "registry:item",
+      "title": "Skeleton",
+      "description": "A placeholder in the shape of what is loading: a #1A1A1A block with the brand corner, or a circle, that breathes between full and half opacity. Never a shimmer; still with reduced motion.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/skeleton.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/skeleton.js"
+        },
+        {
+          "path": "elements/skeleton.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/skeleton.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-skeleton",
+        "tags": [
+          "spyglass-skeleton"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/skeleton.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "slider",
+      "type": "registry:item",
+      "title": "Slider",
+      "description": "A value on a range: a 4px #363636 track, White up to the value, and a White thumb with the small corner. It follows the hand without easing.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/slider.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/slider.js"
+        },
+        {
+          "path": "elements/slider.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/slider.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-slider",
+        "tags": [
+          "spyglass-slider"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/slider.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "sonner",
+      "type": "registry:item",
+      "title": "Sonner",
+      "description": "The corner where notes from toast() show: the newest in front, two more peeking out above. Pointing at the stack spreads it out and holds their time. A note rises in from below and leaves faster.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/button.json",
+        "https://spyglass-ds.vercel.app/r/elements/toast.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/sonner.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/sonner.js"
+        },
+        {
+          "path": "elements/sonner.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/sonner.d.ts"
+        },
+        {
+          "path": "elements/toast.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/toast.js"
+        },
+        {
+          "path": "elements/toast.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/toast.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-sonner",
+        "tags": [
+          "spyglass-sonner"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/sonner.js",
+          "elements/toast.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "spinner",
+      "type": "registry:item",
+      "title": "Spinner",
+      "description": "Work with no known end: a quarter arc in the color around it, White on Black, turning on a #363636 ring at a constant speed. With reduced motion it breathes instead of turning.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/spinner.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/spinner.js"
+        },
+        {
+          "path": "elements/spinner.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/spinner.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-spinner",
+        "tags": [
+          "spyglass-spinner"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/spinner.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "stat-block",
+      "type": "registry:item",
+      "title": "Stat block",
+      "description": "Numbers that say what the product does: Funnel Display figures over a line of DM Sans each, under a hairline or on the #171717 fill, four across.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/stat-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/stat-block.js"
+        },
+        {
+          "path": "elements/stat-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/stat-block.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-stat-block",
+        "tags": [
+          "spyglass-stat-block"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/stat-block.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "switch",
+      "type": "registry:item",
+      "title": "Switch",
+      "description": "On or off, with no words: a #262626 track with a gray thumb when off, White with a Black thumb when on. The thumb slides on the strong ease-out.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/switch.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/switch.js"
+        },
+        {
+          "path": "elements/switch.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/switch.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-switch",
+        "tags": [
+          "spyglass-switch"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/switch.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "table",
+      "type": "registry:item",
+      "title": "Table",
+      "description": "Rows of one kind of thing on Black: heads as capital labels in muted DM Sans Medium, cells in DM Sans 14px, a #262626 hairline between rows and the ghost fill under the pointer. Framed, it sits in a hairline box with the brand corner.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/table.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/table.js"
+        },
+        {
+          "path": "elements/table.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/table.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-table",
+        "tags": [
+          "spyglass-table"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/table.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "tabs",
+      "type": "registry:item",
+      "title": "Tabs",
+      "description": "Views of one thing, one at a time. The default is a segmented control: a #171717 track, the current view a White block with a Black label. Line tabs sit over a hairline with a 2px White line under the current one.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/tabs.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/tabs.js"
+        },
+        {
+          "path": "elements/tabs.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/tabs.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-tabs",
+        "tags": [
+          "spyglass-tabs"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/tabs.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "testimonial-block",
+      "type": "registry:item",
+      "title": "Testimonial block",
+      "description": "One customer as a section: an optional label in capitals over the testimonial, the headshot beside the words or above them, on Black or on the #171717 fill.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/elements/testimonial.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/testimonial-block.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/testimonial-block.js"
+        },
+        {
+          "path": "elements/testimonial-block.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/testimonial-block.d.ts"
+        },
+        {
+          "path": "elements/testimonial.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/testimonial.js"
+        },
+        {
+          "path": "elements/testimonial.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/testimonial.d.ts"
+        },
+        {
+          "path": "elements/creative-card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.js"
+        },
+        {
+          "path": "elements/creative-card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-testimonial-block",
+        "tags": [
+          "spyglass-testimonial-block"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/testimonial-block.js",
+          "elements/testimonial.js",
+          "elements/creative-card.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "testimonial",
+      "type": "registry:item",
+      "title": "Testimonial",
+      "description": "The testimonial ad: a 4/5 headshot in the brand corner, the quote in Funnel Display in curly quotes, the name in DM Sans and the role and company in capitals.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/testimonial.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/testimonial.js"
+        },
+        {
+          "path": "elements/testimonial.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/testimonial.d.ts"
+        },
+        {
+          "path": "elements/creative-card.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.js"
+        },
+        {
+          "path": "elements/creative-card.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/creative-card.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-testimonial",
+        "tags": [
+          "spyglass-testimonial"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/testimonial.js",
+          "elements/creative-card.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "textarea",
+      "type": "registry:item",
+      "title": "Textarea",
+      "description": "Several lines of text, drawn as the input is: a #363636 hairline on Black that turns White on focus, DM Sans, the brand corner. It grows by hand downward.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/textarea.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/textarea.js"
+        },
+        {
+          "path": "elements/textarea.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/textarea.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-textarea",
+        "tags": [
+          "spyglass-textarea"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/textarea.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "toast",
+      "type": "registry:item",
+      "title": "Toast",
+      "description": "One note, what just happened: the card's #171717 fill, a hairline and the brand corner, a DM Sans Medium title, a muted line, one small White button when there is something to do, and a close button.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/elements/button.json"
+      ],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/toast.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/toast.js"
+        },
+        {
+          "path": "elements/toast.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/toast.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-toast",
+        "tags": [
+          "spyglass-toast"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/toast.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "toggle-group",
+      "type": "registry:item",
+      "title": "Toggle Group",
+      "description": "Buttons that stay pressed, side by side on one track with the brand corner. Each pressed one is a White block with Black text.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/toggle-group.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/toggle-group.js"
+        },
+        {
+          "path": "elements/toggle-group.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/toggle-group.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-toggle-group",
+        "tags": [
+          "spyglass-toggle-group"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/toggle-group.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "toggle",
+      "type": "registry:item",
+      "title": "Toggle",
+      "description": "A button that stays pressed: no fill or a hairline at rest, the primary White with Black text while it is on. Sizes match the button's.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/toggle.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/toggle.js"
+        },
+        {
+          "path": "elements/toggle.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/toggle.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-toggle",
+        "tags": [
+          "spyglass-toggle"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/toggle.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "tooltip",
+      "type": "registry:item",
+      "title": "Tooltip",
+      "description": "A control's name, for icon buttons: a White fill with Black caption text and the small corner. It waits 300ms under the pointer, shows at once on keyboard focus, and the next one in a row shows at once.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/tooltip.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/tooltip.js"
+        },
+        {
+          "path": "elements/tooltip.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/tooltip.d.ts"
+        },
+        {
+          "path": "elements/button.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.js"
+        },
+        {
+          "path": "elements/button.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/button.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-tooltip",
+        "tags": [
+          "spyglass-tooltip"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/tooltip.js",
+          "elements/button.js"
+        ]
+      }
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "typography",
+      "type": "registry:item",
+      "title": "Typography",
+      "description": "The brand's type scale as one part. Funnel Display Regular for titles, DM Sans for text, Medium for small and labels, labels in capitals with 6% tracking, Geist Mono for code. Every variant is a type utility from the tokens.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "elements/shared.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/shared.js"
+        },
+        {
+          "path": "elements/text.js",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/text.js"
+        },
+        {
+          "path": "elements/text.d.ts",
+          "type": "registry:file",
+          "target": "public/spyglass-ds/elements/text.d.ts"
+        }
+      ],
+      "meta": {
+        "tag": "spyglass-text",
+        "tags": [
+          "spyglass-text"
+        ],
+        "modules": [
+          "elements/shared.js",
+          "elements/text.js"
+        ]
+      }
+    }
+  ]
+}

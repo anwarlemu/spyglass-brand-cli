@@ -1,0 +1,29 @@
+{
+  "name": "spyglass-ds",
+  "version": "0.1.0",
+  "description": "The Spyglass brand system in one CLI: tokens, logos, fonts, the brand light and ASCII texture, a React and web component library, and checks that keep pages, assets and interfaces on brand.",
+  "type": "module",
+  "bin": {
+    "spyglass-ds": "./bin.js"
+  },
+  "files": [
+    "bin.js",
+    "dist",
+    "brand",
+    "build",
+    "r",
+    "elements"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@babel/parser": "7.29.3",
+    "@resvg/resvg-js": "^2.6.2",
+    "@vue/compiler-sfc": "3.5.43",
+    "jpeg-js": "0.4.4",
+    "opentype.js": "^2.0.0",
+    "tailwindcss": "4.3.4",
+    "wawoff2": "^2.0.1"
+  }
+}

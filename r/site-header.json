@@ -1,0 +1,254 @@
+{
+  "name": "site-header",
+  "title": "Site header",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "A website's header: the lockup on the left, the page links in DM Sans, a ghost sign-in and the one White button. On phones the links fold behind a menu button.",
+  "use_for": "The top of every website page. The White button is the page's main action (\"Get 50% off\"); the sign-in stays a ghost.",
+  "never": [
+    "Two White buttons in the header",
+    "A colored or centered lockup",
+    "A header that animates as it opens on phones"
+  ],
+  "source": "Derived from the guidelines (Brand applications) and the assets' top row: the Spyglass lockup at the top left (183x28 at 64,64), the domain or a label at the right; buttons from Button, Get 50% off",
+  "body": "The panel on phones opens in place, without motion: it is a tool opened often. Escape closes it and returns focus to\nthe menu button.",
+  "requires": [
+    "button",
+    "logo"
+  ],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/site/SiteHeader.tsx",
+      "content": "'use client'\nimport { useEffect, useId, useRef, useState } from 'react'\nimport { Menu, X } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { Logo } from '@/react/components/visuals/Logo'\nimport { cn } from '@/react/lib/cn'\n\n// A website's header in the assets' order: the lockup on the left (20px tall, the canvas's 183x28 times 2/3), the\n// page links in DM Sans, and on the right a ghost sign-in and the one White button. Below 768px the links and the\n// sign-in fold behind a menu button; the panel opens in place under the bar, without motion (it is a tool, opened\n// often), and Escape closes it and returns focus to the button. Links change color on hover; nothing moves.\nexport interface HeaderLink {\n  label: string\n  href: string\n  /** The page being shown. */\n  current?: boolean\n}\n\nexport interface HeaderAction {\n  label: string\n  href: string\n}\n\nexport interface SiteHeaderProps {\n  links?: HeaderLink[]\n  /** The White button on the right. */\n  cta?: HeaderAction\n  /** A ghost link before it (sign in). */\n  secondary?: HeaderAction\n  /** Where the lockup links. */\n  homeHref?: string\n  /** The lockup's accessible name. */\n  label?: string\n  className?: string\n}\n\nconst LINK = 'rounded-control type-ui text-fg-muted transition-[color] duration-150 ease-standard hover:text-fg aria-[current=page]:text-fg'\n\nexport function SiteHeader({ links = [], cta, secondary, homeHref = '/', label = 'Spyglass', className }: SiteHeaderProps) {\n  const [open, setOpen] = useState(false)\n  const panel = `site-menu${useId().replace(/[^\\w-]/g, '')}`\n  const toggle = useRef<HTMLButtonElement & HTMLAnchorElement>(null)\n  useEffect(() => {\n    if (!open) return\n    const onKey = (e: KeyboardEvent) => {\n      if (e.key !== 'Escape') return\n      setOpen(false)\n      toggle.current?.focus()\n    }\n    document.addEventListener('keydown', onKey)\n    return () => document.removeEventListener('keydown', onKey)\n  }, [open])\n  const folded = links.length > 0 || !!secondary\n  return (\n    <header data-ds=\"site-header\" className={cn('relative flex h-16 items-center gap-8 text-fg', className)}>\n      <a href={homeHref} aria-label={label} className=\"shrink-0 rounded-control\"><Logo height={20} label={label} /></a>\n      {links.length > 0 && (\n        <nav aria-label=\"Main\" className=\"max-md:hidden\">\n          <ul className=\"flex items-center gap-6\">\n            {links.map((l) => <li key={l.href}><a href={l.href} aria-current={l.current ? 'page' : undefined} className={LINK}>{l.label}</a></li>)}\n          </ul>\n        </nav>\n      )}\n      <div className=\"ml-auto flex items-center gap-2\">\n        {secondary && <div className=\"flex max-md:hidden\"><Button href={secondary.href} variant=\"ghost\" size=\"sm\">{secondary.label}</Button></div>}\n        {cta && <Button href={cta.href} size=\"sm\">{cta.label}</Button>}\n        {folded && (\n          <div className=\"flex md:hidden\">\n            <Button ref={toggle} variant=\"ghost\" size=\"sm\" icon aria-label={open ? 'Close the menu' : 'Open the menu'} aria-expanded={open} aria-controls={panel} onClick={() => setOpen((o) => !o)}>\n              {open ? <X size={16} strokeWidth={1.5} aria-hidden=\"true\" /> : <Menu size={16} strokeWidth={1.5} aria-hidden=\"true\" />}\n            </Button>\n          </div>\n        )}\n      </div>\n      {folded && (\n        <div id={panel} hidden={!open} className=\"absolute inset-x-0 top-full z-20 border-b border-edge bg-surface pt-2 pb-6 md:hidden\">\n          <ul className=\"grid gap-1\">\n            {links.map((l) => <li key={l.href}><a href={l.href} aria-current={l.current ? 'page' : undefined} className={cn(LINK, 'flex h-control-touch items-center')}>{l.label}</a></li>)}\n            {secondary && <li><a href={secondary.href} className={cn(LINK, 'flex h-control-touch items-center')}>{secondary.label}</a></li>}\n          </ul>\n        </div>\n      )}\n    </header>\n  )\n}\n\nexport default SiteHeader\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Default",
+      "label": "Default",
+      "center": false,
+      "half": false,
+      "path": "react/examples/site-header/Default.tsx",
+      "content": "import { SiteHeader } from '@/react/components/site/SiteHeader'\n// The header with the pages, a sign-in and the main action.\n\nconst links = [\n  { label: 'Product', href: '#product', current: true },\n  { label: 'Pricing', href: '#pricing' },\n  { label: 'Changelog', href: '#changelog' },\n  { label: 'Blog', href: '#blog' },\n]\n\nexport default function Default() {\n  return <SiteHeader homeHref=\"#home\" links={links} secondary={{ label: 'Sign in', href: '#sign-in' }} cta={{ label: 'Get 50% off', href: '#pricing' }} />\n}\n",
+      "requires": [
+        "button",
+        "logo"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/SiteHeader.tsx",
+          "content": "'use client'\nimport { useEffect, useId, useRef, useState } from 'react'\nimport { Menu, X } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { Logo } from '@/react/components/visuals/Logo'\nimport { cn } from '@/react/lib/cn'\n\n// A website's header in the assets' order: the lockup on the left (20px tall, the canvas's 183x28 times 2/3), the\n// page links in DM Sans, and on the right a ghost sign-in and the one White button. Below 768px the links and the\n// sign-in fold behind a menu button; the panel opens in place under the bar, without motion (it is a tool, opened\n// often), and Escape closes it and returns focus to the button. Links change color on hover; nothing moves.\nexport interface HeaderLink {\n  label: string\n  href: string\n  /** The page being shown. */\n  current?: boolean\n}\n\nexport interface HeaderAction {\n  label: string\n  href: string\n}\n\nexport interface SiteHeaderProps {\n  links?: HeaderLink[]\n  /** The White button on the right. */\n  cta?: HeaderAction\n  /** A ghost link before it (sign in). */\n  secondary?: HeaderAction\n  /** Where the lockup links. */\n  homeHref?: string\n  /** The lockup's accessible name. */\n  label?: string\n  className?: string\n}\n\nconst LINK = 'rounded-control type-ui text-fg-muted transition-[color] duration-150 ease-standard hover:text-fg aria-[current=page]:text-fg'\n\nexport function SiteHeader({ links = [], cta, secondary, homeHref = '/', label = 'Spyglass', className }: SiteHeaderProps) {\n  const [open, setOpen] = useState(false)\n  const panel = `site-menu${useId().replace(/[^\\w-]/g, '')}`\n  const toggle = useRef<HTMLButtonElement & HTMLAnchorElement>(null)\n  useEffect(() => {\n    if (!open) return\n    const onKey = (e: KeyboardEvent) => {\n      if (e.key !== 'Escape') return\n      setOpen(false)\n      toggle.current?.focus()\n    }\n    document.addEventListener('keydown', onKey)\n    return () => document.removeEventListener('keydown', onKey)\n  }, [open])\n  const folded = links.length > 0 || !!secondary\n  return (\n    <header data-ds=\"site-header\" className={cn('relative flex h-16 items-center gap-8 text-fg', className)}>\n      <a href={homeHref} aria-label={label} className=\"shrink-0 rounded-control\"><Logo height={20} label={label} /></a>\n      {links.length > 0 && (\n        <nav aria-label=\"Main\" className=\"max-md:hidden\">\n          <ul className=\"flex items-center gap-6\">\n            {links.map((l) => <li key={l.href}><a href={l.href} aria-current={l.current ? 'page' : undefined} className={LINK}>{l.label}</a></li>)}\n          </ul>\n        </nav>\n      )}\n      <div className=\"ml-auto flex items-center gap-2\">\n        {secondary && <div className=\"flex max-md:hidden\"><Button href={secondary.href} variant=\"ghost\" size=\"sm\">{secondary.label}</Button></div>}\n        {cta && <Button href={cta.href} size=\"sm\">{cta.label}</Button>}\n        {folded && (\n          <div className=\"flex md:hidden\">\n            <Button ref={toggle} variant=\"ghost\" size=\"sm\" icon aria-label={open ? 'Close the menu' : 'Open the menu'} aria-expanded={open} aria-controls={panel} onClick={() => setOpen((o) => !o)}>\n              {open ? <X size={16} strokeWidth={1.5} aria-hidden=\"true\" /> : <Menu size={16} strokeWidth={1.5} aria-hidden=\"true\" />}\n            </Button>\n          </div>\n        )}\n      </div>\n      {folded && (\n        <div id={panel} hidden={!open} className=\"absolute inset-x-0 top-full z-20 border-b border-edge bg-surface pt-2 pb-6 md:hidden\">\n          <ul className=\"grid gap-1\">\n            {links.map((l) => <li key={l.href}><a href={l.href} aria-current={l.current ? 'page' : undefined} className={cn(LINK, 'flex h-control-touch items-center')}>{l.label}</a></li>)}\n            {secondary && <li><a href={secondary.href} className={cn(LINK, 'flex h-control-touch items-center')}>{secondary.label}</a></li>}\n          </ul>\n        </div>\n      )}\n    </header>\n  )\n}\n\nexport default SiteHeader\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "button",
+        "logo"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "SiteHeader",
+            "file": "react/components/site/SiteHeader.tsx",
+            "props": [
+              {
+                "name": "links",
+                "type": "HeaderLink[]",
+                "required": false,
+                "default": "[]"
+              },
+              {
+                "name": "cta",
+                "type": "HeaderAction",
+                "required": false,
+                "description": "The White button on the right."
+              },
+              {
+                "name": "secondary",
+                "type": "HeaderAction",
+                "required": false,
+                "description": "A ghost link before it (sign in)."
+              },
+              {
+                "name": "homeHref",
+                "type": "string",
+                "required": false,
+                "default": "'/'",
+                "description": "Where the lockup links."
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "default": "'Spyglass'",
+                "description": "The lockup's accessible name."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Default",
+          "label": "Default",
+          "center": false,
+          "half": false,
+          "path": "react/examples/site-header/Default.tsx",
+          "content": "import { SiteHeader } from '@/react/components/site/SiteHeader'\n// The header with the pages, a sign-in and the main action.\n\nconst links = [\n  { label: 'Product', href: '#product', current: true },\n  { label: 'Pricing', href: '#pricing' },\n  { label: 'Changelog', href: '#changelog' },\n  { label: 'Blog', href: '#blog' },\n]\n\nexport default function Default() {\n  return <SiteHeader homeHref=\"#home\" links={links} secondary={{ label: 'Sign in', href: '#sign-in' }} cta={{ label: 'Get 50% off', href: '#pricing' }} />\n}\n",
+          "registryDependencies": [
+            "button",
+            "logo"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/site-header.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { Menu, X } from 'lucide'\nimport { DsElement, define, HostLayoutController, uid } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport '@/elements/components/ui/button'\nimport '@/elements/components/visuals/logo'\nimport styles from 'virtual:tw'\n\n// SiteHeader.tsx as <spyglass-site-header>: the lockup, the page links (`links`, a list of { label, href, current }),\n// a ghost `secondary` and the White `cta` ({ label, href } each). Below 768px the links fold behind a menu button whose\n// panel opens in place without motion; Escape closes it and returns focus to the button.\nexport interface HeaderLink { label: string; href: string; current?: boolean }\nexport interface HeaderAction { label: string; href: string }\n\nconst LINK = 'rounded-control type-ui text-fg-muted transition-[color] duration-150 ease-standard hover:text-fg aria-[current=page]:text-fg'\n\n/**\n * @summary A website header: lockup, links, sign-in and the White button; a menu on phones.\n */\nexport class SiteHeader extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"site-header\"]'))\n\tstatic properties = { links: { type: Array }, cta: { type: Object }, secondary: { type: Object }, homeHref: { attribute: 'home-href' }, label: { attribute: 'logo-label' }, open: { state: true } }\n\tlinks: HeaderLink[] = []\n\t/** The White button on the right ({ label, href }). */\n\tcta?: HeaderAction\n\t/** A ghost link before it ({ label, href }). */\n\tsecondary?: HeaderAction\n\t/** Where the lockup links. */\n\thomeHref = '/'\n\t/** The lockup's accessible name. */\n\tlabel = 'Spyglass'\n\tprivate open = false\n\tprivate panelId = uid('site-menu')\n\n\tprivate onKey = (e: KeyboardEvent) => {\n\t\tif (e.key !== 'Escape' || !this.open) return\n\t\tthis.open = false\n\t\tthis.renderRoot.querySelector<HTMLElement>('[data-menu-toggle]')?.shadowRoot?.querySelector<HTMLElement>('button')?.focus()\n\t}\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\tdocument.addEventListener('keydown', this.onKey)\n\t}\n\tdisconnectedCallback() {\n\t\tsuper.disconnectedCallback()\n\t\tdocument.removeEventListener('keydown', this.onKey)\n\t}\n\n\trender() {\n\t\tconst links = this.links ?? []\n\t\tconst folded = links.length > 0 || !!this.secondary\n\t\tconst link = (l: HeaderLink, extra = '') => html`<li><a href=${l.href} aria-current=${ifDefined(l.current ? 'page' : undefined)} class=${extra ? `${LINK} ${extra}` : LINK}>${l.label}</a></li>`\n\t\treturn html`<header data-ds=\"site-header\" class=\"relative flex h-16 items-center gap-8 text-fg\"><a href=${this.homeHref} aria-label=${this.label} class=\"shrink-0 rounded-control\"><spyglass-logo height=\"20\" aria-label=${this.label}></spyglass-logo></a>${links.length ? html`<nav aria-label=\"Main\" class=\"max-md:hidden\"><ul class=\"flex items-center gap-6\">${links.map((l) => link(l))}</ul></nav>` : nothing}<div class=\"ml-auto flex items-center gap-2\">${this.secondary ? html`<div class=\"flex max-md:hidden\"><spyglass-button href=${this.secondary.href} variant=\"ghost\" size=\"sm\">${this.secondary.label}</spyglass-button></div>` : nothing}${this.cta ? html`<spyglass-button href=${this.cta.href} size=\"sm\">${this.cta.label}</spyglass-button>` : nothing}${folded ? html`<div class=\"flex md:hidden\"><spyglass-button data-menu-toggle variant=\"ghost\" size=\"sm\" icon aria-label=${this.open ? 'Close the menu' : 'Open the menu'} .expanded=${String(this.open)} .controls=${this.panelId} @click=${() => (this.open = !this.open)}>${this.open ? icon(X, 'x', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } }) : icon(Menu, 'menu', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } })}</spyglass-button></div>` : nothing}</div>${folded ? html`<div id=${this.panelId} ?hidden=${!this.open} class=\"absolute inset-x-0 top-full z-20 border-b border-edge bg-surface pt-2 pb-6 md:hidden\"><ul class=\"grid gap-1\">${links.map((l) => link(l, 'flex h-control-touch items-center'))}${this.secondary ? link({ label: this.secondary.label, href: this.secondary.href }, 'flex h-control-touch items-center') : nothing}</ul></div>` : nothing}</header>`\n\t}\n}\n\ndefine('site-header', SiteHeader)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/site-header.js",
+        "elements/button.js",
+        "elements/logo.js"
+      ],
+      "tag": "spyglass-site-header",
+      "tags": [
+        "spyglass-site-header"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button",
+        "logo"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-site-header",
+            "name": "SiteHeader",
+            "module": "elements/site-header.js",
+            "description": "A website header: lockup, links, sign-in and the White button; a menu on phones.",
+            "attributes": [
+              {
+                "name": "links",
+                "field": "links",
+                "type": "HeaderLink[]",
+                "default": "[]"
+              },
+              {
+                "name": "cta",
+                "field": "cta",
+                "type": "HeaderAction | undefined",
+                "description": "The White button on the right ({ label, href })."
+              },
+              {
+                "name": "secondary",
+                "field": "secondary",
+                "type": "HeaderAction | undefined",
+                "description": "A ghost link before it ({ label, href })."
+              },
+              {
+                "name": "home-href",
+                "field": "homeHref",
+                "type": "string",
+                "default": "'/'",
+                "description": "Where the lockup links."
+              },
+              {
+                "name": "logo-label",
+                "field": "label",
+                "type": "string",
+                "default": "'Spyglass'",
+                "description": "The lockup's accessible name."
+              },
+              {
+                "name": "open",
+                "field": "open",
+                "type": "boolean",
+                "default": "false"
+              }
+            ],
+            "properties": [
+              {
+                "name": "links",
+                "type": "HeaderLink[]",
+                "default": "[]",
+                "attribute": "links"
+              },
+              {
+                "name": "cta",
+                "type": "HeaderAction | undefined",
+                "description": "The White button on the right ({ label, href }).",
+                "attribute": "cta"
+              },
+              {
+                "name": "secondary",
+                "type": "HeaderAction | undefined",
+                "description": "A ghost link before it ({ label, href }).",
+                "attribute": "secondary"
+              },
+              {
+                "name": "homeHref",
+                "type": "string",
+                "default": "'/'",
+                "description": "Where the lockup links.",
+                "attribute": "home-href"
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "default": "'Spyglass'",
+                "description": "The lockup's accessible name.",
+                "attribute": "logo-label"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Default",
+          "label": "Default",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/site-header/Default.html",
+          "content": "<!-- The header with the pages, a sign-in and the main action. -->\n<spyglass-site-header home-href=\"#home\" links='[{\"label\":\"Product\",\"href\":\"#product\",\"current\":true},{\"label\":\"Pricing\",\"href\":\"#pricing\"},{\"label\":\"Changelog\",\"href\":\"#changelog\"},{\"label\":\"Blog\",\"href\":\"#blog\"}]' secondary='{\"label\":\"Sign in\",\"href\":\"#sign-in\"}' cta='{\"label\":\"Get 50% off\",\"href\":\"#pricing\"}'></spyglass-site-header>\n"
+        }
+      ]
+    }
+  }
+}

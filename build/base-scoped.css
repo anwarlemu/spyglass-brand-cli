@@ -1,0 +1,31 @@
+/* Scoped base: the brand's element defaults inside the library's components ([data-ds]) and the elements a
+   selection restyled (.ds-scope) only. A whole-app apply installs the full base layer instead. */
+@layer base {
+  :is([data-ds], .ds-scope):not(:is([data-ds], .ds-scope) *) {
+    color: var(--ds-color-fg);
+    font-family: var(--ds-font-text);
+    font-size: var(--ds-text-body);
+    line-height: var(--ds-text-body-leading);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  :where([data-ds], .ds-scope), :where([data-ds], .ds-scope) *, :where([data-ds], .ds-scope) ::before, :where([data-ds], .ds-scope) ::after, :where([data-ds], .ds-scope)::before, :where([data-ds], .ds-scope)::after {
+    border-color: var(--ds-color-edge);
+  }
+  :where([data-ds], .ds-scope):focus-visible, :where([data-ds], .ds-scope) :focus-visible {
+    outline: var(--ds-border-focus) solid var(--ds-color-edge-focus);
+    outline-offset: var(--ds-border-focus);
+  }
+  :where([data-ds], .ds-scope)::selection, :where([data-ds], .ds-scope) ::selection {
+    background: var(--ds-color-white);
+    color: var(--ds-color-black);
+  }
+  :where([data-ds], .ds-scope) :where(a, button, [role="button"], [role="tab"]) {
+    touch-action: manipulation;
+  }
+  @media (pointer: coarse), (max-width: 767px) {
+    :is([data-ds], .ds-scope) :is(input:not([type="checkbox"], [type="radio"], [type="file"]), textarea, select) {
+      font-size: var(--ds-text-input);
+    }
+  }
+}

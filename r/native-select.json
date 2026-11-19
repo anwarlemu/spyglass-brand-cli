@@ -1,0 +1,298 @@
+{
+  "name": "native-select",
+  "title": "Native Select",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "The browser's own select, drawn as the input: a #363636 hairline on Black that turns White on focus, the brand corner and a muted chevron. Phones open the system picker.",
+  "use_for": "A pick of one from a short, plain list in a form or a filter row: a platform, a date range, a sort order.",
+  "never": [
+    "A list that needs search or custom rows: use Select",
+    "Options that do something at once: use Dropdown Menu",
+    "A filled or gray field on Black"
+  ],
+  "source": "Derived from the brand guidelines (no select in the brand assets): the input's hairline, fill and corner, the neutral steps for the chevron",
+  "body": "",
+  "requires": [],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/ui/NativeSelect.tsx",
+      "content": "import type { Ref, SelectHTMLAttributes } from 'react'\nimport { ChevronDown } from 'lucide-react'\nimport { cn } from '@/react/lib/cn'\n\n// The browser's own select, drawn as the Input is: a #363636 hairline on Black that turns White on focus, DM Sans at\n// 14px (16px on phones, where the system picker opens), the brand corner, and its own 16px chevron in the muted gray,\n// the same in every browser. Sizes follow the input's: sm 32px, md 40px, lg 48px. Options go in as <option> children.\n// For a list with search or custom rows, use Select. `className` lands on the wrapper, every other prop on the\n// <select> (value and onChange as React's own).\nexport type NativeSelectSize = 'sm' | 'md' | 'lg'\n\nconst SIZES: Record<NativeSelectSize, string> = { sm: 'h-control-sm pr-8 pl-2.5', md: 'h-control-md pr-9 pl-3', lg: 'h-control-lg pr-10 pl-4' }\nconst CHEVRON: Record<NativeSelectSize, string> = { sm: 'right-2.5', md: 'right-3', lg: 'right-4' }\n\nexport interface NativeSelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size'> {\n  /** sm (32px), md (40px) or lg (48px). */\n  size?: NativeSelectSize\n  /** A red hairline (with the message beside it). */\n  invalid?: boolean\n  ref?: Ref<HTMLSelectElement>\n}\n\nexport function NativeSelect({ size = 'md', invalid, className, children, ...rest }: NativeSelectProps) {\n  return (\n    <span data-ds=\"native-select\" className={cn('relative inline-flex w-full items-center', className)}>\n      <select {...rest} aria-invalid={invalid || undefined} className={cn('w-full min-w-0 cursor-pointer appearance-none rounded-control border border-edge-strong bg-surface type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', SIZES[size])}>{children}</select>\n      <ChevronDown size={16} strokeWidth={1.5} aria-hidden=\"true\" className={cn('pointer-events-none absolute text-fg-muted', CHEVRON[size])} />\n    </span>\n  )\n}\n\nexport default NativeSelect\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Filters",
+      "label": "Filters",
+      "center": false,
+      "half": false,
+      "path": "react/examples/native-select/Filters.tsx",
+      "content": "import { NativeSelect } from '@/react/components/ui/NativeSelect'\n// Two filters over a search: where the ads ran and how long ago.\n\nexport default function Filters() {\n  return (\n    <div className=\"grid w-full max-w-120 gap-4 sm:grid-cols-2\">\n      <div className=\"flex flex-col gap-2\">\n        <label htmlFor=\"native-select-platform\" className=\"type-label text-fg-soft\">Platform</label>\n        <NativeSelect id=\"native-select-platform\" name=\"platform\" defaultValue=\"meta\">\n          <option value=\"all\">All platforms</option>\n          <option value=\"meta\">Meta</option>\n          <option value=\"tiktok\">TikTok</option>\n          <option value=\"youtube\">YouTube</option>\n        </NativeSelect>\n      </div>\n      <div className=\"flex flex-col gap-2\">\n        <label htmlFor=\"native-select-range\" className=\"type-label text-fg-soft\">Running for</label>\n        <NativeSelect id=\"native-select-range\" name=\"range\" defaultValue=\"30\">\n          <option value=\"7\">Over 7 days</option>\n          <option value=\"30\">Over 30 days</option>\n          <option value=\"90\">Over 90 days</option>\n        </NativeSelect>\n      </div>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": [
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "Sizes",
+      "label": "Sizes",
+      "center": true,
+      "half": false,
+      "path": "react/examples/native-select/Sizes.tsx",
+      "content": "import { NativeSelect } from '@/react/components/ui/NativeSelect'\n// The three sizes, matching the input's and the button's.\n\nexport default function Sizes() {\n  return (\n    <div className=\"flex w-64 max-w-full flex-col gap-3\">\n      <NativeSelect size=\"sm\" aria-label=\"Sort, small\" defaultValue=\"spend\"><option value=\"spend\">Sort by spend</option><option value=\"new\">Newest first</option></NativeSelect>\n      <NativeSelect size=\"md\" aria-label=\"Sort, medium\" defaultValue=\"spend\"><option value=\"spend\">Sort by spend</option><option value=\"new\">Newest first</option></NativeSelect>\n      <NativeSelect size=\"lg\" aria-label=\"Sort, large\" defaultValue=\"spend\"><option value=\"spend\">Sort by spend</option><option value=\"new\">Newest first</option></NativeSelect>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/NativeSelect.tsx",
+          "content": "import type { Ref, SelectHTMLAttributes } from 'react'\nimport { ChevronDown } from 'lucide-react'\nimport { cn } from '@/react/lib/cn'\n\n// The browser's own select, drawn as the Input is: a #363636 hairline on Black that turns White on focus, DM Sans at\n// 14px (16px on phones, where the system picker opens), the brand corner, and its own 16px chevron in the muted gray,\n// the same in every browser. Sizes follow the input's: sm 32px, md 40px, lg 48px. Options go in as <option> children.\n// For a list with search or custom rows, use Select. `className` lands on the wrapper, every other prop on the\n// <select> (value and onChange as React's own).\nexport type NativeSelectSize = 'sm' | 'md' | 'lg'\n\nconst SIZES: Record<NativeSelectSize, string> = { sm: 'h-control-sm pr-8 pl-2.5', md: 'h-control-md pr-9 pl-3', lg: 'h-control-lg pr-10 pl-4' }\nconst CHEVRON: Record<NativeSelectSize, string> = { sm: 'right-2.5', md: 'right-3', lg: 'right-4' }\n\nexport interface NativeSelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size'> {\n  /** sm (32px), md (40px) or lg (48px). */\n  size?: NativeSelectSize\n  /** A red hairline (with the message beside it). */\n  invalid?: boolean\n  ref?: Ref<HTMLSelectElement>\n}\n\nexport function NativeSelect({ size = 'md', invalid, className, children, ...rest }: NativeSelectProps) {\n  return (\n    <span data-ds=\"native-select\" className={cn('relative inline-flex w-full items-center', className)}>\n      <select {...rest} aria-invalid={invalid || undefined} className={cn('w-full min-w-0 cursor-pointer appearance-none rounded-control border border-edge-strong bg-surface type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', SIZES[size])}>{children}</select>\n      <ChevronDown size={16} strokeWidth={1.5} aria-hidden=\"true\" className={cn('pointer-events-none absolute text-fg-muted', CHEVRON[size])} />\n    </span>\n  )\n}\n\nexport default NativeSelect\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "NativeSelect",
+            "file": "react/components/ui/NativeSelect.tsx",
+            "props": [
+              {
+                "name": "size",
+                "type": "NativeSelectSize",
+                "required": false,
+                "default": "'md'",
+                "description": "sm (32px), md (40px) or lg (48px)."
+              },
+              {
+                "name": "invalid",
+                "type": "boolean",
+                "required": false,
+                "description": "A red hairline (with the message beside it)."
+              }
+            ],
+            "extends": [
+              "Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size'>"
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Filters",
+          "label": "Filters",
+          "center": false,
+          "half": false,
+          "path": "react/examples/native-select/Filters.tsx",
+          "content": "import { NativeSelect } from '@/react/components/ui/NativeSelect'\n// Two filters over a search: where the ads ran and how long ago.\n\nexport default function Filters() {\n  return (\n    <div className=\"grid w-full max-w-120 gap-4 sm:grid-cols-2\">\n      <div className=\"flex flex-col gap-2\">\n        <label htmlFor=\"native-select-platform\" className=\"type-label text-fg-soft\">Platform</label>\n        <NativeSelect id=\"native-select-platform\" name=\"platform\" defaultValue=\"meta\">\n          <option value=\"all\">All platforms</option>\n          <option value=\"meta\">Meta</option>\n          <option value=\"tiktok\">TikTok</option>\n          <option value=\"youtube\">YouTube</option>\n        </NativeSelect>\n      </div>\n      <div className=\"flex flex-col gap-2\">\n        <label htmlFor=\"native-select-range\" className=\"type-label text-fg-soft\">Running for</label>\n        <NativeSelect id=\"native-select-range\" name=\"range\" defaultValue=\"30\">\n          <option value=\"7\">Over 7 days</option>\n          <option value=\"30\">Over 30 days</option>\n          <option value=\"90\">Over 90 days</option>\n        </NativeSelect>\n      </div>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        },
+        {
+          "name": "Sizes",
+          "label": "Sizes",
+          "center": true,
+          "half": false,
+          "path": "react/examples/native-select/Sizes.tsx",
+          "content": "import { NativeSelect } from '@/react/components/ui/NativeSelect'\n// The three sizes, matching the input's and the button's.\n\nexport default function Sizes() {\n  return (\n    <div className=\"flex w-64 max-w-full flex-col gap-3\">\n      <NativeSelect size=\"sm\" aria-label=\"Sort, small\" defaultValue=\"spend\"><option value=\"spend\">Sort by spend</option><option value=\"new\">Newest first</option></NativeSelect>\n      <NativeSelect size=\"md\" aria-label=\"Sort, medium\" defaultValue=\"spend\"><option value=\"spend\">Sort by spend</option><option value=\"new\">Newest first</option></NativeSelect>\n      <NativeSelect size=\"lg\" aria-label=\"Sort, large\" defaultValue=\"spend\"><option value=\"spend\">Sort by spend</option><option value=\"new\">Newest first</option></NativeSelect>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/native-select.ts",
+          "content": "import { html, LitElement, type PropertyValues } from 'lit'\nimport { ChevronDown } from 'lucide'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsFormElement, define } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport styles from 'virtual:tw'\n\n// NativeSelect.tsx as <spyglass-native-select>: the browser's own select, drawn as the input is: a #363636 hairline on\n// Black that turns White on focus, DM Sans at 14px (16px on phones), the brand corner and its own 16px chevron in the\n// muted gray. Sizes sm, md and lg. Options go inside as <option>s: a <select> takes only its own children, so the\n// element draws a copy of them in its shadow root and follows changes to them. The host is the box (React's wrapper\n// span), so a class on the element lands on it. Form-associated (its `name` and `value` go with its form); the value is\n// `value` with the native `input` and `change` events. aria-label and aria-description pass to the inner select.\n\nconst SIZES = { sm: 'h-control-sm pr-8 pl-2.5', md: 'h-control-md pr-9 pl-3', lg: 'h-control-lg pr-10 pl-4' } as const\nconst CHEVRON = { sm: 'right-2.5', md: 'right-3', lg: 'right-4' } as const\nexport type NativeSelectSize = keyof typeof SIZES\n\n/**\n * @summary The browser's own select, drawn as the input.\n * @slot - The <option>s (copied into the select).\n * @fires input - The pick changed (read `value`).\n * @fires change - The pick changed (read `value`).\n */\nexport class NativeSelect extends DsFormElement {\n\tstatic styles = [DsFormElement.styles, styles]\n\tstatic shadowRootOptions = { ...LitElement.shadowRootOptions, delegatesFocus: true }\n\tstatic dsField = true\n\tstatic properties = {\n\t\tvalue: {},\n\t\tname: {},\n\t\tsize: { reflect: true },\n\t\tdisabled: { type: Boolean, reflect: true },\n\t\trequired: { type: Boolean },\n\t\tinvalid: { type: Boolean, reflect: true },\n\t\tlabel: { attribute: 'aria-label' },\n\t\tdescription: { attribute: 'aria-description' },\n\t}\n\n\t/** The picked option's value (the first option's when unset, as a select's). */\n\tvalue?: string\n\tname?: string\n\t/** sm (32px), md (40px) or lg (48px). */\n\tsize: NativeSelectSize = 'md'\n\tdisabled = false\n\trequired = false\n\t/** A red hairline (with the message beside it). */\n\tinvalid = false\n\t/** The name for assistive tech, passed to the inner select. */\n\tlabel?: string\n\t/** The description or error, passed to the inner select (a field sets it). */\n\tdescription?: string\n\tprivate observer = new MutationObserver(() => this.requestUpdate())\n\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\tthis.observer.observe(this, { childList: true, subtree: true, characterData: true, attributes: true })\n\t}\n\tdisconnectedCallback() {\n\t\tsuper.disconnectedCallback()\n\t\tthis.observer.disconnect()\n\t}\n\n\tprivate get select() {\n\t\treturn this.renderRoot.querySelector('select')\n\t}\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\tconst select = this.select\n\t\tif (!select) return\n\t\t// The options render after the select's own bindings, so the value goes on once they are there.\n\t\tif (this.value === undefined) this.value = select.value\n\t\telse if (select.value !== this.value) select.value = this.value\n\t\tthis.internals.setFormValue(this.value ?? null)\n\t\tthis.syncValidity()\n\t}\n\tprotected validityControl() {\n\t\treturn this.renderRoot.querySelector<HTMLSelectElement>('select')\n\t}\n\tformResetCallback() {\n\t\tthis.value = this.getAttribute('value') ?? undefined\n\t}\n\tprivate onInput(event: Event) {\n\t\tthis.value = (event.target as HTMLSelectElement).value\n\t}\n\t// The inner change does not leave the shadow root: the element sends its own.\n\tprivate onChange() {\n\t\tthis.dispatchEvent(new Event('change', { bubbles: true, composed: true }))\n\t}\n\n\trender() {\n\t\tconst size = SIZES[this.size] ? this.size : 'md'\n\t\tconst options = [...this.querySelectorAll('option')]\n\t\tconst classes = ['w-full min-w-0 cursor-pointer appearance-none rounded-control border border-edge-strong bg-surface type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', SIZES[size]].join(' ')\n\t\treturn html`<select name=${ifDefined(this.name)} ?disabled=${this.inactive} ?required=${this.required} aria-invalid=${ifDefined(this.invalid ? 'true' : undefined)} aria-label=${ifDefined(this.label)} aria-description=${ifDefined(this.description)} class=${classes} @input=${this.onInput} @change=${this.onChange}>${options.map((o) => html`<option value=${o.value} ?disabled=${o.disabled}>${o.text}</option>`)}</select>${icon(ChevronDown, 'chevron-down', { size: 16, strokeWidth: 1.5, class: `pointer-events-none absolute text-fg-muted ${CHEVRON[size]}`, attrs: { 'aria-hidden': 'true' } })}`\n\t}\n}\n\ndefine('native-select', NativeSelect)\n"
+        },
+        {
+          "path": "elements/components/ui/native-select.css",
+          "content": "/* The host is the box (NativeSelect.tsx's wrapper span), so a class on the element (a width) lands on it. */\n:host { @apply relative inline-flex w-full items-center; }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/native-select.js"
+      ],
+      "tag": "spyglass-native-select",
+      "tags": [
+        "spyglass-native-select"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-native-select",
+            "name": "NativeSelect",
+            "module": "elements/native-select.js",
+            "description": "The browser's own select, drawn as the input.",
+            "attributes": [
+              {
+                "name": "value",
+                "field": "value",
+                "type": "string | undefined",
+                "description": "The picked option's value (the first option's when unset, as a select's)."
+              },
+              {
+                "name": "name",
+                "field": "name",
+                "type": "string | undefined"
+              },
+              {
+                "name": "size",
+                "field": "size",
+                "type": "\"sm\" | \"md\" | \"lg\"",
+                "default": "'md'",
+                "description": "sm (32px), md (40px) or lg (48px)."
+              },
+              {
+                "name": "disabled",
+                "field": "disabled",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "required",
+                "field": "required",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "invalid",
+                "field": "invalid",
+                "type": "boolean",
+                "default": "false",
+                "description": "A red hairline (with the message beside it)."
+              },
+              {
+                "name": "aria-label",
+                "field": "label",
+                "type": "string | undefined",
+                "description": "The name for assistive tech, passed to the inner select."
+              },
+              {
+                "name": "aria-description",
+                "field": "description",
+                "type": "string | undefined",
+                "description": "The description or error, passed to the inner select (a field sets it)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "value",
+                "type": "string | undefined",
+                "description": "The picked option's value (the first option's when unset, as a select's).",
+                "attribute": "value"
+              },
+              {
+                "name": "name",
+                "type": "string | undefined",
+                "attribute": "name"
+              },
+              {
+                "name": "size",
+                "type": "\"sm\" | \"md\" | \"lg\"",
+                "default": "'md'",
+                "description": "sm (32px), md (40px) or lg (48px).",
+                "attribute": "size"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "disabled"
+              },
+              {
+                "name": "required",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "required"
+              },
+              {
+                "name": "invalid",
+                "type": "boolean",
+                "default": "false",
+                "description": "A red hairline (with the message beside it).",
+                "attribute": "invalid"
+              },
+              {
+                "name": "label",
+                "type": "string | undefined",
+                "description": "The name for assistive tech, passed to the inner select.",
+                "attribute": "aria-label"
+              },
+              {
+                "name": "description",
+                "type": "string | undefined",
+                "description": "The description or error, passed to the inner select (a field sets it).",
+                "attribute": "aria-description"
+              }
+            ],
+            "events": [
+              {
+                "name": "change",
+                "description": "The pick changed (read `value`)."
+              },
+              {
+                "name": "input",
+                "description": "The pick changed (read `value`)."
+              }
+            ],
+            "slots": [
+              {
+                "name": "",
+                "description": "The <option>s (copied into the select)."
+              }
+            ],
+            "methods": [
+              {
+                "name": "formResetCallback"
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Filters",
+          "label": "Filters",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/native-select/Filters.html",
+          "content": "<!-- Two filters over a search: where the ads ran and how long ago. -->\n<div class=\"grid w-full max-w-120 gap-4 sm:grid-cols-2\">\n  <div class=\"flex flex-col gap-2\">\n    <label for=\"native-select-platform\" class=\"type-label text-fg-soft\">Platform</label>\n    <spyglass-native-select id=\"native-select-platform\" name=\"platform\" value=\"meta\" aria-label=\"Platform\">\n      <option value=\"all\">All platforms</option>\n      <option value=\"meta\">Meta</option>\n      <option value=\"tiktok\">TikTok</option>\n      <option value=\"youtube\">YouTube</option>\n    </spyglass-native-select>\n  </div>\n  <div class=\"flex flex-col gap-2\">\n    <label for=\"native-select-range\" class=\"type-label text-fg-soft\">Running for</label>\n    <spyglass-native-select id=\"native-select-range\" name=\"range\" value=\"30\" aria-label=\"Running for\">\n      <option value=\"7\">Over 7 days</option>\n      <option value=\"30\">Over 30 days</option>\n      <option value=\"90\">Over 90 days</option>\n    </spyglass-native-select>\n  </div>\n</div>\n"
+        },
+        {
+          "name": "Sizes",
+          "label": "Sizes",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/native-select/Sizes.html",
+          "content": "<!-- The three sizes, matching the input's and the button's. -->\n<div class=\"flex w-64 max-w-full flex-col gap-3\">\n  <spyglass-native-select size=\"sm\" aria-label=\"Sort, small\" value=\"spend\"><option value=\"spend\">Sort by spend</option><option value=\"new\">Newest first</option></spyglass-native-select>\n  <spyglass-native-select size=\"md\" aria-label=\"Sort, medium\" value=\"spend\"><option value=\"spend\">Sort by spend</option><option value=\"new\">Newest first</option></spyglass-native-select>\n  <spyglass-native-select size=\"lg\" aria-label=\"Sort, large\" value=\"spend\"><option value=\"spend\">Sort by spend</option><option value=\"new\">Newest first</option></spyglass-native-select>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

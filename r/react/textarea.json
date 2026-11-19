@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "textarea",
+  "type": "registry:ui",
+  "title": "Textarea",
+  "description": "Several lines of text, drawn as the input is: a #363636 hairline on Black that turns White on focus, DM Sans, the brand corner. It grows by hand downward.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/ui/Textarea.tsx",
+      "type": "registry:ui",
+      "content": "import type { Ref, TextareaHTMLAttributes } from 'react'\nimport { cn } from '@/lib/cn'\n\n// Several lines of text, drawn as the Input is: a #363636 hairline on Black that turns White on focus, DM Sans at 14px\n// (16px on phones, so iOS does not zoom), a #A3A3A3 placeholder, the brand corner, 10px 12px inside. It grows by hand\n// downward only. `invalid` turns the hairline red. Put it in a Field for its label and description. Every other prop\n// lands on the <textarea> (value and onChange as React's own).\nexport interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {\n  /** A red hairline (with the message under it). */\n  invalid?: boolean\n  /** Visible lines before it scrolls (4). */\n  rows?: number\n  ref?: Ref<HTMLTextAreaElement>\n}\n\nexport function Textarea({ invalid, rows = 4, className, ...rest }: TextareaProps) {\n  return (\n    <textarea\n      data-ds=\"textarea\"\n      {...rest}\n      rows={rows}\n      aria-invalid={invalid || undefined}\n      className={cn('block w-full min-w-0 resize-y rounded-control border border-edge-strong bg-surface px-3 py-2.5 type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard placeholder:text-fg-muted hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', className)}\n    />\n  )\n}\n\nexport default Textarea\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,244 @@
+{
+  "name": "feature-grid-block",
+  "title": "Feature grid block",
+  "type": "registry:block",
+  "group": "blocks",
+  "description": "What the product does, as cards: an optional Funnel Display heading and line over a grid of cards on the #171717 fill, each a title and a sentence, three or two across.",
+  "use_for": "The section of a home or product page that says what the product does, one card per job.",
+  "never": [
+    "Icons, colored cards or images inside the cards",
+    "More than six cards, or a card without a sentence",
+    "Claims the product does not make"
+  ],
+  "source": "Built from the library (card); the home page's three cards (copy from Post, Know what changed; Post, Every market; Ad, One photo)",
+  "body": "",
+  "requires": [
+    "card"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/blocks/FeatureGridBlock.tsx",
+      "content": "import type { ReactNode } from 'react'\nimport { Card } from '@/react/components/ui/Card'\nimport { cn } from '@/react/lib/cn'\n\n// What the product does, as cards: an optional Funnel Display heading and line over a grid of cards on the #171717\n// fill, each a title and a sentence (the home page's three cards, as a block). Three across (or two), one on phones.\n// No icons and no color: the words carry it.\nexport interface Feature {\n  title: string\n  body: string\n}\n\nexport interface FeatureGridBlockProps {\n  features: Feature[]\n  /** A heading above the cards. */\n  title?: ReactNode\n  /** A line under the heading. */\n  body?: ReactNode\n  /** Cards across on wide screens: 2 or 3. */\n  columns?: 2 | 3\n  className?: string\n}\n\nexport function FeatureGridBlock({ features, title, body, columns = 3, className }: FeatureGridBlockProps) {\n  return (\n    <section data-ds=\"feature-grid-block\" className={cn('grid gap-10 text-fg max-sm:gap-8', className)}>\n      {(title || body) && (\n        <div className=\"grid max-w-3xl gap-4\">\n          {title && <h2 className=\"type-heading-1 text-balance max-sm:type-heading-2\">{title}</h2>}\n          {body && <p className=\"type-body-lg text-fg-soft\">{body}</p>}\n        </div>\n      )}\n      <div className={cn('grid gap-4 max-md:grid-cols-1', columns === 2 ? 'grid-cols-2' : 'grid-cols-3')}>\n        {features.map((f) => <Card key={f.title} title={f.title} description={f.body} />)}\n      </div>\n    </section>\n  )\n}\n\nexport default FeatureGridBlock\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Three",
+      "label": "Three across",
+      "center": false,
+      "half": false,
+      "path": "react/examples/feature-grid-block/Three.tsx",
+      "content": "import { FeatureGridBlock } from '@/react/components/blocks/FeatureGridBlock'\n// The three jobs the assets name, three across.\n\nconst features = [\n  { title: 'Know what changed before your next meeting.', body: 'Spyglass follows the brands, creators, and niches that matter to you then turns the changes into a brief you actually want to read.' },\n  { title: 'Understand what is working in any category.', body: 'Compare brands, creators, campaigns, and formats to uncover what is gaining traction, what is falling behind, and why.' },\n  { title: 'Search millions of creators in one place.', body: 'Spyglass monitors millions of brands and creators across Meta Ads, Instagram, and TikTok.' },\n]\n\nexport default function Three() {\n  return <FeatureGridBlock features={features} />\n}\n",
+      "requires": [
+        "card"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Two",
+      "label": "Two across, under a heading",
+      "center": false,
+      "half": false,
+      "path": "react/examples/feature-grid-block/Two.tsx",
+      "content": "import { FeatureGridBlock } from '@/react/components/blocks/FeatureGridBlock'\n// An Acme team's two reasons, two across under a heading.\n\nconst features = [\n  { title: 'One board for the team.', body: 'Acme Studio saves every creative it likes to one board the whole team can search.' },\n  { title: 'Alerts that matter.', body: 'Acme Studio hears when a tracked brand launches a new ad, the day it goes live.' },\n]\n\nexport default function Two() {\n  return <FeatureGridBlock title=\"Why Acme Studio uses it.\" body=\"Two jobs, done in one place.\" features={features} columns={2} />\n}\n",
+      "requires": [
+        "card"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/blocks/FeatureGridBlock.tsx",
+          "content": "import type { ReactNode } from 'react'\nimport { Card } from '@/react/components/ui/Card'\nimport { cn } from '@/react/lib/cn'\n\n// What the product does, as cards: an optional Funnel Display heading and line over a grid of cards on the #171717\n// fill, each a title and a sentence (the home page's three cards, as a block). Three across (or two), one on phones.\n// No icons and no color: the words carry it.\nexport interface Feature {\n  title: string\n  body: string\n}\n\nexport interface FeatureGridBlockProps {\n  features: Feature[]\n  /** A heading above the cards. */\n  title?: ReactNode\n  /** A line under the heading. */\n  body?: ReactNode\n  /** Cards across on wide screens: 2 or 3. */\n  columns?: 2 | 3\n  className?: string\n}\n\nexport function FeatureGridBlock({ features, title, body, columns = 3, className }: FeatureGridBlockProps) {\n  return (\n    <section data-ds=\"feature-grid-block\" className={cn('grid gap-10 text-fg max-sm:gap-8', className)}>\n      {(title || body) && (\n        <div className=\"grid max-w-3xl gap-4\">\n          {title && <h2 className=\"type-heading-1 text-balance max-sm:type-heading-2\">{title}</h2>}\n          {body && <p className=\"type-body-lg text-fg-soft\">{body}</p>}\n        </div>\n      )}\n      <div className={cn('grid gap-4 max-md:grid-cols-1', columns === 2 ? 'grid-cols-2' : 'grid-cols-3')}>\n        {features.map((f) => <Card key={f.title} title={f.title} description={f.body} />)}\n      </div>\n    </section>\n  )\n}\n\nexport default FeatureGridBlock\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "card"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "FeatureGridBlock",
+            "file": "react/components/blocks/FeatureGridBlock.tsx",
+            "props": [
+              {
+                "name": "features",
+                "type": "Feature[]",
+                "required": true
+              },
+              {
+                "name": "title",
+                "type": "ReactNode",
+                "required": false,
+                "description": "A heading above the cards."
+              },
+              {
+                "name": "body",
+                "type": "ReactNode",
+                "required": false,
+                "description": "A line under the heading."
+              },
+              {
+                "name": "columns",
+                "type": "2 | 3",
+                "required": false,
+                "default": "3",
+                "description": "Cards across on wide screens: 2 or 3."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Three",
+          "label": "Three across",
+          "center": false,
+          "half": false,
+          "path": "react/examples/feature-grid-block/Three.tsx",
+          "content": "import { FeatureGridBlock } from '@/react/components/blocks/FeatureGridBlock'\n// The three jobs the assets name, three across.\n\nconst features = [\n  { title: 'Know what changed before your next meeting.', body: 'Spyglass follows the brands, creators, and niches that matter to you then turns the changes into a brief you actually want to read.' },\n  { title: 'Understand what is working in any category.', body: 'Compare brands, creators, campaigns, and formats to uncover what is gaining traction, what is falling behind, and why.' },\n  { title: 'Search millions of creators in one place.', body: 'Spyglass monitors millions of brands and creators across Meta Ads, Instagram, and TikTok.' },\n]\n\nexport default function Three() {\n  return <FeatureGridBlock features={features} />\n}\n",
+          "registryDependencies": [
+            "card"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Two",
+          "label": "Two across, under a heading",
+          "center": false,
+          "half": false,
+          "path": "react/examples/feature-grid-block/Two.tsx",
+          "content": "import { FeatureGridBlock } from '@/react/components/blocks/FeatureGridBlock'\n// An Acme team's two reasons, two across under a heading.\n\nconst features = [\n  { title: 'One board for the team.', body: 'Acme Studio saves every creative it likes to one board the whole team can search.' },\n  { title: 'Alerts that matter.', body: 'Acme Studio hears when a tracked brand launches a new ad, the day it goes live.' },\n]\n\nexport default function Two() {\n  return <FeatureGridBlock title=\"Why Acme Studio uses it.\" body=\"Two jobs, done in one place.\" features={features} columns={2} />\n}\n",
+          "registryDependencies": [
+            "card"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/blocks/feature-grid-block.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport '@/elements/components/ui/card'\nimport styles from 'virtual:tw'\n\n// FeatureGridBlock.tsx as <spyglass-feature-grid-block>: a `heading` (React's `title`) and a `body` line over cards\n// (`features`, a list of { title, body }), three across or two (`columns`), one on phones.\nexport interface Feature { title: string; body: string }\n\n/**\n * @summary What the product does, as a grid of cards.\n */\nexport class FeatureGridBlock extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"feature-grid-block\"]'))\n\tstatic properties = { features: { type: Array }, heading: {}, body: {}, columns: { type: Number } }\n\tfeatures: Feature[] = []\n\t/** A heading above the cards (React's `title`). */\n\theading?: string\n\t/** A line under the heading. */\n\tbody?: string\n\t/** Cards across on wide screens: 2 or 3. */\n\tcolumns: 2 | 3 = 3\n\n\trender() {\n\t\treturn html`<section data-ds=\"feature-grid-block\" class=\"grid gap-10 text-fg max-sm:gap-8\">${this.heading || this.body ? html`<div class=\"grid max-w-3xl gap-4\">${this.heading ? html`<h2 class=\"type-heading-1 text-balance max-sm:type-heading-2\">${this.heading}</h2>` : nothing}${this.body ? html`<p class=\"type-body-lg text-fg-soft\">${this.body}</p>` : nothing}</div>` : nothing}<div class=${['grid gap-4 max-md:grid-cols-1', this.columns === 2 ? 'grid-cols-2' : 'grid-cols-3'].join(' ')}>${(this.features ?? []).map((f) => html`<spyglass-card heading=${f.title} description=${f.body}></spyglass-card>`)}</div></section>`\n\t}\n}\n\ndefine('feature-grid-block', FeatureGridBlock)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/feature-grid-block.js",
+        "elements/card.js"
+      ],
+      "tag": "spyglass-feature-grid-block",
+      "tags": [
+        "spyglass-feature-grid-block"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "card"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-feature-grid-block",
+            "name": "FeatureGridBlock",
+            "module": "elements/feature-grid-block.js",
+            "description": "What the product does, as a grid of cards.",
+            "attributes": [
+              {
+                "name": "features",
+                "field": "features",
+                "type": "Feature[]",
+                "default": "[]"
+              },
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string | undefined",
+                "description": "A heading above the cards (React's `title`)."
+              },
+              {
+                "name": "body",
+                "field": "body",
+                "type": "string | undefined",
+                "description": "A line under the heading."
+              },
+              {
+                "name": "columns",
+                "field": "columns",
+                "type": "2 | 3",
+                "default": "3",
+                "description": "Cards across on wide screens: 2 or 3."
+              }
+            ],
+            "properties": [
+              {
+                "name": "features",
+                "type": "Feature[]",
+                "default": "[]",
+                "attribute": "features"
+              },
+              {
+                "name": "heading",
+                "type": "string | undefined",
+                "description": "A heading above the cards (React's `title`).",
+                "attribute": "heading"
+              },
+              {
+                "name": "body",
+                "type": "string | undefined",
+                "description": "A line under the heading.",
+                "attribute": "body"
+              },
+              {
+                "name": "columns",
+                "type": "2 | 3",
+                "default": "3",
+                "description": "Cards across on wide screens: 2 or 3.",
+                "attribute": "columns"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Three",
+          "label": "Three across",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/feature-grid-block/Three.html",
+          "content": "<!-- The three jobs the assets name, three across. -->\n<spyglass-feature-grid-block features='[{\"title\":\"Know what changed before your next meeting.\",\"body\":\"Spyglass follows the brands, creators, and niches that matter to you then turns the changes into a brief you actually want to read.\"},{\"title\":\"Understand what is working in any category.\",\"body\":\"Compare brands, creators, campaigns, and formats to uncover what is gaining traction, what is falling behind, and why.\"},{\"title\":\"Search millions of creators in one place.\",\"body\":\"Spyglass monitors millions of brands and creators across Meta Ads, Instagram, and TikTok.\"}]'></spyglass-feature-grid-block>\n"
+        },
+        {
+          "name": "Two",
+          "label": "Two across, under a heading",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/feature-grid-block/Two.html",
+          "content": "<!-- An Acme team's two reasons, two across under a heading. -->\n<spyglass-feature-grid-block heading=\"Why Acme Studio uses it.\" body=\"Two jobs, done in one place.\" columns=\"2\" features='[{\"title\":\"One board for the team.\",\"body\":\"Acme Studio saves every creative it likes to one board the whole team can search.\"},{\"title\":\"Alerts that matter.\",\"body\":\"Acme Studio hears when a tracked brand launches a new ad, the day it goes live.\"}]'></spyglass-feature-grid-block>\n"
+        }
+      ]
+    }
+  }
+}

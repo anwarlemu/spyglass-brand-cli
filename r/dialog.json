@@ -1,0 +1,322 @@
+{
+  "name": "dialog",
+  "title": "Dialog",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A modal window on the #171717 overlay surface over a Black scrim: a Funnel Display title, a line under it, a ghost close button, a short form or an offer, and buttons at the foot.",
+  "use_for": "A short task that needs the whole attention for a moment: naming a new board, an offer, a setting with a few fields. Escape, the close button and the scrim close it.",
+  "never": [
+    "A long flow or a whole page in a window",
+    "Two primary buttons in the foot",
+    "A shadow or a glow around the window",
+    "Opening one with the page"
+  ],
+  "source": "Derived from the guidelines: the #171717 card fill on Black, neutral hairlines, the 10px canvas corner (8px here), Funnel Display titles, DM Sans text, the White primary button; the offer copy from the plan card. shadcn's dialog for anatomy, focus and keys.",
+  "body": "",
+  "requires": [
+    "button"
+  ],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/ui/Dialog.tsx",
+      "content": "'use client'\nimport { useEffect, useRef, type ReactNode } from 'react'\nimport { X } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { useControllable } from '@/react/hooks/useControllable'\n\n// shadcn's dialog in the brand: a native modal window on the #171717 overlay surface in a neutral hairline with the\n// brand corner and no shadow, over a Black scrim. A Funnel Display title, an optional line under it, a ghost close\n// button, the body (a short form), and `foot` for the buttons. Focus stays inside; Escape, the close button and the\n// scrim close it (`locked`: the scrim does nothing). It starts in the first field; with none, focus rests on the window.\n// It comes in over 300ms (a fade and a scale from 0.96, centered, ease-out) and leaves at once; reduced motion keeps\n// the fade. `open` with `onOpenChange` (or `defaultOpen` alone).\nexport interface DialogProps {\n  /** The title, and the window's name. */\n  title: string\n  /** A line under the title. */\n  description?: string\n  /** 640px instead of 480px. */\n  wide?: boolean\n  /** The scrim does nothing (the window holds what can't be shown again). */\n  locked?: boolean\n  open?: boolean\n  defaultOpen?: boolean\n  onOpenChange?: (open: boolean) => void\n  /** Buttons at the end, under the body. */\n  foot?: ReactNode\n  children?: ReactNode\n}\n\nexport function Dialog({ title, description, wide, locked, open: openProp, defaultOpen = false, onOpenChange, foot, children }: DialogProps) {\n  const [open, setOpen] = useControllable(openProp, defaultOpen, onOpenChange)\n  const dialog = useRef<HTMLDialogElement | null>(null)\n\n  useEffect(() => {\n    const d = dialog.current\n    if (!d) return\n    if (open && !d.open) {\n      d.showModal()\n      const field = d.querySelector<HTMLElement>('.ds-dialog-body :is(input:not([type=\"hidden\"], [type=\"file\"]), textarea, select):not(:disabled)')\n      ;(field && field.getBoundingClientRect().bottom <= d.getBoundingClientRect().bottom ? field : d).focus()\n    }\n    else if (!open && d.open) d.close()\n  }, [open])\n\n  return (\n    <>\n      <style href=\"ds-dialog\" precedence=\"ds\">{css}</style>\n      <dialog\n        data-ds=\"dialog\"\n        ref={dialog}\n        className=\"ds-dialog\"\n        data-wide={wide || undefined}\n        tabIndex={-1}\n        aria-label={title}\n        onClose={() => setOpen(false)}\n        // A click on the scrim lands on the dialog element itself.\n        onClick={(event) => { if (event.target === dialog.current && !locked) setOpen(false) }}\n      >\n        <div className=\"flex items-start justify-between gap-4 pt-5 pr-4 pl-6\">\n          <div className=\"flex min-w-0 flex-1 flex-col gap-2 pt-1.5\">\n            <h2 className=\"type-heading-3\">{title}</h2>\n            {description && <p className=\"type-ui text-fg-muted\">{description}</p>}\n          </div>\n          <Button variant=\"ghost\" size=\"sm\" icon aria-label=\"Close\" onClick={() => setOpen(false)}><X size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n        </div>\n        <div className=\"ds-dialog-body px-6 pt-5 pb-6\">\n          {children}\n        </div>\n        {foot && <div className=\"flex flex-wrap justify-end gap-2 px-6 pb-6\">{foot}</div>}\n      </dialog>\n    </>\n  )\n}\n\nexport default Dialog\n\nconst css = `\n.ds-dialog { width: min(480px, calc(100vw - 32px)); margin: auto; padding: 0; border: var(--ds-border-hairline) solid var(--ds-color-edge); border-radius: var(--ds-radius-container); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); }\n.ds-dialog[data-wide] { width: min(640px, calc(100vw - 32px)); }\n.ds-dialog:focus { outline: none; }\n.ds-dialog::backdrop { background: var(--ds-color-scrim); }\n.ds-dialog[open] { animation: ds-dialog-in var(--ds-duration-entrance) var(--ds-easing-out); }\n.ds-dialog[open]::backdrop { animation: ds-dialog-fade var(--ds-duration-entrance) var(--ds-easing-out); }\n@keyframes ds-dialog-in { from { opacity: 0; transform: scale(0.96); } }\n@keyframes ds-dialog-fade { from { opacity: 0; } }\n@media (prefers-reduced-motion: reduce) { .ds-dialog[open] { animation-name: ds-dialog-fade; } }\n`\n"
+    },
+    {
+      "path": "react/hooks/useControllable.ts",
+      "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "NewBoard",
+      "label": "A short form",
+      "center": true,
+      "half": false,
+      "path": "react/examples/dialog/NewBoard.tsx",
+      "content": "'use client'\nimport { useState } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { Dialog } from '@/react/components/ui/Dialog'\nimport { Input } from '@/react/components/ui/Input'\n// A new board in a short form: the button opens it on the Name field, Enter creates it, Escape or the scrim closes it.\n\nexport default function NewBoard() {\n  const [open, setOpen] = useState(false)\n  const [note, setNote] = useState('Boards keep the creatives you save.')\n  return (\n    <div className=\"flex min-h-96 flex-col items-center justify-center gap-3\">\n      <Button onClick={() => setOpen(true)}>New board</Button>\n      <p className=\"type-caption text-fg-muted\" aria-live=\"polite\">{note}</p>\n      <Dialog open={open} onOpenChange={setOpen} title=\"New board\" description=\"Save creatives to it from any search.\">\n        <form\n          className=\"flex flex-col gap-6\"\n          onSubmit={(e) => {\n            e.preventDefault()\n            const name = new FormData(e.currentTarget).get('name') || 'Untitled board'\n            setNote(`Created ${name}.`)\n            setOpen(false)\n          }}\n        >\n          <div className=\"flex flex-col gap-2\">\n            <label htmlFor=\"new-board-name\" className=\"type-label text-fg-soft\">Name</label>\n            <Input id=\"new-board-name\" name=\"name\" placeholder=\"Acme summer ads\" />\n          </div>\n          <div className=\"flex flex-wrap justify-end gap-2\">\n            <Button variant=\"secondary\" onClick={() => setOpen(false)}>Cancel</Button>\n            <Button type=\"submit\">Create board</Button>\n          </div>\n        </form>\n      </Dialog>\n    </div>\n  )\n}\n",
+      "requires": [
+        "button",
+        "input"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "Plan",
+      "label": "Buttons at the foot",
+      "center": true,
+      "half": false,
+      "path": "react/examples/dialog/Plan.tsx",
+      "content": "'use client'\nimport { useState } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { Dialog } from '@/react/components/ui/Dialog'\n// An offer with its buttons in the foot: the White primary for the one action, secondary for the way out.\n\nexport default function Plan() {\n  const [open, setOpen] = useState(false)\n  return (\n    <div className=\"flex min-h-96 items-center justify-center\">\n      <Button variant=\"secondary\" onClick={() => setOpen(true)}>See the Creator plan</Button>\n      <Dialog\n        open={open}\n        onOpenChange={setOpen}\n        title=\"Creator\"\n        description=\"$10 for your first month, then $20/month.\"\n        foot={<><Button variant=\"secondary\" onClick={() => setOpen(false)}>Not now</Button><Button onClick={() => setOpen(false)}>Start Creator for 50% off</Button></>}\n      >\n        <ul className=\"flex list-disc flex-col gap-2 pl-5 type-ui text-fg-soft\">\n          <li>Search every ad by what it says and shows.</li>\n          <li>Track any brand or creator.</li>\n          <li>Unlimited boards.</li>\n        </ul>\n      </Dialog>\n    </div>\n  )\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Dialog.tsx",
+          "content": "'use client'\nimport { useEffect, useRef, type ReactNode } from 'react'\nimport { X } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { useControllable } from '@/react/hooks/useControllable'\n\n// shadcn's dialog in the brand: a native modal window on the #171717 overlay surface in a neutral hairline with the\n// brand corner and no shadow, over a Black scrim. A Funnel Display title, an optional line under it, a ghost close\n// button, the body (a short form), and `foot` for the buttons. Focus stays inside; Escape, the close button and the\n// scrim close it (`locked`: the scrim does nothing). It starts in the first field; with none, focus rests on the window.\n// It comes in over 300ms (a fade and a scale from 0.96, centered, ease-out) and leaves at once; reduced motion keeps\n// the fade. `open` with `onOpenChange` (or `defaultOpen` alone).\nexport interface DialogProps {\n  /** The title, and the window's name. */\n  title: string\n  /** A line under the title. */\n  description?: string\n  /** 640px instead of 480px. */\n  wide?: boolean\n  /** The scrim does nothing (the window holds what can't be shown again). */\n  locked?: boolean\n  open?: boolean\n  defaultOpen?: boolean\n  onOpenChange?: (open: boolean) => void\n  /** Buttons at the end, under the body. */\n  foot?: ReactNode\n  children?: ReactNode\n}\n\nexport function Dialog({ title, description, wide, locked, open: openProp, defaultOpen = false, onOpenChange, foot, children }: DialogProps) {\n  const [open, setOpen] = useControllable(openProp, defaultOpen, onOpenChange)\n  const dialog = useRef<HTMLDialogElement | null>(null)\n\n  useEffect(() => {\n    const d = dialog.current\n    if (!d) return\n    if (open && !d.open) {\n      d.showModal()\n      const field = d.querySelector<HTMLElement>('.ds-dialog-body :is(input:not([type=\"hidden\"], [type=\"file\"]), textarea, select):not(:disabled)')\n      ;(field && field.getBoundingClientRect().bottom <= d.getBoundingClientRect().bottom ? field : d).focus()\n    }\n    else if (!open && d.open) d.close()\n  }, [open])\n\n  return (\n    <>\n      <style href=\"ds-dialog\" precedence=\"ds\">{css}</style>\n      <dialog\n        data-ds=\"dialog\"\n        ref={dialog}\n        className=\"ds-dialog\"\n        data-wide={wide || undefined}\n        tabIndex={-1}\n        aria-label={title}\n        onClose={() => setOpen(false)}\n        // A click on the scrim lands on the dialog element itself.\n        onClick={(event) => { if (event.target === dialog.current && !locked) setOpen(false) }}\n      >\n        <div className=\"flex items-start justify-between gap-4 pt-5 pr-4 pl-6\">\n          <div className=\"flex min-w-0 flex-1 flex-col gap-2 pt-1.5\">\n            <h2 className=\"type-heading-3\">{title}</h2>\n            {description && <p className=\"type-ui text-fg-muted\">{description}</p>}\n          </div>\n          <Button variant=\"ghost\" size=\"sm\" icon aria-label=\"Close\" onClick={() => setOpen(false)}><X size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n        </div>\n        <div className=\"ds-dialog-body px-6 pt-5 pb-6\">\n          {children}\n        </div>\n        {foot && <div className=\"flex flex-wrap justify-end gap-2 px-6 pb-6\">{foot}</div>}\n      </dialog>\n    </>\n  )\n}\n\nexport default Dialog\n\nconst css = `\n.ds-dialog { width: min(480px, calc(100vw - 32px)); margin: auto; padding: 0; border: var(--ds-border-hairline) solid var(--ds-color-edge); border-radius: var(--ds-radius-container); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); }\n.ds-dialog[data-wide] { width: min(640px, calc(100vw - 32px)); }\n.ds-dialog:focus { outline: none; }\n.ds-dialog::backdrop { background: var(--ds-color-scrim); }\n.ds-dialog[open] { animation: ds-dialog-in var(--ds-duration-entrance) var(--ds-easing-out); }\n.ds-dialog[open]::backdrop { animation: ds-dialog-fade var(--ds-duration-entrance) var(--ds-easing-out); }\n@keyframes ds-dialog-in { from { opacity: 0; transform: scale(0.96); } }\n@keyframes ds-dialog-fade { from { opacity: 0; } }\n@media (prefers-reduced-motion: reduce) { .ds-dialog[open] { animation-name: ds-dialog-fade; } }\n`\n"
+        },
+        {
+          "path": "react/hooks/useControllable.ts",
+          "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "Dialog",
+            "file": "react/components/ui/Dialog.tsx",
+            "props": [
+              {
+                "name": "title",
+                "type": "string",
+                "required": true,
+                "description": "The title, and the window's name."
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "required": false,
+                "description": "A line under the title."
+              },
+              {
+                "name": "wide",
+                "type": "boolean",
+                "required": false,
+                "description": "640px instead of 480px."
+              },
+              {
+                "name": "locked",
+                "type": "boolean",
+                "required": false,
+                "description": "The scrim does nothing (the window holds what can't be shown again)."
+              },
+              {
+                "name": "open",
+                "type": "boolean",
+                "required": false
+              },
+              {
+                "name": "defaultOpen",
+                "type": "boolean",
+                "required": false,
+                "default": "false"
+              },
+              {
+                "name": "onOpenChange",
+                "type": "(open: boolean) => void",
+                "required": false
+              },
+              {
+                "name": "foot",
+                "type": "ReactNode",
+                "required": false,
+                "description": "Buttons at the end, under the body."
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "NewBoard",
+          "label": "A short form",
+          "center": true,
+          "half": false,
+          "path": "react/examples/dialog/NewBoard.tsx",
+          "content": "'use client'\nimport { useState } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { Dialog } from '@/react/components/ui/Dialog'\nimport { Input } from '@/react/components/ui/Input'\n// A new board in a short form: the button opens it on the Name field, Enter creates it, Escape or the scrim closes it.\n\nexport default function NewBoard() {\n  const [open, setOpen] = useState(false)\n  const [note, setNote] = useState('Boards keep the creatives you save.')\n  return (\n    <div className=\"flex min-h-96 flex-col items-center justify-center gap-3\">\n      <Button onClick={() => setOpen(true)}>New board</Button>\n      <p className=\"type-caption text-fg-muted\" aria-live=\"polite\">{note}</p>\n      <Dialog open={open} onOpenChange={setOpen} title=\"New board\" description=\"Save creatives to it from any search.\">\n        <form\n          className=\"flex flex-col gap-6\"\n          onSubmit={(e) => {\n            e.preventDefault()\n            const name = new FormData(e.currentTarget).get('name') || 'Untitled board'\n            setNote(`Created ${name}.`)\n            setOpen(false)\n          }}\n        >\n          <div className=\"flex flex-col gap-2\">\n            <label htmlFor=\"new-board-name\" className=\"type-label text-fg-soft\">Name</label>\n            <Input id=\"new-board-name\" name=\"name\" placeholder=\"Acme summer ads\" />\n          </div>\n          <div className=\"flex flex-wrap justify-end gap-2\">\n            <Button variant=\"secondary\" onClick={() => setOpen(false)}>Cancel</Button>\n            <Button type=\"submit\">Create board</Button>\n          </div>\n        </form>\n      </Dialog>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button",
+            "input"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        },
+        {
+          "name": "Plan",
+          "label": "Buttons at the foot",
+          "center": true,
+          "half": false,
+          "path": "react/examples/dialog/Plan.tsx",
+          "content": "'use client'\nimport { useState } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { Dialog } from '@/react/components/ui/Dialog'\n// An offer with its buttons in the foot: the White primary for the one action, secondary for the way out.\n\nexport default function Plan() {\n  const [open, setOpen] = useState(false)\n  return (\n    <div className=\"flex min-h-96 items-center justify-center\">\n      <Button variant=\"secondary\" onClick={() => setOpen(true)}>See the Creator plan</Button>\n      <Dialog\n        open={open}\n        onOpenChange={setOpen}\n        title=\"Creator\"\n        description=\"$10 for your first month, then $20/month.\"\n        foot={<><Button variant=\"secondary\" onClick={() => setOpen(false)}>Not now</Button><Button onClick={() => setOpen(false)}>Start Creator for 50% off</Button></>}\n      >\n        <ul className=\"flex list-disc flex-col gap-2 pl-5 type-ui text-fg-soft\">\n          <li>Search every ad by what it says and shows.</li>\n          <li>Track any brand or creator.</li>\n          <li>Unlimited boards.</li>\n        </ul>\n      </Dialog>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/dialog.ts",
+          "content": "import { html, nothing, type PropertyValues } from 'lit'\nimport { X } from 'lucide'\nimport { DsElement, define } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport '@/elements/components/ui/button'\nimport styles from 'virtual:tw'\n\n// Dialog.tsx as <spyglass-dialog>: a native modal window on the #171717 overlay surface in a neutral hairline with the\n// brand corner, over a Black scrim. A Funnel Display heading, an optional line under it, a ghost close button, the body\n// (a short form) and the `foot` slot for buttons. Focus stays inside; Escape, the close button and the scrim close it\n// (`locked`: the scrim does nothing). It starts in the first field; with none, focus rests on the window. It comes in\n// over 300ms (a fade and a scale from 0.96) and leaves at once. React's `open` with `onOpenChange` is the `open`\n// attribute with an `open-change` event, and `close` fires as it closes; React's `title` is `heading` (title is HTML's\n// tooltip attribute).\n\n/**\n * @summary A modal dialog for a short form.\n * @slot - The body (a form).\n * @slot foot - Buttons at the end, under the body.\n * @fires open-change - It opened or closed (detail.value; read `open`).\n * @fires close - It closed (Escape, the scrim, the close button, or open set to false).\n */\nexport class Dialog extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { heading: {}, description: {}, wide: { type: Boolean }, locked: { type: Boolean }, open: { type: Boolean, reflect: true } }\n\n\t/** The title, and the window's name (React's `title`). */\n\theading = ''\n\t/** A line under the heading. */\n\tdescription?: string\n\t/** 640px instead of 480px. */\n\twide = false\n\t/** The scrim does nothing (the window holds what can't be shown again). */\n\tlocked = false\n\t/** Whether it is showing. */\n\topen = false\n\n\tprivate get dialog() {\n\t\treturn this.renderRoot.querySelector('dialog')\n\t}\n\n\tprivate show() {\n\t\tconst d = this.dialog\n\t\tif (!d || d.open) return\n\t\td.showModal()\n\t\t// The first field in the body (a native field, or an element that declares itself a field), else the window.\n\t\tconst field = [...this.querySelectorAll<HTMLElement>('*')].find((el) => (el.matches('input:not([type=\"hidden\"], [type=\"file\"]), textarea, select') || (el.constructor as { dsField?: boolean }).dsField) && !(el as HTMLInputElement).disabled && !el.closest('[slot=\"foot\"]'))\n\t\tconst box = field?.shadowRoot?.querySelector('input, textarea, select, button') ?? field\n\t\t;(field && box && box.getBoundingClientRect().bottom <= d.getBoundingClientRect().bottom ? field : d).focus()\n\t}\n\n\tprotected updated(changed: PropertyValues<this>) {\n\t\tsuper.updated(changed)\n\t\tif (!changed.has('open')) return\n\t\tif (this.open) this.show()\n\t\telse if (this.dialog?.open) this.dialog.close()\n\t}\n\n\tprivate setOpen(open: boolean) {\n\t\tif (this.open === open) return\n\t\tthis.open = open\n\t\tthis.emit('open-change', { value: open })\n\t\tif (!open) this.emit('close')\n\t}\n\n\t// A click on the scrim lands on the dialog element itself.\n\tprivate backdrop(event: MouseEvent) {\n\t\tif (event.target === this.dialog && !this.locked) this.setOpen(false)\n\t}\n\n\trender() {\n\t\treturn html`<dialog data-ds=\"dialog\" class=\"ds-dialog\" ?data-wide=${this.wide} tabindex=\"-1\" aria-label=${this.heading} @close=${() => this.setOpen(false)} @click=${this.backdrop}>\n\t\t\t<div class=\"flex items-start justify-between gap-4 pt-5 pr-4 pl-6\">\n\t\t\t\t<div class=\"flex min-w-0 flex-1 flex-col gap-2 pt-1.5\">\n\t\t\t\t\t<h2 class=\"type-heading-3\">${this.heading}</h2>\n\t\t\t\t\t${this.description ? html`<p class=\"type-ui text-fg-muted\">${this.description}</p>` : nothing}\n\t\t\t\t</div>\n\t\t\t\t<spyglass-button variant=\"ghost\" size=\"sm\" icon aria-label=\"Close\" @click=${() => this.setOpen(false)}>${icon(X, 'x', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } })}</spyglass-button>\n\t\t\t</div>\n\t\t\t<div class=\"ds-dialog-body px-6 pt-5 pb-6\"><slot></slot></div>\n\t\t\t${this.hasSlot('foot') ? html`<div class=\"flex flex-wrap justify-end gap-2 px-6 pb-6\"><slot name=\"foot\"></slot></div>` : nothing}\n\t\t</dialog>`\n\t}\n}\n\ndefine('dialog', Dialog)\n"
+        },
+        {
+          "path": "elements/components/ui/dialog.css",
+          "content": "/* Dialog.tsx's styles. */\n.ds-dialog { width: min(480px, calc(100vw - 32px)); margin: auto; padding: 0; border: var(--ds-border-hairline) solid var(--ds-color-edge); border-radius: var(--ds-radius-container); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); }\n.ds-dialog[data-wide] { width: min(640px, calc(100vw - 32px)); }\n.ds-dialog:focus { outline: none; }\n.ds-dialog::backdrop { background: var(--ds-color-scrim); }\n.ds-dialog[open] { animation: ds-dialog-in var(--ds-duration-entrance) var(--ds-easing-out); }\n.ds-dialog[open]::backdrop { animation: ds-dialog-fade var(--ds-duration-entrance) var(--ds-easing-out); }\n@keyframes ds-dialog-in { from { opacity: 0; transform: scale(0.96); } }\n@keyframes ds-dialog-fade { from { opacity: 0; } }\n@media (prefers-reduced-motion: reduce) { .ds-dialog[open] { animation-name: ds-dialog-fade; } }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/dialog.js",
+        "elements/button.js",
+        "elements/input.js"
+      ],
+      "tag": "spyglass-dialog",
+      "tags": [
+        "spyglass-dialog"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-dialog",
+            "name": "Dialog",
+            "module": "elements/dialog.js",
+            "description": "A modal dialog for a short form.",
+            "attributes": [
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string",
+                "default": "''",
+                "description": "The title, and the window's name (React's `title`)."
+              },
+              {
+                "name": "description",
+                "field": "description",
+                "type": "string | undefined",
+                "description": "A line under the heading."
+              },
+              {
+                "name": "wide",
+                "field": "wide",
+                "type": "boolean",
+                "default": "false",
+                "description": "640px instead of 480px."
+              },
+              {
+                "name": "locked",
+                "field": "locked",
+                "type": "boolean",
+                "default": "false",
+                "description": "The scrim does nothing (the window holds what can't be shown again)."
+              },
+              {
+                "name": "open",
+                "field": "open",
+                "type": "boolean",
+                "default": "false",
+                "description": "Whether it is showing."
+              }
+            ],
+            "properties": [
+              {
+                "name": "heading",
+                "type": "string",
+                "default": "''",
+                "description": "The title, and the window's name (React's `title`).",
+                "attribute": "heading"
+              },
+              {
+                "name": "description",
+                "type": "string | undefined",
+                "description": "A line under the heading.",
+                "attribute": "description"
+              },
+              {
+                "name": "wide",
+                "type": "boolean",
+                "default": "false",
+                "description": "640px instead of 480px.",
+                "attribute": "wide"
+              },
+              {
+                "name": "locked",
+                "type": "boolean",
+                "default": "false",
+                "description": "The scrim does nothing (the window holds what can't be shown again).",
+                "attribute": "locked"
+              },
+              {
+                "name": "open",
+                "type": "boolean",
+                "default": "false",
+                "description": "Whether it is showing.",
+                "attribute": "open"
+              }
+            ],
+            "events": [
+              {
+                "name": "open-change",
+                "description": "It opened or closed (detail.value; read `open`)."
+              },
+              {
+                "name": "close",
+                "description": "It closed (Escape, the scrim, the close button, or open set to false)."
+              }
+            ],
+            "slots": [
+              {
+                "name": "",
+                "description": "The body (a form)."
+              },
+              {
+                "name": "foot",
+                "description": "Buttons at the end, under the body."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "NewBoard",
+          "label": "A short form",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/dialog/NewBoard.html",
+          "content": "<!-- A new board in a short form: the button opens it on the Name field, Enter creates it, Escape or the scrim closes it. -->\n<div class=\"flex min-h-96 flex-col items-center justify-center gap-3\">\n  <spyglass-button id=\"new-board\">New board</spyglass-button>\n  <p id=\"new-board-note\" class=\"type-caption text-fg-muted\" aria-live=\"polite\">Boards keep the creatives you save.</p>\n  <spyglass-dialog id=\"new-board-dialog\" heading=\"New board\" description=\"Save creatives to it from any search.\">\n    <form class=\"flex flex-col gap-6\">\n      <div class=\"flex flex-col gap-2\">\n        <label for=\"new-board-name\" class=\"type-label text-fg-soft\">Name</label>\n        <spyglass-input id=\"new-board-name\" name=\"name\" placeholder=\"Acme summer ads\" aria-label=\"Name\"></spyglass-input>\n      </div>\n      <div class=\"flex flex-wrap justify-end gap-2\">\n        <spyglass-button variant=\"secondary\" data-close>Cancel</spyglass-button>\n        <spyglass-button type=\"submit\">Create board</spyglass-button>\n      </div>\n    </form>\n  </spyglass-dialog>\n</div>\n<script type=\"module\">\n  const dialog = document.getElementById('new-board-dialog')\n  document.getElementById('new-board').addEventListener('click', () => { dialog.open = true })\n  dialog.querySelector('[data-close]').addEventListener('click', () => { dialog.open = false })\n  dialog.querySelector('form').addEventListener('submit', (event) => {\n    event.preventDefault()\n    const name = new FormData(event.currentTarget).get('name') || 'Untitled board'\n    document.getElementById('new-board-note').textContent = `Created ${name}.`\n    dialog.open = false\n  })\n</script>\n"
+        },
+        {
+          "name": "Plan",
+          "label": "Buttons at the foot",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/dialog/Plan.html",
+          "content": "<!-- An offer with its buttons in the foot: the White primary for the one action, secondary for the way out. -->\n<div class=\"flex min-h-96 items-center justify-center\">\n  <spyglass-button id=\"plan-open\" variant=\"secondary\">See the Creator plan</spyglass-button>\n  <spyglass-dialog id=\"plan-dialog\" heading=\"Creator\" description=\"$10 for your first month, then $20/month.\">\n    <ul class=\"flex list-disc flex-col gap-2 pl-5 type-ui text-fg-soft\">\n      <li>Search every ad by what it says and shows.</li>\n      <li>Track any brand or creator.</li>\n      <li>Unlimited boards.</li>\n    </ul>\n    <spyglass-button slot=\"foot\" variant=\"secondary\" data-close>Not now</spyglass-button>\n    <spyglass-button slot=\"foot\" data-close>Start Creator for 50% off</spyglass-button>\n  </spyglass-dialog>\n</div>\n<script type=\"module\">\n  const dialog = document.getElementById('plan-dialog')\n  document.getElementById('plan-open').addEventListener('click', () => { dialog.open = true })\n  for (const b of dialog.querySelectorAll('[data-close]')) b.addEventListener('click', () => { dialog.open = false })\n</script>\n"
+        }
+      ]
+    }
+  }
+}

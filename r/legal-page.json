@@ -1,0 +1,178 @@
+{
+  "name": "legal-page",
+  "title": "Legal page",
+  "type": "registry:block",
+  "group": "pages",
+  "description": "A legal page template (terms, privacy), built only from library items: the title and the date it changed, a list of the sections that stays in view, and the sections in a 720px column.",
+  "use_for": "Terms of service, privacy, cookies. The text is a placeholder: put the terms your counsel approves in lib/pages/legal.ts or pass `content`.",
+  "never": [
+    "New colors, shadows or type sizes added to a section: use the items' props",
+    "More than one White button in a section",
+    "Shipping the placeholder text"
+  ],
+  "source": "Built from the library (site header, footer row) and the brand's type; the section names are the usual ones of a terms page",
+  "body": "",
+  "requires": [
+    "footer-row",
+    "site-header"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/pages/LegalPage.tsx",
+      "content": "import { FooterRow } from '@/react/components/site/FooterRow'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { legalContent, type LegalContent } from '@/lib/pages/legal'\nimport { cn } from '@/react/lib/cn'\n\n// A legal page (terms, privacy) from library items: the title and the date it changed, a list of the sections that\n// stays in view on wide screens, and the sections in a 720px column of DM Sans. The template's text is a placeholder\n// for the terms your counsel approves: `content` replaces it (lib/pages/legal.ts).\nexport interface LegalPageProps {\n  content?: LegalContent\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'\n\nexport function LegalPage({ content: c = legalContent, className }: LegalPageProps) {\n  return (\n    <div data-ds=\"legal-page\" className={cn('bg-surface text-fg', className)}>\n      <div className={WRAP}>\n        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      </div>\n      <main>\n        <div className={cn(WRAP, 'grid gap-4 pt-16 pb-12 max-sm:pt-10 max-sm:pb-8')}>\n          <h1 className=\"type-display max-md:type-hero max-sm:type-heading-1\">{c.title}</h1>\n          <p className=\"type-label text-fg-muted\">{c.updated}</p>\n        </div>\n        <div className={cn(WRAP, 'grid grid-cols-4 gap-12 pt-12 pb-24 max-md:grid-cols-1 max-md:gap-8 max-sm:pb-16')}>\n          <nav aria-label={c.contents} className=\"self-start md:sticky md:top-8\">\n            <p className=\"mb-3 type-label text-fg-faint\">{c.contents}</p>\n            <ul className=\"grid gap-2\">\n              {c.sections.map((s) => <li key={s.id}><a href={`#${s.id}`} className=\"rounded-control type-ui text-fg-muted transition-[color] duration-150 ease-standard hover:text-fg\">{s.title}</a></li>)}\n            </ul>\n          </nav>\n          <div className=\"col-span-3 grid max-w-180 gap-12 max-md:col-span-1\">\n            {c.sections.map((s) => (\n              <section key={s.id} id={s.id} className=\"grid scroll-mt-8 gap-4\">\n                <h2 className=\"type-heading-2\">{s.title}</h2>\n                {s.body.map((p) => <p key={p} className=\"type-body text-fg-soft\">{p}</p>)}\n              </section>\n            ))}\n          </div>\n        </div>\n      </main>\n      <footer className=\"border-t border-edge\">\n        <div className={cn(WRAP, 'py-10')}>\n          <FooterRow domain={c.footer.domain} homeHref=\"/\" links={c.footer.links} />\n        </div>\n      </footer>\n    </div>\n  )\n}\n\nexport default LegalPage\n"
+    },
+    {
+      "path": "lib/pages/legal.ts",
+      "content": "// The legal page template's copy: the sections a terms page has, with neutral placeholder text to replace with the terms your counsel approves. Both flavors read this file.\nconst nav = [\n\t{ label: 'Product', href: '/product' },\n\t{ label: 'Pricing', href: '/pricing' },\n\t{ label: 'Changelog', href: '/changelog' },\n\t{ label: 'Blog', href: '/blog' },\n]\nconst footer = {\n\tdomain: 'spyglass.so',\n\tlinks: [\n\t\t{ label: 'Product', href: '/product' },\n\t\t{ label: 'Pricing', href: '/pricing' },\n\t\t{ label: 'About', href: '/about' },\n\t\t{ label: 'Changelog', href: '/changelog' },\n\t\t{ label: 'Blog', href: '/blog' },\n\t\t{ label: 'Terms', href: '/legal' },\n\t],\n}\nconst header = { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get 50% off', href: '/pricing' } }\n\nconst placeholder = (what: string) => `This section covers ${what}. Replace this text with the terms your counsel approves.`\n\nexport const legalContent = {\n\theader,\n\ttitle: 'Terms of service.',\n\tupdated: 'Last updated Nov 1, 2026',\n\tsections: [\n\t\t{ id: 'who-we-are', title: 'Who we are', body: [placeholder('who provides the service and how to reach them')] },\n\t\t{ id: 'your-account', title: 'Your account', body: [placeholder('creating an account, keeping it secure and who may use it'), 'Each section can hold as many paragraphs as it needs.'] },\n\t\t{ id: 'using-the-service', title: 'Using the service', body: [placeholder('what the service may and may not be used for')] },\n\t\t{ id: 'plans-and-payment', title: 'Plans and payment', body: [placeholder('plans, billing, renewals and refunds')] },\n\t\t{ id: 'ending', title: 'Ending the agreement', body: [placeholder('how either side may end the agreement and what happens to data')] },\n\t\t{ id: 'contact', title: 'Contact', body: [placeholder('where to send questions about these terms')] },\n\t],\n\tcontents: 'On this page',\n\tfooter,\n}\n\nexport type LegalContent = typeof legalContent\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Page",
+      "label": "Legal page",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/legal-page/Page.tsx",
+      "content": "import { LegalPage } from '@/react/components/pages/LegalPage'\n// The legal page template with its own copy.\n\nexport default function Page() {\n  return <LegalPage />\n}\n",
+      "requires": [
+        "footer-row",
+        "site-header"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/pages/LegalPage.tsx",
+          "content": "import { FooterRow } from '@/react/components/site/FooterRow'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { legalContent, type LegalContent } from '@/lib/pages/legal'\nimport { cn } from '@/react/lib/cn'\n\n// A legal page (terms, privacy) from library items: the title and the date it changed, a list of the sections that\n// stays in view on wide screens, and the sections in a 720px column of DM Sans. The template's text is a placeholder\n// for the terms your counsel approves: `content` replaces it (lib/pages/legal.ts).\nexport interface LegalPageProps {\n  content?: LegalContent\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'\n\nexport function LegalPage({ content: c = legalContent, className }: LegalPageProps) {\n  return (\n    <div data-ds=\"legal-page\" className={cn('bg-surface text-fg', className)}>\n      <div className={WRAP}>\n        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      </div>\n      <main>\n        <div className={cn(WRAP, 'grid gap-4 pt-16 pb-12 max-sm:pt-10 max-sm:pb-8')}>\n          <h1 className=\"type-display max-md:type-hero max-sm:type-heading-1\">{c.title}</h1>\n          <p className=\"type-label text-fg-muted\">{c.updated}</p>\n        </div>\n        <div className={cn(WRAP, 'grid grid-cols-4 gap-12 pt-12 pb-24 max-md:grid-cols-1 max-md:gap-8 max-sm:pb-16')}>\n          <nav aria-label={c.contents} className=\"self-start md:sticky md:top-8\">\n            <p className=\"mb-3 type-label text-fg-faint\">{c.contents}</p>\n            <ul className=\"grid gap-2\">\n              {c.sections.map((s) => <li key={s.id}><a href={`#${s.id}`} className=\"rounded-control type-ui text-fg-muted transition-[color] duration-150 ease-standard hover:text-fg\">{s.title}</a></li>)}\n            </ul>\n          </nav>\n          <div className=\"col-span-3 grid max-w-180 gap-12 max-md:col-span-1\">\n            {c.sections.map((s) => (\n              <section key={s.id} id={s.id} className=\"grid scroll-mt-8 gap-4\">\n                <h2 className=\"type-heading-2\">{s.title}</h2>\n                {s.body.map((p) => <p key={p} className=\"type-body text-fg-soft\">{p}</p>)}\n              </section>\n            ))}\n          </div>\n        </div>\n      </main>\n      <footer className=\"border-t border-edge\">\n        <div className={cn(WRAP, 'py-10')}>\n          <FooterRow domain={c.footer.domain} homeHref=\"/\" links={c.footer.links} />\n        </div>\n      </footer>\n    </div>\n  )\n}\n\nexport default LegalPage\n"
+        },
+        {
+          "path": "lib/pages/legal.ts",
+          "content": "// The legal page template's copy: the sections a terms page has, with neutral placeholder text to replace with the terms your counsel approves. Both flavors read this file.\nconst nav = [\n\t{ label: 'Product', href: '/product' },\n\t{ label: 'Pricing', href: '/pricing' },\n\t{ label: 'Changelog', href: '/changelog' },\n\t{ label: 'Blog', href: '/blog' },\n]\nconst footer = {\n\tdomain: 'spyglass.so',\n\tlinks: [\n\t\t{ label: 'Product', href: '/product' },\n\t\t{ label: 'Pricing', href: '/pricing' },\n\t\t{ label: 'About', href: '/about' },\n\t\t{ label: 'Changelog', href: '/changelog' },\n\t\t{ label: 'Blog', href: '/blog' },\n\t\t{ label: 'Terms', href: '/legal' },\n\t],\n}\nconst header = { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get 50% off', href: '/pricing' } }\n\nconst placeholder = (what: string) => `This section covers ${what}. Replace this text with the terms your counsel approves.`\n\nexport const legalContent = {\n\theader,\n\ttitle: 'Terms of service.',\n\tupdated: 'Last updated Nov 1, 2026',\n\tsections: [\n\t\t{ id: 'who-we-are', title: 'Who we are', body: [placeholder('who provides the service and how to reach them')] },\n\t\t{ id: 'your-account', title: 'Your account', body: [placeholder('creating an account, keeping it secure and who may use it'), 'Each section can hold as many paragraphs as it needs.'] },\n\t\t{ id: 'using-the-service', title: 'Using the service', body: [placeholder('what the service may and may not be used for')] },\n\t\t{ id: 'plans-and-payment', title: 'Plans and payment', body: [placeholder('plans, billing, renewals and refunds')] },\n\t\t{ id: 'ending', title: 'Ending the agreement', body: [placeholder('how either side may end the agreement and what happens to data')] },\n\t\t{ id: 'contact', title: 'Contact', body: [placeholder('where to send questions about these terms')] },\n\t],\n\tcontents: 'On this page',\n\tfooter,\n}\n\nexport type LegalContent = typeof legalContent\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "footer-row",
+        "site-header"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "LegalPage",
+            "file": "react/components/pages/LegalPage.tsx",
+            "props": [
+              {
+                "name": "content",
+                "type": "LegalContent",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Legal page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/legal-page/Page.tsx",
+          "content": "import { LegalPage } from '@/react/components/pages/LegalPage'\n// The legal page template with its own copy.\n\nexport default function Page() {\n  return <LegalPage />\n}\n",
+          "registryDependencies": [
+            "footer-row",
+            "site-header"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/pages/legal-page.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { legalContent, type LegalContent } from '@/lib/pages/legal'\nimport '@/elements/components/site/footer-row'\nimport '@/elements/components/site/site-header'\nimport styles from 'virtual:tw'\n\n// LegalPage.tsx as <spyglass-legal-page>: the title and date, the list of sections and the sections in a 720px column.\n// The sections live in the shadow root, where the page's #fragment cannot reach them, so the list scrolls to them\n// itself (and puts the fragment in the address bar). `content` replaces the text.\nconst WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'\n\n/**\n * @summary The legal page template.\n */\nexport class LegalPage extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"legal-page\"]'))\n\tstatic properties = { content: { type: Object } }\n\t/** The text (lib/pages/legal.ts by default). */\n\tcontent: LegalContent = legalContent\n\n\tprivate go(event: Event, id: string) {\n\t\tconst target = (this.renderRoot as ShadowRoot).getElementById(id)\n\t\tif (!target) return\n\t\tevent.preventDefault()\n\t\ttarget.scrollIntoView()\n\t\thistory.replaceState(null, '', `#${id}`)\n\t}\n\n\trender() {\n\t\tconst c = this.content ?? legalContent\n\t\treturn html`<div data-ds=\"legal-page\" class=\"bg-surface text-fg\">\n<div class=${WRAP}><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header></div>\n<main>\n<div class=${`${WRAP} grid gap-4 pt-16 pb-12 max-sm:pt-10 max-sm:pb-8`}><h1 class=\"type-display max-md:type-hero max-sm:type-heading-1\">${c.title}</h1><p class=\"type-label text-fg-muted\">${c.updated}</p></div>\n<div class=${`${WRAP} grid grid-cols-4 gap-12 pt-12 pb-24 max-md:grid-cols-1 max-md:gap-8 max-sm:pb-16`}><nav aria-label=${c.contents} class=\"self-start md:sticky md:top-8\"><p class=\"mb-3 type-label text-fg-faint\">${c.contents}</p><ul class=\"grid gap-2\">${c.sections.map((s) => html`<li><a href=${`#${s.id}`} class=\"rounded-control type-ui text-fg-muted transition-[color] duration-150 ease-standard hover:text-fg\" @click=${(e: Event) => this.go(e, s.id)}>${s.title}</a></li>`)}</ul></nav><div class=\"col-span-3 grid max-w-180 gap-12 max-md:col-span-1\">${c.sections.map((s) => html`<section id=${s.id} class=\"grid scroll-mt-8 gap-4\"><h2 class=\"type-heading-2\">${s.title}</h2>${s.body.map((p) => html`<p class=\"type-body text-fg-soft\">${p}</p>`)}</section>`)}</div></div>\n</main>\n<footer class=\"border-t border-edge\"><div class=${`${WRAP} py-10`}><spyglass-footer-row domain=${c.footer.domain} home-href=\"/\" .links=${c.footer.links}></spyglass-footer-row></div></footer>\n</div>`\n\t}\n}\n\ndefine('legal-page', LegalPage)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/legal-page.js",
+        "elements/footer-row.js",
+        "elements/site-header.js",
+        "elements/logo.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-legal-page",
+      "tags": [
+        "spyglass-legal-page"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button",
+        "footer-row",
+        "logo",
+        "site-header"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-legal-page",
+            "name": "LegalPage",
+            "module": "elements/legal-page.js",
+            "description": "The legal page template.",
+            "attributes": [
+              {
+                "name": "content",
+                "field": "content",
+                "type": "{ header: { nav: { label: string; href: string; }[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; }; }; title: string; updated: string; sections: { id: string; title: string; body: string[]; }[]; contents: string; footer: { domain: string; links: { label: string; href: string; }[]; }; }",
+                "default": "legalContent",
+                "description": "The text (lib/pages/legal.ts by default)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "content",
+                "type": "{ header: { nav: { label: string; href: string; }[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; }; }; title: string; updated: string; sections: { id: string; title: string; body: string[]; }[]; contents: string; footer: { domain: string; links: { label: string; href: string; }[]; }; }",
+                "default": "legalContent",
+                "description": "The text (lib/pages/legal.ts by default).",
+                "attribute": "content"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Legal page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/legal-page/Page.html",
+          "content": "<!-- The legal page template with its own copy. -->\n<spyglass-legal-page></spyglass-legal-page>\n"
+        }
+      ]
+    }
+  }
+}

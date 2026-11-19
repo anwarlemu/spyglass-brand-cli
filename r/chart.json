@@ -1,0 +1,404 @@
+{
+  "name": "chart",
+  "title": "Chart",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "How a number is drawn: White bars per day under a total, and lines over time in the brand's series order (White, #A3A3A3, #4D4D4D, then the spectrum from Magenta to Blue). Axes from 0 on #262626 hairlines; pointing reads a value.",
+  "use_for": "Searches per day, creatives found per category, spend over a flight. Every chart has a caption; every series is named in the legend.",
+  "never": [
+    "Series colors out of order, or spectrum colors before the neutrals",
+    "Color alone to tell series apart: the third series is dashed and every series is in the legend",
+    "An axis that starts above 0",
+    "Bars that regrow on every hover: they rise once"
+  ],
+  "source": "Derived from the guidelines: Black ground, White primary, the neutral spectrum for the first series and the seven spectrum colors in their fixed order after them, DM Sans figures and capital labels at 6%, the #171717 card fill. shadcn's chart for the parts (caption, legend, tooltip).",
+  "body": "`lib/chart.ts` holds the series colors (`CHART_COLORS`, ten in order) and the axis helpers both flavors use; draw your\nown charts with them so the order stays the brand's.",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/BarChart.tsx",
+      "content": "'use client'\nimport { useState, type CSSProperties } from 'react'\nimport { type DayPoint, compactNumber, dayMarks, formatDay, formatNumber, niceTicks } from '@/lib/chart'\nimport { cn } from '@/react/lib/cn'\n\n// A White bar per day on the Black ground. The axis starts at 0 and ends on a round number in about four steps; grid\n// lines are #262626 hairlines; axis figures are DM Sans 12px muted in tabular figures. A day with any activity keeps a\n// visible bar. Pointing at a bar names its day and value in the caption and quiets the others to #4D4D4D. The bars\n// rise from the axis once (300ms, ease-out, staggered over 120ms), then only their color changes; with reduced motion\n// they are simply there. `focus`: bars lit from outside, the rest quiet; `note`: what the caption says meanwhile.\nexport interface BarChartProps {\n  /** One value per day: [{ day (ISO), value }]. */\n  points: DayPoint[]\n  /** The caption: what the bars count. */\n  label: string\n  /** The bars' height in px. */\n  height?: number\n  /** Indexes lit from outside, the rest quiet. */\n  focus?: number[]\n  /** What the caption says while nothing is pointed at. */\n  note?: string\n}\n\nexport function BarChart({ points, label, height = 160, focus, note }: BarChartProps) {\n  const ticks = niceTicks(points.map(p => p.value))\n  const top = ticks[ticks.length - 1]!\n  const marks = dayMarks(points)\n  const [hover, setHover] = useState<number | null>(null)\n  const shown = hover === null ? null : points[hover] ?? null\n  const peak = formatNumber(Math.max(0, ...points.map(p => p.value)))\n  return (\n    <figure data-ds=\"bar-chart\" className=\"flex min-w-0 flex-col gap-3\">\n      <style href=\"ds-bar-chart\" precedence=\"ds\">{css}</style>\n      <figcaption className=\"flex h-5 items-baseline justify-between gap-4\">\n        <span className=\"type-label text-fg-muted\">{label}</span>\n        {shown\n          ? <span className=\"type-caption text-fg-muted tabular-nums\">{`${formatDay(shown.day, true)} `}<span className=\"font-medium text-fg\">{formatNumber(shown.value)}</span></span>\n          : note ? <span className=\"type-caption text-fg-muted\">{note}</span> : null}\n      </figcaption>\n      {!points.length\n        ? <p className=\"flex items-center justify-center type-ui text-fg-muted\" style={{ height: `${height}px` }}>No activity yet.</p>\n        : (\n            <div className=\"grid grid-cols-[40px_minmax(0,1fr)] gap-x-2\">\n              <div className=\"relative\" style={{ height: `${height}px` }} aria-hidden=\"true\">\n                {ticks.map(t => <span key={t} className=\"absolute right-0 -translate-y-1/2 type-caption text-fg-muted tabular-nums\" style={{ top: `${(1 - t / top) * 100}%` }}>{compactNumber(t)}</span>)}\n              </div>\n              <div className=\"relative\" style={{ height: `${height}px` }} role=\"img\" aria-label={`${label}: ${points.length} days, peak ${peak}`} onPointerLeave={() => setHover(null)}>\n                {ticks.map(t => <div key={t} className=\"pointer-events-none absolute inset-x-0 border-t border-data-grid\" style={{ top: `${(1 - t / top) * 100}%` }} />)}\n                <div className=\"absolute inset-0 flex items-end\">\n                  {points.map((p, i) => (\n                    <div key={p.day} className=\"flex h-full flex-1 items-end\" onPointerEnter={() => setHover(i)}>\n                      <div\n                        className=\"ds-bar mx-auto w-[70%] rounded-t-ds-sm bg-data-3 data-lit:bg-data-1\"\n                        data-lit={hover === i || (hover === null && (!focus || focus.includes(i))) || undefined}\n                        style={{ height: p.value > 0 ? `max(2px, ${(p.value / top) * 100}%)` : '0', '--i': (i * 120) / points.length } as CSSProperties}\n                      />\n                    </div>\n                  ))}\n                </div>\n              </div>\n              <div />\n              <div className=\"relative mt-2 h-4\" aria-hidden=\"true\">\n                {marks.map((m, i) => (\n                  <span\n                    key={m.text}\n                    className={cn('absolute whitespace-nowrap type-caption text-fg-muted tabular-nums', i === 0 ? 'left-0' : i === marks.length - 1 ? 'right-0' : '-translate-x-1/2')}\n                    style={i === 0 || i === marks.length - 1 ? {} : { left: m.left }}\n                  >{m.text}</span>\n                ))}\n              </div>\n            </div>\n          )}\n    </figure>\n  )\n}\n\nexport default BarChart\n\nconst css = `\n.ds-bar { transform-origin: bottom; animation: ds-bar-in var(--ds-duration-entrance) var(--ds-easing-out) both; animation-delay: calc(var(--i, 0) * 1ms); transition: background-color var(--ds-duration-glide) var(--ds-easing-standard); }\n@keyframes ds-bar-in { from { transform: scaleY(0.02); } }\n@media (prefers-reduced-motion: reduce) { .ds-bar { animation: none; } }\n`\n"
+    },
+    {
+      "path": "react/components/ui/LineChart.tsx",
+      "content": "'use client'\nimport { useState, type PointerEvent } from 'react'\nimport { type LineSeries, PLOT, compactNumber, lineLayout } from '@/lib/chart'\nimport { cn } from '@/react/lib/cn'\n\n// Lines over time: one axis from 0 on #262626 hairlines, 2px lines in the brand's series order (White, #A3A3A3,\n// #4D4D4D dashed, then the spectrum: Magenta, Red, Orange, Yellow, Green, Cyan, Blue), the first series shading the\n// area under it, a legend when there is more than one, and a crosshair with the values under the pointer on the\n// #171717 overlay panel. Ten series at most. On a #171717 card by default; `bare` drops the card, for a chart already\n// inside one. `format` writes a value (axis figures use the compact form unless `formatAxis` is given).\nexport type { LineSeries }\n\nexport interface LineChartProps {\n  /** The caption: what the lines count. */\n  title: string\n  /** [{ label, points: [{ t (ms), v }] }], ten at most. */\n  series: LineSeries[]\n  /** A value as written in the crosshair. */\n  format?: (value: number) => string\n  /** An axis figure as written. */\n  formatAxis?: (value: number) => string\n  /** How a time reads under the plot and in the crosshair. */\n  formatTime?: (t: number) => string\n  /** No card, inside one already. */\n  bare?: boolean\n}\n\nconst day = (t: number) => new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })\n\nexport function LineChart({ title, series, format = String, formatAxis = compactNumber, formatTime = day, bare }: LineChartProps) {\n  const { lines, paths, span, ticks, max, x, nearest, valuesAt } = lineLayout(series)\n  const [hover, setHover] = useState<number | null>(null)\n  function move(event: PointerEvent<HTMLDivElement>) {\n    const box = event.currentTarget.getBoundingClientRect()\n    setHover(nearest((event.clientX - box.left) / box.width))\n  }\n  const hovered = hover === null ? null : { left: `${(x(hover) / PLOT.w) * 100}%`, right: x(hover) > PLOT.w * 0.6, time: formatTime(hover), values: valuesAt(hover) }\n\n  return (\n    <figure data-ds=\"line-chart\" className={cn('flex min-w-0 flex-col gap-4', !bare && 'rounded-container bg-surface-raised p-6 max-sm:p-4')}>\n      <figcaption className=\"flex min-h-5 flex-wrap items-baseline justify-between gap-x-4 gap-y-2\">\n        <span className=\"type-label text-fg-muted\">{title}</span>\n        {lines.length > 1 && (\n          <span className=\"flex flex-wrap gap-x-4 gap-y-1 type-caption text-fg-muted\">\n            {paths.map(p => (\n              <span key={p.label} className=\"inline-flex items-center gap-1.5\">\n                <svg width=\"16\" height=\"4\" aria-hidden=\"true\"><line x1=\"0\" y1=\"2\" x2=\"16\" y2=\"2\" stroke={p.color} strokeWidth=\"2\" strokeDasharray={p.dash || undefined} /></svg>\n                {p.label}\n              </span>\n            ))}\n          </span>\n        )}\n      </figcaption>\n      {!lines.length\n        ? <p className=\"type-ui text-fg-muted\">No data in this range.</p>\n        : (\n            <div className=\"flex gap-2\">\n              <div className=\"relative h-40 w-10 shrink-0\" aria-hidden=\"true\">\n                {ticks.map(t => <span key={t} className=\"absolute right-0 -translate-y-1/2 whitespace-nowrap type-caption text-fg-muted tabular-nums\" style={{ top: `${(1 - t / max) * 100}%` }}>{formatAxis(t)}</span>)}\n              </div>\n              <div className=\"min-w-0 flex-1\">\n                <div className=\"relative h-40 touch-none\" role=\"img\" aria-label={`${title}: ${paths.map(p => `${p.label} last ${format(p.last.v)}`).join(', ')}`} onPointerMove={move} onPointerLeave={() => setHover(null)}>\n                  <svg className=\"absolute inset-0 h-full w-full overflow-visible\" viewBox={`0 0 ${PLOT.w} ${PLOT.h}`} preserveAspectRatio=\"none\" aria-hidden=\"true\">\n                    {ticks.map(t => <line key={t} x1=\"0\" y1={PLOT.h - (t / max) * PLOT.h} x2={PLOT.w} y2={PLOT.h - (t / max) * PLOT.h} stroke=\"var(--ds-color-data-grid)\" strokeWidth=\"1\" vectorEffect=\"non-scaling-stroke\" />)}\n                    {paths.filter(q => q.area).map(p => <path key={`${p.label}-area`} d={p.area} fill={p.color} fillOpacity=\"0.08\" />)}\n                    {paths.map(p => <path key={p.label} d={p.d} fill=\"none\" stroke={p.color} strokeWidth=\"2\" strokeDasharray={p.dash || undefined} strokeLinejoin=\"round\" strokeLinecap=\"round\" vectorEffect=\"non-scaling-stroke\" />)}\n                  </svg>\n                  {hovered && (\n                    <>\n                      <div className=\"pointer-events-none absolute inset-y-0 w-px bg-edge-strong\" style={{ left: hovered.left }} />\n                      <div className=\"pointer-events-none absolute top-0 z-10 flex flex-col gap-1 rounded-control border border-edge bg-surface-raised px-3 py-2 type-caption\" style={hovered.right ? { right: `calc(100% - ${hovered.left} + 8px)` } : { left: `calc(${hovered.left} + 8px)` }}>\n                        <p className=\"text-fg-muted tabular-nums\">{hovered.time}</p>\n                        {hovered.values.map(v => (\n                          <p key={v.label} className=\"flex items-center gap-2 whitespace-nowrap tabular-nums\">\n                            <span className=\"inline-block h-0.5 w-3\" style={{ background: v.color }} />\n                            {lines.length > 1 && <span className=\"text-fg-muted\">{v.label}</span>}\n                            <span className=\"ml-auto font-medium text-fg\">{v.value === undefined ? 'None' : format(v.value)}</span>\n                          </p>\n                        ))}\n                      </div>\n                    </>\n                  )}\n                </div>\n                <div className=\"mt-2 flex justify-between type-caption text-fg-muted tabular-nums\">\n                  <span>{formatTime(span.from)}</span>\n                  <span>{formatTime(span.to)}</span>\n                </div>\n              </div>\n            </div>\n          )}\n    </figure>\n  )\n}\n\nexport default LineChart\n"
+    },
+    {
+      "path": "lib/chart.ts",
+      "content": "// What the charts share, in both flavors: the series colors, numbers in en-US, an axis that ends on a round number in\n// about four steps, and the days under the bars. Framework-free.\n\n/**\n * The series colors in order: the neutrals first (White, #A3A3A3, #4D4D4D), then the spectrum in the order the brand\n * always shows it (Magenta, Red, Orange, Yellow, Green, Cyan, Blue). Ten series at most; the third is dashed, so a\n * dim gray line still reads, and every series is named in the legend.\n */\nexport const CHART_COLORS = [\n\t'var(--ds-color-data-1)',\n\t'var(--ds-color-data-2)',\n\t'var(--ds-color-data-3)',\n\t'var(--ds-color-magenta)',\n\t'var(--ds-color-red)',\n\t'var(--ds-color-orange)',\n\t'var(--ds-color-yellow)',\n\t'var(--ds-color-green)',\n\t'var(--ds-color-cyan)',\n\t'var(--ds-color-blue)',\n] as const\n/** Each series' dash pattern (SVG stroke-dasharray), by the same index. */\nexport const CHART_DASH = ['', '', '5 4', '', '', '', '', '', '', '']\n\nexport type DayPoint = { day: string, value: number }\nexport type LineSeries = { label: string, points: Array<{ t: number, v: number }> }\n\nconst whole = new Intl.NumberFormat('en-US')\nconst compact = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 })\n\n/** 186402 -> \"186,402\". */\nexport const formatNumber = (n: number) => whole.format(n)\n/** 186402 -> \"186.4K\", for axis labels. */\nexport const compactNumber = (n: number) => compact.format(n)\n\n/** The axis: a step of 1, 2, 2.5 or 5 times a power of ten that covers the largest value in four. Starts at 0. */\nexport function niceTicks(values: number[]) {\n\tconst max = Math.max(0, ...values)\n\tif (max === 0) return [0, 1]\n\tconst raw = max / 4\n\tconst power = 10 ** Math.floor(Math.log10(raw))\n\tconst step = ([1, 2, 2.5, 5, 10].find((m) => m * power >= raw) ?? 10) * power\n\treturn Array.from({ length: Math.ceil(max / step) + 1 }, (_, i) => i * step)\n}\n\n/** \"Oct 2\", or \"Oct 2, 2026\" with the year, from an ISO day. */\nexport const formatDay = (value: string, year = false) => new Date(`${value}T00:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', ...(year ? { year: 'numeric' } : {}), timeZone: 'UTC' })\n\n/** Four dates under n bars: the first, the last and two between, each with its center as a share of the width. */\nexport function dayMarks(points: DayPoint[]) {\n\tconst n = points.length\n\tif (!n) return []\n\treturn [...new Set([0, Math.round((n - 1) / 3), Math.round((2 * (n - 1)) / 3), n - 1])].map((i) => ({ left: `${((i + 0.5) / n) * 100}%`, text: formatDay(points[i]!.day) }))\n}\n\n/** The plot's drawing box for lines (an SVG viewBox, stretched to the plot). */\nexport const PLOT = { w: 600, h: 160 }\n\n/** Lines over time laid out in PLOT: paths, the shaded area under the first, the axis top and the hovered values. */\nexport function lineLayout(series: LineSeries[]) {\n\tconst lines = series.slice(0, CHART_COLORS.length).filter((s) => s.points.length)\n\tconst times = [...new Set(lines.flatMap((s) => s.points.map((p) => p.t)))].sort((a, b) => a - b)\n\tconst span = { from: times[0] ?? 0, to: times[times.length - 1] ?? 1 }\n\tconst ticks = niceTicks(lines.flatMap((s) => s.points.map((p) => p.v)))\n\tconst max = ticks[ticks.length - 1]!\n\tconst x = (t: number) => (span.to === span.from ? PLOT.w / 2 : ((t - span.from) / (span.to - span.from)) * PLOT.w)\n\tconst y = (v: number) => PLOT.h - (v / max) * PLOT.h\n\tconst paths = lines.map((s, i) => ({\n\t\tlabel: s.label,\n\t\tcolor: CHART_COLORS[i]!,\n\t\tdash: CHART_DASH[i]!,\n\t\td: s.points.map((p, j) => `${j ? 'L' : 'M'}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join(''),\n\t\tarea: i ? '' : `M${x(s.points[0]!.t).toFixed(1)},${PLOT.h}${s.points.map((p) => `L${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join('')}L${x(s.points[s.points.length - 1]!.t).toFixed(1)},${PLOT.h}Z`,\n\t\tlast: s.points[s.points.length - 1]!,\n\t}))\n\t/** The time nearest a share (0 to 1) of the width. */\n\tconst nearest = (share: number) => {\n\t\tconst t = span.from + share * (span.to - span.from)\n\t\tlet best: number | null = null\n\t\tfor (const c of times) if (best === null || Math.abs(c - t) < Math.abs(best - t)) best = c\n\t\treturn best\n\t}\n\tconst valuesAt = (t: number) => lines.map((s, i) => ({ label: s.label, color: CHART_COLORS[i]!, value: s.points.find((p) => p.t === t)?.v }))\n\treturn { lines, paths, span, ticks, max, x, nearest, valuesAt }\n}\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Searches",
+      "label": "Bars per day",
+      "center": true,
+      "half": false,
+      "path": "react/examples/chart/Searches.tsx",
+      "content": "import { BarChart } from '@/react/components/ui/BarChart'\nimport { formatNumber, type DayPoint } from '@/lib/chart'\n// A month of searches on a #171717 card: the total in Funnel Display, the bars per day under it. Point at a bar to\n// read it. Sample data.\nconst days = Array.from({ length: 30 }, (_, i) => `2026-10-${String(i + 2).padStart(2, '0')}`)\nconst points: DayPoint[] = days.map((day, i) => ({ day, value: Math.round(1800 * (0.2 + (((i * 7) % 23) / 23) ** 2 * 0.8)) }))\nconst total = points.reduce((a, p) => a + p.value, 0)\n\nexport default function Searches() {\n  return (\n    <div className=\"flex w-full max-w-150 flex-col gap-6 rounded-container bg-surface-raised p-6 max-sm:p-4\">\n      <div className=\"flex flex-col gap-2\">\n        <p className=\"type-label text-fg-muted\">Searches, October</p>\n        <p className=\"type-heading-1 tabular-nums\">{formatNumber(total)}</p>\n      </div>\n      <BarChart points={points} label=\"Searches per day\" height={140} />\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    },
+    {
+      "name": "Categories",
+      "label": "Six series in order",
+      "center": false,
+      "half": false,
+      "path": "react/examples/chart/Categories.tsx",
+      "content": "'use client'\nimport { LineChart, type LineSeries } from '@/react/components/ui/LineChart'\n// New creatives found per day by category over two weeks: six series in the brand's order, the neutrals first, then\n// the spectrum. Point at the plot to read a day. Sample data.\nconst day = (i: number) => Date.UTC(2026, 10, 2 + i)\nconst categories = ['Skincare', 'Snacks', 'Fitness', 'Beverages', 'Apparel', 'Home']\nconst series: LineSeries[] = categories.map((label, k) => ({\n  label,\n  points: Array.from({ length: 14 }, (_, i) => ({ t: day(i), v: Math.round(120 - k * 16 + ((i * (k + 3) * 7) % 11) * 4 + i * (3 - k * 0.4)) })),\n}))\nconst count = (v: number) => `${Math.round(v)} creatives`\n\nexport default function Categories() {\n  return (\n    <div className=\"w-full max-w-238\">\n      <LineChart title=\"New creatives per day\" series={series} format={count} />\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/BarChart.tsx",
+          "content": "'use client'\nimport { useState, type CSSProperties } from 'react'\nimport { type DayPoint, compactNumber, dayMarks, formatDay, formatNumber, niceTicks } from '@/lib/chart'\nimport { cn } from '@/react/lib/cn'\n\n// A White bar per day on the Black ground. The axis starts at 0 and ends on a round number in about four steps; grid\n// lines are #262626 hairlines; axis figures are DM Sans 12px muted in tabular figures. A day with any activity keeps a\n// visible bar. Pointing at a bar names its day and value in the caption and quiets the others to #4D4D4D. The bars\n// rise from the axis once (300ms, ease-out, staggered over 120ms), then only their color changes; with reduced motion\n// they are simply there. `focus`: bars lit from outside, the rest quiet; `note`: what the caption says meanwhile.\nexport interface BarChartProps {\n  /** One value per day: [{ day (ISO), value }]. */\n  points: DayPoint[]\n  /** The caption: what the bars count. */\n  label: string\n  /** The bars' height in px. */\n  height?: number\n  /** Indexes lit from outside, the rest quiet. */\n  focus?: number[]\n  /** What the caption says while nothing is pointed at. */\n  note?: string\n}\n\nexport function BarChart({ points, label, height = 160, focus, note }: BarChartProps) {\n  const ticks = niceTicks(points.map(p => p.value))\n  const top = ticks[ticks.length - 1]!\n  const marks = dayMarks(points)\n  const [hover, setHover] = useState<number | null>(null)\n  const shown = hover === null ? null : points[hover] ?? null\n  const peak = formatNumber(Math.max(0, ...points.map(p => p.value)))\n  return (\n    <figure data-ds=\"bar-chart\" className=\"flex min-w-0 flex-col gap-3\">\n      <style href=\"ds-bar-chart\" precedence=\"ds\">{css}</style>\n      <figcaption className=\"flex h-5 items-baseline justify-between gap-4\">\n        <span className=\"type-label text-fg-muted\">{label}</span>\n        {shown\n          ? <span className=\"type-caption text-fg-muted tabular-nums\">{`${formatDay(shown.day, true)} `}<span className=\"font-medium text-fg\">{formatNumber(shown.value)}</span></span>\n          : note ? <span className=\"type-caption text-fg-muted\">{note}</span> : null}\n      </figcaption>\n      {!points.length\n        ? <p className=\"flex items-center justify-center type-ui text-fg-muted\" style={{ height: `${height}px` }}>No activity yet.</p>\n        : (\n            <div className=\"grid grid-cols-[40px_minmax(0,1fr)] gap-x-2\">\n              <div className=\"relative\" style={{ height: `${height}px` }} aria-hidden=\"true\">\n                {ticks.map(t => <span key={t} className=\"absolute right-0 -translate-y-1/2 type-caption text-fg-muted tabular-nums\" style={{ top: `${(1 - t / top) * 100}%` }}>{compactNumber(t)}</span>)}\n              </div>\n              <div className=\"relative\" style={{ height: `${height}px` }} role=\"img\" aria-label={`${label}: ${points.length} days, peak ${peak}`} onPointerLeave={() => setHover(null)}>\n                {ticks.map(t => <div key={t} className=\"pointer-events-none absolute inset-x-0 border-t border-data-grid\" style={{ top: `${(1 - t / top) * 100}%` }} />)}\n                <div className=\"absolute inset-0 flex items-end\">\n                  {points.map((p, i) => (\n                    <div key={p.day} className=\"flex h-full flex-1 items-end\" onPointerEnter={() => setHover(i)}>\n                      <div\n                        className=\"ds-bar mx-auto w-[70%] rounded-t-ds-sm bg-data-3 data-lit:bg-data-1\"\n                        data-lit={hover === i || (hover === null && (!focus || focus.includes(i))) || undefined}\n                        style={{ height: p.value > 0 ? `max(2px, ${(p.value / top) * 100}%)` : '0', '--i': (i * 120) / points.length } as CSSProperties}\n                      />\n                    </div>\n                  ))}\n                </div>\n              </div>\n              <div />\n              <div className=\"relative mt-2 h-4\" aria-hidden=\"true\">\n                {marks.map((m, i) => (\n                  <span\n                    key={m.text}\n                    className={cn('absolute whitespace-nowrap type-caption text-fg-muted tabular-nums', i === 0 ? 'left-0' : i === marks.length - 1 ? 'right-0' : '-translate-x-1/2')}\n                    style={i === 0 || i === marks.length - 1 ? {} : { left: m.left }}\n                  >{m.text}</span>\n                ))}\n              </div>\n            </div>\n          )}\n    </figure>\n  )\n}\n\nexport default BarChart\n\nconst css = `\n.ds-bar { transform-origin: bottom; animation: ds-bar-in var(--ds-duration-entrance) var(--ds-easing-out) both; animation-delay: calc(var(--i, 0) * 1ms); transition: background-color var(--ds-duration-glide) var(--ds-easing-standard); }\n@keyframes ds-bar-in { from { transform: scaleY(0.02); } }\n@media (prefers-reduced-motion: reduce) { .ds-bar { animation: none; } }\n`\n"
+        },
+        {
+          "path": "react/components/ui/LineChart.tsx",
+          "content": "'use client'\nimport { useState, type PointerEvent } from 'react'\nimport { type LineSeries, PLOT, compactNumber, lineLayout } from '@/lib/chart'\nimport { cn } from '@/react/lib/cn'\n\n// Lines over time: one axis from 0 on #262626 hairlines, 2px lines in the brand's series order (White, #A3A3A3,\n// #4D4D4D dashed, then the spectrum: Magenta, Red, Orange, Yellow, Green, Cyan, Blue), the first series shading the\n// area under it, a legend when there is more than one, and a crosshair with the values under the pointer on the\n// #171717 overlay panel. Ten series at most. On a #171717 card by default; `bare` drops the card, for a chart already\n// inside one. `format` writes a value (axis figures use the compact form unless `formatAxis` is given).\nexport type { LineSeries }\n\nexport interface LineChartProps {\n  /** The caption: what the lines count. */\n  title: string\n  /** [{ label, points: [{ t (ms), v }] }], ten at most. */\n  series: LineSeries[]\n  /** A value as written in the crosshair. */\n  format?: (value: number) => string\n  /** An axis figure as written. */\n  formatAxis?: (value: number) => string\n  /** How a time reads under the plot and in the crosshair. */\n  formatTime?: (t: number) => string\n  /** No card, inside one already. */\n  bare?: boolean\n}\n\nconst day = (t: number) => new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })\n\nexport function LineChart({ title, series, format = String, formatAxis = compactNumber, formatTime = day, bare }: LineChartProps) {\n  const { lines, paths, span, ticks, max, x, nearest, valuesAt } = lineLayout(series)\n  const [hover, setHover] = useState<number | null>(null)\n  function move(event: PointerEvent<HTMLDivElement>) {\n    const box = event.currentTarget.getBoundingClientRect()\n    setHover(nearest((event.clientX - box.left) / box.width))\n  }\n  const hovered = hover === null ? null : { left: `${(x(hover) / PLOT.w) * 100}%`, right: x(hover) > PLOT.w * 0.6, time: formatTime(hover), values: valuesAt(hover) }\n\n  return (\n    <figure data-ds=\"line-chart\" className={cn('flex min-w-0 flex-col gap-4', !bare && 'rounded-container bg-surface-raised p-6 max-sm:p-4')}>\n      <figcaption className=\"flex min-h-5 flex-wrap items-baseline justify-between gap-x-4 gap-y-2\">\n        <span className=\"type-label text-fg-muted\">{title}</span>\n        {lines.length > 1 && (\n          <span className=\"flex flex-wrap gap-x-4 gap-y-1 type-caption text-fg-muted\">\n            {paths.map(p => (\n              <span key={p.label} className=\"inline-flex items-center gap-1.5\">\n                <svg width=\"16\" height=\"4\" aria-hidden=\"true\"><line x1=\"0\" y1=\"2\" x2=\"16\" y2=\"2\" stroke={p.color} strokeWidth=\"2\" strokeDasharray={p.dash || undefined} /></svg>\n                {p.label}\n              </span>\n            ))}\n          </span>\n        )}\n      </figcaption>\n      {!lines.length\n        ? <p className=\"type-ui text-fg-muted\">No data in this range.</p>\n        : (\n            <div className=\"flex gap-2\">\n              <div className=\"relative h-40 w-10 shrink-0\" aria-hidden=\"true\">\n                {ticks.map(t => <span key={t} className=\"absolute right-0 -translate-y-1/2 whitespace-nowrap type-caption text-fg-muted tabular-nums\" style={{ top: `${(1 - t / max) * 100}%` }}>{formatAxis(t)}</span>)}\n              </div>\n              <div className=\"min-w-0 flex-1\">\n                <div className=\"relative h-40 touch-none\" role=\"img\" aria-label={`${title}: ${paths.map(p => `${p.label} last ${format(p.last.v)}`).join(', ')}`} onPointerMove={move} onPointerLeave={() => setHover(null)}>\n                  <svg className=\"absolute inset-0 h-full w-full overflow-visible\" viewBox={`0 0 ${PLOT.w} ${PLOT.h}`} preserveAspectRatio=\"none\" aria-hidden=\"true\">\n                    {ticks.map(t => <line key={t} x1=\"0\" y1={PLOT.h - (t / max) * PLOT.h} x2={PLOT.w} y2={PLOT.h - (t / max) * PLOT.h} stroke=\"var(--ds-color-data-grid)\" strokeWidth=\"1\" vectorEffect=\"non-scaling-stroke\" />)}\n                    {paths.filter(q => q.area).map(p => <path key={`${p.label}-area`} d={p.area} fill={p.color} fillOpacity=\"0.08\" />)}\n                    {paths.map(p => <path key={p.label} d={p.d} fill=\"none\" stroke={p.color} strokeWidth=\"2\" strokeDasharray={p.dash || undefined} strokeLinejoin=\"round\" strokeLinecap=\"round\" vectorEffect=\"non-scaling-stroke\" />)}\n                  </svg>\n                  {hovered && (\n                    <>\n                      <div className=\"pointer-events-none absolute inset-y-0 w-px bg-edge-strong\" style={{ left: hovered.left }} />\n                      <div className=\"pointer-events-none absolute top-0 z-10 flex flex-col gap-1 rounded-control border border-edge bg-surface-raised px-3 py-2 type-caption\" style={hovered.right ? { right: `calc(100% - ${hovered.left} + 8px)` } : { left: `calc(${hovered.left} + 8px)` }}>\n                        <p className=\"text-fg-muted tabular-nums\">{hovered.time}</p>\n                        {hovered.values.map(v => (\n                          <p key={v.label} className=\"flex items-center gap-2 whitespace-nowrap tabular-nums\">\n                            <span className=\"inline-block h-0.5 w-3\" style={{ background: v.color }} />\n                            {lines.length > 1 && <span className=\"text-fg-muted\">{v.label}</span>}\n                            <span className=\"ml-auto font-medium text-fg\">{v.value === undefined ? 'None' : format(v.value)}</span>\n                          </p>\n                        ))}\n                      </div>\n                    </>\n                  )}\n                </div>\n                <div className=\"mt-2 flex justify-between type-caption text-fg-muted tabular-nums\">\n                  <span>{formatTime(span.from)}</span>\n                  <span>{formatTime(span.to)}</span>\n                </div>\n              </div>\n            </div>\n          )}\n    </figure>\n  )\n}\n\nexport default LineChart\n"
+        },
+        {
+          "path": "lib/chart.ts",
+          "content": "// What the charts share, in both flavors: the series colors, numbers in en-US, an axis that ends on a round number in\n// about four steps, and the days under the bars. Framework-free.\n\n/**\n * The series colors in order: the neutrals first (White, #A3A3A3, #4D4D4D), then the spectrum in the order the brand\n * always shows it (Magenta, Red, Orange, Yellow, Green, Cyan, Blue). Ten series at most; the third is dashed, so a\n * dim gray line still reads, and every series is named in the legend.\n */\nexport const CHART_COLORS = [\n\t'var(--ds-color-data-1)',\n\t'var(--ds-color-data-2)',\n\t'var(--ds-color-data-3)',\n\t'var(--ds-color-magenta)',\n\t'var(--ds-color-red)',\n\t'var(--ds-color-orange)',\n\t'var(--ds-color-yellow)',\n\t'var(--ds-color-green)',\n\t'var(--ds-color-cyan)',\n\t'var(--ds-color-blue)',\n] as const\n/** Each series' dash pattern (SVG stroke-dasharray), by the same index. */\nexport const CHART_DASH = ['', '', '5 4', '', '', '', '', '', '', '']\n\nexport type DayPoint = { day: string, value: number }\nexport type LineSeries = { label: string, points: Array<{ t: number, v: number }> }\n\nconst whole = new Intl.NumberFormat('en-US')\nconst compact = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 })\n\n/** 186402 -> \"186,402\". */\nexport const formatNumber = (n: number) => whole.format(n)\n/** 186402 -> \"186.4K\", for axis labels. */\nexport const compactNumber = (n: number) => compact.format(n)\n\n/** The axis: a step of 1, 2, 2.5 or 5 times a power of ten that covers the largest value in four. Starts at 0. */\nexport function niceTicks(values: number[]) {\n\tconst max = Math.max(0, ...values)\n\tif (max === 0) return [0, 1]\n\tconst raw = max / 4\n\tconst power = 10 ** Math.floor(Math.log10(raw))\n\tconst step = ([1, 2, 2.5, 5, 10].find((m) => m * power >= raw) ?? 10) * power\n\treturn Array.from({ length: Math.ceil(max / step) + 1 }, (_, i) => i * step)\n}\n\n/** \"Oct 2\", or \"Oct 2, 2026\" with the year, from an ISO day. */\nexport const formatDay = (value: string, year = false) => new Date(`${value}T00:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', ...(year ? { year: 'numeric' } : {}), timeZone: 'UTC' })\n\n/** Four dates under n bars: the first, the last and two between, each with its center as a share of the width. */\nexport function dayMarks(points: DayPoint[]) {\n\tconst n = points.length\n\tif (!n) return []\n\treturn [...new Set([0, Math.round((n - 1) / 3), Math.round((2 * (n - 1)) / 3), n - 1])].map((i) => ({ left: `${((i + 0.5) / n) * 100}%`, text: formatDay(points[i]!.day) }))\n}\n\n/** The plot's drawing box for lines (an SVG viewBox, stretched to the plot). */\nexport const PLOT = { w: 600, h: 160 }\n\n/** Lines over time laid out in PLOT: paths, the shaded area under the first, the axis top and the hovered values. */\nexport function lineLayout(series: LineSeries[]) {\n\tconst lines = series.slice(0, CHART_COLORS.length).filter((s) => s.points.length)\n\tconst times = [...new Set(lines.flatMap((s) => s.points.map((p) => p.t)))].sort((a, b) => a - b)\n\tconst span = { from: times[0] ?? 0, to: times[times.length - 1] ?? 1 }\n\tconst ticks = niceTicks(lines.flatMap((s) => s.points.map((p) => p.v)))\n\tconst max = ticks[ticks.length - 1]!\n\tconst x = (t: number) => (span.to === span.from ? PLOT.w / 2 : ((t - span.from) / (span.to - span.from)) * PLOT.w)\n\tconst y = (v: number) => PLOT.h - (v / max) * PLOT.h\n\tconst paths = lines.map((s, i) => ({\n\t\tlabel: s.label,\n\t\tcolor: CHART_COLORS[i]!,\n\t\tdash: CHART_DASH[i]!,\n\t\td: s.points.map((p, j) => `${j ? 'L' : 'M'}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join(''),\n\t\tarea: i ? '' : `M${x(s.points[0]!.t).toFixed(1)},${PLOT.h}${s.points.map((p) => `L${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join('')}L${x(s.points[s.points.length - 1]!.t).toFixed(1)},${PLOT.h}Z`,\n\t\tlast: s.points[s.points.length - 1]!,\n\t}))\n\t/** The time nearest a share (0 to 1) of the width. */\n\tconst nearest = (share: number) => {\n\t\tconst t = span.from + share * (span.to - span.from)\n\t\tlet best: number | null = null\n\t\tfor (const c of times) if (best === null || Math.abs(c - t) < Math.abs(best - t)) best = c\n\t\treturn best\n\t}\n\tconst valuesAt = (t: number) => lines.map((s, i) => ({ label: s.label, color: CHART_COLORS[i]!, value: s.points.find((p) => p.t === t)?.v }))\n\treturn { lines, paths, span, ticks, max, x, nearest, valuesAt }\n}\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "BarChart",
+            "file": "react/components/ui/BarChart.tsx",
+            "props": [
+              {
+                "name": "points",
+                "type": "DayPoint[]",
+                "required": true,
+                "description": "One value per day: [{ day (ISO), value }]."
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": true,
+                "description": "The caption: what the bars count."
+              },
+              {
+                "name": "height",
+                "type": "number",
+                "required": false,
+                "default": "160",
+                "description": "The bars' height in px."
+              },
+              {
+                "name": "focus",
+                "type": "number[]",
+                "required": false,
+                "description": "Indexes lit from outside, the rest quiet."
+              },
+              {
+                "name": "note",
+                "type": "string",
+                "required": false,
+                "description": "What the caption says while nothing is pointed at."
+              }
+            ]
+          },
+          {
+            "name": "LineChart",
+            "file": "react/components/ui/LineChart.tsx",
+            "props": [
+              {
+                "name": "title",
+                "type": "string",
+                "required": true,
+                "description": "The caption: what the lines count."
+              },
+              {
+                "name": "series",
+                "type": "LineSeries[]",
+                "required": true,
+                "description": "[{ label, points: [{ t (ms), v }] }], ten at most."
+              },
+              {
+                "name": "format",
+                "type": "(value: number) => string",
+                "required": false,
+                "default": "String",
+                "description": "A value as written in the crosshair."
+              },
+              {
+                "name": "formatAxis",
+                "type": "(value: number) => string",
+                "required": false,
+                "default": "compactNumber",
+                "description": "An axis figure as written."
+              },
+              {
+                "name": "formatTime",
+                "type": "(t: number) => string",
+                "required": false,
+                "default": "day",
+                "description": "How a time reads under the plot and in the crosshair."
+              },
+              {
+                "name": "bare",
+                "type": "boolean",
+                "required": false,
+                "description": "No card, inside one already."
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Searches",
+          "label": "Bars per day",
+          "center": true,
+          "half": false,
+          "path": "react/examples/chart/Searches.tsx",
+          "content": "import { BarChart } from '@/react/components/ui/BarChart'\nimport { formatNumber, type DayPoint } from '@/lib/chart'\n// A month of searches on a #171717 card: the total in Funnel Display, the bars per day under it. Point at a bar to\n// read it. Sample data.\nconst days = Array.from({ length: 30 }, (_, i) => `2026-10-${String(i + 2).padStart(2, '0')}`)\nconst points: DayPoint[] = days.map((day, i) => ({ day, value: Math.round(1800 * (0.2 + (((i * 7) % 23) / 23) ** 2 * 0.8)) }))\nconst total = points.reduce((a, p) => a + p.value, 0)\n\nexport default function Searches() {\n  return (\n    <div className=\"flex w-full max-w-150 flex-col gap-6 rounded-container bg-surface-raised p-6 max-sm:p-4\">\n      <div className=\"flex flex-col gap-2\">\n        <p className=\"type-label text-fg-muted\">Searches, October</p>\n        <p className=\"type-heading-1 tabular-nums\">{formatNumber(total)}</p>\n      </div>\n      <BarChart points={points} label=\"Searches per day\" height={140} />\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        },
+        {
+          "name": "Categories",
+          "label": "Six series in order",
+          "center": false,
+          "half": false,
+          "path": "react/examples/chart/Categories.tsx",
+          "content": "'use client'\nimport { LineChart, type LineSeries } from '@/react/components/ui/LineChart'\n// New creatives found per day by category over two weeks: six series in the brand's order, the neutrals first, then\n// the spectrum. Point at the plot to read a day. Sample data.\nconst day = (i: number) => Date.UTC(2026, 10, 2 + i)\nconst categories = ['Skincare', 'Snacks', 'Fitness', 'Beverages', 'Apparel', 'Home']\nconst series: LineSeries[] = categories.map((label, k) => ({\n  label,\n  points: Array.from({ length: 14 }, (_, i) => ({ t: day(i), v: Math.round(120 - k * 16 + ((i * (k + 3) * 7) % 11) * 4 + i * (3 - k * 0.4)) })),\n}))\nconst count = (v: number) => `${Math.round(v)} creatives`\n\nexport default function Categories() {\n  return (\n    <div className=\"w-full max-w-238\">\n      <LineChart title=\"New creatives per day\" series={series} format={count} />\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/bar-chart.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { repeat } from 'lit/directives/repeat.js'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define } from '@/elements/lib/element'\nimport { type DayPoint, compactNumber, dayMarks, formatDay, formatNumber, niceTicks } from '@/lib/chart'\nimport styles from 'virtual:tw'\n\n// BarChart.tsx as <spyglass-bar-chart>: a White bar per day on the Black ground. The axis starts at 0 and ends on a\n// round number in about four steps; grid lines are #262626 hairlines; axis figures are DM Sans 12px muted in tabular\n// figures. Pointing at a bar names its day and value in the caption and quiets the others to #4D4D4D. The bars rise\n// from the axis once, then only their color changes. `focus` (React's `focus`; the property is `lit`, as `focus` is\n// HTMLElement's own method): bars lit from outside; `note`: what the caption says meanwhile. `points` is a property\n// (or a JSON attribute).\n\n/** @summary A White bar per day, with its axis, grid and dates. */\nexport class BarChart extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { points: { type: Array }, label: {}, height: { type: Number }, lit: { type: Array, attribute: 'focus' }, note: {}, hover: { state: true } }\n\n\t/** One value per day: [{ day (ISO), value }]. */\n\tpoints: DayPoint[] = []\n\t/** The caption: what the bars count. */\n\tlabel = ''\n\t/** The bars' height in px. */\n\theight = 160\n\t/** Indexes lit from outside, the rest quiet (the focus attribute). */\n\tlit?: number[]\n\t/** What the caption says while nothing is pointed at. */\n\tnote?: string\n\tprivate hover: number | null = null\n\n\trender() {\n\t\tconst points = this.points ?? []\n\t\tconst ticks = niceTicks(points.map((p) => p.value))\n\t\tconst top = ticks[ticks.length - 1]!\n\t\tconst n = points.length\n\t\tconst marks = dayMarks(points)\n\t\tconst shown = this.hover === null ? null : points[this.hover] ?? null\n\t\tconst peak = formatNumber(Math.max(0, ...points.map((p) => p.value)))\n\t\tconst h = `height: ${this.height}px`\n\t\tconst body = !n\n\t\t\t? html`<p class=\"flex items-center justify-center type-ui text-fg-muted\" style=${h}>No activity yet.</p>`\n\t\t\t: html`<div class=\"grid grid-cols-[40px_minmax(0,1fr)] gap-x-2\">\n\t\t\t\t<div class=\"relative\" style=${h} aria-hidden=\"true\">${ticks.map((t) => html`<span class=\"absolute right-0 -translate-y-1/2 type-caption text-fg-muted tabular-nums\" style=${`top: ${(1 - t / top) * 100}%`}>${compactNumber(t)}</span>`)}</div>\n\t\t\t\t<div class=\"relative\" style=${h} role=\"img\" aria-label=${`${this.label}: ${n} days, peak ${peak}`} @pointerleave=${() => { this.hover = null }}>\n\t\t\t\t\t${ticks.map((t) => html`<div class=\"pointer-events-none absolute inset-x-0 border-t border-data-grid\" style=${`top: ${(1 - t / top) * 100}%`}></div>`)}\n\t\t\t\t\t<div class=\"absolute inset-0 flex items-end\">${repeat(points, (p) => p.day, (p, i) => html`<div class=\"flex h-full flex-1 items-end\" @pointerenter=${() => { this.hover = i }}><div class=\"ds-bar mx-auto w-[70%] rounded-t-ds-sm bg-data-3 data-lit:bg-data-1\" data-lit=${ifDefined(this.hover === i || (this.hover === null && (!this.lit || this.lit.includes(i))) ? 'true' : undefined)} style=${`height: ${p.value > 0 ? `max(2px, ${(p.value / top) * 100}%)` : '0'}; --i: ${(i * 120) / n}`}></div></div>`)}</div>\n\t\t\t\t</div>\n\t\t\t\t<div></div>\n\t\t\t\t<div class=\"relative mt-2 h-4\" aria-hidden=\"true\">${marks.map((m, i) => html`<span class=${['absolute whitespace-nowrap type-caption text-fg-muted tabular-nums', i === 0 ? 'left-0' : i === marks.length - 1 ? 'right-0' : '-translate-x-1/2'].join(' ')} style=${ifDefined(i === 0 || i === marks.length - 1 ? undefined : `left: ${m.left}`)}>${m.text}</span>`)}</div>\n\t\t\t</div>`\n\t\treturn html`<figure data-ds=\"bar-chart\" class=\"flex min-w-0 flex-col gap-3\">\n\t\t\t<figcaption class=\"flex h-5 items-baseline justify-between gap-4\">\n\t\t\t\t<span class=\"type-label text-fg-muted\">${this.label}</span>\n\t\t\t\t${shown ? html`<span class=\"type-caption text-fg-muted tabular-nums\">${`${formatDay(shown.day, true)} `}<span class=\"font-medium text-fg\">${formatNumber(shown.value)}</span></span>` : this.note ? html`<span class=\"type-caption text-fg-muted\">${this.note}</span>` : nothing}\n\t\t\t</figcaption>\n\t\t\t${body}\n\t\t</figure>`\n\t}\n}\n\ndefine('bar-chart', BarChart)\n"
+        },
+        {
+          "path": "elements/components/ui/bar-chart.css",
+          "content": "/* BarChart.tsx's styles: a bar rises from the axis once, then only its color changes. */\n.ds-bar { transform-origin: bottom; animation: ds-bar-in var(--ds-duration-entrance) var(--ds-easing-out) both; animation-delay: calc(var(--i, 0) * 1ms); transition: background-color var(--ds-duration-glide) var(--ds-easing-standard); }\n@keyframes ds-bar-in { from { transform: scaleY(0.02); } }\n@media (prefers-reduced-motion: reduce) { .ds-bar { animation: none; } }\n"
+        },
+        {
+          "path": "elements/components/ui/line-chart.ts",
+          "content": "import { html, nothing, svg } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define } from '@/elements/lib/element'\nimport { type LineSeries, PLOT, compactNumber, lineLayout } from '@/lib/chart'\nimport styles from 'virtual:tw'\n\n// LineChart.tsx as <spyglass-line-chart>: lines over time: one axis from 0 on #262626 hairlines, 2px lines in the\n// brand's series order (White, #A3A3A3, #4D4D4D dashed, then the spectrum: Magenta, Red, Orange, Yellow, Green, Cyan,\n// Blue), the first series shading the area under it, a legend when there is more than one, and a crosshair with the\n// values under the pointer on the #171717 overlay panel. Ten series at most. On a #171717 card by default; `bare`\n// drops the card. React's `title` is `heading`; `series`, `format`, `formatAxis` and `formatTime` are properties.\nexport type { LineSeries }\n\nconst day = (t: number) => new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })\n\n/** @summary Lines over time, with a legend and a crosshair. */\nexport class LineChart extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { heading: {}, series: { type: Array }, format: { attribute: false }, formatAxis: { attribute: false }, formatTime: { attribute: false }, bare: { type: Boolean }, hover: { state: true } }\n\n\t/** The caption (React's `title`; `title` is HTML's tooltip attribute). */\n\theading = ''\n\t/** [{ label, points: [{ t (ms), v }] }], ten at most. */\n\tseries: LineSeries[] = []\n\t/** A value as written in the crosshair (a property: a function). */\n\tformat: (value: number) => string = String\n\t/** An axis figure as written (a property: a function). */\n\tformatAxis: (value: number) => string = compactNumber\n\t/** How a time reads (a property: a function). */\n\tformatTime: (t: number) => string = day\n\t/** No card, inside one already. */\n\tbare = false\n\tprivate hover: number | null = null\n\n\tprivate move(event: PointerEvent) {\n\t\tconst box = (event.currentTarget as HTMLElement).getBoundingClientRect()\n\t\tthis.hover = lineLayout(this.series ?? []).nearest((event.clientX - box.left) / box.width)\n\t}\n\n\trender() {\n\t\tconst { lines, paths, span, ticks, max, x, valuesAt } = lineLayout(this.series ?? [])\n\t\tconst format = this.format\n\t\tconst hover = this.hover\n\t\tconst hovered = hover === null ? null : { left: `${(x(hover) / PLOT.w) * 100}%`, right: x(hover) > PLOT.w * 0.6, time: this.formatTime(hover), values: valuesAt(hover) }\n\t\tconst legend = lines.length > 1\n\t\t\t? html`<span class=\"flex flex-wrap gap-x-4 gap-y-1 type-caption text-fg-muted\">${paths.map((p) => html`<span class=\"inline-flex items-center gap-1.5\"><svg width=\"16\" height=\"4\" aria-hidden=\"true\">${svg`<line x1=\"0\" y1=\"2\" x2=\"16\" y2=\"2\" stroke=${p.color} stroke-width=\"2\" stroke-dasharray=${ifDefined(p.dash || undefined)}></line>`}</svg>${p.label}</span>`)}</span>`\n\t\t\t: nothing\n\t\tconst body = !lines.length\n\t\t\t? html`<p class=\"type-ui text-fg-muted\">No data in this range.</p>`\n\t\t\t: html`<div class=\"flex gap-2\">\n\t\t\t\t<div class=\"relative h-40 w-10 shrink-0\" aria-hidden=\"true\">${ticks.map((t) => html`<span class=\"absolute right-0 -translate-y-1/2 whitespace-nowrap type-caption text-fg-muted tabular-nums\" style=${`top: ${(1 - t / max) * 100}%`}>${this.formatAxis(t)}</span>`)}</div>\n\t\t\t\t<div class=\"min-w-0 flex-1\">\n\t\t\t\t\t<div class=\"relative h-40 touch-none\" role=\"img\" aria-label=${`${this.heading}: ${paths.map((p) => `${p.label} last ${format(p.last.v)}`).join(', ')}`} @pointermove=${this.move} @pointerleave=${() => { this.hover = null }}>\n\t\t\t\t\t\t<svg class=\"absolute inset-0 h-full w-full overflow-visible\" viewBox=${`0 0 ${PLOT.w} ${PLOT.h}`} preserveAspectRatio=\"none\" aria-hidden=\"true\">\n\t\t\t\t\t\t\t${ticks.map((t) => svg`<line x1=\"0\" y1=${PLOT.h - (t / max) * PLOT.h} x2=${PLOT.w} y2=${PLOT.h - (t / max) * PLOT.h} stroke=\"var(--ds-color-data-grid)\" stroke-width=\"1\" vector-effect=\"non-scaling-stroke\"></line>`)}\n\t\t\t\t\t\t\t${paths.filter((q) => q.area).map((p) => svg`<path d=${p.area} fill=${p.color} fill-opacity=\"0.08\"></path>`)}\n\t\t\t\t\t\t\t${paths.map((p) => svg`<path d=${p.d} fill=\"none\" stroke=${p.color} stroke-width=\"2\" stroke-dasharray=${ifDefined(p.dash || undefined)} stroke-linejoin=\"round\" stroke-linecap=\"round\" vector-effect=\"non-scaling-stroke\"></path>`)}\n\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t${hovered\n\t\t\t\t\t\t\t? html`<div class=\"pointer-events-none absolute inset-y-0 w-px bg-edge-strong\" style=${`left: ${hovered.left}`}></div><div class=\"pointer-events-none absolute top-0 z-10 flex flex-col gap-1 rounded-control border border-edge bg-surface-raised px-3 py-2 type-caption\" style=${hovered.right ? `right: calc(100% - ${hovered.left} + 8px)` : `left: calc(${hovered.left} + 8px)`}><p class=\"text-fg-muted tabular-nums\">${hovered.time}</p>${hovered.values.map((v) => html`<p class=\"flex items-center gap-2 whitespace-nowrap tabular-nums\"><span class=\"inline-block h-0.5 w-3\" style=${`background: ${v.color}`}></span>${lines.length > 1 ? html`<span class=\"text-fg-muted\">${v.label}</span>` : nothing}<span class=\"ml-auto font-medium text-fg\">${v.value === undefined ? 'None' : format(v.value)}</span></p>`)}</div>`\n\t\t\t\t\t\t\t: nothing}\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"mt-2 flex justify-between type-caption text-fg-muted tabular-nums\"><span>${this.formatTime(span.from)}</span><span>${this.formatTime(span.to)}</span></div>\n\t\t\t\t</div>\n\t\t\t</div>`\n\t\treturn html`<figure data-ds=\"line-chart\" class=${this.bare ? 'flex min-w-0 flex-col gap-4' : 'flex min-w-0 flex-col gap-4 rounded-container bg-surface-raised p-6 max-sm:p-4'}>\n\t\t\t<figcaption class=\"flex min-h-5 flex-wrap items-baseline justify-between gap-x-4 gap-y-2\"><span class=\"type-label text-fg-muted\">${this.heading}</span>${legend}</figcaption>\n\t\t\t${body}\n\t\t</figure>`\n\t}\n}\n\ndefine('line-chart', LineChart)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/bar-chart.js",
+        "elements/line-chart.js"
+      ],
+      "tag": "spyglass-bar-chart",
+      "tags": [
+        "spyglass-bar-chart",
+        "spyglass-line-chart"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-bar-chart",
+            "name": "BarChart",
+            "module": "elements/bar-chart.js",
+            "description": "A White bar per day, with its axis, grid and dates.",
+            "attributes": [
+              {
+                "name": "points",
+                "field": "points",
+                "type": "DayPoint[]",
+                "default": "[]",
+                "description": "One value per day: [{ day (ISO), value }]."
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The caption: what the bars count."
+              },
+              {
+                "name": "height",
+                "field": "height",
+                "type": "number",
+                "default": "160",
+                "description": "The bars' height in px."
+              },
+              {
+                "name": "focus",
+                "field": "lit",
+                "type": "number[] | undefined",
+                "description": "Indexes lit from outside, the rest quiet (the focus attribute)."
+              },
+              {
+                "name": "note",
+                "field": "note",
+                "type": "string | undefined",
+                "description": "What the caption says while nothing is pointed at."
+              },
+              {
+                "name": "hover",
+                "field": "hover",
+                "type": "number | null",
+                "default": "null"
+              }
+            ],
+            "properties": [
+              {
+                "name": "points",
+                "type": "DayPoint[]",
+                "default": "[]",
+                "description": "One value per day: [{ day (ISO), value }].",
+                "attribute": "points"
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The caption: what the bars count.",
+                "attribute": "label"
+              },
+              {
+                "name": "height",
+                "type": "number",
+                "default": "160",
+                "description": "The bars' height in px.",
+                "attribute": "height"
+              },
+              {
+                "name": "lit",
+                "type": "number[] | undefined",
+                "description": "Indexes lit from outside, the rest quiet (the focus attribute).",
+                "attribute": "focus"
+              },
+              {
+                "name": "note",
+                "type": "string | undefined",
+                "description": "What the caption says while nothing is pointed at.",
+                "attribute": "note"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          },
+          {
+            "tag": "spyglass-line-chart",
+            "name": "LineChart",
+            "module": "elements/line-chart.js",
+            "description": "Lines over time, with a legend and a crosshair.",
+            "attributes": [
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string",
+                "default": "''",
+                "description": "The caption (React's `title`; `title` is HTML's tooltip attribute)."
+              },
+              {
+                "name": "series",
+                "field": "series",
+                "type": "LineSeries[]",
+                "default": "[]",
+                "description": "[{ label, points: [{ t (ms), v }] }], ten at most."
+              },
+              {
+                "name": "bare",
+                "field": "bare",
+                "type": "boolean",
+                "default": "false",
+                "description": "No card, inside one already."
+              },
+              {
+                "name": "hover",
+                "field": "hover",
+                "type": "number | null",
+                "default": "null"
+              }
+            ],
+            "properties": [
+              {
+                "name": "heading",
+                "type": "string",
+                "default": "''",
+                "description": "The caption (React's `title`; `title` is HTML's tooltip attribute).",
+                "attribute": "heading"
+              },
+              {
+                "name": "series",
+                "type": "LineSeries[]",
+                "default": "[]",
+                "description": "[{ label, points: [{ t (ms), v }] }], ten at most.",
+                "attribute": "series"
+              },
+              {
+                "name": "format",
+                "type": "(value: number) => string",
+                "default": "String",
+                "description": "A value as written in the crosshair (a property: a function)."
+              },
+              {
+                "name": "formatAxis",
+                "type": "(value: number) => string",
+                "default": "compactNumber",
+                "description": "An axis figure as written (a property: a function)."
+              },
+              {
+                "name": "formatTime",
+                "type": "(t: number) => string",
+                "default": "day",
+                "description": "How a time reads (a property: a function)."
+              },
+              {
+                "name": "bare",
+                "type": "boolean",
+                "default": "false",
+                "description": "No card, inside one already.",
+                "attribute": "bare"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Searches",
+          "label": "Bars per day",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/chart/Searches.html",
+          "content": "<!-- A month of searches on a #171717 card: the total in Funnel Display, the bars per day under it. Point at a bar to\n     read it. Sample data. -->\n<div class=\"flex w-full max-w-150 flex-col gap-6 rounded-container bg-surface-raised p-6 max-sm:p-4\">\n  <div class=\"flex flex-col gap-2\">\n    <p class=\"type-label text-fg-muted\">Searches, October</p>\n    <p id=\"searches-total\" class=\"type-heading-1 tabular-nums\"></p>\n  </div>\n  <spyglass-bar-chart id=\"searches-chart\" label=\"Searches per day\" height=\"140\"></spyglass-bar-chart>\n</div>\n<script type=\"module\">\n  const days = Array.from({ length: 30 }, (_, i) => `2026-10-${String(i + 2).padStart(2, '0')}`)\n  const points = days.map((day, i) => ({ day, value: Math.round(1800 * (0.2 + (((i * 7) % 23) / 23) ** 2 * 0.8)) }))\n  document.getElementById('searches-total').textContent = new Intl.NumberFormat('en-US').format(points.reduce((a, p) => a + p.value, 0))\n  document.getElementById('searches-chart').points = points\n</script>\n"
+        },
+        {
+          "name": "Categories",
+          "label": "Six series in order",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/chart/Categories.html",
+          "content": "<!-- New creatives found per day by category over two weeks: six series in the brand's order, the neutrals first, then\n     the spectrum. Point at the plot to read a day. Sample data. -->\n<div class=\"w-full max-w-238\">\n  <spyglass-line-chart id=\"categories-chart\" heading=\"New creatives per day\"></spyglass-line-chart>\n</div>\n<script type=\"module\">\n  const day = (i) => Date.UTC(2026, 10, 2 + i)\n  const categories = ['Skincare', 'Snacks', 'Fitness', 'Beverages', 'Apparel', 'Home']\n  const chart = document.getElementById('categories-chart')\n  chart.format = (v) => `${Math.round(v)} creatives`\n  chart.series = categories.map((label, k) => ({\n    label,\n    points: Array.from({ length: 14 }, (_, i) => ({ t: day(i), v: Math.round(120 - k * 16 + ((i * (k + 3) * 7) % 11) * 4 + i * (3 - k * 0.4)) })),\n  }))\n</script>\n"
+        }
+      ]
+    }
+  }
+}

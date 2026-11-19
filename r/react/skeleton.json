@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "skeleton",
+  "type": "registry:ui",
+  "title": "Skeleton",
+  "description": "A placeholder in the shape of what is loading: a #1A1A1A block with the brand corner, or a circle, that breathes between full and half opacity. Never a shimmer; still with reduced motion.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/ui/Skeleton.tsx",
+      "type": "registry:ui",
+      "content": "import type { HTMLAttributes } from 'react'\nimport { cn } from '@/lib/cn'\n\n// A placeholder in the shape of what is loading: a #1A1A1A block with the brand corner (or a circle) that breathes\n// between full and half opacity every 2 seconds, never a shimmer. Size it with classes (h-4 w-48) to the part it holds\n// the place of, so nothing moves when the content lands. Still with reduced motion. Hidden from assistive tech: say\n// \"Loading\" once on the region (aria-busy) instead.\nexport interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {\n  /** A circle (an avatar or a logo) in place of the brand corner. */\n  circle?: boolean\n}\n\nexport function Skeleton({ circle, className, ...rest }: SkeletonProps) {\n  return (\n    <>\n      <style href=\"ds-skeleton\" precedence=\"ds\">{css}</style>\n      <div data-ds=\"skeleton\" aria-hidden=\"true\" className={cn('ds-skeleton bg-surface-subtle', circle ? 'rounded-full' : 'rounded-control', className)} {...rest} />\n    </>\n  )\n}\n\nexport default Skeleton\n\nconst css = `\n.ds-skeleton { animation: ds-skeleton-breathe 2s var(--ds-easing-in-out) infinite; }\n@keyframes ds-skeleton-breathe { 50% { opacity: 0.5; } }\n@media (prefers-reduced-motion: reduce) { .ds-skeleton { animation: none; } }\n`\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

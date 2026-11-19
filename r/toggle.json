@@ -1,0 +1,294 @@
+{
+  "name": "toggle",
+  "title": "Toggle",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A button that stays pressed: no fill or a hairline at rest, the primary White with Black text while it is on. Sizes match the button's.",
+  "use_for": "One option that is on or off in a row of filters or tools: video only, saved only, show captions.",
+  "never": [
+    "A setting saved at once: use Switch",
+    "A pick of one from several: use Toggle Group or Tabs",
+    "A spectrum color for the pressed state"
+  ],
+  "source": "Derived from the brand guidelines (no toggle in the brand assets): the button's sizes, corner and press, White as the one pressed state",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Toggle.tsx",
+      "content": "'use client'\nimport type { ButtonHTMLAttributes, ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\nimport { useControllable } from '@/react/hooks/useControllable'\n\n// A button that stays pressed: no fill at rest (soft gray text, the ghost fill under a hovering pointer) or, as\n// `outline`, a #363636 hairline; pressed it takes the primary White with Black text, the brand's one White state. Sizes\n// follow the button's: sm 32px, md 40px, lg 48px; `icon` makes it square (put its name in aria-label). A press gives a\n// little (scale 0.97, never on hover, not with reduced motion); colors change over 150ms. Icons never move. `pressed`\n// with `onPressedChange` controls it (or `defaultPressed` alone). Every other prop lands on the <button>.\nexport type ToggleVariant = 'default' | 'outline'\nexport type ToggleSize = 'sm' | 'md' | 'lg'\n\nconst VARIANTS: Record<ToggleVariant, string> = {\n  default: 'bg-transparent',\n  outline: 'border border-edge-strong bg-surface aria-pressed:border-action-primary not-aria-pressed:hover:not-disabled:border-action-secondary-edge-hover',\n}\nconst SIZES: Record<ToggleSize, string> = { sm: 'h-control-sm gap-1.5 type-ui-strong', md: 'h-control-md gap-2 type-ui-strong', lg: 'h-control-lg gap-2 type-body font-medium' }\n// One padding class per toggle, so a square toggle's 0 never competes with a label's padding.\nconst PADDING: Record<ToggleSize, string> = { sm: 'px-2.5', md: 'px-3', lg: 'px-4' }\nconst SQUARE: Record<ToggleSize, string> = { sm: 'w-control-sm px-0', md: 'w-control-md px-0', lg: 'w-control-lg px-0' }\n\nexport interface ToggleProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type' | 'onClick'> {\n  /** default (no fill at rest) or outline (a hairline). */\n  variant?: ToggleVariant\n  /** sm (32px), md (40px) or lg (48px). */\n  size?: ToggleSize\n  /** A square icon toggle: put its name in aria-label. */\n  icon?: boolean\n  pressed?: boolean\n  defaultPressed?: boolean\n  onPressedChange?: (pressed: boolean) => void\n  children?: ReactNode\n}\n\nexport function toggleClasses({ variant = 'default', size = 'md', icon }: Pick<ToggleProps, 'variant' | 'size' | 'icon'> = {}) {\n  return cn(\n    'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-control whitespace-nowrap select-none text-fg-soft',\n    'transition-[background-color,color,border-color,scale] duration-150 ease-out active:not-disabled:scale-97 motion-reduce:active:not-disabled:scale-100',\n    'not-aria-pressed:hover:not-disabled:bg-action-ghost-hover not-aria-pressed:hover:not-disabled:text-fg aria-pressed:bg-action-primary aria-pressed:text-action-primary-fg aria-pressed:hover:not-disabled:bg-action-primary-hover',\n    'disabled:cursor-not-allowed disabled:text-action-disabled-fg disabled:aria-pressed:bg-action-disabled',\n    SIZES[size],\n    icon ? SQUARE[size] : PADDING[size],\n    VARIANTS[variant],\n  )\n}\n\nexport function Toggle({ variant = 'default', size = 'md', icon, pressed, defaultPressed = false, onPressedChange, className, children, ...rest }: ToggleProps) {\n  const [on, setOn] = useControllable(pressed, defaultPressed, onPressedChange)\n  return <button data-ds=\"toggle\" type=\"button\" {...rest} className={cn(toggleClasses({ variant, size, icon }), className)} aria-pressed={on} onClick={() => setOn(!on)}>{children}</button>\n}\n\nexport default Toggle\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    },
+    {
+      "path": "react/hooks/useControllable.ts",
+      "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Toolbar",
+      "label": "Filters",
+      "center": true,
+      "half": false,
+      "path": "react/examples/toggle/Toolbar.tsx",
+      "content": "import { Bookmark, Grid2x2, Play } from 'lucide-react'\nimport { Toggle } from '@/react/components/ui/Toggle'\n// Filters over a grid of creatives: each stays on until pressed again.\n\nexport default function Toolbar() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-2\">\n      <Toggle defaultPressed><Play size={16} strokeWidth={1.5} aria-hidden=\"true\" />Video</Toggle>\n      <Toggle><Grid2x2 size={16} strokeWidth={1.5} aria-hidden=\"true\" />Carousel</Toggle>\n      <Toggle variant=\"outline\" icon aria-label=\"Saved only\"><Bookmark size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Toggle>\n      <Toggle variant=\"outline\" disabled>UGC</Toggle>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": [
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "Sizes",
+      "label": "Sizes",
+      "center": true,
+      "half": false,
+      "path": "react/examples/toggle/Sizes.tsx",
+      "content": "import { Toggle } from '@/react/components/ui/Toggle'\n// The three sizes, pressed, beside the button's.\n\nexport default function Sizes() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-2\">\n      <Toggle size=\"sm\" variant=\"outline\" defaultPressed>Small</Toggle>\n      <Toggle size=\"md\" variant=\"outline\" defaultPressed>Medium</Toggle>\n      <Toggle size=\"lg\" variant=\"outline\" defaultPressed>Large</Toggle>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Toggle.tsx",
+          "content": "'use client'\nimport type { ButtonHTMLAttributes, ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\nimport { useControllable } from '@/react/hooks/useControllable'\n\n// A button that stays pressed: no fill at rest (soft gray text, the ghost fill under a hovering pointer) or, as\n// `outline`, a #363636 hairline; pressed it takes the primary White with Black text, the brand's one White state. Sizes\n// follow the button's: sm 32px, md 40px, lg 48px; `icon` makes it square (put its name in aria-label). A press gives a\n// little (scale 0.97, never on hover, not with reduced motion); colors change over 150ms. Icons never move. `pressed`\n// with `onPressedChange` controls it (or `defaultPressed` alone). Every other prop lands on the <button>.\nexport type ToggleVariant = 'default' | 'outline'\nexport type ToggleSize = 'sm' | 'md' | 'lg'\n\nconst VARIANTS: Record<ToggleVariant, string> = {\n  default: 'bg-transparent',\n  outline: 'border border-edge-strong bg-surface aria-pressed:border-action-primary not-aria-pressed:hover:not-disabled:border-action-secondary-edge-hover',\n}\nconst SIZES: Record<ToggleSize, string> = { sm: 'h-control-sm gap-1.5 type-ui-strong', md: 'h-control-md gap-2 type-ui-strong', lg: 'h-control-lg gap-2 type-body font-medium' }\n// One padding class per toggle, so a square toggle's 0 never competes with a label's padding.\nconst PADDING: Record<ToggleSize, string> = { sm: 'px-2.5', md: 'px-3', lg: 'px-4' }\nconst SQUARE: Record<ToggleSize, string> = { sm: 'w-control-sm px-0', md: 'w-control-md px-0', lg: 'w-control-lg px-0' }\n\nexport interface ToggleProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type' | 'onClick'> {\n  /** default (no fill at rest) or outline (a hairline). */\n  variant?: ToggleVariant\n  /** sm (32px), md (40px) or lg (48px). */\n  size?: ToggleSize\n  /** A square icon toggle: put its name in aria-label. */\n  icon?: boolean\n  pressed?: boolean\n  defaultPressed?: boolean\n  onPressedChange?: (pressed: boolean) => void\n  children?: ReactNode\n}\n\nexport function toggleClasses({ variant = 'default', size = 'md', icon }: Pick<ToggleProps, 'variant' | 'size' | 'icon'> = {}) {\n  return cn(\n    'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-control whitespace-nowrap select-none text-fg-soft',\n    'transition-[background-color,color,border-color,scale] duration-150 ease-out active:not-disabled:scale-97 motion-reduce:active:not-disabled:scale-100',\n    'not-aria-pressed:hover:not-disabled:bg-action-ghost-hover not-aria-pressed:hover:not-disabled:text-fg aria-pressed:bg-action-primary aria-pressed:text-action-primary-fg aria-pressed:hover:not-disabled:bg-action-primary-hover',\n    'disabled:cursor-not-allowed disabled:text-action-disabled-fg disabled:aria-pressed:bg-action-disabled',\n    SIZES[size],\n    icon ? SQUARE[size] : PADDING[size],\n    VARIANTS[variant],\n  )\n}\n\nexport function Toggle({ variant = 'default', size = 'md', icon, pressed, defaultPressed = false, onPressedChange, className, children, ...rest }: ToggleProps) {\n  const [on, setOn] = useControllable(pressed, defaultPressed, onPressedChange)\n  return <button data-ds=\"toggle\" type=\"button\" {...rest} className={cn(toggleClasses({ variant, size, icon }), className)} aria-pressed={on} onClick={() => setOn(!on)}>{children}</button>\n}\n\nexport default Toggle\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        },
+        {
+          "path": "react/hooks/useControllable.ts",
+          "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Toggle",
+            "file": "react/components/ui/Toggle.tsx",
+            "props": [
+              {
+                "name": "variant",
+                "type": "ToggleVariant",
+                "required": false,
+                "default": "'default'",
+                "description": "default (no fill at rest) or outline (a hairline)."
+              },
+              {
+                "name": "size",
+                "type": "ToggleSize",
+                "required": false,
+                "default": "'md'",
+                "description": "sm (32px), md (40px) or lg (48px)."
+              },
+              {
+                "name": "icon",
+                "type": "boolean",
+                "required": false,
+                "description": "A square icon toggle: put its name in aria-label."
+              },
+              {
+                "name": "pressed",
+                "type": "boolean",
+                "required": false
+              },
+              {
+                "name": "defaultPressed",
+                "type": "boolean",
+                "required": false,
+                "default": "false"
+              },
+              {
+                "name": "onPressedChange",
+                "type": "(pressed: boolean) => void",
+                "required": false
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              }
+            ],
+            "extends": [
+              "Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type' | 'onClick'>"
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Toolbar",
+          "label": "Filters",
+          "center": true,
+          "half": false,
+          "path": "react/examples/toggle/Toolbar.tsx",
+          "content": "import { Bookmark, Grid2x2, Play } from 'lucide-react'\nimport { Toggle } from '@/react/components/ui/Toggle'\n// Filters over a grid of creatives: each stays on until pressed again.\n\nexport default function Toolbar() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-2\">\n      <Toggle defaultPressed><Play size={16} strokeWidth={1.5} aria-hidden=\"true\" />Video</Toggle>\n      <Toggle><Grid2x2 size={16} strokeWidth={1.5} aria-hidden=\"true\" />Carousel</Toggle>\n      <Toggle variant=\"outline\" icon aria-label=\"Saved only\"><Bookmark size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Toggle>\n      <Toggle variant=\"outline\" disabled>UGC</Toggle>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        },
+        {
+          "name": "Sizes",
+          "label": "Sizes",
+          "center": true,
+          "half": false,
+          "path": "react/examples/toggle/Sizes.tsx",
+          "content": "import { Toggle } from '@/react/components/ui/Toggle'\n// The three sizes, pressed, beside the button's.\n\nexport default function Sizes() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-2\">\n      <Toggle size=\"sm\" variant=\"outline\" defaultPressed>Small</Toggle>\n      <Toggle size=\"md\" variant=\"outline\" defaultPressed>Medium</Toggle>\n      <Toggle size=\"lg\" variant=\"outline\" defaultPressed>Large</Toggle>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/toggle.ts",
+          "content": "import { html } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Toggle.tsx as <spyglass-toggle>: a button that stays pressed: no fill at rest (or, as `outline`, a #363636\n// hairline); pressed it takes the primary White with Black text. Sizes sm (32px), md (40px), lg (48px); `icon` makes it\n// square (put its name in aria-label). A press gives a little (scale 0.97); colors change over 150ms. `pressed` (an\n// attribute) with `pressed-change`.\n\nconst VARIANTS = {\n\tdefault: 'bg-transparent',\n\toutline: 'border border-edge-strong bg-surface aria-pressed:border-action-primary not-aria-pressed:hover:not-disabled:border-action-secondary-edge-hover',\n} as const\nconst SIZES = { sm: 'h-control-sm gap-1.5 type-ui-strong', md: 'h-control-md gap-2 type-ui-strong', lg: 'h-control-lg gap-2 type-body font-medium' } as const\nconst PADDING = { sm: 'px-2.5', md: 'px-3', lg: 'px-4' } as const\nconst SQUARE = { sm: 'w-control-sm px-0', md: 'w-control-md px-0', lg: 'w-control-lg px-0' } as const\nexport type ToggleVariant = keyof typeof VARIANTS\nexport type ToggleSize = keyof typeof SIZES\n\n/**\n * @summary A button that stays pressed.\n * @slot - The label, with a Lucide icon before it if any.\n * @fires pressed-change - It was pressed; detail.value is the new state.\n */\nexport class Toggle extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('button'))\n\tstatic properties = {\n\t\tpressed: { type: Boolean, reflect: true },\n\t\tdisabled: { type: Boolean, reflect: true },\n\t\tvariant: { reflect: true },\n\t\tsize: { reflect: true },\n\t\ticon: { type: Boolean },\n\t\tlabel: { attribute: 'aria-label' },\n\t}\n\n\tpressed = false\n\tdisabled = false\n\t/** default (no fill at rest) or outline (a hairline). */\n\tvariant: ToggleVariant = 'default'\n\t/** sm (32px), md (40px) or lg (48px). */\n\tsize: ToggleSize = 'md'\n\t/** A square icon toggle (put its name in aria-label). */\n\ticon = false\n\t/** The name for assistive tech, passed to the inner button. */\n\tlabel?: string\n\n\trender() {\n\t\tconst size = SIZES[this.size] ? this.size : 'md'\n\t\tconst classes = [\n\t\t\t'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-control whitespace-nowrap select-none text-fg-soft',\n\t\t\t'transition-[background-color,color,border-color,scale] duration-150 ease-out active:not-disabled:scale-97 motion-reduce:active:not-disabled:scale-100',\n\t\t\t'not-aria-pressed:hover:not-disabled:bg-action-ghost-hover not-aria-pressed:hover:not-disabled:text-fg aria-pressed:bg-action-primary aria-pressed:text-action-primary-fg aria-pressed:hover:not-disabled:bg-action-primary-hover',\n\t\t\t'disabled:cursor-not-allowed disabled:text-action-disabled-fg disabled:aria-pressed:bg-action-disabled',\n\t\t\tSIZES[size],\n\t\t\tthis.icon ? SQUARE[size] : PADDING[size],\n\t\t\tVARIANTS[this.variant] ?? VARIANTS.default,\n\t\t].join(' ')\n\t\treturn html`<button data-ds=\"toggle\" type=\"button\" class=${classes} aria-pressed=${String(this.pressed)} aria-label=${ifDefined(this.label)} ?disabled=${this.disabled} @click=${() => this.commit(!this.pressed, 'pressed')}><slot></slot></button>`\n\t}\n}\n\ndefine('toggle', Toggle)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/toggle.js"
+      ],
+      "tag": "spyglass-toggle",
+      "tags": [
+        "spyglass-toggle"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-toggle",
+            "name": "Toggle",
+            "module": "elements/toggle.js",
+            "description": "A button that stays pressed.",
+            "attributes": [
+              {
+                "name": "pressed",
+                "field": "pressed",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "disabled",
+                "field": "disabled",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "variant",
+                "field": "variant",
+                "type": "\"default\" | \"outline\"",
+                "default": "'default'",
+                "description": "default (no fill at rest) or outline (a hairline)."
+              },
+              {
+                "name": "size",
+                "field": "size",
+                "type": "\"sm\" | \"md\" | \"lg\"",
+                "default": "'md'",
+                "description": "sm (32px), md (40px) or lg (48px)."
+              },
+              {
+                "name": "icon",
+                "field": "icon",
+                "type": "boolean",
+                "default": "false",
+                "description": "A square icon toggle (put its name in aria-label)."
+              },
+              {
+                "name": "aria-label",
+                "field": "label",
+                "type": "string | undefined",
+                "description": "The name for assistive tech, passed to the inner button."
+              }
+            ],
+            "properties": [
+              {
+                "name": "pressed",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "pressed"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "disabled"
+              },
+              {
+                "name": "variant",
+                "type": "\"default\" | \"outline\"",
+                "default": "'default'",
+                "description": "default (no fill at rest) or outline (a hairline).",
+                "attribute": "variant"
+              },
+              {
+                "name": "size",
+                "type": "\"sm\" | \"md\" | \"lg\"",
+                "default": "'md'",
+                "description": "sm (32px), md (40px) or lg (48px).",
+                "attribute": "size"
+              },
+              {
+                "name": "icon",
+                "type": "boolean",
+                "default": "false",
+                "description": "A square icon toggle (put its name in aria-label).",
+                "attribute": "icon"
+              },
+              {
+                "name": "label",
+                "type": "string | undefined",
+                "description": "The name for assistive tech, passed to the inner button.",
+                "attribute": "aria-label"
+              }
+            ],
+            "events": [
+              {
+                "name": "pressed-change",
+                "description": "It was pressed; detail.value is the new state."
+              }
+            ],
+            "slots": [
+              {
+                "name": "",
+                "description": "The label, with a Lucide icon before it if any."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Toolbar",
+          "label": "Filters",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/toggle/Toolbar.html",
+          "content": "<!-- Filters over a grid of creatives: each stays on until pressed again. -->\n<div class=\"flex flex-wrap items-center gap-2\">\n  <spyglass-toggle pressed><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-play\" aria-hidden=\"true\"><polygon points=\"6 3 20 12 6 21 6 3\"></polygon></svg>Video</spyglass-toggle>\n  <spyglass-toggle><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-grid-2x2\" aria-hidden=\"true\"><path d=\"M12 3v18\"></path><path d=\"M3 12h18\"></path><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"></rect></svg>Carousel</spyglass-toggle>\n  <spyglass-toggle variant=\"outline\" icon aria-label=\"Saved only\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-bookmark\" aria-hidden=\"true\"><path d=\"m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z\"></path></svg></spyglass-toggle>\n  <spyglass-toggle variant=\"outline\" disabled>UGC</spyglass-toggle>\n</div>\n"
+        },
+        {
+          "name": "Sizes",
+          "label": "Sizes",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/toggle/Sizes.html",
+          "content": "<!-- The three sizes, pressed, beside the button's. -->\n<div class=\"flex flex-wrap items-center gap-2\">\n  <spyglass-toggle size=\"sm\" variant=\"outline\" pressed>Small</spyglass-toggle>\n  <spyglass-toggle size=\"md\" variant=\"outline\" pressed>Medium</spyglass-toggle>\n  <spyglass-toggle size=\"lg\" variant=\"outline\" pressed>Large</spyglass-toggle>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

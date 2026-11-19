@@ -1,0 +1,23 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "plan-card",
+  "type": "registry:ui",
+  "title": "Plan card",
+  "description": "The Creator plan card from the ad: the plan's name in Funnel Display, the price as a sentence with concrete numbers, the lines it includes and one full-width White button, on the #171717 fill with the brand corner.",
+  "dependencies": [],
+  "registryDependencies": [
+    "https://spyglass-ds.vercel.app/r/react/button.json"
+  ],
+  "files": [
+    {
+      "path": "components/site/PlanCard.tsx",
+      "type": "registry:ui",
+      "content": "import type { ReactNode } from 'react'\nimport { Button } from '@/components/ui/Button'\nimport { cn } from '@/lib/cn'\n\n// The Creator plan card from the ad (Card, Creator plan, 600x452 on the canvas): the #171717 fill on Black with the\n// brand corner, no border and no shadow; the plan's name in Funnel Display (40px at 1.0 on the canvas, 28px here), the\n// price line in DM Sans, what the plan includes as plain lines, and one full-width White button. The canvas's spacing,\n// times 2/3: 32px in, the price 16px under the name, the lines 24px under it and 8px apart, the button 24px below\n// (cards stretched side by side keep their buttons on one line: the lines take the extra height).\nexport interface PlanCardProps {\n  /** The plan's name. */\n  title: ReactNode\n  /** The price, as a sentence with concrete numbers. */\n  price?: ReactNode\n  /** What the plan includes, one line each. */\n  features?: string[]\n  /** The button's label. */\n  cta?: string\n  /** Makes the button a link. */\n  href?: string\n  /** Called when the button is pressed. */\n  onSelect?: () => void\n  className?: string\n}\n\nexport function PlanCard({ title, price, features = [], cta, href, onSelect, className }: PlanCardProps) {\n  return (\n    <div data-ds=\"plan-card\" className={cn('flex flex-col rounded-container bg-surface-raised p-8 text-fg max-sm:p-6', className)}>\n      <h3 className=\"type-heading-2\">{title}</h3>\n      {price && <p className=\"mt-4 type-body text-fg\">{price}</p>}\n      {features.length > 0 && (\n        <ul className=\"mt-6 flex grow flex-col gap-2 type-ui text-fg\">\n          {features.map((f) => <li key={f}>{f}</li>)}\n        </ul>\n      )}\n      {cta && <Button href={href} onClick={onSelect} className=\"mt-6 w-full\">{cta}</Button>}\n    </div>\n  )\n}\n\nexport default PlanCard\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,241 @@
+{
+  "name": "pagination",
+  "title": "Pagination",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "Previous and Next around the page numbers: 32px ghost buttons that fill under the pointer, the current page in a #363636 hairline box in White. First and last always show, an ellipsis stands for the rest.",
+  "use_for": "Pages of a long list people come back to by place: a board's results, an archive of ads.",
+  "never": [
+    "A filled White current page: one primary per view, and this is not it",
+    "Infinite scroll for a list people need to come back to",
+    "Pages for a short list that fits on one screen"
+  ],
+  "source": "Derived from the brand guidelines (no pagination in the brand assets): the ghost button, the neutral steps for the hairline and muted numbers",
+  "body": "",
+  "requires": [],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/ui/Pagination.tsx",
+      "content": "'use client'\nimport { ChevronLeft, ChevronRight, Ellipsis } from 'lucide-react'\nimport { useControllable } from '@/react/hooks/useControllable'\nimport { cn } from '@/react/lib/cn'\n\n// Pages of a long list: Previous and Next around the page numbers, 32px ghost buttons in DM Sans 14px that fill under\n// the pointer. The current page sits in a #363636 hairline box in White, the others muted; the first and last pages\n// always show, `siblings` pages either side of the current one, and an ellipsis for the rest. On phones Previous and\n// Next keep only their chevrons. The page is `page` with `onPageChange` (or `defaultPage` alone), from 1.\nexport interface PaginationProps {\n  /** The page shown, from 1. */\n  page?: number\n  defaultPage?: number\n  onPageChange?: (page: number) => void\n  /** How many pages. */\n  pages: number\n  /** Pages shown either side of the current one. */\n  siblings?: number\n  /** The nav's name for assistive tech. */\n  label?: string\n  className?: string\n}\n\n/** The pages to draw: numbers, and 'gap' where an ellipsis stands for the rest. */\nexport function pageRange(page: number, pages: number, siblings = 1): (number | 'gap')[] {\n  const out: (number | 'gap')[] = []\n  const from = Math.max(2, page - siblings)\n  const to = Math.min(pages - 1, page + siblings)\n  out.push(1)\n  if (from > 2) out.push(from === 3 ? 2 : 'gap')\n  for (let p = from; p <= to; p++) out.push(p)\n  if (to < pages - 1) out.push(to === pages - 2 ? pages - 1 : 'gap')\n  if (pages > 1) out.push(pages)\n  return out\n}\n\nconst BASE = 'inline-flex h-control-sm min-w-control-sm cursor-pointer items-center justify-center gap-1.5 rounded-control px-2 type-ui whitespace-nowrap select-none transition-[background-color,color,scale] duration-150 ease-out active:not-disabled:scale-97 motion-reduce:active:not-disabled:scale-100 disabled:cursor-not-allowed disabled:text-fg-faint'\nconst IDLE = 'text-fg-muted hover:not-disabled:bg-action-ghost-hover hover:not-disabled:text-fg'\nconst CURRENT = 'border border-edge-strong text-fg'\n\nexport function Pagination({ page: given, defaultPage = 1, onPageChange, pages, siblings = 1, label = 'Pages', className }: PaginationProps) {\n  const [page, setPage] = useControllable(given, defaultPage, onPageChange)\n  const go = (p: number) => setPage(Math.min(pages, Math.max(1, p)))\n  return (\n    <nav data-ds=\"pagination\" aria-label={label} className={cn('flex justify-center', className)}>\n      <ul className=\"flex items-center gap-1\">\n        <li>\n          <button type=\"button\" className={cn(BASE, IDLE)} aria-label=\"Go to previous page\" disabled={page <= 1} onClick={() => go(page - 1)}>\n            <ChevronLeft size={16} strokeWidth={1.5} aria-hidden=\"true\" />\n            <span className=\"max-sm:hidden\">Previous</span>\n          </button>\n        </li>\n        {pageRange(page, pages, siblings).map((p, i) => (\n          <li key={p === 'gap' ? `gap-${i}` : p}>\n            {p === 'gap'\n              ? <span className=\"flex size-control-sm items-center justify-center text-fg-muted\" aria-hidden=\"true\"><Ellipsis size={16} strokeWidth={1.5} /></span>\n              : <button type=\"button\" className={cn(BASE, p === page ? CURRENT : IDLE)} aria-current={p === page ? 'page' : undefined} aria-label={`Page ${p}`} onClick={() => go(p)}>{p}</button>}\n          </li>\n        ))}\n        <li>\n          <button type=\"button\" className={cn(BASE, IDLE)} aria-label=\"Go to next page\" disabled={page >= pages} onClick={() => go(page + 1)}>\n            <span className=\"max-sm:hidden\">Next</span>\n            <ChevronRight size={16} strokeWidth={1.5} aria-hidden=\"true\" />\n          </button>\n        </li>\n      </ul>\n    </nav>\n  )\n}\n\nexport default Pagination\n"
+    },
+    {
+      "path": "react/hooks/useControllable.ts",
+      "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Results",
+      "label": "Pages",
+      "center": true,
+      "half": false,
+      "path": "react/examples/pagination/Results.tsx",
+      "content": "import { Pagination } from '@/react/components/ui/Pagination'\n// The pages under a board's results: twelve pages, the second one open.\n\nexport default function Results() {\n  return <Pagination pages={12} defaultPage={2} label=\"Board pages\" />\n}\n",
+      "requires": [],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Pagination.tsx",
+          "content": "'use client'\nimport { ChevronLeft, ChevronRight, Ellipsis } from 'lucide-react'\nimport { useControllable } from '@/react/hooks/useControllable'\nimport { cn } from '@/react/lib/cn'\n\n// Pages of a long list: Previous and Next around the page numbers, 32px ghost buttons in DM Sans 14px that fill under\n// the pointer. The current page sits in a #363636 hairline box in White, the others muted; the first and last pages\n// always show, `siblings` pages either side of the current one, and an ellipsis for the rest. On phones Previous and\n// Next keep only their chevrons. The page is `page` with `onPageChange` (or `defaultPage` alone), from 1.\nexport interface PaginationProps {\n  /** The page shown, from 1. */\n  page?: number\n  defaultPage?: number\n  onPageChange?: (page: number) => void\n  /** How many pages. */\n  pages: number\n  /** Pages shown either side of the current one. */\n  siblings?: number\n  /** The nav's name for assistive tech. */\n  label?: string\n  className?: string\n}\n\n/** The pages to draw: numbers, and 'gap' where an ellipsis stands for the rest. */\nexport function pageRange(page: number, pages: number, siblings = 1): (number | 'gap')[] {\n  const out: (number | 'gap')[] = []\n  const from = Math.max(2, page - siblings)\n  const to = Math.min(pages - 1, page + siblings)\n  out.push(1)\n  if (from > 2) out.push(from === 3 ? 2 : 'gap')\n  for (let p = from; p <= to; p++) out.push(p)\n  if (to < pages - 1) out.push(to === pages - 2 ? pages - 1 : 'gap')\n  if (pages > 1) out.push(pages)\n  return out\n}\n\nconst BASE = 'inline-flex h-control-sm min-w-control-sm cursor-pointer items-center justify-center gap-1.5 rounded-control px-2 type-ui whitespace-nowrap select-none transition-[background-color,color,scale] duration-150 ease-out active:not-disabled:scale-97 motion-reduce:active:not-disabled:scale-100 disabled:cursor-not-allowed disabled:text-fg-faint'\nconst IDLE = 'text-fg-muted hover:not-disabled:bg-action-ghost-hover hover:not-disabled:text-fg'\nconst CURRENT = 'border border-edge-strong text-fg'\n\nexport function Pagination({ page: given, defaultPage = 1, onPageChange, pages, siblings = 1, label = 'Pages', className }: PaginationProps) {\n  const [page, setPage] = useControllable(given, defaultPage, onPageChange)\n  const go = (p: number) => setPage(Math.min(pages, Math.max(1, p)))\n  return (\n    <nav data-ds=\"pagination\" aria-label={label} className={cn('flex justify-center', className)}>\n      <ul className=\"flex items-center gap-1\">\n        <li>\n          <button type=\"button\" className={cn(BASE, IDLE)} aria-label=\"Go to previous page\" disabled={page <= 1} onClick={() => go(page - 1)}>\n            <ChevronLeft size={16} strokeWidth={1.5} aria-hidden=\"true\" />\n            <span className=\"max-sm:hidden\">Previous</span>\n          </button>\n        </li>\n        {pageRange(page, pages, siblings).map((p, i) => (\n          <li key={p === 'gap' ? `gap-${i}` : p}>\n            {p === 'gap'\n              ? <span className=\"flex size-control-sm items-center justify-center text-fg-muted\" aria-hidden=\"true\"><Ellipsis size={16} strokeWidth={1.5} /></span>\n              : <button type=\"button\" className={cn(BASE, p === page ? CURRENT : IDLE)} aria-current={p === page ? 'page' : undefined} aria-label={`Page ${p}`} onClick={() => go(p)}>{p}</button>}\n          </li>\n        ))}\n        <li>\n          <button type=\"button\" className={cn(BASE, IDLE)} aria-label=\"Go to next page\" disabled={page >= pages} onClick={() => go(page + 1)}>\n            <span className=\"max-sm:hidden\">Next</span>\n            <ChevronRight size={16} strokeWidth={1.5} aria-hidden=\"true\" />\n          </button>\n        </li>\n      </ul>\n    </nav>\n  )\n}\n\nexport default Pagination\n"
+        },
+        {
+          "path": "react/hooks/useControllable.ts",
+          "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Pagination",
+            "file": "react/components/ui/Pagination.tsx",
+            "props": [
+              {
+                "name": "page",
+                "type": "number",
+                "required": false,
+                "description": "The page shown, from 1."
+              },
+              {
+                "name": "defaultPage",
+                "type": "number",
+                "required": false,
+                "default": "1"
+              },
+              {
+                "name": "onPageChange",
+                "type": "(page: number) => void",
+                "required": false
+              },
+              {
+                "name": "pages",
+                "type": "number",
+                "required": true,
+                "description": "How many pages."
+              },
+              {
+                "name": "siblings",
+                "type": "number",
+                "required": false,
+                "default": "1",
+                "description": "Pages shown either side of the current one."
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "default": "'Pages'",
+                "description": "The nav's name for assistive tech."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Results",
+          "label": "Pages",
+          "center": true,
+          "half": false,
+          "path": "react/examples/pagination/Results.tsx",
+          "content": "import { Pagination } from '@/react/components/ui/Pagination'\n// The pages under a board's results: twelve pages, the second one open.\n\nexport default function Results() {\n  return <Pagination pages={12} defaultPage={2} label=\"Board pages\" />\n}\n",
+          "registryDependencies": [],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/pagination.ts",
+          "content": "import { html } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { ChevronLeft, ChevronRight, Ellipsis } from 'lucide'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport styles from 'virtual:tw'\n\n// Pagination.tsx as <spyglass-pagination>: Previous and Next around the page numbers, 32px ghost buttons that fill\n// under the pointer, the current page in a #363636 hairline box in White. First and last always show, `siblings`\n// either side of the current page, an ellipsis for the rest. On phones Previous and Next keep only their chevrons.\n// `page` (from 1) with `page-change` (detail.value).\n\n/** The pages to draw: numbers, and 'gap' where an ellipsis stands for the rest. */\nexport function pageRange(page: number, pages: number, siblings = 1): (number | 'gap')[] {\n\tconst out: (number | 'gap')[] = []\n\tconst from = Math.max(2, page - siblings)\n\tconst to = Math.min(pages - 1, page + siblings)\n\tout.push(1)\n\tif (from > 2) out.push(from === 3 ? 2 : 'gap')\n\tfor (let p = from; p <= to; p++) out.push(p)\n\tif (to < pages - 1) out.push(to === pages - 2 ? pages - 1 : 'gap')\n\tif (pages > 1) out.push(pages)\n\treturn out\n}\n\nconst BASE = 'inline-flex h-control-sm min-w-control-sm cursor-pointer items-center justify-center gap-1.5 rounded-control px-2 type-ui whitespace-nowrap select-none transition-[background-color,color,scale] duration-150 ease-out active:not-disabled:scale-97 motion-reduce:active:not-disabled:scale-100 disabled:cursor-not-allowed disabled:text-fg-faint'\nconst IDLE = 'text-fg-muted hover:not-disabled:bg-action-ghost-hover hover:not-disabled:text-fg'\nconst CURRENT = 'border border-edge-strong text-fg'\n\n/**\n * @summary Previous and next around the page numbers.\n * @fires page-change - The page changed (detail.value; read `page`).\n */\nexport class Pagination extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('nav'))\n\tstatic properties = { page: { type: Number, reflect: true }, pages: { type: Number }, siblings: { type: Number }, label: {} }\n\n\t/** The page shown, from 1. */\n\tpage = 1\n\t/** How many pages. */\n\tpages = 1\n\t/** Pages shown either side of the current one. */\n\tsiblings = 1\n\t/** The nav's name for assistive tech. */\n\tlabel = 'Pages'\n\n\tprivate go(p: number) {\n\t\tthis.commit(Math.min(this.pages, Math.max(1, p)), 'page')\n\t}\n\n\trender() {\n\t\tconst page = this.page\n\t\treturn html`<nav data-ds=\"pagination\" aria-label=${this.label} class=\"flex justify-center\"><ul class=\"flex items-center gap-1\">\n\t\t\t<li><button type=\"button\" class=${`${BASE} ${IDLE}`} aria-label=\"Go to previous page\" ?disabled=${page <= 1} @click=${() => this.go(page - 1)}>${icon(ChevronLeft, 'chevron-left', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } })}<span class=\"max-sm:hidden\">Previous</span></button></li>\n\t\t\t${pageRange(page, this.pages, this.siblings).map((p) => html`<li>${p === 'gap'\n\t\t\t\t? html`<span class=\"flex size-control-sm items-center justify-center text-fg-muted\" aria-hidden=\"true\">${icon(Ellipsis, 'ellipsis', { size: 16, strokeWidth: 1.5 })}</span>`\n\t\t\t\t: html`<button type=\"button\" class=${`${BASE} ${p === page ? CURRENT : IDLE}`} aria-current=${ifDefined(p === page ? 'page' : undefined)} aria-label=${`Page ${p}`} @click=${() => this.go(p)}>${p}</button>`}</li>`)}\n\t\t\t<li><button type=\"button\" class=${`${BASE} ${IDLE}`} aria-label=\"Go to next page\" ?disabled=${page >= this.pages} @click=${() => this.go(page + 1)}><span class=\"max-sm:hidden\">Next</span>${icon(ChevronRight, 'chevron-right', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } })}</button></li>\n\t\t</ul></nav>`\n\t}\n}\n\ndefine('pagination', Pagination)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/pagination.js"
+      ],
+      "tag": "spyglass-pagination",
+      "tags": [
+        "spyglass-pagination"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-pagination",
+            "name": "Pagination",
+            "module": "elements/pagination.js",
+            "description": "Previous and next around the page numbers.",
+            "attributes": [
+              {
+                "name": "page",
+                "field": "page",
+                "type": "number",
+                "default": "1",
+                "description": "The page shown, from 1."
+              },
+              {
+                "name": "pages",
+                "field": "pages",
+                "type": "number",
+                "default": "1",
+                "description": "How many pages."
+              },
+              {
+                "name": "siblings",
+                "field": "siblings",
+                "type": "number",
+                "default": "1",
+                "description": "Pages shown either side of the current one."
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "'Pages'",
+                "description": "The nav's name for assistive tech."
+              }
+            ],
+            "properties": [
+              {
+                "name": "page",
+                "type": "number",
+                "default": "1",
+                "description": "The page shown, from 1.",
+                "attribute": "page"
+              },
+              {
+                "name": "pages",
+                "type": "number",
+                "default": "1",
+                "description": "How many pages.",
+                "attribute": "pages"
+              },
+              {
+                "name": "siblings",
+                "type": "number",
+                "default": "1",
+                "description": "Pages shown either side of the current one.",
+                "attribute": "siblings"
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "default": "'Pages'",
+                "description": "The nav's name for assistive tech.",
+                "attribute": "label"
+              }
+            ],
+            "events": [
+              {
+                "name": "page-change",
+                "description": "The page changed (detail.value; read `page`)."
+              }
+            ],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Results",
+          "label": "Pages",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/pagination/Results.html",
+          "content": "<!-- The pages under a board's results: twelve pages, the second one open. -->\n<spyglass-pagination pages=\"12\" page=\"2\" label=\"Board pages\"></spyglass-pagination>\n"
+        }
+      ]
+    }
+  }
+}

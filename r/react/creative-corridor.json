@@ -1,0 +1,24 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "creative-corridor",
+  "type": "registry:ui",
+  "title": "Creative corridor",
+  "description": "Creatives as walls on both sides, receding in perspective to a small light at the vanishing point, in the ad's exact places.",
+  "dependencies": [],
+  "registryDependencies": [
+    "https://spyglass-ds.vercel.app/r/react/brand-light.json",
+    "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+  ],
+  "files": [
+    {
+      "path": "components/site/CreativeCorridor.tsx",
+      "type": "registry:ui",
+      "content": "import { BrandLight } from '@/components/visuals/BrandLight'\nimport { CreativeCard, type CreativeItem } from '@/components/site/CreativeCard'\nimport { CORRIDOR_FRAME, CORRIDOR_LIGHT, corridorWalls, placeAt } from '@/lib/creative-layouts'\nimport { cn } from '@/lib/cn'\n\n// The corridor (Ad, The world's largest creative search engine): creatives as walls on both sides, receding in\n// perspective to a small light at the vanishing point. Twelve walls, nearest first and left then right, in the ad's\n// exact places; each is clipped so its far edge is shorter. The corridor scales with its width (1080 by 744).\nexport interface CreativeCorridorProps {\n  /** Up to twelve creatives, nearest first, alternating left and right (fewer repeat). */\n  items: CreativeItem[]\n  /** The light's seed. */\n  seed?: number\n  className?: string\n}\n\nexport function CreativeCorridor({ items, seed = 0, className }: CreativeCorridorProps) {\n  const { width, height } = CORRIDOR_FRAME\n  return (\n    <div data-ds=\"creative-corridor\" className={cn('relative w-full overflow-hidden', className)} style={{ aspectRatio: `${width} / ${height}` }}>\n      <div className=\"absolute\" style={placeAt(CORRIDOR_LIGHT, width, height)}>\n        <BrandLight variant=\"close-up\" seed={seed} cover className=\"size-full\" />\n      </div>\n      {corridorWalls().map((wall, i) => {\n        const { light: _light, seed: _seed, ...item } = items.length ? items[i % items.length] : ({} as CreativeItem)\n        return (\n          <div key={i} className=\"absolute\" style={{ ...placeAt(wall, width, height), clipPath: wall.clip }}>\n            <CreativeCard {...item} ratio=\"fill\" />\n          </div>\n        )\n      })}\n    </div>\n  )\n}\n\nexport default CreativeCorridor\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

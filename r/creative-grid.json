@@ -1,0 +1,260 @@
+{
+  "name": "creative-grid",
+  "title": "Creative grid",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "Creatives in a grid, every cell the same shape: the post's three by three of squares 8px apart with a light tile among them, or the ad's three up in 3/4.",
+  "use_for": "A board, the results of a search, or the proof under a hero: many creatives at once, read as a set.",
+  "never": [
+    "Cells of different sizes in one grid: use the creative row or the ring",
+    "More than one light tile in nine",
+    "A grid on a card"
+  ],
+  "source": "Figma page 8: Post, Any brand or creator (200x200 creatives 8px apart, a Light tile in the middle); Ad, The only creative search engine (three creatives 296x400, 32px apart)",
+  "body": "`items` takes the creative card's fields; `light: true` makes a cell a tile of the brand light (`seed` picks it).",
+  "requires": [
+    "brand-light",
+    "creative-card"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/CreativeGrid.tsx",
+      "content": "import { BrandLight } from '@/react/components/visuals/BrandLight'\nimport { CreativeCard, type CreativeItem, type CreativeRatio } from '@/react/components/site/CreativeCard'\nimport { cn } from '@/react/lib/cn'\n\n// Creatives in a grid, as the assets set them: the post's three by three of squares 8px apart with a light tile among\n// them (Post, Any brand or creator), or the ad's three up in 3/4 (Ad, The only creative search engine). Every cell\n// takes the same shape; an item with `light` is a tile of the brand light.\nexport interface CreativeGridProps {\n  items: CreativeItem[]\n  /** 2, 3 or 4 columns (4 falls to 2 on phones). */\n  columns?: 2 | 3 | 4\n  /** Every cell's shape. */\n  ratio?: Exclude<CreativeRatio, 'fill'>\n  /** sm: the post's 8px. md: the ad's wider gutter. */\n  gap?: 'sm' | 'md'\n  className?: string\n}\n\nconst COLUMNS = { 2: 'grid-cols-2', 3: 'grid-cols-3', 4: 'grid-cols-4 max-sm:grid-cols-2' }\nconst GAPS = { sm: 'gap-2', md: 'gap-6 max-sm:gap-3' }\n\nexport function CreativeGrid({ items, columns = 3, ratio = '1/1', gap = 'sm', className }: CreativeGridProps) {\n  return (\n    <div data-ds=\"creative-grid\" className={cn('grid', COLUMNS[columns] ?? COLUMNS[3], GAPS[gap] ?? GAPS.sm, className)}>\n      {items.map(({ light, seed, ...item }, i) => (\n        <div key={i} className=\"min-w-0\" style={{ aspectRatio: ratio.replace('/', ' / ') }}>\n          {light ? <BrandLight variant=\"tile\" seed={seed ?? i} cover className=\"size-full rounded-container\" /> : <CreativeCard {...item} ratio=\"fill\" />}\n        </div>\n      ))}\n    </div>\n  )\n}\n\nexport default CreativeGrid\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Tiles",
+      "label": "Three by three with a light tile",
+      "center": true,
+      "half": false,
+      "path": "react/examples/creative-grid/Tiles.tsx",
+      "content": "import { CreativeGrid } from '@/react/components/site/CreativeGrid'\n// The post's grid: nine squares 8px apart, a light tile in the middle.\n\nconst items = [\n  { brand: 'Acme Skin', tone: 2 as const },\n  { brand: 'Acme Studio', tone: 1 as const },\n  { brand: 'Acme Drinks', tone: 3 as const },\n  { brand: 'Acme Motors', tone: 1 as const },\n  { light: true, seed: 0 },\n  { brand: 'Acme Drinks', tone: 4 as const },\n  { brand: 'Acme Fit', tone: 3 as const },\n  { brand: 'Acme Studio', tone: 2 as const },\n  { brand: 'Acme Skin', tone: 4 as const },\n]\n\nexport default function Tiles() {\n  return <CreativeGrid items={items} className=\"w-120 max-w-full\" />\n}\n",
+      "requires": [
+        "brand-light",
+        "creative-card"
+      ],
+      "packages": []
+    },
+    {
+      "name": "ThreeUp",
+      "label": "Three up",
+      "center": false,
+      "half": false,
+      "path": "react/examples/creative-grid/ThreeUp.tsx",
+      "content": "import { CreativeGrid } from '@/react/components/site/CreativeGrid'\n// The ad's three up: 3/4 creatives under the search bar.\n\nconst items = [\n  { brand: 'Acme Skin', caption: 'Glow in two steps.', tone: 3 as const },\n  { brand: 'Acme Skin', caption: 'The travel kit.', tone: 2 as const },\n  { brand: 'Acme Skin', caption: 'Night repair.', tone: 4 as const },\n]\n\nexport default function ThreeUp() {\n  return <CreativeGrid items={items} ratio=\"3/4\" gap=\"md\" />\n}\n",
+      "requires": [
+        "brand-light",
+        "creative-card"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/CreativeGrid.tsx",
+          "content": "import { BrandLight } from '@/react/components/visuals/BrandLight'\nimport { CreativeCard, type CreativeItem, type CreativeRatio } from '@/react/components/site/CreativeCard'\nimport { cn } from '@/react/lib/cn'\n\n// Creatives in a grid, as the assets set them: the post's three by three of squares 8px apart with a light tile among\n// them (Post, Any brand or creator), or the ad's three up in 3/4 (Ad, The only creative search engine). Every cell\n// takes the same shape; an item with `light` is a tile of the brand light.\nexport interface CreativeGridProps {\n  items: CreativeItem[]\n  /** 2, 3 or 4 columns (4 falls to 2 on phones). */\n  columns?: 2 | 3 | 4\n  /** Every cell's shape. */\n  ratio?: Exclude<CreativeRatio, 'fill'>\n  /** sm: the post's 8px. md: the ad's wider gutter. */\n  gap?: 'sm' | 'md'\n  className?: string\n}\n\nconst COLUMNS = { 2: 'grid-cols-2', 3: 'grid-cols-3', 4: 'grid-cols-4 max-sm:grid-cols-2' }\nconst GAPS = { sm: 'gap-2', md: 'gap-6 max-sm:gap-3' }\n\nexport function CreativeGrid({ items, columns = 3, ratio = '1/1', gap = 'sm', className }: CreativeGridProps) {\n  return (\n    <div data-ds=\"creative-grid\" className={cn('grid', COLUMNS[columns] ?? COLUMNS[3], GAPS[gap] ?? GAPS.sm, className)}>\n      {items.map(({ light, seed, ...item }, i) => (\n        <div key={i} className=\"min-w-0\" style={{ aspectRatio: ratio.replace('/', ' / ') }}>\n          {light ? <BrandLight variant=\"tile\" seed={seed ?? i} cover className=\"size-full rounded-container\" /> : <CreativeCard {...item} ratio=\"fill\" />}\n        </div>\n      ))}\n    </div>\n  )\n}\n\nexport default CreativeGrid\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "brand-light",
+        "creative-card"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "CreativeGrid",
+            "file": "react/components/site/CreativeGrid.tsx",
+            "props": [
+              {
+                "name": "items",
+                "type": "CreativeItem[]",
+                "required": true
+              },
+              {
+                "name": "columns",
+                "type": "2 | 3 | 4",
+                "required": false,
+                "default": "3",
+                "description": "2, 3 or 4 columns (4 falls to 2 on phones)."
+              },
+              {
+                "name": "ratio",
+                "type": "Exclude<CreativeRatio, 'fill'>",
+                "required": false,
+                "default": "'1/1'",
+                "description": "Every cell's shape."
+              },
+              {
+                "name": "gap",
+                "type": "'sm' | 'md'",
+                "required": false,
+                "default": "'sm'",
+                "description": "sm: the post's 8px. md: the ad's wider gutter."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Tiles",
+          "label": "Three by three with a light tile",
+          "center": true,
+          "half": false,
+          "path": "react/examples/creative-grid/Tiles.tsx",
+          "content": "import { CreativeGrid } from '@/react/components/site/CreativeGrid'\n// The post's grid: nine squares 8px apart, a light tile in the middle.\n\nconst items = [\n  { brand: 'Acme Skin', tone: 2 as const },\n  { brand: 'Acme Studio', tone: 1 as const },\n  { brand: 'Acme Drinks', tone: 3 as const },\n  { brand: 'Acme Motors', tone: 1 as const },\n  { light: true, seed: 0 },\n  { brand: 'Acme Drinks', tone: 4 as const },\n  { brand: 'Acme Fit', tone: 3 as const },\n  { brand: 'Acme Studio', tone: 2 as const },\n  { brand: 'Acme Skin', tone: 4 as const },\n]\n\nexport default function Tiles() {\n  return <CreativeGrid items={items} className=\"w-120 max-w-full\" />\n}\n",
+          "registryDependencies": [
+            "brand-light",
+            "creative-card"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "ThreeUp",
+          "label": "Three up",
+          "center": false,
+          "half": false,
+          "path": "react/examples/creative-grid/ThreeUp.tsx",
+          "content": "import { CreativeGrid } from '@/react/components/site/CreativeGrid'\n// The ad's three up: 3/4 creatives under the search bar.\n\nconst items = [\n  { brand: 'Acme Skin', caption: 'Glow in two steps.', tone: 3 as const },\n  { brand: 'Acme Skin', caption: 'The travel kit.', tone: 2 as const },\n  { brand: 'Acme Skin', caption: 'Night repair.', tone: 4 as const },\n]\n\nexport default function ThreeUp() {\n  return <CreativeGrid items={items} ratio=\"3/4\" gap=\"md\" />\n}\n",
+          "registryDependencies": [
+            "brand-light",
+            "creative-card"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/creative-grid.ts",
+          "content": "import { html } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport '@/elements/components/site/creative-card'\nimport '@/elements/components/visuals/brand-light'\nimport styles from 'virtual:tw'\n\n// CreativeGrid.tsx as <spyglass-creative-grid>: creatives in a grid, every cell the same shape (`ratio`), an item with\n// `light` a tile of the brand light. `items` is a list (JSON attribute or property) of creatives.\nexport interface CreativeItem { src?: string; alt?: string; brand?: string; caption?: string; tone?: 1 | 2 | 3 | 4; href?: string; light?: boolean; seed?: number }\n\nconst COLUMNS: Record<number, string> = { 2: 'grid-cols-2', 3: 'grid-cols-3', 4: 'grid-cols-4 max-sm:grid-cols-2' }\nconst GAPS: Record<string, string> = { sm: 'gap-2', md: 'gap-6 max-sm:gap-3' }\n\n/**\n * @summary Creatives in a grid, with light tiles among them.\n */\nexport class CreativeGrid extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"creative-grid\"]'))\n\tstatic properties = { items: { type: Array }, columns: { type: Number }, ratio: {}, gap: {} }\n\t/** The creatives (light: true for a light tile). */\n\titems: CreativeItem[] = []\n\t/** 2, 3 or 4 columns. */\n\tcolumns: 2 | 3 | 4 = 3\n\t/** Every cell's shape. */\n\tratio = '1/1'\n\t/** sm or md. */\n\tgap: 'sm' | 'md' = 'sm'\n\n\trender() {\n\t\tconst cls = ['grid', COLUMNS[this.columns] ?? COLUMNS[3], GAPS[this.gap] ?? GAPS.sm].join(' ')\n\t\treturn html`<div data-ds=\"creative-grid\" class=${cls}>${(this.items ?? []).map((it, i) => html`<div class=\"min-w-0\" style=\"aspect-ratio: ${this.ratio.replace('/', ' / ')};\">${it.light ? html`<spyglass-brand-light variant=\"tile\" seed=${it.seed ?? i} cover class=\"size-full rounded-container\"></spyglass-brand-light>` : html`<spyglass-creative-card ratio=\"fill\" src=${ifDefined(it.src)} alt=${ifDefined(it.alt)} brand=${ifDefined(it.brand)} caption=${ifDefined(it.caption)} tone=${ifDefined(it.tone)} href=${ifDefined(it.href)}></spyglass-creative-card>`}</div>`)}</div>`\n\t}\n}\n\ndefine('creative-grid', CreativeGrid)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/creative-grid.js",
+        "elements/creative-card.js",
+        "elements/brand-light.js"
+      ],
+      "tag": "spyglass-creative-grid",
+      "tags": [
+        "spyglass-creative-grid"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "brand-light",
+        "creative-card"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-creative-grid",
+            "name": "CreativeGrid",
+            "module": "elements/creative-grid.js",
+            "description": "Creatives in a grid, with light tiles among them.",
+            "attributes": [
+              {
+                "name": "items",
+                "field": "items",
+                "type": "CreativeItem[]",
+                "default": "[]",
+                "description": "The creatives (light: true for a light tile)."
+              },
+              {
+                "name": "columns",
+                "field": "columns",
+                "type": "2 | 3 | 4",
+                "default": "3",
+                "description": "2, 3 or 4 columns."
+              },
+              {
+                "name": "ratio",
+                "field": "ratio",
+                "type": "string",
+                "default": "'1/1'",
+                "description": "Every cell's shape."
+              },
+              {
+                "name": "gap",
+                "field": "gap",
+                "type": "\"sm\" | \"md\"",
+                "default": "'sm'",
+                "description": "sm or md."
+              }
+            ],
+            "properties": [
+              {
+                "name": "items",
+                "type": "CreativeItem[]",
+                "default": "[]",
+                "description": "The creatives (light: true for a light tile).",
+                "attribute": "items"
+              },
+              {
+                "name": "columns",
+                "type": "2 | 3 | 4",
+                "default": "3",
+                "description": "2, 3 or 4 columns.",
+                "attribute": "columns"
+              },
+              {
+                "name": "ratio",
+                "type": "string",
+                "default": "'1/1'",
+                "description": "Every cell's shape.",
+                "attribute": "ratio"
+              },
+              {
+                "name": "gap",
+                "type": "\"sm\" | \"md\"",
+                "default": "'sm'",
+                "description": "sm or md.",
+                "attribute": "gap"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Tiles",
+          "label": "Three by three with a light tile",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/creative-grid/Tiles.html",
+          "content": "<!-- The post's grid: nine squares 8px apart, a light tile in the middle. -->\n<spyglass-creative-grid class=\"w-120 max-w-full\" items='[{\"brand\":\"Acme Skin\",\"tone\":2},{\"brand\":\"Acme Studio\",\"tone\":1},{\"brand\":\"Acme Drinks\",\"tone\":3},{\"brand\":\"Acme Motors\",\"tone\":1},{\"light\":true,\"seed\":0},{\"brand\":\"Acme Drinks\",\"tone\":4},{\"brand\":\"Acme Fit\",\"tone\":3},{\"brand\":\"Acme Studio\",\"tone\":2},{\"brand\":\"Acme Skin\",\"tone\":4}]'></spyglass-creative-grid>\n"
+        },
+        {
+          "name": "ThreeUp",
+          "label": "Three up",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/creative-grid/ThreeUp.html",
+          "content": "<!-- The ad's three up: 3/4 creatives under the search bar. -->\n<spyglass-creative-grid ratio=\"3/4\" gap=\"md\" items='[{\"brand\":\"Acme Skin\",\"caption\":\"Glow in two steps.\",\"tone\":3},{\"brand\":\"Acme Skin\",\"caption\":\"The travel kit.\",\"tone\":2},{\"brand\":\"Acme Skin\",\"caption\":\"Night repair.\",\"tone\":4}]'></spyglass-creative-grid>\n"
+        }
+      ]
+    }
+  }
+}

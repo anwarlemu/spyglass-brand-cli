@@ -1,0 +1,349 @@
+{
+  "name": "input",
+  "title": "Input",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A text field on Black: a #363636 hairline that turns White on focus, DM Sans, a #A3A3A3 placeholder and the brand corner. Sizes match the button's.",
+  "use_for": "Free text in forms and filters: an email, a brand or creator to track, a board name. Label every field (a visible label, or aria-label).",
+  "never": [
+    "A placeholder as the only label",
+    "A colored or glowing focus ring: the hairline turns White",
+    "A filled or gray field on Black"
+  ],
+  "source": "Derived from the brand guidelines (no field in the brand assets): the search bar's Black field and corner, the neutral steps for the hairline and placeholder",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Input.tsx",
+      "content": "import type { InputHTMLAttributes, Ref } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// A text field on Black: a #363636 hairline that turns White on focus, DM Sans at 14px (16px on phones, so iOS does\n// not zoom), a #A3A3A3 placeholder and the brand corner. Sizes follow the button's: sm 32px, md 40px, lg 48px.\n// `invalid` turns the hairline red. Every other prop lands on the <input> (value and onChange as React's own).\nexport type InputSize = 'sm' | 'md' | 'lg'\n\nconst SIZES: Record<InputSize, string> = { sm: 'h-control-sm px-2.5', md: 'h-control-md px-3', lg: 'h-control-lg px-4' }\n\nexport interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {\n  /** sm (32px), md (40px) or lg (48px). */\n  size?: InputSize\n  /** A red hairline (with the message beside it). */\n  invalid?: boolean\n  ref?: Ref<HTMLInputElement>\n}\n\nexport function Input({ size = 'md', invalid, className, ...rest }: InputProps) {\n  return (\n    <input\n      data-ds=\"input\"\n      {...rest}\n      aria-invalid={invalid || undefined}\n      className={cn('w-full min-w-0 rounded-control border border-edge-strong bg-surface type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard placeholder:text-fg-muted hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', SIZES[size], className)}\n    />\n  )\n}\n\nexport default Input\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Field",
+      "label": "With a label",
+      "center": true,
+      "half": false,
+      "path": "react/examples/input/Field.tsx",
+      "content": "import { Input } from '@/react/components/ui/Input'\n// A labeled field with a line of help under it.\n\nexport default function Field() {\n  return (\n    <div className=\"flex w-80 max-w-full flex-col gap-2\">\n      <label htmlFor=\"track-brand\" className=\"type-label text-fg-soft\">Brand or creator</label>\n      <Input id=\"track-brand\" name=\"brand\" placeholder=\"Acme\" />\n      <p className=\"type-caption text-fg-muted\">Add any brand or creator in under a minute.</p>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    },
+    {
+      "name": "Sizes",
+      "label": "Sizes",
+      "center": true,
+      "half": false,
+      "path": "react/examples/input/Sizes.tsx",
+      "content": "import { Input } from '@/react/components/ui/Input'\n// sm, md and lg, matching the buttons beside them.\n\nexport default function Sizes() {\n  return (\n    <div className=\"flex w-80 max-w-full flex-col gap-3\">\n      <Input size=\"sm\" aria-label=\"Board name, small\" placeholder=\"Acme launch board\" />\n      <Input size=\"md\" aria-label=\"Board name\" placeholder=\"Acme launch board\" />\n      <Input size=\"lg\" aria-label=\"Board name, large\" placeholder=\"Acme launch board\" />\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    },
+    {
+      "name": "Invalid",
+      "label": "Invalid",
+      "center": true,
+      "half": false,
+      "path": "react/examples/input/Invalid.tsx",
+      "content": "import { Input } from '@/react/components/ui/Input'\n// An invalid field: the hairline turns red and the message says what to do.\n\nexport default function Invalid() {\n  return (\n    <div className=\"flex w-80 max-w-full flex-col gap-2\">\n      <label htmlFor=\"work-email\" className=\"type-label text-fg-soft\">Work email</label>\n      <Input id=\"work-email\" type=\"email\" defaultValue=\"team@acme\" invalid aria-describedby=\"work-email-error\" />\n      <p id=\"work-email-error\" className=\"type-caption text-fg-danger\">Enter an email like team@acme.com.</p>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Input.tsx",
+          "content": "import type { InputHTMLAttributes, Ref } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// A text field on Black: a #363636 hairline that turns White on focus, DM Sans at 14px (16px on phones, so iOS does\n// not zoom), a #A3A3A3 placeholder and the brand corner. Sizes follow the button's: sm 32px, md 40px, lg 48px.\n// `invalid` turns the hairline red. Every other prop lands on the <input> (value and onChange as React's own).\nexport type InputSize = 'sm' | 'md' | 'lg'\n\nconst SIZES: Record<InputSize, string> = { sm: 'h-control-sm px-2.5', md: 'h-control-md px-3', lg: 'h-control-lg px-4' }\n\nexport interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {\n  /** sm (32px), md (40px) or lg (48px). */\n  size?: InputSize\n  /** A red hairline (with the message beside it). */\n  invalid?: boolean\n  ref?: Ref<HTMLInputElement>\n}\n\nexport function Input({ size = 'md', invalid, className, ...rest }: InputProps) {\n  return (\n    <input\n      data-ds=\"input\"\n      {...rest}\n      aria-invalid={invalid || undefined}\n      className={cn('w-full min-w-0 rounded-control border border-edge-strong bg-surface type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard placeholder:text-fg-muted hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', SIZES[size], className)}\n    />\n  )\n}\n\nexport default Input\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Input",
+            "file": "react/components/ui/Input.tsx",
+            "props": [
+              {
+                "name": "size",
+                "type": "InputSize",
+                "required": false,
+                "default": "'md'",
+                "description": "sm (32px), md (40px) or lg (48px)."
+              },
+              {
+                "name": "invalid",
+                "type": "boolean",
+                "required": false,
+                "description": "A red hairline (with the message beside it)."
+              }
+            ],
+            "extends": [
+              "Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>"
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Field",
+          "label": "With a label",
+          "center": true,
+          "half": false,
+          "path": "react/examples/input/Field.tsx",
+          "content": "import { Input } from '@/react/components/ui/Input'\n// A labeled field with a line of help under it.\n\nexport default function Field() {\n  return (\n    <div className=\"flex w-80 max-w-full flex-col gap-2\">\n      <label htmlFor=\"track-brand\" className=\"type-label text-fg-soft\">Brand or creator</label>\n      <Input id=\"track-brand\" name=\"brand\" placeholder=\"Acme\" />\n      <p className=\"type-caption text-fg-muted\">Add any brand or creator in under a minute.</p>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        },
+        {
+          "name": "Sizes",
+          "label": "Sizes",
+          "center": true,
+          "half": false,
+          "path": "react/examples/input/Sizes.tsx",
+          "content": "import { Input } from '@/react/components/ui/Input'\n// sm, md and lg, matching the buttons beside them.\n\nexport default function Sizes() {\n  return (\n    <div className=\"flex w-80 max-w-full flex-col gap-3\">\n      <Input size=\"sm\" aria-label=\"Board name, small\" placeholder=\"Acme launch board\" />\n      <Input size=\"md\" aria-label=\"Board name\" placeholder=\"Acme launch board\" />\n      <Input size=\"lg\" aria-label=\"Board name, large\" placeholder=\"Acme launch board\" />\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        },
+        {
+          "name": "Invalid",
+          "label": "Invalid",
+          "center": true,
+          "half": false,
+          "path": "react/examples/input/Invalid.tsx",
+          "content": "import { Input } from '@/react/components/ui/Input'\n// An invalid field: the hairline turns red and the message says what to do.\n\nexport default function Invalid() {\n  return (\n    <div className=\"flex w-80 max-w-full flex-col gap-2\">\n      <label htmlFor=\"work-email\" className=\"type-label text-fg-soft\">Work email</label>\n      <Input id=\"work-email\" type=\"email\" defaultValue=\"team@acme\" invalid aria-describedby=\"work-email-error\" />\n      <p id=\"work-email-error\" className=\"type-caption text-fg-danger\">Enter an email like team@acme.com.</p>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/input.ts",
+          "content": "import { html, LitElement, type PropertyValues } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { live } from 'lit/directives/live.js'\nimport { DsFormElement, define, HostLayoutController } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Input.tsx as <spyglass-input>: a text field on Black, a #363636 hairline that turns White on focus, DM Sans at 14px\n// (16px on phones), a #A3A3A3 placeholder and the brand corner. Sizes sm, md and lg; `invalid` turns the hairline red.\n// It is form-associated (its `name` and `value` go with its form) and its value is `value` with the native `input`\n// and `change` events. aria-label, aria-description and aria-describedby's text pass to the inner <input>.\n\nconst SIZES = { sm: 'h-control-sm px-2.5', md: 'h-control-md px-3', lg: 'h-control-lg px-4' } as const\nexport type InputSize = keyof typeof SIZES\n\n/**\n * @summary A text field.\n * @fires input - On every keystroke (read `value`).\n * @fires change - When the value is committed.\n */\nexport class Input extends DsFormElement {\n\tstatic styles = [DsFormElement.styles, styles]\n\tstatic shadowRootOptions = { ...LitElement.shadowRootOptions, delegatesFocus: true }\n\tstatic dsField = true\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('input'))\n\tstatic properties = {\n\t\tvalue: {},\n\t\ttype: {},\n\t\tname: {},\n\t\tplaceholder: {},\n\t\tautocomplete: {},\n\t\tsize: { reflect: true },\n\t\tdisabled: { type: Boolean, reflect: true },\n\t\treadonly: { type: Boolean },\n\t\trequired: { type: Boolean },\n\t\tinvalid: { type: Boolean, reflect: true },\n\t\tlabel: { attribute: 'aria-label' },\n\t\tdescription: { attribute: 'aria-description' },\n\t}\n\n\tvalue = ''\n\ttype = 'text'\n\tname?: string\n\tplaceholder?: string\n\tautocomplete?: string\n\t/** sm (32px), md (40px) or lg (48px). */\n\tsize: InputSize = 'md'\n\tdisabled = false\n\treadonly = false\n\trequired = false\n\t/** A red hairline (with the message beside it). */\n\tinvalid = false\n\t/** The name for assistive tech, passed to the inner input. */\n\tlabel?: string\n\t/** The hint or error, passed to the inner input. */\n\tdescription?: string\n\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\t// The initial value from the attribute, as an <input value> gives it.\n\t\tif (!this.value && this.getAttribute('value')) this.value = this.getAttribute('value')!\n\t}\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\tif (changed.has('value')) this.internals.setFormValue(this.value)\n\t}\n\tprotected validityControl() {\n\t\treturn this.renderRoot.querySelector<HTMLInputElement>('input')\n\t}\n\tformResetCallback() {\n\t\tthis.value = this.getAttribute('value') ?? ''\n\t}\n\tprivate onInput(event: Event) {\n\t\tthis.value = (event.target as HTMLInputElement).value\n\t}\n\t// Enter submits its form, as Enter in a native field does.\n\tprivate onKeyDown(event: KeyboardEvent) {\n\t\tif (event.key === 'Enter' && !event.isComposing && this.form) {\n\t\t\tevent.preventDefault()\n\t\t\tthis.form.requestSubmit()\n\t\t}\n\t}\n\tprivate onChange() {\n\t\tthis.dispatchEvent(new Event('change', { bubbles: true, composed: true }))\n\t}\n\n\trender() {\n\t\tconst size = SIZES[this.size] ? this.size : 'md'\n\t\tconst classes = ['w-full min-w-0 rounded-control border border-edge-strong bg-surface type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard placeholder:text-fg-muted hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', SIZES[size]].join(' ')\n\t\treturn html`<input data-ds=\"input\" .value=${live(this.value)} type=${this.type} name=${ifDefined(this.name)} placeholder=${ifDefined(this.placeholder)} autocomplete=${ifDefined(this.autocomplete as never)} ?disabled=${this.inactive} ?readonly=${this.readonly} ?required=${this.required} aria-invalid=${ifDefined(this.invalid ? 'true' : undefined)} aria-label=${ifDefined(this.label)} aria-description=${ifDefined(this.description)} class=${classes} @input=${this.onInput} @change=${this.onChange} @keydown=${this.onKeyDown}>`\n\t}\n}\n\ndefine('input', Input)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/input.js"
+      ],
+      "tag": "spyglass-input",
+      "tags": [
+        "spyglass-input"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-input",
+            "name": "Input",
+            "module": "elements/input.js",
+            "description": "A text field.",
+            "attributes": [
+              {
+                "name": "value",
+                "field": "value",
+                "type": "string",
+                "default": "''"
+              },
+              {
+                "name": "type",
+                "field": "type",
+                "type": "string",
+                "default": "'text'"
+              },
+              {
+                "name": "name",
+                "field": "name",
+                "type": "string | undefined"
+              },
+              {
+                "name": "placeholder",
+                "field": "placeholder",
+                "type": "string | undefined"
+              },
+              {
+                "name": "autocomplete",
+                "field": "autocomplete",
+                "type": "string | undefined"
+              },
+              {
+                "name": "size",
+                "field": "size",
+                "type": "\"sm\" | \"md\" | \"lg\"",
+                "default": "'md'",
+                "description": "sm (32px), md (40px) or lg (48px)."
+              },
+              {
+                "name": "disabled",
+                "field": "disabled",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "readonly",
+                "field": "readonly",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "required",
+                "field": "required",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "invalid",
+                "field": "invalid",
+                "type": "boolean",
+                "default": "false",
+                "description": "A red hairline (with the message beside it)."
+              },
+              {
+                "name": "aria-label",
+                "field": "label",
+                "type": "string | undefined",
+                "description": "The name for assistive tech, passed to the inner input."
+              },
+              {
+                "name": "aria-description",
+                "field": "description",
+                "type": "string | undefined",
+                "description": "The hint or error, passed to the inner input."
+              }
+            ],
+            "properties": [
+              {
+                "name": "value",
+                "type": "string",
+                "default": "''",
+                "attribute": "value"
+              },
+              {
+                "name": "type",
+                "type": "string",
+                "default": "'text'",
+                "attribute": "type"
+              },
+              {
+                "name": "name",
+                "type": "string | undefined",
+                "attribute": "name"
+              },
+              {
+                "name": "placeholder",
+                "type": "string | undefined",
+                "attribute": "placeholder"
+              },
+              {
+                "name": "autocomplete",
+                "type": "string | undefined",
+                "attribute": "autocomplete"
+              },
+              {
+                "name": "size",
+                "type": "\"sm\" | \"md\" | \"lg\"",
+                "default": "'md'",
+                "description": "sm (32px), md (40px) or lg (48px).",
+                "attribute": "size"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "disabled"
+              },
+              {
+                "name": "readonly",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "readonly"
+              },
+              {
+                "name": "required",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "required"
+              },
+              {
+                "name": "invalid",
+                "type": "boolean",
+                "default": "false",
+                "description": "A red hairline (with the message beside it).",
+                "attribute": "invalid"
+              },
+              {
+                "name": "label",
+                "type": "string | undefined",
+                "description": "The name for assistive tech, passed to the inner input.",
+                "attribute": "aria-label"
+              },
+              {
+                "name": "description",
+                "type": "string | undefined",
+                "description": "The hint or error, passed to the inner input.",
+                "attribute": "aria-description"
+              }
+            ],
+            "events": [
+              {
+                "name": "change",
+                "description": "When the value is committed."
+              },
+              {
+                "name": "input",
+                "description": "On every keystroke (read `value`)."
+              }
+            ],
+            "slots": [],
+            "methods": [
+              {
+                "name": "formResetCallback"
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Field",
+          "label": "With a label",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/input/Field.html",
+          "content": "<!-- A labeled field with a line of help under it. -->\n<div class=\"flex w-80 max-w-full flex-col gap-2\">\n  <label for=\"track-brand\" class=\"type-label text-fg-soft\">Brand or creator</label>\n  <spyglass-input id=\"track-brand\" name=\"brand\" placeholder=\"Acme\" aria-label=\"Brand or creator\"></spyglass-input>\n  <p class=\"type-caption text-fg-muted\">Add any brand or creator in under a minute.</p>\n</div>\n"
+        },
+        {
+          "name": "Sizes",
+          "label": "Sizes",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/input/Sizes.html",
+          "content": "<!-- sm, md and lg, matching the buttons beside them. -->\n<div class=\"flex w-80 max-w-full flex-col gap-3\">\n  <spyglass-input size=\"sm\" aria-label=\"Board name, small\" placeholder=\"Acme launch board\"></spyglass-input>\n  <spyglass-input size=\"md\" aria-label=\"Board name\" placeholder=\"Acme launch board\"></spyglass-input>\n  <spyglass-input size=\"lg\" aria-label=\"Board name, large\" placeholder=\"Acme launch board\"></spyglass-input>\n</div>\n"
+        },
+        {
+          "name": "Invalid",
+          "label": "Invalid",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/input/Invalid.html",
+          "content": "<!-- An invalid field: the hairline turns red and the message says what to do. -->\n<div class=\"flex w-80 max-w-full flex-col gap-2\">\n  <label for=\"work-email\" class=\"type-label text-fg-soft\">Work email</label>\n  <spyglass-input id=\"work-email\" type=\"email\" value=\"team@acme\" invalid aria-label=\"Work email\" aria-description=\"Enter an email like team@acme.com.\"></spyglass-input>\n  <p id=\"work-email-error\" class=\"type-caption text-fg-danger\">Enter an email like team@acme.com.</p>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

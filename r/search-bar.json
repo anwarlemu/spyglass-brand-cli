@@ -1,0 +1,323 @@
+{
+  "name": "search-bar",
+  "title": "Search bar",
+  "type": "registry:ui",
+  "group": "product",
+  "description": "The ad's search bar: a Black field with the brand corner, the prompt in White DM Sans and a White Search button inside it. Enter or the button runs the search.",
+  "use_for": "The one search of a page or a product view: searching creatives, ads, brands and creators by asking in words. Usually the first thing on the page, often over the brand light.",
+  "never": [
+    "Two search bars on one page",
+    "A colored search button: it is the White primary button",
+    "The search bar inside a card"
+  ],
+  "source": "Brand assets (Figma page 8): Ad, The only creative search engine: Search bar (952x88, radius 10, Black), Button, Search (136x56, 16px in), prompt in White DM Sans 24px",
+  "body": "",
+  "requires": [
+    "button"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/product/SearchBar.tsx",
+      "content": "'use client'\nimport type { FormEvent, Ref } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { useControllable } from '@/react/hooks/useControllable'\nimport { cn } from '@/react/lib/cn'\n\n// The ad's search bar: a Black field with the brand corner (88px tall on the canvas, 56px here), the prompt in White\n// DM Sans and a White \"Search\" button inside it, 8px in (16px on the canvas). A #363636 hairline lets it read on Black\n// and turns White while the field has focus. Enter or the button calls onSearch with the query; the value is\n// controlled (value + onValueChange) or kept inside (defaultValue).\nexport interface SearchBarProps {\n  value?: string\n  defaultValue?: string\n  onValueChange?: (value: string) => void\n  /** The query, when Enter is pressed or the button clicked. */\n  onSearch?: (query: string) => void\n  placeholder?: string\n  /** The button's label. */\n  buttonLabel?: string\n  /** The field's accessible name (the placeholder is not one). */\n  label?: string\n  name?: string\n  disabled?: boolean\n  className?: string\n  ref?: Ref<HTMLFormElement>\n}\n\nexport function SearchBar({ value, defaultValue = '', onValueChange, onSearch, placeholder = 'Search creatives', buttonLabel = 'Search', label = 'Search', name = 'q', disabled, className, ref }: SearchBarProps) {\n  const [query, setQuery] = useControllable(value, defaultValue, onValueChange)\n  const submit = (event: FormEvent<HTMLFormElement>) => {\n    event.preventDefault()\n    if (!disabled) onSearch?.(query)\n  }\n  return (\n    <form data-ds=\"search-bar\" ref={ref} role=\"search\" onSubmit={submit} className={cn('flex h-search w-full items-center gap-2 rounded-control border border-edge-strong bg-surface pr-2 pl-4 transition-[border-color] duration-150 ease-standard has-[input:focus-visible]:border-edge-focus', className)}>\n      <input\n        type=\"search\"\n        name={name}\n        value={query}\n        onChange={(e) => setQuery(e.target.value)}\n        placeholder={placeholder}\n        aria-label={label}\n        disabled={disabled}\n        autoComplete=\"off\"\n        className=\"h-full min-w-0 flex-1 bg-transparent type-body text-fg outline-none placeholder:text-fg-muted disabled:cursor-not-allowed [&::-webkit-search-cancel-button]:hidden\"\n      />\n      <Button type=\"submit\" disabled={disabled}>{buttonLabel}</Button>\n    </form>\n  )\n}\n\nexport default SearchBar\n"
+    },
+    {
+      "path": "react/hooks/useControllable.ts",
+      "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Default",
+      "label": "Default",
+      "center": false,
+      "half": false,
+      "path": "react/examples/search-bar/Default.tsx",
+      "content": "'use client'\nimport { useState } from 'react'\nimport { SearchBar } from '@/react/components/product/SearchBar'\n// A search with the ad's prompt; the last query shows under it.\n\nexport default function Default() {\n  const [last, setLast] = useState('')\n  return (\n    <div className=\"mx-auto flex w-full max-w-238 flex-col gap-3\">\n      <SearchBar defaultValue=\"Show me UGC ads for skincare brands using before/after hooks\" onSearch={setLast} label=\"Search creatives\" />\n      <p className=\"type-caption text-fg-muted\" aria-live=\"polite\">{last ? `Searching: ${last}` : 'Ask in words. Enter searches.'}</p>\n    </div>\n  )\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": []
+    },
+    {
+      "name": "OnLight",
+      "label": "Over the light",
+      "center": false,
+      "half": false,
+      "path": "react/examples/search-bar/OnLight.tsx",
+      "content": "import { BrandLight } from '@/react/components/visuals/BrandLight'\nimport { SearchBar } from '@/react/components/product/SearchBar'\n// As the ad sets it: the search bar across a band of the light.\n\nexport default function OnLight() {\n  return (\n    <div className=\"relative overflow-hidden rounded-container\">\n      <BrandLight variant=\"band\" seed={2} cover className=\"absolute inset-0 size-full\" />\n      <div className=\"relative px-6 py-14 max-sm:px-4 max-sm:py-10\">\n        <SearchBar placeholder=\"Show me UGC ads for skincare brands using before/after hooks\" label=\"Search creatives\" />\n      </div>\n    </div>\n  )\n}\n",
+      "requires": [
+        "brand-light",
+        "button"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/product/SearchBar.tsx",
+          "content": "'use client'\nimport type { FormEvent, Ref } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { useControllable } from '@/react/hooks/useControllable'\nimport { cn } from '@/react/lib/cn'\n\n// The ad's search bar: a Black field with the brand corner (88px tall on the canvas, 56px here), the prompt in White\n// DM Sans and a White \"Search\" button inside it, 8px in (16px on the canvas). A #363636 hairline lets it read on Black\n// and turns White while the field has focus. Enter or the button calls onSearch with the query; the value is\n// controlled (value + onValueChange) or kept inside (defaultValue).\nexport interface SearchBarProps {\n  value?: string\n  defaultValue?: string\n  onValueChange?: (value: string) => void\n  /** The query, when Enter is pressed or the button clicked. */\n  onSearch?: (query: string) => void\n  placeholder?: string\n  /** The button's label. */\n  buttonLabel?: string\n  /** The field's accessible name (the placeholder is not one). */\n  label?: string\n  name?: string\n  disabled?: boolean\n  className?: string\n  ref?: Ref<HTMLFormElement>\n}\n\nexport function SearchBar({ value, defaultValue = '', onValueChange, onSearch, placeholder = 'Search creatives', buttonLabel = 'Search', label = 'Search', name = 'q', disabled, className, ref }: SearchBarProps) {\n  const [query, setQuery] = useControllable(value, defaultValue, onValueChange)\n  const submit = (event: FormEvent<HTMLFormElement>) => {\n    event.preventDefault()\n    if (!disabled) onSearch?.(query)\n  }\n  return (\n    <form data-ds=\"search-bar\" ref={ref} role=\"search\" onSubmit={submit} className={cn('flex h-search w-full items-center gap-2 rounded-control border border-edge-strong bg-surface pr-2 pl-4 transition-[border-color] duration-150 ease-standard has-[input:focus-visible]:border-edge-focus', className)}>\n      <input\n        type=\"search\"\n        name={name}\n        value={query}\n        onChange={(e) => setQuery(e.target.value)}\n        placeholder={placeholder}\n        aria-label={label}\n        disabled={disabled}\n        autoComplete=\"off\"\n        className=\"h-full min-w-0 flex-1 bg-transparent type-body text-fg outline-none placeholder:text-fg-muted disabled:cursor-not-allowed [&::-webkit-search-cancel-button]:hidden\"\n      />\n      <Button type=\"submit\" disabled={disabled}>{buttonLabel}</Button>\n    </form>\n  )\n}\n\nexport default SearchBar\n"
+        },
+        {
+          "path": "react/hooks/useControllable.ts",
+          "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "SearchBar",
+            "file": "react/components/product/SearchBar.tsx",
+            "props": [
+              {
+                "name": "value",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "defaultValue",
+                "type": "string",
+                "required": false,
+                "default": "''"
+              },
+              {
+                "name": "onValueChange",
+                "type": "(value: string) => void",
+                "required": false
+              },
+              {
+                "name": "onSearch",
+                "type": "(query: string) => void",
+                "required": false,
+                "description": "The query, when Enter is pressed or the button clicked."
+              },
+              {
+                "name": "placeholder",
+                "type": "string",
+                "required": false,
+                "default": "'Search creatives'"
+              },
+              {
+                "name": "buttonLabel",
+                "type": "string",
+                "required": false,
+                "default": "'Search'",
+                "description": "The button's label."
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "default": "'Search'",
+                "description": "The field's accessible name (the placeholder is not one)."
+              },
+              {
+                "name": "name",
+                "type": "string",
+                "required": false,
+                "default": "'q'"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Default",
+          "label": "Default",
+          "center": false,
+          "half": false,
+          "path": "react/examples/search-bar/Default.tsx",
+          "content": "'use client'\nimport { useState } from 'react'\nimport { SearchBar } from '@/react/components/product/SearchBar'\n// A search with the ad's prompt; the last query shows under it.\n\nexport default function Default() {\n  const [last, setLast] = useState('')\n  return (\n    <div className=\"mx-auto flex w-full max-w-238 flex-col gap-3\">\n      <SearchBar defaultValue=\"Show me UGC ads for skincare brands using before/after hooks\" onSearch={setLast} label=\"Search creatives\" />\n      <p className=\"type-caption text-fg-muted\" aria-live=\"polite\">{last ? `Searching: ${last}` : 'Ask in words. Enter searches.'}</p>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "OnLight",
+          "label": "Over the light",
+          "center": false,
+          "half": false,
+          "path": "react/examples/search-bar/OnLight.tsx",
+          "content": "import { BrandLight } from '@/react/components/visuals/BrandLight'\nimport { SearchBar } from '@/react/components/product/SearchBar'\n// As the ad sets it: the search bar across a band of the light.\n\nexport default function OnLight() {\n  return (\n    <div className=\"relative overflow-hidden rounded-container\">\n      <BrandLight variant=\"band\" seed={2} cover className=\"absolute inset-0 size-full\" />\n      <div className=\"relative px-6 py-14 max-sm:px-4 max-sm:py-10\">\n        <SearchBar placeholder=\"Show me UGC ads for skincare brands using before/after hooks\" label=\"Search creatives\" />\n      </div>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "brand-light",
+            "button"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/product/search-bar.ts",
+          "content": "import { html } from 'lit'\nimport { live } from 'lit/directives/live.js'\nimport { DsFormElement, define, HostLayoutController } from '@/elements/lib/element'\nimport '@/elements/components/ui/button'\nimport styles from 'virtual:tw'\n\n// SearchBar.tsx as <spyglass-search-bar>: the ad's search bar, a Black field with the brand corner (56px), the prompt\n// in White DM Sans and a White Search button inside it, 8px in. A #363636 hairline turns White while the field has\n// focus. Enter or the button fires `search` with the query in event.detail.query; the value is `value` with the native\n// `input` and `change` events, and it goes with a surrounding form under `name`.\n\n/**\n * @summary The search bar: a Black field with a White Search button inside.\n * @fires search - Enter or the button: detail.query is the text.\n * @fires input - On every keystroke (read `value`).\n */\nexport class SearchBar extends DsFormElement {\n\tstatic styles = [DsFormElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('form'))\n\tstatic properties = {\n\t\tvalue: {},\n\t\tplaceholder: {},\n\t\tbuttonLabel: { attribute: 'button-label' },\n\t\tlabel: { attribute: 'aria-label' },\n\t\tname: {},\n\t\tdisabled: { type: Boolean, reflect: true },\n\t}\n\tvalue = ''\n\tplaceholder = 'Search creatives'\n\t/** The button's label. */\n\tbuttonLabel = 'Search'\n\t/** The field's accessible name (aria-label on the element). */\n\tlabel = 'Search'\n\tname = 'q'\n\tdisabled = false\n\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\tif (!this.value && this.getAttribute('value')) this.value = this.getAttribute('value')!\n\t}\n\tprotected updated(changed: Map<PropertyKey, unknown>) {\n\t\tsuper.updated(changed)\n\t\tif (changed.has('value')) this.internals.setFormValue(this.value)\n\t}\n\tformResetCallback() {\n\t\tthis.value = this.getAttribute('value') ?? ''\n\t}\n\tprivate onInput(event: Event) {\n\t\tthis.value = (event.target as HTMLInputElement).value\n\t}\n\tprivate onSubmit(event: Event) {\n\t\tevent.preventDefault()\n\t\tif (!this.inactive) this.emit('search', { query: this.value })\n\t}\n\n\trender() {\n\t\treturn html`<form data-ds=\"search-bar\" role=\"search\" class=\"flex h-search w-full items-center gap-2 rounded-control border border-edge-strong bg-surface pr-2 pl-4 transition-[border-color] duration-150 ease-standard has-[input:focus-visible]:border-edge-focus\" @submit=${this.onSubmit}><input type=\"search\" name=${this.name} .value=${live(this.value)} placeholder=${this.placeholder} aria-label=${this.label} ?disabled=${this.inactive} autocomplete=\"off\" class=\"h-full min-w-0 flex-1 bg-transparent type-body text-fg outline-none placeholder:text-fg-muted disabled:cursor-not-allowed [&::-webkit-search-cancel-button]:hidden\" @input=${this.onInput}><spyglass-button type=\"submit\" ?disabled=${this.inactive}>${this.buttonLabel}</spyglass-button></form>`\n\t}\n}\n\ndefine('search-bar', SearchBar)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/search-bar.js",
+        "elements/button.js",
+        "elements/brand-light.js"
+      ],
+      "tag": "spyglass-search-bar",
+      "tags": [
+        "spyglass-search-bar"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-search-bar",
+            "name": "SearchBar",
+            "module": "elements/search-bar.js",
+            "description": "The search bar: a Black field with a White Search button inside.",
+            "attributes": [
+              {
+                "name": "value",
+                "field": "value",
+                "type": "string",
+                "default": "''"
+              },
+              {
+                "name": "placeholder",
+                "field": "placeholder",
+                "type": "string",
+                "default": "'Search creatives'"
+              },
+              {
+                "name": "button-label",
+                "field": "buttonLabel",
+                "type": "string",
+                "default": "'Search'",
+                "description": "The button's label."
+              },
+              {
+                "name": "aria-label",
+                "field": "label",
+                "type": "string",
+                "default": "'Search'",
+                "description": "The field's accessible name (aria-label on the element)."
+              },
+              {
+                "name": "name",
+                "field": "name",
+                "type": "string",
+                "default": "'q'"
+              },
+              {
+                "name": "disabled",
+                "field": "disabled",
+                "type": "boolean",
+                "default": "false"
+              }
+            ],
+            "properties": [
+              {
+                "name": "value",
+                "type": "string",
+                "default": "''",
+                "attribute": "value"
+              },
+              {
+                "name": "placeholder",
+                "type": "string",
+                "default": "'Search creatives'",
+                "attribute": "placeholder"
+              },
+              {
+                "name": "buttonLabel",
+                "type": "string",
+                "default": "'Search'",
+                "description": "The button's label.",
+                "attribute": "button-label"
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "default": "'Search'",
+                "description": "The field's accessible name (aria-label on the element).",
+                "attribute": "aria-label"
+              },
+              {
+                "name": "name",
+                "type": "string",
+                "default": "'q'",
+                "attribute": "name"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "disabled"
+              }
+            ],
+            "events": [
+              {
+                "name": "search",
+                "description": "Enter or the button: detail.query is the text."
+              },
+              {
+                "name": "input",
+                "description": "On every keystroke (read `value`)."
+              }
+            ],
+            "slots": [],
+            "methods": [
+              {
+                "name": "formResetCallback"
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Default",
+          "label": "Default",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/search-bar/Default.html",
+          "content": "<!-- A search with the ad's prompt; the last query shows under it. -->\n<div class=\"mx-auto flex w-full max-w-238 flex-col gap-3\">\n  <spyglass-search-bar id=\"search-default\" value=\"Show me UGC ads for skincare brands using before/after hooks\" aria-label=\"Search creatives\"></spyglass-search-bar>\n  <p id=\"search-default-last\" class=\"type-caption text-fg-muted\" aria-live=\"polite\">Ask in words. Enter searches.</p>\n</div>\n<script type=\"module\">\n  document.getElementById('search-default').addEventListener('search', (e) => {\n    document.getElementById('search-default-last').textContent = e.detail.query ? `Searching: ${e.detail.query}` : 'Ask in words. Enter searches.'\n  })\n</script>\n"
+        },
+        {
+          "name": "OnLight",
+          "label": "Over the light",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/search-bar/OnLight.html",
+          "content": "<!-- As the ad sets it: the search bar across a band of the light. -->\n<div class=\"relative overflow-hidden rounded-container\">\n  <spyglass-brand-light variant=\"band\" seed=\"2\" cover class=\"absolute inset-0 size-full\"></spyglass-brand-light>\n  <div class=\"relative px-6 py-14 max-sm:px-4 max-sm:py-10\">\n    <spyglass-search-bar placeholder=\"Show me UGC ads for skincare brands using before/after hooks\" aria-label=\"Search creatives\"></spyglass-search-bar>\n  </div>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

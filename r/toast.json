@@ -1,0 +1,231 @@
+{
+  "name": "toast",
+  "title": "Toast",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "One note, what just happened: the card's #171717 fill, a hairline and the brand corner, a DM Sans Medium title, a muted line, one small White button when there is something to do, and a close button.",
+  "use_for": "The surface of a note: Sonner stacks and times these in a corner. On its own, a note that stays where it is.",
+  "never": [
+    "Errors that need an answer: keep them where they happened",
+    "More than one button in a note",
+    "A colored fill or an icon in a spectrum color for success"
+  ],
+  "source": "Derived from the brand guidelines (no toast in the brand assets): the plan card's #171717 fill and corner, DM Sans Medium for the title, the White primary button",
+  "body": "",
+  "requires": [
+    "button"
+  ],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/ui/Toast.tsx",
+      "content": "import { X } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { cn } from '@/react/lib/cn'\n\n// One note: what just happened, in the card's #171717 fill with a #363636 hairline and the brand corner, no shadow. The\n// title in DM Sans Medium, a muted line under it, one small White button beside them when there is something to do\n// (Undo, View), and a close button when it can be dismissed. The Toaster (sonner) stacks these in a corner and times\n// them; on its own it is a static note.\nexport interface ToastProps {\n  /** What happened, in a few words. */\n  title: string\n  /** A line under the title. */\n  description?: string\n  /** One button beside the text. */\n  action?: { label: string, onClick?: () => void }\n  /** Shows the close button; called when it is pressed. */\n  onDismiss?: () => void\n  className?: string\n}\n\nexport function Toast({ title, description, action, onDismiss, className }: ToastProps) {\n  return (\n    <div data-ds=\"toast\" className={cn('flex w-full items-start gap-3 rounded-container border border-edge-strong bg-surface-raised p-4', className)}>\n      <div className=\"flex min-w-0 flex-1 flex-col gap-1\">\n        <p className=\"type-ui-strong text-fg\">{title}</p>\n        {description && <p className=\"type-ui text-fg-muted\">{description}</p>}\n      </div>\n      {action && <Button size=\"sm\" className=\"-my-1.5\" onClick={action.onClick}>{action.label}</Button>}\n      {onDismiss && (\n        <button type=\"button\" className=\"-my-1.5 -mr-1.5 inline-flex size-control-sm shrink-0 cursor-pointer items-center justify-center rounded-control text-fg-muted transition-[background-color,color] duration-150 ease-standard hover:bg-action-ghost-hover hover:text-fg\" aria-label=\"Dismiss\" onClick={onDismiss}>\n          <X size={16} strokeWidth={1.5} aria-hidden=\"true\" />\n        </button>\n      )}\n    </div>\n  )\n}\n\nexport default Toast\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Notes",
+      "label": "Two notes",
+      "center": true,
+      "half": false,
+      "path": "react/examples/toast/Notes.tsx",
+      "content": "'use client'\nimport { Toast } from '@/react/components/ui/Toast'\n// Two notes as they read on their own: one with something to do, one that only says what happened.\n\nexport default function Notes() {\n  return (\n    <div className=\"flex w-90 max-w-full flex-col gap-3\">\n      <Toast title=\"Saved to board\" description=\"Acme hooks now has 24 creatives.\" action={{ label: 'Undo' }} onDismiss={() => {}} />\n      <Toast title=\"Brand added\" description=\"New ads from Acme Studio show up here every day.\" onDismiss={() => {}} />\n    </div>\n  )\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Toast.tsx",
+          "content": "import { X } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { cn } from '@/react/lib/cn'\n\n// One note: what just happened, in the card's #171717 fill with a #363636 hairline and the brand corner, no shadow. The\n// title in DM Sans Medium, a muted line under it, one small White button beside them when there is something to do\n// (Undo, View), and a close button when it can be dismissed. The Toaster (sonner) stacks these in a corner and times\n// them; on its own it is a static note.\nexport interface ToastProps {\n  /** What happened, in a few words. */\n  title: string\n  /** A line under the title. */\n  description?: string\n  /** One button beside the text. */\n  action?: { label: string, onClick?: () => void }\n  /** Shows the close button; called when it is pressed. */\n  onDismiss?: () => void\n  className?: string\n}\n\nexport function Toast({ title, description, action, onDismiss, className }: ToastProps) {\n  return (\n    <div data-ds=\"toast\" className={cn('flex w-full items-start gap-3 rounded-container border border-edge-strong bg-surface-raised p-4', className)}>\n      <div className=\"flex min-w-0 flex-1 flex-col gap-1\">\n        <p className=\"type-ui-strong text-fg\">{title}</p>\n        {description && <p className=\"type-ui text-fg-muted\">{description}</p>}\n      </div>\n      {action && <Button size=\"sm\" className=\"-my-1.5\" onClick={action.onClick}>{action.label}</Button>}\n      {onDismiss && (\n        <button type=\"button\" className=\"-my-1.5 -mr-1.5 inline-flex size-control-sm shrink-0 cursor-pointer items-center justify-center rounded-control text-fg-muted transition-[background-color,color] duration-150 ease-standard hover:bg-action-ghost-hover hover:text-fg\" aria-label=\"Dismiss\" onClick={onDismiss}>\n          <X size={16} strokeWidth={1.5} aria-hidden=\"true\" />\n        </button>\n      )}\n    </div>\n  )\n}\n\nexport default Toast\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "Toast",
+            "file": "react/components/ui/Toast.tsx",
+            "props": [
+              {
+                "name": "title",
+                "type": "string",
+                "required": true,
+                "description": "What happened, in a few words."
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "required": false,
+                "description": "A line under the title."
+              },
+              {
+                "name": "action",
+                "type": "{ label: string, onClick?: () => void }",
+                "required": false,
+                "description": "One button beside the text."
+              },
+              {
+                "name": "onDismiss",
+                "type": "() => void",
+                "required": false,
+                "description": "Shows the close button; called when it is pressed."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Notes",
+          "label": "Two notes",
+          "center": true,
+          "half": false,
+          "path": "react/examples/toast/Notes.tsx",
+          "content": "'use client'\nimport { Toast } from '@/react/components/ui/Toast'\n// Two notes as they read on their own: one with something to do, one that only says what happened.\n\nexport default function Notes() {\n  return (\n    <div className=\"flex w-90 max-w-full flex-col gap-3\">\n      <Toast title=\"Saved to board\" description=\"Acme hooks now has 24 creatives.\" action={{ label: 'Undo' }} onDismiss={() => {}} />\n      <Toast title=\"Brand added\" description=\"New ads from Acme Studio show up here every day.\" onDismiss={() => {}} />\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/toast.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { X } from 'lucide'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport '@/elements/components/ui/button'\nimport styles from 'virtual:tw'\n\n// Toast.tsx as <spyglass-toast>: one note, what just happened, in the card's #171717 fill with a hairline and the\n// brand corner. The title in DM Sans Medium, a muted line under it, one small White button when there is something to\n// do (`action-label`, firing `action`), and a close button when `dismissable` (firing `dismiss`). React's `title` is\n// `heading`. The toaster (sonner) stacks these in a corner and times them.\n\n/**\n * @summary One note: what just happened.\n * @fires action - The action button was pressed.\n * @fires dismiss - The close button was pressed.\n */\nexport class Toast extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"toast\"]'))\n\tstatic properties = { heading: {}, description: {}, actionLabel: { attribute: 'action-label' }, dismissable: { type: Boolean } }\n\n\t/** What happened, in a few words (React's `title`). */\n\theading = ''\n\t/** A line under the title. */\n\tdescription?: string\n\t/** The action button's label. */\n\tactionLabel?: string\n\t/** Shows the close button. */\n\tdismissable = false\n\n\trender() {\n\t\treturn html`<div data-ds=\"toast\" class=\"flex w-full items-start gap-3 rounded-container border border-edge-strong bg-surface-raised p-4\">\n\t\t\t<div class=\"flex min-w-0 flex-1 flex-col gap-1\">\n\t\t\t\t<p class=\"type-ui-strong text-fg\">${this.heading}</p>\n\t\t\t\t${this.description ? html`<p class=\"type-ui text-fg-muted\">${this.description}</p>` : nothing}\n\t\t\t</div>\n\t\t\t${this.actionLabel ? html`<spyglass-button size=\"sm\" class=\"-my-1.5\" @click=${() => this.emit('action')}>${this.actionLabel}</spyglass-button>` : nothing}\n\t\t\t${this.dismissable ? html`<button type=\"button\" class=\"-my-1.5 -mr-1.5 inline-flex size-control-sm shrink-0 cursor-pointer items-center justify-center rounded-control text-fg-muted transition-[background-color,color] duration-150 ease-standard hover:bg-action-ghost-hover hover:text-fg\" aria-label=\"Dismiss\" @click=${() => this.emit('dismiss')}>${icon(X, 'x', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } })}</button>` : nothing}\n\t\t</div>`\n\t}\n}\n\ndefine('toast', Toast)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/toast.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-toast",
+      "tags": [
+        "spyglass-toast"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-toast",
+            "name": "Toast",
+            "module": "elements/toast.js",
+            "description": "One note: what just happened.",
+            "attributes": [
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string",
+                "default": "''",
+                "description": "What happened, in a few words (React's `title`)."
+              },
+              {
+                "name": "description",
+                "field": "description",
+                "type": "string | undefined",
+                "description": "A line under the title."
+              },
+              {
+                "name": "action-label",
+                "field": "actionLabel",
+                "type": "string | undefined",
+                "description": "The action button's label."
+              },
+              {
+                "name": "dismissable",
+                "field": "dismissable",
+                "type": "boolean",
+                "default": "false",
+                "description": "Shows the close button."
+              }
+            ],
+            "properties": [
+              {
+                "name": "heading",
+                "type": "string",
+                "default": "''",
+                "description": "What happened, in a few words (React's `title`).",
+                "attribute": "heading"
+              },
+              {
+                "name": "description",
+                "type": "string | undefined",
+                "description": "A line under the title.",
+                "attribute": "description"
+              },
+              {
+                "name": "actionLabel",
+                "type": "string | undefined",
+                "description": "The action button's label.",
+                "attribute": "action-label"
+              },
+              {
+                "name": "dismissable",
+                "type": "boolean",
+                "default": "false",
+                "description": "Shows the close button.",
+                "attribute": "dismissable"
+              }
+            ],
+            "events": [
+              {
+                "name": "action",
+                "description": "The action button was pressed."
+              },
+              {
+                "name": "dismiss",
+                "description": "The close button was pressed."
+              }
+            ],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Notes",
+          "label": "Two notes",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/toast/Notes.html",
+          "content": "<!-- Two notes as they read on their own: one with something to do, one that only says what happened. -->\n<div class=\"flex w-90 max-w-full flex-col gap-3\">\n  <spyglass-toast heading=\"Saved to board\" description=\"Acme hooks now has 24 creatives.\" action-label=\"Undo\" dismissable></spyglass-toast>\n  <spyglass-toast heading=\"Brand added\" description=\"New ads from Acme Studio show up here every day.\" dismissable></spyglass-toast>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

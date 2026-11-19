@@ -1,0 +1,200 @@
+{
+  "name": "context-menu",
+  "title": "Context menu",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "The dropdown menu's rows on the #171717 overlay panel, opened where the pointer right-clicks, or under the focused row with Shift+F10 or the menu key. Arrows, Home, End and Escape are handled; focus returns to what was clicked.",
+  "use_for": "Shortcuts for a row in a dense list (open, copy a link, save, remove), alongside a visible way to do the same.",
+  "never": [
+    "The only way to an action: right-clicks are hidden; keep a dropdown menu or a button in the row",
+    "Destructive actions that don't confirm: confirm with an alert dialog",
+    "A shadow under the panel"
+  ],
+  "source": "Derived from the guidelines: the #171717 card fill on Black, neutral hairlines, the 10px canvas corner (8px here). shadcn's context menu for anatomy and keys.",
+  "body": "Put `data-context=\"<id>\"` on each row; `onOpen` (React) or the `open` event (web component) gets the id of the row\nthat was clicked, so one menu serves the list. `PopoverPanel` is the floating panel every overlay here draws (the\ncontext menu, the combobox, the date picker): portalled, placed beside its anchor or the pointer, flipped to the side\nwith room.",
+  "requires": [
+    "dropdown-menu",
+    "popover"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/ContextMenu.tsx",
+      "content": "'use client'\nimport type { KeyboardEvent, MouseEvent, ReactNode } from 'react'\nimport { MenuClose } from '@/react/components/ui/DropdownMenu'\nimport { PopoverPanel } from '@/react/components/ui/PopoverPanel'\nimport { onMenuRows, usePopover } from '@/react/hooks/usePopover'\n\n// shadcn's context menu in the brand: the dropdown menu's rows (MenuItem, MenuLabel, MenuSeparator) on the #171717\n// overlay panel, opened at the pointer: a right-click (or a long press on\n// Android) on children opens `menu` where it landed, flipped and kept inside the viewport. From the keyboard,\n// Shift+F10 or the context menu key opens it under the focused element, at once, on its first row. Arrows, Home and\n// End move; Escape closes and returns focus; choosing a row closes it. `onOpen` gets what was clicked (the closest\n// [data-context] value), so one menu serves a list.\nexport interface ContextMenuProps {\n  /** The menu's name for assistive tech. */\n  label: string\n  /** The panel's width. */\n  width?: string\n  /** The rows: MenuItem, MenuLabel, MenuSeparator. */\n  menu?: ReactNode\n  /** It is opening, with the closest [data-context] value under the pointer. */\n  onOpen?: (context: string | undefined) => void\n  children?: ReactNode\n}\n\nfunction context(target: EventTarget | null) {\n  return (target as HTMLElement | null)?.closest<HTMLElement>('[data-context]')?.dataset.context\n}\n\nexport function ContextMenu({ label, width, menu, onOpen, children }: ContextMenuProps) {\n  const pop = usePopover({ side: 'bottom', align: 'start', gap: 0 })\n\n  async function onContextMenu(event: MouseEvent) {\n    event.preventDefault()\n    onOpen?.(context(event.target))\n    await pop.show({ at: { x: event.clientX, y: event.clientY } })\n    pop.panel.current?.focus({ preventScroll: true })\n  }\n  async function onKey(event: KeyboardEvent) {\n    if (event.key !== 'ContextMenu' && !(event.shiftKey && event.key === 'F10')) return\n    event.preventDefault()\n    const r = (event.target as HTMLElement).getBoundingClientRect()\n    onOpen?.(context(event.target))\n    await pop.show({ keyboard: true, at: { x: r.left + 8, y: r.bottom } })\n    pop.panel.current?.querySelector<HTMLElement>('[role^=\"menuitem\"]:not([disabled])')?.focus()\n  }\n  return (\n    <MenuClose.Provider value={() => pop.hide(true)}>\n      <div data-ds=\"context-menu\" onContextMenu={onContextMenu} onKeyDown={onKey}>\n        {children}\n      </div>\n      <PopoverPanel data-ds=\"context-menu\" pop={pop} role=\"menu\" aria-label={label} tabIndex={-1} className=\"flex flex-col p-1\" style={{ width: width ?? '224px' }} onKeyDown={event => onMenuRows(event, pop.panel.current, pop.hide)}>\n        {menu}\n      </PopoverPanel>\n    </MenuClose.Provider>\n  )\n}\n\nexport default ContextMenu\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Board",
+      "label": "A board's saved creatives",
+      "center": false,
+      "half": false,
+      "path": "react/examples/context-menu/Board.tsx",
+      "content": "'use client'\nimport { useState } from 'react'\nimport { Bookmark, Copy, ExternalLink, Image, Trash2 } from 'lucide-react'\nimport { ContextMenu } from '@/react/components/ui/ContextMenu'\nimport { MenuItem } from '@/react/components/ui/MenuItem'\nimport { MenuLabel } from '@/react/components/ui/MenuLabel'\nimport { MenuSeparator } from '@/react/components/ui/MenuSeparator'\n// A board's saved creatives: right-click a row, or focus it and press Shift+F10, for what you can do with it.\nconst creatives = [\n  { id: 'cr_8f2k1', title: 'Acme summer UGC, before and after', format: 'Video' },\n  { id: 'cr_3m9q7', title: 'Acme serum launch, carousel', format: 'Carousel' },\n  { id: 'cr_5t0x2', title: 'Acme founder story, 30 seconds', format: 'Video' },\n]\n\nexport default function Board() {\n  const [picked, setPicked] = useState<string>()\n  const [last, setLast] = useState('')\n  const creative = creatives.find((c) => c.id === picked)\n  const act = (what: string) => () => setLast(`${what}: ${creative?.title ?? ''}`)\n  return (\n    <div className=\"min-h-80 w-full max-w-120\">\n      <ContextMenu\n        label=\"Creative\"\n        onOpen={setPicked}\n        menu={(\n          <>\n            <MenuLabel><span className=\"truncate\">{creative?.format}</span></MenuLabel>\n            <MenuItem onSelect={act('Opened')}><ExternalLink size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Open</MenuItem>\n            <MenuItem onSelect={act('Copied link')}><Copy size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Copy link</MenuItem>\n            <MenuItem onSelect={act('Saved')}><Bookmark size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Save to another board</MenuItem>\n            <MenuSeparator />\n            <MenuItem danger onSelect={act('Removed')}><Trash2 size={16} strokeWidth={1.5} className=\"shrink-0\" aria-hidden=\"true\" />Remove from board</MenuItem>\n          </>\n        )}\n      >\n        <ul className=\"flex flex-col gap-1\">\n          {creatives.map((c) => (\n            <li key={c.id} data-context={c.id} tabIndex={0} className=\"flex h-row items-center gap-3 rounded-control px-3 outline-none transition-[background-color] duration-150 ease-standard hover:bg-surface-raised focus-visible:bg-surface-raised focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus\">\n              <Image size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />\n              <span className=\"min-w-0 flex-1 truncate type-ui\">{c.title}</span>\n              <span className=\"type-caption text-fg-muted max-sm:hidden\">{c.format}</span>\n            </li>\n          ))}\n        </ul>\n      </ContextMenu>\n      <p className=\"mt-3 type-caption text-fg-muted\" aria-live=\"polite\">{last || 'Right-click a creative, or focus it and press Shift+F10.'}</p>\n    </div>\n  )\n}\n",
+      "requires": [
+        "dropdown-menu",
+        "popover"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/ContextMenu.tsx",
+          "content": "'use client'\nimport type { KeyboardEvent, MouseEvent, ReactNode } from 'react'\nimport { MenuClose } from '@/react/components/ui/DropdownMenu'\nimport { PopoverPanel } from '@/react/components/ui/PopoverPanel'\nimport { onMenuRows, usePopover } from '@/react/hooks/usePopover'\n\n// shadcn's context menu in the brand: the dropdown menu's rows (MenuItem, MenuLabel, MenuSeparator) on the #171717\n// overlay panel, opened at the pointer: a right-click (or a long press on\n// Android) on children opens `menu` where it landed, flipped and kept inside the viewport. From the keyboard,\n// Shift+F10 or the context menu key opens it under the focused element, at once, on its first row. Arrows, Home and\n// End move; Escape closes and returns focus; choosing a row closes it. `onOpen` gets what was clicked (the closest\n// [data-context] value), so one menu serves a list.\nexport interface ContextMenuProps {\n  /** The menu's name for assistive tech. */\n  label: string\n  /** The panel's width. */\n  width?: string\n  /** The rows: MenuItem, MenuLabel, MenuSeparator. */\n  menu?: ReactNode\n  /** It is opening, with the closest [data-context] value under the pointer. */\n  onOpen?: (context: string | undefined) => void\n  children?: ReactNode\n}\n\nfunction context(target: EventTarget | null) {\n  return (target as HTMLElement | null)?.closest<HTMLElement>('[data-context]')?.dataset.context\n}\n\nexport function ContextMenu({ label, width, menu, onOpen, children }: ContextMenuProps) {\n  const pop = usePopover({ side: 'bottom', align: 'start', gap: 0 })\n\n  async function onContextMenu(event: MouseEvent) {\n    event.preventDefault()\n    onOpen?.(context(event.target))\n    await pop.show({ at: { x: event.clientX, y: event.clientY } })\n    pop.panel.current?.focus({ preventScroll: true })\n  }\n  async function onKey(event: KeyboardEvent) {\n    if (event.key !== 'ContextMenu' && !(event.shiftKey && event.key === 'F10')) return\n    event.preventDefault()\n    const r = (event.target as HTMLElement).getBoundingClientRect()\n    onOpen?.(context(event.target))\n    await pop.show({ keyboard: true, at: { x: r.left + 8, y: r.bottom } })\n    pop.panel.current?.querySelector<HTMLElement>('[role^=\"menuitem\"]:not([disabled])')?.focus()\n  }\n  return (\n    <MenuClose.Provider value={() => pop.hide(true)}>\n      <div data-ds=\"context-menu\" onContextMenu={onContextMenu} onKeyDown={onKey}>\n        {children}\n      </div>\n      <PopoverPanel data-ds=\"context-menu\" pop={pop} role=\"menu\" aria-label={label} tabIndex={-1} className=\"flex flex-col p-1\" style={{ width: width ?? '224px' }} onKeyDown={event => onMenuRows(event, pop.panel.current, pop.hide)}>\n        {menu}\n      </PopoverPanel>\n    </MenuClose.Provider>\n  )\n}\n\nexport default ContextMenu\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "dropdown-menu",
+        "popover"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "ContextMenu",
+            "file": "react/components/ui/ContextMenu.tsx",
+            "props": [
+              {
+                "name": "label",
+                "type": "string",
+                "required": true,
+                "description": "The menu's name for assistive tech."
+              },
+              {
+                "name": "width",
+                "type": "string",
+                "required": false,
+                "description": "The panel's width."
+              },
+              {
+                "name": "menu",
+                "type": "ReactNode",
+                "required": false,
+                "description": "The rows: MenuItem, MenuLabel, MenuSeparator."
+              },
+              {
+                "name": "onOpen",
+                "type": "(context: string | undefined) => void",
+                "required": false,
+                "description": "It is opening, with the closest [data-context] value under the pointer."
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Board",
+          "label": "A board's saved creatives",
+          "center": false,
+          "half": false,
+          "path": "react/examples/context-menu/Board.tsx",
+          "content": "'use client'\nimport { useState } from 'react'\nimport { Bookmark, Copy, ExternalLink, Image, Trash2 } from 'lucide-react'\nimport { ContextMenu } from '@/react/components/ui/ContextMenu'\nimport { MenuItem } from '@/react/components/ui/MenuItem'\nimport { MenuLabel } from '@/react/components/ui/MenuLabel'\nimport { MenuSeparator } from '@/react/components/ui/MenuSeparator'\n// A board's saved creatives: right-click a row, or focus it and press Shift+F10, for what you can do with it.\nconst creatives = [\n  { id: 'cr_8f2k1', title: 'Acme summer UGC, before and after', format: 'Video' },\n  { id: 'cr_3m9q7', title: 'Acme serum launch, carousel', format: 'Carousel' },\n  { id: 'cr_5t0x2', title: 'Acme founder story, 30 seconds', format: 'Video' },\n]\n\nexport default function Board() {\n  const [picked, setPicked] = useState<string>()\n  const [last, setLast] = useState('')\n  const creative = creatives.find((c) => c.id === picked)\n  const act = (what: string) => () => setLast(`${what}: ${creative?.title ?? ''}`)\n  return (\n    <div className=\"min-h-80 w-full max-w-120\">\n      <ContextMenu\n        label=\"Creative\"\n        onOpen={setPicked}\n        menu={(\n          <>\n            <MenuLabel><span className=\"truncate\">{creative?.format}</span></MenuLabel>\n            <MenuItem onSelect={act('Opened')}><ExternalLink size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Open</MenuItem>\n            <MenuItem onSelect={act('Copied link')}><Copy size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Copy link</MenuItem>\n            <MenuItem onSelect={act('Saved')}><Bookmark size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />Save to another board</MenuItem>\n            <MenuSeparator />\n            <MenuItem danger onSelect={act('Removed')}><Trash2 size={16} strokeWidth={1.5} className=\"shrink-0\" aria-hidden=\"true\" />Remove from board</MenuItem>\n          </>\n        )}\n      >\n        <ul className=\"flex flex-col gap-1\">\n          {creatives.map((c) => (\n            <li key={c.id} data-context={c.id} tabIndex={0} className=\"flex h-row items-center gap-3 rounded-control px-3 outline-none transition-[background-color] duration-150 ease-standard hover:bg-surface-raised focus-visible:bg-surface-raised focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus\">\n              <Image size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />\n              <span className=\"min-w-0 flex-1 truncate type-ui\">{c.title}</span>\n              <span className=\"type-caption text-fg-muted max-sm:hidden\">{c.format}</span>\n            </li>\n          ))}\n        </ul>\n      </ContextMenu>\n      <p className=\"mt-3 type-caption text-fg-muted\" aria-live=\"polite\">{last || 'Right-click a creative, or focus it and press Shift+F10.'}</p>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "dropdown-menu",
+            "popover"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/context-menu.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport { CloseOnSelect, menuRows, onMenuRows } from '@/elements/lib/menu'\nimport { PopoverController, popoverStyles } from '@/elements/lib/popover'\nimport styles from 'virtual:tw'\n\n// ContextMenu.tsx as <spyglass-context-menu>: the dropdown menu's rows (<spyglass-menu-item>, <spyglass-menu-label>,\n// <spyglass-menu-separator>, each with slot=\"menu\") on the #171717 overlay panel, opened at the pointer: a right-click\n// (or a long press on Android) on the default slot opens the `menu` slot where it landed, flipped and kept inside the\n// viewport, in the top layer. From the keyboard, Shift+F10 or the context menu key opens it under the focused element,\n// at once, on its first row. Arrows, Home and End move; Escape closes and returns focus; choosing a row closes it.\n// `open` fires with what was clicked (detail.context: the closest [data-context] value), so one menu serves a list.\n\n/**\n * @summary A menu opened at the pointer by a right-click or Shift+F10.\n * @slot - What the menu is for (a list whose rows carry data-context).\n * @slot menu - The rows: <spyglass-menu-item slot=\"menu\">, labels and separators.\n * @fires open - It is opening (detail.context: the closest [data-context] value).\n */\nexport class ContextMenu extends DsElement {\n\tstatic styles = [DsElement.styles, popoverStyles, styles]\n\tstatic properties = { label: {}, width: {} }\n\n\t/** The menu's name for assistive tech. */\n\tlabel = ''\n\twidth?: string\n\tprivate pop = new PopoverController(this, {\n\t\tside: 'bottom',\n\t\talign: 'start',\n\t\tgap: 0,\n\t\tanchor: () => null,\n\t\tpanel: () => this.renderRoot.querySelector<HTMLElement>('.ds-pop'),\n\t})\n\n\tconstructor() {\n\t\tsuper()\n\t\t// A chosen row closes the menu, focus back where it was.\n\t\tnew CloseOnSelect(this, () => this.pop.hide(true))\n\t}\n\n\tprivate rows() {\n\t\treturn menuRows(this, 'menu')\n\t}\n\tprivate context(event: Event) {\n\t\treturn (event.composedPath()[0] as HTMLElement | null)?.closest?.<HTMLElement>('[data-context]')?.dataset.context\n\t}\n\tprivate onContextMenu = async (event: MouseEvent) => {\n\t\tevent.preventDefault()\n\t\tthis.emit('open', { context: this.context(event) })\n\t\tawait this.pop.show({ at: { x: event.clientX, y: event.clientY } })\n\t\tthis.renderRoot.querySelector<HTMLElement>('.ds-pop')?.focus({ preventScroll: true })\n\t}\n\tprivate onKey = async (event: KeyboardEvent) => {\n\t\tif (event.key !== 'ContextMenu' && !(event.shiftKey && event.key === 'F10')) return\n\t\tevent.preventDefault()\n\t\tconst r = (event.composedPath()[0] as HTMLElement).getBoundingClientRect()\n\t\tthis.emit('open', { context: this.context(event) })\n\t\tawait this.pop.show({ keyboard: true, at: { x: r.left + 8, y: r.bottom } })\n\t\tawait this.updateComplete\n\t\tthis.rows()[0]?.focus()\n\t}\n\tprivate onMenuKey = (event: KeyboardEvent) => {\n\t\tonMenuRows(event, this.rows(), (refocus) => this.pop.hide(refocus))\n\t}\n\n\trender() {\n\t\tconst panel = this.pop.rendered\n\t\t\t? html`<div data-ds=\"context-menu\" popover=\"manual\" class=\"ds-pop flex flex-col p-1\" role=\"menu\" aria-label=${this.label} tabindex=\"-1\" data-side=${this.pop.pos.side} ?data-instant=${this.pop.instant} ?data-placed=${this.pop.pos.placed} style=${this.pop.style(`width: ${this.width ?? '224px'}`)} @keydown=${this.onMenuKey} @focusout=${this.pop.onFocusOut}><slot name=\"menu\"></slot></div>`\n\t\t\t: nothing\n\t\treturn html`<div data-ds=\"context-menu\" @contextmenu=${this.onContextMenu} @keydown=${this.onKey}><slot></slot></div>${panel}`\n\t}\n}\n\ndefine('context-menu', ContextMenu)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/context-menu.js",
+        "elements/menu-label.js",
+        "elements/menu-item.js",
+        "elements/menu-separator.js"
+      ],
+      "tag": "spyglass-context-menu",
+      "tags": [
+        "spyglass-context-menu"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-context-menu",
+            "name": "ContextMenu",
+            "module": "elements/context-menu.js",
+            "description": "A menu opened at the pointer by a right-click or Shift+F10.",
+            "attributes": [
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The menu's name for assistive tech."
+              },
+              {
+                "name": "width",
+                "field": "width",
+                "type": "string | undefined"
+              }
+            ],
+            "properties": [
+              {
+                "name": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The menu's name for assistive tech.",
+                "attribute": "label"
+              },
+              {
+                "name": "width",
+                "type": "string | undefined",
+                "attribute": "width"
+              }
+            ],
+            "events": [
+              {
+                "name": "open",
+                "description": "It is opening (detail.context: the closest [data-context] value)."
+              }
+            ],
+            "slots": [
+              {
+                "name": "",
+                "description": "What the menu is for (a list whose rows carry data-context)."
+              },
+              {
+                "name": "menu",
+                "description": "The rows: <spyglass-menu-item slot=\"menu\">, labels and separators."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Board",
+          "label": "A board's saved creatives",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/context-menu/Board.html",
+          "content": "<!-- A board's saved creatives: right-click a row, or focus it and press Shift+F10, for what you can do with it. -->\n<div class=\"min-h-80 w-full max-w-120\">\n  <spyglass-context-menu label=\"Creative\" id=\"creative-menu\">\n    <ul class=\"flex flex-col gap-1\">\n      <li data-context=\"cr_8f2k1\" tabindex=\"0\" class=\"flex h-row items-center gap-3 rounded-control px-3 outline-none transition-[background-color] duration-150 ease-standard hover:bg-surface-raised focus-visible:bg-surface-raised focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus\">\n        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-image shrink-0 text-fg-muted\" aria-hidden=\"true\"><rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" ry=\"2\"></rect><circle cx=\"9\" cy=\"9\" r=\"2\"></circle><path d=\"m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21\"></path></svg>\n        <span class=\"min-w-0 flex-1 truncate type-ui\">Acme summer UGC, before and after</span>\n        <span class=\"type-caption text-fg-muted max-sm:hidden\">Video</span>\n      </li>\n      <li data-context=\"cr_3m9q7\" tabindex=\"0\" class=\"flex h-row items-center gap-3 rounded-control px-3 outline-none transition-[background-color] duration-150 ease-standard hover:bg-surface-raised focus-visible:bg-surface-raised focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus\">\n        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-image shrink-0 text-fg-muted\" aria-hidden=\"true\"><rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" ry=\"2\"></rect><circle cx=\"9\" cy=\"9\" r=\"2\"></circle><path d=\"m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21\"></path></svg>\n        <span class=\"min-w-0 flex-1 truncate type-ui\">Acme serum launch, carousel</span>\n        <span class=\"type-caption text-fg-muted max-sm:hidden\">Carousel</span>\n      </li>\n      <li data-context=\"cr_5t0x2\" tabindex=\"0\" class=\"flex h-row items-center gap-3 rounded-control px-3 outline-none transition-[background-color] duration-150 ease-standard hover:bg-surface-raised focus-visible:bg-surface-raised focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus\">\n        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-image shrink-0 text-fg-muted\" aria-hidden=\"true\"><rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" ry=\"2\"></rect><circle cx=\"9\" cy=\"9\" r=\"2\"></circle><path d=\"m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21\"></path></svg>\n        <span class=\"min-w-0 flex-1 truncate type-ui\">Acme founder story, 30 seconds</span>\n        <span class=\"type-caption text-fg-muted max-sm:hidden\">Video</span>\n      </li>\n    </ul>\n    <spyglass-menu-label slot=\"menu\"><span class=\"truncate\" data-format></span></spyglass-menu-label>\n    <spyglass-menu-item slot=\"menu\" data-note=\"Opened\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-external-link shrink-0 text-fg-muted\" aria-hidden=\"true\"><path d=\"M15 3h6v6\"></path><path d=\"M10 14 21 3\"></path><path d=\"M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6\"></path></svg>Open</spyglass-menu-item>\n    <spyglass-menu-item slot=\"menu\" data-note=\"Copied link\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-copy shrink-0 text-fg-muted\" aria-hidden=\"true\"><rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\" ry=\"2\"></rect><path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\"></path></svg>Copy link</spyglass-menu-item>\n    <spyglass-menu-item slot=\"menu\" data-note=\"Saved\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-bookmark shrink-0 text-fg-muted\" aria-hidden=\"true\"><path d=\"m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z\"></path></svg>Save to another board</spyglass-menu-item>\n    <spyglass-menu-separator slot=\"menu\"></spyglass-menu-separator>\n    <spyglass-menu-item slot=\"menu\" danger data-note=\"Removed\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-trash-2 shrink-0\" aria-hidden=\"true\"><path d=\"M3 6h18\"></path><path d=\"M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6\"></path><path d=\"M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2\"></path><line x1=\"10\" x2=\"10\" y1=\"11\" y2=\"17\"></line><line x1=\"14\" x2=\"14\" y1=\"11\" y2=\"17\"></line></svg>Remove from board</spyglass-menu-item>\n  </spyglass-context-menu>\n  <p id=\"creative-last\" class=\"mt-3 type-caption text-fg-muted\" aria-live=\"polite\">Right-click a creative, or focus it and press Shift+F10.</p>\n</div>\n<script type=\"module\">\n  // The menu names the format of the creative it opened for; each row says what it did under the list.\n  const menu = document.getElementById('creative-menu')\n  let row\n  menu.addEventListener('open', (event) => {\n    row = menu.querySelector(`[data-context=\"${event.detail.context}\"]`)\n    menu.querySelector('[data-format]').textContent = row?.querySelector('.type-caption')?.textContent ?? ''\n  })\n  for (const item of menu.querySelectorAll('[data-note]')) {\n    item.addEventListener('select', () => {\n      document.getElementById('creative-last').textContent = `${item.dataset.note}: ${row?.querySelector('.truncate')?.textContent ?? ''}`\n    })\n  }\n</script>\n"
+        }
+      ]
+    }
+  }
+}

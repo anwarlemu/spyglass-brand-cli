@@ -1,0 +1,309 @@
+{
+  "name": "textarea",
+  "title": "Textarea",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "Several lines of text, drawn as the input is: a #363636 hairline on Black that turns White on focus, DM Sans, the brand corner. It grows by hand downward.",
+  "use_for": "Text longer than a line: a board brief, a note on a creative, feedback. Label it, and say under it what the text is for.",
+  "never": [
+    "A question to search: use the search bar",
+    "A red hairline before anything is wrong",
+    "Under 16px on phones (it switches to 16px there)"
+  ],
+  "source": "Derived from the brand guidelines (no text area in the brand assets): the input's hairline, fill and corner",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Textarea.tsx",
+      "content": "import type { Ref, TextareaHTMLAttributes } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// Several lines of text, drawn as the Input is: a #363636 hairline on Black that turns White on focus, DM Sans at 14px\n// (16px on phones, so iOS does not zoom), a #A3A3A3 placeholder, the brand corner, 10px 12px inside. It grows by hand\n// downward only. `invalid` turns the hairline red. Put it in a Field for its label and description. Every other prop\n// lands on the <textarea> (value and onChange as React's own).\nexport interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {\n  /** A red hairline (with the message under it). */\n  invalid?: boolean\n  /** Visible lines before it scrolls (4). */\n  rows?: number\n  ref?: Ref<HTMLTextAreaElement>\n}\n\nexport function Textarea({ invalid, rows = 4, className, ...rest }: TextareaProps) {\n  return (\n    <textarea\n      data-ds=\"textarea\"\n      {...rest}\n      rows={rows}\n      aria-invalid={invalid || undefined}\n      className={cn('block w-full min-w-0 resize-y rounded-control border border-edge-strong bg-surface px-3 py-2.5 type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard placeholder:text-fg-muted hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', className)}\n    />\n  )\n}\n\nexport default Textarea\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Brief",
+      "label": "With a label",
+      "center": true,
+      "half": false,
+      "path": "react/examples/textarea/Brief.tsx",
+      "content": "import { Textarea } from '@/react/components/ui/Textarea'\n// A brief for a new board: a few lines about what to collect, with a line of help under it.\n\nexport default function Brief() {\n  return (\n    <div className=\"flex w-96 max-w-full flex-col gap-2\">\n      <label htmlFor=\"textarea-brief\" className=\"type-label text-fg-soft\">Board brief</label>\n      <Textarea id=\"textarea-brief\" name=\"brief\" placeholder=\"Hooks that open on the product in the first second.\" />\n      <p className=\"type-caption text-fg-muted\">The team sees this at the top of the board.</p>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    },
+    {
+      "name": "Invalid",
+      "label": "Invalid",
+      "center": true,
+      "half": false,
+      "path": "react/examples/textarea/Invalid.tsx",
+      "content": "import { Textarea } from '@/react/components/ui/Textarea'\n// A note that is too long, with the message that says so.\n\nexport default function Invalid() {\n  return (\n    <div className=\"flex w-96 max-w-full flex-col gap-2\">\n      <label htmlFor=\"textarea-note\" className=\"type-label text-fg-soft\">Note</label>\n      <Textarea id=\"textarea-note\" name=\"note\" rows={3} invalid aria-describedby=\"textarea-note-error\" defaultValue=\"Every Acme ad from the last year that opens on a face, a product shot or a number, sorted by spend.\" />\n      <p id=\"textarea-note-error\" className=\"type-caption text-fg-danger\">Keep the note under 80 characters.</p>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Textarea.tsx",
+          "content": "import type { Ref, TextareaHTMLAttributes } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// Several lines of text, drawn as the Input is: a #363636 hairline on Black that turns White on focus, DM Sans at 14px\n// (16px on phones, so iOS does not zoom), a #A3A3A3 placeholder, the brand corner, 10px 12px inside. It grows by hand\n// downward only. `invalid` turns the hairline red. Put it in a Field for its label and description. Every other prop\n// lands on the <textarea> (value and onChange as React's own).\nexport interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {\n  /** A red hairline (with the message under it). */\n  invalid?: boolean\n  /** Visible lines before it scrolls (4). */\n  rows?: number\n  ref?: Ref<HTMLTextAreaElement>\n}\n\nexport function Textarea({ invalid, rows = 4, className, ...rest }: TextareaProps) {\n  return (\n    <textarea\n      data-ds=\"textarea\"\n      {...rest}\n      rows={rows}\n      aria-invalid={invalid || undefined}\n      className={cn('block w-full min-w-0 resize-y rounded-control border border-edge-strong bg-surface px-3 py-2.5 type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard placeholder:text-fg-muted hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', className)}\n    />\n  )\n}\n\nexport default Textarea\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Textarea",
+            "file": "react/components/ui/Textarea.tsx",
+            "props": [
+              {
+                "name": "invalid",
+                "type": "boolean",
+                "required": false,
+                "description": "A red hairline (with the message under it)."
+              },
+              {
+                "name": "rows",
+                "type": "number",
+                "required": false,
+                "default": "4",
+                "description": "Visible lines before it scrolls (4)."
+              }
+            ],
+            "extends": [
+              "TextareaHTMLAttributes<HTMLTextAreaElement>"
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Brief",
+          "label": "With a label",
+          "center": true,
+          "half": false,
+          "path": "react/examples/textarea/Brief.tsx",
+          "content": "import { Textarea } from '@/react/components/ui/Textarea'\n// A brief for a new board: a few lines about what to collect, with a line of help under it.\n\nexport default function Brief() {\n  return (\n    <div className=\"flex w-96 max-w-full flex-col gap-2\">\n      <label htmlFor=\"textarea-brief\" className=\"type-label text-fg-soft\">Board brief</label>\n      <Textarea id=\"textarea-brief\" name=\"brief\" placeholder=\"Hooks that open on the product in the first second.\" />\n      <p className=\"type-caption text-fg-muted\">The team sees this at the top of the board.</p>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        },
+        {
+          "name": "Invalid",
+          "label": "Invalid",
+          "center": true,
+          "half": false,
+          "path": "react/examples/textarea/Invalid.tsx",
+          "content": "import { Textarea } from '@/react/components/ui/Textarea'\n// A note that is too long, with the message that says so.\n\nexport default function Invalid() {\n  return (\n    <div className=\"flex w-96 max-w-full flex-col gap-2\">\n      <label htmlFor=\"textarea-note\" className=\"type-label text-fg-soft\">Note</label>\n      <Textarea id=\"textarea-note\" name=\"note\" rows={3} invalid aria-describedby=\"textarea-note-error\" defaultValue=\"Every Acme ad from the last year that opens on a face, a product shot or a number, sorted by spend.\" />\n      <p id=\"textarea-note-error\" className=\"type-caption text-fg-danger\">Keep the note under 80 characters.</p>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/textarea.ts",
+          "content": "import { html, LitElement, type PropertyValues } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { live } from 'lit/directives/live.js'\nimport { DsFormElement, define, HostLayoutController } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Textarea.tsx as <spyglass-textarea>: several lines of text, drawn as the input is: a #363636 hairline on Black that\n// turns White on focus, DM Sans at 14px (16px on phones), a #A3A3A3 placeholder and the brand corner. It grows by hand\n// downward only; `invalid` turns the hairline red. Form-associated (its `name` and `value` go with its form); the value\n// is `value` with the native `input` and `change` events. aria-label and aria-description pass to the inner textarea.\n\n/**\n * @summary Several lines of text.\n * @fires input - On every keystroke (read `value`).\n * @fires change - When the value is committed.\n */\nexport class Textarea extends DsFormElement {\n\tstatic styles = [DsFormElement.styles, styles]\n\tstatic shadowRootOptions = { ...LitElement.shadowRootOptions, delegatesFocus: true }\n\tstatic dsField = true\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('textarea'))\n\tstatic properties = {\n\t\tvalue: {},\n\t\trows: { type: Number },\n\t\tname: {},\n\t\tplaceholder: {},\n\t\tmaxlength: { type: Number },\n\t\tdisabled: { type: Boolean, reflect: true },\n\t\treadonly: { type: Boolean },\n\t\trequired: { type: Boolean },\n\t\tinvalid: { type: Boolean, reflect: true },\n\t\tlabel: { attribute: 'aria-label' },\n\t\tdescription: { attribute: 'aria-description' },\n\t}\n\n\tvalue = ''\n\t/** Visible lines before it scrolls. */\n\trows = 4\n\tname?: string\n\tplaceholder?: string\n\tmaxlength?: number\n\tdisabled = false\n\treadonly = false\n\trequired = false\n\t/** A red hairline (with the message under it). */\n\tinvalid = false\n\t/** The name for assistive tech, passed to the inner textarea. */\n\tlabel?: string\n\t/** The description or error, passed to the inner textarea (a field sets it). */\n\tdescription?: string\n\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\tif (!this.value && this.getAttribute('value')) this.value = this.getAttribute('value')!\n\t}\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\tif (changed.has('value')) this.internals.setFormValue(this.value)\n\t}\n\t// Setting the value as a property puts the caret (and the scroll) at the end; a native textarea starts at the top.\n\tprotected firstUpdated(changed: PropertyValues) {\n\t\tsuper.firstUpdated(changed)\n\t\tconst area = this.validityControl()\n\t\tif (!area) return\n\t\tarea.setSelectionRange(0, 0)\n\t\tarea.scrollTop = 0\n\t}\n\tprotected validityControl() {\n\t\treturn this.renderRoot.querySelector<HTMLTextAreaElement>('textarea')\n\t}\n\tformResetCallback() {\n\t\tthis.value = this.getAttribute('value') ?? ''\n\t}\n\tprivate onInput(event: Event) {\n\t\tthis.value = (event.target as HTMLTextAreaElement).value\n\t}\n\t// The inner change does not leave the shadow root: the element sends its own.\n\tprivate onChange() {\n\t\tthis.dispatchEvent(new Event('change', { bubbles: true, composed: true }))\n\t}\n\n\trender() {\n\t\tconst classes = 'block w-full min-w-0 resize-y rounded-control border border-edge-strong bg-surface px-3 py-2.5 type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard placeholder:text-fg-muted hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input'\n\t\treturn html`<textarea data-ds=\"textarea\" .value=${live(this.value)} rows=${this.rows} name=${ifDefined(this.name)} placeholder=${ifDefined(this.placeholder)} maxlength=${ifDefined(this.maxlength)} ?disabled=${this.inactive} ?readonly=${this.readonly} ?required=${this.required} aria-invalid=${ifDefined(this.invalid ? 'true' : undefined)} aria-label=${ifDefined(this.label)} aria-description=${ifDefined(this.description)} class=${classes} @input=${this.onInput} @change=${this.onChange}></textarea>`\n\t}\n}\n\ndefine('textarea', Textarea)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/textarea.js"
+      ],
+      "tag": "spyglass-textarea",
+      "tags": [
+        "spyglass-textarea"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-textarea",
+            "name": "Textarea",
+            "module": "elements/textarea.js",
+            "description": "Several lines of text.",
+            "attributes": [
+              {
+                "name": "value",
+                "field": "value",
+                "type": "string",
+                "default": "''"
+              },
+              {
+                "name": "rows",
+                "field": "rows",
+                "type": "number",
+                "default": "4",
+                "description": "Visible lines before it scrolls."
+              },
+              {
+                "name": "name",
+                "field": "name",
+                "type": "string | undefined"
+              },
+              {
+                "name": "placeholder",
+                "field": "placeholder",
+                "type": "string | undefined"
+              },
+              {
+                "name": "maxlength",
+                "field": "maxlength",
+                "type": "number | undefined"
+              },
+              {
+                "name": "disabled",
+                "field": "disabled",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "readonly",
+                "field": "readonly",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "required",
+                "field": "required",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "invalid",
+                "field": "invalid",
+                "type": "boolean",
+                "default": "false",
+                "description": "A red hairline (with the message under it)."
+              },
+              {
+                "name": "aria-label",
+                "field": "label",
+                "type": "string | undefined",
+                "description": "The name for assistive tech, passed to the inner textarea."
+              },
+              {
+                "name": "aria-description",
+                "field": "description",
+                "type": "string | undefined",
+                "description": "The description or error, passed to the inner textarea (a field sets it)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "value",
+                "type": "string",
+                "default": "''",
+                "attribute": "value"
+              },
+              {
+                "name": "rows",
+                "type": "number",
+                "default": "4",
+                "description": "Visible lines before it scrolls.",
+                "attribute": "rows"
+              },
+              {
+                "name": "name",
+                "type": "string | undefined",
+                "attribute": "name"
+              },
+              {
+                "name": "placeholder",
+                "type": "string | undefined",
+                "attribute": "placeholder"
+              },
+              {
+                "name": "maxlength",
+                "type": "number | undefined",
+                "attribute": "maxlength"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "disabled"
+              },
+              {
+                "name": "readonly",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "readonly"
+              },
+              {
+                "name": "required",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "required"
+              },
+              {
+                "name": "invalid",
+                "type": "boolean",
+                "default": "false",
+                "description": "A red hairline (with the message under it).",
+                "attribute": "invalid"
+              },
+              {
+                "name": "label",
+                "type": "string | undefined",
+                "description": "The name for assistive tech, passed to the inner textarea.",
+                "attribute": "aria-label"
+              },
+              {
+                "name": "description",
+                "type": "string | undefined",
+                "description": "The description or error, passed to the inner textarea (a field sets it).",
+                "attribute": "aria-description"
+              }
+            ],
+            "events": [
+              {
+                "name": "change",
+                "description": "When the value is committed."
+              },
+              {
+                "name": "input",
+                "description": "On every keystroke (read `value`)."
+              }
+            ],
+            "slots": [],
+            "methods": [
+              {
+                "name": "formResetCallback"
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Brief",
+          "label": "With a label",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/textarea/Brief.html",
+          "content": "<!-- A brief for a new board: a few lines about what to collect, with a line of help under it. -->\n<div class=\"flex w-96 max-w-full flex-col gap-2\">\n  <label for=\"textarea-brief\" class=\"type-label text-fg-soft\">Board brief</label>\n  <spyglass-textarea id=\"textarea-brief\" name=\"brief\" placeholder=\"Hooks that open on the product in the first second.\" aria-label=\"Board brief\"></spyglass-textarea>\n  <p class=\"type-caption text-fg-muted\">The team sees this at the top of the board.</p>\n</div>\n"
+        },
+        {
+          "name": "Invalid",
+          "label": "Invalid",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/textarea/Invalid.html",
+          "content": "<!-- A note that is too long, with the message that says so. -->\n<div class=\"flex w-96 max-w-full flex-col gap-2\">\n  <label for=\"textarea-note\" class=\"type-label text-fg-soft\">Note</label>\n  <spyglass-textarea id=\"textarea-note\" name=\"note\" rows=\"3\" invalid aria-label=\"Note\" aria-description=\"Keep the note under 80 characters.\" value=\"Every Acme ad from the last year that opens on a face, a product shot or a number, sorted by spend.\"></spyglass-textarea>\n  <p id=\"textarea-note-error\" class=\"type-caption text-fg-danger\">Keep the note under 80 characters.</p>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

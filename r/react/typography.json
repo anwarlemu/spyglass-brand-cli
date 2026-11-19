@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "typography",
+  "type": "registry:ui",
+  "title": "Typography",
+  "description": "The brand's type scale as one part. Funnel Display Regular for titles, DM Sans for text, Medium for small and labels, labels in capitals with 6% tracking, Geist Mono for code. Every variant is a type utility from the tokens.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/ui/Text.tsx",
+      "type": "registry:ui",
+      "content": "import type { ElementType, HTMLAttributes, ReactNode } from 'react'\nimport { cn } from '@/lib/cn'\n\n// The brand's type scale as one part, every variant one of the theme's type utilities and nothing else (tokens.css):\n// Funnel Display Regular for titles (display 64px, hero 48px, h1 36px, h2 28px, h3 24px, h4 20px, at 1.07, the card\n// title's 1.0 for h2), DM Sans for text (lead and large 18px, p 16px at 1.33, ui 14px, small 14px Medium, caption\n// 12px), labels in capitals with 6% tracking (DM Sans Medium 12px), and Geist Mono for inline code. Muted text is the\n// #A3A3A3 neutral step. `as` overrides the tag; className is appended last (a margin, a width).\nexport type TextVariant = 'display' | 'hero' | 'h1' | 'h2' | 'h3' | 'h4' | 'lead' | 'large' | 'p' | 'ui' | 'small' | 'muted' | 'caption' | 'label' | 'blockquote' | 'code'\n\nexport const TEXT_TAGS: Record<TextVariant, string> = {\n  display: 'h1', hero: 'h1', h1: 'h1', h2: 'h2', h3: 'h3', h4: 'h4',\n  lead: 'p', large: 'p', p: 'p', ui: 'p', small: 'p', muted: 'p', caption: 'p', label: 'p', blockquote: 'blockquote', code: 'code',\n}\n\nexport const TEXT_CLASSES: Record<TextVariant, string> = {\n  display: 'type-display text-fg',\n  hero: 'type-hero text-fg',\n  h1: 'type-heading-1 text-fg',\n  h2: 'type-heading-2 text-fg',\n  h3: 'type-heading-3 text-fg',\n  h4: 'type-heading-4 text-fg',\n  lead: 'type-body-lg text-fg-muted',\n  large: 'type-body-lg text-fg',\n  p: 'type-body text-fg',\n  ui: 'type-ui text-fg',\n  small: 'type-ui-strong text-fg',\n  muted: 'type-ui text-fg-muted',\n  caption: 'type-caption text-fg-muted',\n  label: 'type-label text-fg-soft',\n  blockquote: 'border-l-2 border-edge-strong pl-6 type-body-lg text-fg-soft',\n  code: 'rounded-ds-sm bg-surface-subtle px-1 py-0.5 type-code text-fg',\n}\n\nexport interface TextProps extends HTMLAttributes<HTMLElement> {\n  /** The step of the scale: display, hero, h1 to h4 (Funnel Display), lead, large, p, ui, small, muted, caption (DM Sans), label (capitals), blockquote or code. */\n  variant?: TextVariant\n  /** The tag, in place of the variant's own (an h2 drawn as h1, a span drawn as caption). */\n  as?: string\n  children?: ReactNode\n}\n\nexport function Text({ variant = 'p', as, className, children, ...rest }: TextProps) {\n  const v = TEXT_CLASSES[variant] ? variant : 'p'\n  const Tag = (as ?? TEXT_TAGS[v]) as ElementType\n  return <Tag data-ds=\"text\" className={cn(TEXT_CLASSES[v], className)} {...rest}>{children}</Tag>\n}\n\nexport default Text\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

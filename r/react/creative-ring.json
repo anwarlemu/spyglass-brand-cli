@@ -1,0 +1,24 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "creative-ring",
+  "type": "registry:ui",
+  "title": "Creative ring",
+  "description": "Twelve tiles around the middle of a square in the post's exact places: eight creatives, four tiles of the brand light, and the lockup inside.",
+  "dependencies": [],
+  "registryDependencies": [
+    "https://spyglass-ds.vercel.app/r/react/brand-light.json",
+    "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+  ],
+  "files": [
+    {
+      "path": "components/site/CreativeRing.tsx",
+      "type": "registry:ui",
+      "content": "import type { ReactNode } from 'react'\nimport { BrandLight } from '@/components/visuals/BrandLight'\nimport { CreativeCard, type CreativeItem } from '@/components/site/CreativeCard'\nimport { RING_FRAME, RING_SLOTS, placeAt } from '@/lib/creative-layouts'\nimport { cn } from '@/lib/cn'\n\n// The creative ring (Post, Creative ring): twelve tiles around the middle of a square, clockwise from the top, in the\n// post's exact places and sizes; eight are creatives (squares, 7/5 and tall) and four are tiles of the brand light.\n// The children sit in the middle: the lockup, as the post has it. The ring scales with its width.\nexport interface CreativeRingProps {\n  /** Up to eight creatives, clockwise from the top (fewer repeat). */\n  items: CreativeItem[]\n  /** The first light tile's seed; the others follow it. */\n  seed?: number\n  /** What sits in the middle (the lockup). */\n  children?: ReactNode\n  className?: string\n}\n\nexport function CreativeRing({ items, seed = 0, children, className }: CreativeRingProps) {\n  let n = 0\n  let lights = 0\n  return (\n    <div data-ds=\"creative-ring\" className={cn('relative aspect-square', className)}>\n      {RING_SLOTS.map((slot, i) => {\n        const at = placeAt(slot, RING_FRAME, RING_FRAME)\n        if (slot.light) return (\n          <div key={i} className=\"absolute\" style={at}>\n            <BrandLight variant=\"tile\" seed={seed + lights++} cover className=\"size-full rounded-container\" />\n          </div>\n        )\n        const { light: _light, seed: _seed, ...item } = items.length ? items[n++ % items.length] : ({} as CreativeItem)\n        return (\n          <div key={i} className=\"absolute\" style={at}>\n            <CreativeCard {...item} ratio=\"fill\" />\n          </div>\n        )\n      })}\n      {children && <div className=\"absolute inset-0 flex items-center justify-center\">{children}</div>}\n    </div>\n  )\n}\n\nexport default CreativeRing\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

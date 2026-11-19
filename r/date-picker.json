@@ -1,0 +1,421 @@
+{
+  "name": "date-picker",
+  "title": "Date picker",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A date in a field: a button drawn as the text field that opens the calendar on the #171717 overlay panel under it. Opening puts focus on the picked day, picking closes it and returns focus, Escape closes it unchanged.",
+  "use_for": "A single date in a form: when a report starts, when a campaign ends. The field reads the day in words.",
+  "never": [
+    "A shadow under the panel: the hairline and the #171717 fill set it apart",
+    "Typing a date into the button: it is picked from the calendar",
+    "A red edge for anything but an error"
+  ],
+  "source": "Derived from the guidelines: the input's field (40px, the 8px corner, a #363636 hairline that turns White on focus), the #171717 card fill for the overlay. shadcn's date picker (a popover holding a calendar) for anatomy and keys.",
+  "body": "The web component is form-associated: give it a `name` and the form sends the day as an ISO date (2026-11-03).",
+  "requires": [
+    "calendar",
+    "popover"
+  ],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/ui/DatePicker.tsx",
+      "content": "'use client'\nimport { useId, type KeyboardEvent, type MouseEvent } from 'react'\nimport { CalendarDays } from 'lucide-react'\nimport { Calendar } from '@/react/components/ui/Calendar'\nimport { PopoverPanel } from '@/react/components/ui/PopoverPanel'\nimport { cn } from '@/react/lib/cn'\nimport { useControllable } from '@/react/hooks/useControllable'\nimport { usePopover } from '@/react/hooks/usePopover'\n\n// shadcn's date picker in the brand: a button drawn as the text field (40px, the 8px corner, a #363636 hairline that\n// turns White while it is open or focused, the placeholder muted) that opens a Calendar on the #171717 overlay panel\n// under it. Opening puts focus on the picked day (or today); picking a day closes it and returns focus to the field;\n// Escape closes it unchanged. `value` with `onValueChange` (or `defaultValue` alone).\nexport interface DatePickerProps {\n  id?: string\n  /** What the field says before a day is picked. */\n  placeholder?: string\n  /** The first day that can be picked. */\n  min?: Date\n  /** The last day that can be picked. */\n  max?: Date\n  /** Days that can't be picked. */\n  disabled?: (day: Date) => boolean\n  /** A red edge. */\n  invalid?: boolean\n  locale?: string\n  /** How the picked day reads in the field. */\n  format?: Intl.DateTimeFormatOptions\n  value?: Date | null\n  defaultValue?: Date | null\n  onValueChange?: (day: Date | null) => void\n  className?: string\n  'aria-describedby'?: string\n}\n\nconst FORMAT: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' }\n\nexport function DatePicker({ id, placeholder = 'Pick a date', min, max, disabled, invalid, locale = 'en-US', format = FORMAT, value, defaultValue = null, onValueChange, className, 'aria-describedby': describedBy }: DatePickerProps) {\n  const [model, setModel] = useControllable<Date | null>(value, defaultValue, onValueChange)\n  const pop = usePopover({ side: 'bottom', align: 'start', gap: 4 })\n  const panelId = `date-${useId()}`\n  const text = model?.toLocaleDateString(locale, format)\n\n  async function onClick(event: MouseEvent | { detail: number }) {\n    if (pop.open) return pop.hide(event.detail === 0, event.detail === 0)\n    await pop.show({ keyboard: event.detail === 0 })\n    pop.panel.current?.querySelector<HTMLElement>('.ds-day[tabindex=\"0\"]')?.focus({ preventScroll: true })\n  }\n  function onKey(event: KeyboardEvent) {\n    if (event.key === 'ArrowDown' && !pop.open) {\n      event.preventDefault()\n      void onClick({ detail: 0 })\n    }\n  }\n  function picked() {\n    pop.hide(true)\n  }\n\n  return (\n    <>\n      <button\n        data-ds=\"date-picker\"\n        id={id}\n        ref={(el) => { pop.anchor.current = el }}\n        type=\"button\"\n        className={cn('flex h-control-md w-full cursor-pointer items-center gap-2 rounded-control border border-edge-strong bg-surface px-3 text-left type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-expanded:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input', className)}\n        aria-haspopup=\"dialog\"\n        aria-expanded={pop.open}\n        aria-controls={pop.open ? panelId : undefined}\n        aria-invalid={invalid || undefined}\n        aria-describedby={describedBy}\n        onClick={onClick}\n        onKeyDown={onKey}\n      >\n        <CalendarDays size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />\n        <span className={cn('min-w-0 flex-1 truncate', !text && 'text-fg-muted')}>{text ?? placeholder}</span>\n      </button>\n      <PopoverPanel data-ds=\"date-picker\" id={panelId} pop={pop} role=\"dialog\" aria-label=\"Choose a date\" tabIndex={-1} className=\"p-3\">\n        <Calendar value={model} onValueChange={setModel} min={min} max={max} disabled={disabled} locale={locale} onSelect={picked} />\n      </PopoverPanel>\n    </>\n  )\n}\n\nexport default DatePicker\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    },
+    {
+      "path": "react/hooks/useControllable.ts",
+      "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Field",
+      "label": "In a form",
+      "center": false,
+      "half": false,
+      "path": "react/examples/date-picker/Field.tsx",
+      "content": "'use client'\nimport { useState } from 'react'\nimport { DatePicker } from '@/react/components/ui/DatePicker'\n// A report's start date in a form: a label over the field, a hint under it.\n\nexport default function Field() {\n  const [day, setDay] = useState<Date | null>(null)\n  return (\n    <div className=\"flex h-110 w-full max-w-80 flex-col gap-2\">\n      <label htmlFor=\"report-start\" className=\"type-label text-fg-muted\">Report starts</label>\n      <DatePicker id=\"report-start\" value={day} onValueChange={setDay} aria-describedby=\"report-start-hint\" />\n      <p id=\"report-start-hint\" className=\"type-caption text-fg-muted\">{day ? `Creatives running since ${day.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}.` : 'Creatives running since this day.'}</p>\n    </div>\n  )\n}\n",
+      "requires": [
+        "calendar",
+        "popover"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "Picked",
+      "label": "A picked day, later days blocked",
+      "center": false,
+      "half": false,
+      "path": "react/examples/date-picker/Picked.tsx",
+      "content": "import { DatePicker } from '@/react/components/ui/DatePicker'\n// A day already picked, read in full; days after today can't be picked.\n\nexport default function Picked() {\n  return (\n    <div className=\"h-110 w-full max-w-80\">\n      <DatePicker defaultValue={new Date(2026, 10, 3)} max={new Date(2026, 10, 17)} format={{ weekday: 'short', month: 'long', day: 'numeric', year: 'numeric' }} />\n    </div>\n  )\n}\n",
+      "requires": [
+        "calendar",
+        "popover"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/DatePicker.tsx",
+          "content": "'use client'\nimport { useId, type KeyboardEvent, type MouseEvent } from 'react'\nimport { CalendarDays } from 'lucide-react'\nimport { Calendar } from '@/react/components/ui/Calendar'\nimport { PopoverPanel } from '@/react/components/ui/PopoverPanel'\nimport { cn } from '@/react/lib/cn'\nimport { useControllable } from '@/react/hooks/useControllable'\nimport { usePopover } from '@/react/hooks/usePopover'\n\n// shadcn's date picker in the brand: a button drawn as the text field (40px, the 8px corner, a #363636 hairline that\n// turns White while it is open or focused, the placeholder muted) that opens a Calendar on the #171717 overlay panel\n// under it. Opening puts focus on the picked day (or today); picking a day closes it and returns focus to the field;\n// Escape closes it unchanged. `value` with `onValueChange` (or `defaultValue` alone).\nexport interface DatePickerProps {\n  id?: string\n  /** What the field says before a day is picked. */\n  placeholder?: string\n  /** The first day that can be picked. */\n  min?: Date\n  /** The last day that can be picked. */\n  max?: Date\n  /** Days that can't be picked. */\n  disabled?: (day: Date) => boolean\n  /** A red edge. */\n  invalid?: boolean\n  locale?: string\n  /** How the picked day reads in the field. */\n  format?: Intl.DateTimeFormatOptions\n  value?: Date | null\n  defaultValue?: Date | null\n  onValueChange?: (day: Date | null) => void\n  className?: string\n  'aria-describedby'?: string\n}\n\nconst FORMAT: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' }\n\nexport function DatePicker({ id, placeholder = 'Pick a date', min, max, disabled, invalid, locale = 'en-US', format = FORMAT, value, defaultValue = null, onValueChange, className, 'aria-describedby': describedBy }: DatePickerProps) {\n  const [model, setModel] = useControllable<Date | null>(value, defaultValue, onValueChange)\n  const pop = usePopover({ side: 'bottom', align: 'start', gap: 4 })\n  const panelId = `date-${useId()}`\n  const text = model?.toLocaleDateString(locale, format)\n\n  async function onClick(event: MouseEvent | { detail: number }) {\n    if (pop.open) return pop.hide(event.detail === 0, event.detail === 0)\n    await pop.show({ keyboard: event.detail === 0 })\n    pop.panel.current?.querySelector<HTMLElement>('.ds-day[tabindex=\"0\"]')?.focus({ preventScroll: true })\n  }\n  function onKey(event: KeyboardEvent) {\n    if (event.key === 'ArrowDown' && !pop.open) {\n      event.preventDefault()\n      void onClick({ detail: 0 })\n    }\n  }\n  function picked() {\n    pop.hide(true)\n  }\n\n  return (\n    <>\n      <button\n        data-ds=\"date-picker\"\n        id={id}\n        ref={(el) => { pop.anchor.current = el }}\n        type=\"button\"\n        className={cn('flex h-control-md w-full cursor-pointer items-center gap-2 rounded-control border border-edge-strong bg-surface px-3 text-left type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-expanded:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input', className)}\n        aria-haspopup=\"dialog\"\n        aria-expanded={pop.open}\n        aria-controls={pop.open ? panelId : undefined}\n        aria-invalid={invalid || undefined}\n        aria-describedby={describedBy}\n        onClick={onClick}\n        onKeyDown={onKey}\n      >\n        <CalendarDays size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />\n        <span className={cn('min-w-0 flex-1 truncate', !text && 'text-fg-muted')}>{text ?? placeholder}</span>\n      </button>\n      <PopoverPanel data-ds=\"date-picker\" id={panelId} pop={pop} role=\"dialog\" aria-label=\"Choose a date\" tabIndex={-1} className=\"p-3\">\n        <Calendar value={model} onValueChange={setModel} min={min} max={max} disabled={disabled} locale={locale} onSelect={picked} />\n      </PopoverPanel>\n    </>\n  )\n}\n\nexport default DatePicker\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        },
+        {
+          "path": "react/hooks/useControllable.ts",
+          "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "calendar",
+        "popover"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "DatePicker",
+            "file": "react/components/ui/DatePicker.tsx",
+            "props": [
+              {
+                "name": "id",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "placeholder",
+                "type": "string",
+                "required": false,
+                "default": "'Pick a date'",
+                "description": "What the field says before a day is picked."
+              },
+              {
+                "name": "min",
+                "type": "Date",
+                "required": false,
+                "description": "The first day that can be picked."
+              },
+              {
+                "name": "max",
+                "type": "Date",
+                "required": false,
+                "description": "The last day that can be picked."
+              },
+              {
+                "name": "disabled",
+                "type": "(day: Date) => boolean",
+                "required": false,
+                "description": "Days that can't be picked."
+              },
+              {
+                "name": "invalid",
+                "type": "boolean",
+                "required": false,
+                "description": "A red edge."
+              },
+              {
+                "name": "locale",
+                "type": "string",
+                "required": false,
+                "default": "'en-US'"
+              },
+              {
+                "name": "format",
+                "type": "Intl.DateTimeFormatOptions",
+                "required": false,
+                "default": "FORMAT",
+                "description": "How the picked day reads in the field."
+              },
+              {
+                "name": "value",
+                "type": "Date | null",
+                "required": false
+              },
+              {
+                "name": "defaultValue",
+                "type": "Date | null",
+                "required": false,
+                "default": "null"
+              },
+              {
+                "name": "onValueChange",
+                "type": "(day: Date | null) => void",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "aria-describedby",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Field",
+          "label": "In a form",
+          "center": false,
+          "half": false,
+          "path": "react/examples/date-picker/Field.tsx",
+          "content": "'use client'\nimport { useState } from 'react'\nimport { DatePicker } from '@/react/components/ui/DatePicker'\n// A report's start date in a form: a label over the field, a hint under it.\n\nexport default function Field() {\n  const [day, setDay] = useState<Date | null>(null)\n  return (\n    <div className=\"flex h-110 w-full max-w-80 flex-col gap-2\">\n      <label htmlFor=\"report-start\" className=\"type-label text-fg-muted\">Report starts</label>\n      <DatePicker id=\"report-start\" value={day} onValueChange={setDay} aria-describedby=\"report-start-hint\" />\n      <p id=\"report-start-hint\" className=\"type-caption text-fg-muted\">{day ? `Creatives running since ${day.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}.` : 'Creatives running since this day.'}</p>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "calendar",
+            "popover"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        },
+        {
+          "name": "Picked",
+          "label": "A picked day, later days blocked",
+          "center": false,
+          "half": false,
+          "path": "react/examples/date-picker/Picked.tsx",
+          "content": "import { DatePicker } from '@/react/components/ui/DatePicker'\n// A day already picked, read in full; days after today can't be picked.\n\nexport default function Picked() {\n  return (\n    <div className=\"h-110 w-full max-w-80\">\n      <DatePicker defaultValue={new Date(2026, 10, 3)} max={new Date(2026, 10, 17)} format={{ weekday: 'short', month: 'long', day: 'numeric', year: 'numeric' }} />\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "calendar",
+            "popover"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/date-picker.ts",
+          "content": "import { html, LitElement, nothing, type PropertyValues } from 'lit'\nimport { html as staticHtml } from 'lit/static-html.js'\nimport { CalendarDays } from 'lucide'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsFormElement, define, tag, uid } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport { PopoverController, popoverStyles } from '@/elements/lib/popover'\nimport '@/elements/components/ui/calendar'\nimport styles from 'virtual:tw'\n\n// DatePicker.tsx as <spyglass-date-picker>: a button drawn as the text field (40px, the 8px corner, a #363636\n// hairline that turns White while it is open or focused, the placeholder muted) that opens a <spyglass-calendar> on\n// the #171717 overlay panel under it, in the top layer. Opening puts focus on the picked day (or today); picking a day\n// closes it and returns focus to the field; Escape closes it unchanged. `value` (a Date, or an ISO date attribute)\n// with `input` and `change`. `min` and `max` are Dates (or ISO date attributes); `disabled` is a function of the day,\n// set as a property. Form-associated: its `name` goes with the form as the day's ISO date (2026-11-13). aria-label\n// and aria-description pass to the button.\n\nconst dateAttr = { fromAttribute: (v: string | null) => (v ? new Date(`${v}T00:00:00`) : null) }\nconst iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`\n\n/**\n * @summary A date in a field, picked from a calendar.\n * @fires input - A day was picked (read `value`).\n * @fires change - A day was picked (read `value`).\n */\nexport class DatePicker extends DsFormElement {\n\tstatic styles = [DsFormElement.styles, popoverStyles, styles]\n\tstatic shadowRootOptions = { ...LitElement.shadowRootOptions, delegatesFocus: true }\n\tstatic dsField = true\n\tstatic properties = {\n\t\tvalue: { converter: dateAttr },\n\t\tname: {},\n\t\tplaceholder: {},\n\t\tmin: { converter: dateAttr },\n\t\tmax: { converter: dateAttr },\n\t\tdisabled: { attribute: false },\n\t\tinvalid: { type: Boolean, reflect: true },\n\t\trequired: { type: Boolean },\n\t\tlocale: {},\n\t\tformat: { type: Object },\n\t\tlabel: { attribute: 'aria-label' },\n\t\tdescription: { attribute: 'aria-description' },\n\t}\n\n\tvalue: Date | null = null\n\tname?: string\n\tplaceholder = 'Pick a date'\n\tmin?: Date | null\n\tmax?: Date | null\n\t/** Days that can't be picked (a property: picker.disabled = (d) => d.getDay() === 0). */\n\tdisabled?: (day: Date) => boolean\n\t/** A red edge. */\n\tinvalid = false\n\t/** A day must be picked for its form to send. */\n\trequired = false\n\tlocale = 'en-US'\n\t/** How the picked day reads in the field (Intl.DateTimeFormat options). */\n\tformat: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' }\n\t/** The name for assistive tech, passed to the button (a field sets it). */\n\tlabel?: string\n\t/** The hint or error, passed to the button (a field sets it). */\n\tdescription?: string\n\tprivate panelId = uid('date')\n\tprivate pop = new PopoverController(this, {\n\t\tside: 'bottom',\n\t\talign: 'start',\n\t\tgap: 4,\n\t\tanchor: () => this.renderRoot.querySelector<HTMLElement>('button[data-ds=\"date-picker\"]'),\n\t\tpanel: () => this.renderRoot.querySelector<HTMLElement>('.ds-pop'),\n\t})\n\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\tif (changed.has('value')) this.internals.setFormValue(this.value ? iso(this.value) : null)\n\t}\n\t// No native control: a required picker with no day is missing its value, as a required field is.\n\tsyncValidity() {\n\t\tthis.setMissing(this.required && !this.value, 'input', this.renderRoot.querySelector<HTMLElement>('button[data-ds=\"date-picker\"]'))\n\t}\n\tformResetCallback() {\n\t\tthis.value = dateAttr.fromAttribute(this.getAttribute('value'))\n\t}\n\n\tprivate onClick = async (event: MouseEvent | { detail: number }) => {\n\t\tif (this.pop.open) return this.pop.hide(event.detail === 0, event.detail === 0)\n\t\tawait this.pop.show({ keyboard: event.detail === 0 })\n\t\t// The picked day (or today) in the calendar's own shadow root.\n\t\tconst calendar = this.renderRoot.querySelector('.ds-pop')?.firstElementChild as HTMLElement | null\n\t\tawait (calendar as unknown as { updateComplete?: Promise<unknown> })?.updateComplete\n\t\tcalendar?.shadowRoot?.querySelector<HTMLElement>('.ds-day[tabindex=\"0\"]')?.focus({ preventScroll: true })\n\t}\n\tprivate onKey(event: KeyboardEvent) {\n\t\tif (event.key === 'ArrowDown' && !this.pop.open) {\n\t\t\tevent.preventDefault()\n\t\t\tvoid this.onClick({ detail: 0 })\n\t\t}\n\t}\n\tprivate onChange(event: Event) {\n\t\tevent.stopPropagation()\n\t\tthis.commit((event.target as HTMLElement & { value: Date | null }).value)\n\t}\n\t// The calendar's own select stays inside: the picker emits only its value.\n\tprivate picked(event: Event) {\n\t\tevent.stopPropagation()\n\t\tthis.pop.hide(true)\n\t}\n\n\trender() {\n\t\tconst text = this.value?.toLocaleDateString(this.locale, this.format)\n\t\tconst calendar = tag('calendar')\n\t\treturn html`<button\n\t\t\t\tdata-ds=\"date-picker\"\n\t\t\t\ttype=\"button\"\n\t\t\t\tclass=\"flex h-control-md w-full cursor-pointer items-center gap-2 rounded-control border border-edge-strong bg-surface px-3 text-left type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-expanded:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input\"\n\t\t\t\t?disabled=${this.inactive}\n\t\t\t\taria-haspopup=\"dialog\"\n\t\t\t\taria-expanded=${String(this.pop.open)}\n\t\t\t\taria-controls=${ifDefined(this.pop.open ? this.panelId : undefined)}\n\t\t\t\taria-invalid=${ifDefined(this.invalid ? 'true' : undefined)}\n\t\t\t\taria-label=${ifDefined(this.label)}\n\t\t\t\taria-description=${ifDefined(this.description)}\n\t\t\t\t@click=${this.onClick}\n\t\t\t\t@keydown=${this.onKey}\n\t\t\t>${icon(CalendarDays, 'calendar-days', { size: 16, strokeWidth: 1.5, class: 'shrink-0 text-fg-muted', attrs: { 'aria-hidden': 'true' } })}<span class=${text ? 'min-w-0 flex-1 truncate' : 'min-w-0 flex-1 truncate text-fg-muted'}>${text ?? this.placeholder}</span></button>\n\t\t\t${this.pop.rendered\n\t\t\t\t? html`<div data-ds=\"date-picker\" id=${this.panelId} popover=\"manual\" class=\"ds-pop p-3\" role=\"dialog\" aria-label=\"Choose a date\" tabindex=\"-1\" data-side=${this.pop.pos.side} ?data-instant=${this.pop.instant} ?data-placed=${this.pop.pos.placed} style=${this.pop.style()} @focusout=${this.pop.onFocusOut}>${staticHtml`<${calendar} .value=${this.value} .min=${this.min} .max=${this.max} .disabled=${this.disabled} .locale=${this.locale} @input=${(e: Event) => e.stopPropagation()} @change=${this.onChange} @select=${this.picked}></${calendar}>`}</div>`\n\t\t\t\t: nothing}`\n\t}\n}\n\ndefine('date-picker', DatePicker)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/date-picker.js",
+        "elements/calendar.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-date-picker",
+      "tags": [
+        "spyglass-date-picker"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button",
+        "calendar"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-date-picker",
+            "name": "DatePicker",
+            "module": "elements/date-picker.js",
+            "description": "A date in a field, picked from a calendar.",
+            "attributes": [
+              {
+                "name": "value",
+                "field": "value",
+                "type": "Date | null",
+                "default": "null"
+              },
+              {
+                "name": "name",
+                "field": "name",
+                "type": "string | undefined"
+              },
+              {
+                "name": "placeholder",
+                "field": "placeholder",
+                "type": "string",
+                "default": "'Pick a date'"
+              },
+              {
+                "name": "min",
+                "field": "min",
+                "type": "Date | null | undefined"
+              },
+              {
+                "name": "max",
+                "field": "max",
+                "type": "Date | null | undefined"
+              },
+              {
+                "name": "invalid",
+                "field": "invalid",
+                "type": "boolean",
+                "default": "false",
+                "description": "A red edge."
+              },
+              {
+                "name": "required",
+                "field": "required",
+                "type": "boolean",
+                "default": "false",
+                "description": "A day must be picked for its form to send."
+              },
+              {
+                "name": "locale",
+                "field": "locale",
+                "type": "string",
+                "default": "'en-US'"
+              },
+              {
+                "name": "format",
+                "field": "format",
+                "type": "Intl.DateTimeFormatOptions",
+                "default": "{ month: 'short', day: 'numeric', year: 'numeric' }",
+                "description": "How the picked day reads in the field (Intl.DateTimeFormat options)."
+              },
+              {
+                "name": "aria-label",
+                "field": "label",
+                "type": "string | undefined",
+                "description": "The name for assistive tech, passed to the button (a field sets it)."
+              },
+              {
+                "name": "aria-description",
+                "field": "description",
+                "type": "string | undefined",
+                "description": "The hint or error, passed to the button (a field sets it)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "value",
+                "type": "Date | null",
+                "default": "null",
+                "attribute": "value"
+              },
+              {
+                "name": "name",
+                "type": "string | undefined",
+                "attribute": "name"
+              },
+              {
+                "name": "placeholder",
+                "type": "string",
+                "default": "'Pick a date'",
+                "attribute": "placeholder"
+              },
+              {
+                "name": "min",
+                "type": "Date | null | undefined",
+                "attribute": "min"
+              },
+              {
+                "name": "max",
+                "type": "Date | null | undefined",
+                "attribute": "max"
+              },
+              {
+                "name": "disabled",
+                "type": "((day: Date) => boolean) | undefined",
+                "description": "Days that can't be picked (a property: picker.disabled = (d) => d.getDay() === 0)."
+              },
+              {
+                "name": "invalid",
+                "type": "boolean",
+                "default": "false",
+                "description": "A red edge.",
+                "attribute": "invalid"
+              },
+              {
+                "name": "required",
+                "type": "boolean",
+                "default": "false",
+                "description": "A day must be picked for its form to send.",
+                "attribute": "required"
+              },
+              {
+                "name": "locale",
+                "type": "string",
+                "default": "'en-US'",
+                "attribute": "locale"
+              },
+              {
+                "name": "format",
+                "type": "Intl.DateTimeFormatOptions",
+                "default": "{ month: 'short', day: 'numeric', year: 'numeric' }",
+                "description": "How the picked day reads in the field (Intl.DateTimeFormat options).",
+                "attribute": "format"
+              },
+              {
+                "name": "label",
+                "type": "string | undefined",
+                "description": "The name for assistive tech, passed to the button (a field sets it).",
+                "attribute": "aria-label"
+              },
+              {
+                "name": "description",
+                "type": "string | undefined",
+                "description": "The hint or error, passed to the button (a field sets it).",
+                "attribute": "aria-description"
+              }
+            ],
+            "events": [
+              {
+                "name": "input",
+                "description": "A day was picked (read `value`)."
+              },
+              {
+                "name": "change",
+                "description": "A day was picked (read `value`)."
+              }
+            ],
+            "slots": [],
+            "methods": [
+              {
+                "name": "syncValidity"
+              },
+              {
+                "name": "formResetCallback"
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Field",
+          "label": "In a form",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/date-picker/Field.html",
+          "content": "<!-- A report's start date in a form: a label over the field, a hint under it. -->\n<div class=\"flex h-110 w-full max-w-80 flex-col gap-2\">\n  <label for=\"report-start\" class=\"type-label text-fg-muted\">Report starts</label>\n  <spyglass-date-picker id=\"report-start\" aria-label=\"Report starts\" aria-description=\"Creatives running since this day.\"></spyglass-date-picker>\n  <p id=\"report-start-hint\" class=\"type-caption text-fg-muted\">Creatives running since this day.</p>\n</div>\n<script type=\"module\">\n  const picker = document.getElementById('report-start')\n  picker.addEventListener('change', () => {\n    document.getElementById('report-start-hint').textContent = picker.value ? `Creatives running since ${picker.value.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}.` : 'Creatives running since this day.'\n  })\n</script>\n"
+        },
+        {
+          "name": "Picked",
+          "label": "A picked day, later days blocked",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/date-picker/Picked.html",
+          "content": "<!-- A day already picked, read in full; days after today can't be picked. -->\n<div class=\"h-110 w-full max-w-80\">\n  <spyglass-date-picker value=\"2026-11-03\" max=\"2026-11-17\" format='{\"weekday\":\"short\",\"month\":\"long\",\"day\":\"numeric\",\"year\":\"numeric\"}'></spyglass-date-picker>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

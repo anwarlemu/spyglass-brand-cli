@@ -1,0 +1,468 @@
+{
+  "name": "popover",
+  "title": "Popover",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A panel for any content, opened from a button: the card's #171717 fill on Black, a hairline and the brand corner. It grows from its trigger and flips to the side with room.",
+  "use_for": "A short form or a few settings beside the button that opens them: save to a board, a filter with two fields. Focus moves into it; Escape closes it and returns focus.",
+  "never": [
+    "A list of actions: use Dropdown Menu",
+    "Content someone must read to go on: put it on the page",
+    "A shadow or a glow: the fill and the hairline set it apart"
+  ],
+  "source": "Derived from the brand guidelines (no popover in the brand assets): the plan card's #171717 fill and corner, the neutral steps for the hairline",
+  "body": "",
+  "requires": [
+    "button"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Popover.tsx",
+      "content": "'use client'\nimport { useEffect, useId, useImperativeHandle, useRef, type ReactNode, type Ref, type MouseEvent } from 'react'\nimport { buttonClasses } from '@/react/components/ui/Button'\nimport { PopoverPanel } from '@/react/components/ui/PopoverPanel'\nimport { firstFocusable, usePopover, type Align, type Side } from '@/react/hooks/usePopover'\n\n// A panel for any content (a short form, a few settings, a note), opened from a button: the card's #171717 fill on\n// Black with a hairline and the brand corner. The trigger's content is `trigger`, drawn as a small secondary button\n// unless `triggerClass` says otherwise. Opening moves focus to the panel's first control (or the panel); Escape, a\n// press outside or tabbing away closes it, and Escape returns focus to the trigger. It flips to the side with room and\n// stays 8px inside the viewport. children may be a function of `close`. `open` with `onOpenChange` controls it; `ref`\n// gets { close }.\nexport interface PopoverProps {\n  /** The panel's name for assistive tech. */\n  label: string\n  /** The side it opens on (it flips when there is no room). */\n  side?: Side\n  /** Where it lines up with the trigger. */\n  align?: Align\n  /** The panel's width (a CSS length). */\n  width?: string\n  /** Classes for the trigger in place of the small secondary button. */\n  triggerClass?: string\n  /** The trigger's name, when its content is only an icon. */\n  triggerLabel?: string\n  /** The trigger's content, or a function of whether it is open. */\n  trigger?: ReactNode | ((open: boolean) => ReactNode)\n  /** Opens or closes it (with onOpenChange). */\n  open?: boolean\n  onOpenChange?: (open: boolean) => void\n  /** The panel's content, or a function of `close`. */\n  children?: ReactNode | ((close: (refocus?: boolean) => void) => ReactNode)\n  ref?: Ref<{ close: (refocus?: boolean) => void }>\n}\n\nexport function Popover({ label, side = 'bottom', align = 'start', width = '288px', triggerClass, triggerLabel, trigger, open, onOpenChange, children, ref }: PopoverProps) {\n  const pop = usePopover({ side, align, gap: 8 })\n  const id = `popover-${useId()}`\n  const close = (refocus = true) => pop.hide(refocus)\n  useImperativeHandle(ref, () => ({ close }))\n\n  async function show(keyboard = false) {\n    await pop.show({ keyboard })\n    ;(firstFocusable(pop.panel.current) ?? pop.panel.current)?.focus({ preventScroll: true })\n  }\n  useEffect(() => {\n    if (open && !pop.open) void show()\n    if (open === false && pop.open) pop.hide()\n  }, [open]) // eslint-disable-line react-hooks/exhaustive-deps\n  const report = useRef(onOpenChange)\n  report.current = onOpenChange\n  const was = useRef(pop.open)\n  useEffect(() => {\n    if (was.current !== pop.open) report.current?.(pop.open)\n    was.current = pop.open\n  }, [pop.open])\n  // A click from the keyboard has no pointer detail: the panel opens and closes at once.\n  function onClick(event: MouseEvent) {\n    const keyboard = event.detail === 0\n    if (pop.open) pop.hide(keyboard, keyboard)\n    else void show(keyboard)\n  }\n  return (\n    <>\n      <button\n        data-ds=\"popover\"\n        ref={(el) => { pop.anchor.current = el }}\n        type=\"button\"\n        className={triggerClass ?? buttonClasses({ variant: 'secondary', size: 'sm' })}\n        aria-haspopup=\"dialog\"\n        aria-expanded={pop.open}\n        aria-controls={pop.open ? id : undefined}\n        aria-label={triggerLabel}\n        onClick={onClick}\n      >\n        {typeof trigger === 'function' ? trigger(pop.open) : trigger}\n      </button>\n      <PopoverPanel data-ds=\"popover\" id={id} pop={pop} role=\"dialog\" aria-label={label} tabIndex={-1} className=\"p-4\" style={{ width }}>\n        {typeof children === 'function' ? children(close) : children}\n      </PopoverPanel>\n    </>\n  )\n}\n\nexport default Popover\n"
+    },
+    {
+      "path": "react/components/ui/PopoverPanel.tsx",
+      "content": "'use client'\nimport { useEffect, useState, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react'\nimport { createPortal } from 'react-dom'\nimport { Transition } from '@/react/lib/transition'\nimport { cn } from '@/react/lib/cn'\nimport type { PopoverController } from '@/react/hooks/usePopover'\n\n// The floating panel every overlay draws (usePopover places it): portalled to the body, fixed where it fits, the\n// card's #171717 fill on Black with a #363636 hairline and the brand corner, no shadow. It grows from its anchor, 4px\n// and a touch of scale, over 200ms on the strong ease-out, and leaves in 150ms; opened or closed from the keyboard it\n// does neither. `tip` is the tooltip's White fill with Black caption text, 2px over 150ms. Reduced motion keeps the\n// fade. className, style and other props land on the panel.\nexport interface PopoverPanelProps extends HTMLAttributes<HTMLDivElement> { pop: PopoverController, tip?: boolean, children?: ReactNode, 'data-ds'?: string }\n\nexport function PopoverPanel({ pop, tip, className, style, children, ...rest }: PopoverPanelProps) {\n  // Portalled after mount, so the server's render and the first client render agree.\n  const [mounted, setMounted] = useState(false)\n  useEffect(() => setMounted(true), [])\n  const target = mounted ? pop.target ?? document.body : null\n  if (!target) return <style href=\"ds-popover-panel\" precedence=\"ds\">{css}</style>\n  const placed: CSSProperties = { left: `${pop.pos.x}px`, top: `${pop.pos.y}px`, transformOrigin: pop.pos.origin, minWidth: pop.pos.minWidth ? `${pop.pos.minWidth}px` : undefined }\n  return (\n    <>\n      <style href=\"ds-popover-panel\" precedence=\"ds\">{css}</style>\n      {createPortal(\n        <Transition show={pop.open} name=\"ds-pop\" css={!pop.instant}>\n          <div\n            data-ds=\"popover-panel\"\n            {...rest}\n            ref={(el) => { pop.panel.current = el }}\n            className={cn('ds-pop', className)}\n            data-tip={tip || undefined}\n            data-side={pop.pos.side}\n            data-instant={pop.instant || undefined}\n            data-placed={pop.pos.placed || undefined}\n            style={{ ...style, ...placed }}\n            onBlur={pop.onFocusOut}\n          >\n            {children}\n          </div>\n        </Transition>,\n        target,\n      )}\n    </>\n  )\n}\n\nexport default PopoverPanel\n\nconst css = `\n.ds-pop { position: fixed; z-index: 60; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); overflow: auto; overscroll-behavior: contain; border: var(--ds-border-hairline) solid var(--ds-color-edge-strong); border-radius: var(--ds-radius-container); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); text-align: left; outline: none; }\n.ds-pop:not([data-placed]) { visibility: hidden; }\n.ds-pop[data-tip] { z-index: 70; overflow: visible; padding: var(--ds-space-xs) var(--ds-space-sm); border-color: var(--ds-color-surface-inverse); border-radius: var(--ds-radius-sm); background: var(--ds-color-surface-inverse); color: var(--ds-color-fg-inverse); font-size: var(--ds-text-caption); line-height: var(--ds-text-caption-leading); white-space: nowrap; pointer-events: none; }\n.ds-pop-enter-active { transition: opacity var(--ds-duration-enter) var(--ds-easing-out), transform var(--ds-duration-enter) var(--ds-easing-out); }\n.ds-pop-leave-active { transition: opacity var(--ds-duration-exit) var(--ds-easing-out), transform var(--ds-duration-exit) var(--ds-easing-out); }\n.ds-pop-enter-from, .ds-pop-leave-to { opacity: 0; }\n.ds-pop-enter-from[data-side=\"bottom\"], .ds-pop-leave-to[data-side=\"bottom\"] { transform: translateY(-4px) scale(0.98); }\n.ds-pop-enter-from[data-side=\"top\"], .ds-pop-leave-to[data-side=\"top\"] { transform: translateY(4px) scale(0.98); }\n.ds-pop-enter-from[data-side=\"right\"], .ds-pop-leave-to[data-side=\"right\"] { transform: translateX(-4px) scale(0.98); }\n.ds-pop-enter-from[data-side=\"left\"], .ds-pop-leave-to[data-side=\"left\"] { transform: translateX(4px) scale(0.98); }\n.ds-pop[data-tip].ds-pop-enter-active, .ds-pop[data-tip].ds-pop-leave-active { transition: opacity var(--ds-duration-micro) var(--ds-easing-out), transform var(--ds-duration-micro) var(--ds-easing-out); }\n.ds-pop[data-tip].ds-pop-enter-from[data-side=\"bottom\"], .ds-pop[data-tip].ds-pop-leave-to[data-side=\"bottom\"] { transform: translateY(-2px); }\n.ds-pop[data-tip].ds-pop-enter-from[data-side=\"top\"], .ds-pop[data-tip].ds-pop-leave-to[data-side=\"top\"] { transform: translateY(2px); }\n.ds-pop[data-tip].ds-pop-enter-from[data-side=\"right\"], .ds-pop[data-tip].ds-pop-leave-to[data-side=\"right\"] { transform: translateX(-2px); }\n.ds-pop[data-tip].ds-pop-enter-from[data-side=\"left\"], .ds-pop[data-tip].ds-pop-leave-to[data-side=\"left\"] { transform: translateX(2px); }\n.ds-pop[data-instant].ds-pop-enter-active, .ds-pop[data-instant].ds-pop-leave-active { transition: none; }\n@media (prefers-reduced-motion: reduce) {\n  .ds-pop.ds-pop-enter-from, .ds-pop.ds-pop-leave-to { transform: none; }\n}\n`\n"
+    },
+    {
+      "path": "react/hooks/usePopover.ts",
+      "content": "'use client'\nimport { useCallback, useEffect, useMemo, useRef, useState, type FocusEvent } from 'react'\n\n/**\n * A floating panel's behavior, shared by Popover, Tooltip, HoverCard, ContextMenu, Menubar, DatePicker and the\n * listboxes: where it sits (beside its anchor or at a point, flipping to the side with room and kept 8px inside the\n * viewport), where it grows from (its anchor), and how it leaves (a press outside, Escape, focus moving away). Escape\n * closes only the topmost open panel and returns focus to what opened it. PopoverPanel draws the panel.\n */\nexport type Side = 'top' | 'right' | 'bottom' | 'left'\nexport type Align = 'start' | 'center' | 'end'\nexport interface PopoverOptions {\n  side?: Side\n  align?: Align\n  /** Space between the anchor and the panel (4px, as Menu's panel). */\n  gap?: number\n  /** The panel at least as wide as its anchor (selects, the date field). */\n  matchWidth?: boolean\n  /** A press outside, or focus leaving, keeps it open (a tooltip closes itself). */\n  sticky?: boolean\n}\ninterface Box { left: number, top: number, right: number, bottom: number, width: number, height: number }\n\nconst MARGIN = 8\nconst OPPOSITE: Record<Side, Side> = { top: 'bottom', bottom: 'top', left: 'right', right: 'left' }\nconst clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(n, hi))\n\n/** Where a w by h panel goes beside `a` in a vw by vh viewport: the side asked for, or its opposite when only that fits. */\nexport function place(a: Box, w: number, h: number, vw: number, vh: number, side: Side, align: Align, gap: number) {\n  const room: Record<Side, number> = { top: a.top - MARGIN, bottom: vh - a.bottom - MARGIN, left: a.left - MARGIN, right: vw - a.right - MARGIN }\n  const need = (side === 'top' || side === 'bottom' ? h : w) + gap\n  const s = room[side] < need && room[OPPOSITE[side]] > room[side] ? OPPOSITE[side] : side\n  let x: number\n  let y: number\n  if (s === 'top' || s === 'bottom') {\n    y = s === 'bottom' ? a.bottom + gap : a.top - gap - h\n    x = align === 'start' ? a.left : align === 'end' ? a.right - w : a.left + a.width / 2 - w / 2\n  }\n  else {\n    x = s === 'right' ? a.right + gap : a.left - gap - w\n    y = align === 'start' ? a.top : align === 'end' ? a.bottom - h : a.top + a.height / 2 - h / 2\n  }\n  x = Math.max(MARGIN, Math.min(x, vw - w - MARGIN))\n  y = Math.max(MARGIN, Math.min(y, vh - h - MARGIN))\n  // It grows from the anchor: the edge facing it, at the anchor's middle.\n  const ox = s === 'left' ? w : s === 'right' ? 0 : clamp(a.left + a.width / 2 - x, 0, w)\n  const oy = s === 'top' ? h : s === 'bottom' ? 0 : clamp(a.top + a.height / 2 - y, 0, h)\n  return { x: Math.round(x), y: Math.round(y), side: s, origin: `${Math.round(ox)}px ${Math.round(oy)}px` }\n}\n\n// Open panels, the newest last: Escape belongs to the last.\nconst stack: object[] = []\n\nexport interface PopoverPosition { x: number, y: number, side: Side, origin: string, minWidth: number, placed: boolean }\n\nexport function usePopover(options: PopoverOptions = {}) {\n  const [open, setOpen] = useState(false)\n  const anchor = useRef<HTMLElement | null>(null)\n  const panel = useRef<HTMLElement | null>(null)\n  /** Opened from the keyboard (or closed by it): no animation. */\n  const [instant, setInstant] = useState(false)\n  /** Where the panel is portalled: the body, or the open modal dialog its anchor sits in (outside one is inert). */\n  const [target, setTarget] = useState<HTMLElement | null>(null)\n  const [pos, setPos] = useState<PopoverPosition>({ x: 0, y: 0, side: options.side ?? 'bottom', origin: '0px 0px', minWidth: 0, placed: false })\n  const me = useMemo(() => ({}), [])\n  const point = useRef<{ x: number, y: number } | null>(null)\n  const returnTo = useRef<HTMLElement | null>(null)\n  const frame = useRef(0)\n  const opts = useRef(options)\n  opts.current = options\n  const resolveShown = useRef<(() => void) | null>(null)\n  const openRef = useRef(open)\n  openRef.current = open\n\n  const update = useCallback(() => {\n    const el = panel.current\n    const p = point.current\n    const a = p ? { left: p.x, top: p.y, right: p.x, bottom: p.y, width: 0, height: 0 } : anchor.current?.getBoundingClientRect()\n    if (!el || !a) return\n    const o = opts.current\n    const minWidth = o.matchWidth && !p ? a.width : 0\n    const w = Math.max(el.offsetWidth, minWidth)\n    const placed = place(a, w, el.offsetHeight, document.documentElement.clientWidth, window.innerHeight, o.side ?? 'bottom', o.align ?? 'start', o.gap ?? 4)\n    setPos({ ...placed, minWidth, placed: true })\n  }, [])\n  const schedule = useCallback(() => {\n    cancelAnimationFrame(frame.current)\n    frame.current = requestAnimationFrame(update)\n  }, [update])\n\n  /** Opens it; `at` puts it at a point (a context menu), `keyboard` skips the animation. It resolves once the panel is\n   * placed and visible, so focus can move into it. */\n  const show = useCallback((how: { keyboard?: boolean, at?: { x: number, y: number } } = {}) => {\n    returnTo.current = document.activeElement instanceof HTMLElement ? document.activeElement : null\n    point.current = how.at ?? null\n    setInstant(!!how.keyboard)\n    setTarget((anchor.current?.closest('dialog[open]') as HTMLElement | null) ?? document.body)\n    setPos(p => ({ ...p, placed: false }))\n    setOpen(true)\n    return new Promise<void>((resolve) => { resolveShown.current = resolve })\n  }, [])\n  /** Closes it; `refocus` returns focus to what opened it, `keyboard` closes at once. */\n  const hide = useCallback((refocus = false, keyboard = false) => {\n    if (!openRef.current) return\n    setInstant(keyboard)\n    setOpen(false)\n    if (refocus) (point.current ? returnTo.current : anchor.current ?? returnTo.current)?.focus({ preventScroll: true })\n  }, [])\n  const toggle = useCallback((how: { keyboard?: boolean } = {}) => {\n    if (openRef.current) hide(how.keyboard, how.keyboard)\n    else void show(how)\n  }, [hide, show])\n\n  // Once the panel is in the page: place it, then let show() resolve after the placed render.\n  useEffect(() => {\n    if (!open) return\n    if (!pos.placed) update()\n    else if (resolveShown.current) {\n      resolveShown.current()\n      resolveShown.current = null\n    }\n  }, [open, pos.placed, update])\n\n  useEffect(() => {\n    if (!open) return\n    stack.push(me)\n    function onPointerDown(event: PointerEvent) {\n      const t = event.target as Node\n      if (panel.current?.contains(t) || anchor.current?.contains(t)) return\n      hide()\n    }\n    function onKey(event: KeyboardEvent) {\n      if (event.key !== 'Escape' || stack.at(-1) !== me) return\n      // A dialog under the panel would take Escape too: it is the panel's.\n      event.preventDefault()\n      event.stopPropagation()\n      hide(true, true)\n    }\n    if (!opts.current.sticky) document.addEventListener('pointerdown', onPointerDown, true)\n    document.addEventListener('keydown', onKey, true)\n    window.addEventListener('scroll', schedule, true)\n    window.addEventListener('resize', schedule)\n    const ro = new ResizeObserver(schedule)\n    if (panel.current) ro.observe(panel.current)\n    return () => {\n      const i = stack.indexOf(me)\n      if (i >= 0) stack.splice(i, 1)\n      document.removeEventListener('pointerdown', onPointerDown, true)\n      document.removeEventListener('keydown', onKey, true)\n      window.removeEventListener('scroll', schedule, true)\n      window.removeEventListener('resize', schedule)\n      cancelAnimationFrame(frame.current)\n      ro.disconnect()\n    }\n  }, [open, hide, schedule, me])\n\n  /** Focus moving to somewhere outside the panel and its anchor closes it (Tab out of a popover). */\n  const onFocusOut = useCallback((event: FocusEvent) => {\n    const next = event.relatedTarget as Node | null\n    if (opts.current.sticky || !next || panel.current?.contains(next) || anchor.current?.contains(next)) return\n    hide()\n  }, [hide])\n\n  return { open, anchor, panel, instant, target, pos, show, hide, toggle, update, onFocusOut }\n}\nexport type PopoverController = ReturnType<typeof usePopover>\n\n/** Arrow, Home and End keys over a panel's menu rows; Tab closes. For menus drawn in a PopoverPanel. */\nexport function onMenuRows(event: KeyboardEvent | React.KeyboardEvent, panel: HTMLElement | null, close: (refocus: boolean) => void) {\n  const rows = [...(panel?.querySelectorAll<HTMLElement>('[role^=\"menuitem\"]:not([disabled]), [role=\"option\"]:not([aria-disabled=\"true\"])') ?? [])]\n  const at = rows.indexOf(document.activeElement as HTMLElement)\n  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {\n    event.preventDefault()\n    const step = event.key === 'ArrowDown' ? 1 : -1\n    rows[(at + step + rows.length) % rows.length]?.focus()\n  }\n  else if (event.key === 'Home' || event.key === 'End') {\n    event.preventDefault()\n    ;(event.key === 'Home' ? rows[0] : rows.at(-1))?.focus()\n  }\n  else if (event.key === 'Tab') close(false)\n}\n\n/** The first thing in `root` that takes focus. */\nexport function firstFocusable(root: HTMLElement | null) {\n  return root?.querySelector<HTMLElement>('button:not(:disabled), [href], input:not(:disabled):not([type=\"hidden\"]), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex=\"-1\"])') ?? null\n}\n"
+    },
+    {
+      "path": "react/lib/transition.tsx",
+      "content": "'use client'\nimport { Children, cloneElement, isValidElement, useLayoutEffect, useRef, useState, type ReactElement, type ReactNode, type Ref } from 'react'\nimport { flushSync } from 'react-dom'\n\n// Vue's <Transition> and <TransitionGroup> for the React flavor, with the same class names, so a Vue item's CSS\n// (.ds-pop-enter-from, .ds-toast-leave-active, .ds-toast-move...) works unchanged:\n//\n//   <Transition show={open} name=\"ds-pop\">{<div ... />}</Transition>\n//   <TransitionGroup name=\"ds-toast\">{toasts.map((t) => <p key={t.id} ... />)}</TransitionGroup>\n//\n// Entering: <name>-enter-from and -enter-active, then a frame later -enter-to in place of -enter-from, until the\n// transition ends. Leaving: the same with -leave-*, and the element stays until it has, then goes in the same task its\n// classes come off (flushSync), so it never shows again for a frame. A group also moves the others with <name>-move\n// (FLIP), measured once the entering and leaving children have their classes, as Vue's are. `css={false}` skips the classes (Vue's :css=\"false\"); `duration` is Vue's explicit duration\n// in ms, a number or { enter, leave }. The child must take a ref (a DOM element) and className.\ntype Duration = number | { enter: number, leave: number }\ntype Phase = 'enter' | 'leave'\n\nconst ms = (d: Duration | undefined, phase: Phase) => (d === undefined ? undefined : typeof d === 'number' ? d : d[phase])\n\n/** Runs one Vue transition phase on an element and resolves when it has ended. */\nexport function runTransition(el: HTMLElement, name: string, phase: Phase, duration?: Duration): Promise<void> {\n  const from = `${name}-${phase}-from`\n  const active = `${name}-${phase}-active`\n  const to = `${name}-${phase}-to`\n  el.classList.add(from, active)\n  return new Promise((resolve) => {\n    let done = false\n    const finish = () => {\n      if (done) return\n      done = true\n      el.classList.remove(from, active, to)\n      el.removeEventListener('transitionend', onEnd)\n      el.removeEventListener('animationend', onEnd)\n      resolve()\n    }\n    const onEnd = (event: Event) => { if (event.target === el) finish() }\n    requestAnimationFrame(() => requestAnimationFrame(() => {\n      el.classList.remove(from)\n      el.classList.add(to)\n      const explicit = ms(duration, phase)\n      if (explicit !== undefined) return void setTimeout(finish, explicit)\n      // The longest transition or animation on it, as Vue reads it; none means done now.\n      const cs = getComputedStyle(el)\n      const longest = (durations: string, delays: string) => {\n        const d = durations.split(',').map(s => Number.parseFloat(s) * (s.trim().endsWith('ms') ? 1 : 1000))\n        const l = delays.split(',').map(s => Number.parseFloat(s) * (s.trim().endsWith('ms') ? 1 : 1000))\n        return Math.max(0, ...d.map((x, i) => x + (l[i % l.length] || 0)))\n      }\n      const total = Math.max(longest(cs.transitionDuration, cs.transitionDelay), longest(cs.animationDuration, cs.animationDelay))\n      if (!total) return finish()\n      el.addEventListener('transitionend', onEnd)\n      el.addEventListener('animationend', onEnd)\n      setTimeout(finish, total + 50)\n    }))\n  })\n}\n\nfunction mergeRefs<T>(...refs: Array<Ref<T> | undefined>) {\n  return (node: T) => {\n    for (const r of refs) {\n      if (typeof r === 'function') r(node)\n      else if (r) (r as { current: T }).current = node\n    }\n  }\n}\ntype Child = ReactElement<{ ref?: Ref<HTMLElement>, className?: string }>\n\nexport interface TransitionProps { show: boolean, name: string, css?: boolean, duration?: Duration, appear?: boolean, children: ReactNode }\n\n/** Vue's <Transition> around one element: it enters when `show` turns true and leaves before it unmounts. */\nexport function Transition({ show, name, css = true, duration, appear, children }: TransitionProps) {\n  // Whether the element is in the page: from the render where `show` turns true until its leave has ended.\n  const [present, setPresent] = useState(show)\n  const el = useRef<HTMLElement | null>(null)\n  const was = useRef<boolean | null>(null)\n  const last = useRef<ReactNode>(children)\n  if (show) last.current = children\n  if (show && !present) setPresent(true)\n  useLayoutEffect(() => {\n    const before = was.current\n    was.current = show\n    const node = el.current\n    if (before === show) return\n    if (show) {\n      if (node && css && (before !== null || appear)) void runTransition(node, name, 'enter', duration)\n    }\n    // Gone in the same task its leave classes come off, as Vue removes it, so no frame shows it whole again.\n    else if (node && css && before) void runTransition(node, name, 'leave', duration).then(() => { if (!was.current) flushSync(() => setPresent(false)) })\n    else setPresent(false)\n  }, [show]) // eslint-disable-line react-hooks/exhaustive-deps\n  const child = (show ? children : last.current) as Child\n  if (!(show || present) || !isValidElement(child)) return null\n  return cloneElement(child, { ref: mergeRefs(child.props.ref, (n: HTMLElement | null) => { el.current = n }) })\n}\n\nexport interface TransitionGroupProps { name: string, children: ReactNode }\n\n/** Vue's <TransitionGroup>: keyed children enter and leave as <Transition> does, and the rest move with <name>-move. */\nexport function TransitionGroup({ name, children }: TransitionGroupProps) {\n  const nodes = useRef(new Map<string, HTMLElement>())\n  const rects = useRef(new Map<string, DOMRect>())\n  const seen = useRef(new Set<string>())\n  const firstRender = useRef(true)\n  const current = Children.toArray(children).filter(isValidElement) as Child[]\n  const [leaving, setLeaving] = useState<Map<string, { child: Child, index: number }>>(new Map())\n  const prev = useRef<Child[]>([])\n\n  // Children that went away stay, leaving, where they were.\n  const keys = new Set(current.map(c => c.key!))\n  const gone = prev.current.filter(c => !keys.has(c.key!) && !leaving.has(c.key!))\n  if (gone.length) {\n    const next = new Map(leaving)\n    for (const c of gone) next.set(c.key!, { child: c, index: prev.current.indexOf(c) })\n    setLeaving(next)\n  }\n  prev.current = current\n  const list = [...current]\n  for (const [key, { child, index }] of leaving) if (!keys.has(key)) list.splice(Math.min(index, list.length), 0, child)\n\n  // Before the DOM changes: where every child is now (for the move).\n  for (const [key, node] of nodes.current) rects.current.set(key, node.getBoundingClientRect())\n\n  useLayoutEffect(() => {\n    // First every entering and leaving child takes its classes, so the measures for the move below see each as Vue does\n    // (an entering one at its enter-from, a leaving one out of the flow): measuring first would fix an entering child's\n    // style as it is, fully shown, and its transition would start from the end.\n    const entered = new Set<string>()\n    for (const c of list) {\n      const key = c.key!\n      const node = nodes.current.get(key)\n      if (!node) continue\n      if (leaving.has(key)) {\n        if (!node.classList.contains(`${name}-leave-active`)) {\n          // Gone in the same task its leave classes come off, so no frame shows it whole again.\n          void runTransition(node, name, 'leave').then(() => flushSync(() => setLeaving((m) => {\n            const n = new Map(m)\n            n.delete(key)\n            return n\n          })))\n        }\n        continue\n      }\n      if (!seen.current.has(key)) {\n        seen.current.add(key)\n        entered.add(key)\n        if (!firstRender.current) void runTransition(node, name, 'enter')\n      }\n    }\n    // Then the move: from where each stayed child was to where it is.\n    for (const c of list) {\n      const key = c.key!\n      const node = nodes.current.get(key)\n      if (!node || leaving.has(key) || entered.has(key)) continue\n      const before = rects.current.get(key)\n      if (!before) continue\n      const after = node.getBoundingClientRect()\n      if (before.left !== after.left || before.top !== after.top) {\n        node.style.transitionDuration = '0s'\n        node.style.transform = `translate(${before.left - after.left}px, ${before.top - after.top}px)`\n        void node.offsetWidth\n        node.classList.add(`${name}-move`)\n        node.style.transitionDuration = ''\n        node.style.transform = ''\n        const end = () => {\n          node.classList.remove(`${name}-move`)\n          node.removeEventListener('transitionend', end)\n        }\n        node.addEventListener('transitionend', end)\n      }\n    }\n    firstRender.current = false\n    for (const key of [...seen.current]) if (!list.some(c => c.key === key)) seen.current.delete(key)\n  })\n\n  return (\n    <>\n      {list.map(c => cloneElement(c, {\n        key: c.key,\n        ref: mergeRefs(c.props.ref, (n: HTMLElement | null) => {\n          if (n) nodes.current.set(c.key!, n)\n          else nodes.current.delete(c.key!)\n        }),\n      }))}\n    </>\n  )\n}\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Board",
+      "label": "Save to a board",
+      "center": true,
+      "half": false,
+      "path": "react/examples/popover/Board.tsx",
+      "content": "'use client'\nimport { Button } from '@/react/components/ui/Button'\nimport { Input } from '@/react/components/ui/Input'\nimport { Popover } from '@/react/components/ui/Popover'\n// Save a search to a board: a short form in a panel, opened from a button.\n\nexport default function Board() {\n  return (\n    <Popover label=\"Save to a board\" trigger=\"Save to board\">\n      {(close) => (\n        <form className=\"flex flex-col gap-4\" onSubmit={(event) => { event.preventDefault(); close() }}>\n          <div className=\"flex flex-col gap-1\">\n            <p className=\"type-ui-strong text-fg\">Save to a board</p>\n            <p className=\"type-caption text-fg-muted\">Keep the creatives from this search in one place.</p>\n          </div>\n          <div className=\"flex flex-col gap-2\">\n            <label htmlFor=\"popover-board\" className=\"type-label text-fg-soft\">Board name</label>\n            <Input id=\"popover-board\" name=\"board\" size=\"sm\" defaultValue=\"Acme hooks\" />\n          </div>\n          <div className=\"flex justify-end gap-2\">\n            <Button variant=\"ghost\" size=\"sm\" onClick={() => close()}>Cancel</Button>\n            <Button type=\"submit\" size=\"sm\">Save</Button>\n          </div>\n        </form>\n      )}\n    </Popover>\n  )\n}\n",
+      "requires": [
+        "button",
+        "input"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Popover.tsx",
+          "content": "'use client'\nimport { useEffect, useId, useImperativeHandle, useRef, type ReactNode, type Ref, type MouseEvent } from 'react'\nimport { buttonClasses } from '@/react/components/ui/Button'\nimport { PopoverPanel } from '@/react/components/ui/PopoverPanel'\nimport { firstFocusable, usePopover, type Align, type Side } from '@/react/hooks/usePopover'\n\n// A panel for any content (a short form, a few settings, a note), opened from a button: the card's #171717 fill on\n// Black with a hairline and the brand corner. The trigger's content is `trigger`, drawn as a small secondary button\n// unless `triggerClass` says otherwise. Opening moves focus to the panel's first control (or the panel); Escape, a\n// press outside or tabbing away closes it, and Escape returns focus to the trigger. It flips to the side with room and\n// stays 8px inside the viewport. children may be a function of `close`. `open` with `onOpenChange` controls it; `ref`\n// gets { close }.\nexport interface PopoverProps {\n  /** The panel's name for assistive tech. */\n  label: string\n  /** The side it opens on (it flips when there is no room). */\n  side?: Side\n  /** Where it lines up with the trigger. */\n  align?: Align\n  /** The panel's width (a CSS length). */\n  width?: string\n  /** Classes for the trigger in place of the small secondary button. */\n  triggerClass?: string\n  /** The trigger's name, when its content is only an icon. */\n  triggerLabel?: string\n  /** The trigger's content, or a function of whether it is open. */\n  trigger?: ReactNode | ((open: boolean) => ReactNode)\n  /** Opens or closes it (with onOpenChange). */\n  open?: boolean\n  onOpenChange?: (open: boolean) => void\n  /** The panel's content, or a function of `close`. */\n  children?: ReactNode | ((close: (refocus?: boolean) => void) => ReactNode)\n  ref?: Ref<{ close: (refocus?: boolean) => void }>\n}\n\nexport function Popover({ label, side = 'bottom', align = 'start', width = '288px', triggerClass, triggerLabel, trigger, open, onOpenChange, children, ref }: PopoverProps) {\n  const pop = usePopover({ side, align, gap: 8 })\n  const id = `popover-${useId()}`\n  const close = (refocus = true) => pop.hide(refocus)\n  useImperativeHandle(ref, () => ({ close }))\n\n  async function show(keyboard = false) {\n    await pop.show({ keyboard })\n    ;(firstFocusable(pop.panel.current) ?? pop.panel.current)?.focus({ preventScroll: true })\n  }\n  useEffect(() => {\n    if (open && !pop.open) void show()\n    if (open === false && pop.open) pop.hide()\n  }, [open]) // eslint-disable-line react-hooks/exhaustive-deps\n  const report = useRef(onOpenChange)\n  report.current = onOpenChange\n  const was = useRef(pop.open)\n  useEffect(() => {\n    if (was.current !== pop.open) report.current?.(pop.open)\n    was.current = pop.open\n  }, [pop.open])\n  // A click from the keyboard has no pointer detail: the panel opens and closes at once.\n  function onClick(event: MouseEvent) {\n    const keyboard = event.detail === 0\n    if (pop.open) pop.hide(keyboard, keyboard)\n    else void show(keyboard)\n  }\n  return (\n    <>\n      <button\n        data-ds=\"popover\"\n        ref={(el) => { pop.anchor.current = el }}\n        type=\"button\"\n        className={triggerClass ?? buttonClasses({ variant: 'secondary', size: 'sm' })}\n        aria-haspopup=\"dialog\"\n        aria-expanded={pop.open}\n        aria-controls={pop.open ? id : undefined}\n        aria-label={triggerLabel}\n        onClick={onClick}\n      >\n        {typeof trigger === 'function' ? trigger(pop.open) : trigger}\n      </button>\n      <PopoverPanel data-ds=\"popover\" id={id} pop={pop} role=\"dialog\" aria-label={label} tabIndex={-1} className=\"p-4\" style={{ width }}>\n        {typeof children === 'function' ? children(close) : children}\n      </PopoverPanel>\n    </>\n  )\n}\n\nexport default Popover\n"
+        },
+        {
+          "path": "react/components/ui/PopoverPanel.tsx",
+          "content": "'use client'\nimport { useEffect, useState, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react'\nimport { createPortal } from 'react-dom'\nimport { Transition } from '@/react/lib/transition'\nimport { cn } from '@/react/lib/cn'\nimport type { PopoverController } from '@/react/hooks/usePopover'\n\n// The floating panel every overlay draws (usePopover places it): portalled to the body, fixed where it fits, the\n// card's #171717 fill on Black with a #363636 hairline and the brand corner, no shadow. It grows from its anchor, 4px\n// and a touch of scale, over 200ms on the strong ease-out, and leaves in 150ms; opened or closed from the keyboard it\n// does neither. `tip` is the tooltip's White fill with Black caption text, 2px over 150ms. Reduced motion keeps the\n// fade. className, style and other props land on the panel.\nexport interface PopoverPanelProps extends HTMLAttributes<HTMLDivElement> { pop: PopoverController, tip?: boolean, children?: ReactNode, 'data-ds'?: string }\n\nexport function PopoverPanel({ pop, tip, className, style, children, ...rest }: PopoverPanelProps) {\n  // Portalled after mount, so the server's render and the first client render agree.\n  const [mounted, setMounted] = useState(false)\n  useEffect(() => setMounted(true), [])\n  const target = mounted ? pop.target ?? document.body : null\n  if (!target) return <style href=\"ds-popover-panel\" precedence=\"ds\">{css}</style>\n  const placed: CSSProperties = { left: `${pop.pos.x}px`, top: `${pop.pos.y}px`, transformOrigin: pop.pos.origin, minWidth: pop.pos.minWidth ? `${pop.pos.minWidth}px` : undefined }\n  return (\n    <>\n      <style href=\"ds-popover-panel\" precedence=\"ds\">{css}</style>\n      {createPortal(\n        <Transition show={pop.open} name=\"ds-pop\" css={!pop.instant}>\n          <div\n            data-ds=\"popover-panel\"\n            {...rest}\n            ref={(el) => { pop.panel.current = el }}\n            className={cn('ds-pop', className)}\n            data-tip={tip || undefined}\n            data-side={pop.pos.side}\n            data-instant={pop.instant || undefined}\n            data-placed={pop.pos.placed || undefined}\n            style={{ ...style, ...placed }}\n            onBlur={pop.onFocusOut}\n          >\n            {children}\n          </div>\n        </Transition>,\n        target,\n      )}\n    </>\n  )\n}\n\nexport default PopoverPanel\n\nconst css = `\n.ds-pop { position: fixed; z-index: 60; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); overflow: auto; overscroll-behavior: contain; border: var(--ds-border-hairline) solid var(--ds-color-edge-strong); border-radius: var(--ds-radius-container); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); text-align: left; outline: none; }\n.ds-pop:not([data-placed]) { visibility: hidden; }\n.ds-pop[data-tip] { z-index: 70; overflow: visible; padding: var(--ds-space-xs) var(--ds-space-sm); border-color: var(--ds-color-surface-inverse); border-radius: var(--ds-radius-sm); background: var(--ds-color-surface-inverse); color: var(--ds-color-fg-inverse); font-size: var(--ds-text-caption); line-height: var(--ds-text-caption-leading); white-space: nowrap; pointer-events: none; }\n.ds-pop-enter-active { transition: opacity var(--ds-duration-enter) var(--ds-easing-out), transform var(--ds-duration-enter) var(--ds-easing-out); }\n.ds-pop-leave-active { transition: opacity var(--ds-duration-exit) var(--ds-easing-out), transform var(--ds-duration-exit) var(--ds-easing-out); }\n.ds-pop-enter-from, .ds-pop-leave-to { opacity: 0; }\n.ds-pop-enter-from[data-side=\"bottom\"], .ds-pop-leave-to[data-side=\"bottom\"] { transform: translateY(-4px) scale(0.98); }\n.ds-pop-enter-from[data-side=\"top\"], .ds-pop-leave-to[data-side=\"top\"] { transform: translateY(4px) scale(0.98); }\n.ds-pop-enter-from[data-side=\"right\"], .ds-pop-leave-to[data-side=\"right\"] { transform: translateX(-4px) scale(0.98); }\n.ds-pop-enter-from[data-side=\"left\"], .ds-pop-leave-to[data-side=\"left\"] { transform: translateX(4px) scale(0.98); }\n.ds-pop[data-tip].ds-pop-enter-active, .ds-pop[data-tip].ds-pop-leave-active { transition: opacity var(--ds-duration-micro) var(--ds-easing-out), transform var(--ds-duration-micro) var(--ds-easing-out); }\n.ds-pop[data-tip].ds-pop-enter-from[data-side=\"bottom\"], .ds-pop[data-tip].ds-pop-leave-to[data-side=\"bottom\"] { transform: translateY(-2px); }\n.ds-pop[data-tip].ds-pop-enter-from[data-side=\"top\"], .ds-pop[data-tip].ds-pop-leave-to[data-side=\"top\"] { transform: translateY(2px); }\n.ds-pop[data-tip].ds-pop-enter-from[data-side=\"right\"], .ds-pop[data-tip].ds-pop-leave-to[data-side=\"right\"] { transform: translateX(-2px); }\n.ds-pop[data-tip].ds-pop-enter-from[data-side=\"left\"], .ds-pop[data-tip].ds-pop-leave-to[data-side=\"left\"] { transform: translateX(2px); }\n.ds-pop[data-instant].ds-pop-enter-active, .ds-pop[data-instant].ds-pop-leave-active { transition: none; }\n@media (prefers-reduced-motion: reduce) {\n  .ds-pop.ds-pop-enter-from, .ds-pop.ds-pop-leave-to { transform: none; }\n}\n`\n"
+        },
+        {
+          "path": "react/hooks/usePopover.ts",
+          "content": "'use client'\nimport { useCallback, useEffect, useMemo, useRef, useState, type FocusEvent } from 'react'\n\n/**\n * A floating panel's behavior, shared by Popover, Tooltip, HoverCard, ContextMenu, Menubar, DatePicker and the\n * listboxes: where it sits (beside its anchor or at a point, flipping to the side with room and kept 8px inside the\n * viewport), where it grows from (its anchor), and how it leaves (a press outside, Escape, focus moving away). Escape\n * closes only the topmost open panel and returns focus to what opened it. PopoverPanel draws the panel.\n */\nexport type Side = 'top' | 'right' | 'bottom' | 'left'\nexport type Align = 'start' | 'center' | 'end'\nexport interface PopoverOptions {\n  side?: Side\n  align?: Align\n  /** Space between the anchor and the panel (4px, as Menu's panel). */\n  gap?: number\n  /** The panel at least as wide as its anchor (selects, the date field). */\n  matchWidth?: boolean\n  /** A press outside, or focus leaving, keeps it open (a tooltip closes itself). */\n  sticky?: boolean\n}\ninterface Box { left: number, top: number, right: number, bottom: number, width: number, height: number }\n\nconst MARGIN = 8\nconst OPPOSITE: Record<Side, Side> = { top: 'bottom', bottom: 'top', left: 'right', right: 'left' }\nconst clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(n, hi))\n\n/** Where a w by h panel goes beside `a` in a vw by vh viewport: the side asked for, or its opposite when only that fits. */\nexport function place(a: Box, w: number, h: number, vw: number, vh: number, side: Side, align: Align, gap: number) {\n  const room: Record<Side, number> = { top: a.top - MARGIN, bottom: vh - a.bottom - MARGIN, left: a.left - MARGIN, right: vw - a.right - MARGIN }\n  const need = (side === 'top' || side === 'bottom' ? h : w) + gap\n  const s = room[side] < need && room[OPPOSITE[side]] > room[side] ? OPPOSITE[side] : side\n  let x: number\n  let y: number\n  if (s === 'top' || s === 'bottom') {\n    y = s === 'bottom' ? a.bottom + gap : a.top - gap - h\n    x = align === 'start' ? a.left : align === 'end' ? a.right - w : a.left + a.width / 2 - w / 2\n  }\n  else {\n    x = s === 'right' ? a.right + gap : a.left - gap - w\n    y = align === 'start' ? a.top : align === 'end' ? a.bottom - h : a.top + a.height / 2 - h / 2\n  }\n  x = Math.max(MARGIN, Math.min(x, vw - w - MARGIN))\n  y = Math.max(MARGIN, Math.min(y, vh - h - MARGIN))\n  // It grows from the anchor: the edge facing it, at the anchor's middle.\n  const ox = s === 'left' ? w : s === 'right' ? 0 : clamp(a.left + a.width / 2 - x, 0, w)\n  const oy = s === 'top' ? h : s === 'bottom' ? 0 : clamp(a.top + a.height / 2 - y, 0, h)\n  return { x: Math.round(x), y: Math.round(y), side: s, origin: `${Math.round(ox)}px ${Math.round(oy)}px` }\n}\n\n// Open panels, the newest last: Escape belongs to the last.\nconst stack: object[] = []\n\nexport interface PopoverPosition { x: number, y: number, side: Side, origin: string, minWidth: number, placed: boolean }\n\nexport function usePopover(options: PopoverOptions = {}) {\n  const [open, setOpen] = useState(false)\n  const anchor = useRef<HTMLElement | null>(null)\n  const panel = useRef<HTMLElement | null>(null)\n  /** Opened from the keyboard (or closed by it): no animation. */\n  const [instant, setInstant] = useState(false)\n  /** Where the panel is portalled: the body, or the open modal dialog its anchor sits in (outside one is inert). */\n  const [target, setTarget] = useState<HTMLElement | null>(null)\n  const [pos, setPos] = useState<PopoverPosition>({ x: 0, y: 0, side: options.side ?? 'bottom', origin: '0px 0px', minWidth: 0, placed: false })\n  const me = useMemo(() => ({}), [])\n  const point = useRef<{ x: number, y: number } | null>(null)\n  const returnTo = useRef<HTMLElement | null>(null)\n  const frame = useRef(0)\n  const opts = useRef(options)\n  opts.current = options\n  const resolveShown = useRef<(() => void) | null>(null)\n  const openRef = useRef(open)\n  openRef.current = open\n\n  const update = useCallback(() => {\n    const el = panel.current\n    const p = point.current\n    const a = p ? { left: p.x, top: p.y, right: p.x, bottom: p.y, width: 0, height: 0 } : anchor.current?.getBoundingClientRect()\n    if (!el || !a) return\n    const o = opts.current\n    const minWidth = o.matchWidth && !p ? a.width : 0\n    const w = Math.max(el.offsetWidth, minWidth)\n    const placed = place(a, w, el.offsetHeight, document.documentElement.clientWidth, window.innerHeight, o.side ?? 'bottom', o.align ?? 'start', o.gap ?? 4)\n    setPos({ ...placed, minWidth, placed: true })\n  }, [])\n  const schedule = useCallback(() => {\n    cancelAnimationFrame(frame.current)\n    frame.current = requestAnimationFrame(update)\n  }, [update])\n\n  /** Opens it; `at` puts it at a point (a context menu), `keyboard` skips the animation. It resolves once the panel is\n   * placed and visible, so focus can move into it. */\n  const show = useCallback((how: { keyboard?: boolean, at?: { x: number, y: number } } = {}) => {\n    returnTo.current = document.activeElement instanceof HTMLElement ? document.activeElement : null\n    point.current = how.at ?? null\n    setInstant(!!how.keyboard)\n    setTarget((anchor.current?.closest('dialog[open]') as HTMLElement | null) ?? document.body)\n    setPos(p => ({ ...p, placed: false }))\n    setOpen(true)\n    return new Promise<void>((resolve) => { resolveShown.current = resolve })\n  }, [])\n  /** Closes it; `refocus` returns focus to what opened it, `keyboard` closes at once. */\n  const hide = useCallback((refocus = false, keyboard = false) => {\n    if (!openRef.current) return\n    setInstant(keyboard)\n    setOpen(false)\n    if (refocus) (point.current ? returnTo.current : anchor.current ?? returnTo.current)?.focus({ preventScroll: true })\n  }, [])\n  const toggle = useCallback((how: { keyboard?: boolean } = {}) => {\n    if (openRef.current) hide(how.keyboard, how.keyboard)\n    else void show(how)\n  }, [hide, show])\n\n  // Once the panel is in the page: place it, then let show() resolve after the placed render.\n  useEffect(() => {\n    if (!open) return\n    if (!pos.placed) update()\n    else if (resolveShown.current) {\n      resolveShown.current()\n      resolveShown.current = null\n    }\n  }, [open, pos.placed, update])\n\n  useEffect(() => {\n    if (!open) return\n    stack.push(me)\n    function onPointerDown(event: PointerEvent) {\n      const t = event.target as Node\n      if (panel.current?.contains(t) || anchor.current?.contains(t)) return\n      hide()\n    }\n    function onKey(event: KeyboardEvent) {\n      if (event.key !== 'Escape' || stack.at(-1) !== me) return\n      // A dialog under the panel would take Escape too: it is the panel's.\n      event.preventDefault()\n      event.stopPropagation()\n      hide(true, true)\n    }\n    if (!opts.current.sticky) document.addEventListener('pointerdown', onPointerDown, true)\n    document.addEventListener('keydown', onKey, true)\n    window.addEventListener('scroll', schedule, true)\n    window.addEventListener('resize', schedule)\n    const ro = new ResizeObserver(schedule)\n    if (panel.current) ro.observe(panel.current)\n    return () => {\n      const i = stack.indexOf(me)\n      if (i >= 0) stack.splice(i, 1)\n      document.removeEventListener('pointerdown', onPointerDown, true)\n      document.removeEventListener('keydown', onKey, true)\n      window.removeEventListener('scroll', schedule, true)\n      window.removeEventListener('resize', schedule)\n      cancelAnimationFrame(frame.current)\n      ro.disconnect()\n    }\n  }, [open, hide, schedule, me])\n\n  /** Focus moving to somewhere outside the panel and its anchor closes it (Tab out of a popover). */\n  const onFocusOut = useCallback((event: FocusEvent) => {\n    const next = event.relatedTarget as Node | null\n    if (opts.current.sticky || !next || panel.current?.contains(next) || anchor.current?.contains(next)) return\n    hide()\n  }, [hide])\n\n  return { open, anchor, panel, instant, target, pos, show, hide, toggle, update, onFocusOut }\n}\nexport type PopoverController = ReturnType<typeof usePopover>\n\n/** Arrow, Home and End keys over a panel's menu rows; Tab closes. For menus drawn in a PopoverPanel. */\nexport function onMenuRows(event: KeyboardEvent | React.KeyboardEvent, panel: HTMLElement | null, close: (refocus: boolean) => void) {\n  const rows = [...(panel?.querySelectorAll<HTMLElement>('[role^=\"menuitem\"]:not([disabled]), [role=\"option\"]:not([aria-disabled=\"true\"])') ?? [])]\n  const at = rows.indexOf(document.activeElement as HTMLElement)\n  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {\n    event.preventDefault()\n    const step = event.key === 'ArrowDown' ? 1 : -1\n    rows[(at + step + rows.length) % rows.length]?.focus()\n  }\n  else if (event.key === 'Home' || event.key === 'End') {\n    event.preventDefault()\n    ;(event.key === 'Home' ? rows[0] : rows.at(-1))?.focus()\n  }\n  else if (event.key === 'Tab') close(false)\n}\n\n/** The first thing in `root` that takes focus. */\nexport function firstFocusable(root: HTMLElement | null) {\n  return root?.querySelector<HTMLElement>('button:not(:disabled), [href], input:not(:disabled):not([type=\"hidden\"]), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex=\"-1\"])') ?? null\n}\n"
+        },
+        {
+          "path": "react/lib/transition.tsx",
+          "content": "'use client'\nimport { Children, cloneElement, isValidElement, useLayoutEffect, useRef, useState, type ReactElement, type ReactNode, type Ref } from 'react'\nimport { flushSync } from 'react-dom'\n\n// Vue's <Transition> and <TransitionGroup> for the React flavor, with the same class names, so a Vue item's CSS\n// (.ds-pop-enter-from, .ds-toast-leave-active, .ds-toast-move...) works unchanged:\n//\n//   <Transition show={open} name=\"ds-pop\">{<div ... />}</Transition>\n//   <TransitionGroup name=\"ds-toast\">{toasts.map((t) => <p key={t.id} ... />)}</TransitionGroup>\n//\n// Entering: <name>-enter-from and -enter-active, then a frame later -enter-to in place of -enter-from, until the\n// transition ends. Leaving: the same with -leave-*, and the element stays until it has, then goes in the same task its\n// classes come off (flushSync), so it never shows again for a frame. A group also moves the others with <name>-move\n// (FLIP), measured once the entering and leaving children have their classes, as Vue's are. `css={false}` skips the classes (Vue's :css=\"false\"); `duration` is Vue's explicit duration\n// in ms, a number or { enter, leave }. The child must take a ref (a DOM element) and className.\ntype Duration = number | { enter: number, leave: number }\ntype Phase = 'enter' | 'leave'\n\nconst ms = (d: Duration | undefined, phase: Phase) => (d === undefined ? undefined : typeof d === 'number' ? d : d[phase])\n\n/** Runs one Vue transition phase on an element and resolves when it has ended. */\nexport function runTransition(el: HTMLElement, name: string, phase: Phase, duration?: Duration): Promise<void> {\n  const from = `${name}-${phase}-from`\n  const active = `${name}-${phase}-active`\n  const to = `${name}-${phase}-to`\n  el.classList.add(from, active)\n  return new Promise((resolve) => {\n    let done = false\n    const finish = () => {\n      if (done) return\n      done = true\n      el.classList.remove(from, active, to)\n      el.removeEventListener('transitionend', onEnd)\n      el.removeEventListener('animationend', onEnd)\n      resolve()\n    }\n    const onEnd = (event: Event) => { if (event.target === el) finish() }\n    requestAnimationFrame(() => requestAnimationFrame(() => {\n      el.classList.remove(from)\n      el.classList.add(to)\n      const explicit = ms(duration, phase)\n      if (explicit !== undefined) return void setTimeout(finish, explicit)\n      // The longest transition or animation on it, as Vue reads it; none means done now.\n      const cs = getComputedStyle(el)\n      const longest = (durations: string, delays: string) => {\n        const d = durations.split(',').map(s => Number.parseFloat(s) * (s.trim().endsWith('ms') ? 1 : 1000))\n        const l = delays.split(',').map(s => Number.parseFloat(s) * (s.trim().endsWith('ms') ? 1 : 1000))\n        return Math.max(0, ...d.map((x, i) => x + (l[i % l.length] || 0)))\n      }\n      const total = Math.max(longest(cs.transitionDuration, cs.transitionDelay), longest(cs.animationDuration, cs.animationDelay))\n      if (!total) return finish()\n      el.addEventListener('transitionend', onEnd)\n      el.addEventListener('animationend', onEnd)\n      setTimeout(finish, total + 50)\n    }))\n  })\n}\n\nfunction mergeRefs<T>(...refs: Array<Ref<T> | undefined>) {\n  return (node: T) => {\n    for (const r of refs) {\n      if (typeof r === 'function') r(node)\n      else if (r) (r as { current: T }).current = node\n    }\n  }\n}\ntype Child = ReactElement<{ ref?: Ref<HTMLElement>, className?: string }>\n\nexport interface TransitionProps { show: boolean, name: string, css?: boolean, duration?: Duration, appear?: boolean, children: ReactNode }\n\n/** Vue's <Transition> around one element: it enters when `show` turns true and leaves before it unmounts. */\nexport function Transition({ show, name, css = true, duration, appear, children }: TransitionProps) {\n  // Whether the element is in the page: from the render where `show` turns true until its leave has ended.\n  const [present, setPresent] = useState(show)\n  const el = useRef<HTMLElement | null>(null)\n  const was = useRef<boolean | null>(null)\n  const last = useRef<ReactNode>(children)\n  if (show) last.current = children\n  if (show && !present) setPresent(true)\n  useLayoutEffect(() => {\n    const before = was.current\n    was.current = show\n    const node = el.current\n    if (before === show) return\n    if (show) {\n      if (node && css && (before !== null || appear)) void runTransition(node, name, 'enter', duration)\n    }\n    // Gone in the same task its leave classes come off, as Vue removes it, so no frame shows it whole again.\n    else if (node && css && before) void runTransition(node, name, 'leave', duration).then(() => { if (!was.current) flushSync(() => setPresent(false)) })\n    else setPresent(false)\n  }, [show]) // eslint-disable-line react-hooks/exhaustive-deps\n  const child = (show ? children : last.current) as Child\n  if (!(show || present) || !isValidElement(child)) return null\n  return cloneElement(child, { ref: mergeRefs(child.props.ref, (n: HTMLElement | null) => { el.current = n }) })\n}\n\nexport interface TransitionGroupProps { name: string, children: ReactNode }\n\n/** Vue's <TransitionGroup>: keyed children enter and leave as <Transition> does, and the rest move with <name>-move. */\nexport function TransitionGroup({ name, children }: TransitionGroupProps) {\n  const nodes = useRef(new Map<string, HTMLElement>())\n  const rects = useRef(new Map<string, DOMRect>())\n  const seen = useRef(new Set<string>())\n  const firstRender = useRef(true)\n  const current = Children.toArray(children).filter(isValidElement) as Child[]\n  const [leaving, setLeaving] = useState<Map<string, { child: Child, index: number }>>(new Map())\n  const prev = useRef<Child[]>([])\n\n  // Children that went away stay, leaving, where they were.\n  const keys = new Set(current.map(c => c.key!))\n  const gone = prev.current.filter(c => !keys.has(c.key!) && !leaving.has(c.key!))\n  if (gone.length) {\n    const next = new Map(leaving)\n    for (const c of gone) next.set(c.key!, { child: c, index: prev.current.indexOf(c) })\n    setLeaving(next)\n  }\n  prev.current = current\n  const list = [...current]\n  for (const [key, { child, index }] of leaving) if (!keys.has(key)) list.splice(Math.min(index, list.length), 0, child)\n\n  // Before the DOM changes: where every child is now (for the move).\n  for (const [key, node] of nodes.current) rects.current.set(key, node.getBoundingClientRect())\n\n  useLayoutEffect(() => {\n    // First every entering and leaving child takes its classes, so the measures for the move below see each as Vue does\n    // (an entering one at its enter-from, a leaving one out of the flow): measuring first would fix an entering child's\n    // style as it is, fully shown, and its transition would start from the end.\n    const entered = new Set<string>()\n    for (const c of list) {\n      const key = c.key!\n      const node = nodes.current.get(key)\n      if (!node) continue\n      if (leaving.has(key)) {\n        if (!node.classList.contains(`${name}-leave-active`)) {\n          // Gone in the same task its leave classes come off, so no frame shows it whole again.\n          void runTransition(node, name, 'leave').then(() => flushSync(() => setLeaving((m) => {\n            const n = new Map(m)\n            n.delete(key)\n            return n\n          })))\n        }\n        continue\n      }\n      if (!seen.current.has(key)) {\n        seen.current.add(key)\n        entered.add(key)\n        if (!firstRender.current) void runTransition(node, name, 'enter')\n      }\n    }\n    // Then the move: from where each stayed child was to where it is.\n    for (const c of list) {\n      const key = c.key!\n      const node = nodes.current.get(key)\n      if (!node || leaving.has(key) || entered.has(key)) continue\n      const before = rects.current.get(key)\n      if (!before) continue\n      const after = node.getBoundingClientRect()\n      if (before.left !== after.left || before.top !== after.top) {\n        node.style.transitionDuration = '0s'\n        node.style.transform = `translate(${before.left - after.left}px, ${before.top - after.top}px)`\n        void node.offsetWidth\n        node.classList.add(`${name}-move`)\n        node.style.transitionDuration = ''\n        node.style.transform = ''\n        const end = () => {\n          node.classList.remove(`${name}-move`)\n          node.removeEventListener('transitionend', end)\n        }\n        node.addEventListener('transitionend', end)\n      }\n    }\n    firstRender.current = false\n    for (const key of [...seen.current]) if (!list.some(c => c.key === key)) seen.current.delete(key)\n  })\n\n  return (\n    <>\n      {list.map(c => cloneElement(c, {\n        key: c.key,\n        ref: mergeRefs(c.props.ref, (n: HTMLElement | null) => {\n          if (n) nodes.current.set(c.key!, n)\n          else nodes.current.delete(c.key!)\n        }),\n      }))}\n    </>\n  )\n}\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "Popover",
+            "file": "react/components/ui/Popover.tsx",
+            "props": [
+              {
+                "name": "label",
+                "type": "string",
+                "required": true,
+                "description": "The panel's name for assistive tech."
+              },
+              {
+                "name": "side",
+                "type": "Side",
+                "required": false,
+                "default": "'bottom'",
+                "description": "The side it opens on (it flips when there is no room)."
+              },
+              {
+                "name": "align",
+                "type": "Align",
+                "required": false,
+                "default": "'start'",
+                "description": "Where it lines up with the trigger."
+              },
+              {
+                "name": "width",
+                "type": "string",
+                "required": false,
+                "default": "'288px'",
+                "description": "The panel's width (a CSS length)."
+              },
+              {
+                "name": "triggerClass",
+                "type": "string",
+                "required": false,
+                "description": "Classes for the trigger in place of the small secondary button."
+              },
+              {
+                "name": "triggerLabel",
+                "type": "string",
+                "required": false,
+                "description": "The trigger's name, when its content is only an icon."
+              },
+              {
+                "name": "trigger",
+                "type": "ReactNode | ((open: boolean) => ReactNode)",
+                "required": false,
+                "description": "The trigger's content, or a function of whether it is open."
+              },
+              {
+                "name": "open",
+                "type": "boolean",
+                "required": false,
+                "description": "Opens or closes it (with onOpenChange)."
+              },
+              {
+                "name": "onOpenChange",
+                "type": "(open: boolean) => void",
+                "required": false
+              },
+              {
+                "name": "children",
+                "type": "ReactNode | ((close: (refocus?: boolean) => void) => ReactNode)",
+                "required": false,
+                "description": "The panel's content, or a function of `close`."
+              }
+            ]
+          },
+          {
+            "name": "PopoverPanel",
+            "file": "react/components/ui/PopoverPanel.tsx",
+            "props": [
+              {
+                "name": "pop",
+                "type": "PopoverController",
+                "required": true
+              },
+              {
+                "name": "tip",
+                "type": "boolean",
+                "required": false
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              },
+              {
+                "name": "data-ds",
+                "type": "string",
+                "required": false
+              }
+            ],
+            "extends": [
+              "HTMLAttributes<HTMLDivElement>"
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Board",
+          "label": "Save to a board",
+          "center": true,
+          "half": false,
+          "path": "react/examples/popover/Board.tsx",
+          "content": "'use client'\nimport { Button } from '@/react/components/ui/Button'\nimport { Input } from '@/react/components/ui/Input'\nimport { Popover } from '@/react/components/ui/Popover'\n// Save a search to a board: a short form in a panel, opened from a button.\n\nexport default function Board() {\n  return (\n    <Popover label=\"Save to a board\" trigger=\"Save to board\">\n      {(close) => (\n        <form className=\"flex flex-col gap-4\" onSubmit={(event) => { event.preventDefault(); close() }}>\n          <div className=\"flex flex-col gap-1\">\n            <p className=\"type-ui-strong text-fg\">Save to a board</p>\n            <p className=\"type-caption text-fg-muted\">Keep the creatives from this search in one place.</p>\n          </div>\n          <div className=\"flex flex-col gap-2\">\n            <label htmlFor=\"popover-board\" className=\"type-label text-fg-soft\">Board name</label>\n            <Input id=\"popover-board\" name=\"board\" size=\"sm\" defaultValue=\"Acme hooks\" />\n          </div>\n          <div className=\"flex justify-end gap-2\">\n            <Button variant=\"ghost\" size=\"sm\" onClick={() => close()}>Cancel</Button>\n            <Button type=\"submit\" size=\"sm\">Save</Button>\n          </div>\n        </form>\n      )}\n    </Popover>\n  )\n}\n",
+          "registryDependencies": [
+            "button",
+            "input"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/popover.ts",
+          "content": "import { html, nothing, type PropertyValues } from 'lit'\nimport { DsElement, define, uid } from '@/elements/lib/element'\nimport { firstFocusable, PopoverController, popoverStyles, type Align, type Side } from '@/elements/lib/popover'\nimport styles from 'virtual:tw'\n\n// Popover.tsx as <spyglass-popover>: a panel for any content (a short form, a few settings, a note), opened from a\n// button: the card's #171717 fill on Black with a hairline and the brand corner. The trigger: a <button\n// slot=\"trigger\"> you style yourself (React's triggerClass), or other content in the `trigger` slot, drawn as a small\n// secondary button. Opening moves focus to the panel's first control (or the panel); Escape, a press outside or tabbing\n// away closes it, and Escape returns focus to the trigger. It flips to the side with room and stays 8px inside the\n// viewport, in the top layer. `open` (reflected) with `open-change`; close() closes it.\n\n// Button.tsx's classes for a small secondary button, in its order.\nconst TRIGGER = 'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-control whitespace-nowrap select-none transition-[background-color,color,scale] duration-150 ease-out active:not-disabled:scale-97 motion-reduce:active:not-disabled:scale-100 disabled:cursor-not-allowed disabled:bg-action-disabled disabled:text-action-disabled-fg h-control-sm gap-1.5 type-ui-strong px-3 bg-action-secondary text-action-secondary-fg hover:not-disabled:bg-action-secondary-hover'\n\n/**\n * @summary A panel for any content, opened from a button.\n * @slot - The panel's content.\n * @slot trigger - A <button> to use as the trigger, or the default trigger's content.\n * @fires open-change - It opened or closed (detail.value).\n */\nexport class Popover extends DsElement {\n\tstatic styles = [DsElement.styles, popoverStyles, styles]\n\tstatic properties = { label: {}, side: {}, align: {}, width: {}, triggerLabel: { attribute: 'trigger-label' }, open: { type: Boolean, reflect: true } }\n\n\t/** The panel's name for assistive tech. */\n\tlabel = ''\n\tside: Side = 'bottom'\n\talign: Align = 'start'\n\twidth = '288px'\n\ttriggerLabel?: string\n\topen = false\n\tprivate panelId = uid('popover')\n\tprivate pop = new PopoverController(this, {\n\t\tanchor: () => this.trigger,\n\t\tpanel: () => this.renderRoot.querySelector<HTMLElement>('.ds-pop'),\n\t})\n\n\tprivate get trigger(): HTMLElement | null {\n\t\treturn this.querySelector<HTMLElement>(':scope > button[slot=\"trigger\"]') ?? this.renderRoot.querySelector<HTMLElement>('button[data-trigger]')\n\t}\n\n\t/** Closes it; focus returns to the trigger unless refocus is false. */\n\tclose(refocus = true) {\n\t\tthis.pop.hide(refocus)\n\t}\n\tprivate async show(keyboard = false) {\n\t\tawait this.pop.show({ keyboard })\n\t\tconst panel = this.renderRoot.querySelector<HTMLElement>('.ds-pop')\n\t\t// Into an element's own control, so a field takes focus as a click gives it (focusing the host selects its text).\n\t\tlet target = firstFocusable(panel) ?? panel\n\t\twhile (target?.shadowRoot) {\n\t\t\tconst inner = firstFocusable(target.shadowRoot as unknown as Element)\n\t\t\tif (!inner || inner === target) break\n\t\t\ttarget = inner\n\t\t}\n\t\ttarget?.focus({ preventScroll: true })\n\t}\n\t// A click from the keyboard has no pointer detail: the panel opens and closes at once.\n\tprivate onClick = (event: MouseEvent) => {\n\t\tconst keyboard = event.detail === 0\n\t\tif (this.pop.open) this.pop.hide(keyboard, keyboard)\n\t\telse void this.show(keyboard)\n\t}\n\n\tprivate wired: HTMLElement | null = null\n\tprotected willUpdate(changed: PropertyValues<this>) {\n\t\tthis.pop.configure({ side: this.side, align: this.align, gap: 8 })\n\t\tif (changed.has('open') && this.open !== this.pop.open && changed.get('open') !== undefined) {\n\t\t\tif (this.open) void this.show()\n\t\t\telse this.pop.hide()\n\t\t}\n\t}\n\tprotected updated(changed: PropertyValues<this>) {\n\t\tsuper.updated(changed)\n\t\tconst own = this.querySelector<HTMLElement>(':scope > button[slot=\"trigger\"]')\n\t\tif (own && own !== this.wired) {\n\t\t\town.addEventListener('click', this.onClick)\n\t\t\town.setAttribute('aria-haspopup', 'dialog')\n\t\t\tthis.wired = own\n\t\t}\n\t\tif (own) {\n\t\t\town.setAttribute('aria-expanded', String(this.pop.open))\n\t\t\tif (this.triggerLabel) own.setAttribute('aria-label', this.triggerLabel)\n\t\t}\n\t\tif (this.open !== this.pop.open) {\n\t\t\tthis.open = this.pop.open\n\t\t\tthis.emit('open-change', { value: this.open })\n\t\t}\n\t}\n\tprotected firstUpdated(changed: PropertyValues<this>) {\n\t\tsuper.firstUpdated(changed)\n\t\tif (this.open) void this.show()\n\t}\n\n\trender() {\n\t\tconst own = !!this.querySelector(':scope > button[slot=\"trigger\"]')\n\t\tconst trigger = own\n\t\t\t? html`<slot name=\"trigger\"></slot>`\n\t\t\t: html`<button data-ds=\"popover\" data-trigger type=\"button\" class=${TRIGGER} aria-haspopup=\"dialog\" aria-expanded=${String(this.pop.open)} aria-controls=${this.pop.open ? this.panelId : nothing} aria-label=${this.triggerLabel ?? nothing} @click=${this.onClick}><slot name=\"trigger\"></slot></button>`\n\t\tconst panel = this.pop.rendered\n\t\t\t? html`<div data-ds=\"popover\" id=${this.panelId} popover=\"manual\" class=\"ds-pop p-4\" role=\"dialog\" aria-label=${this.label} tabindex=\"-1\" data-side=${this.pop.pos.side} ?data-instant=${this.pop.instant} ?data-placed=${this.pop.pos.placed} style=${this.pop.style(`width: ${this.width}`)} @focusout=${this.pop.onFocusOut}><slot></slot></div>`\n\t\t\t: nothing\n\t\treturn html`${trigger}${panel}`\n\t}\n}\n\ndefine('popover', Popover)\n"
+        },
+        {
+          "path": "elements/components/ui/popover-panel.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport { PopoverController, popoverStyles, type Align, type Side } from '@/elements/lib/popover'\nimport styles from 'virtual:tw'\n\n// PopoverPanel.tsx as <spyglass-popover-panel>: the floating panel every overlay draws, on its own, for overlays of\n// your own: the card's #171717 fill with a hairline and the brand corner, no shadow, beside the element named by\n// `anchor` (an id), flipped to the side with room and kept 8px inside the viewport, in the top layer. It grows from its\n// anchor over 200ms and leaves in 150ms; opened or closed from the keyboard it does neither. `tip` is the tooltip's\n// White fill. Set `open` (or call show() and hide()); a press outside, Escape and focus leaving close it. The library's\n// own overlays draw the same panel inside their shadow roots (lib/popover.ts).\n\n/**\n * @summary A floating panel beside an anchor.\n * @slot - The panel's content.\n * @fires open-change - It opened or closed (detail.value).\n */\nexport class PopoverPanel extends DsElement {\n\tstatic styles = [DsElement.styles, popoverStyles, styles]\n\tstatic properties = { anchor: {}, side: {}, align: {}, tip: { type: Boolean }, open: { type: Boolean, reflect: true }, sticky: { type: Boolean }, matchWidth: { type: Boolean, attribute: 'match-width' } }\n\n\t/** The id of the element it sits beside. */\n\tanchor = ''\n\tside: Side = 'bottom'\n\talign: Align = 'start'\n\t/** The tooltip's White fill, 2px over 150ms. */\n\ttip = false\n\topen = false\n\t/** A press outside or focus leaving keeps it open. */\n\tsticky = false\n\t/** At least as wide as its anchor. */\n\tmatchWidth = false\n\tprivate pop = new PopoverController(this, {\n\t\tanchor: () => (this.anchor ? (this.getRootNode() as Document | ShadowRoot).getElementById(this.anchor) : null),\n\t\tpanel: () => this.renderRoot.querySelector<HTMLElement>('.ds-pop'),\n\t})\n\n\tshow(keyboard = false) {\n\t\treturn this.pop.show({ keyboard })\n\t}\n\thide(refocus = false, keyboard = false) {\n\t\tthis.pop.hide(refocus, keyboard)\n\t}\n\tprotected willUpdate(changed: Map<PropertyKey, unknown>) {\n\t\tthis.pop.configure({ side: this.side, align: this.align, sticky: this.sticky, matchWidth: this.matchWidth })\n\t\tif (changed.has('open') && this.open !== this.pop.open) {\n\t\t\tif (this.open) void this.pop.show()\n\t\t\telse this.pop.hide()\n\t\t}\n\t}\n\tprotected updated() {\n\t\tif (this.open !== this.pop.open) {\n\t\t\tthis.open = this.pop.open\n\t\t\tthis.emit('open-change', { value: this.open })\n\t\t}\n\t}\n\n\trender() {\n\t\treturn this.pop.rendered\n\t\t\t? html`<div data-ds=\"popover-panel\" popover=\"manual\" class=\"ds-pop\" ?data-tip=${this.tip} data-side=${this.pop.pos.side} ?data-instant=${this.pop.instant} ?data-placed=${this.pop.pos.placed} style=${this.pop.style()} @focusout=${this.pop.onFocusOut}><slot></slot></div>`\n\t\t\t: nothing\n\t}\n}\n\ndefine('popover-panel', PopoverPanel)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/popover.js",
+        "elements/popover-panel.js",
+        "elements/input.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-popover",
+      "tags": [
+        "spyglass-popover",
+        "spyglass-popover-panel"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-popover",
+            "name": "Popover",
+            "module": "elements/popover.js",
+            "description": "A panel for any content, opened from a button.",
+            "attributes": [
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The panel's name for assistive tech."
+              },
+              {
+                "name": "side",
+                "field": "side",
+                "type": "Side",
+                "default": "'bottom'"
+              },
+              {
+                "name": "align",
+                "field": "align",
+                "type": "Align",
+                "default": "'start'"
+              },
+              {
+                "name": "width",
+                "field": "width",
+                "type": "string",
+                "default": "'288px'"
+              },
+              {
+                "name": "trigger-label",
+                "field": "triggerLabel",
+                "type": "string | undefined"
+              },
+              {
+                "name": "open",
+                "field": "open",
+                "type": "boolean",
+                "default": "false"
+              }
+            ],
+            "properties": [
+              {
+                "name": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The panel's name for assistive tech.",
+                "attribute": "label"
+              },
+              {
+                "name": "side",
+                "type": "Side",
+                "default": "'bottom'",
+                "attribute": "side"
+              },
+              {
+                "name": "align",
+                "type": "Align",
+                "default": "'start'",
+                "attribute": "align"
+              },
+              {
+                "name": "width",
+                "type": "string",
+                "default": "'288px'",
+                "attribute": "width"
+              },
+              {
+                "name": "triggerLabel",
+                "type": "string | undefined",
+                "attribute": "trigger-label"
+              },
+              {
+                "name": "open",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "open"
+              }
+            ],
+            "events": [
+              {
+                "name": "open-change",
+                "description": "It opened or closed (detail.value)."
+              }
+            ],
+            "slots": [
+              {
+                "name": "",
+                "description": "The panel's content."
+              },
+              {
+                "name": "trigger",
+                "description": "A <button> to use as the trigger, or the default trigger's content."
+              }
+            ],
+            "methods": [
+              {
+                "name": "close",
+                "description": "Closes it; focus returns to the trigger unless refocus is false."
+              }
+            ]
+          },
+          {
+            "tag": "spyglass-popover-panel",
+            "name": "PopoverPanel",
+            "module": "elements/popover-panel.js",
+            "description": "A floating panel beside an anchor.",
+            "attributes": [
+              {
+                "name": "anchor",
+                "field": "anchor",
+                "type": "string",
+                "default": "''",
+                "description": "The id of the element it sits beside."
+              },
+              {
+                "name": "side",
+                "field": "side",
+                "type": "Side",
+                "default": "'bottom'"
+              },
+              {
+                "name": "align",
+                "field": "align",
+                "type": "Align",
+                "default": "'start'"
+              },
+              {
+                "name": "tip",
+                "field": "tip",
+                "type": "boolean",
+                "default": "false",
+                "description": "The tooltip's White fill, 2px over 150ms."
+              },
+              {
+                "name": "open",
+                "field": "open",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "sticky",
+                "field": "sticky",
+                "type": "boolean",
+                "default": "false",
+                "description": "A press outside or focus leaving keeps it open."
+              },
+              {
+                "name": "match-width",
+                "field": "matchWidth",
+                "type": "boolean",
+                "default": "false",
+                "description": "At least as wide as its anchor."
+              }
+            ],
+            "properties": [
+              {
+                "name": "anchor",
+                "type": "string",
+                "default": "''",
+                "description": "The id of the element it sits beside.",
+                "attribute": "anchor"
+              },
+              {
+                "name": "side",
+                "type": "Side",
+                "default": "'bottom'",
+                "attribute": "side"
+              },
+              {
+                "name": "align",
+                "type": "Align",
+                "default": "'start'",
+                "attribute": "align"
+              },
+              {
+                "name": "tip",
+                "type": "boolean",
+                "default": "false",
+                "description": "The tooltip's White fill, 2px over 150ms.",
+                "attribute": "tip"
+              },
+              {
+                "name": "open",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "open"
+              },
+              {
+                "name": "sticky",
+                "type": "boolean",
+                "default": "false",
+                "description": "A press outside or focus leaving keeps it open.",
+                "attribute": "sticky"
+              },
+              {
+                "name": "matchWidth",
+                "type": "boolean",
+                "default": "false",
+                "description": "At least as wide as its anchor.",
+                "attribute": "match-width"
+              }
+            ],
+            "events": [
+              {
+                "name": "open-change",
+                "description": "It opened or closed (detail.value)."
+              }
+            ],
+            "slots": [
+              {
+                "name": "",
+                "description": "The panel's content."
+              }
+            ],
+            "methods": [
+              {
+                "name": "show"
+              },
+              {
+                "name": "hide"
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Board",
+          "label": "Save to a board",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/popover/Board.html",
+          "content": "<!-- Save a search to a board: a short form in a panel, opened from a button. -->\n<spyglass-popover id=\"board-popover\" label=\"Save to a board\">\n  <span slot=\"trigger\">Save to board</span>\n  <form id=\"board-form\" class=\"flex flex-col gap-4\">\n    <div class=\"flex flex-col gap-1\">\n      <p class=\"type-ui-strong text-fg\">Save to a board</p>\n      <p class=\"type-caption text-fg-muted\">Keep the creatives from this search in one place.</p>\n    </div>\n    <div class=\"flex flex-col gap-2\">\n      <label for=\"popover-board\" class=\"type-label text-fg-soft\">Board name</label>\n      <spyglass-input id=\"popover-board\" name=\"board\" size=\"sm\" value=\"Acme hooks\" aria-label=\"Board name\"></spyglass-input>\n    </div>\n    <div class=\"flex justify-end gap-2\">\n      <spyglass-button id=\"board-cancel\" variant=\"ghost\" size=\"sm\">Cancel</spyglass-button>\n      <spyglass-button type=\"submit\" size=\"sm\">Save</spyglass-button>\n    </div>\n  </form>\n</spyglass-popover>\n<script type=\"module\">\n  const pop = document.getElementById('board-popover')\n  document.getElementById('board-form').addEventListener('submit', (event) => { event.preventDefault(); pop.close() })\n  document.getElementById('board-cancel').addEventListener('click', () => pop.close())\n</script>\n"
+        }
+      ]
+    }
+  }
+}

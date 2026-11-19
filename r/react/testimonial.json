@@ -1,0 +1,23 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "testimonial",
+  "type": "registry:ui",
+  "title": "Testimonial",
+  "description": "The testimonial ad: a 4/5 headshot in the brand corner, the quote in Funnel Display in curly quotes, the name in DM Sans and the role and company in capitals.",
+  "dependencies": [],
+  "registryDependencies": [
+    "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+  ],
+  "files": [
+    {
+      "path": "components/site/Testimonial.tsx",
+      "type": "registry:ui",
+      "content": "import { CreativeCard } from '@/components/site/CreativeCard'\nimport { cn } from '@/lib/cn'\n\n// The testimonial ad (Ad, Testimonial): a 4/5 headshot in the brand corner, the quote in Funnel Display (40px on the\n// canvas, 28px here) in curly quotes, the name in DM Sans and the position (role and company) in capitals under it. `stacked` is the ad (the\n// headshot half the width above the quote); `side` puts the headshot beside the words, for a page. Without `image`\n// the headshot is the neutral placeholder, and with `image={false}` there is none.\nexport interface TestimonialProps {\n  /** The words, without quote marks. */\n  quote: string\n  name: string\n  /** Role and company, shown in capitals. */\n  position?: string\n  /** The headshot (src), the placeholder (undefined) or none (false). */\n  image?: string | false\n  /** stacked (the ad) or side. */\n  layout?: 'stacked' | 'side'\n  className?: string\n}\n\nexport function Testimonial({ quote, name, position, image, layout = 'stacked', className }: TestimonialProps) {\n  const side = layout === 'side'\n  return (\n    <figure data-ds=\"testimonial\" className={cn('m-0 grid text-fg', side ? 'grid-cols-5 items-center gap-12 max-md:grid-cols-1 max-md:gap-8' : 'gap-10 max-sm:gap-8', className)}>\n      {image !== false && (\n        <div className={side ? 'col-span-2 max-md:col-span-1 max-md:w-1/2' : 'w-1/2'}>\n          <CreativeCard src={image || undefined} alt={image ? name : `${name}, headshot`} tone={3} ratio=\"4/5\" />\n        </div>\n      )}\n      <div className={cn('grid gap-6', side && 'col-span-3 max-md:col-span-1')}>\n        <blockquote className=\"m-0 type-heading-2 leading-(--ds-text-display-leading)\">\n          <p>{`“${quote}”`}</p>\n        </blockquote>\n        <figcaption className=\"grid gap-1\">\n          <span className=\"type-body text-fg\">{name}</span>\n          {position && <span className=\"type-label text-fg-muted\">{position}</span>}\n        </figcaption>\n      </div>\n    </figure>\n  )\n}\n\nexport default Testimonial\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

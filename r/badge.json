@@ -1,0 +1,170 @@
+{
+  "name": "badge",
+  "title": "Badge",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A short label for a state or a kind, in DM Sans Medium capitals with 6% tracking: White, #262626, a hairline, or a red wash. A small spectrum dot can lead it.",
+  "use_for": "A creative's format or status, a plan's \"New\", a count beside a tab.",
+  "never": [
+    "A spectrum color as the badge's fill: a dot is as far as color goes",
+    "Color alone for the meaning: the word says it",
+    "More than one White badge in a group",
+    "Sentences in a badge"
+  ],
+  "source": "Derived from the guidelines: labels in DM Sans Medium capitals at 6%, Black and White first, spectrum colors as small accents only. shadcn's badge for variants.",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Badge.tsx",
+      "content": "import type { HTMLAttributes } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// shadcn's badge in the brand: a short label for a state or a kind, in DM Sans Medium capitals with 6% tracking, 24px\n// tall with a 4px corner. default is White with a Black label (one per group, for what matters most); secondary a\n// #262626 fill; outline a #363636 hairline on Black; destructive a red wash with a red label. `dot` leads it with a\n// small spectrum color, the only place a badge takes one; the word still carries the meaning, never the color alone.\nexport type BadgeVariant = 'default' | 'secondary' | 'outline' | 'destructive'\nexport type BadgeDot = 'magenta' | 'red' | 'orange' | 'yellow' | 'green' | 'cyan' | 'blue'\n\nconst VARIANTS: Record<BadgeVariant, string> = {\n  default: 'border-transparent bg-action-primary text-action-primary-fg',\n  secondary: 'border-transparent bg-action-secondary text-action-secondary-fg',\n  outline: 'border-edge-strong bg-transparent text-fg',\n  destructive: 'border-transparent bg-surface-danger text-fg-danger',\n}\nconst DOTS: Record<BadgeDot, string> = {\n  magenta: 'bg-magenta',\n  red: 'bg-red',\n  orange: 'bg-orange',\n  yellow: 'bg-yellow',\n  green: 'bg-green',\n  cyan: 'bg-cyan',\n  blue: 'bg-blue',\n}\n\nexport interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {\n  /** default (White), secondary, outline or destructive. */\n  variant?: BadgeVariant\n  /** A small spectrum color before the word. */\n  dot?: BadgeDot\n}\n\nexport function Badge({ variant = 'default', dot, className, children, ...rest }: BadgeProps) {\n  return (\n    <span data-ds=\"badge\" className={cn('inline-flex h-6 shrink-0 items-center gap-1.5 rounded-ds-sm border px-2 type-label whitespace-nowrap', VARIANTS[variant] ?? VARIANTS.default, className)} {...rest}>\n      {dot && <span className={cn('size-1.5 shrink-0 rounded-full', DOTS[dot])} aria-hidden=\"true\" />}\n      {children}\n    </span>\n  )\n}\n\nexport default Badge\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Variants",
+      "label": "Variants and dots",
+      "center": true,
+      "half": false,
+      "path": "react/examples/badge/Variants.tsx",
+      "content": "import { Badge } from '@/react/components/ui/Badge'\n// The four variants, and the dots a creative's status takes.\n\nexport default function Variants() {\n  return (\n    <div className=\"flex flex-col items-center gap-4\">\n      <div className=\"flex flex-wrap items-center justify-center gap-2\">\n        <Badge>New</Badge>\n        <Badge variant=\"secondary\">Video</Badge>\n        <Badge variant=\"outline\">Carousel</Badge>\n        <Badge variant=\"destructive\">Paused</Badge>\n      </div>\n      <div className=\"flex flex-wrap items-center justify-center gap-2\">\n        <Badge variant=\"outline\" dot=\"green\">Running</Badge>\n        <Badge variant=\"outline\" dot=\"yellow\">Testing</Badge>\n        <Badge variant=\"outline\" dot=\"red\">Ended</Badge>\n      </div>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Badge.tsx",
+          "content": "import type { HTMLAttributes } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// shadcn's badge in the brand: a short label for a state or a kind, in DM Sans Medium capitals with 6% tracking, 24px\n// tall with a 4px corner. default is White with a Black label (one per group, for what matters most); secondary a\n// #262626 fill; outline a #363636 hairline on Black; destructive a red wash with a red label. `dot` leads it with a\n// small spectrum color, the only place a badge takes one; the word still carries the meaning, never the color alone.\nexport type BadgeVariant = 'default' | 'secondary' | 'outline' | 'destructive'\nexport type BadgeDot = 'magenta' | 'red' | 'orange' | 'yellow' | 'green' | 'cyan' | 'blue'\n\nconst VARIANTS: Record<BadgeVariant, string> = {\n  default: 'border-transparent bg-action-primary text-action-primary-fg',\n  secondary: 'border-transparent bg-action-secondary text-action-secondary-fg',\n  outline: 'border-edge-strong bg-transparent text-fg',\n  destructive: 'border-transparent bg-surface-danger text-fg-danger',\n}\nconst DOTS: Record<BadgeDot, string> = {\n  magenta: 'bg-magenta',\n  red: 'bg-red',\n  orange: 'bg-orange',\n  yellow: 'bg-yellow',\n  green: 'bg-green',\n  cyan: 'bg-cyan',\n  blue: 'bg-blue',\n}\n\nexport interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {\n  /** default (White), secondary, outline or destructive. */\n  variant?: BadgeVariant\n  /** A small spectrum color before the word. */\n  dot?: BadgeDot\n}\n\nexport function Badge({ variant = 'default', dot, className, children, ...rest }: BadgeProps) {\n  return (\n    <span data-ds=\"badge\" className={cn('inline-flex h-6 shrink-0 items-center gap-1.5 rounded-ds-sm border px-2 type-label whitespace-nowrap', VARIANTS[variant] ?? VARIANTS.default, className)} {...rest}>\n      {dot && <span className={cn('size-1.5 shrink-0 rounded-full', DOTS[dot])} aria-hidden=\"true\" />}\n      {children}\n    </span>\n  )\n}\n\nexport default Badge\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Badge",
+            "file": "react/components/ui/Badge.tsx",
+            "props": [
+              {
+                "name": "variant",
+                "type": "BadgeVariant",
+                "required": false,
+                "default": "'default'",
+                "description": "default (White), secondary, outline or destructive."
+              },
+              {
+                "name": "dot",
+                "type": "BadgeDot",
+                "required": false,
+                "description": "A small spectrum color before the word."
+              }
+            ],
+            "extends": [
+              "HTMLAttributes<HTMLSpanElement>"
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Variants",
+          "label": "Variants and dots",
+          "center": true,
+          "half": false,
+          "path": "react/examples/badge/Variants.tsx",
+          "content": "import { Badge } from '@/react/components/ui/Badge'\n// The four variants, and the dots a creative's status takes.\n\nexport default function Variants() {\n  return (\n    <div className=\"flex flex-col items-center gap-4\">\n      <div className=\"flex flex-wrap items-center justify-center gap-2\">\n        <Badge>New</Badge>\n        <Badge variant=\"secondary\">Video</Badge>\n        <Badge variant=\"outline\">Carousel</Badge>\n        <Badge variant=\"destructive\">Paused</Badge>\n      </div>\n      <div className=\"flex flex-wrap items-center justify-center gap-2\">\n        <Badge variant=\"outline\" dot=\"green\">Running</Badge>\n        <Badge variant=\"outline\" dot=\"yellow\">Testing</Badge>\n        <Badge variant=\"outline\" dot=\"red\">Ended</Badge>\n      </div>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/badge.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Badge.tsx as <spyglass-badge>: a short label for a state or a kind, in DM Sans Medium capitals with 6% tracking, 24px\n// tall with a 4px corner. default is White with a Black label; secondary a #262626 fill; outline a #363636 hairline on\n// Black; destructive a red wash with a red label. `dot` leads it with a small spectrum color; the word still carries\n// the meaning.\nexport type BadgeVariant = 'default' | 'secondary' | 'outline' | 'destructive'\nexport type BadgeDot = 'magenta' | 'red' | 'orange' | 'yellow' | 'green' | 'cyan' | 'blue'\nconst VARIANTS: Record<BadgeVariant, string> = {\n\tdefault: 'border-transparent bg-action-primary text-action-primary-fg',\n\tsecondary: 'border-transparent bg-action-secondary text-action-secondary-fg',\n\toutline: 'border-edge-strong bg-transparent text-fg',\n\tdestructive: 'border-transparent bg-surface-danger text-fg-danger',\n}\nconst DOTS: Record<BadgeDot, string> = {\n\tmagenta: 'bg-magenta',\n\tred: 'bg-red',\n\torange: 'bg-orange',\n\tyellow: 'bg-yellow',\n\tgreen: 'bg-green',\n\tcyan: 'bg-cyan',\n\tblue: 'bg-blue',\n}\n\n/**\n * @summary A short label for a state or a kind, in capitals.\n * @slot - The word.\n */\nexport class Badge extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { variant: { reflect: true }, dot: {} }\n\n\t/** default (White), secondary, outline or destructive. */\n\tvariant: BadgeVariant = 'default'\n\t/** A small spectrum color before the word. */\n\tdot?: BadgeDot\n\n\trender() {\n\t\tconst dot = this.dot && DOTS[this.dot]\n\t\treturn html`<span data-ds=\"badge\" class=${['inline-flex h-6 shrink-0 items-center gap-1.5 rounded-ds-sm border px-2 type-label whitespace-nowrap', VARIANTS[this.variant] ?? VARIANTS.default].join(' ')}>${dot ? html`<span class=${['size-1.5 shrink-0 rounded-full', dot].join(' ')} aria-hidden=\"true\"></span>` : nothing}<slot></slot></span>`\n\t}\n}\n\ndefine('badge', Badge)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/badge.js"
+      ],
+      "tag": "spyglass-badge",
+      "tags": [
+        "spyglass-badge"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-badge",
+            "name": "Badge",
+            "module": "elements/badge.js",
+            "description": "A short label for a state or a kind, in capitals.",
+            "attributes": [
+              {
+                "name": "variant",
+                "field": "variant",
+                "type": "BadgeVariant",
+                "default": "'default'",
+                "description": "default (White), secondary, outline or destructive."
+              },
+              {
+                "name": "dot",
+                "field": "dot",
+                "type": "BadgeDot | undefined",
+                "description": "A small spectrum color before the word."
+              }
+            ],
+            "properties": [
+              {
+                "name": "variant",
+                "type": "BadgeVariant",
+                "default": "'default'",
+                "description": "default (White), secondary, outline or destructive.",
+                "attribute": "variant"
+              },
+              {
+                "name": "dot",
+                "type": "BadgeDot | undefined",
+                "description": "A small spectrum color before the word.",
+                "attribute": "dot"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The word."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Variants",
+          "label": "Variants and dots",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/badge/Variants.html",
+          "content": "<!-- The four variants, and the dots a creative's status takes. -->\n<div class=\"flex flex-col items-center gap-4\">\n  <div class=\"flex flex-wrap items-center justify-center gap-2\">\n    <spyglass-badge>New</spyglass-badge>\n    <spyglass-badge variant=\"secondary\">Video</spyglass-badge>\n    <spyglass-badge variant=\"outline\">Carousel</spyglass-badge>\n    <spyglass-badge variant=\"destructive\">Paused</spyglass-badge>\n  </div>\n  <div class=\"flex flex-wrap items-center justify-center gap-2\">\n    <spyglass-badge variant=\"outline\" dot=\"green\">Running</spyglass-badge>\n    <spyglass-badge variant=\"outline\" dot=\"yellow\">Testing</spyglass-badge>\n    <spyglass-badge variant=\"outline\" dot=\"red\">Ended</spyglass-badge>\n  </div>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

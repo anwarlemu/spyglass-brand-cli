@@ -1,0 +1,410 @@
+{
+  "name": "sidebar",
+  "title": "Sidebar",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "The app's rail: Black with a hairline at its edge, the logo at the top, groups named in capitals, the page you are on in White, the account at the foot. It folds to icons with one button.",
+  "use_for": "The main navigation of the product: search, boards, brands, creators and settings. One per app, at the left.",
+  "never": [
+    "A second level of rows: a page's own sections go in Tabs",
+    "A spectrum color for the page you are on: it is White, as the primary button",
+    "Animating the fold: it is pressed many times a day"
+  ],
+  "source": "Derived from the brand guidelines (no app rail in the brand assets): Black ground, DM Sans labels in capitals at 6%, the White primary fill for the current page, the brand corner",
+  "body": "",
+  "requires": [],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/ui/Sidebar.tsx",
+      "content": "'use client'\nimport { createContext, useContext, type HTMLAttributes, type ReactNode } from 'react'\nimport { PanelLeftClose, PanelLeftOpen } from 'lucide-react'\nimport { useControllable } from '@/react/hooks/useControllable'\nimport { cn } from '@/react/lib/cn'\n\n// The app's rail: Black with a hairline at its edge, 256px wide. `head` holds the logo or the workspace (56px, over a\n// hairline), SidebarLabel names each group in capitals, a SidebarLink per page (the page you are on in White), and\n// `foot` the account. `collapsible` adds a button that folds it to 64px of icons (the labels stay for assistive tech);\n// it folds at once, no motion, as something pressed many times a day should. `collapsed` with `onCollapsedChange`\n// controls it. Other attributes land on the <nav>.\nexport interface SidebarProps extends Omit<HTMLAttributes<HTMLElement>, 'children'> {\n  /** The navigation's name for assistive tech. */\n  label?: string\n  /** The logo or workspace, at the top. */\n  head?: ReactNode\n  /** The account, at the foot. */\n  foot?: ReactNode\n  /** Shows the button that folds it to icons. */\n  collapsible?: boolean\n  /** Folded to icons (with onCollapsedChange). */\n  collapsed?: boolean\n  defaultCollapsed?: boolean\n  onCollapsedChange?: (collapsed: boolean) => void\n  className?: string\n  children?: ReactNode\n}\n\n/** Whether the sidebar around a link or label is folded to icons. */\nexport const SidebarContext = createContext(false)\nexport const useSidebarCollapsed = () => useContext(SidebarContext)\n\nexport function Sidebar({ label = 'Main', head, foot, collapsible, collapsed: given, defaultCollapsed = false, onCollapsedChange, className, children, ...rest }: SidebarProps) {\n  const [collapsed, setCollapsed] = useControllable(given, defaultCollapsed, onCollapsedChange)\n  const Icon = collapsed ? PanelLeftOpen : PanelLeftClose\n  return (\n    <nav data-ds=\"sidebar\" aria-label={label} data-collapsed={collapsed || undefined} className={cn('flex h-full shrink-0 flex-col border-r border-edge bg-surface', collapsed ? 'w-16' : 'w-rail', className)} {...rest}>\n      {(head || collapsible) && (\n        <div className={cn('flex h-14 shrink-0 items-center gap-2 border-b border-edge px-3', collapsed ? 'justify-center' : 'justify-between')}>\n          {head && !collapsed && <div className=\"flex min-w-0 flex-1 items-center pl-1\">{head}</div>}\n          {collapsible && (\n            <button type=\"button\" className=\"inline-flex size-control-md shrink-0 cursor-pointer items-center justify-center rounded-control text-fg-muted transition-[background-color,color] duration-150 ease-standard hover:bg-action-ghost-hover hover:text-fg\" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} aria-expanded={!collapsed} onClick={() => setCollapsed(!collapsed)}>\n              <Icon size={16} strokeWidth={1.5} aria-hidden=\"true\" />\n            </button>\n          )}\n        </div>\n      )}\n      <SidebarContext.Provider value={collapsed}>\n        <div className=\"flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto p-3\">{children}</div>\n      </SidebarContext.Provider>\n      {foot && <div className={cn('shrink-0 border-t border-edge p-3', collapsed && 'hidden')}>{foot}</div>}\n    </nav>\n  )\n}\n\nexport default Sidebar\n"
+    },
+    {
+      "path": "react/components/ui/SidebarLabel.tsx",
+      "content": "'use client'\nimport type { ReactNode } from 'react'\nimport { useSidebarCollapsed } from '@/react/components/ui/Sidebar'\n\n// A group's name in the Sidebar: DM Sans Medium in capitals at 6%, muted, 16px over it. Folded to icons, a hairline\n// takes its place and the name stays for assistive tech.\nexport interface SidebarLabelProps {\n  /** The group's name. */\n  children?: ReactNode\n}\n\nexport function SidebarLabel({ children }: SidebarLabelProps) {\n  const collapsed = useSidebarCollapsed()\n  return (\n    <div data-ds=\"sidebar-label\" className=\"pt-4 pb-2 first:pt-1\">\n      {collapsed ? <div className=\"mx-2 border-t border-edge\" aria-hidden=\"true\" /> : null}\n      <p className={collapsed ? 'sr-only' : 'px-3 type-label text-fg-muted'}>{children}</p>\n    </div>\n  )\n}\n\nexport default SidebarLabel\n"
+    },
+    {
+      "path": "react/components/ui/SidebarLink.tsx",
+      "content": "'use client'\nimport type { AnchorHTMLAttributes, ComponentType, ElementType } from 'react'\nimport { useSidebarCollapsed } from '@/react/components/ui/Sidebar'\nimport { cn } from '@/react/lib/cn'\n\n// One page in the Sidebar: a 40px row (44px on phones) with its 16px icon, the label and a count at the end, the brand\n// corner. The page you are on is White with Black type, as the primary button; the others are soft gray and fill on\n// hover. Folded to icons, the row is a 40px square and the label stays for assistive tech. `as` renders a router link\n// component instead of an anchor; other props (onClick) land on the link.\nexport interface SidebarLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {\n  href?: string\n  /** The page you are on. */\n  active?: boolean\n  /** A Lucide icon. */\n  icon?: ComponentType<{ size?: number, strokeWidth?: number, 'aria-hidden'?: boolean | 'true' }>\n  /** A count at the end of the row. */\n  status?: string\n  /** A router link component in place of <a>. */\n  as?: ElementType\n}\n\nexport function SidebarLink({ href, active, icon: Icon, status, as: Link = 'a', className, children, ...rest }: SidebarLinkProps) {\n  const collapsed = useSidebarCollapsed()\n  return (\n    <Link\n      data-ds=\"sidebar-link\"\n      href={href}\n      aria-current={active ? 'page' : undefined}\n      className={cn(\n        'flex h-row shrink-0 cursor-pointer items-center gap-3 rounded-control type-ui -outline-offset-2 transition-[background-color,color] duration-150 ease-standard max-md:h-control-touch',\n        collapsed ? 'w-row justify-center px-0' : 'px-3',\n        active ? 'bg-action-primary text-action-primary-fg' : 'text-fg-soft hover:bg-action-ghost-hover hover:text-fg',\n        className,\n      )}\n      {...rest}\n    >\n      {Icon && <span className={cn('flex shrink-0', active ? 'text-action-primary-fg' : 'text-fg-muted')}><Icon size={16} strokeWidth={1.5} aria-hidden=\"true\" /></span>}\n      <span className={collapsed ? 'sr-only' : 'min-w-0 flex-1 truncate'}>{children}</span>\n      {status && !collapsed && <span className={cn('type-caption tabular-nums', active ? 'text-action-primary-fg' : 'text-fg-muted')}>{status}</span>}\n    </Link>\n  )\n}\n\nexport default SidebarLink\n"
+    },
+    {
+      "path": "react/hooks/useControllable.ts",
+      "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "App",
+      "label": "The app's rail",
+      "center": false,
+      "half": false,
+      "path": "react/examples/sidebar/App.tsx",
+      "content": "'use client'\nimport { Fragment, useState } from 'react'\nimport { Bookmark, Compass, Folder, Search, Settings, Store, Users } from 'lucide-react'\nimport { Logo } from '@/react/components/visuals/Logo'\nimport { Sidebar } from '@/react/components/ui/Sidebar'\nimport { SidebarLabel } from '@/react/components/ui/SidebarLabel'\nimport { SidebarLink } from '@/react/components/ui/SidebarLink'\n// The app's rail: the logo and the fold button at the top, a label over each group, the page you are on in White, and\n// the account at the foot. Fold it to icons with the button.\nconst groups = [\n  { label: 'Discover', links: [{ label: 'Search', icon: Search }, { label: 'Explore', icon: Compass }, { label: 'Brands', icon: Store, status: '12' }, { label: 'Creators', icon: Users, status: '8' }] },\n  { label: 'Boards', links: [{ label: 'Acme hooks', icon: Folder, status: '24' }, { label: 'UGC ideas', icon: Folder, status: '9' }, { label: 'Saved', icon: Bookmark }] },\n]\n\nexport default function App() {\n  const [picked, setPicked] = useState('Search')\n  return (\n    <div className=\"flex h-120 overflow-hidden rounded-container border border-edge\">\n      <Sidebar\n        label=\"App\"\n        collapsible\n        head={<Logo height={20} />}\n        foot={(\n          <div className=\"flex flex-col gap-0.5\">\n            <SidebarLink href=\"#\" icon={Settings} onClick={(e) => e.preventDefault()}>Settings</SidebarLink>\n            <div className=\"flex flex-col px-3 pt-2\">\n              <span className=\"type-ui-strong text-fg\">Acme Studio</span>\n              <span className=\"type-caption text-fg-muted\">Creator plan</span>\n            </div>\n          </div>\n        )}\n      >\n        {groups.map((group) => (\n          <Fragment key={group.label}>\n            <SidebarLabel>{group.label}</SidebarLabel>\n            {group.links.map((link: { label: string, icon: typeof Search, status?: string }) => (\n              <SidebarLink key={link.label} href=\"#\" icon={link.icon} status={link.status} active={picked === link.label} onClick={(e) => { e.preventDefault(); setPicked(link.label) }}>{link.label}</SidebarLink>\n            ))}\n          </Fragment>\n        ))}\n      </Sidebar>\n      <div className=\"hidden min-w-0 flex-1 flex-col gap-2 p-8 md:flex\">\n        <h2 className=\"type-heading-3 text-fg\">{picked}</h2>\n        <p className=\"type-ui text-fg-muted\">The only creative search engine.</p>\n      </div>\n    </div>\n  )\n}\n",
+      "requires": [
+        "logo"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Sidebar.tsx",
+          "content": "'use client'\nimport { createContext, useContext, type HTMLAttributes, type ReactNode } from 'react'\nimport { PanelLeftClose, PanelLeftOpen } from 'lucide-react'\nimport { useControllable } from '@/react/hooks/useControllable'\nimport { cn } from '@/react/lib/cn'\n\n// The app's rail: Black with a hairline at its edge, 256px wide. `head` holds the logo or the workspace (56px, over a\n// hairline), SidebarLabel names each group in capitals, a SidebarLink per page (the page you are on in White), and\n// `foot` the account. `collapsible` adds a button that folds it to 64px of icons (the labels stay for assistive tech);\n// it folds at once, no motion, as something pressed many times a day should. `collapsed` with `onCollapsedChange`\n// controls it. Other attributes land on the <nav>.\nexport interface SidebarProps extends Omit<HTMLAttributes<HTMLElement>, 'children'> {\n  /** The navigation's name for assistive tech. */\n  label?: string\n  /** The logo or workspace, at the top. */\n  head?: ReactNode\n  /** The account, at the foot. */\n  foot?: ReactNode\n  /** Shows the button that folds it to icons. */\n  collapsible?: boolean\n  /** Folded to icons (with onCollapsedChange). */\n  collapsed?: boolean\n  defaultCollapsed?: boolean\n  onCollapsedChange?: (collapsed: boolean) => void\n  className?: string\n  children?: ReactNode\n}\n\n/** Whether the sidebar around a link or label is folded to icons. */\nexport const SidebarContext = createContext(false)\nexport const useSidebarCollapsed = () => useContext(SidebarContext)\n\nexport function Sidebar({ label = 'Main', head, foot, collapsible, collapsed: given, defaultCollapsed = false, onCollapsedChange, className, children, ...rest }: SidebarProps) {\n  const [collapsed, setCollapsed] = useControllable(given, defaultCollapsed, onCollapsedChange)\n  const Icon = collapsed ? PanelLeftOpen : PanelLeftClose\n  return (\n    <nav data-ds=\"sidebar\" aria-label={label} data-collapsed={collapsed || undefined} className={cn('flex h-full shrink-0 flex-col border-r border-edge bg-surface', collapsed ? 'w-16' : 'w-rail', className)} {...rest}>\n      {(head || collapsible) && (\n        <div className={cn('flex h-14 shrink-0 items-center gap-2 border-b border-edge px-3', collapsed ? 'justify-center' : 'justify-between')}>\n          {head && !collapsed && <div className=\"flex min-w-0 flex-1 items-center pl-1\">{head}</div>}\n          {collapsible && (\n            <button type=\"button\" className=\"inline-flex size-control-md shrink-0 cursor-pointer items-center justify-center rounded-control text-fg-muted transition-[background-color,color] duration-150 ease-standard hover:bg-action-ghost-hover hover:text-fg\" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} aria-expanded={!collapsed} onClick={() => setCollapsed(!collapsed)}>\n              <Icon size={16} strokeWidth={1.5} aria-hidden=\"true\" />\n            </button>\n          )}\n        </div>\n      )}\n      <SidebarContext.Provider value={collapsed}>\n        <div className=\"flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto p-3\">{children}</div>\n      </SidebarContext.Provider>\n      {foot && <div className={cn('shrink-0 border-t border-edge p-3', collapsed && 'hidden')}>{foot}</div>}\n    </nav>\n  )\n}\n\nexport default Sidebar\n"
+        },
+        {
+          "path": "react/components/ui/SidebarLabel.tsx",
+          "content": "'use client'\nimport type { ReactNode } from 'react'\nimport { useSidebarCollapsed } from '@/react/components/ui/Sidebar'\n\n// A group's name in the Sidebar: DM Sans Medium in capitals at 6%, muted, 16px over it. Folded to icons, a hairline\n// takes its place and the name stays for assistive tech.\nexport interface SidebarLabelProps {\n  /** The group's name. */\n  children?: ReactNode\n}\n\nexport function SidebarLabel({ children }: SidebarLabelProps) {\n  const collapsed = useSidebarCollapsed()\n  return (\n    <div data-ds=\"sidebar-label\" className=\"pt-4 pb-2 first:pt-1\">\n      {collapsed ? <div className=\"mx-2 border-t border-edge\" aria-hidden=\"true\" /> : null}\n      <p className={collapsed ? 'sr-only' : 'px-3 type-label text-fg-muted'}>{children}</p>\n    </div>\n  )\n}\n\nexport default SidebarLabel\n"
+        },
+        {
+          "path": "react/components/ui/SidebarLink.tsx",
+          "content": "'use client'\nimport type { AnchorHTMLAttributes, ComponentType, ElementType } from 'react'\nimport { useSidebarCollapsed } from '@/react/components/ui/Sidebar'\nimport { cn } from '@/react/lib/cn'\n\n// One page in the Sidebar: a 40px row (44px on phones) with its 16px icon, the label and a count at the end, the brand\n// corner. The page you are on is White with Black type, as the primary button; the others are soft gray and fill on\n// hover. Folded to icons, the row is a 40px square and the label stays for assistive tech. `as` renders a router link\n// component instead of an anchor; other props (onClick) land on the link.\nexport interface SidebarLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {\n  href?: string\n  /** The page you are on. */\n  active?: boolean\n  /** A Lucide icon. */\n  icon?: ComponentType<{ size?: number, strokeWidth?: number, 'aria-hidden'?: boolean | 'true' }>\n  /** A count at the end of the row. */\n  status?: string\n  /** A router link component in place of <a>. */\n  as?: ElementType\n}\n\nexport function SidebarLink({ href, active, icon: Icon, status, as: Link = 'a', className, children, ...rest }: SidebarLinkProps) {\n  const collapsed = useSidebarCollapsed()\n  return (\n    <Link\n      data-ds=\"sidebar-link\"\n      href={href}\n      aria-current={active ? 'page' : undefined}\n      className={cn(\n        'flex h-row shrink-0 cursor-pointer items-center gap-3 rounded-control type-ui -outline-offset-2 transition-[background-color,color] duration-150 ease-standard max-md:h-control-touch',\n        collapsed ? 'w-row justify-center px-0' : 'px-3',\n        active ? 'bg-action-primary text-action-primary-fg' : 'text-fg-soft hover:bg-action-ghost-hover hover:text-fg',\n        className,\n      )}\n      {...rest}\n    >\n      {Icon && <span className={cn('flex shrink-0', active ? 'text-action-primary-fg' : 'text-fg-muted')}><Icon size={16} strokeWidth={1.5} aria-hidden=\"true\" /></span>}\n      <span className={collapsed ? 'sr-only' : 'min-w-0 flex-1 truncate'}>{children}</span>\n      {status && !collapsed && <span className={cn('type-caption tabular-nums', active ? 'text-action-primary-fg' : 'text-fg-muted')}>{status}</span>}\n    </Link>\n  )\n}\n\nexport default SidebarLink\n"
+        },
+        {
+          "path": "react/hooks/useControllable.ts",
+          "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Sidebar",
+            "file": "react/components/ui/Sidebar.tsx",
+            "props": [
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "default": "'Main'",
+                "description": "The navigation's name for assistive tech."
+              },
+              {
+                "name": "head",
+                "type": "ReactNode",
+                "required": false,
+                "description": "The logo or workspace, at the top."
+              },
+              {
+                "name": "foot",
+                "type": "ReactNode",
+                "required": false,
+                "description": "The account, at the foot."
+              },
+              {
+                "name": "collapsible",
+                "type": "boolean",
+                "required": false,
+                "description": "Shows the button that folds it to icons."
+              },
+              {
+                "name": "collapsed",
+                "type": "boolean",
+                "required": false,
+                "description": "Folded to icons (with onCollapsedChange)."
+              },
+              {
+                "name": "defaultCollapsed",
+                "type": "boolean",
+                "required": false,
+                "default": "false"
+              },
+              {
+                "name": "onCollapsedChange",
+                "type": "(collapsed: boolean) => void",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              }
+            ],
+            "extends": [
+              "Omit<HTMLAttributes<HTMLElement>, 'children'>"
+            ]
+          },
+          {
+            "name": "SidebarLabel",
+            "file": "react/components/ui/SidebarLabel.tsx",
+            "props": [
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false,
+                "description": "The group's name."
+              }
+            ]
+          },
+          {
+            "name": "SidebarLink",
+            "file": "react/components/ui/SidebarLink.tsx",
+            "props": [
+              {
+                "name": "href",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "active",
+                "type": "boolean",
+                "required": false,
+                "description": "The page you are on."
+              },
+              {
+                "name": "icon",
+                "type": "ComponentType<{ size?: number, strokeWidth?: number, 'aria-hidden'?: boolean | 'true' }>",
+                "required": false,
+                "description": "A Lucide icon."
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "required": false,
+                "description": "A count at the end of the row."
+              },
+              {
+                "name": "as",
+                "type": "ElementType",
+                "required": false,
+                "description": "A router link component in place of <a>."
+              }
+            ],
+            "extends": [
+              "AnchorHTMLAttributes<HTMLAnchorElement>"
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "App",
+          "label": "The app's rail",
+          "center": false,
+          "half": false,
+          "path": "react/examples/sidebar/App.tsx",
+          "content": "'use client'\nimport { Fragment, useState } from 'react'\nimport { Bookmark, Compass, Folder, Search, Settings, Store, Users } from 'lucide-react'\nimport { Logo } from '@/react/components/visuals/Logo'\nimport { Sidebar } from '@/react/components/ui/Sidebar'\nimport { SidebarLabel } from '@/react/components/ui/SidebarLabel'\nimport { SidebarLink } from '@/react/components/ui/SidebarLink'\n// The app's rail: the logo and the fold button at the top, a label over each group, the page you are on in White, and\n// the account at the foot. Fold it to icons with the button.\nconst groups = [\n  { label: 'Discover', links: [{ label: 'Search', icon: Search }, { label: 'Explore', icon: Compass }, { label: 'Brands', icon: Store, status: '12' }, { label: 'Creators', icon: Users, status: '8' }] },\n  { label: 'Boards', links: [{ label: 'Acme hooks', icon: Folder, status: '24' }, { label: 'UGC ideas', icon: Folder, status: '9' }, { label: 'Saved', icon: Bookmark }] },\n]\n\nexport default function App() {\n  const [picked, setPicked] = useState('Search')\n  return (\n    <div className=\"flex h-120 overflow-hidden rounded-container border border-edge\">\n      <Sidebar\n        label=\"App\"\n        collapsible\n        head={<Logo height={20} />}\n        foot={(\n          <div className=\"flex flex-col gap-0.5\">\n            <SidebarLink href=\"#\" icon={Settings} onClick={(e) => e.preventDefault()}>Settings</SidebarLink>\n            <div className=\"flex flex-col px-3 pt-2\">\n              <span className=\"type-ui-strong text-fg\">Acme Studio</span>\n              <span className=\"type-caption text-fg-muted\">Creator plan</span>\n            </div>\n          </div>\n        )}\n      >\n        {groups.map((group) => (\n          <Fragment key={group.label}>\n            <SidebarLabel>{group.label}</SidebarLabel>\n            {group.links.map((link: { label: string, icon: typeof Search, status?: string }) => (\n              <SidebarLink key={link.label} href=\"#\" icon={link.icon} status={link.status} active={picked === link.label} onClick={(e) => { e.preventDefault(); setPicked(link.label) }}>{link.label}</SidebarLink>\n            ))}\n          </Fragment>\n        ))}\n      </Sidebar>\n      <div className=\"hidden min-w-0 flex-1 flex-col gap-2 p-8 md:flex\">\n        <h2 className=\"type-heading-3 text-fg\">{picked}</h2>\n        <p className=\"type-ui text-fg-muted\">The only creative search engine.</p>\n      </div>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "logo"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/sidebar.ts",
+          "content": "import { html, nothing, type PropertyValues } from 'lit'\nimport { PanelLeftClose, PanelLeftOpen } from 'lucide'\nimport { DsElement, define, HostLayoutController, tagName } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport styles from 'virtual:tw'\n\n// Sidebar.tsx as <spyglass-sidebar>: the app's rail, Black with a hairline at its edge, 256px wide. The `head` slot\n// holds the logo or the workspace (56px, over a hairline), <spyglass-sidebar-label> names each group, a\n// <spyglass-sidebar-link> per page (the page you are on in White), and the `foot` slot the account. `collapsible` adds a\n// button that folds it to 64px of icons, at once; `collapsed` (reflected) with `collapsed-change`.\n\n/**\n * @summary The app's navigation rail, with groups of links.\n * @slot - Labels and links.\n * @slot head - The logo or the workspace.\n * @slot foot - The account.\n * @fires collapsed-change - It folded or unfolded (detail.value).\n */\nexport class Sidebar extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('nav'))\n\tstatic properties = { label: {}, collapsible: { type: Boolean }, collapsed: { type: Boolean, reflect: true } }\n\n\t/** The navigation's name for assistive tech. */\n\tlabel = 'Main'\n\t/** Shows the button that folds it to icons. */\n\tcollapsible = false\n\t/** Folded to icons. */\n\tcollapsed = false\n\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\t// The links and labels draw themselves from the sidebar's state.\n\t\tif (changed.has('collapsed')) for (const el of this.querySelectorAll<DsElement>(`${tagName('sidebar-link')}, ${tagName('sidebar-label')}`)) el.requestUpdate()\n\t}\n\n\trender() {\n\t\tconst head = this.hasSlot('head')\n\t\tconst Icon = this.collapsed ? PanelLeftOpen : PanelLeftClose\n\t\treturn html`<nav data-ds=\"sidebar\" aria-label=${this.label} ?data-collapsed=${this.collapsed} class=${`flex h-full shrink-0 flex-col border-r border-edge bg-surface ${this.collapsed ? 'w-16' : 'w-rail'}`}>\n\t\t\t${head || this.collapsible\n\t\t\t\t? html`<div class=${`flex h-14 shrink-0 items-center gap-2 border-b border-edge px-3 ${this.collapsed ? 'justify-center' : 'justify-between'}`}>\n\t\t\t\t\t${head && !this.collapsed ? html`<div class=\"flex min-w-0 flex-1 items-center pl-1\"><slot name=\"head\"></slot></div>` : nothing}\n\t\t\t\t\t${this.collapsible ? html`<button type=\"button\" class=\"inline-flex size-control-md shrink-0 cursor-pointer items-center justify-center rounded-control text-fg-muted transition-[background-color,color] duration-150 ease-standard hover:bg-action-ghost-hover hover:text-fg\" aria-label=${this.collapsed ? 'Expand sidebar' : 'Collapse sidebar'} aria-expanded=${String(!this.collapsed)} @click=${() => this.commit(!this.collapsed, 'collapsed')}>${icon(Icon, this.collapsed ? 'panel-left-open' : 'panel-left-close', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } })}</button>` : nothing}\n\t\t\t\t</div>`\n\t\t\t\t: nothing}\n\t\t\t<div class=\"flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto p-3\"><slot></slot></div>\n\t\t\t${this.hasSlot('foot') ? html`<div class=${`shrink-0 border-t border-edge p-3 ${this.collapsed ? 'hidden' : ''}`}><slot name=\"foot\"></slot></div>` : nothing}\n\t\t</nav>`\n\t}\n}\n\ndefine('sidebar', Sidebar)\n"
+        },
+        {
+          "path": "elements/components/ui/sidebar-label.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define, tagName } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// SidebarLabel.tsx as <spyglass-sidebar-label>: a group's name in the sidebar, DM Sans Medium in capitals at 6%,\n// muted, 16px over it. Folded to icons, a hairline takes its place and the name stays for assistive tech.\n\n/**\n * @summary A group's name in the sidebar.\n * @slot - The name.\n */\nexport class SidebarLabel extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\n\trender() {\n\t\tconst collapsed = !!(this.closest(tagName('sidebar')) as (Element & { collapsed?: boolean }) | null)?.collapsed\n\t\t// The first in the sidebar's body (the head and foot slots' content aside), as :first-child is in React's.\n\t\tlet prev = this.previousElementSibling\n\t\twhile (prev?.hasAttribute('slot')) prev = prev.previousElementSibling\n\t\tconst first = !prev\n\t\treturn html`<div data-ds=\"sidebar-label\" class=${first ? 'pt-1 pb-2' : 'pt-4 pb-2'}>${collapsed ? html`<div class=\"mx-2 border-t border-edge\" aria-hidden=\"true\"></div>` : ''}<p class=${collapsed ? 'sr-only' : 'px-3 type-label text-fg-muted'}><slot></slot></p></div>`\n\t}\n}\n\ndefine('sidebar-label', SidebarLabel)\n"
+        },
+        {
+          "path": "elements/components/ui/sidebar-link.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define, HostLayoutController, tagName } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// SidebarLink.tsx as <spyglass-sidebar-link>: one page in the sidebar, a 40px row (44px on phones) with its icon (an\n// <i data-lucide> in the `icon` slot), the label and a count (`status`) at the end. The page you are on (`active`) is\n// White with Black type; the others are soft gray and fill on hover. Folded to icons, the row is a 40px square.\n\n/**\n * @summary One page in the sidebar.\n * @slot - The label.\n * @slot icon - A Lucide icon.\n */\nexport class SidebarLink extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('a'))\n\tstatic properties = { href: {}, active: { type: Boolean, reflect: true }, status: {} }\n\n\thref?: string\n\t/** The page you are on. */\n\tactive = false\n\t/** A count at the end of the row. */\n\tstatus?: string\n\n\trender() {\n\t\tconst collapsed = !!(this.closest(tagName('sidebar')) as (Element & { collapsed?: boolean }) | null)?.collapsed\n\t\tconst classes = [\n\t\t\t'flex h-row shrink-0 cursor-pointer items-center gap-3 rounded-control type-ui -outline-offset-2 transition-[background-color,color] duration-150 ease-standard max-md:h-control-touch',\n\t\t\tcollapsed ? 'w-row justify-center px-0' : 'px-3',\n\t\t\tthis.active ? 'bg-action-primary text-action-primary-fg' : 'text-fg-soft hover:bg-action-ghost-hover hover:text-fg',\n\t\t].join(' ')\n\t\treturn html`<a data-ds=\"sidebar-link\" href=${ifDefined(this.href)} aria-current=${ifDefined(this.active ? 'page' : undefined)} class=${classes}>${this.hasSlot('icon') ? html`<span class=${`flex shrink-0 ${this.active ? 'text-action-primary-fg' : 'text-fg-muted'}`}><slot name=\"icon\"></slot></span>` : nothing}<span class=${collapsed ? 'sr-only' : 'min-w-0 flex-1 truncate'}><slot></slot></span>${this.status && !collapsed ? html`<span class=${`type-caption tabular-nums ${this.active ? 'text-action-primary-fg' : 'text-fg-muted'}`}>${this.status}</span>` : nothing}</a>`\n\t}\n}\n\ndefine('sidebar-link', SidebarLink)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/sidebar.js",
+        "elements/sidebar-label.js",
+        "elements/sidebar-link.js",
+        "elements/logo.js"
+      ],
+      "tag": "spyglass-sidebar",
+      "tags": [
+        "spyglass-sidebar",
+        "spyglass-sidebar-label",
+        "spyglass-sidebar-link"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-sidebar",
+            "name": "Sidebar",
+            "module": "elements/sidebar.js",
+            "description": "The app's navigation rail, with groups of links.",
+            "attributes": [
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "'Main'",
+                "description": "The navigation's name for assistive tech."
+              },
+              {
+                "name": "collapsible",
+                "field": "collapsible",
+                "type": "boolean",
+                "default": "false",
+                "description": "Shows the button that folds it to icons."
+              },
+              {
+                "name": "collapsed",
+                "field": "collapsed",
+                "type": "boolean",
+                "default": "false",
+                "description": "Folded to icons."
+              }
+            ],
+            "properties": [
+              {
+                "name": "label",
+                "type": "string",
+                "default": "'Main'",
+                "description": "The navigation's name for assistive tech.",
+                "attribute": "label"
+              },
+              {
+                "name": "collapsible",
+                "type": "boolean",
+                "default": "false",
+                "description": "Shows the button that folds it to icons.",
+                "attribute": "collapsible"
+              },
+              {
+                "name": "collapsed",
+                "type": "boolean",
+                "default": "false",
+                "description": "Folded to icons.",
+                "attribute": "collapsed"
+              }
+            ],
+            "events": [
+              {
+                "name": "collapsed-change",
+                "description": "It folded or unfolded (detail.value)."
+              }
+            ],
+            "slots": [
+              {
+                "name": "",
+                "description": "Labels and links."
+              },
+              {
+                "name": "head",
+                "description": "The logo or the workspace."
+              },
+              {
+                "name": "foot",
+                "description": "The account."
+              }
+            ],
+            "methods": []
+          },
+          {
+            "tag": "spyglass-sidebar-label",
+            "name": "SidebarLabel",
+            "module": "elements/sidebar-label.js",
+            "description": "A group's name in the sidebar.",
+            "attributes": [],
+            "properties": [],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The name."
+              }
+            ],
+            "methods": []
+          },
+          {
+            "tag": "spyglass-sidebar-link",
+            "name": "SidebarLink",
+            "module": "elements/sidebar-link.js",
+            "description": "One page in the sidebar.",
+            "attributes": [
+              {
+                "name": "href",
+                "field": "href",
+                "type": "string | undefined"
+              },
+              {
+                "name": "active",
+                "field": "active",
+                "type": "boolean",
+                "default": "false",
+                "description": "The page you are on."
+              },
+              {
+                "name": "status",
+                "field": "status",
+                "type": "string | undefined",
+                "description": "A count at the end of the row."
+              }
+            ],
+            "properties": [
+              {
+                "name": "href",
+                "type": "string | undefined",
+                "attribute": "href"
+              },
+              {
+                "name": "active",
+                "type": "boolean",
+                "default": "false",
+                "description": "The page you are on.",
+                "attribute": "active"
+              },
+              {
+                "name": "status",
+                "type": "string | undefined",
+                "description": "A count at the end of the row.",
+                "attribute": "status"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The label."
+              },
+              {
+                "name": "icon",
+                "description": "A Lucide icon."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "App",
+          "label": "The app's rail",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/sidebar/App.html",
+          "content": "<!-- The app's rail: the logo and the fold button at the top, a label over each group, the page you are on in White,\n     and the account at the foot. Fold it to icons with the button. -->\n<div class=\"flex h-120 overflow-hidden rounded-container border border-edge\">\n  <spyglass-sidebar id=\"app-rail\" label=\"App\" collapsible>\n    <spyglass-logo slot=\"head\" height=\"20\"></spyglass-logo>\n    <spyglass-sidebar-label>Discover</spyglass-sidebar-label>\n    <spyglass-sidebar-link href=\"#\" active><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-search\" slot=\"icon\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"></circle><path d=\"m21 21-4.3-4.3\"></path></svg>Search</spyglass-sidebar-link>\n    <spyglass-sidebar-link href=\"#\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-compass\" slot=\"icon\" aria-hidden=\"true\"><path d=\"m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z\"></path><circle cx=\"12\" cy=\"12\" r=\"10\"></circle></svg>Explore</spyglass-sidebar-link>\n    <spyglass-sidebar-link href=\"#\" status=\"12\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-store\" slot=\"icon\" aria-hidden=\"true\"><path d=\"m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7\"></path><path d=\"M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8\"></path><path d=\"M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4\"></path><path d=\"M2 7h20\"></path><path d=\"M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7\"></path></svg>Brands</spyglass-sidebar-link>\n    <spyglass-sidebar-link href=\"#\" status=\"8\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-users\" slot=\"icon\" aria-hidden=\"true\"><path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"></path><circle cx=\"9\" cy=\"7\" r=\"4\"></circle><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"></path><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"></path></svg>Creators</spyglass-sidebar-link>\n    <spyglass-sidebar-label>Boards</spyglass-sidebar-label>\n    <spyglass-sidebar-link href=\"#\" status=\"24\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-folder\" slot=\"icon\" aria-hidden=\"true\"><path d=\"M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z\"></path></svg>Acme hooks</spyglass-sidebar-link>\n    <spyglass-sidebar-link href=\"#\" status=\"9\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-folder\" slot=\"icon\" aria-hidden=\"true\"><path d=\"M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z\"></path></svg>UGC ideas</spyglass-sidebar-link>\n    <spyglass-sidebar-link href=\"#\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-bookmark\" slot=\"icon\" aria-hidden=\"true\"><path d=\"m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z\"></path></svg>Saved</spyglass-sidebar-link>\n    <div slot=\"foot\" class=\"flex flex-col gap-0.5\">\n      <spyglass-sidebar-link href=\"#\" data-static><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-settings\" slot=\"icon\" aria-hidden=\"true\"><path d=\"M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z\"></path><circle cx=\"12\" cy=\"12\" r=\"3\"></circle></svg>Settings</spyglass-sidebar-link>\n      <div class=\"flex flex-col px-3 pt-2\">\n        <span class=\"type-ui-strong text-fg\">Acme Studio</span>\n        <span class=\"type-caption text-fg-muted\">Creator plan</span>\n      </div>\n    </div>\n  </spyglass-sidebar>\n  <div class=\"hidden min-w-0 flex-1 flex-col gap-2 p-8 md:flex\">\n    <h2 id=\"app-page\" class=\"type-heading-3 text-fg\">Search</h2>\n    <p class=\"type-ui text-fg-muted\">The only creative search engine.</p>\n  </div>\n</div>\n<script type=\"module\">\n  const rail = document.getElementById('app-rail')\n  const links = rail.querySelectorAll('spyglass-sidebar-link:not([data-static])')\n  for (const link of rail.querySelectorAll('spyglass-sidebar-link')) {\n    link.addEventListener('click', (event) => {\n      event.preventDefault()\n      if (link.hasAttribute('data-static')) return\n      for (const l of links) l.active = l === link\n      document.getElementById('app-page').textContent = link.textContent.trim()\n    })\n  }\n</script>\n"
+        }
+      ]
+    }
+  }
+}

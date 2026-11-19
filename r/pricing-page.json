@@ -1,0 +1,194 @@
+{
+  "name": "pricing-page",
+  "title": "Pricing page",
+  "type": "registry:block",
+  "group": "pages",
+  "description": "The pricing page template, built only from library items: the Creator plan ad as the top (the offer headline under the light field, the plan card) and the questions, answered with what the plan says.",
+  "use_for": "A website's pricing. Each plan is a plan card; edit lib/pages/pricing.ts or pass `content`.",
+  "never": [
+    "New colors, shadows or type sizes added to a section: use the items' props",
+    "More than one White button in a section",
+    "A price or a feature the plan does not state"
+  ],
+  "source": "Built from the library (site header, offer block, plan card, footer row); Figma page 8: Ad, Creator plan offer; the plan's copy is the ad's own",
+  "body": "",
+  "requires": [
+    "footer-row",
+    "offer-block",
+    "plan-card",
+    "site-header"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/pages/PricingPage.tsx",
+      "content": "import { PlanCard } from '@/react/components/site/PlanCard'\nimport { FooterRow } from '@/react/components/site/FooterRow'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { OfferBlock } from '@/react/components/blocks/OfferBlock'\nimport { pricingContent, type PricingContent } from '@/lib/pages/pricing'\nimport { cn } from '@/react/lib/cn'\n\n// The pricing page from library items: the Creator plan ad as the top (the offer headline under the light field, the\n// plan card below it) and the questions, answered only with what the plan says. `content` replaces the copy\n// (lib/pages/pricing.ts); more plans in `plans` sit side by side.\nexport interface PricingPageProps {\n  content?: PricingContent\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'\n\nexport function PricingPage({ content: c = pricingContent, className }: PricingPageProps) {\n  return (\n    <div data-ds=\"pricing-page\" className={cn('bg-surface text-fg', className)}>\n      <div className={WRAP}>\n        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      </div>\n      <main>\n        <OfferBlock headline={c.offer.headline} light=\"field\" seed={0}>\n          <div className=\"flex w-full flex-wrap justify-center gap-4\">\n            {c.plans.map((p) => <PlanCard key={p.title} title={p.title} price={p.price} features={p.features} cta={p.cta} href={p.href} className=\"w-150 max-w-full text-left\" />)}\n          </div>\n        </OfferBlock>\n        <section className={cn(WRAP, 'grid grid-cols-3 gap-12 py-24 max-md:grid-cols-1 max-md:gap-8 max-sm:py-16')}>\n          <h2 className=\"type-heading-1 max-sm:type-heading-2\">{c.faq.title}</h2>\n          <dl className=\"col-span-2 m-0 grid max-md:col-span-1\">\n            {c.faq.items.map((i) => (\n              <div key={i.q} className=\"grid gap-2 border-t border-edge py-6\">\n                <dt className=\"type-heading-4\">{i.q}</dt>\n                <dd className=\"m-0 type-body text-fg-soft\">{i.a}</dd>\n              </div>\n            ))}\n          </dl>\n        </section>\n      </main>\n      <footer className=\"border-t border-edge\">\n        <div className={cn(WRAP, 'py-10')}>\n          <FooterRow domain={c.footer.domain} homeHref=\"/\" links={c.footer.links} />\n        </div>\n      </footer>\n    </div>\n  )\n}\n\nexport default PricingPage\n"
+    },
+    {
+      "path": "lib/pages/pricing.ts",
+      "content": "// The pricing page template's copy: the Creator plan exactly as the ad states it, and questions answered only with what the assets say. Both flavors read this file.\nconst nav = [\n\t{ label: 'Product', href: '/product' },\n\t{ label: 'Pricing', href: '/pricing' },\n\t{ label: 'Changelog', href: '/changelog' },\n\t{ label: 'Blog', href: '/blog' },\n]\nconst footer = {\n\tdomain: 'spyglass.so',\n\tlinks: [\n\t\t{ label: 'Product', href: '/product' },\n\t\t{ label: 'Pricing', href: '/pricing' },\n\t\t{ label: 'About', href: '/about' },\n\t\t{ label: 'Changelog', href: '/changelog' },\n\t\t{ label: 'Blog', href: '/blog' },\n\t\t{ label: 'Terms', href: '/legal' },\n\t],\n}\nconst header = { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get 50% off', href: '/pricing' } }\n\nexport const pricingContent = {\n\theader: { ...header, nav: nav.map((l) => (l.href === '/pricing' ? { ...l, current: true } : l)) },\n\toffer: { headline: 'Stop screenshotting at midnight.' },\n\tplans: [\n\t\t{\n\t\t\ttitle: 'Creator',\n\t\t\tprice: '$10 for your first month, then $20/month',\n\t\t\tfeatures: ['AI-powered research across brands, creators, ads, and campaigns', 'Unlimited board swipe files, alerts, and tracked brands', 'Unlimited team seats'],\n\t\t\tcta: 'Start Creator for 50% off',\n\t\t\thref: '/sign-up',\n\t\t},\n\t],\n\tfaq: {\n\t\ttitle: 'Questions.',\n\t\titems: [\n\t\t\t{ q: 'What does the Creator plan cost?', a: '$10 for your first month, then $20/month.' },\n\t\t\t{ q: 'How many people can use it?', a: 'Unlimited team seats come with the plan.' },\n\t\t\t{ q: 'What can I research?', a: 'AI-powered research across brands, creators, ads, and campaigns.' },\n\t\t\t{ q: 'Which networks are in the index?', a: 'Meta, TikTok, Instagram, and YouTube creatives in one index.' },\n\t\t\t{ q: 'How long does it take to add a brand?', a: 'Add any brand or creator in under a minute.' },\n\t\t],\n\t},\n\tfooter,\n}\n\nexport type PricingContent = typeof pricingContent\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Page",
+      "label": "Pricing page",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/pricing-page/Page.tsx",
+      "content": "import { PricingPage } from '@/react/components/pages/PricingPage'\n// The pricing page template with its own copy.\n\nexport default function Page() {\n  return <PricingPage />\n}\n",
+      "requires": [
+        "footer-row",
+        "offer-block",
+        "plan-card",
+        "site-header"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/pages/PricingPage.tsx",
+          "content": "import { PlanCard } from '@/react/components/site/PlanCard'\nimport { FooterRow } from '@/react/components/site/FooterRow'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { OfferBlock } from '@/react/components/blocks/OfferBlock'\nimport { pricingContent, type PricingContent } from '@/lib/pages/pricing'\nimport { cn } from '@/react/lib/cn'\n\n// The pricing page from library items: the Creator plan ad as the top (the offer headline under the light field, the\n// plan card below it) and the questions, answered only with what the plan says. `content` replaces the copy\n// (lib/pages/pricing.ts); more plans in `plans` sit side by side.\nexport interface PricingPageProps {\n  content?: PricingContent\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'\n\nexport function PricingPage({ content: c = pricingContent, className }: PricingPageProps) {\n  return (\n    <div data-ds=\"pricing-page\" className={cn('bg-surface text-fg', className)}>\n      <div className={WRAP}>\n        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      </div>\n      <main>\n        <OfferBlock headline={c.offer.headline} light=\"field\" seed={0}>\n          <div className=\"flex w-full flex-wrap justify-center gap-4\">\n            {c.plans.map((p) => <PlanCard key={p.title} title={p.title} price={p.price} features={p.features} cta={p.cta} href={p.href} className=\"w-150 max-w-full text-left\" />)}\n          </div>\n        </OfferBlock>\n        <section className={cn(WRAP, 'grid grid-cols-3 gap-12 py-24 max-md:grid-cols-1 max-md:gap-8 max-sm:py-16')}>\n          <h2 className=\"type-heading-1 max-sm:type-heading-2\">{c.faq.title}</h2>\n          <dl className=\"col-span-2 m-0 grid max-md:col-span-1\">\n            {c.faq.items.map((i) => (\n              <div key={i.q} className=\"grid gap-2 border-t border-edge py-6\">\n                <dt className=\"type-heading-4\">{i.q}</dt>\n                <dd className=\"m-0 type-body text-fg-soft\">{i.a}</dd>\n              </div>\n            ))}\n          </dl>\n        </section>\n      </main>\n      <footer className=\"border-t border-edge\">\n        <div className={cn(WRAP, 'py-10')}>\n          <FooterRow domain={c.footer.domain} homeHref=\"/\" links={c.footer.links} />\n        </div>\n      </footer>\n    </div>\n  )\n}\n\nexport default PricingPage\n"
+        },
+        {
+          "path": "lib/pages/pricing.ts",
+          "content": "// The pricing page template's copy: the Creator plan exactly as the ad states it, and questions answered only with what the assets say. Both flavors read this file.\nconst nav = [\n\t{ label: 'Product', href: '/product' },\n\t{ label: 'Pricing', href: '/pricing' },\n\t{ label: 'Changelog', href: '/changelog' },\n\t{ label: 'Blog', href: '/blog' },\n]\nconst footer = {\n\tdomain: 'spyglass.so',\n\tlinks: [\n\t\t{ label: 'Product', href: '/product' },\n\t\t{ label: 'Pricing', href: '/pricing' },\n\t\t{ label: 'About', href: '/about' },\n\t\t{ label: 'Changelog', href: '/changelog' },\n\t\t{ label: 'Blog', href: '/blog' },\n\t\t{ label: 'Terms', href: '/legal' },\n\t],\n}\nconst header = { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get 50% off', href: '/pricing' } }\n\nexport const pricingContent = {\n\theader: { ...header, nav: nav.map((l) => (l.href === '/pricing' ? { ...l, current: true } : l)) },\n\toffer: { headline: 'Stop screenshotting at midnight.' },\n\tplans: [\n\t\t{\n\t\t\ttitle: 'Creator',\n\t\t\tprice: '$10 for your first month, then $20/month',\n\t\t\tfeatures: ['AI-powered research across brands, creators, ads, and campaigns', 'Unlimited board swipe files, alerts, and tracked brands', 'Unlimited team seats'],\n\t\t\tcta: 'Start Creator for 50% off',\n\t\t\thref: '/sign-up',\n\t\t},\n\t],\n\tfaq: {\n\t\ttitle: 'Questions.',\n\t\titems: [\n\t\t\t{ q: 'What does the Creator plan cost?', a: '$10 for your first month, then $20/month.' },\n\t\t\t{ q: 'How many people can use it?', a: 'Unlimited team seats come with the plan.' },\n\t\t\t{ q: 'What can I research?', a: 'AI-powered research across brands, creators, ads, and campaigns.' },\n\t\t\t{ q: 'Which networks are in the index?', a: 'Meta, TikTok, Instagram, and YouTube creatives in one index.' },\n\t\t\t{ q: 'How long does it take to add a brand?', a: 'Add any brand or creator in under a minute.' },\n\t\t],\n\t},\n\tfooter,\n}\n\nexport type PricingContent = typeof pricingContent\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "footer-row",
+        "offer-block",
+        "plan-card",
+        "site-header"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "PricingPage",
+            "file": "react/components/pages/PricingPage.tsx",
+            "props": [
+              {
+                "name": "content",
+                "type": "PricingContent",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Pricing page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/pricing-page/Page.tsx",
+          "content": "import { PricingPage } from '@/react/components/pages/PricingPage'\n// The pricing page template with its own copy.\n\nexport default function Page() {\n  return <PricingPage />\n}\n",
+          "registryDependencies": [
+            "footer-row",
+            "offer-block",
+            "plan-card",
+            "site-header"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/pages/pricing-page.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { pricingContent, type PricingContent } from '@/lib/pages/pricing'\nimport '@/elements/components/site/plan-card'\nimport '@/elements/components/blocks/offer-block'\nimport '@/elements/components/site/footer-row'\nimport '@/elements/components/site/site-header'\nimport styles from 'virtual:tw'\n\n// PricingPage.tsx as <spyglass-pricing-page>: the Creator plan ad as the top and the questions. `content` replaces the copy.\nconst WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'\n\n/**\n * @summary The pricing page template.\n */\nexport class PricingPage extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"pricing-page\"]'))\n\tstatic properties = { content: { type: Object } }\n\t/** The page's copy (lib/pages/pricing.ts by default). */\n\tcontent: PricingContent = pricingContent\n\n\trender() {\n\t\tconst c = this.content ?? pricingContent\n\t\treturn html`<div data-ds=\"pricing-page\" class=\"bg-surface text-fg\">\n<div class=${WRAP}><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header></div>\n<main>\n<spyglass-offer-block headline=${c.offer.headline} light=\"field\" seed=\"0\"><div class=\"flex w-full flex-wrap justify-center gap-4\">${c.plans.map((p) => html`<spyglass-plan-card heading=${p.title} price=${p.price} .features=${p.features} cta=${p.cta} href=${p.href} class=\"w-150 max-w-full text-left\"></spyglass-plan-card>`)}</div></spyglass-offer-block>\n<section class=${`${WRAP} grid grid-cols-3 gap-12 py-24 max-md:grid-cols-1 max-md:gap-8 max-sm:py-16`}><h2 class=\"type-heading-1 max-sm:type-heading-2\">${c.faq.title}</h2><dl class=\"col-span-2 m-0 grid max-md:col-span-1\">${c.faq.items.map((i) => html`<div class=\"grid gap-2 border-t border-edge py-6\"><dt class=\"type-heading-4\">${i.q}</dt><dd class=\"m-0 type-body text-fg-soft\">${i.a}</dd></div>`)}</dl></section>\n</main>\n<footer class=\"border-t border-edge\"><div class=${`${WRAP} py-10`}><spyglass-footer-row domain=${c.footer.domain} home-href=\"/\" .links=${c.footer.links}></spyglass-footer-row></div></footer>\n</div>`\n\t}\n}\n\ndefine('pricing-page', PricingPage)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/pricing-page.js",
+        "elements/plan-card.js",
+        "elements/offer-block.js",
+        "elements/footer-row.js",
+        "elements/site-header.js",
+        "elements/button.js",
+        "elements/ascii-texture.js",
+        "elements/brand-light.js",
+        "elements/logo.js"
+      ],
+      "tag": "spyglass-pricing-page",
+      "tags": [
+        "spyglass-pricing-page"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-texture",
+        "brand-light",
+        "button",
+        "footer-row",
+        "logo",
+        "offer-block",
+        "plan-card",
+        "site-header"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-pricing-page",
+            "name": "PricingPage",
+            "module": "elements/pricing-page.js",
+            "description": "The pricing page template.",
+            "attributes": [
+              {
+                "name": "content",
+                "field": "content",
+                "type": "{ header: { nav: ({ label: string; href: string; } | { current: boolean; label: string; href: string; })[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; }; }; offer: { headline: string; }; plans: { title: string; price: string; features: string[]; cta: string; href: string; }[]; faq: { title: string; items: { q: string; a: string; }[]; }; footer: { domain: string; links: { label: string; href: string; }[]; }; }",
+                "default": "pricingContent",
+                "description": "The page's copy (lib/pages/pricing.ts by default)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "content",
+                "type": "{ header: { nav: ({ label: string; href: string; } | { current: boolean; label: string; href: string; })[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; }; }; offer: { headline: string; }; plans: { title: string; price: string; features: string[]; cta: string; href: string; }[]; faq: { title: string; items: { q: string; a: string; }[]; }; footer: { domain: string; links: { label: string; href: string; }[]; }; }",
+                "default": "pricingContent",
+                "description": "The page's copy (lib/pages/pricing.ts by default).",
+                "attribute": "content"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Pricing page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/pricing-page/Page.html",
+          "content": "<!-- The pricing page template with its own copy. -->\n<spyglass-pricing-page></spyglass-pricing-page>\n"
+        }
+      ]
+    }
+  }
+}

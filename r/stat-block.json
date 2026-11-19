@@ -1,0 +1,211 @@
+{
+  "name": "stat-block",
+  "title": "Stat block",
+  "type": "registry:block",
+  "group": "blocks",
+  "description": "Numbers that say what the product does: Funnel Display figures over a line of DM Sans each, under a hairline or on the #171717 fill, four across.",
+  "use_for": "A section of facts on a home, product or about page. Every figure is true and checkable.",
+  "never": [
+    "Invented, rounded-up or unsourced numbers",
+    "Colored figures or icons beside them",
+    "More than four numbers in a row"
+  ],
+  "source": "Derived from the guidelines (voice: concrete numbers) and the card on Black; the figures in the example come from the assets' copy (four networks, a brand added in under a minute, unlimited seats, $10 for the first month)",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/blocks/StatBlock.tsx",
+      "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// Numbers that say what the product does, each a Funnel Display figure over a DM Sans line, the way the brand's copy\n// leans on concrete numbers. `rule` sets each under a hairline on Black; `card` sets each on the #171717 fill. Four\n// across on wide screens, two on phones. The numbers are facts: never round them up or invent them.\nexport interface Stat {\n  /** The figure: \"4\", \"$10\", \"1 minute\". */\n  value: string\n  /** What it counts, as a short line. */\n  label: string\n}\n\nexport interface StatBlockProps {\n  stats: Stat[]\n  /** A heading above the numbers. */\n  title?: ReactNode\n  /** rule (a hairline above each) or card (the #171717 fill). */\n  variant?: 'rule' | 'card'\n  className?: string\n}\n\nexport function StatBlock({ stats, title, variant = 'rule', className }: StatBlockProps) {\n  const card = variant === 'card'\n  return (\n    <section data-ds=\"stat-block\" className={cn('grid gap-10 text-fg max-sm:gap-8', className)}>\n      {title && <h2 className=\"max-w-3xl type-heading-1 text-balance max-sm:type-heading-2\">{title}</h2>}\n      <dl className={cn('m-0 grid grid-cols-4 max-md:grid-cols-2', card ? 'gap-4' : 'gap-x-6 gap-y-10')}>\n        {stats.map((s) => (\n          <div key={s.label} className={cn('flex flex-col-reverse justify-end gap-3', card ? 'rounded-container bg-surface-raised p-6' : 'border-t border-edge-strong pt-6')}>\n            <dt className=\"type-ui text-fg-soft\">{s.label}</dt>\n            <dd className=\"m-0 type-hero max-sm:type-heading-1\">{s.value}</dd>\n          </div>\n        ))}\n      </dl>\n    </section>\n  )\n}\n\nexport default StatBlock\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Rule",
+      "label": "Under a hairline",
+      "center": false,
+      "half": false,
+      "path": "react/examples/stat-block/Rule.tsx",
+      "content": "import { StatBlock } from '@/react/components/blocks/StatBlock'\n// The figures the assets state, each under a hairline.\n\nconst stats = [\n  { value: '4', label: 'Networks in one index: Meta, TikTok, Instagram and YouTube.' },\n  { value: '1 min', label: 'To add any brand or creator.' },\n  { value: 'Unlimited', label: 'Team seats on the Creator plan.' },\n  { value: '$10', label: 'For your first month, then $20/month.' },\n]\n\nexport default function Rule() {\n  return <StatBlock title=\"Every creative in one place.\" stats={stats} />\n}\n",
+      "requires": [],
+      "packages": []
+    },
+    {
+      "name": "Cards",
+      "label": "On the card fill",
+      "center": false,
+      "half": false,
+      "path": "react/examples/stat-block/Cards.tsx",
+      "content": "import { StatBlock } from '@/react/components/blocks/StatBlock'\n// An Acme team's numbers, on the card fill.\n\nconst stats = [\n  { value: '128', label: 'Brands tracked' },\n  { value: '42', label: 'Boards shared' },\n  { value: '9', label: 'Alerts this week' },\n  { value: '12', label: 'Seats in use' },\n]\n\nexport default function Cards() {\n  return <StatBlock stats={stats} variant=\"card\" />\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/blocks/StatBlock.tsx",
+          "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// Numbers that say what the product does, each a Funnel Display figure over a DM Sans line, the way the brand's copy\n// leans on concrete numbers. `rule` sets each under a hairline on Black; `card` sets each on the #171717 fill. Four\n// across on wide screens, two on phones. The numbers are facts: never round them up or invent them.\nexport interface Stat {\n  /** The figure: \"4\", \"$10\", \"1 minute\". */\n  value: string\n  /** What it counts, as a short line. */\n  label: string\n}\n\nexport interface StatBlockProps {\n  stats: Stat[]\n  /** A heading above the numbers. */\n  title?: ReactNode\n  /** rule (a hairline above each) or card (the #171717 fill). */\n  variant?: 'rule' | 'card'\n  className?: string\n}\n\nexport function StatBlock({ stats, title, variant = 'rule', className }: StatBlockProps) {\n  const card = variant === 'card'\n  return (\n    <section data-ds=\"stat-block\" className={cn('grid gap-10 text-fg max-sm:gap-8', className)}>\n      {title && <h2 className=\"max-w-3xl type-heading-1 text-balance max-sm:type-heading-2\">{title}</h2>}\n      <dl className={cn('m-0 grid grid-cols-4 max-md:grid-cols-2', card ? 'gap-4' : 'gap-x-6 gap-y-10')}>\n        {stats.map((s) => (\n          <div key={s.label} className={cn('flex flex-col-reverse justify-end gap-3', card ? 'rounded-container bg-surface-raised p-6' : 'border-t border-edge-strong pt-6')}>\n            <dt className=\"type-ui text-fg-soft\">{s.label}</dt>\n            <dd className=\"m-0 type-hero max-sm:type-heading-1\">{s.value}</dd>\n          </div>\n        ))}\n      </dl>\n    </section>\n  )\n}\n\nexport default StatBlock\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "StatBlock",
+            "file": "react/components/blocks/StatBlock.tsx",
+            "props": [
+              {
+                "name": "stats",
+                "type": "Stat[]",
+                "required": true
+              },
+              {
+                "name": "title",
+                "type": "ReactNode",
+                "required": false,
+                "description": "A heading above the numbers."
+              },
+              {
+                "name": "variant",
+                "type": "'rule' | 'card'",
+                "required": false,
+                "default": "'rule'",
+                "description": "rule (a hairline above each) or card (the #171717 fill)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Rule",
+          "label": "Under a hairline",
+          "center": false,
+          "half": false,
+          "path": "react/examples/stat-block/Rule.tsx",
+          "content": "import { StatBlock } from '@/react/components/blocks/StatBlock'\n// The figures the assets state, each under a hairline.\n\nconst stats = [\n  { value: '4', label: 'Networks in one index: Meta, TikTok, Instagram and YouTube.' },\n  { value: '1 min', label: 'To add any brand or creator.' },\n  { value: 'Unlimited', label: 'Team seats on the Creator plan.' },\n  { value: '$10', label: 'For your first month, then $20/month.' },\n]\n\nexport default function Rule() {\n  return <StatBlock title=\"Every creative in one place.\" stats={stats} />\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        },
+        {
+          "name": "Cards",
+          "label": "On the card fill",
+          "center": false,
+          "half": false,
+          "path": "react/examples/stat-block/Cards.tsx",
+          "content": "import { StatBlock } from '@/react/components/blocks/StatBlock'\n// An Acme team's numbers, on the card fill.\n\nconst stats = [\n  { value: '128', label: 'Brands tracked' },\n  { value: '42', label: 'Boards shared' },\n  { value: '9', label: 'Alerts this week' },\n  { value: '12', label: 'Seats in use' },\n]\n\nexport default function Cards() {\n  return <StatBlock stats={stats} variant=\"card\" />\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/blocks/stat-block.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// StatBlock.tsx as <spyglass-stat-block>: Funnel Display figures over DM Sans lines (`stats`, a list of\n// { value, label }), under a `heading` (React's `title`), each under a hairline (`rule`) or on the #171717 fill (`card`).\nexport interface Stat { value: string; label: string }\n\n/**\n * @summary Numbers: Funnel Display figures with a line each.\n */\nexport class StatBlock extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"stat-block\"]'))\n\tstatic properties = { stats: { type: Array }, heading: {}, variant: {} }\n\tstats: Stat[] = []\n\t/** A heading above the numbers (React's `title`). */\n\theading?: string\n\t/** rule or card. */\n\tvariant: 'rule' | 'card' = 'rule'\n\n\trender() {\n\t\tconst card = this.variant === 'card'\n\t\treturn html`<section data-ds=\"stat-block\" class=\"grid gap-10 text-fg max-sm:gap-8\">${this.heading ? html`<h2 class=\"max-w-3xl type-heading-1 text-balance max-sm:type-heading-2\">${this.heading}</h2>` : nothing}<dl class=${['m-0 grid grid-cols-4 max-md:grid-cols-2', card ? 'gap-4' : 'gap-x-6 gap-y-10'].join(' ')}>${(this.stats ?? []).map((s) => html`<div class=${['flex flex-col-reverse justify-end gap-3', card ? 'rounded-container bg-surface-raised p-6' : 'border-t border-edge-strong pt-6'].join(' ')}><dt class=\"type-ui text-fg-soft\">${s.label}</dt><dd class=\"m-0 type-hero max-sm:type-heading-1\">${s.value}</dd></div>`)}</dl></section>`\n\t}\n}\n\ndefine('stat-block', StatBlock)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/stat-block.js"
+      ],
+      "tag": "spyglass-stat-block",
+      "tags": [
+        "spyglass-stat-block"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-stat-block",
+            "name": "StatBlock",
+            "module": "elements/stat-block.js",
+            "description": "Numbers: Funnel Display figures with a line each.",
+            "attributes": [
+              {
+                "name": "stats",
+                "field": "stats",
+                "type": "Stat[]",
+                "default": "[]"
+              },
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string | undefined",
+                "description": "A heading above the numbers (React's `title`)."
+              },
+              {
+                "name": "variant",
+                "field": "variant",
+                "type": "\"rule\" | \"card\"",
+                "default": "'rule'",
+                "description": "rule or card."
+              }
+            ],
+            "properties": [
+              {
+                "name": "stats",
+                "type": "Stat[]",
+                "default": "[]",
+                "attribute": "stats"
+              },
+              {
+                "name": "heading",
+                "type": "string | undefined",
+                "description": "A heading above the numbers (React's `title`).",
+                "attribute": "heading"
+              },
+              {
+                "name": "variant",
+                "type": "\"rule\" | \"card\"",
+                "default": "'rule'",
+                "description": "rule or card.",
+                "attribute": "variant"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Rule",
+          "label": "Under a hairline",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/stat-block/Rule.html",
+          "content": "<!-- The figures the assets state, each under a hairline. -->\n<spyglass-stat-block heading=\"Every creative in one place.\" stats='[{\"value\":\"4\",\"label\":\"Networks in one index: Meta, TikTok, Instagram and YouTube.\"},{\"value\":\"1 min\",\"label\":\"To add any brand or creator.\"},{\"value\":\"Unlimited\",\"label\":\"Team seats on the Creator plan.\"},{\"value\":\"$10\",\"label\":\"For your first month, then $20/month.\"}]'></spyglass-stat-block>\n"
+        },
+        {
+          "name": "Cards",
+          "label": "On the card fill",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/stat-block/Cards.html",
+          "content": "<!-- An Acme team's numbers, on the card fill. -->\n<spyglass-stat-block variant=\"card\" stats='[{\"value\":\"128\",\"label\":\"Brands tracked\"},{\"value\":\"42\",\"label\":\"Boards shared\"},{\"value\":\"9\",\"label\":\"Alerts this week\"},{\"value\":\"12\",\"label\":\"Seats in use\"}]'></spyglass-stat-block>\n"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,413 @@
+{
+  "name": "navigation-menu",
+  "title": "Navigation Menu",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A site's top navigation: triggers and links in DM Sans Medium, each trigger opening a panel of links in the card's #171717 fill. It opens under a resting pointer, switches at once between triggers, and opens at once from the keyboard.",
+  "use_for": "The website's header: the product's parts, resources, pricing. A few entries, each panel a handful of links with a line each.",
+  "never": [
+    "App navigation: use the Sidebar",
+    "Actions: use Dropdown Menu or Menubar",
+    "A chevron that turns or moves on hover"
+  ],
+  "source": "Derived from the brand guidelines (no navigation menu in the brand assets): Black ground, DM Sans Medium for entries, the plan card's #171717 fill for panels, the neutral steps for fills",
+  "body": "",
+  "requires": [
+    "popover"
+  ],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/ui/NavigationMenu.tsx",
+      "content": "'use client'\nimport { createContext, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'\n\n// A site's top navigation (shadcn's navigation menu): a row of triggers and links in DM Sans Medium, each trigger\n// opening a panel of links in the card's #171717 fill under it (NavigationMenuItem with NavigationMenuLink rows). Under\n// a pointer a panel opens after a short wait and closes a moment after the pointer leaves both; while one is open,\n// pointing at another trigger switches at once. A click toggles it; Enter, Space or Down opens it at once with focus on\n// its first link; Left and Right move along the triggers; Escape closes it and returns focus. The chevron stays still.\nexport interface NavigationMenuContextValue {\n  active: string | null\n  setActive: Dispatch<SetStateAction<string | null>>\n  /** The triggers and links of the row, in order, for Left and Right. */\n  row: () => HTMLElement[]\n}\nexport const NavigationMenuContext = createContext<NavigationMenuContextValue | null>(null)\n\nexport interface NavigationMenuProps {\n  /** The navigation's name for assistive tech. */\n  label?: string\n  /** NavigationMenuItem elements. */\n  children?: ReactNode\n  className?: string\n}\n\nexport function NavigationMenu({ label = 'Main', children, className }: NavigationMenuProps) {\n  const [active, setActive] = useState<string | null>(null)\n  const list = useRef<HTMLUListElement | null>(null)\n  const row = () => [...(list.current?.querySelectorAll<HTMLElement>('[data-nav-trigger]') ?? [])]\n  return (\n    <NavigationMenuContext.Provider value={{ active, setActive, row }}>\n      <nav data-ds=\"navigation-menu\" aria-label={label} className={className}>\n        <ul ref={list} className=\"flex flex-wrap items-center gap-1\">{children}</ul>\n      </nav>\n    </NavigationMenuContext.Provider>\n  )\n}\n\nexport default NavigationMenu\n"
+    },
+    {
+      "path": "react/components/ui/NavigationMenuItem.tsx",
+      "content": "'use client'\nimport { useContext, useEffect, useId, useRef, type FocusEvent, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from 'react'\nimport { ChevronDown } from 'lucide-react'\nimport { NavigationMenuContext } from '@/react/components/ui/NavigationMenu'\nimport { PopoverPanel } from '@/react/components/ui/PopoverPanel'\nimport { firstFocusable, usePopover } from '@/react/hooks/usePopover'\nimport { cn } from '@/react/lib/cn'\n\n// One entry of a NavigationMenu: with children, a trigger and its panel of links (NavigationMenuLink); with `href` and\n// no children, a plain link in the row (`active` for the page you are on). The open trigger takes the #262626 fill.\nexport interface NavigationMenuItemProps {\n  /** The trigger's or the link's text. */\n  label: string\n  /** A plain link in the row, when it has no panel. */\n  href?: string\n  /** The page you are on (a plain link). */\n  active?: boolean\n  /** The panel's width (a CSS length). */\n  width?: string\n  /** The panel's links. */\n  children?: ReactNode\n}\n\nconst WAIT = 150\nconst GRACE = 150\nconst ROW = 'inline-flex h-control-md cursor-pointer items-center gap-1.5 rounded-control px-4 type-ui-strong -outline-offset-2 transition-[background-color,color] duration-150 ease-standard max-md:h-control-touch'\n\nexport function NavigationMenuItem({ label, href, active, width = '400px', children }: NavigationMenuItemProps) {\n  const nav = useContext(NavigationMenuContext)!\n  const key = useId()\n  const pop = usePopover({ side: 'bottom', align: 'start', gap: 8 })\n  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)\n  const hovered = useRef(0)\n\n  useEffect(() => {\n    if (pop.open) nav.setActive(key)\n    else nav.setActive((a) => (a === key ? null : a))\n  }, [pop.open]) // eslint-disable-line react-hooks/exhaustive-deps\n  useEffect(() => {\n    if (nav.active !== key && pop.open) pop.hide(false, true)\n  }, [nav.active]) // eslint-disable-line react-hooks/exhaustive-deps\n  useEffect(() => () => clearTimeout(timer.current), [])\n\n  function move(event: KeyboardEvent) {\n    if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return false\n    event.preventDefault()\n    const row = nav.row()\n    const at = row.indexOf(event.currentTarget as HTMLElement)\n    row[(at + (event.key === 'ArrowRight' ? 1 : -1) + row.length) % row.length]?.focus()\n    return true\n  }\n\n  if (!children) {\n    return (\n      <li data-ds=\"navigation-menu-item\" className=\"flex\">\n        <a data-nav-trigger=\"\" href={href} aria-current={active ? 'page' : undefined} className={cn(ROW, active ? 'text-fg' : 'text-fg-soft hover:bg-action-ghost-hover hover:text-fg')} onKeyDown={move}>{label}</a>\n      </li>\n    )\n  }\n\n  async function openAt(keyboard: boolean, focus: boolean) {\n    clearTimeout(timer.current)\n    await pop.show({ keyboard })\n    if (focus) (firstFocusable(pop.panel.current) ?? pop.panel.current)?.focus({ preventScroll: true })\n  }\n  function enter(event: PointerEvent) {\n    if (event.pointerType !== 'mouse') return\n    clearTimeout(timer.current)\n    if (pop.open) return\n    // Another panel open: switch at once.\n    if (nav.active && nav.active !== key) {\n      hovered.current = Date.now()\n      return void openAt(true, false)\n    }\n    // ds-latency: the wait keeps a passing pointer from opening it.\n    timer.current = setTimeout(() => {\n      hovered.current = Date.now()\n      void openAt(false, false)\n    }, WAIT)\n  }\n  function leave(event: PointerEvent) {\n    if (event.pointerType !== 'mouse') return\n    clearTimeout(timer.current)\n    // ds-latency: a grace to cross the gap into the panel.\n    timer.current = setTimeout(() => pop.hide(), GRACE)\n  }\n  // A click toggles it; a click right after the pointer opened it keeps it open.\n  function onClick(event: MouseEvent) {\n    const keyboard = event.detail === 0\n    if (pop.open) {\n      if (!keyboard && Date.now() - hovered.current < 400) return\n      pop.hide(keyboard, keyboard)\n    }\n    else void openAt(keyboard, keyboard)\n  }\n  function onKey(event: KeyboardEvent) {\n    if (move(event)) return\n    if (event.key === 'ArrowDown') {\n      event.preventDefault()\n      void openAt(true, true)\n    }\n  }\n  function onBlur(event: FocusEvent) {\n    const next = event.relatedTarget as Node | null\n    if (next && !pop.panel.current?.contains(next) && !pop.anchor.current?.contains(next)) pop.hide()\n  }\n  return (\n    <li data-ds=\"navigation-menu-item\" className=\"flex\" onPointerEnter={enter} onPointerLeave={leave}>\n      <button\n        data-nav-trigger=\"\"\n        ref={(el) => { pop.anchor.current = el }}\n        type=\"button\"\n        aria-expanded={pop.open}\n        className={cn(ROW, 'text-fg-soft hover:not-aria-expanded:bg-action-ghost-hover hover:text-fg aria-expanded:bg-action-secondary aria-expanded:text-fg')}\n        onClick={onClick}\n        onKeyDown={onKey}\n        onBlur={onBlur}\n      >\n        {label}\n        <ChevronDown size={16} strokeWidth={1.5} aria-hidden=\"true\" className=\"shrink-0 text-fg-muted\" />\n      </button>\n      <PopoverPanel data-ds=\"navigation-menu-item\" pop={pop} aria-label={label} tabIndex={-1} className=\"p-2\" style={{ width }} onPointerEnter={enter} onPointerLeave={leave}>\n        {children}\n      </PopoverPanel>\n    </li>\n  )\n}\n\nexport default NavigationMenuItem\n"
+    },
+    {
+      "path": "react/components/ui/NavigationMenuLink.tsx",
+      "content": "import type { AnchorHTMLAttributes, ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// A link in a NavigationMenuItem's panel: its title in DM Sans Medium and a muted line under it, the small corner; the\n// link under the pointer or focus takes the #262626 fill. Other props (onClick) land on the <a>.\nexport interface NavigationMenuLinkProps extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'title'> {\n  href?: string\n  /** The link's title. */\n  title: string\n  /** A line under it. */\n  description?: string\n  children?: ReactNode\n}\n\nexport function NavigationMenuLink({ href, title, description, className, ...rest }: NavigationMenuLinkProps) {\n  return (\n    <a data-ds=\"navigation-menu-link\" href={href} className={cn('flex flex-col gap-1 rounded-ds-sm p-3 -outline-offset-2 transition-[background-color] duration-150 ease-standard hover:bg-action-secondary focus-visible:bg-action-secondary', className)} {...rest}>\n      <span className=\"type-ui-strong text-fg\">{title}</span>\n      {description && <span className=\"type-caption text-fg-muted\">{description}</span>}\n    </a>\n  )\n}\n\nexport default NavigationMenuLink\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Site",
+      "label": "The site's header",
+      "center": false,
+      "half": false,
+      "path": "react/examples/navigation-menu/Site.tsx",
+      "content": "import { NavigationMenu } from '@/react/components/ui/NavigationMenu'\nimport { NavigationMenuItem } from '@/react/components/ui/NavigationMenuItem'\nimport { NavigationMenuLink } from '@/react/components/ui/NavigationMenuLink'\n// The site's top navigation: the product and resources open panels of links, pricing and about are plain links. Point\n// at Product, then move to Resources: it switches at once.\nconst product = [\n  { title: 'Search', description: 'Find any ad in seconds, by hook, brand or format.' },\n  { title: 'Boards', description: 'Save and share the creatives that work.' },\n  { title: 'Brand tracking', description: 'Every new ad from the brands you follow.' },\n  { title: 'Creators', description: 'The faces behind the ads that run longest.' },\n]\nconst resources = [\n  { title: 'Blog', description: 'What the best ads have in common.' },\n  { title: 'Changelog', description: 'New in Spyglass, every week.' },\n  { title: 'Help center', description: 'Answers in under a minute.' },\n]\n\nexport default function Site() {\n  return (\n    <div className=\"min-h-80\">\n      <NavigationMenu label=\"Site\">\n        <NavigationMenuItem label=\"Product\" width=\"440px\">\n          <div className=\"grid gap-1 sm:grid-cols-2\">\n            {product.map((l) => <NavigationMenuLink key={l.title} href=\"#\" title={l.title} description={l.description} />)}\n          </div>\n        </NavigationMenuItem>\n        <NavigationMenuItem label=\"Resources\" width=\"280px\">\n          <div className=\"grid gap-1\">\n            {resources.map((l) => <NavigationMenuLink key={l.title} href=\"#\" title={l.title} description={l.description} />)}\n          </div>\n        </NavigationMenuItem>\n        <NavigationMenuItem label=\"Pricing\" href=\"#\" />\n        <NavigationMenuItem label=\"About\" href=\"#\" />\n      </NavigationMenu>\n    </div>\n  )\n}\n",
+      "requires": [
+        "popover"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/NavigationMenu.tsx",
+          "content": "'use client'\nimport { createContext, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'\n\n// A site's top navigation (shadcn's navigation menu): a row of triggers and links in DM Sans Medium, each trigger\n// opening a panel of links in the card's #171717 fill under it (NavigationMenuItem with NavigationMenuLink rows). Under\n// a pointer a panel opens after a short wait and closes a moment after the pointer leaves both; while one is open,\n// pointing at another trigger switches at once. A click toggles it; Enter, Space or Down opens it at once with focus on\n// its first link; Left and Right move along the triggers; Escape closes it and returns focus. The chevron stays still.\nexport interface NavigationMenuContextValue {\n  active: string | null\n  setActive: Dispatch<SetStateAction<string | null>>\n  /** The triggers and links of the row, in order, for Left and Right. */\n  row: () => HTMLElement[]\n}\nexport const NavigationMenuContext = createContext<NavigationMenuContextValue | null>(null)\n\nexport interface NavigationMenuProps {\n  /** The navigation's name for assistive tech. */\n  label?: string\n  /** NavigationMenuItem elements. */\n  children?: ReactNode\n  className?: string\n}\n\nexport function NavigationMenu({ label = 'Main', children, className }: NavigationMenuProps) {\n  const [active, setActive] = useState<string | null>(null)\n  const list = useRef<HTMLUListElement | null>(null)\n  const row = () => [...(list.current?.querySelectorAll<HTMLElement>('[data-nav-trigger]') ?? [])]\n  return (\n    <NavigationMenuContext.Provider value={{ active, setActive, row }}>\n      <nav data-ds=\"navigation-menu\" aria-label={label} className={className}>\n        <ul ref={list} className=\"flex flex-wrap items-center gap-1\">{children}</ul>\n      </nav>\n    </NavigationMenuContext.Provider>\n  )\n}\n\nexport default NavigationMenu\n"
+        },
+        {
+          "path": "react/components/ui/NavigationMenuItem.tsx",
+          "content": "'use client'\nimport { useContext, useEffect, useId, useRef, type FocusEvent, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from 'react'\nimport { ChevronDown } from 'lucide-react'\nimport { NavigationMenuContext } from '@/react/components/ui/NavigationMenu'\nimport { PopoverPanel } from '@/react/components/ui/PopoverPanel'\nimport { firstFocusable, usePopover } from '@/react/hooks/usePopover'\nimport { cn } from '@/react/lib/cn'\n\n// One entry of a NavigationMenu: with children, a trigger and its panel of links (NavigationMenuLink); with `href` and\n// no children, a plain link in the row (`active` for the page you are on). The open trigger takes the #262626 fill.\nexport interface NavigationMenuItemProps {\n  /** The trigger's or the link's text. */\n  label: string\n  /** A plain link in the row, when it has no panel. */\n  href?: string\n  /** The page you are on (a plain link). */\n  active?: boolean\n  /** The panel's width (a CSS length). */\n  width?: string\n  /** The panel's links. */\n  children?: ReactNode\n}\n\nconst WAIT = 150\nconst GRACE = 150\nconst ROW = 'inline-flex h-control-md cursor-pointer items-center gap-1.5 rounded-control px-4 type-ui-strong -outline-offset-2 transition-[background-color,color] duration-150 ease-standard max-md:h-control-touch'\n\nexport function NavigationMenuItem({ label, href, active, width = '400px', children }: NavigationMenuItemProps) {\n  const nav = useContext(NavigationMenuContext)!\n  const key = useId()\n  const pop = usePopover({ side: 'bottom', align: 'start', gap: 8 })\n  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)\n  const hovered = useRef(0)\n\n  useEffect(() => {\n    if (pop.open) nav.setActive(key)\n    else nav.setActive((a) => (a === key ? null : a))\n  }, [pop.open]) // eslint-disable-line react-hooks/exhaustive-deps\n  useEffect(() => {\n    if (nav.active !== key && pop.open) pop.hide(false, true)\n  }, [nav.active]) // eslint-disable-line react-hooks/exhaustive-deps\n  useEffect(() => () => clearTimeout(timer.current), [])\n\n  function move(event: KeyboardEvent) {\n    if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return false\n    event.preventDefault()\n    const row = nav.row()\n    const at = row.indexOf(event.currentTarget as HTMLElement)\n    row[(at + (event.key === 'ArrowRight' ? 1 : -1) + row.length) % row.length]?.focus()\n    return true\n  }\n\n  if (!children) {\n    return (\n      <li data-ds=\"navigation-menu-item\" className=\"flex\">\n        <a data-nav-trigger=\"\" href={href} aria-current={active ? 'page' : undefined} className={cn(ROW, active ? 'text-fg' : 'text-fg-soft hover:bg-action-ghost-hover hover:text-fg')} onKeyDown={move}>{label}</a>\n      </li>\n    )\n  }\n\n  async function openAt(keyboard: boolean, focus: boolean) {\n    clearTimeout(timer.current)\n    await pop.show({ keyboard })\n    if (focus) (firstFocusable(pop.panel.current) ?? pop.panel.current)?.focus({ preventScroll: true })\n  }\n  function enter(event: PointerEvent) {\n    if (event.pointerType !== 'mouse') return\n    clearTimeout(timer.current)\n    if (pop.open) return\n    // Another panel open: switch at once.\n    if (nav.active && nav.active !== key) {\n      hovered.current = Date.now()\n      return void openAt(true, false)\n    }\n    // ds-latency: the wait keeps a passing pointer from opening it.\n    timer.current = setTimeout(() => {\n      hovered.current = Date.now()\n      void openAt(false, false)\n    }, WAIT)\n  }\n  function leave(event: PointerEvent) {\n    if (event.pointerType !== 'mouse') return\n    clearTimeout(timer.current)\n    // ds-latency: a grace to cross the gap into the panel.\n    timer.current = setTimeout(() => pop.hide(), GRACE)\n  }\n  // A click toggles it; a click right after the pointer opened it keeps it open.\n  function onClick(event: MouseEvent) {\n    const keyboard = event.detail === 0\n    if (pop.open) {\n      if (!keyboard && Date.now() - hovered.current < 400) return\n      pop.hide(keyboard, keyboard)\n    }\n    else void openAt(keyboard, keyboard)\n  }\n  function onKey(event: KeyboardEvent) {\n    if (move(event)) return\n    if (event.key === 'ArrowDown') {\n      event.preventDefault()\n      void openAt(true, true)\n    }\n  }\n  function onBlur(event: FocusEvent) {\n    const next = event.relatedTarget as Node | null\n    if (next && !pop.panel.current?.contains(next) && !pop.anchor.current?.contains(next)) pop.hide()\n  }\n  return (\n    <li data-ds=\"navigation-menu-item\" className=\"flex\" onPointerEnter={enter} onPointerLeave={leave}>\n      <button\n        data-nav-trigger=\"\"\n        ref={(el) => { pop.anchor.current = el }}\n        type=\"button\"\n        aria-expanded={pop.open}\n        className={cn(ROW, 'text-fg-soft hover:not-aria-expanded:bg-action-ghost-hover hover:text-fg aria-expanded:bg-action-secondary aria-expanded:text-fg')}\n        onClick={onClick}\n        onKeyDown={onKey}\n        onBlur={onBlur}\n      >\n        {label}\n        <ChevronDown size={16} strokeWidth={1.5} aria-hidden=\"true\" className=\"shrink-0 text-fg-muted\" />\n      </button>\n      <PopoverPanel data-ds=\"navigation-menu-item\" pop={pop} aria-label={label} tabIndex={-1} className=\"p-2\" style={{ width }} onPointerEnter={enter} onPointerLeave={leave}>\n        {children}\n      </PopoverPanel>\n    </li>\n  )\n}\n\nexport default NavigationMenuItem\n"
+        },
+        {
+          "path": "react/components/ui/NavigationMenuLink.tsx",
+          "content": "import type { AnchorHTMLAttributes, ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// A link in a NavigationMenuItem's panel: its title in DM Sans Medium and a muted line under it, the small corner; the\n// link under the pointer or focus takes the #262626 fill. Other props (onClick) land on the <a>.\nexport interface NavigationMenuLinkProps extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'title'> {\n  href?: string\n  /** The link's title. */\n  title: string\n  /** A line under it. */\n  description?: string\n  children?: ReactNode\n}\n\nexport function NavigationMenuLink({ href, title, description, className, ...rest }: NavigationMenuLinkProps) {\n  return (\n    <a data-ds=\"navigation-menu-link\" href={href} className={cn('flex flex-col gap-1 rounded-ds-sm p-3 -outline-offset-2 transition-[background-color] duration-150 ease-standard hover:bg-action-secondary focus-visible:bg-action-secondary', className)} {...rest}>\n      <span className=\"type-ui-strong text-fg\">{title}</span>\n      {description && <span className=\"type-caption text-fg-muted\">{description}</span>}\n    </a>\n  )\n}\n\nexport default NavigationMenuLink\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "popover"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "NavigationMenu",
+            "file": "react/components/ui/NavigationMenu.tsx",
+            "props": [
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "default": "'Main'",
+                "description": "The navigation's name for assistive tech."
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false,
+                "description": "NavigationMenuItem elements."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          },
+          {
+            "name": "NavigationMenuItem",
+            "file": "react/components/ui/NavigationMenuItem.tsx",
+            "props": [
+              {
+                "name": "label",
+                "type": "string",
+                "required": true,
+                "description": "The trigger's or the link's text."
+              },
+              {
+                "name": "href",
+                "type": "string",
+                "required": false,
+                "description": "A plain link in the row, when it has no panel."
+              },
+              {
+                "name": "active",
+                "type": "boolean",
+                "required": false,
+                "description": "The page you are on (a plain link)."
+              },
+              {
+                "name": "width",
+                "type": "string",
+                "required": false,
+                "default": "'400px'",
+                "description": "The panel's width (a CSS length)."
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false,
+                "description": "The panel's links."
+              }
+            ]
+          },
+          {
+            "name": "NavigationMenuLink",
+            "file": "react/components/ui/NavigationMenuLink.tsx",
+            "props": [
+              {
+                "name": "href",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "required": true,
+                "description": "The link's title."
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "required": false,
+                "description": "A line under it."
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              }
+            ],
+            "extends": [
+              "Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'title'>"
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Site",
+          "label": "The site's header",
+          "center": false,
+          "half": false,
+          "path": "react/examples/navigation-menu/Site.tsx",
+          "content": "import { NavigationMenu } from '@/react/components/ui/NavigationMenu'\nimport { NavigationMenuItem } from '@/react/components/ui/NavigationMenuItem'\nimport { NavigationMenuLink } from '@/react/components/ui/NavigationMenuLink'\n// The site's top navigation: the product and resources open panels of links, pricing and about are plain links. Point\n// at Product, then move to Resources: it switches at once.\nconst product = [\n  { title: 'Search', description: 'Find any ad in seconds, by hook, brand or format.' },\n  { title: 'Boards', description: 'Save and share the creatives that work.' },\n  { title: 'Brand tracking', description: 'Every new ad from the brands you follow.' },\n  { title: 'Creators', description: 'The faces behind the ads that run longest.' },\n]\nconst resources = [\n  { title: 'Blog', description: 'What the best ads have in common.' },\n  { title: 'Changelog', description: 'New in Spyglass, every week.' },\n  { title: 'Help center', description: 'Answers in under a minute.' },\n]\n\nexport default function Site() {\n  return (\n    <div className=\"min-h-80\">\n      <NavigationMenu label=\"Site\">\n        <NavigationMenuItem label=\"Product\" width=\"440px\">\n          <div className=\"grid gap-1 sm:grid-cols-2\">\n            {product.map((l) => <NavigationMenuLink key={l.title} href=\"#\" title={l.title} description={l.description} />)}\n          </div>\n        </NavigationMenuItem>\n        <NavigationMenuItem label=\"Resources\" width=\"280px\">\n          <div className=\"grid gap-1\">\n            {resources.map((l) => <NavigationMenuLink key={l.title} href=\"#\" title={l.title} description={l.description} />)}\n          </div>\n        </NavigationMenuItem>\n        <NavigationMenuItem label=\"Pricing\" href=\"#\" />\n        <NavigationMenuItem label=\"About\" href=\"#\" />\n      </NavigationMenu>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "popover"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/navigation-menu.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define, tagName } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// NavigationMenu.tsx as <spyglass-navigation-menu>: a site's top navigation, a row of triggers and links in DM Sans\n// Medium (<spyglass-navigation-menu-item>), each trigger opening a panel of links in the card's #171717 fill. Under a\n// pointer a panel opens after a short wait and closes a moment after the pointer leaves both; while one is open,\n// pointing at another trigger switches at once. A click toggles it; Enter, Space or Down opens it at once with focus on\n// its first link; Left and Right move along the row; Escape closes it.\n\n/** What a <spyglass-navigation-menu-item> offers its menu. */\nexport interface NavigationMenuEntry extends HTMLElement { focusTrigger(): void }\n\n/**\n * @summary A site's top navigation, with panels of links.\n * @slot - The entries: <spyglass-navigation-menu-item>.\n */\nexport class NavigationMenu extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { label: {} }\n\n\t/** The navigation's name for assistive tech. */\n\tlabel = 'Main'\n\t/** The open entry, if any. */\n\tactive: Element | null = null\n\n\tentries() {\n\t\treturn [...this.querySelectorAll<NavigationMenuEntry>(tagName('navigation-menu-item'))]\n\t}\n\tsetActive(item: Element | null) {\n\t\tif (this.active === item) return\n\t\tthis.active = item\n\t\tfor (const e of this.entries()) (e as unknown as { requestUpdate(): void }).requestUpdate?.()\n\t}\n\tmove(from: Element, step: number) {\n\t\tconst list = this.entries()\n\t\tconst at = list.indexOf(from as NavigationMenuEntry)\n\t\tlist[(at + step + list.length) % list.length]?.focusTrigger()\n\t}\n\n\trender() {\n\t\treturn html`<nav data-ds=\"navigation-menu\" aria-label=${this.label}><ul class=\"flex flex-wrap items-center gap-1\"><slot></slot></ul></nav>`\n\t}\n}\n\ndefine('navigation-menu', NavigationMenu)\n"
+        },
+        {
+          "path": "elements/components/ui/navigation-menu-item.ts",
+          "content": "import { html, nothing, type PropertyValues } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { ChevronDown } from 'lucide'\nimport { DsElement, define, tagName } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport { firstFocusable, PopoverController, popoverStyles, within } from '@/elements/lib/popover'\nimport type { NavigationMenu } from '@/elements/components/ui/navigation-menu'\nimport styles from 'virtual:tw'\n\n// NavigationMenuItem.tsx as <spyglass-navigation-menu-item>: one entry of a navigation menu: with content, a trigger\n// and its panel of links (<spyglass-navigation-menu-link>); with `href` and no content, a plain link in the row\n// (`active` for the page you are on). The open trigger takes the #262626 fill.\nconst WAIT = 150\nconst GRACE = 150\nconst ROW = 'inline-flex h-control-md cursor-pointer items-center gap-1.5 rounded-control px-4 type-ui-strong -outline-offset-2 transition-[background-color,color] duration-150 ease-standard max-md:h-control-touch'\n\n/**\n * @summary One entry of a navigation menu: a trigger with a panel, or a link.\n * @slot - The panel's links.\n */\nexport class NavigationMenuItem extends DsElement {\n\tstatic styles = [DsElement.styles, popoverStyles, styles]\n\tstatic properties = { label: {}, href: {}, active: { type: Boolean }, width: {} }\n\n\t/** The trigger's or the link's text. */\n\tlabel = ''\n\t/** A plain link in the row, when it has no panel. */\n\thref?: string\n\t/** The page you are on (a plain link). */\n\tactive = false\n\t/** The panel's width (a CSS length). */\n\twidth = '400px'\n\tprivate timer?: ReturnType<typeof setTimeout>\n\tprivate hovered = 0\n\tprivate wasOpen = false\n\tprivate pop = new PopoverController(this, {\n\t\tside: 'bottom',\n\t\talign: 'start',\n\t\tgap: 8,\n\t\tanchor: () => this.renderRoot.querySelector<HTMLElement>('[data-nav-trigger]'),\n\t\tpanel: () => this.renderRoot.querySelector<HTMLElement>('.ds-pop'),\n\t})\n\n\tprivate get nav() {\n\t\tconst n = this.closest(tagName('navigation-menu')) as NavigationMenu | null\n\t\treturn n && typeof n.setActive === 'function' ? n : null\n\t}\n\t/** Focuses the trigger or the link (the menu's arrows). */\n\tfocusTrigger() {\n\t\tthis.renderRoot.querySelector<HTMLElement>('[data-nav-trigger]')?.focus()\n\t}\n\tdisconnectedCallback() {\n\t\tsuper.disconnectedCallback()\n\t\tclearTimeout(this.timer)\n\t}\n\n\tprivate move = (event: KeyboardEvent) => {\n\t\tif (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return false\n\t\tevent.preventDefault()\n\t\tthis.nav?.move(this, event.key === 'ArrowRight' ? 1 : -1)\n\t\treturn true\n\t}\n\tprivate async openAt(keyboard: boolean, focus: boolean) {\n\t\tclearTimeout(this.timer)\n\t\tawait this.pop.show({ keyboard })\n\t\tif (!focus) return\n\t\tconst panel = this.renderRoot.querySelector<HTMLElement>('.ds-pop')\n\t\t;(firstFocusable(panel) ?? panel)?.focus({ preventScroll: true })\n\t}\n\tprivate enter = (event: PointerEvent) => {\n\t\tif (event.pointerType !== 'mouse') return\n\t\tclearTimeout(this.timer)\n\t\tif (this.pop.open) return\n\t\t// Another panel open: switch at once.\n\t\tconst nav = this.nav\n\t\tif (nav?.active && nav.active !== this) {\n\t\t\tthis.hovered = Date.now()\n\t\t\treturn void this.openAt(true, false)\n\t\t}\n\t\t// ds-latency: the wait keeps a passing pointer from opening it.\n\t\tthis.timer = setTimeout(() => {\n\t\t\tthis.hovered = Date.now()\n\t\t\tvoid this.openAt(false, false)\n\t\t}, WAIT)\n\t}\n\tprivate leave = (event: PointerEvent) => {\n\t\tif (event.pointerType !== 'mouse') return\n\t\tclearTimeout(this.timer)\n\t\t// ds-latency: a grace to cross the gap into the panel.\n\t\tthis.timer = setTimeout(() => this.pop.hide(), GRACE)\n\t}\n\t// A click toggles it; a click right after the pointer opened it keeps it open.\n\tprivate onClick = (event: MouseEvent) => {\n\t\tconst keyboard = event.detail === 0\n\t\tif (this.pop.open) {\n\t\t\tif (!keyboard && Date.now() - this.hovered < 400) return\n\t\t\tthis.pop.hide(keyboard, keyboard)\n\t\t} else void this.openAt(keyboard, keyboard)\n\t}\n\tprivate onKey = (event: KeyboardEvent) => {\n\t\tif (this.move(event)) return\n\t\tif (event.key === 'ArrowDown') {\n\t\t\tevent.preventDefault()\n\t\t\tvoid this.openAt(true, true)\n\t\t}\n\t}\n\tprivate onBlur = (event: FocusEvent) => {\n\t\tconst next = event.relatedTarget as Node | null\n\t\tif (next && !within(this.renderRoot.querySelector('.ds-pop'), next) && !within(this.renderRoot.querySelector('[data-nav-trigger]'), next)) this.pop.hide()\n\t}\n\n\tprotected updated(changed: PropertyValues<this>) {\n\t\tsuper.updated(changed)\n\t\tconst nav = this.nav\n\t\tif (!nav) return\n\t\tif (this.pop.open !== this.wasOpen) {\n\t\t\tthis.wasOpen = this.pop.open\n\t\t\tif (this.pop.open) nav.setActive(this)\n\t\t\telse if (nav.active === this) nav.setActive(null)\n\t\t}\n\t\tif (nav.active !== this && this.pop.open) this.pop.hide(false, true)\n\t}\n\n\trender() {\n\t\tif (!this.hasSlot()) {\n\t\t\treturn html`<li data-ds=\"navigation-menu-item\" class=\"flex\"><a data-nav-trigger href=${ifDefined(this.href)} aria-current=${ifDefined(this.active ? 'page' : undefined)} class=${`${ROW} ${this.active ? 'text-fg' : 'text-fg-soft hover:bg-action-ghost-hover hover:text-fg'}`} @keydown=${this.move}>${this.label}</a></li>`\n\t\t}\n\t\tconst panel = this.pop.rendered\n\t\t\t? html`<div data-ds=\"navigation-menu-item\" popover=\"manual\" class=\"ds-pop p-2\" aria-label=${this.label} tabindex=\"-1\" data-side=${this.pop.pos.side} ?data-instant=${this.pop.instant} ?data-placed=${this.pop.pos.placed} style=${this.pop.style(`width: ${this.width}`)} @pointerenter=${this.enter} @pointerleave=${this.leave} @focusout=${this.pop.onFocusOut}><slot></slot></div>`\n\t\t\t: nothing\n\t\treturn html`<li data-ds=\"navigation-menu-item\" class=\"flex\" @pointerenter=${this.enter} @pointerleave=${this.leave}><button data-nav-trigger type=\"button\" aria-expanded=${String(this.pop.open)} class=${`${ROW} text-fg-soft hover:not-aria-expanded:bg-action-ghost-hover hover:text-fg aria-expanded:bg-action-secondary aria-expanded:text-fg`} @click=${this.onClick} @keydown=${this.onKey} @blur=${this.onBlur}>${this.label}${icon(ChevronDown, 'chevron-down', { size: 16, strokeWidth: 1.5, class: 'shrink-0 text-fg-muted', attrs: { 'aria-hidden': 'true' } })}</button>${panel}</li>`\n\t}\n}\n\ndefine('navigation-menu-item', NavigationMenuItem)\n"
+        },
+        {
+          "path": "elements/components/ui/navigation-menu-link.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// NavigationMenuLink.tsx as <spyglass-navigation-menu-link>: a link in a navigation menu's panel: its title (`heading`,\n// React's `title`) in DM Sans Medium and a muted line under it, the small corner; the link under the pointer or focus\n// takes the #262626 fill.\n\n/**\n * @summary A link with a line under it, in a navigation menu's panel.\n */\nexport class NavigationMenuLink extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('a'))\n\tstatic properties = { href: {}, heading: {}, description: {} }\n\n\thref?: string\n\t/** The link's title (React's `title`). */\n\theading = ''\n\t/** A line under it. */\n\tdescription?: string\n\n\trender() {\n\t\treturn html`<a data-ds=\"navigation-menu-link\" href=${ifDefined(this.href)} class=\"flex flex-col gap-1 rounded-ds-sm p-3 -outline-offset-2 transition-[background-color] duration-150 ease-standard hover:bg-action-secondary focus-visible:bg-action-secondary\"><span class=\"type-ui-strong text-fg\">${this.heading}</span>${this.description ? html`<span class=\"type-caption text-fg-muted\">${this.description}</span>` : nothing}</a>`\n\t}\n}\n\ndefine('navigation-menu-link', NavigationMenuLink)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/navigation-menu.js",
+        "elements/navigation-menu-item.js",
+        "elements/navigation-menu-link.js"
+      ],
+      "tag": "spyglass-navigation-menu",
+      "tags": [
+        "spyglass-navigation-menu",
+        "spyglass-navigation-menu-item",
+        "spyglass-navigation-menu-link"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-navigation-menu",
+            "name": "NavigationMenu",
+            "module": "elements/navigation-menu.js",
+            "description": "A site's top navigation, with panels of links.",
+            "attributes": [
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "'Main'",
+                "description": "The navigation's name for assistive tech."
+              }
+            ],
+            "properties": [
+              {
+                "name": "label",
+                "type": "string",
+                "default": "'Main'",
+                "description": "The navigation's name for assistive tech.",
+                "attribute": "label"
+              },
+              {
+                "name": "active",
+                "type": "Element | null",
+                "default": "null",
+                "description": "The open entry, if any."
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The entries: <spyglass-navigation-menu-item>."
+              }
+            ],
+            "methods": [
+              {
+                "name": "entries"
+              },
+              {
+                "name": "setActive"
+              },
+              {
+                "name": "move"
+              }
+            ]
+          },
+          {
+            "tag": "spyglass-navigation-menu-item",
+            "name": "NavigationMenuItem",
+            "module": "elements/navigation-menu-item.js",
+            "description": "One entry of a navigation menu: a trigger with a panel, or a link.",
+            "attributes": [
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The trigger's or the link's text."
+              },
+              {
+                "name": "href",
+                "field": "href",
+                "type": "string | undefined",
+                "description": "A plain link in the row, when it has no panel."
+              },
+              {
+                "name": "active",
+                "field": "active",
+                "type": "boolean",
+                "default": "false",
+                "description": "The page you are on (a plain link)."
+              },
+              {
+                "name": "width",
+                "field": "width",
+                "type": "string",
+                "default": "'400px'",
+                "description": "The panel's width (a CSS length)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The trigger's or the link's text.",
+                "attribute": "label"
+              },
+              {
+                "name": "href",
+                "type": "string | undefined",
+                "description": "A plain link in the row, when it has no panel.",
+                "attribute": "href"
+              },
+              {
+                "name": "active",
+                "type": "boolean",
+                "default": "false",
+                "description": "The page you are on (a plain link).",
+                "attribute": "active"
+              },
+              {
+                "name": "width",
+                "type": "string",
+                "default": "'400px'",
+                "description": "The panel's width (a CSS length).",
+                "attribute": "width"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The panel's links."
+              }
+            ],
+            "methods": [
+              {
+                "name": "focusTrigger",
+                "description": "Focuses the trigger or the link (the menu's arrows)."
+              }
+            ]
+          },
+          {
+            "tag": "spyglass-navigation-menu-link",
+            "name": "NavigationMenuLink",
+            "module": "elements/navigation-menu-link.js",
+            "description": "A link with a line under it, in a navigation menu's panel.",
+            "attributes": [
+              {
+                "name": "href",
+                "field": "href",
+                "type": "string | undefined"
+              },
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string",
+                "default": "''",
+                "description": "The link's title (React's `title`)."
+              },
+              {
+                "name": "description",
+                "field": "description",
+                "type": "string | undefined",
+                "description": "A line under it."
+              }
+            ],
+            "properties": [
+              {
+                "name": "href",
+                "type": "string | undefined",
+                "attribute": "href"
+              },
+              {
+                "name": "heading",
+                "type": "string",
+                "default": "''",
+                "description": "The link's title (React's `title`).",
+                "attribute": "heading"
+              },
+              {
+                "name": "description",
+                "type": "string | undefined",
+                "description": "A line under it.",
+                "attribute": "description"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Site",
+          "label": "The site's header",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/navigation-menu/Site.html",
+          "content": "<!-- The site's top navigation: the product and resources open panels of links, pricing and about are plain links.\n     Point at Product, then move to Resources: it switches at once. -->\n<div class=\"min-h-80\">\n  <spyglass-navigation-menu label=\"Site\">\n    <spyglass-navigation-menu-item label=\"Product\" width=\"440px\">\n      <div class=\"grid gap-1 sm:grid-cols-2\">\n        <spyglass-navigation-menu-link href=\"#\" heading=\"Search\" description=\"Find any ad in seconds, by hook, brand or format.\"></spyglass-navigation-menu-link>\n        <spyglass-navigation-menu-link href=\"#\" heading=\"Boards\" description=\"Save and share the creatives that work.\"></spyglass-navigation-menu-link>\n        <spyglass-navigation-menu-link href=\"#\" heading=\"Brand tracking\" description=\"Every new ad from the brands you follow.\"></spyglass-navigation-menu-link>\n        <spyglass-navigation-menu-link href=\"#\" heading=\"Creators\" description=\"The faces behind the ads that run longest.\"></spyglass-navigation-menu-link>\n      </div>\n    </spyglass-navigation-menu-item>\n    <spyglass-navigation-menu-item label=\"Resources\" width=\"280px\">\n      <div class=\"grid gap-1\">\n        <spyglass-navigation-menu-link href=\"#\" heading=\"Blog\" description=\"What the best ads have in common.\"></spyglass-navigation-menu-link>\n        <spyglass-navigation-menu-link href=\"#\" heading=\"Changelog\" description=\"New in Spyglass, every week.\"></spyglass-navigation-menu-link>\n        <spyglass-navigation-menu-link href=\"#\" heading=\"Help center\" description=\"Answers in under a minute.\"></spyglass-navigation-menu-link>\n      </div>\n    </spyglass-navigation-menu-item>\n    <spyglass-navigation-menu-item label=\"Pricing\" href=\"#\"></spyglass-navigation-menu-item>\n    <spyglass-navigation-menu-item label=\"About\" href=\"#\"></spyglass-navigation-menu-item>\n  </spyglass-navigation-menu>\n</div>\n"
+        }
+      ]
+    }
+  }
+}
