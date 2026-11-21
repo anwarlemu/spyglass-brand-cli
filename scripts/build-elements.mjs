@@ -58,11 +58,11 @@ async function tailwind() {
 				.replace(/\/\*[\s\S]*?\*\//g, '')
 				.replace(/\n\s*(html|body)\s*\{[^}]*\}/g, '');
 			// The scroll fade (fade-y, fade-x), and the same rules for a host that is itself the scroll box: it sets
-			// data-fade="y", "x" or "both" on itself (a class on the host belongs to the page).
+			// data-fade="y", "x" or "xy" on itself (a class on the host belongs to the page).
 			const fade = readFileSync(join(root, 'brand', 'fade.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
 			const hostFade = fade
 				.replace(/@(property|keyframes)[^{]*\{(?:[^{}]|\{[^{}]*\})*\}\n?/g, '')
-				.replaceAll('.fade-y.fade-x', ':host([data-fade="both"])')
+				.replaceAll('.fade-xy', ':host([data-fade="xy"])')
 				.replaceAll('.fade-y', ':host([data-fade="y"])')
 				.replaceAll('.fade-x', ':host([data-fade="x"])');
 			let css = await run(`${head}@import "tailwindcss/preflight.css" layer(base);\n${themeImport}${brandBase}\n${fade}\n${hostFade}\n`, []);

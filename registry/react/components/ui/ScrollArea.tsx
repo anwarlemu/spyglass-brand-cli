@@ -16,8 +16,8 @@ export interface ScrollAreaProps {
   children?: ReactNode
 }
 
-// Each edge with more past it fades (the brand's fade-y and fade-x), so nothing is cut off by a hard edge.
-const AXIS = { y: 'overflow-x-hidden overflow-y-auto fade-y', x: 'overflow-x-auto overflow-y-hidden fade-x', both: 'overflow-auto fade-y fade-x' } as const
+// Each edge with more past it fades (the brand's fade-y, fade-x and fade-xy), so nothing is cut off by a hard edge.
+const AXIS = { y: 'overflow-x-hidden overflow-y-auto fade-y', x: 'overflow-x-auto overflow-y-hidden fade-x', both: 'overflow-auto fade-xy' } as const
 
 export function ScrollArea({ label, maxHeight, axis = 'y', className, children }: ScrollAreaProps) {
   return (

@@ -24,8 +24,8 @@ export class ScrollArea extends DsElement {
 	protected updated(changed: PropertyValues) {
 		super.updated(changed)
 		if (changed.has('maxHeight')) this.style.maxHeight = this.maxHeight ?? ''
-		// The host is the scroll box, so it takes the scroll fade by attribute (fade-y, fade-x or both in React).
-		if (changed.has('axis')) this.dataset.fade = this.axis === 'x' || this.axis === 'both' ? this.axis : 'y'
+		// The host is the scroll box, so it takes the scroll fade by attribute (fade-y, fade-x or fade-xy in React).
+		if (changed.has('axis')) this.dataset.fade = this.axis === 'both' ? 'xy' : this.axis === 'x' ? 'x' : 'y'
 		if (changed.has('label')) {
 			if (this.label) {
 				this.setAttribute('role', 'region')

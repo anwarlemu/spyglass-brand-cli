@@ -1,8 +1,8 @@
-/* Scroll edges fade, never cut content off: put fade-y (down) or fade-x (across) on the element that scrolls, both
-   on one that scrolls both ways. An edge with more content past it fades over 24px. The fade grows with the first
-   and last 24px of scroll (tied to the scroll, not to time), so a list at rest shows its first row in full and a
-   box that does not scroll has no fade. Browsers without scroll timelines get a short fixed fade. The mask only
-   needs an opaque color. */
+/* Scroll edges fade, never cut content off: put fade-y (down), fade-x (across) or fade-xy (both ways: the two fades
+   intersect) on the element that scrolls. An edge with more content past it fades over 24px. The fade grows with the
+   first and last 24px of scroll (tied to the scroll, not to time), so a list at rest shows its first row in full and a
+   box that does not scroll has no fade. Browsers without scroll timelines get a short fixed fade. The mask only needs
+   an opaque color. */
 @property --fade-start { syntax: "<length>"; inherits: false; initial-value: 0px; }
 @property --fade-end { syntax: "<length>"; inherits: false; initial-value: 0px; }
 @property --fade-x-start { syntax: "<length>"; inherits: false; initial-value: 0px; }
@@ -14,7 +14,7 @@
 @layer base {
   .fade-y { mask-image: linear-gradient(to bottom, transparent, var(--ds-color-black) var(--fade-start), var(--ds-color-black) calc(100% - var(--fade-end)), transparent); }
   .fade-x { mask-image: linear-gradient(to right, transparent, var(--ds-color-black) var(--fade-start), var(--ds-color-black) calc(100% - var(--fade-end)), transparent); }
-  .fade-y.fade-x {
+  .fade-xy {
     mask-image: linear-gradient(to bottom, transparent, var(--ds-color-black) var(--fade-start), var(--ds-color-black) calc(100% - var(--fade-end)), transparent), linear-gradient(to right, transparent, var(--ds-color-black) var(--fade-x-start), var(--ds-color-black) calc(100% - var(--fade-x-end)), transparent);
     mask-composite: intersect;
   }
@@ -22,13 +22,13 @@
     .fade-y, .fade-x { animation: fade-start linear both, fade-end linear both; animation-range: 0px 24px, calc(100% - 24px) 100%; }
     .fade-y { animation-timeline: scroll(self block), scroll(self block); }
     .fade-x { animation-timeline: scroll(self inline), scroll(self inline); }
-    .fade-y.fade-x {
+    .fade-xy {
       animation: fade-start linear both, fade-end linear both, fade-x-start linear both, fade-x-end linear both;
       animation-range: 0px 24px, calc(100% - 24px) 100%, 0px 24px, calc(100% - 24px) 100%;
       animation-timeline: scroll(self block), scroll(self block), scroll(self inline), scroll(self inline);
     }
   }
   @supports not (animation-timeline: scroll()) {
-    .fade-y, .fade-x { --fade-start: 8px; --fade-end: 8px; --fade-x-start: 8px; --fade-x-end: 8px; }
+    .fade-y, .fade-x, .fade-xy { --fade-start: 8px; --fade-end: 8px; --fade-x-start: 8px; --fade-x-end: 8px; }
   }
 }

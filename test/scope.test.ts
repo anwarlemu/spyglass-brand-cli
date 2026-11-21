@@ -32,9 +32,9 @@ function app() {
 const brandCss = (dir: string) => read(dir, 'app/assets/css/spyglass-ds/brand.css');
 const themeCss = (dir: string) => read(dir, 'app/assets/css/spyglass-ds/theme.css');
 /** Selectors of rules that apply to the whole page: anything not inside the library's or the selection's scope. */
-// The scroll fade's classes (fade-y, fade-x) and its keyframes reach only an element that names them, so they count as
+// The scroll fade's classes (fade-y, fade-x, fade-xy) and its keyframes reach only an element that names them, so they count as
 // scoped.
-const globalRules = (css: string) => [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/(^|[{}])\s*([^{}@;]+)\{/g)].map((m) => m[2].trim()).filter((s) => !/^(:root|\[data-theme=|@)/.test(s) && !/:(where|is)\(\[data-ds\], \.ds-scope\)/.test(s) && !/^(from|to|(\.fade-[xy])+(, (\.fade-[xy])+)*)$/.test(s));
+const globalRules = (css: string) => [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/(^|[{}])\s*([^{}@;]+)\{/g)].map((m) => m[2].trim()).filter((s) => !/^(:root|\[data-theme=|@)/.test(s) && !/:(where|is)\(\[data-ds\], \.ds-scope\)/.test(s) && !/^(from|to|\.fade-(x|y|xy)(, \.fade-(x|y|xy))*)$/.test(s));
 
 describe('the base layer reaches only what was named', () => {
 	it('ships a scoped base: no html, body, heading or focus rule outside the library and the selection', () => {

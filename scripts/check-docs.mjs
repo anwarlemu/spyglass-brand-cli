@@ -50,9 +50,9 @@ async function hardEdges(page) {
 		return out;
 	});
 }
-/** The scroll fade's two edges on an element, in px: [start, end]. */
+/** The scroll fade's edges on an element, in px: [start, end] down, then [start, end] across (fade-xy). */
 async function fadeEdges(locator) {
-	return locator.evaluate((el) => { const cs = getComputedStyle(el); return [cs.getPropertyValue('--fade-start'), cs.getPropertyValue('--fade-end')].map((v) => Number.parseFloat(v)); });
+	return locator.evaluate((el) => { const cs = getComputedStyle(el); return ['--fade-start', '--fade-end', '--fade-x-start', '--fade-x-end'].map((p) => Number.parseFloat(cs.getPropertyValue(p))); });
 }
 async function pool(tasks) {
 	let next = 0;
@@ -142,6 +142,29 @@ try {
 		}
 	}
 	console.log('Rail fade: at rest, scrolled and at the end, at both widths.');
+
+	// 2c. A code block that scrolls both ways (fade-xy): no fade at rest at the top and left, 24px on all four edges
+	// mid-scroll.
+	{
+		const { page, context, where } = await open(390, '/components/data-table', 'code fade');
+		try {
+			const pre = page.locator('pre.fade-xy').filter({ has: page.locator('code') });
+			const handle = await pre.evaluateAll((els) => els.findIndex((el) => el.scrollHeight > el.clientHeight + 100 && el.scrollWidth > el.clientWidth + 100));
+			if (handle < 0) fail(where, 'no code block that scrolls both ways');
+			else {
+				const box = pre.nth(handle);
+				const [ys, ye, xs, xe] = await fadeEdges(box);
+				if (ys !== 0 || xs !== 0 || ye !== 24 || xe !== 24) fail(where, `at rest the fades are ${ys}/${ye}px down and ${xs}/${xe}px across, not 0/24 and 0/24`);
+				await box.evaluate((el) => { el.scrollTop = 100; el.scrollLeft = 100; });
+				await page.waitForTimeout(100);
+				const mid = await fadeEdges(box);
+				if (mid.some((v) => v !== 24)) fail(where, `mid-scroll the fades are ${mid.join('/')}px, not 24 on every edge`);
+			}
+		} finally {
+			await context.close();
+		}
+		console.log('Code fade: both axes at rest and mid-scroll.');
+	}
 
 	// 3. Overlays: open from the trigger, Escape closes, focus returns to the trigger.
 	// [item, its trigger]: a menu button by default, the example's first button for a dialog it opens.
