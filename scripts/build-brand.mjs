@@ -1,6 +1,6 @@
 // brand/ -> build/: the files apps install and the docs site reads.
 //   build/tokens.css   the brand's variables (light at :root, dark under [data-theme="dark"])
-//   build/base.css     the base layer (body type, focus, selection)
+//   build/base.css     the base layer (body type, focus, selection) and the scroll fade (brand/fade.css: fade-y, fade-x)
 //   build/fonts.css    @font-face for the vendored faces, served from <assetBase>/fonts/
 //   build/brand.css    fonts + tokens + base in one file, what apps import
 //   build/theme.css    the Tailwind 4 theme: tokens as utilities (bg-surface, text-fg, border-edge...)
@@ -18,7 +18,10 @@ const brandDir = join(root, 'brand');
 const out = join(root, 'build');
 const brand = JSON.parse(readFileSync(join(brandDir, 'brand.json'), 'utf8'));
 const tokensCss = readFileSync(join(brandDir, 'tokens.css'), 'utf8');
-const baseCss = readFileSync(join(brandDir, 'base.css'), 'utf8');
+// The scroll fade goes with every base (whole, scoped and the elements' shadow base), so a library item that scrolls
+// can put fade-y or fade-x on its scroll box wherever it is installed.
+const fadeCss = readFileSync(join(brandDir, 'fade.css'), 'utf8');
+const baseCss = `${readFileSync(join(brandDir, 'base.css'), 'utf8')}\n${fadeCss}`;
 
 /** The declarations of the first block whose selector is `selector`. */
 export function block(css, selector) {
@@ -95,7 +98,8 @@ const scopedBase = `/* Scoped base: the brand's element defaults inside the libr
     }
   }
 }
-`;
+
+${fadeCss}`;
 writeFileSync(join(out, 'tokens.css'), tokensOut);
 writeFileSync(join(out, 'base.css'), baseCss);
 writeFileSync(join(out, 'base-scoped.css'), scopedBase);

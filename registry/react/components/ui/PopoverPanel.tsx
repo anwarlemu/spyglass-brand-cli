@@ -28,7 +28,7 @@ export function PopoverPanel({ pop, tip, className, style, children, ...rest }: 
             data-ds="popover-panel"
             {...rest}
             ref={(el) => { pop.panel.current = el }}
-            className={cn('ds-pop', className)}
+            className={cn('ds-pop', !tip && 'fade-y', className)}
             data-tip={tip || undefined}
             data-side={pop.pos.side}
             data-instant={pop.instant || undefined}

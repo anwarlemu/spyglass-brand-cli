@@ -1,7 +1,8 @@
 // The docs site's full sweep, against a production server: build it (`bun run ci`, then `bun run www:build`), start it
 // (`bun run --cwd apps/www start`, port 3700), then `DOCS_URL=http://localhost:3700 bun run test:docs`.
 // Every component page and every /preview/<item>/<example> at 1440 and 390: no browser errors, no failed requests and
-// no horizontal overflow. Then the rail (every item listed, the filter), the overlays (open, Escape, focus back on
+// no horizontal overflow, and no scroll box that overflows without the scroll fade (fade-y, fade-x: content is never
+// cut off by a hard edge). Then the rail (and its fade at rest, scrolled and at the end) (every item listed, the filter), the overlays (open, Escape, focus back on
 // the trigger) and the items that compose others. CHROMIUM_PATH points at a Chromium build if playwright-core has
 // none installed; CONCURRENCY sets how many pages load at once (4); SWEEP=0 skips the page sweep.
 import assert from 'node:assert/strict';
@@ -29,6 +30,29 @@ async function open(width, path, label = path) {
 }
 async function overflow(page) {
 	return page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+}
+/** Scroll boxes (light DOM and shadow roots) that overflow on an axis with no mask: their content is cut off. */
+async function hardEdges(page) {
+	return page.evaluate(() => {
+		const out = [];
+		const visit = (root) => {
+			for (const el of root.querySelectorAll('*')) {
+				if (el.shadowRoot) visit(el.shadowRoot);
+				if (el === document.documentElement || el === document.body) continue;
+				const cs = getComputedStyle(el);
+				const y = /auto|scroll/.test(cs.overflowY) && el.scrollHeight > el.clientHeight + 1;
+				const x = /auto|scroll/.test(cs.overflowX) && el.scrollWidth > el.clientWidth + 1;
+				const mask = cs.maskImage && cs.maskImage !== 'none' ? cs.maskImage : cs.webkitMaskImage;
+				if ((y || x) && (!mask || mask === 'none')) out.push(`${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''}.${String(el.className).trim().split(/\s+/).slice(0, 4).join('.')} (${[y && 'down', x && 'across'].filter(Boolean).join(', ')})`);
+			}
+		};
+		visit(document);
+		return out;
+	});
+}
+/** The scroll fade's two edges on an element, in px: [start, end]. */
+async function fadeEdges(locator) {
+	return locator.evaluate((el) => { const cs = getComputedStyle(el); return [cs.getPropertyValue('--fade-start'), cs.getPropertyValue('--fade-end')].map((v) => Number.parseFloat(v)); });
 }
 async function pool(tasks) {
 	let next = 0;
@@ -59,6 +83,7 @@ try {
 			}
 			const over = await overflow(page);
 			if (over > 0) fail(where, `overflows by ${over}px`);
+			for (const box of await hardEdges(page)) fail(where, `cut off by a hard edge (add fade-y or fade-x): ${box}`);
 		} finally {
 			await context.close();
 		}
@@ -88,6 +113,35 @@ try {
 		await context.close();
 		console.log(`Rail: ${listed.length} items listed; filter checked.`);
 	}
+
+	// 2b. The rail's list fades at its edges, tied to the scroll: none at rest at the top (the first row whole under the
+	// filter), 24px at both edges mid-scroll, none at the bottom at the end. At both widths (the phone opens the rail).
+	for (const width of widths) {
+		const { page, context, where } = await open(width, '/components/button', `rail fade`);
+		try {
+			if (width < 1024) await page.getByRole('button', { name: 'Open the library' }).click();
+			const list = page.locator('#docs-rail > div.fade-y');
+			await list.waitFor({ timeout: 3000 });
+			const mask = await list.evaluate((el) => getComputedStyle(el).maskImage);
+			if (!/gradient/.test(mask)) fail(where, `the rail list has no mask (${mask})`);
+			await list.evaluate((el) => { el.scrollTop = 0; });
+			await page.waitForTimeout(100);
+			let [start, end] = await fadeEdges(list);
+			if (start !== 0) fail(where, `at rest the top fade is ${start}px, not 0`);
+			if (end !== 24) fail(where, `at rest the bottom fade is ${end}px, not 24`);
+			await list.evaluate((el) => { el.scrollTop = 200; });
+			await page.waitForTimeout(100);
+			[start, end] = await fadeEdges(list);
+			if (start !== 24 || end !== 24) fail(where, `scrolled 200px the fades are ${start}px and ${end}px, not 24 and 24`);
+			await list.evaluate((el) => { el.scrollTop = el.scrollHeight; });
+			await page.waitForTimeout(100);
+			[start, end] = await fadeEdges(list);
+			if (start !== 24 || end !== 0) fail(where, `at the end the fades are ${start}px and ${end}px, not 24 and 0`);
+		} finally {
+			await context.close();
+		}
+	}
+	console.log('Rail fade: at rest, scrolled and at the end, at both widths.');
 
 	// 3. Overlays: open from the trigger, Escape closes, focus returns to the trigger.
 	// [item, its trigger]: a menu button by default, the example's first button for a dialog it opens.

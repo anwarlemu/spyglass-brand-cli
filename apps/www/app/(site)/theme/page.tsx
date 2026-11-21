@@ -60,18 +60,20 @@ function Swatch({ name, big }: { name: string; big?: boolean }) {
 
 function Table({ rows }: { rows: [string, string, string?][] }) {
   return (
-    <div className="overflow-x-auto rounded-control border border-edge">
-      <table className="w-full border-collapse type-ui">
-        <tbody>
-          {rows.map(([name, v, note]) => (
-            <tr key={name}>
-              <td className="border-b border-edge px-4 py-2.5 type-code text-fg">{name}</td>
-              <td className="border-b border-edge px-4 py-2.5 type-code text-fg-soft">{v}</td>
-              <td className="border-b border-edge px-4 py-2.5 type-caption text-fg-muted">{note ?? ""}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="overflow-hidden rounded-control border border-edge">
+      <div className="overflow-x-auto fade-x">
+        <table className="w-full border-collapse type-ui">
+          <tbody>
+            {rows.map(([name, v, note]) => (
+              <tr key={name}>
+                <td className="border-b border-edge px-4 py-2.5 type-code text-fg">{name}</td>
+                <td className="border-b border-edge px-4 py-2.5 type-code text-fg-soft">{v}</td>
+                <td className="border-b border-edge px-4 py-2.5 type-caption text-fg-muted">{note ?? ""}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

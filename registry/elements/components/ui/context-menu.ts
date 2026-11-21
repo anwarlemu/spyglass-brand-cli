@@ -65,7 +65,7 @@ export class ContextMenu extends DsElement {
 
 	render() {
 		const panel = this.pop.rendered
-			? html`<div data-ds="context-menu" popover="manual" class="ds-pop flex flex-col p-1" role="menu" aria-label=${this.label} tabindex="-1" data-side=${this.pop.pos.side} ?data-instant=${this.pop.instant} ?data-placed=${this.pop.pos.placed} style=${this.pop.style(`width: ${this.width ?? '224px'}`)} @keydown=${this.onMenuKey} @focusout=${this.pop.onFocusOut}><slot name="menu"></slot></div>`
+			? html`<div data-ds="context-menu" popover="manual" class="ds-pop flex flex-col p-1 fade-y" role="menu" aria-label=${this.label} tabindex="-1" data-side=${this.pop.pos.side} ?data-instant=${this.pop.instant} ?data-placed=${this.pop.pos.placed} style=${this.pop.style(`width: ${this.width ?? '224px'}`)} @keydown=${this.onMenuKey} @focusout=${this.pop.onFocusOut}><slot name="menu"></slot></div>`
 			: nothing
 		return html`<div data-ds="context-menu" @contextmenu=${this.onContextMenu} @keydown=${this.onKey}><slot></slot></div>${panel}`
 	}

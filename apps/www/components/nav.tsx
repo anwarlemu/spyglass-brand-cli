@@ -96,7 +96,7 @@ export function DocsRail({ groups }: { groups: Group[] }) {
           <Search size={16} strokeWidth={1.5} aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-fg-muted" />
           <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Filter components" aria-label="Filter components" size="sm" className="pl-9" />
         </div>
-        <div className="grid min-h-0 flex-1 content-start gap-6 overflow-y-auto overscroll-contain px-3 pb-8 [scrollbar-width:thin]">
+        <div className="grid min-h-0 flex-1 content-start gap-6 overflow-y-auto overscroll-contain px-3 pb-8 fade-y [scrollbar-width:thin]">
           <Rows groups={groups} query={query} onNavigate={close} />
         </div>
       </nav>

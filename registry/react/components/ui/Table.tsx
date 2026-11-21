@@ -5,8 +5,8 @@ import { cn } from '@/react/lib/cn'
 // a #262626 hairline; cells are DM Sans 14px with a hairline between rows, and a row takes the ghost fill under the
 // pointer (150ms). Right-aligned cells (class text-right) take tabular figures. A footer row sits on the card's #171717
 // fill; a caption goes under the table in muted 12px. `framed` puts it in a hairline box with the brand corner and a
-// 16px inset at both ends. It scrolls sideways on its own, so a phone never scrolls the page; with a `label` the
-// scroll box is a named region a keyboard can reach. Write the <caption>, <thead>, <tbody> and <tfoot> as children;
+// 16px inset at both ends. It scrolls sideways on its own, so a phone never scrolls the page, and an edge with more
+// past it fades (fade-x) inside the frame; with a `label` the scroll box is a named region a keyboard can reach. Write the <caption>, <thead>, <tbody> and <tfoot> as children;
 // mark a selected row with data-state="selected".
 export interface TableProps {
   /** In a hairline box with the brand corner. */
@@ -22,8 +22,10 @@ export function Table({ framed, label, className, children }: TableProps) {
   return (
     <>
       <style href="ds-table" precedence="ds">{css}</style>
-      <div data-ds="table" className={cn('relative w-full overflow-x-auto', framed && 'rounded-container border border-edge', className)} role={label ? 'region' : undefined} aria-label={label} tabIndex={label ? 0 : undefined}>
-        <table className="ds-table" data-framed={framed || undefined}>{children}</table>
+      <div data-ds="table" className={cn('relative w-full', framed && 'overflow-hidden rounded-container border border-edge', className)}>
+        <div className="w-full overflow-x-auto -outline-offset-2 fade-x" role={label ? 'region' : undefined} aria-label={label} tabIndex={label ? 0 : undefined}>
+          <table className="ds-table" data-framed={framed || undefined}>{children}</table>
+        </div>
       </div>
     </>
   )

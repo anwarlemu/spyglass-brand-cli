@@ -3,7 +3,7 @@ name: toggle-group
 title: Toggle Group
 type: registry:ui
 group: ui
-description: "Buttons that stay pressed, side by side on one track with the brand corner. Each pressed one is a White block with Black text."
+description: "Buttons that stay pressed, side by side on one track with the brand corner. Each pressed one is a White block with Black text. On a narrow screen the track scrolls with fading edges."
 use_for: "Options that are on or off together in a filter row: which formats to show, a grid size. `multiple` for several at once."
 never:
   - "Views of one thing: use Tabs"

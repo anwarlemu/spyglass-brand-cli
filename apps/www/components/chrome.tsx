@@ -55,7 +55,7 @@ export function Code({ code, title, tall = false }: { code: string; title: strin
         <span className="min-w-0 truncate type-code text-fg-muted">{title}</span>
         <CopyButton value={text} label={`Copy ${title}`} />
       </figcaption>
-      <pre className={cn("overflow-auto p-4 type-code text-fg-soft [scrollbar-width:thin]", tall ? "max-h-140" : "max-h-96")}>
+      <pre className={cn("overflow-auto p-4 type-code text-fg-soft fade-y fade-x [scrollbar-width:thin]", tall ? "max-h-140" : "max-h-96")}>
         <code>{text}</code>
       </pre>
     </figure>

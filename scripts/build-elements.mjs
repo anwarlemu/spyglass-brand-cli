@@ -57,12 +57,20 @@ async function tailwind() {
 			const brandBase = readFileSync(join(root, 'brand', 'base.css'), 'utf8')
 				.replace(/\/\*[\s\S]*?\*\//g, '')
 				.replace(/\n\s*(html|body)\s*\{[^}]*\}/g, '');
-			let css = await run(`${head}@import "tailwindcss/preflight.css" layer(base);\n${themeImport}${brandBase}\n`, []);
+			// The scroll fade (fade-y, fade-x), and the same rules for a host that is itself the scroll box: it sets
+			// data-fade="y", "x" or "both" on itself (a class on the host belongs to the page).
+			const fade = readFileSync(join(root, 'brand', 'fade.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+			const hostFade = fade
+				.replace(/@(property|keyframes)[^{]*\{(?:[^{}]|\{[^{}]*\})*\}\n?/g, '')
+				.replaceAll('.fade-y.fade-x', ':host([data-fade="both"])')
+				.replaceAll('.fade-y', ':host([data-fade="y"])')
+				.replaceAll('.fade-x', ':host([data-fade="x"])');
+			let css = await run(`${head}@import "tailwindcss/preflight.css" layer(base);\n${themeImport}${brandBase}\n${fade}\n${hostFade}\n`, []);
 			// Preflight sets the font, line height and tab size on `html, :host`: on a host that would replace what it inherits
 			// from the page, where a Vue or React component inherits it. The host inherits instead.
 			css = css.replace(/(^|\n)(\s*)html,\s*:host\s*\{/g, '$1$2html {');
 			css += `\n:host { display: contents; }\n:host([hidden]) { display: none !important; }\n`;
-			return optimize(css, { minify: true }).code;
+			return css;
 		},
 		/** One element's sheet: its classes and its sibling CSS, compiled against the theme. */
 		async element(text, extra) {
@@ -141,8 +149,10 @@ export async function buildElements({ out = elementsOut } = {}) {
 	rmSync(out, { recursive: true, force: true });
 	mkdirSync(out, { recursive: true });
 
-	const base = await tw.base();
-	const props = new Map();
+	// The base's own @property rules (the scroll fade's) are registered on the document like Tailwind's.
+	const baseCss = await tw.base();
+	const props = properties(baseCss);
+	const base = tw.optimize(stripProperties(baseCss));
 	const define = { __DS_PREFIX__: JSON.stringify(prefix) };
 	const tsconfigRaw = { compilerOptions: { useDefineForClassFields: false, experimentalDecorators: false, target: 'es2022' } };
 	const alias = { '@': reg };

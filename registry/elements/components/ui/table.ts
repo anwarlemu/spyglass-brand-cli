@@ -4,9 +4,10 @@ import { DsElement, define, HostLayoutController, tagName } from '@/elements/lib
 import styles from 'virtual:tw'
 
 // Table.tsx as <spyglass-table>: it wraps the page's own <table> (rows stay in the page, where table markup works),
-// styling it with the same rules as React, scoped to tables inside the element. It draws React's root div, the scroll
-// box, around its slot: it scrolls sideways on its own; `framed` gives it the hairline box and the brand corner, and
-// with a `label` it is a named region a keyboard can reach. Layout classes on the element land on that box.
+// styling it with the same rules as React, scoped to tables inside the element. It draws React's root div and the
+// scroll box inside it around its slot: it scrolls sideways on its own with its edges fading (fade-x); `framed` gives
+// the root the hairline box and the brand corner, and with a `label` the scroll box is a named region a keyboard can
+// reach. Layout classes on the element land on the root.
 
 /** Table.tsx's styles, scoped to tables inside the element. */
 const RULES = `
@@ -64,7 +65,7 @@ export class Table extends DsElement {
 	}
 
 	render() {
-		return html`<div data-ds="table" class=${this.framed ? 'relative w-full overflow-x-auto rounded-container border border-edge' : 'relative w-full overflow-x-auto'} role=${ifDefined(this.label ? 'region' : undefined)} aria-label=${ifDefined(this.label)} tabindex=${ifDefined(this.label ? '0' : undefined)}><slot @slotchange=${() => this.mark()}></slot></div>`
+		return html`<div data-ds="table" class=${this.framed ? 'relative w-full overflow-hidden rounded-container border border-edge' : 'relative w-full'}><div class="w-full overflow-x-auto -outline-offset-2 fade-x" role=${ifDefined(this.label ? 'region' : undefined)} aria-label=${ifDefined(this.label)} tabindex=${ifDefined(this.label ? '0' : undefined)}><slot @slotchange=${() => this.mark()}></slot></div></div>`
 	}
 }
 

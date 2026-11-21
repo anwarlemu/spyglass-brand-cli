@@ -110,7 +110,7 @@ export function Command({ groups, label = 'Commands', placeholder = 'Type a comm
           onKeyDown={onKey}
         />
       </label>
-      <div id={`${id}-list`} role="listbox" aria-label={label} className="max-h-96 overflow-y-auto overscroll-contain p-1">
+      <div id={`${id}-list`} role="listbox" aria-label={label} className="max-h-96 overflow-y-auto overscroll-contain p-1 fade-y">
         {shown.map((g, gi) => (
           <div key={g.heading ?? gi} role="group" aria-label={g.heading} className={gi ? '-mx-1 mt-1 border-t border-edge px-1 pt-1' : ''}>
             {g.heading && <p className="px-2 pt-2 pb-1 type-label text-fg-muted" aria-hidden="true">{g.heading}</p>}

@@ -3,7 +3,7 @@ name: drawer
 title: Drawer
 type: registry:ui
 group: ui
-description: "A panel that slides in from an edge over a Black scrim, on the #171717 overlay surface: from the bottom with the brand corner on its top edge and a grab handle, or from the left or right at full height."
+description: "A panel that slides in from an edge over a Black scrim, on the #171717 overlay surface: from the bottom with the brand corner on its top edge and a grab handle, or from the left or right at full height. The body's edges fade while there is more to scroll."
 use_for: "A choice or a short list on a phone (a format, a sort, the pages), where a dropdown would be cramped. The scrim, Escape and the close button close it."
 never:
   - "A long form: use a page"

@@ -50,7 +50,7 @@ export class ToggleGroup extends DsElement {
 	render() {
 		const item = ITEM[this.size] ?? ITEM.md
 		const classes = `inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-ds-sm whitespace-nowrap type-ui-strong text-fg-soft select-none transition-[background-color,color,scale] duration-150 ease-out active:not-disabled:scale-97 motion-reduce:active:not-disabled:scale-100 not-aria-pressed:hover:not-disabled:text-fg aria-pressed:bg-action-primary aria-pressed:text-action-primary-fg disabled:cursor-not-allowed disabled:text-action-disabled-fg ${item}`
-		return html`<div data-ds="toggle-group" role="group" aria-label=${this.label} class="inline-flex max-w-full items-center gap-1 overflow-x-auto rounded-control border border-edge-strong bg-surface p-1">${this.options.map(norm).map((o) => html`<button type="button" aria-pressed=${String(this.on(o.value))} ?disabled=${o.disabled} class=${classes} @click=${() => this.press(o.value)}>${o.label}</button>`)}</div>`
+		return html`<div data-ds="toggle-group" role="group" aria-label=${this.label} class="inline-flex max-w-full rounded-control border border-edge-strong bg-surface"><div class="flex min-w-0 items-center gap-1 overflow-x-auto p-1 fade-x">${this.options.map(norm).map((o) => html`<button type="button" aria-pressed=${String(this.on(o.value))} ?disabled=${o.disabled} class=${classes} @click=${() => this.press(o.value)}>${o.label}</button>`)}</div></div>`
 	}
 }
 

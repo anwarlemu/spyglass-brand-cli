@@ -3,7 +3,7 @@ name: command
 title: Command
 type: registry:ui
 group: ui
-description: "A box to type in over a list of actions and places, on the #171717 overlay surface: the field on top over a hairline, groups with a capital label, the menus' rows with an icon and a shortcut. On the page, or in a window opened with Cmd+K."
+description: "A box to type in over a list of actions and places, on the #171717 overlay surface: the field on top over a hairline, groups with a capital label, the menus' rows with an icon and a shortcut. On the page, or in a window opened with Cmd+K. The list scrolls with fading edges, so no row is cut off."
 use_for: "Jumping anywhere and running anything from the keyboard: searches, boards, brands, settings. CommandDialog for the app-wide Cmd+K menu."
 never:
   - "Motion on opening or closing: it opens many times a day"

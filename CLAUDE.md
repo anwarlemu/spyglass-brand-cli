@@ -25,7 +25,8 @@ sweeps it.
 
 - `brand/`: the only brand-specific content. `tokens.css` is the single source of values (`--ds-*`; dark, Black ground,
   at `:root`, the guidelines' white under `[data-theme="light"]`; the 1080 canvas as `--ds-asset-*`, and how the
-  product scale is derived from it in the header); `base.css` the base layer; `brand.json` names, fonts, icons, groups,
+  product scale is derived from it in the header); `base.css` the base layer; `fade.css` the scroll fade (`fade-y`, `fade-x`), shipped with every base and the
+  elements' shadow base: every scroll box that can cut content off takes it; `brand.json` names, fonts, icons, groups,
   the light's layers and the texture's ramp; `principles.md` and `principles.json` (product and website rules, voice),
   `agent-guide.md`, `contract.md`, `elements.json` (apply's roles and per-kind recipes); `fonts/` (Funnel Display, DM
   Sans, Geist Mono woff2 with their OFL licenses); `logo/source/` (the SVGs Figma exports) and `logo/svg/` (every

@@ -84,47 +84,49 @@ export function DataTable<Row extends Record<string, unknown>>({ columns, rows, 
           {anyOn && <Button variant="ghost" size="sm" onClick={() => pick({})}>Clear filters</Button>}
         </div>
       )}
-      <div className="overflow-x-auto rounded-container border border-edge" role="region" aria-label={label} tabIndex={0}>
-        <table className="w-full border-collapse type-ui">
-          <thead>
-            <tr>
-              {columns.map(c => (
-                <th key={c.key} scope="col" className={cn('h-10 border-b border-edge px-3 align-middle type-label whitespace-nowrap text-fg-muted', c.align === 'right' ? 'text-right' : 'text-left')} aria-sort={sort?.key === c.key ? sort.dir : c.sortable ? 'none' : undefined}>
-                  {c.sortable
-                    ? (
-                        <button type="button" className={cn(SORT, c.align === 'right' && 'flex-row-reverse')} onClick={() => toggleSort(c.key)}>
-                          {c.label}
-                          {sort?.key === c.key && sort.dir === 'ascending'
-                            ? <ArrowUp size={14} strokeWidth={1.5} className="text-fg" aria-hidden="true" />
-                            : sort?.key === c.key
-                              ? <ArrowDown size={14} strokeWidth={1.5} className="text-fg" aria-hidden="true" />
-                              : <ArrowUpDown size={14} strokeWidth={1.5} className="text-fg-faint" aria-hidden="true" />}
-                        </button>
-                      )
-                    : c.label}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {visible.map(r => (
-              <tr key={String(r[rowKey])} className="transition-[background-color] duration-150 ease-standard hover:bg-surface-raised">
+      <div className="overflow-hidden rounded-container border border-edge">
+        <div className="overflow-x-auto -outline-offset-2 fade-x" role="region" aria-label={label} tabIndex={0}>
+          <table className="w-full border-collapse type-ui">
+            <thead>
+              <tr>
                 {columns.map(c => (
-                  <td key={c.key} className={cn('h-row border-b border-edge px-3 py-1 whitespace-nowrap [tr:last-child>&]:border-b-0', c.align === 'right' && 'text-right tabular-nums', c.muted && 'text-fg-muted')}>
-                    {cell[c.key] ? cell[c.key]!({ row: r, value: r[c.key] }) : display(r[c.key])}
-                  </td>
+                  <th key={c.key} scope="col" className={cn('h-10 border-b border-edge px-3 align-middle type-label whitespace-nowrap text-fg-muted', c.align === 'right' ? 'text-right' : 'text-left')} aria-sort={sort?.key === c.key ? sort.dir : c.sortable ? 'none' : undefined}>
+                    {c.sortable
+                      ? (
+                          <button type="button" className={cn(SORT, c.align === 'right' && 'flex-row-reverse')} onClick={() => toggleSort(c.key)}>
+                            {c.label}
+                            {sort?.key === c.key && sort.dir === 'ascending'
+                              ? <ArrowUp size={14} strokeWidth={1.5} className="text-fg" aria-hidden="true" />
+                              : sort?.key === c.key
+                                ? <ArrowDown size={14} strokeWidth={1.5} className="text-fg" aria-hidden="true" />
+                                : <ArrowUpDown size={14} strokeWidth={1.5} className="text-fg-faint" aria-hidden="true" />}
+                          </button>
+                        )
+                      : c.label}
+                  </th>
                 ))}
               </tr>
-            ))}
-            {!visible.length && (
-              <tr>
-                <td colSpan={columns.length} className="px-3 py-6 text-center text-fg-muted">
-                  {empty ?? <>Nothing matches these filters. <button type="button" className="cursor-pointer font-medium text-fg underline-offset-4 hover:underline" onClick={() => pick({})}>Clear filters</button></>}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {visible.map(r => (
+                <tr key={String(r[rowKey])} className="transition-[background-color] duration-150 ease-standard hover:bg-surface-raised">
+                  {columns.map(c => (
+                    <td key={c.key} className={cn('h-row border-b border-edge px-3 py-1 whitespace-nowrap [tr:last-child>&]:border-b-0', c.align === 'right' && 'text-right tabular-nums', c.muted && 'text-fg-muted')}>
+                      {cell[c.key] ? cell[c.key]!({ row: r, value: r[c.key] }) : display(r[c.key])}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+              {!visible.length && (
+                <tr>
+                  <td colSpan={columns.length} className="px-3 py-6 text-center text-fg-muted">
+                    {empty ?? <>Nothing matches these filters. <button type="button" className="cursor-pointer font-medium text-fg underline-offset-4 hover:underline" onClick={() => pick({})}>Clear filters</button></>}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
       {sorted.length > pageSize && (
         <div className="flex items-center justify-between gap-3">

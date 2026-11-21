@@ -41,19 +41,21 @@ export function ToggleGroup<T extends string>({ options, label, multiple, size =
     else setModel(model === v ? null : v)
   }
   return (
-    <div data-ds="toggle-group" role="group" aria-label={label} className={cn('inline-flex max-w-full items-center gap-1 overflow-x-auto rounded-control border border-edge-strong bg-surface p-1', className)}>
-      {options.map(norm).map(o => (
-        <button
-          key={o.value}
-          type="button"
-          aria-pressed={on(o.value)}
-          disabled={o.disabled}
-          onClick={() => press(o.value)}
-          className={cn('inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-ds-sm whitespace-nowrap type-ui-strong text-fg-soft select-none transition-[background-color,color,scale] duration-150 ease-out active:not-disabled:scale-97 motion-reduce:active:not-disabled:scale-100 not-aria-pressed:hover:not-disabled:text-fg aria-pressed:bg-action-primary aria-pressed:text-action-primary-fg disabled:cursor-not-allowed disabled:text-action-disabled-fg', ITEM[size])}
-        >
-          {o.label}
-        </button>
-      ))}
+    <div data-ds="toggle-group" role="group" aria-label={label} className={cn('inline-flex max-w-full rounded-control border border-edge-strong bg-surface', className)}>
+      <div className="flex min-w-0 items-center gap-1 overflow-x-auto p-1 fade-x">
+        {options.map(norm).map(o => (
+          <button
+            key={o.value}
+            type="button"
+            aria-pressed={on(o.value)}
+            disabled={o.disabled}
+            onClick={() => press(o.value)}
+            className={cn('inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-ds-sm whitespace-nowrap type-ui-strong text-fg-soft select-none transition-[background-color,color,scale] duration-150 ease-out active:not-disabled:scale-97 motion-reduce:active:not-disabled:scale-100 not-aria-pressed:hover:not-disabled:text-fg aria-pressed:bg-action-primary aria-pressed:text-action-primary-fg disabled:cursor-not-allowed disabled:text-action-disabled-fg', ITEM[size])}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

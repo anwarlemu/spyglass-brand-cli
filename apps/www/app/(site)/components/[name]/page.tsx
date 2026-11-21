@@ -51,25 +51,27 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
             {item.api.components.map((c) => (
               <div key={c.name} className="grid gap-3">
                 <p className="type-code text-fg">{`<${c.name}>`}</p>
-                <div className="overflow-x-auto rounded-control border border-edge">
-                  <table className="w-full border-collapse type-ui">
-                    <thead>
-                      <tr className="text-left">
-                        <th className="h-10 border-b border-edge px-4 type-label text-fg-muted">Prop</th>
-                        <th className="h-10 border-b border-edge px-4 type-label text-fg-muted">Type</th>
-                        <th className="h-10 border-b border-edge px-4 type-label text-fg-muted">Default</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {c.props.map((p) => (
-                        <tr key={p.name} className="align-top">
-                          <td className="border-b border-edge px-4 py-3"><InlineCode>{p.name}</InlineCode></td>
-                          <td className="border-b border-edge px-4 py-3 type-code text-fg-soft">{p.type}{p.description && <p className="mt-1 type-caption text-fg-muted">{p.description}</p>}</td>
-                          <td className="border-b border-edge px-4 py-3 type-code text-fg-muted">{p.default ?? ""}</td>
+                <div className="overflow-hidden rounded-control border border-edge">
+                  <div className="overflow-x-auto fade-x">
+                    <table className="w-full border-collapse type-ui">
+                      <thead>
+                        <tr className="text-left">
+                          <th className="h-10 border-b border-edge px-4 type-label text-fg-muted">Prop</th>
+                          <th className="h-10 border-b border-edge px-4 type-label text-fg-muted">Type</th>
+                          <th className="h-10 border-b border-edge px-4 type-label text-fg-muted">Default</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {c.props.map((p) => (
+                          <tr key={p.name} className="align-top">
+                            <td className="border-b border-edge px-4 py-3"><InlineCode>{p.name}</InlineCode></td>
+                            <td className="border-b border-edge px-4 py-3 type-code text-fg-soft">{p.type}{p.description && <p className="mt-1 type-caption text-fg-muted">{p.description}</p>}</td>
+                            <td className="border-b border-edge px-4 py-3 type-code text-fg-muted">{p.default ?? ""}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             ))}

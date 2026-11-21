@@ -3,7 +3,7 @@ name: carousel
 title: Carousel
 type: registry:ui
 group: ui
-description: "Slides in a row on the Black ground, 16px apart, one to three in view, with ghost arrow buttons and the place in tabular figures. Native scroll snap: a swipe, a trackpad, the arrows and the arrow keys all move it. It never plays on its own."
+description: "Slides in a row on the Black ground, 16px apart, one to three in view, with ghost arrow buttons and the place in tabular figures. Native scroll snap: a swipe, a trackpad, the arrows and the arrow keys all move it. It never plays on its own. The track's edges fade while there are slides past them."
 use_for: "A row of saved creatives, quotes or offers that would crowd the page side by side. One slide in view on phones."
 never:
   - "Autoplay"

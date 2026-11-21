@@ -73,7 +73,7 @@ export class HoverCard extends DsElement {
 
 	render() {
 		const panel = this.pop.rendered
-			? html`<div data-ds="hover-card" popover="manual" class="ds-pop p-4" data-side=${this.pop.pos.side} ?data-instant=${this.pop.instant} ?data-placed=${this.pop.pos.placed} style=${this.pop.style(`width: ${this.width}`)} @pointerenter=${this.enter} @pointerleave=${this.leave}><slot name="card"></slot></div>`
+			? html`<div data-ds="hover-card" popover="manual" class="ds-pop p-4 fade-y" data-side=${this.pop.pos.side} ?data-instant=${this.pop.instant} ?data-placed=${this.pop.pos.placed} style=${this.pop.style(`width: ${this.width}`)} @pointerenter=${this.enter} @pointerleave=${this.leave}><slot name="card"></slot></div>`
 			: nothing
 		return html`<span data-ds="hover-card" class="inline-flex" @pointerenter=${this.enter} @pointerleave=${this.leave} @focusin=${this.onFocusIn} @focusout=${this.onFocusOut}><slot></slot></span>${panel}`
 	}

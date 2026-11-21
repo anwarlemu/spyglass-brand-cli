@@ -26,6 +26,8 @@
   decks, video and merch from `image`, `deck`, `video` and `merch`. Figma work goes through `{{cli}} figma` (tokens,
   push, pull, check): it writes files and prints the Figma MCP calls. Use the logo files from
   `{{cli}} brand --section logos` (or the `logo` component); never redraw, recolor, stretch or outline them.
+- Nothing is cut off by a hard edge: a box that scrolls takes `fade-y` (down) or `fade-x` (across), both for both
+  ways, from brand.css, so its edges fade while there is more past them.
 - Icons are Lucide at a 1.5 stroke.
 - Example and sample data use Acme. Never use another brand's photos or a real person's name.
 - Run the project's checks and build, then `{{cli}} check --json`, and fix what it reports.

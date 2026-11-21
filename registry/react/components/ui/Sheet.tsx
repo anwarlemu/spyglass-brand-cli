@@ -43,7 +43,7 @@ export function Sheet({ title, description, side = 'right', open: given, default
         </div>
         <button type="button" className="-mt-1.5 -mr-2 inline-flex size-control-sm shrink-0 cursor-pointer items-center justify-center rounded-control text-fg-muted transition-[background-color,color] duration-150 ease-standard hover:bg-action-ghost-hover hover:text-fg max-md:size-control-touch" aria-label="Close" onClick={() => setOpen(false)}><X size={16} strokeWidth={1.5} aria-hidden="true" /></button>
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-6" data-sheet-body="">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-6 fade-y" data-sheet-body="">
         {children}
       </div>
       {foot && <div className="flex shrink-0 justify-end gap-2 border-t border-edge px-6 py-4">{foot}</div>}

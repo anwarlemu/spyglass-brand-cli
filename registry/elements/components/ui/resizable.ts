@@ -74,7 +74,7 @@ export class Resizable extends DsElement {
 	}
 
 	render() {
-		return html`<div id=${this.firstId} class="min-h-0 min-w-0 overflow-auto" style=${styleMap({ flexBasis: `${this.value}%` })}><slot name="first"></slot></div>
+		return html`<div id=${this.firstId} class="min-h-0 min-w-0 overflow-auto fade-y fade-x" style=${styleMap({ flexBasis: `${this.value}%` })}><slot name="first"></slot></div>
 			<div
 				class="ds-resize-handle"
 				data-direction=${this.across ? 'horizontal' : 'vertical'}
@@ -93,7 +93,7 @@ export class Resizable extends DsElement {
 				@pointercancel=${this.onUp}
 				@keydown=${this.onKey}
 			>${this.withHandle ? html`<span class="ds-resize-grip" aria-hidden="true"></span>` : nothing}</div>
-			<div class="min-h-0 min-w-0 flex-1 overflow-auto"><slot name="second"></slot></div>`
+			<div class="min-h-0 min-w-0 flex-1 overflow-auto fade-y fade-x"><slot name="second"></slot></div>`
 	}
 }
 

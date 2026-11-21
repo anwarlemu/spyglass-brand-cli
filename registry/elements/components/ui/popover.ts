@@ -99,7 +99,7 @@ export class Popover extends DsElement {
 			? html`<slot name="trigger"></slot>`
 			: html`<button data-ds="popover" data-trigger type="button" class=${TRIGGER} aria-haspopup="dialog" aria-expanded=${String(this.pop.open)} aria-controls=${this.pop.open ? this.panelId : nothing} aria-label=${this.triggerLabel ?? nothing} @click=${this.onClick}><slot name="trigger"></slot></button>`
 		const panel = this.pop.rendered
-			? html`<div data-ds="popover" id=${this.panelId} popover="manual" class="ds-pop p-4" role="dialog" aria-label=${this.label} tabindex="-1" data-side=${this.pop.pos.side} ?data-instant=${this.pop.instant} ?data-placed=${this.pop.pos.placed} style=${this.pop.style(`width: ${this.width}`)} @focusout=${this.pop.onFocusOut}><slot></slot></div>`
+			? html`<div data-ds="popover" id=${this.panelId} popover="manual" class="ds-pop p-4 fade-y" role="dialog" aria-label=${this.label} tabindex="-1" data-side=${this.pop.pos.side} ?data-instant=${this.pop.instant} ?data-placed=${this.pop.pos.placed} style=${this.pop.style(`width: ${this.width}`)} @focusout=${this.pop.onFocusOut}><slot></slot></div>`
 			: nothing
 		return html`${trigger}${panel}`
 	}

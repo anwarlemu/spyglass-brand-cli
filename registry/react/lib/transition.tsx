@@ -40,11 +40,12 @@ export function runTransition(el: HTMLElement, name: string, phase: Phase, durat
       el.classList.add(to)
       const explicit = ms(duration, phase)
       if (explicit !== undefined) return void setTimeout(finish, explicit)
-      // The longest transition or animation on it, as Vue reads it; none means done now.
+      // The longest transition or animation on it, as Vue reads it; none means done now. A scroll-linked animation
+      // (the scroll fade: duration auto) is not timed, so it counts as none.
       const cs = getComputedStyle(el)
       const longest = (durations: string, delays: string) => {
-        const d = durations.split(',').map(s => Number.parseFloat(s) * (s.trim().endsWith('ms') ? 1 : 1000))
-        const l = delays.split(',').map(s => Number.parseFloat(s) * (s.trim().endsWith('ms') ? 1 : 1000))
+        const d = durations.split(',').map(s => (Number.parseFloat(s) || 0) * (s.trim().endsWith('ms') ? 1 : 1000))
+        const l = delays.split(',').map(s => (Number.parseFloat(s) || 0) * (s.trim().endsWith('ms') ? 1 : 1000))
         return Math.max(0, ...d.map((x, i) => x + (l[i % l.length] || 0)))
       }
       const total = Math.max(longest(cs.transitionDuration, cs.transitionDelay), longest(cs.animationDuration, cs.animationDelay))

@@ -57,7 +57,7 @@ export class PopoverPanel extends DsElement {
 
 	render() {
 		return this.pop.rendered
-			? html`<div data-ds="popover-panel" popover="manual" class="ds-pop" ?data-tip=${this.tip} data-side=${this.pop.pos.side} ?data-instant=${this.pop.instant} ?data-placed=${this.pop.pos.placed} style=${this.pop.style()} @focusout=${this.pop.onFocusOut}><slot></slot></div>`
+			? html`<div data-ds="popover-panel" popover="manual" class=${this.tip ? 'ds-pop' : 'ds-pop fade-y'} ?data-tip=${this.tip} data-side=${this.pop.pos.side} ?data-instant=${this.pop.instant} ?data-placed=${this.pop.pos.placed} style=${this.pop.style()} @focusout=${this.pop.onFocusOut}><slot></slot></div>`
 			: nothing
 	}
 }

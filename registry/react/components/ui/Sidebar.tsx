@@ -46,7 +46,7 @@ export function Sidebar({ label = 'Main', head, foot, collapsible, collapsed: gi
         </div>
       )}
       <SidebarContext.Provider value={collapsed}>
-        <div className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto p-3">{children}</div>
+        <div className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto p-3 fade-y">{children}</div>
       </SidebarContext.Provider>
       {foot && <div className={cn('shrink-0 border-t border-edge p-3', collapsed && 'hidden')}>{foot}</div>}
     </nav>

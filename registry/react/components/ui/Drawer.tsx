@@ -41,7 +41,7 @@ export function Drawer({ title, description, side = 'bottom', open: given, defau
         </div>
         <Button variant="ghost" size="sm" icon aria-label="Close" onClick={close}><X size={16} strokeWidth={1.5} aria-hidden="true" /></Button>
       </div>
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-3 pb-6" data-sheet-body="">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-3 pb-6 fade-y" data-sheet-body="">
         {typeof children === 'function' ? children(close) : children}
       </div>
     </dialog>

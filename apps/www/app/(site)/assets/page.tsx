@@ -95,26 +95,28 @@ export default function AssetsPage() {
         </Section>
 
         <Section id="merch" title="Merch print files" description="Print files only, no mockups: SVG at physical size and PNG at 300 dpi with the bleed. Full color uses the light and the texture on Black; one-color files are an approved lockup in White or Black on a transparent ground (shown on a checker).">
-          <div className="overflow-x-auto rounded-control border border-edge">
-            <table className="w-full border-collapse type-ui">
-              <thead>
-                <tr className="text-left text-fg-muted">
-                  {["Item", "Trim", "Bleed", "Safe", "Variants", "Source or convention"].map((h) => <th key={h} className="border-b border-edge px-4 py-2.5 type-label font-normal">{h}</th>)}
-                </tr>
-              </thead>
-              <tbody>
-                {doc.catalog.merch.map((m) => (
-                  <tr key={m.id} className="align-top">
-                    <td className="border-b border-edge px-4 py-2.5 whitespace-nowrap type-code text-fg">{m.id}</td>
-                    <td className="border-b border-edge px-4 py-2.5 whitespace-nowrap text-fg-soft">{m.trim.width} x {m.trim.height} in</td>
-                    <td className="border-b border-edge px-4 py-2.5 whitespace-nowrap text-fg-soft">{m.bleed} in</td>
-                    <td className="border-b border-edge px-4 py-2.5 whitespace-nowrap text-fg-soft">{m.safe} in</td>
-                    <td className="border-b border-edge px-4 py-2.5 whitespace-nowrap text-fg-soft">{m.variants.join(", ")}</td>
-                    <td className="min-w-80 border-b border-edge px-4 py-2.5 type-caption text-fg-muted">{m.source}</td>
+          <div className="overflow-hidden rounded-control border border-edge">
+            <div className="overflow-x-auto fade-x">
+              <table className="w-full border-collapse type-ui">
+                <thead>
+                  <tr className="text-left text-fg-muted">
+                    {["Item", "Trim", "Bleed", "Safe", "Variants", "Source or convention"].map((h) => <th key={h} className="border-b border-edge px-4 py-2.5 type-label font-normal">{h}</th>)}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {doc.catalog.merch.map((m) => (
+                    <tr key={m.id} className="align-top">
+                      <td className="border-b border-edge px-4 py-2.5 whitespace-nowrap type-code text-fg">{m.id}</td>
+                      <td className="border-b border-edge px-4 py-2.5 whitespace-nowrap text-fg-soft">{m.trim.width} x {m.trim.height} in</td>
+                      <td className="border-b border-edge px-4 py-2.5 whitespace-nowrap text-fg-soft">{m.bleed} in</td>
+                      <td className="border-b border-edge px-4 py-2.5 whitespace-nowrap text-fg-soft">{m.safe} in</td>
+                      <td className="border-b border-edge px-4 py-2.5 whitespace-nowrap text-fg-soft">{m.variants.join(", ")}</td>
+                      <td className="min-w-80 border-b border-edge px-4 py-2.5 type-caption text-fg-muted">{m.source}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {doc.merch.map((m) => (

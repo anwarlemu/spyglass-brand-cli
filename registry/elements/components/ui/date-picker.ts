@@ -124,7 +124,7 @@ export class DatePicker extends DsFormElement {
 				@keydown=${this.onKey}
 			>${icon(CalendarDays, 'calendar-days', { size: 16, strokeWidth: 1.5, class: 'shrink-0 text-fg-muted', attrs: { 'aria-hidden': 'true' } })}<span class=${text ? 'min-w-0 flex-1 truncate' : 'min-w-0 flex-1 truncate text-fg-muted'}>${text ?? this.placeholder}</span></button>
 			${this.pop.rendered
-				? html`<div data-ds="date-picker" id=${this.panelId} popover="manual" class="ds-pop p-3" role="dialog" aria-label="Choose a date" tabindex="-1" data-side=${this.pop.pos.side} ?data-instant=${this.pop.instant} ?data-placed=${this.pop.pos.placed} style=${this.pop.style()} @focusout=${this.pop.onFocusOut}>${staticHtml`<${calendar} .value=${this.value} .min=${this.min} .max=${this.max} .disabled=${this.disabled} .locale=${this.locale} @input=${(e: Event) => e.stopPropagation()} @change=${this.onChange} @select=${this.picked}></${calendar}>`}</div>`
+				? html`<div data-ds="date-picker" id=${this.panelId} popover="manual" class="ds-pop p-3 fade-y" role="dialog" aria-label="Choose a date" tabindex="-1" data-side=${this.pop.pos.side} ?data-instant=${this.pop.instant} ?data-placed=${this.pop.pos.placed} style=${this.pop.style()} @focusout=${this.pop.onFocusOut}>${staticHtml`<${calendar} .value=${this.value} .min=${this.min} .max=${this.max} .disabled=${this.disabled} .locale=${this.locale} @input=${(e: Event) => e.stopPropagation()} @change=${this.onChange} @select=${this.picked}></${calendar}>`}</div>`
 				: nothing}`
 	}
 }

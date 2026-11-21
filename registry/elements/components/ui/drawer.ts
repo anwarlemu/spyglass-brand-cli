@@ -63,7 +63,7 @@ export class Drawer extends DsElement {
 				</div>
 				<spyglass-button variant="ghost" size="sm" icon aria-label="Close" @click=${() => this.close()}>${icon(X, 'x', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } })}</spyglass-button>
 			</div>
-			<div class="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-3 pb-6" data-sheet-body><slot></slot></div>
+			<div class="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-3 pb-6 fade-y" data-sheet-body><slot></slot></div>
 		</dialog>`
 	}
 }

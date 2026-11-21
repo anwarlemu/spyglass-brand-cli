@@ -44,7 +44,7 @@ export class Sidebar extends DsElement {
 					${this.collapsible ? html`<button type="button" class="inline-flex size-control-md shrink-0 cursor-pointer items-center justify-center rounded-control text-fg-muted transition-[background-color,color] duration-150 ease-standard hover:bg-action-ghost-hover hover:text-fg" aria-label=${this.collapsed ? 'Expand sidebar' : 'Collapse sidebar'} aria-expanded=${String(!this.collapsed)} @click=${() => this.commit(!this.collapsed, 'collapsed')}>${icon(Icon, this.collapsed ? 'panel-left-open' : 'panel-left-close', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } })}</button>` : nothing}
 				</div>`
 				: nothing}
-			<div class="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto p-3"><slot></slot></div>
+			<div class="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto p-3 fade-y"><slot></slot></div>
 			${this.hasSlot('foot') ? html`<div class=${`shrink-0 border-t border-edge p-3 ${this.collapsed ? 'hidden' : ''}`}><slot name="foot"></slot></div>` : nothing}
 		</nav>`
 	}

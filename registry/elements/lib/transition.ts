@@ -32,10 +32,11 @@ export function runTransition(el: Element, name: string, phase: Phase, duration?
 			el.classList.add(to)
 			const explicit = duration === undefined ? undefined : typeof duration === 'number' ? duration : duration[phase]
 			if (explicit !== undefined) return void setTimeout(finish, explicit)
+			// A scroll-linked animation (the scroll fade: duration auto) is not timed, so it counts as none.
 			const cs = getComputedStyle(el)
 			const longest = (durations: string, delays: string) => {
-				const d = durations.split(',').map((s) => Number.parseFloat(s) * (s.trim().endsWith('ms') ? 1 : 1000))
-				const l = delays.split(',').map((s) => Number.parseFloat(s) * (s.trim().endsWith('ms') ? 1 : 1000))
+				const d = durations.split(',').map((s) => (Number.parseFloat(s) || 0) * (s.trim().endsWith('ms') ? 1 : 1000))
+				const l = delays.split(',').map((s) => (Number.parseFloat(s) || 0) * (s.trim().endsWith('ms') ? 1 : 1000))
 				return Math.max(0, ...d.map((x, i) => x + (l[i % l.length] || 0)))
 			}
 			const total = Math.max(longest(cs.transitionDuration, cs.transitionDelay), longest(cs.animationDuration, cs.animationDelay))
