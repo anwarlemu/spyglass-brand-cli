@@ -16,6 +16,21 @@ spyglass-ds manifest --json
 group, component (with parts, states and examples), image, deck, video and merch template, slide, item and size, illustrate style, subject and preset, and figma action. If a name is not in the
 document, the command exits 1 and names what is allowed. Do not substitute a nearby value.
 
+## Designs you revise
+
+```sh
+spyglass-ds design new banner-tagline --headline "Search every ad your competitors run." --size x-banner -o banner.design.json
+spyglass-ds design revise banner.design.json "bigger headline"
+spyglass-ds design edit banner.design.json --layer headline.anchor=bottom-right --size linkedin-banner
+spyglass-ds design undo banner.design.json
+spyglass-ds design variants banner.design.json --by template --count 4
+spyglass-ds design sizes banner.design.json --to og,square,story
+```
+
+A design is a small JSON file (template, size, theme, the copy you wrote, pictures, layer edits, history). Every write
+is checked (whole words, nothing invented, overlap, contrast, safe areas, the logo's clear space and size) and errors
+change nothing. Look at the PNG after each step; never edit it by hand.
+
 ## Brand
 
 ```sh

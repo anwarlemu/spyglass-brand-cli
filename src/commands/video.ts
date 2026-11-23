@@ -19,7 +19,7 @@ const jpeg = require('jpeg-js') as { encode: (img: { data: Buffer; width: number
 export const VIDEO_FLAGS = ['template', 'size', 'seed', 'light', 'seconds', 'fps', 'format', 'out', 'still', 'list'];
 
 type LightSpec = { window?: Box; b: Box; shift: number };
-type VideoTemplate = { id: string; name: string; from: string; description: string; light?: LightSpec; lights?: LightSpec[]; drift: [number, number]; logo: boolean; url: boolean };
+type VideoTemplate = { id: string; name: string; from: string; description: string; light?: LightSpec; lights?: LightSpec[]; drift: [number, number]; logo: boolean; url: boolean; logoAt?: 'top-left' | 'bottom-left' | 'center' };
 type VideoDoc = { fps: number; seconds: number; sizes: Record<string, [number, number]>; templates: VideoTemplate[] };
 
 let doc: VideoDoc | undefined;
@@ -60,11 +60,21 @@ export function videoFrame(t: VideoTemplate, size: [number, number], phase: numb
 		const dx = t.drift[0] * l.b[2] * Math.sin(a);
 		const dy = t.drift[1] * l.b[3] * Math.sin(2 * a);
 		const win = tx(l.window ?? [0, 0, 1080, 1080]);
-		layers.push({ type: 'light', window: win, b: [(l.b[0] + dx) * s, (l.b[1] + dy) * s, l.b[2] * s, l.b[3] * s], shift: l.shift * s });
+		// Fixed: a loop's light follows its path and nothing else, so the last frame meets the first.
+		layers.push({ type: 'light', window: win, b: [(l.b[0] + dx) * s, (l.b[1] + dy) * s, l.b[2] * s, l.b[3] * s], shift: l.shift * s, fixed: true });
 	}
 	const m = 72 * Math.min(W, H) / 1080;
-	if (t.logo) layers.push({ type: 'logo', lockup: 'horizontal', color: 'white', box: [m, m, 183 * (Math.min(W, H) / 1080), 28 * (Math.min(W, H) / 1080)], align: 'left' });
-	if (t.url) layers.push({ type: 'text', slot: 'url', face: 'label', size: 14 * (Math.min(W, H) / 1080), leading: 14, x: m, top: H - m - 10, w: 600, maxLines: 1 });
+	// The lockup and the address stand clear of a light strip at the left edge, and under a light that fills the top.
+	const lx = Math.max(m, ...layers.flatMap((l) => (l.type === 'light' && l.window && l.window[0] <= 0 && l.window[2] < W / 2 ? [l.window[0] + l.window[2] + m] : [])));
+	const k = Math.min(W, H) / 1080;
+	const mid = t.logoAt === 'center';
+	// A vertical loop is a story: its bars cover 250px at the top and 340px at the foot.
+	const top = H > W * 1.5 ? 266 * k : m;
+	const foot = H > W * 1.5 ? H - 356 * k : H - m;
+	const ly = t.logoAt === 'bottom-left' ? foot - 28 * k - 40 * k : mid ? H / 2 - 14 * k : top;
+	// In the corner light's empty middle, the lockup is centered and the address under it at the foot.
+	if (t.logo) layers.push({ type: 'logo', lockup: 'horizontal', color: 'white', box: [mid ? W / 2 - 91.5 * k : lx, ly, 183 * k, 28 * k], align: mid ? 'center' : 'left' });
+	if (t.url) layers.push({ type: 'text', slot: 'url', face: 'label', size: Math.max(14 * k, (8 * W) / 540), leading: 14, x: mid ? W / 2 - 300 : lx, top: foot - 10 * k, w: 600, align: mid ? 'center' : 'left', maxLines: 1 });
 	const b = brand() as ReturnType<typeof brand> & { domain?: string };
 	return { width: W, height: H, ground: 'black', layers, slots: { url: b.domain ?? new URL(b.site).host }, seed, light };
 }
@@ -76,7 +86,7 @@ export function videoHelp(): string {
 		`Short loops of the brand light: ${d.seconds} s at ${d.fps} fps, seamless. MP4 and WebM through ffmpeg when it is installed;`,
 		'otherwise PNG frames and a Motion JPEG MP4. Frames are deterministic per --seed.',
 		'',
-		`  ${b} video --template light-band --size square`,
+		`  ${b} video light-band --size square`,
 		`  ${b} video --template light-corner --size vertical --seed 3 --light generated`,
 		`  ${b} video --template light-field --still          (one frame, for reduced motion)`,
 		`  ${b} video --list`,
@@ -93,8 +103,9 @@ export async function runVideo(cwd: string, args: string[], flags: Flags): Promi
 		const cat = videoCatalog();
 		return { json: cat, text: [...cat.templates.map((t) => `${t.id.padEnd(16)}${t.description}`), '', `Sizes: ${cat.sizes.map((s) => `${s.id} ${s.width}x${s.height}`).join(', ')}`, `${cat.seconds} s at ${cat.fps} fps. ${cat.encoder}`].join('\n') };
 	}
-	if (args.length) throw new Error(`video takes no arguments. ${brand().bin} video --template light-band`);
-	const id = str(flags.template);
+	if (args.length > 1) throw new Error(`video takes one template: ${brand().bin} video light-band.`);
+	if (args[0] && str(flags.template) && args[0] !== str(flags.template)) throw new Error(`--template ${str(flags.template)} and ${args[0]} disagree. Pass one.`);
+	const id = str(flags.template) ?? args[0];
 	if (!id) throw new Error(`Name a template: ${brand().bin} video --template light-band (--list shows them).`);
 	const t = d.templates.find((x) => x.id === id.toLowerCase());
 	if (!t) throw unknown('template', id, d.templates.map((x) => x.id));

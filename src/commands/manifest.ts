@@ -12,6 +12,9 @@ import { slotNames } from '../assets/templates.js';
 import { ILLUSTRATE_FLAGS } from './illustrate.js';
 import { FIGMA_ACTIONS, FIGMA_FLAGS, PUSH_KINDS } from './figma.js';
 import { illustrateData, LIGHT_FRAMES } from '../illustrate/build.js';
+import { designManifest } from '../design/index.js';
+import { adapter } from '../design/adapter.js';
+import { SIZES } from '../assets/sizes.js';
 
 // The one document an agent reads first. It names every command, template, size, component, token and rule.
 // Commands reject anything that is not in here.
@@ -29,6 +32,7 @@ const COMMANDS = [
 	{ name: 'light', summary: 'The brand light as SVG or PNG, seeded: windows onto the brand heat map or a generated one.', flags: ['variant', 'seed', 'source', 'width', 'height', 'out', 'format', 'ground', 'list', 'help'] },
 	{ name: 'ascii', summary: 'The ASCII texture as SVG or PNG, seeded.', flags: ['seed', 'width', 'height', 'density', 'out', 'format', 'ground', 'help'] },
 	{ name: 'illustrate', summary: "The brand's own imagery as PNG and SVG: pattern (the light with the texture behind it), light (any variant), texture, split (a picture split into its color channels) and shader (a subject or picture turned into spectral light).", flags: [...ILLUSTRATE_FLAGS, 'help'] },
+	{ name: 'design', summary: 'Make a design (an image, slide, print item, illustration or loop) as a small JSON file, revise it in plain words or exact edits, undo, variants, sizes, compare and check. Every write is checked against the brand; errors change nothing. design --help.', flags: ['json', 'help'] },
 	{ name: 'figma', summary: 'Figma through its MCP tools, which the CLI never calls itself: tokens (variables and use_figma scripts), push (illustration, asset, slide, component, page), pull (read steps for a frame), check (off-brand values with the nearest token; exit 1).', flags: [...FIGMA_FLAGS, 'help'] },
 	{ name: 'list', summary: 'Every library item. In JSON, group is the label and groupId is the id (the groups in this document).', flags: [] },
 	{ name: 'view', summary: 'How to use an item: rules, props, slots, events, examples. show is the same command.', flags: ['source', 'full'] },
@@ -49,7 +53,7 @@ export function manifestHelp(): string {
 export async function manifest(): Promise<Record<string, unknown>> {
 	const components = await componentCatalog();
 	const principles = principleSurfaces();
-	const image = { templates: catalogOf('image') };
+	const image = { templates: catalogOf('image'), sizes: SIZES, custom: 'Any size with --size custom --width --height (200 to 4000), on templates that flow' };
 	const deck = { slides: catalogOf('deck') };
 	const video = videoCatalog();
 	const merch = { items: merchCatalog() };
@@ -99,6 +103,7 @@ export async function manifest(): Promise<Record<string, unknown>> {
 		merch,
 		illustrate,
 		figma,
+		design: designManifest(adapter(), brand().bin),
 		gaps: [...logo.missing, principles.website.gap].filter((gap): gap is string => Boolean(gap)),
 	};
 }

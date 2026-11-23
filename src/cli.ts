@@ -72,11 +72,17 @@ const HELP = () => {
 		row('figma tokens|push|pull|check', 'Files and the ordered Figma MCP calls; the CLI never calls Figma'),
 		'',
 		'Assets (PNG and SVG from the brand assets page; --list on each shows templates, sizes and slots):',
-		row('image --template post-offer --headline "..."', 'Posts, ads, banners, avatar, logo backgrounds, Open Graph, story'),
-		more('--size   --variant   --image <file> (repeat)   --seed   --light brand|generated   --all   --out   --format png|svg|both'),
+		row('image post-offer --headline "..."', 'Posts, ads, banners, avatar, logo backgrounds, Open Graph, story'),
+		more('--size og,story,x-banner|all|custom   --theme   --image <file> (repeat)   --seed   --light   --input carousel.json   --sample'),
+		more('--format png,svg,jpg,webp   --scale   --out'),
 		row('deck --input deck.json', 'Pitch deck slides at 1920x1080 as PNG and one PDF (--slide <type> for one)'),
 		row('video --template light-band --size square', 'Seamless loops of the light: MP4 and WebM via ffmpeg, else frames'),
 		row('merch --item tee-front --variant full-color', 'Print files: SVG at physical size, PNG at 300 dpi, with bleed (--list)'),
+		'',
+		'Make it, then revise it until it is right:',
+		row('design new og --headline "..." -o og.design.json', 'A design file and its PNG, checked against the brand'),
+		row('design revise og.design.json "bigger headline, logo top right"', 'Plain words; anything it does not understand changes nothing'),
+		row('design edit | undo | variants | sizes | compare | check', 'Exact edits, history, alternatives, other sizes (design --help)'),
 		'',
 		'Common options: --cwd <dir> (default: the current folder), --json (machine output on stdout).',
 		`Registry: ${registryHost()}/r/index.json`,
@@ -139,6 +145,7 @@ const FLAGS: Record<string, string[]> = {
 	ascii: ['seed', 'width', 'height', 'density', 'out', 'format', 'ground'],
 	illustrate: ILLUSTRATE_FLAGS,
 	figma: FIGMA_FLAGS,
+	design: [],
 };
 
 async function main() {

@@ -26,6 +26,8 @@
   decks, video and merch from `image`, `deck`, `video` and `merch`. Figma work goes through `{{cli}} figma` (tokens,
   push, pull, check): it writes files and prints the Figma MCP calls. Use the logo files from
   `{{cli}} brand --section logos` (or the `logo` component); never redraw, recolor, stretch or outline them.
+- To make a graphic the user will react to, use `{{cli}} design new`, show the PNG, and change it with `design edit` or
+  `design revise` until they are happy; never edit the PNG or SVG by hand. Only copy the user wrote is drawn.
 - Nothing is cut off by a hard edge: a box that scrolls takes `fade-y` (down), `fade-x` (across) or `fade-xy` (both
   ways) from brand.css, so its edges fade while there is more past them.
 - Icons are Lucide at a 1.5 stroke.

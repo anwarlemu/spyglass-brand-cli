@@ -78,10 +78,33 @@ Angular needs `schemas: [CUSTOM_ELEMENTS_SCHEMA]` for the elements; Vue and Nuxt
 ## Assets
 
 `{{cli}} light` and `{{cli}} ascii` write the brand light and the ASCII texture as SVG at any size (`--variant`,
-`--seed`, `--width`, `--height`). `{{cli}} image` (posts, ads, banners, avatar, logo backgrounds, Open Graph, landscape
-and story), `{{cli}} deck`, `{{cli}} video` and `{{cli}} merch` render from the brand assets layouts, the tokens, the
+`--seed`, `--width`, `--height`). `{{cli}} image` (posts, ads, banners, avatar, logo backgrounds, Open Graph and story cards, at
+every shared size: og, square, portrait, story, landscape, linkedin, linkedin-square, x-banner, linkedin-banner,
+linkedin-page, youtube, youtube-thumbnail, email, or `--size custom`; carousels with `--input`), `{{cli}} deck`, `{{cli}} video` and `{{cli}} merch` render from the brand assets layouts, the tokens, the
 fonts and the logo files; `--list` on each names every template, size and slot. `{{cli}} brand --section logos` lists
 every lockup in Black and White; use those files as they are.
+
+## Revising a design
+
+When a person wants a graphic they can react to (a banner, a post, a slide), make it as a design file and change it until
+they are happy:
+
+1. `{{cli}} design new <template> --headline "..." [--size x-banner] [--image picture=photo.jpg] -o banner.design.json`
+   writes the file and its PNG. Only the copy you pass is drawn; `--sample` fills sample copy to look at a layout.
+2. Look at the PNG, show it to the person, and ask what to change.
+3. Change it: `{{cli}} design edit banner.design.json --set headline="..." --layer logo.anchor=top-right
+   --layer headline.scale=1.2 --hide body --theme ... --size ...` (exact, best for an agent), or
+   `{{cli}} design revise banner.design.json "bigger headline, logo top right"` (plain words; a part it does not
+   understand fails the whole command, changes nothing and lists what it can do).
+4. Every write runs the check and prints it. An error (words that do not fit, an overlap, contrast, a safe area, the
+   logo's clear space or size, an off-brand value) blocks the write and leaves the file as it was. Composition rules can
+   be accepted with `--allow <rule>`; brand rules never can.
+5. Repeat until the person is happy. `design undo`, `redo` and `history` step through it; `design variants --by
+   theme|seed|template` and `design sizes --to og,square,story,x-banner` make alternatives with one labeled sheet;
+   `design compare a b` shows two side by side with what differs; `design render --format jpg,webp` draws the finals.
+
+Never edit the PNG or SVG by hand: change the design file through the CLI, so the brand rules keep holding. `design show
+<file> --json` lists every layer as drawn, what each can do and the phrases the design understands.
 
 ## Illustrations
 

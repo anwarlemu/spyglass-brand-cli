@@ -30,7 +30,7 @@ const slides = [
     slots: { headline: TAG },
     required: ['headline'], minPhotos: 1,
     sizes: { slide: { ...D, layers: [A(), L([-800,-3000,8000,5001], 50),
-      ...CURVED.map((quad, i) => ({ type: 'panel', quad, index: i })),
+      ...CURVED.map((quad, i) => ({ type: 'panel', quad, index: i, bleeds: true })),
       logo(), S([924, 96, 900, 420], [I('headline', 'display', 112, 112, 0, { maxLines: 2 })], { align: 'right' })] } } },
   // Content slides, derived from the covers' rules: 96px margins, the lockup top left, a label top right, Funnel Display
   // 112 to 240 for headings, DM Sans 32 at 1.33 for text (the posts' 24 at the deck's lockup ratio, 240 to 183), the
@@ -48,7 +48,7 @@ const slides = [
   { id: 'bullets', group: 'content', name: 'Bullets', figma: 'derived', description: 'A title on the left, up to six points on the right, a light strip at the right edge.',
     slots: { headline: 'Understand what is working in any category.', items: 'AI-powered research across brands, creators, ads, and campaigns | Unlimited board swipe files, alerts, and tracked brands | Unlimited team seats', label: 'Pitch deck' },
     required: ['headline', 'items'],
-    sizes: { slide: { ...D, layers: [A(), L([-2014,-160,2241,1401], 34, [1760, 0, 160, 1080]), logo(), label(),
+    sizes: { slide: { ...D, layers: [A(), L([-2014,-160,2241,1401], 34, [1760, 0, 160, 1080]), logo(), { ...label(), x: 1064 }, // the label stands clear of the strip
       S([96, 200, 720, 784], [I('headline', 'display', 72, 77, 0, { maxLines: 4 })], { prefer: 260 }),
       S([920, 200, 760, 784], [{ type: 'list', slot: 'items', face: 'body', size: 32, leading: 42.5, w: 720, itemGap: 48, maxLines: 3, min: 22 }], { prefer: 268, grow: 760 })] } } },
   { id: 'stat', group: 'content', name: 'Stat', figma: 'derived', description: 'One number at 240px and what it means, over a light band.',

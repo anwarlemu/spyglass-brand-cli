@@ -313,7 +313,8 @@
          1275
         ]
        ],
-       "index": 0
+       "index": 0,
+       "bleeds": true
       },
       {
        "type": "panel",
@@ -335,7 +336,8 @@
          1187
         ]
        ],
-       "index": 1
+       "index": 1,
+       "bleeds": true
       },
       {
        "type": "panel",
@@ -357,7 +359,8 @@
          1144
         ]
        ],
-       "index": 2
+       "index": 2,
+       "bleeds": true
       },
       {
        "type": "panel",
@@ -379,7 +382,8 @@
          1122
         ]
        ],
-       "index": 3
+       "index": 3,
+       "bleeds": true
       },
       {
        "type": "panel",
@@ -401,7 +405,8 @@
          1112
         ]
        ],
-       "index": 4
+       "index": 4,
+       "bleeds": true
       },
       {
        "type": "panel",
@@ -423,7 +428,8 @@
          1112.7
         ]
        ],
-       "index": 5
+       "index": 5,
+       "bleeds": true
       },
       {
        "type": "panel",
@@ -445,7 +451,8 @@
          1123.6
         ]
        ],
-       "index": 6
+       "index": 6,
+       "bleeds": true
       },
       {
        "type": "panel",
@@ -467,7 +474,8 @@
          1147.7
         ]
        ],
-       "index": 7
+       "index": 7,
+       "bleeds": true
       },
       {
        "type": "panel",
@@ -489,7 +497,8 @@
          1196.7
         ]
        ],
-       "index": 8
+       "index": 8,
+       "bleeds": true
       },
       {
        "type": "logo",
@@ -786,7 +795,7 @@
        "face": "label",
        "size": 16,
        "leading": 16,
-       "x": 1224,
+       "x": 1064,
        "top": 104,
        "w": 600,
        "align": "right",
