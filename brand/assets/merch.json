@@ -98,17 +98,27 @@
       "align": "center"
      },
      {
-      "type": "text",
-      "slot": "headline",
-      "face": "display",
-      "size": 0.6,
-      "leading": 0.64,
-      "x": 1,
-      "top": 11.4,
-      "w": 10,
-      "color": "$ink",
-      "align": "center",
-      "maxLines": 2
+      "type": "stack",
+      "box": [
+       1,
+       11.4,
+       10,
+       4
+      ],
+      "items": [
+       {
+        "type": "text",
+        "slot": "headline",
+        "face": "display",
+        "size": 0.6,
+        "leading": 0.64,
+        "gap": 0,
+        "color": "$ink",
+        "align": "center",
+        "maxLines": 2
+       }
+      ],
+      "align": "center"
      }
     ],
     "default": [
@@ -125,17 +135,27 @@
       "align": "center"
      },
      {
-      "type": "text",
-      "slot": "headline",
-      "face": "display",
-      "size": 0.6,
-      "leading": 0.64,
-      "x": 1,
-      "top": 5,
-      "w": 10,
-      "color": "$ink",
-      "align": "center",
-      "maxLines": 2
+      "type": "stack",
+      "box": [
+       1,
+       5,
+       10,
+       8
+      ],
+      "items": [
+       {
+        "type": "text",
+        "slot": "headline",
+        "face": "display",
+        "size": 0.6,
+        "leading": 0.64,
+        "gap": 0,
+        "color": "$ink",
+        "align": "center",
+        "maxLines": 2
+       }
+      ],
+      "align": "center"
      }
     ]
    },
@@ -207,16 +227,25 @@
       "shift": 0.5
      },
      {
-      "type": "text",
-      "slot": "headline",
-      "face": "display",
-      "size": 0.9,
-      "leading": 0.96,
-      "x": 3,
-      "top": 2,
-      "w": 6.2,
-      "color": "$ink",
-      "maxLines": 4
+      "type": "stack",
+      "box": [
+       3,
+       2,
+       6.2,
+       11.6
+      ],
+      "items": [
+       {
+        "type": "text",
+        "slot": "headline",
+        "face": "display",
+        "size": 0.9,
+        "leading": 0.96,
+        "gap": 0,
+        "color": "$ink",
+        "maxLines": 5
+       }
+      ]
      },
      {
       "type": "text",
@@ -233,16 +262,25 @@
     ],
     "default": [
      {
-      "type": "text",
-      "slot": "headline",
-      "face": "display",
-      "size": 0.9,
-      "leading": 0.96,
-      "x": 1.5,
-      "top": 2,
-      "w": 9,
-      "color": "$ink",
-      "maxLines": 4
+      "type": "stack",
+      "box": [
+       1.5,
+       2,
+       9,
+       9.8
+      ],
+      "items": [
+       {
+        "type": "text",
+        "slot": "headline",
+        "face": "display",
+        "size": 0.9,
+        "leading": 0.96,
+        "gap": 0,
+        "color": "$ink",
+        "maxLines": 5
+       }
+      ]
      },
      {
       "type": "text",
@@ -273,7 +311,10 @@
    "slots": {
     "headline": "Know what changed before your next meeting.",
     "url": "{domain}"
-   }
+   },
+   "required": [
+    "headline"
+   ]
   },
   {
    "id": "hoodie-front",
@@ -486,9 +527,9 @@
       "color": "white",
       "box": [
        6.4,
-       2.4,
+       2.6,
        2.1,
-       0.75
+       0.44
       ],
       "align": "center"
      }
@@ -638,32 +679,37 @@
       "shift": 0.62
      },
      {
-      "type": "text",
-      "slot": "headline",
-      "face": "display",
-      "size": 1.6,
-      "leading": 1.71,
-      "x": 1.2,
-      "top": 12,
-      "w": 15.6,
-      "color": "$ink",
-      "maxLines": 3
-     },
-     {
-      "type": "text",
-      "slot": "body",
-      "face": "body",
-      "size": 0.4,
-      "leading": 0.53,
-      "x": 1.2,
-      "top": 17.6,
-      "w": 10,
-      "color": "$ink",
-      "maxLines": 3,
-      "after": {
-       "slot": "headline",
-       "gap": 1
-      }
+      "type": "stack",
+      "box": [
+       1.2,
+       11,
+       15.6,
+       9.9
+      ],
+      "items": [
+       {
+        "type": "text",
+        "slot": "headline",
+        "face": "display",
+        "size": 1.6,
+        "leading": 1.71,
+        "gap": 0,
+        "color": "$ink",
+        "maxLines": 3
+       },
+       {
+        "type": "text",
+        "slot": "body",
+        "face": "body",
+        "size": 0.4,
+        "leading": 0.53,
+        "gap": 1,
+        "color": "$ink",
+        "w": 10,
+        "maxLines": 4
+       }
+      ],
+      "prefer": 12
      },
      {
       "type": "logo",
@@ -693,32 +739,37 @@
     ],
     "default": [
      {
-      "type": "text",
-      "slot": "headline",
-      "face": "display",
-      "size": 1.6,
-      "leading": 1.71,
-      "x": 1.2,
-      "top": 4,
-      "w": 15.6,
-      "color": "$ink",
-      "maxLines": 3
-     },
-     {
-      "type": "text",
-      "slot": "body",
-      "face": "body",
-      "size": 0.4,
-      "leading": 0.53,
-      "x": 1.2,
-      "top": 10,
-      "w": 10,
-      "color": "$ink",
-      "maxLines": 3,
-      "after": {
-       "slot": "headline",
-       "gap": 1
-      }
+      "type": "stack",
+      "box": [
+       1.2,
+       2.4,
+       15.6,
+       18.4
+      ],
+      "items": [
+       {
+        "type": "text",
+        "slot": "headline",
+        "face": "display",
+        "size": 1.6,
+        "leading": 1.71,
+        "gap": 0,
+        "color": "$ink",
+        "maxLines": 4
+       },
+       {
+        "type": "text",
+        "slot": "body",
+        "face": "body",
+        "size": 0.4,
+        "leading": 0.53,
+        "gap": 1,
+        "color": "$ink",
+        "w": 10,
+        "maxLines": 6
+       }
+      ],
+      "prefer": 4
      },
      {
       "type": "logo",
@@ -751,7 +802,10 @@
     "headline": "{tagline}",
     "body": "AI search across millions of creatives. Ask a question and get instant, structured results.",
     "url": "{domain}"
-   }
+   },
+   "required": [
+    "headline"
+   ]
   },
   {
    "id": "socks",

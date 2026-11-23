@@ -152,7 +152,7 @@ async function pushAction(cwd: string, dir: string, args: string[], flags: Flags
 		if (!target) throw new Error(`Name a style: ${STYLES().join(', ')} (and a subject for the shader), as illustrate takes.`);
 		if (!STYLES().includes(target as StyleId)) throw unknown('style', target, STYLES());
 		const images = listOf(flags.image);
-		const photo = images[0] ? readPhoto(cwd, images[0]) : undefined;
+		const photo = images[0] ? await readPhoto(cwd, images[0], { alpha: true }) : undefined;
 		const seed = flags.seed === undefined ? 0 : Number(flags.seed);
 		const r = await illustrate({ style: target as StyleId, subject: extra, photo, preset: str(flags.preset), variant: str(flags.variant), seed });
 		const name = [target, extra ?? (photo ? basename(images[0]!, extname(images[0]!)) : ''), str(flags.preset) ?? str(flags.variant) ?? ''].filter(Boolean).join('-');

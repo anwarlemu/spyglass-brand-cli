@@ -2,9 +2,13 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { Resvg } from '@resvg/resvg-js';
-import { packageRoot, tokens } from '../lib/brand.js';
-import { codeFace, faces, type Face } from '../image/fonts.js';
-import { capHeight, descent, measure, normalize } from '../image/text.js';
+import { brand, packageRoot, tokens } from '../lib/brand.js';
+import type { Face } from '../image/fonts.js';
+import { capHeight, descent, measure } from '../image/text.js';
+import { allFaces, checkGlyphs, clean, faceFor, fitText, FitError, longestPrefix, tooLong, wrapLines, type Faces4 } from './type.js';
+import { keyOf, layoutStack, textOf, type Placed, type PlacedText, type StackContext } from './stack.js';
+import { lit, litRuns, lightOf, range, touches, type LightModule, type LitMap, type PlacedLight } from './lit.js';
+import type { Anchor, DrawnLayer, LayerEdit, Rect } from '../design/types.js';
 import { cropStraight, encodePng } from './png.js';
 
 // The asset engine: a scene is a frame size and a list of layers in the frame's pixels (the brand's layouts in
@@ -16,7 +20,24 @@ export type Box = [number, number, number, number];
 export type Pt = [number, number];
 export type FaceRole = 'display' | 'body' | 'medium' | 'label' | 'code';
 
-export type TextLayer = {
+/** What every layer can carry: its name (layers with one name move together), and how an edit moves it. */
+type Named = {
+	id?: string;
+	/** The canvas corner or edge this layer sits at; another anchor moves it there and swaps with what stood there. */
+	corner?: Anchor;
+	/** Runs off the canvas on purpose. */
+	bleeds?: boolean;
+	/** Layers it sits on by design. */
+	over?: string[];
+	/** Drawn only with pictures, or only without. */
+	when?: 'pictures' | 'no-pictures';
+	/** The template needs it: it cannot be hidden. */
+	required?: boolean;
+	/** Already at its edited size: not raised to the readable floor. */
+	pinned?: boolean;
+};
+
+export type TextLayer = Named & {
 	type: 'text';
 	slot?: string;
 	text?: string;
@@ -31,35 +52,55 @@ export type TextLayer = {
 	align?: 'left' | 'center' | 'right';
 	color?: string;
 	maxLines?: number;
+	/** The smallest size it steps down to (default: 75 percent). */
+	min?: number;
 	/** Letter spacing in em (labels: 0.06). */
 	tracking?: number;
 	caps?: boolean;
 	opacity?: number;
-	/** Start under another text box instead of at `top`: its last baseline plus `gap`. */
-	after?: { slot: string; gap: number };
 };
 
-/** Text items stacked under each other: the next item's capitals start `gap` below the last item's baseline. */
-export type ListLayer = Omit<TextLayer, 'type'> & { type: 'list'; gap: number; items?: string[] };
+type TextItem = Omit<TextLayer, 'type' | 'x' | 'top' | 'w' | 'corner'> & { type: 'text'; gap?: number; w?: number };
+export type StackItem =
+	| TextItem
+	| (Omit<TextItem, 'type'> & { type: 'list'; itemGap: number })
+	| (Named & { type: 'button'; slot?: string; text?: string; h: number; w: number; size: number; fill?: string; color?: string; radius?: number; gap?: number; align?: 'left' | 'center' | 'right' })
+	| (Named & { type: 'card'; id: string; w: number; pad: number; padTop?: number; padBottom?: number; fill: string; radius?: number; gap?: number; align?: 'left' | 'center' | 'right'; items: StackItem[] });
+
+/** Copy stacked in a box: what is not passed is left out and the rest closes up; copy that does not fit re-wraps and
+ * steps down together to each item's floor, and past that is an error. A gap runs from the last baseline (or the
+ * bottom of a button or card) to the next capitals (or top). */
+export type StackLayer = Named & {
+	type: 'stack';
+	box: Box;
+	valign?: 'top' | 'center' | 'bottom';
+	align?: 'left' | 'center' | 'right';
+	/** Where it starts (valign top), centers or ends by choice; it moves inside the box when the copy needs the room. */
+	prefer?: number;
+	/** A wider measure to try before any copy steps down. */
+	grow?: number;
+	items: StackItem[];
+};
 
 export type Layer =
-	| { type: 'rect'; box: Box; fill: string; radius?: number; stroke?: string; opacity?: number }
+	| (Named & { type: 'rect'; box: Box; fill: string; radius?: number; stroke?: string; opacity?: number })
 	| TextLayer
-	| ListLayer
-	| { type: 'logo'; lockup: string; color: string; box: Box; align?: 'left' | 'center' | 'right' }
-	| { type: 'light'; window?: Box; b?: Box; shift?: number; variant?: string; seed?: number; source?: 'brand' | 'generated'; clipQuad?: [Pt, Pt, Pt, Pt] }
-	| { type: 'ascii'; box?: Box; seed?: number; density?: number; size?: number }
+	| StackLayer
+	| (Named & { type: 'logo'; lockup: string; color: string; box: Box; align?: 'left' | 'center' | 'right'; /** `auto`: Black where the light under it is pale. */ tone?: 'auto' })
+	| (Named & { type: 'light'; window?: Box; b?: Box; shift?: number; variant?: string; seed?: number; source?: 'brand' | 'generated'; clipQuad?: [Pt, Pt, Pt, Pt]; /** Stays where it is: it is not moved to keep copy clear. */ fixed?: boolean })
+	| (Named & { type: 'ascii'; box?: Box; seed?: number; density?: number; size?: number })
 	| InlineLayer
-	| { type: 'photo'; box: Box; index: number; radius?: number; clip?: Box }
-	| { type: 'panel'; quad: [Pt, Pt, Pt, Pt]; index: number }
-	| { type: 'split'; box: Box; index: number; shift: number; bleed?: number }
-	| { type: 'button'; box: Box; slot?: string; text?: string; size: number; fill?: string; color?: string; radius?: number }
-	| { type: 'search'; box: Box; slot?: string; text?: string; button?: string; size: number }
-	| { type: 'path'; d: string; fill?: string; stroke?: string; strokeWidth?: number; dash?: string; id?: string; svgOnly?: boolean };
+	| (Named & { type: 'photo'; box: Box; index: number; radius?: number; clip?: Box })
+	| (Named & { type: 'panel'; quad: [Pt, Pt, Pt, Pt]; index: number })
+	| (Named & { type: 'split'; box: Box; index: number; shift: number; bleed?: number })
+	| (Named & { type: 'button'; box: Box; slot?: string; text?: string; size: number; fill?: string; color?: string; radius?: number; align?: 'left' | 'center' | 'right' })
+	| (Named & { type: 'search'; box: Box; slot?: string; text?: string; button?: string; size: number })
+	| (Named & { type: 'path'; d: string; fill?: string; stroke?: string; strokeWidth?: number; dash?: string; svgOnly?: boolean });
 
 /** A heading set in runs with pictures between the words, as the deck cover does: each line lists word counts and
- * pictures (a picture is as tall as the capitals and sits on them). `words: 'rest'` takes what is left. */
-export type InlineLayer = {
+ * pictures (a picture is as tall as the capitals and sits on them). `words: 'rest'` takes what is left. Copy that does
+ * not fit the width steps down with its pictures. */
+export type InlineLayer = Named & {
 	type: 'inline';
 	slot: string;
 	face: FaceRole;
@@ -67,6 +108,9 @@ export type InlineLayer = {
 	leading: number;
 	x: number;
 	top: number;
+	w: number;
+	/** The lowest the last baseline may sit. */
+	bottom: number;
 	gap: number;
 	color?: string;
 	lines: ({ words: number | 'rest' } | { photo: number; w: number })[][];
@@ -80,15 +124,33 @@ export type Scene = {
 	/** Ground color (a token name or hex). Omit for a transparent ground. */
 	ground?: string;
 	layers: Layer[];
-	/** Slot values (the copy). */
+	/** Slot values (the copy). An empty slot is left out. */
 	slots?: Record<string, string>;
+	/** Slots filled with sample copy. */
+	sampled?: string[];
+	/** Slots that hold the brand's own words (its address). */
+	own?: string[];
 	photos?: Photo[];
+	/** Draw a picture slot with no picture as the card fill (samples only). */
+	placeholders?: boolean;
 	/** The seed for the texture and a generated light. */
 	seed?: number;
 	/** 'brand' keeps the brand's own heat map; 'generated' draws every light from a heat map generated from the seed. */
 	light?: 'brand' | 'generated';
+	/** Leave the ASCII texture out. */
+	texture?: boolean;
 	/** Keep text inside the texture's clear areas (default on). */
 	clearPadding?: number;
+	/** The area inside the margins, for anchors (default: 64px in). */
+	frame?: Box;
+	/** Pixels of this canvas per pixel of the 1080 canvas: readable floors scale with it. */
+	unit?: number;
+	/** The smallest readable text, in pixels, at the width the picture is shown. */
+	floor?: number;
+	/** Pixels per CSS pixel, for the logo's minimum height (print: 300 / 96). */
+	density?: number;
+	/** Changes to single layers, by id. */
+	edits?: Record<string, LayerEdit>;
 };
 
 // ----- Colors -----
@@ -106,11 +168,6 @@ export function color(value: string | undefined, fallback = '#FFFFFF'): string {
 
 // ----- Generators -----
 
-type LightModule = {
-	lightGeometry: (o: { width: number; height: number; variant?: string; seed?: number; source?: string }) => { offset: number; blur: number };
-	placedLightGeometry: (p: { width: number; height: number; b: { x: number; y: number; w: number; h: number }; shift: number; source?: string; seed?: number }) => unknown;
-	lightGeometrySvg: (g: unknown, o: { ground?: boolean; blend?: 'css' | 'filter'; id?: string }) => string;
-};
 type AsciiModule = { asciiSvg: (o: Record<string, unknown>) => string };
 
 const loaded = new Map<string, unknown>();
@@ -165,116 +222,104 @@ export function logoRatio(lockup: string): number {
 
 // ----- Text -----
 
-export type Faces4 = { display: Face; body: Face; medium: Face; code: Face };
-let facesPending: Promise<Faces4> | undefined;
-export function allFaces(): Promise<Faces4> {
-	facesPending ??= (async () => {
-		const f = await faces();
-		const code = await codeFace();
-		return { display: f.heading, body: f.text, medium: f.medium, code };
-	})();
-	return facesPending;
+export { allFaces, faceFor, fitText, FitError, wrapLines } from './type.js';
+
+function textMarkup(t: PlacedText, value?: string): string {
+	const fill = color(value ?? t.color, '#FFFFFF');
+	const ls = t.tracking ? ` letter-spacing="${f(t.tracking * t.size)}"` : '';
+	const op = t.opacity !== undefined ? ` fill-opacity="${t.opacity}"` : '';
+	// Each line is pinned to the width it was measured at, so every renderer sets it as wide as it was wrapped and
+	// aligned (one rasterizer sets the text face about 2% wider without it).
+	return t.lines.map((l) => `<text x="${f(l.x)}" y="${f(l.baseline)}" font-family="'${t.face.family}'" font-size="${f(t.size)}" font-weight="${t.face.weight}" fill="${fill}"${op}${ls} textLength="${f(l.w)}" lengthAdjust="spacing" xml:space="preserve">${esc(l.text)}</text>`).join('');
 }
 
-function faceFor(all: Faces4, role: FaceRole): Face {
-	return role === 'display' ? all.display : role === 'body' ? all.body : role === 'code' ? all.code : all.medium;
-}
+type PlacedInline = { runs: PlacedText['lines']; face: Face; size: number; pictures: { box: Box; index: number }[]; box: Box };
 
-/** Wraps text into lines that fit a width at a size (explicit line breaks kept). A line may run 0.5% past the box:
- * the brand's boxes are set tight to the type, and the vendored faces measure a hair wider than the design tool's. */
-export function wrapLines(face: Face, text: string, size: number, width: number, tracking: number): string[] {
-	const lines: string[] = [];
-	for (const para of normalize(text).split('\n')) {
-		const words = para.split(' ').filter(Boolean);
-		let line = '';
-		for (const word of words) {
-			const next = line ? `${line} ${word}` : word;
-			if (!line || measure(face, next, size, tracking) <= width * 1.005) line = next;
-			else {
-				lines.push(line);
-				line = word;
-			}
-		}
-		lines.push(line);
-	}
-	return lines;
-}
-
-export class FitError extends Error {}
-
-/** The size a text box draws at: the brand size if the copy fits its line limit, else a step smaller (to 75%). */
-export function fitText(face: Face, text: string, layer: Pick<TextLayer, 'size' | 'leading' | 'w' | 'maxLines' | 'tracking' | 'slot'>) {
-	const tracking = layer.tracking ?? 0;
-	const max = layer.maxLines ?? 99;
-	for (let size = layer.size; size >= layer.size * 0.75 - 0.01; size -= Math.max(1, layer.size / 40)) {
-		const lines = wrapLines(face, text, size, layer.w, tracking);
-		const fitsWide = lines.every((l) => measure(face, l, size, tracking) <= layer.w * 1.005 + 0.5 || !l.includes(' '));
-		if (lines.length <= max && fitsWide) return { size, leading: layer.leading * (size / layer.size), lines };
-	}
-	throw new FitError(`The ${layer.slot ?? 'text'} is too long for this layout: it needs more than ${max} line${max === 1 ? '' : 's'} at ${Math.round(layer.size * 0.75)}px in a ${layer.w}px box. Shorten it.`);
-}
-
-/** Pins a line to the width it was measured at, so every renderer sets it as wide as it was wrapped and aligned
- * (one rasterizer sets the text face about 2% wider without it). */
-function fixLength(w: number): string {
-	return ` textLength="${f(w)}" lengthAdjust="spacing"`;
-}
-
-function textSvg(all: Faces4, layer: TextLayer, value: string): { svg: string; box: Box; size: number } {
+/** The inline heading at its size, or stepped down with its pictures until every line fits. */
+function placeInline(all: Faces4, layer: InlineLayer, value: string, pin?: number): PlacedInline {
 	const face = faceFor(all, layer.face);
-	const caps = layer.caps ?? layer.face === 'label';
-	const tracking = layer.tracking ?? (layer.face === 'label' ? 0.06 : 0);
-	const text = caps ? value.toUpperCase() : value;
-	const fitted = fitText(face, text, { ...layer, tracking });
-	const cap = capHeight(face, fitted.size);
-	const fill = color(layer.color, '#FFFFFF');
-	const ls = tracking ? ` letter-spacing="${f(tracking * fitted.size)}"` : '';
-	const op = layer.opacity !== undefined ? ` fill-opacity="${layer.opacity}"` : '';
-	const out = fitted.lines.map((line, i) => {
-		const w = measure(face, line, fitted.size, tracking);
-		const x = layer.align === 'center' ? layer.x + (layer.w - w) / 2 : layer.align === 'right' ? layer.x + layer.w - w : layer.x;
-		const y = layer.top + cap + i * fitted.leading;
-		return `<text x="${f(x)}" y="${f(y)}" font-family="'${face.family}'" font-size="${f(fitted.size)}" font-weight="${face.weight}" fill="${fill}"${op}${ls}${fixLength(w)} xml:space="preserve">${esc(line)}</text>`;
-	});
-	const h = cap + (fitted.lines.length - 1) * fitted.leading + descent(face, fitted.size);
-	return { svg: out.join(''), box: [layer.x, layer.top, layer.w, h], size: fitted.size };
-}
-
-function inlineSvg(all: Faces4, layer: InlineLayer, value: string, photos: Photo[]): { svg: string; box: Box } {
-	const face = faceFor(all, layer.face);
-	const words = normalize(value).split(/\s+/).filter(Boolean);
-	const cap = capHeight(face, layer.size);
-	const fill = color(layer.color, '#FFFFFF');
-	const space = measure(face, ' ', layer.size, 0);
-	let at = 0;
-	let right = layer.x;
-	const out: string[] = [];
-	layer.lines.forEach((line, li) => {
-		const top = layer.top + li * layer.leading;
+	checkGlyphs(face, value, layer.slot);
+	const words = clean(value).split(/\s+/).filter(Boolean);
+	const tryAt = (k: number): PlacedInline | undefined => {
+		const size = layer.size * k;
+		const cap = capHeight(face, size);
+		let at = 0;
+		const runs: PlacedText['lines'] = [];
+		const pictures: PlacedInline['pictures'] = [];
+		let right = layer.x;
+		let top = layer.top;
 		let x = layer.x;
 		let first = true;
-		for (const part of line) {
-			if ('photo' in part) {
-				if (!first) x += layer.gap;
-				out.push(photoSvg([x, top, part.w, cap], photos[part.photo], 0));
-				x += part.w;
-			} else {
-				const n = part.words === 'rest' ? words.length - at : part.words;
-				const run = words.slice(at, at + n).join(' ');
-				at += n;
-				if (!run) continue;
-				if (!first) x += layer.gap;
-				out.push(`<text x="${f(x)}" y="${f(top + cap)}" font-family="'${face.family}'" font-size="${f(layer.size)}" font-weight="${face.weight}" fill="${fill}"${fixLength(measure(face, run, layer.size, 0))} xml:space="preserve">${esc(run)}</text>`);
-				x += measure(face, run, layer.size, 0);
+		const space = measure(face, ' ', size, 0);
+		const newline = () => {
+			top += layer.leading * k;
+			x = layer.x;
+			first = true;
+		};
+		layer.lines.forEach((line, li) => {
+			if (li) newline();
+			for (const part of line) {
+				if ('photo' in part) {
+					const pw = part.w * k;
+					if (x + (first ? 0 : layer.gap * k) + pw > layer.x + layer.w) newline();
+					if (!first) x += layer.gap * k;
+					pictures.push({ box: [x, top, pw, cap], index: part.photo });
+					x += pw;
+					first = false;
+				} else {
+					const n = part.words === 'rest' ? words.length - at : Math.min(part.words, words.length - at);
+					let run = '';
+					let rx = x + (first ? 0 : layer.gap * k);
+					const flush = () => {
+						if (!run) return;
+						const w = measure(face, run, size, 0);
+						runs.push({ text: run, x: rx, baseline: top + cap, w });
+						x = rx + w;
+						right = Math.max(right, x);
+						first = false;
+						run = '';
+					};
+					for (let i = 0; i < n; i++) {
+						const word = words[at++]!;
+						const next = run ? `${run} ${word}` : word;
+						if (rx + measure(face, next, size, 0) <= layer.x + layer.w) run = next;
+						else {
+							flush();
+							newline();
+							rx = x;
+							run = word;
+						}
+					}
+					flush();
+				}
+				right = Math.max(right, x);
 			}
-			first = false;
-		}
-		right = Math.max(right, x);
-	});
-	if (at < words.length) throw new FitError(`The ${layer.slot} has ${words.length} words; this layout sets ${at}. Shorten it.`);
-	void space;
-	const h = (layer.lines.length - 1) * layer.leading + cap + descent(face, layer.size);
-	return { svg: out.join(''), box: [layer.x, layer.top, right - layer.x, h] };
+		});
+		void space;
+		const bottom = top + cap;
+		if (bottom > layer.bottom + 0.5 || runs.some((r) => r.x + r.w > layer.x + layer.w + 0.5)) return undefined;
+		return { runs, face, size, pictures, box: [layer.x, layer.top, right - layer.x, bottom - layer.top + descent(face, size)] };
+	};
+	let base: PlacedInline | undefined;
+	let bk = 1;
+	for (let k = 1; k >= 0.4; k = Math.round((k - 0.02) * 100) / 100) {
+		base = tryAt(k);
+		bk = k;
+		if (base) break;
+	}
+	if (!base) throw tooLong(layer.slot, value, longestPrefix(value, (t) => Boolean(placeInlineFits(all, layer, t))), `${Math.round(layer.size * 0.4)}px is the smallest readable size here`);
+	if (pin === undefined || pin === 1) return base;
+	const r = tryAt(bk * pin);
+	if (r) return r;
+	let best = 1;
+	for (let k = 1; k <= pin; k = Math.round((k + 0.02) * 100) / 100) if (tryAt(bk * k)) best = k;
+	throw new FitError(`The ${layer.slot} does not fit at ${pin}x: up to ${best}x fits here.`, layer.slot, { layer: layer.slot, max: best });
+}
+function placeInlineFits(all: Faces4, layer: InlineLayer, value: string): boolean {
+	const face = faceFor(all, layer.face);
+	const size = layer.size * 0.4;
+	const lines = wrapLines(face, value, size, layer.w, 0);
+	return lines.length * layer.leading * 0.4 <= layer.bottom - layer.top;
 }
 
 // ----- Photos -----
@@ -318,7 +363,8 @@ function panelSvg(quad: [Pt, Pt, Pt, Pt], photo: Photo | undefined, defs: string
 		const top = tl[1] + (tr[1] - tl[1]) * tm;
 		const bottom = bl[1] + (br[1] - bl[1]) * tm;
 		const sx = x0 + width * t0;
-		const sw = (width / strips) * 1.04;
+		// Each strip runs under the next, so no seam shows where two soft edges meet.
+		const sw = width / strips + 1.5;
 		const sc = (bottom - top) / aspectH;
 		const sid = nextId('ps');
 		parts.push(`<clipPath id="${sid}"><rect x="${f(sx)}" y="${f(top - 2)}" width="${f(sw)}" height="${f(bottom - top + 4)}"/></clipPath><g clip-path="url(#${sid})"><use href="#${id}" transform="translate(${f(x0)} ${f(top)}) scale(1 ${f(sc)})"/></g>`);
@@ -344,11 +390,225 @@ function splitSvg(box: Box, photo: Photo | undefined, shift: number, bleed = 0):
 	return `<defs>${filter}<clipPath id="${clip}"><rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}"/></clipPath></defs><g clip-path="url(#${clip})"><image href="${href(photo)}" x="${f(x - bleed)}" y="${f(y - bleed)}" width="${f(w + bleed * 2)}" height="${f(h + bleed * 2)}" preserveAspectRatio="xMidYMid slice" filter="url(#${id})"/></g>`;
 }
 
+// ----- Edits -----
+
+const ANCHOR = (a: Anchor): [number, number] => [a.endsWith('left') ? 0 : a.endsWith('right') ? 1 : 0.5, a.startsWith('top') ? 0 : a.startsWith('bottom') ? 1 : 0.5];
+export const CORNERS: Anchor[] = ['top-left', 'top', 'top-right', 'bottom-left', 'bottom', 'bottom-right'];
+
+/** A layer's name: its own, its slot, or its kind (`logo`, `light`, `pictures`). */
+export function layerId(l: Layer): string {
+	if (l.id) return l.id;
+	if (l.type === 'text' || l.type === 'button' || l.type === 'search' || l.type === 'inline') return l.slot ?? l.type;
+	if (l.type === 'photo' || l.type === 'panel' || l.type === 'split') return 'pictures';
+	if (l.type === 'ascii') return 'texture';
+	return l.type;
+}
+
+/** The layers with every light named (`light`, `light-2`): each one moves on its own. */
+export function named(layers: Layer[]): Layer[] {
+	let n = 0;
+	return layers.map((l) => {
+		if (l.type !== 'light' || l.id) return l;
+		n++;
+		return { ...l, id: n === 1 ? 'light' : `light-${n}` };
+	});
+}
+
+function boxOf(l: Layer): Box | undefined {
+	if (l.type === 'panel') {
+		const xs = l.quad.map((p) => p[0]);
+		const ys = l.quad.map((p) => p[1]);
+		return [Math.min(...xs), Math.min(...ys), Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)];
+	}
+	if (l.type === 'light') return l.window;
+	if (l.type === 'photo') return l.clip ?? l.box;
+	if ('box' in l) return l.box as Box | undefined;
+	return undefined;
+}
+
+const union = (boxes: Box[]): Box => {
+	const x = Math.min(...boxes.map((b) => b[0]));
+	const y = Math.min(...boxes.map((b) => b[1]));
+	return [x, y, Math.max(...boxes.map((b) => b[0] + b[2])) - x, Math.max(...boxes.map((b) => b[1] + b[3])) - y];
+};
+const hit = (a: Box, b: Box) => a[0] < b[0] + b[2] && b[0] < a[0] + a[2] && a[1] < b[1] + b[3] && b[1] < a[1] + a[3];
+const grow = (b: Box, p: number): Box => [b[0] - p, b[1] - p, b[2] + 2 * p, b[3] + 2 * p];
+const rect = (b: Box): Rect => ({ x: round(b[0]), y: round(b[1]), w: round(b[2]), h: round(b[3]) });
+const round = (n: number) => Math.round(n * 10) / 10;
+
+/** Moves and scales a box about a point. */
+function moved(b: Box, about: Pt, k: number, dx: number, dy: number): Box {
+	return [about[0] + (b[0] - about[0]) * k + dx, about[1] + (b[1] - about[1]) * k + dy, b[2] * k, b[3] * k];
+}
+
+/** The box a lockup really takes inside the box it is fitted into. */
+export function logoBox(l: { lockup: string; box: Box; align?: 'left' | 'center' | 'right' }): Box {
+	const r = logoRatio(l.lockup);
+	const [x, y, w, h] = l.box;
+	const lh = Math.min(h, w / r);
+	const lw = lh * r;
+	return [l.align === 'left' ? x : l.align === 'right' ? x + w - lw : x + (w - lw) / 2, y + (h - lh) / 2, lw, lh];
+}
+
+/** Clear space around a lockup: a share of the logomark's height, on every side. */
+export function clearOf(lockup: string, h: number): number {
+	const spec = brand().logo;
+	if (!spec) return 0;
+	return spec.clearSpace * (spec.markHeight[lockup] ?? 1) * h;
+}
+
+/** The layers with the edits applied: hidden layers gone, corner layers moved (swapping with what stood there), groups
+ * moved and scaled, and stacks given the room that is left. */
+async function applyEdits(scene: Scene, all: Faces4): Promise<Layer[]> {
+	const edits = scene.edits ?? {};
+	const ids = Object.keys(edits).filter((k) => edits[k] && Object.keys(edits[k]!).length);
+	let layers = named(scene.layers).filter((l) => !(l.type === 'ascii' && scene.texture === false));
+	if (!ids.length) return layers;
+	const W = scene.width;
+	const H = scene.height;
+	const frame = scene.frame ?? [64, 64, W - 128, H - 128];
+	layers = layers.filter((l) => l.type === 'stack' || !edits[layerId(l)]?.hidden);
+	const slots = scene.slots ?? {};
+	const value = (l: { slot?: string; text?: string }) => clean((l.slot ? slots[l.slot] : undefined) ?? l.text ?? '');
+	const changed = new Set<Layer>();
+
+	// Corners: the size of what stands in one, then its place.
+	const sizeOf = (l: Layer): [number, number] => {
+		if (l.type === 'logo') {
+			const b = logoBox(l);
+			return [b[2], b[3]];
+		}
+		if (l.type === 'button') {
+			const face = all.medium;
+			return [Math.max(l.box[2], measure(face, value(l), l.size, 0) + 2 * Math.max(20, l.box[3] * 0.4)), l.box[3]];
+		}
+		if (l.type === 'text') {
+			const face = faceFor(all, l.face);
+			const caps = l.caps ?? l.face === 'label';
+			const v = caps ? value(l).toUpperCase() : value(l);
+			return [measure(face, v, l.size, l.tracking ?? (l.face === 'label' ? 0.06 : 0)), capHeight(face, l.size)];
+		}
+		return [0, 0];
+	};
+	const centerY = (l: Layer): number => (l.type === 'text' ? l.top + sizeOf(l)[1] / 2 : boxOf(l)![1] + boxOf(l)![3] / 2);
+	const inCorner = layers.filter((l) => l.corner && (l.type === 'logo' || l.type === 'text' || l.type === 'button') && (l.type === 'logo' || value(l)));
+	const topRow = inCorner.filter((l) => l.corner!.startsWith('top')).map(centerY)[0];
+	const bottomRow = inCorner.filter((l) => l.corner!.startsWith('bottom')).map(centerY)[0];
+	const put = (l: Layer, a: Anchor): Layer => {
+		const [w, h] = sizeOf(l);
+		const [ax, ay] = ANCHOR(a);
+		const x = frame[0] + (frame[2] - w) * ax;
+		const cy = ay === 0 ? topRow ?? frame[1] + h / 2 : ay === 1 ? bottomRow ?? frame[1] + frame[3] - h / 2 : frame[1] + frame[3] / 2;
+		const align = ax === 0 ? 'left' : ax === 1 ? 'right' : 'center';
+		if (l.type === 'logo') return { ...l, corner: a, align, box: [x, cy - h / 2, w, h] };
+		if (l.type === 'button') return { ...l, corner: a, align, box: [x, cy - h / 2, w, h] };
+		if (l.type === 'text') return { ...l, corner: a, align, x, w: w + 1, top: cy - h / 2 };
+		return l;
+	};
+	const replace = (from: Layer, to: Layer) => {
+		layers = layers.map((l) => (l === from ? to : l));
+		changed.add(to);
+	};
+	for (const id of ids) {
+		const a = edits[id]!.anchor;
+		if (!a) continue;
+		const l = layers.find((x) => x.corner && layerId(x) === id);
+		if (!l) continue;
+		const other = layers.find((x) => x !== l && x.corner === a && (x.type === 'logo' || value(x as { slot?: string; text?: string })) && !edits[layerId(x)]?.anchor);
+		const was = l.corner!;
+		replace(l, put(l, a));
+		if (other && was !== a) replace(other, put(other, was));
+	}
+
+	// Groups: every fixed layer of one name, moved and scaled about its own middle (a corner layer about its corner).
+	for (const id of ids) {
+		const e = edits[id]!;
+		const k = e.scale ?? 1;
+		const dx = (e.dx ?? 0) * W;
+		const dy = (e.dy ?? 0) * H;
+		const group = layers.filter((l) => l.type !== 'stack' && layerId(l) === id);
+		if (!group.length) continue;
+		if (e.align) for (const l of group) if (l.type === 'text' && l.align !== e.align) replace(l, { ...l, align: e.align });
+		if (k === 1 && !dx && !dy) continue;
+		const group2 = layers.filter((l) => l.type !== 'stack' && layerId(l) === id);
+		const boxes = group2.map(boxOf).filter((b): b is Box => Boolean(b));
+		const u = boxes.length ? union(boxes) : ([0, 0, W, H] as Box);
+		const about: Pt = [u[0] + u[2] / 2, u[1] + u[3] / 2];
+		for (const l of group2) {
+			const [ax, ay] = l.corner ? ANCHOR(l.corner) : [0.5, 0.5];
+			if (l.type === 'logo') {
+				const b = logoBox(l);
+				replace(l, { ...l, box: moved(b, l.corner ? [b[0] + b[2] * ax, b[1] + b[3] * ay] : [b[0] + b[2] / 2, b[1] + b[3] / 2], k, dx, dy) });
+			} else if (l.type === 'text') {
+				const [w, h] = sizeOf(l);
+				const base = Math.max(l.size, scene.floor ?? 0);
+				const size = base * k;
+				replace(l, { ...l, pinned: true, size, min: size, leading: (l.leading * size) / l.size, x: l.x - (l.w * (k - 1)) * (l.align === 'right' ? 1 : l.align === 'center' ? 0.5 : 0) + dx, w: l.w * k, top: l.top - h * (k - 1) * ay + dy });
+				void w;
+			} else if (l.type === 'inline') replace(l, { ...l, x: l.x + dx, top: l.top + dy, bottom: l.bottom + dy });
+			else if (l.type === 'panel') replace(l, { ...l, quad: l.quad.map(([x, y]) => [about[0] + (x - about[0]) * k + dx, about[1] + (y - about[1]) * k + dy]) as typeof l.quad });
+			else if (l.type === 'light') {
+				// A light tile among the pictures moves with them; every other light moves after it has cleared the words.
+				if (id !== 'pictures' || !l.window) continue;
+				const win = moved(l.window, about, k, dx, dy);
+				replace(l, { ...l, window: win, ...(l.b ? { b: [l.b[0] * k, l.b[1] * k, l.b[2] * k, l.b[3] * k] as Box, shift: (l.shift ?? 34) * k } : {}), ...(l.clipQuad ? { clipQuad: l.clipQuad.map(([x, y]) => [about[0] + (x - about[0]) * k + dx, about[1] + (y - about[1]) * k + dy]) as typeof l.clipQuad } : {}) });
+			} else if (l.type === 'photo') replace(l, { ...l, box: moved(l.box, about, k, dx, dy), ...(l.clip ? { clip: moved(l.clip, about, k, dx, dy) } : {}) });
+			else if (l.type === 'button') {
+				const b = l.box;
+				replace(l, { ...l, size: l.size * k, box: moved(b, l.corner ? [b[0] + b[2] * ax, b[1] + b[3] * ay] : about, k, dx, dy) });
+			} else if ('box' in l && l.box) replace(l, { ...l, box: moved(l.box as Box, about, k, dx, dy), ...('size' in l && l.size ? { size: (l.size as number) * k } : {}) } as Layer);
+		}
+	}
+
+	// Stacks: an anchor moves the whole stack to that part of the frame; a moved corner or panel takes its room.
+	layers = layers.map((l) => {
+		if (l.type !== 'stack') return l;
+		const names = l.items.map((i) => i.id ?? ('slot' in i ? i.slot : undefined) ?? i.type);
+		const a = names.map((n) => edits[n]?.anchor).find(Boolean);
+		let s: StackLayer = l;
+		if (a) {
+			const [ax, ay] = ANCHOR(a);
+			const w = Math.min(l.box[2], frame[2]);
+			const rows = inCornerBoxes(layers.filter((x) => x.corner), sizeOf, centerY);
+			// Between the rows of corner layers on the side it moves to.
+			const top = Math.max(frame[1], ...rows.filter((r) => r.row === 'top').map((r) => r.y + r.h + 40 * (scene.unit ?? 1)));
+			const bottom = Math.min(frame[1] + frame[3], ...rows.filter((r) => r.row === 'bottom').map((r) => r.y - 40 * (scene.unit ?? 1)));
+			s = { ...l, box: [frame[0] + (frame[2] - w) * ax, top, w, bottom - top], prefer: undefined, valign: ay === 0 ? 'top' : ay === 1 ? 'bottom' : 'center', align: ax === 0 ? 'left' : ax === 1 ? 'right' : 'center', items: l.items.map((i) => ({ ...i, align: undefined })) };
+		}
+		for (const c of changed) {
+			if (!layers.includes(c) || (c.type !== 'logo' && c.type !== 'text' && c.type !== 'button')) continue;
+			const [w, h] = sizeOf(c);
+			const cy = centerY(c);
+			const x = c.type === 'logo' ? logoBox(c)[0] : c.type === 'text' ? (c.align === 'right' ? c.x + c.w - w : c.align === 'center' ? c.x + (c.w - w) / 2 : c.x) : c.box[0];
+			const pad = c.type === 'logo' ? clearOf(c.lockup, h) + 8 : 24 * (scene.unit ?? 1);
+			const r = grow([x, cy - h / 2, w, h], pad);
+			if (!hit(r, s.box)) continue;
+			const [bx, by, bw, bh] = s.box;
+			const below = by + bh - (r[1] + r[3]);
+			const above = r[1] - by;
+			s = { ...s, box: below >= above ? [bx, r[1] + r[3], bw, below] : [bx, by, bw, above] };
+		}
+		return s;
+	});
+	return layers;
+}
+
+function inCornerBoxes(list: Layer[], sizeOf: (l: Layer) => [number, number], centerY: (l: Layer) => number) {
+	return list.map((l) => {
+		const [, h] = sizeOf(l);
+		const cy = centerY(l);
+		return { row: l.corner!.startsWith('top') ? 'top' : l.corner!.startsWith('bottom') ? 'bottom' : 'mid', y: cy - h / 2, h };
+	});
+}
+
 // ----- The scene -----
 
 /** `svg` is the file; `raster` is the same drawing inside a margin wide enough for every light's filter, which is
- * what the rasterizer draws (resvg clips a filter region that starts left of or above its canvas), then crops. */
-export type DrawResult = { svg: string; raster: string; margin: number; width: number; height: number; ground: string; lights: { svg: string; win: Box; pad: number }[] };
+ * what the rasterizer draws (resvg clips a filter region that starts left of or above its canvas), then crops.
+ * `under` is the raster without the words and logos: what they sit on. */
+export type DrawResult = { svg: string; raster: string; under: string; margin: number; width: number; height: number; ground: string; lights: { svg: string; win: Box; pad: number }[]; layers: DrawnLayer[] };
+
+type Out = { svg: string; raster?: string; under?: string };
 
 export async function drawScene(scene: Scene, opts: { embedFonts?: boolean } = {}): Promise<DrawResult> {
 	uid = 0;
@@ -358,155 +618,293 @@ export async function drawScene(scene: Scene, opts: { embedFonts?: boolean } = {
 	const slots = scene.slots ?? {};
 	const photos = scene.photos ?? [];
 	const seed = Math.trunc(scene.seed ?? 0);
+	const edits = scene.edits ?? {};
+	const W = scene.width;
+	const H = scene.height;
+	const unit = scene.unit ?? 1;
 	const defs: string[] = [];
-	const parts: string[] = [];
-	// Lights are drawn as vectors in the file; the raster document holds a token per light, which rasterizeScene
-	// replaces with that light rendered on its own (resvg clips some filter regions inside a larger drawing).
-	const lights: { svg: string; win: Box; pad: number }[] = [];
-	const rasterParts = new Map<number, string>();
+	const parts: Out[] = [];
+	const lights: DrawResult['lights'] = [];
 	const ground = scene.ground ? color(scene.ground) : 'none';
-	if (ground !== 'none') parts.push(`<rect width="${scene.width}" height="${scene.height}" fill="${ground}"/>`);
+	if (ground !== 'none') parts.push({ svg: `<rect width="${W}" height="${H}" fill="${ground}"/>` });
+	const floor = scene.floor ?? 0;
+	const ctx: StackContext = { all, slots, edits, unit, floor, canvas: [W, H] };
+	const layers = await applyEdits(scene, all);
+	const value = (l: { slot?: string; text?: string }) => clean((l.slot ? slots[l.slot] : undefined) ?? l.text ?? '');
+	const pictured = (index: number) => Boolean(photos[index]) || scene.placeholders === true;
 
-	// Areas the texture keeps clear: everything that carries copy, the logo or a picture.
-	const pad = scene.clearPadding ?? 12;
-	const clear: { x: number; y: number; w: number; h: number }[] = [];
-	const keep = (b: Box) => clear.push({ x: b[0] - pad, y: b[1] - pad, w: b[2] + pad * 2, h: b[3] + pad * 2 });
-	const texts = new Map<Layer, { svg: string; box: Box }>();
-	const baselines = new Map<string, number>();
-	for (const layer of scene.layers) {
-		if (layer.type === 'text') {
-			const value = layer.slot ? slots[layer.slot] ?? layer.text : layer.text;
-			if (value === undefined || value === '') continue;
-			const top = layer.after && baselines.has(layer.after.slot) ? baselines.get(layer.after.slot)! + layer.after.gap : layer.top;
-			const t = textSvg(all, { ...layer, top }, value);
-			texts.set(layer, t);
-			if (layer.slot) baselines.set(layer.slot, t.box[1] + t.box[3] - descent(faceFor(all, layer.face), t.size));
-			keep(t.box);
-		} else if (layer.type === 'inline') {
-			const t = inlineSvg(all, layer, slots[layer.slot] ?? '', photos);
-			texts.set(layer, t);
-			keep(t.box);
-		} else if (layer.type === 'list') {
-			const raw = layer.slot ? slots[layer.slot] : undefined;
-			const items = raw !== undefined ? raw.split('|').map((s) => s.trim()).filter(Boolean) : layer.items ?? [];
-			let top = layer.top;
-			const svgs: string[] = [];
-			const face = faceFor(all, layer.face);
-			for (const item of items) {
-				const t = textSvg(all, { ...layer, type: 'text', top, maxLines: layer.maxLines ?? 3 }, item);
-				svgs.push(t.svg);
-				top = t.box[1] + t.box[3] - descent(face, layer.size) + layer.gap;
-			}
-			const box: Box = [layer.x, layer.top, layer.w, top - layer.top];
-			texts.set(layer, { svg: svgs.join(''), box });
-			keep(box);
-		} else if (layer.type === 'logo' || layer.type === 'photo' || layer.type === 'button' || layer.type === 'search' || layer.type === 'split') keep(layer.type === 'photo' && layer.clip ? layer.clip : layer.box);
-		else if (layer.type === 'rect' && layer.fill !== 'none' && (layer.radius ?? 0) > 0) keep(layer.box);
-		else if (layer.type === 'panel') {
-			const xs = layer.quad.map((p) => p[0]);
-			const ys = layer.quad.map((p) => p[1]);
-			keep([Math.min(...xs), Math.min(...ys), Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)]);
+	// 1. Copy: every text, stack, button and heading placed with the real faces.
+	const placed = new Map<Layer, Placed[]>();
+	const inlines = new Map<Layer, PlacedInline>();
+	for (const l of layers) {
+		if (l.type === 'text') {
+			const v = value(l);
+			if (!v) continue;
+			const face = faceFor(all, l.face);
+			const caps = l.caps ?? l.face === 'label';
+			const tracking = l.tracking ?? (l.face === 'label' ? 0.06 : 0);
+			const size = l.pinned ? l.size : Math.max(l.size, floor);
+			const set = fitText(face, caps ? v.toUpperCase() : v, { ...l, size, leading: l.leading * (size / l.size), min: l.pinned ? size : Math.max(floor, l.min ?? size * 0.75), tracking });
+			placed.set(l, [textOf({ id: layerId(l), slot: l.slot, asked: v, face, size: set.size, leading: set.leading, min: l.min ?? l.size * 0.75, tracking, caps, lines: set.lines, x: l.x, top: l.top, w: l.w, align: l.align ?? 'left', color: l.color, opacity: l.opacity, over: l.over ?? [], required: l.required })]);
+		} else if (l.type === 'stack') placed.set(l, layoutStack(ctx, l, l.box));
+		else if (l.type === 'inline') {
+			const v = value(l);
+			if (v) inlines.set(l, placeInline(all, l, v, edits[layerId(l)]?.scale));
+		} else if (l.type === 'button') {
+			const v = value(l);
+			if (!v) continue;
+			checkGlyphs(all.medium, v, l.slot);
+			// The button is as wide as its label needs, away from the side it stands on.
+			const bw = Math.max(l.box[2], measure(all.medium, v, l.size, 0) + 2 * Math.max(20, l.box[3] * 0.4));
+			const room = (scene.frame ?? [0, 0, W, H])[2];
+			if (bw > room) throw tooLong(l.slot, v, longestPrefix(v, (t) => measure(all.medium, t, l.size, 0) + 2 * Math.max(20, l.box[3] * 0.4) <= room), 'one line inside the button');
+			const bx = l.align === 'right' ? l.box[0] + l.box[2] - bw : l.align === 'center' ? l.box[0] + (l.box[2] - bw) / 2 : l.box[0];
+			placed.set(l, [keyOf(ctx, { id: layerId(l), slot: l.slot, value: v, size: l.size, box: [bx, l.box[1], bw, l.box[3]], fill: l.fill, color: l.color, radius: l.radius, over: l.over ?? [], required: l.required })]);
+		} else if (l.type === 'search') {
+			const v = value(l);
+			if (!v) continue;
+			const [x, y, w, h] = l.box;
+			const u = h / 88;
+			const label = l.button ?? 'Search';
+			const ls = 20 * u;
+			const bw = Math.round(measure(all.medium, label, ls, 0) + 70 * u);
+			const set = fitText(all.body, v, { size: l.size, leading: l.size * 1.25, w: w - 32 * u - bw - 16 * u - 24 * u, maxLines: 2, min: Math.max(l.size * 0.75, 16 * unit), slot: l.slot });
+			const bh = capHeight(all.body, set.size) + (set.lines.length - 1) * set.leading;
+			placed.set(l, [textOf({ id: layerId(l), slot: l.slot, asked: v, face: all.body, size: set.size, leading: set.leading, min: l.size * 0.75, tracking: 0, caps: false, lines: set.lines, x: x + 32 * u, w: w - 32 * u - bw - 40 * u, top: y + (h - bh) / 2, align: 'left', color: 'white', over: [layerId(l)] })]);
 		}
 	}
 
+	// 2. What the light and the texture keep clear of: the words, the logo with its clear space, buttons and pictures.
+	const pad = scene.clearPadding ?? 12;
+	const clear: { x: number; y: number; w: number; h: number }[] = [];
+	const keep = (b: Box) => clear.push({ x: b[0] - pad, y: b[1] - pad, w: b[2] + pad * 2, h: b[3] + pad * 2 });
+	const words: Box[] = [];
+	const solid: Box[] = [];
+	for (const l of layers) {
+		for (const p of placed.get(l) ?? []) {
+			keep(p.box);
+			if (p.kind !== 'text') solid.push(p.box);
+			else if (!p.over.length) words.push(...p.lines.map((r): Box => [r.x, r.baseline - capHeight(p.face, p.size), r.w, capHeight(p.face, p.size) + descent(p.face, p.size)]));
+			if (p.kind === 'key' && !p.over.length) words.push(p.box);
+		}
+		const t = inlines.get(l);
+		if (t) {
+			keep(t.box);
+			words.push(...t.runs.map((r): Box => [r.x, r.baseline - capHeight(t.face, t.size), r.w, capHeight(t.face, t.size) + descent(t.face, t.size)]));
+		}
+		if (l.type === 'logo') keep(logoBox(l));
+		else if (l.type === 'photo' || l.type === 'split') {
+			if (pictured(l.index)) {
+				keep(l.type === 'photo' && l.clip ? l.clip : l.box);
+				solid.push(l.type === 'photo' && l.clip ? l.clip : l.box);
+			}
+		} else if (l.type === 'search' && placed.has(l)) {
+			keep(l.box);
+			solid.push(l.box);
+		} else if (l.type === 'rect' && l.fill !== 'none' && (l.radius ?? 0) > 0) keep(l.box);
+		else if (l.type === 'panel' && pictured(l.index)) keep(boxOf(l)!);
+	}
+
+	// 3. The light, moved as little as it takes to leave the words and the logo's clear space alone.
+	const gap = Math.max(12, 10 * unit);
+	const keeps: Box[] = words.map((b) => grow(b, gap));
+	for (const l of layers) if (l.type === 'logo' && l.tone !== 'auto') keeps.push(grow(logoBox(l), clearOf(l.lockup, logoBox(l)[3]) + gap));
 	let lightIndex = 0;
 	let margin = 0;
-	for (const layer of scene.layers) {
-		switch (layer.type) {
+	const finalLights = new Map<Layer, { p: PlacedLight; map: LitMap; moved: Pt; blocked: boolean; box: Box }>();
+	for (const l of layers) {
+		if (l.type !== 'light') continue;
+		const win: Box = l.window ?? [0, 0, W, H];
+		const source = l.source ?? scene.light ?? 'brand';
+		const base: PlacedLight = { win, b: l.b, shift: l.shift, variant: l.variant, seed: l.b ? seed + (l.seed ?? 0) + lightIndex * 101 : l.seed ?? seed, source };
+		lightIndex++;
+		const inWin = keeps.filter((k) => hit(k, win));
+		let p = base;
+		let shiftBy: Pt = [0, 0];
+		let blocked = false;
+		if (inWin.length && l.b && !l.clipQuad) {
+			const found = await clearLight(light, base, inWin, W, H, l.fixed === true);
+			p = found.p;
+			shiftBy = found.moved;
+			blocked = found.blocked;
+		}
+		// An edit moves the light from where it settled. A window as wide or tall as the canvas stays so: the light moves in it.
+		const e = edits[layerId(l)] ?? {};
+		let box: Box = l.window ? win : p.b ? [p.b[0], p.b[1], p.b[2] + 2 * (p.shift ?? 34), p.b[3]] : win;
+		if (layerId(l) !== 'pictures' && p.b && (e.dx || e.dy || (e.scale !== undefined && e.scale !== 1))) {
+			const k = e.scale ?? 1;
+			const dx = (e.dx ?? 0) * W;
+			const dy = (e.dy ?? 0) * H;
+			const about: Pt = l.window ? [win[0] + win[2] / 2, win[1] + win[3] / 2] : [W / 2, H / 2];
+			box = moved(box, about, k, dx, dy);
+			const abs = moved([win[0] + p.b[0], win[1] + p.b[1], p.b[2], p.b[3]], about, k, dx, dy);
+			const w: Box = l.window ? moved(win, about, k, dx, dy) : win;
+			if (win[0] <= 0 && win[0] + win[2] >= W) [w[0], w[2]] = [0, W];
+			if (win[1] <= 0 && win[1] + win[3] >= H) [w[1], w[3]] = [0, H];
+			p = { ...p, win: w, b: [abs[0] - w[0], abs[1] - w[1], abs[2], abs[3]], shift: (p.shift ?? 34) * k };
+		}
+		finalLights.set(l, { p, map: await lit(light, p), moved: shiftBy, blocked, box });
+	}
+
+	// 4. Draw, in order, and report what was drawn.
+	const groups = new Map<string, { kind: DrawnLayer['kind']; boxes: Box[]; ink: Rect[]; over: Set<string>; bleeds: boolean; text?: DrawnLayer['text']; logo?: DrawnLayer['logo']; can: DrawnLayer['can'] }>();
+	const note = (id: string, kind: DrawnLayer['kind'], box: Box, o: { ink?: Rect[]; over?: string[]; bleeds?: boolean; text?: DrawnLayer['text']; logo?: DrawnLayer['logo']; can?: DrawnLayer['can'] } = {}) => {
+		const g = groups.get(id) ?? { kind, boxes: [], ink: [], over: new Set<string>(), bleeds: false, can: o.can ?? {} };
+		g.boxes.push(box);
+		g.ink.push(...(o.ink ?? [rect(box)]));
+		for (const x of o.over ?? []) g.over.add(x);
+		g.bleeds ||= o.bleeds ?? false;
+		if (o.text) g.text = g.text ? { ...g.text, asked: `${g.text.asked} | ${o.text.asked}`, drawn: `${g.text.drawn} | ${o.text.drawn}`, size: Math.min(g.text.size, o.text.size), ground: [...new Set([...g.text.ground, ...o.text.ground])] } : o.text;
+		if (o.logo) g.logo = o.logo;
+		groups.set(id, g);
+	};
+	const marks = (slot?: string) => (!slot ? {} : scene.sampled?.includes(slot) ? { sample: true } : scene.own?.includes(slot) ? { own: true } : {});
+	const textNote = (t: PlacedText, anchors?: Anchor[], extra: Partial<DrawnLayer['can']> = {}) => {
+		const lo = Math.max(0.5, Math.ceil((t.min / t.size) * 100) / 100);
+		note(t.id, 'text', t.box, {
+			ink: t.lines.map((l) => rect([l.x, l.baseline - capHeight(t.face, t.size), l.w, capHeight(t.face, t.size) + (t.caps ? 0 : descent(t.face, t.size))])),
+			over: [...t.over, ...underneath(t.box)],
+			text: { asked: t.asked, drawn: t.lines.map((l) => l.text).join(' '), size: round(t.size), color: color(t.color, '#FFFFFF'), ground: [], ...marks(t.slot) },
+			can: { move: true, scale: [Math.min(1, lo), t.size / t.min > 1.02 || t.face === all.display ? 1.6 : 1.4], align: true, hide: !t.required, ...(anchors ? { anchors } : {}), ...extra },
+		});
+	};
+	/** The texture sits under everything by design; the light only where a layer says so (its lit part is its ink). */
+	const underneath = (_b: Box): string[] => (layers.some((l) => l.type === 'ascii') ? ['texture'] : []);
+	const drawPlaced = (list: Placed[], anchors?: Anchor[]) => {
+		for (const p of list) {
+			if (p.kind === 'text') {
+				textNote(p, anchors);
+				parts.push({ svg: textMarkup(p), under: '' });
+			} else if (p.kind === 'panel') {
+				const [x, y, w, h] = p.box;
+				parts.push({ svg: `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" rx="${f(p.radius ?? 0)}" fill="${color(p.fill)}"/>` });
+				note(p.id, 'panel', p.box, { over: ['texture', 'light', 'light-2', ...p.over], can: { move: true, hide: false } });
+			} else {
+				const [x, y, w, h] = p.box;
+				parts.push({ svg: `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" rx="${f(p.radius ?? 10)}" fill="${color(p.fill ?? 'white')}"/>` });
+				const t = p.label;
+				if (t) parts.push({ svg: textMarkup(t, t.color), under: '' });
+				note(p.id, 'key', p.box, { over: [...p.over, ...underneath(p.box)], ...(t ? { text: { asked: t.asked, drawn: t.lines.map((l) => l.text).join(' '), size: round(t.size), color: color(t.color, '#000000'), ground: [color(p.fill ?? 'white')], ...marks(t.slot) } } : {}), can: { move: true, scale: [0.8, 1.5], align: true, hide: !p.required, ...(anchors ? { anchors } : {}) } });
+			}
+		}
+	};
+	const STACK_ANCHORS: Anchor[] = ['top-left', 'top', 'top-right', 'left', 'center', 'right', 'bottom-left', 'bottom', 'bottom-right'];
+	for (const l of layers) {
+		const id = layerId(l);
+		switch (l.type) {
 			case 'rect': {
-				const [x, y, w, h] = layer.box;
-				const stroke = layer.stroke ? ` stroke="${color(layer.stroke)}" stroke-width="1"` : '';
-				const op = layer.opacity !== undefined ? ` opacity="${layer.opacity}"` : '';
-				const inset = layer.stroke ? 0.5 : 0;
-				parts.push(`<rect x="${f(x + inset)}" y="${f(y + inset)}" width="${f(w - inset * 2)}" height="${f(h - inset * 2)}" rx="${f(layer.radius ?? 0)}" fill="${color(layer.fill)}"${stroke}${op}/>`);
+				const [x, y, w, h] = l.box;
+				const stroke = l.stroke ? ` stroke="${color(l.stroke)}" stroke-width="1"` : '';
+				const op = l.opacity !== undefined ? ` opacity="${l.opacity}"` : '';
+				const inset = l.stroke ? 0.5 : 0;
+				parts.push({ svg: `<rect x="${f(x + inset)}" y="${f(y + inset)}" width="${f(w - inset * 2)}" height="${f(h - inset * 2)}" rx="${f(l.radius ?? 0)}" fill="${color(l.fill)}"${stroke}${op}/>` });
+				note(id, 'panel', l.box, { over: ['texture', 'light', 'light-2', ...(l.over ?? [])], bleeds: l.bleeds, can: { move: true, hide: !l.required } });
 				break;
 			}
 			case 'text':
-			case 'inline':
-			case 'list': {
-				const t = texts.get(layer);
-				if (t) parts.push(t.svg);
+			case 'button':
+				drawPlaced(placed.get(l) ?? [], l.corner ? CORNERS : undefined);
+				break;
+			case 'stack':
+				drawPlaced(placed.get(l) ?? [], STACK_ANCHORS);
+				break;
+			case 'inline': {
+				const t = inlines.get(l);
+				if (!t) break;
+				for (const p of t.pictures) if (pictured(p.index)) parts.push({ svg: photoSvg(p.box, photos[p.index], 0) });
+				if (t.pictures.some((p) => pictured(p.index))) note('pictures', 'picture', union(t.pictures.map((p) => p.box)), { ink: t.pictures.map((p) => rect(p.box)), over: ['texture', 'light', 'light-2'], can: {} });
+				const pt: PlacedText = { kind: 'text', id, slot: l.slot, asked: value(l), face: t.face, size: t.size, leading: l.leading * (t.size / l.size), min: l.size * 0.4, tracking: 0, caps: false, lines: t.runs, box: t.box, color: l.color, over: ['pictures'], pinned: false, required: l.required };
+				textNote(pt, undefined, { align: false });
+				parts.push({ svg: textMarkup(pt), under: '' });
 				break;
 			}
-			case 'logo':
-				parts.push(logoSvg(layer.lockup, layer.color === 'black' ? 'black' : 'white', layer.box, layer.align));
+			case 'logo': {
+				const b = logoBox(l);
+				let tone: 'black' | 'white' = l.color === 'black' ? 'black' : 'white';
+				if (l.tone === 'auto') {
+					// Black on the pale light, White on Black: whichever the brand's own pair reads better there.
+					let lo = 1;
+					let hi = 0;
+					for (const fl of finalLights.values()) {
+						if (!hit(b, fl.p.win)) continue;
+						const [a, z] = range(fl.map, rect(b));
+						lo = Math.min(lo, a);
+						hi = Math.max(hi, z);
+					}
+					if (finalLights.size && (lo + 0.05) / 0.05 > 1.05 / (hi + 0.05)) tone = 'black';
+				}
+				parts.push({ svg: logoSvg(l.lockup, tone, l.box, l.align), under: '' });
+				const spec = brand().logo;
+				const min = (spec?.minHeight[l.lockup] ?? 0) * (scene.density ?? 1);
+				const lo = Math.max(0.5, Math.ceil((min / b[3]) * 100) / 100);
+				note(id, 'logo', b, { over: [...underneath(b), ...(l.tone === 'auto' ? ['light', 'light-2'] : []), ...(l.over ?? [])], logo: { clear: round(clearOf(l.lockup, b[3])), min }, can: { move: true, scale: [Math.min(1, lo), l.corner ? 1.8 : 1.4], hide: !l.required, ...(l.corner ? { anchors: CORNERS } : {}) } });
 				break;
+			}
 			case 'light': {
-				const win = layer.window ?? [0, 0, scene.width, scene.height];
-				const source = layer.source ?? scene.light ?? 'brand';
-				const lseed = seed + (layer.seed ?? 0) + lightIndex * 101;
-				// A placed light (the brand's own window, from the Figma) or a named variant of the generator.
-				const g = (layer.b
-					? light.placedLightGeometry({ width: win[2], height: win[3], b: { x: layer.b[0], y: layer.b[1], w: layer.b[2], h: layer.b[3] }, shift: layer.shift ?? 34, source, seed: lseed })
-					: light.lightGeometry({ width: win[2], height: win[3], variant: layer.variant ?? 'band', seed: layer.seed ?? seed, source })) as { offset: number; blur: number };
+				const fl = finalLights.get(l)!;
+				const g = lightOf(light, fl.p);
 				const lpad = Math.ceil(g.offset * 2 + g.blur * 4) + 24;
 				margin = Math.max(margin, lpad);
-				// The file blends with CSS plus-lighter, as the brand does; the raster adds the layers in a filter.
-				const id = `l${lightIndex++}`;
-				const svg = light.lightGeometrySvg(g, { ground: false, blend: 'css', id }).replace(/<svg /, '<svg overflow="hidden" ');
 				const i = lights.length;
-				lights.push({ svg: light.lightGeometrySvg(g, { ground: false, blend: 'filter', id }), win, pad: lpad });
+				const lid = `l${i}`;
+				const win = fl.p.win;
+				// The file blends with CSS plus-lighter, as the brand does; the raster adds the layers in a filter.
+				const svg = light.lightGeometrySvg(g, { ground: false, blend: 'css', id: lid }).replace(/<svg /, '<svg overflow="hidden" ');
+				lights.push({ svg: light.lightGeometrySvg(g, { ground: false, blend: 'filter', id: lid }), win, pad: lpad });
 				const wrap = (inner: string) => {
-					if (!layer.clipQuad) return inner;
+					if (!l.clipQuad) return inner;
 					const cid = `lq${i}`;
-					return `<clipPath id="${cid}"><polygon points="${layer.clipQuad.map((p) => `${f(p[0])},${f(p[1])}`).join(' ')}"/></clipPath><g clip-path="url(#${cid})">${inner}</g>`;
+					return `<clipPath id="${cid}"><polygon points="${l.clipQuad.map((p) => `${f(p[0])},${f(p[1])}`).join(' ')}"/></clipPath><g clip-path="url(#${cid})">${inner}</g>`;
 				};
-				parts.push(wrap(`<g transform="translate(${f(win[0])} ${f(win[1])})" style="isolation:isolate">${svg}</g>`));
-				rasterParts.set(parts.length - 1, wrap(`\u0000L${i}\u0000`));
+				parts.push({ svg: wrap(`<g transform="translate(${f(win[0])} ${f(win[1])})" style="isolation:isolate">${svg}</g>`), raster: wrap(`\u0000L${i}\u0000`) });
+				// Its ink is where it is lit, less what opaque layers cover on purpose.
+				if (id === 'pictures') {
+					note(id, 'picture', l.clipQuad ? boxOf({ type: 'panel', quad: l.clipQuad, index: 0 })! : win, { over: ['texture', 'light', 'light-2'], bleeds: l.bleeds });
+					break;
+				}
+				const runs = litRuns(fl.map, [Math.max(0, win[0]), Math.max(0, win[1]), Math.min(W, win[0] + win[2]) - Math.max(0, win[0]), Math.min(H, win[1] + win[3]) - Math.max(0, win[1])], 8 * unit);
+				if (runs.length) note(id, 'art', fl.box, { ink: runs, bleeds: l.bleeds ?? true, over: ['texture', ...(l.over ?? [])], can: fl.p.b ? { move: true, scale: [0.6, 1.8], hide: true } : { hide: true } });
 				break;
 			}
 			case 'ascii': {
-				const [x, y, w, h] = layer.box ?? [0, 0, scene.width, scene.height];
+				const [x, y, w, h] = l.box ?? [0, 0, W, H];
 				const local = clear.map((c) => ({ x: c.x - x, y: c.y - y, w: c.w, h: c.h }));
-				const svg = ascii.asciiSvg({ width: w, height: h, seed: seed + (layer.seed ?? 0), density: layer.density ?? 0.7, ground: false, font: all.code.family, clearPx: local, size: layer.size });
-				parts.push(`<g transform="translate(${f(x)} ${f(y)})">${svg.replace(/font-family="[^"]*"/, `font-family="'${all.code.family}'"`)}</g>`);
+				const svg = ascii.asciiSvg({ width: w, height: h, seed: seed + (l.seed ?? 0), density: l.density ?? 0.7, ground: false, font: all.code.family, clearPx: local, size: l.size });
+				parts.push({ svg: `<g transform="translate(${f(x)} ${f(y)})">${svg.replace(/font-family="[^"]*"/, `font-family="'${all.code.family}'"`)}</g>` });
+				note(id, 'art', [x, y, w, h], { ink: [], bleeds: true, can: { hide: true } });
 				break;
 			}
 			case 'photo':
-				parts.push(photoSvg(layer.box, photos[layer.index], layer.radius ?? 0, layer.clip));
-				break;
 			case 'panel':
-				parts.push(panelSvg(layer.quad, photos[layer.index], defs));
-				break;
-			case 'split':
-				parts.push(splitSvg(layer.box, photos[layer.index], layer.shift, layer.bleed ?? 0));
-				break;
-			case 'button': {
-				const [x, y, w, h] = layer.box;
-				const label = (layer.slot ? slots[layer.slot] ?? layer.text : layer.text) ?? '';
-				parts.push(`<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" rx="${f(layer.radius ?? 10)}" fill="${color(layer.fill ?? 'white')}"/>`);
-				if (label) {
-					const face = all.medium;
-					const cap = capHeight(face, layer.size);
-					const t = textSvg(all, { type: 'text', face: 'medium', size: layer.size, leading: layer.size * 1.3, x: x + 12, w: w - 24, top: y + (h - cap) / 2, align: 'center', color: layer.color ?? 'black', maxLines: 1, slot: layer.slot }, label);
-					parts.push(t.svg);
-				}
+			case 'split': {
+				if (!pictured(l.index)) break;
+				const b = boxOf(l)!;
+				parts.push({ svg: l.type === 'photo' ? photoSvg(l.box, photos[l.index], l.radius ?? 0, l.clip) : l.type === 'panel' ? panelSvg(l.quad, photos[l.index], defs) : splitSvg(l.box, photos[l.index], l.shift, l.bleed ?? 0) });
+				note(id, 'picture', b, { over: ['texture', 'light', 'light-2', ...(l.over ?? [])], bleeds: l.bleeds, can: { move: true, scale: [0.6, 1.4], hide: !l.required } });
 				break;
 			}
 			case 'search': {
-				const [x, y, w, h] = layer.box;
-				const inset = 16;
-				const bh = h - inset * 2;
-				const label = layer.button ?? 'Search';
-				const face = all.medium;
-				const bw = Math.round(measure(face, label, 20, 0) + 70);
-				parts.push(`<rect x="${f(x + 0.5)}" y="${f(y + 0.5)}" width="${f(w - 1)}" height="${f(h - 1)}" rx="10" fill="${color('black')}" stroke="${color('neutral-4')}" stroke-width="1"/>`);
-				parts.push(`<rect x="${f(x + w - inset - bw)}" y="${f(y + inset)}" width="${f(bw)}" height="${f(bh)}" rx="10" fill="${color('white')}"/>`);
-				const capB = capHeight(face, 20);
-				parts.push(textSvg(all, { type: 'text', face: 'medium', size: 20, leading: 26, x: x + w - inset - bw, w: bw, top: y + inset + (bh - capB) / 2, align: 'center', color: 'black', maxLines: 1 }, label).svg);
-				const prompt = (layer.slot ? slots[layer.slot] ?? layer.text : layer.text) ?? '';
-				if (prompt) {
-					const capP = capHeight(all.body, layer.size);
-					parts.push(textSvg(all, { type: 'text', face: 'body', size: layer.size, leading: layer.size * 1.33, x: x + 32, w: w - 32 - bw - inset - 24, top: y + (h - capP) / 2, color: 'white', maxLines: 1, slot: layer.slot }, prompt).svg);
-				}
+				const t = placed.get(l);
+				if (!t) break;
+				const [x, y, w, h] = l.box;
+				const u = h / 88;
+				const inset = 16 * u;
+				const label = l.button ?? 'Search';
+				const ls = 20 * u;
+				const bw = Math.round(measure(all.medium, label, ls, 0) + 70 * u);
+				parts.push({ svg: `<rect x="${f(x + 0.5)}" y="${f(y + 0.5)}" width="${f(w - 1)}" height="${f(h - 1)}" rx="10" fill="${color('black')}" stroke="${color('neutral-4')}" stroke-width="1"/><rect x="${f(x + w - inset - bw)}" y="${f(y + inset)}" width="${f(bw)}" height="${f(h - inset * 2)}" rx="10" fill="${color('white')}"/>` });
+				const cap = capHeight(all.medium, ls);
+				const key = textOf({ id: 'search', asked: label, face: all.medium, size: ls, leading: ls * 1.3, min: ls, tracking: 0, caps: false, lines: [label], x: x + w - inset - bw, w: bw, top: y + (h - cap) / 2, align: 'center', color: 'black', over: [] });
+				const prompt = t[0] as PlacedText;
+				parts.push({ svg: textMarkup(key, 'black') + textMarkup(prompt), under: '' });
+				note(id, 'panel', l.box, { over: ['texture', 'light', 'light-2'], text: { asked: prompt.asked, drawn: prompt.lines.map((r) => r.text).join(' '), size: round(prompt.size), color: '#FFFFFF', ground: [color('black')], ...marks(l.slot) }, can: { move: true, scale: [0.8, 1.2], hide: true } });
 				break;
 			}
 			case 'path': {
-				const dash = layer.dash ? ` stroke-dasharray="${layer.dash}"` : '';
-				const pid = layer.id ? ` id="${esc(layer.id)}"` : '';
-				parts.push(`<path${pid} d="${layer.d}" fill="${layer.fill ? color(layer.fill) : 'none'}"${layer.stroke ? ` stroke="${color(layer.stroke)}" stroke-width="${layer.strokeWidth ?? 1}"` : ''}${dash}/>`);
+				const dash = l.dash ? ` stroke-dasharray="${l.dash}"` : '';
+				const pid = l.id ? ` id="${esc(l.id)}"` : '';
 				// A cut line is for the cutter, not the printer: it stays in the file and out of the picture.
-				if (layer.svgOnly) rasterParts.set(parts.length - 1, '');
+				parts.push({ svg: `<path${pid} d="${l.d}" fill="${l.fill ? color(l.fill) : 'none'}"${l.stroke ? ` stroke="${color(l.stroke)}" stroke-width="${l.strokeWidth ?? 1}"` : ''}${dash}/>`, ...(l.svgOnly ? { raster: '' } : {}) });
 				break;
 			}
 		}
@@ -516,25 +914,125 @@ export async function drawScene(scene: Scene, opts: { embedFonts?: boolean } = {
 		.map((face) => `@font-face{font-family:"${face.family}";font-weight:${face.weight};font-style:normal;src:url("data:font/woff2;base64,${face.woff2.toString('base64')}") format("woff2");}`)
 		.join('');
 	const head = `<defs>${fontCss ? `<style type="text/css"><![CDATA[${fontCss}]]></style>` : ''}${defs.join('')}</defs>`;
-	const body = parts.join('\n');
-	const W = scene.width;
-	const H = scene.height;
 	const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
 ${head}
-${body}
+${parts.map((p) => p.svg).join('\n')}
 </svg>
 `;
 	const m = margin;
-	const rbody = parts.map((p, i) => rasterParts.get(i) ?? p).join('\n');
-	const raster = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${W + 2 * m}" height="${H + 2 * m}" viewBox="${-m} ${-m} ${W + 2 * m} ${H + 2 * m}">${head}${rbody}</svg>`;
-	return { svg, raster, margin: m, width: W, height: H, ground, lights };
+	const wrapRaster = (body: string) => `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${W + 2 * m}" height="${H + 2 * m}" viewBox="${-m} ${-m} ${W + 2 * m} ${H + 2 * m}">${head}${body}</svg>`;
+	const drawn: DrawnLayer[] = [...groups].map(([id, g]) => ({
+		id,
+		kind: g.kind,
+		box: rect(union(g.boxes)),
+		...(g.ink.length || id === 'texture' ? { ink: g.ink } : {}),
+		...(g.bleeds ? { bleeds: true } : {}),
+		...(g.over.size ? { over: [...g.over] } : {}),
+		...(g.text ? { text: g.text } : {}),
+		...(g.logo ? { logo: g.logo } : {}),
+		can: g.can,
+	}));
+	return { svg, raster: wrapRaster(parts.map((p) => p.raster ?? p.svg).join('\n')), under: wrapRaster(parts.map((p) => p.under ?? p.raster ?? p.svg).join('\n')), margin: m, width: W, height: H, ground, lights, layers: drawn };
+}
+
+/** The light moved as little as possible so nothing lit is under the words or inside the logo's clear space. A light
+ * generated from a seed is redrawn when no move is enough; the brand's own stays its own. */
+async function clearLight(light: LightModule, base: PlacedLight, keeps: Box[], W: number, H: number, fixed: boolean): Promise<{ p: PlacedLight; moved: Pt; blocked: boolean }> {
+	const rects = keeps.map((k) => ({ x: k[0], y: k[1], w: k[2], h: k[3] }));
+	const tries = base.source === 'generated' ? 6 : 1;
+	// The brand's light also settles a little larger or smaller, about its window's middle, before it gives up.
+	const sizes = fixed ? [1] : [1, 1.12, 0.9, 1.3, 0.78, 1.6];
+	const zoomed = (p: PlacedLight, k: number): PlacedLight => (k === 1 ? p : { ...p, b: moved(p.b!, [p.win[2] / 2, p.win[3] / 2], k, 0, 0), shift: (p.shift ?? 34) * k });
+	for (const k of sizes) for (let t = 0; t < tries; t++) {
+		const p = zoomed(t ? { ...base, seed: base.seed + t * 1009 } : base, k);
+		const map = await lit(light, p, 0.3);
+		if (!rects.some((r) => touches(map, r, 0, 0, p.win))) return { p, moved: [0, 0], blocked: false };
+		if (fixed) continue;
+		const [, , w, h] = p.win;
+		const steps: { dx: number; dy: number; d: number }[] = [];
+		for (let i = -14; i <= 14; i++) for (let j = -14; j <= 14; j++) steps.push({ dx: i * 0.02 * w, dy: j * 0.02 * h, d: Math.hypot(i * 0.02 * w, j * 0.02 * h) });
+		steps.sort((a, b) => a.d - b.d || a.dx - b.dx || a.dy - b.dy);
+		const total = shown(map, p.win, 0, 0);
+		for (const s of steps) {
+			if (rects.some((r) => touches(map, r, s.dx, s.dy, p.win))) continue;
+			// It still has to be a light: at least a third of what it showed.
+			if (shown(map, p.win, s.dx, s.dy) < total * (k === 1 ? 0.35 : 0.25)) continue;
+			return { p: { ...p, b: [p.b![0] + s.dx, p.b![1] + s.dy, p.b![2], p.b![3]] }, moved: [s.dx, s.dy], blocked: false };
+		}
+	}
+	void W;
+	void H;
+	return { p: base, moved: [0, 0], blocked: true };
+}
+
+/** How much of a light shows in its window. */
+function shown(map: LitMap, win: Box, dx: number, dy: number): number {
+	let n = 0;
+	for (let y = win[1] + map.cell; y < win[1] + win[3]; y += map.cell * 3) {
+		for (let x = win[0] + map.cell; x < win[0] + win[2]; x += map.cell * 3) {
+			const i = Math.floor((x - dx - map.x0) / map.cell);
+			const j = Math.floor((y - dy - map.y0) / map.cell);
+			if (i >= 0 && j >= 0 && i < map.cols && j < map.rows && map.lit[j * map.cols + i]) n++;
+		}
+	}
+	return n;
+}
+
+let palette: string[] | undefined;
+/** Every color the brand names, as hex: what words may be drawn in and on. */
+export function brandColors(): string[] {
+	palette ??= [...new Set(Object.entries(tokens()).filter(([k, t]) => k.startsWith('--ds-color-') && /^#[0-9a-f]{6}$/i.test(t.light?.trim() ?? '')).map(([, t]) => t.light!.trim().toUpperCase()))];
+	return palette;
+}
+function nearestColor(hex: string): string {
+	const rgb = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+	const a = rgb(hex);
+	let best = '#000000';
+	let d = Infinity;
+	for (const c of brandColors()) {
+		const b = rgb(c);
+		const e = (a[0]! - b[0]!) ** 2 + (a[1]! - b[1]!) ** 2 + (a[2]! - b[2]!) ** 2;
+		if (e < d) [best, d] = [c, e];
+	}
+	return best;
+}
+
+/** The colors under every text, measured from the drawing without its words: the darkest and the lightest. */
+export async function groundsOf(d: DrawResult): Promise<DrawnLayer[]> {
+	const scale = Math.min(1, 900 / Math.max(d.width, d.height));
+	const need = d.layers.some((l) => l.text && !l.text.ground.length);
+	if (!need) return d.layers;
+	const { pixels, width, height } = await rasterizeScene(d, { scale, under: true });
+	const lin = (v: number) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+	return d.layers.map((l) => {
+		if (!l.text || l.text.ground.length) return l;
+		const px: { lum: number; hex: string }[] = [];
+		for (const r of l.ink ?? [l.box]) {
+			const x0 = Math.max(0, Math.floor(r.x * scale));
+			const x1 = Math.min(width - 1, Math.ceil((r.x + r.w) * scale));
+			const y0 = Math.max(0, Math.floor(r.y * scale));
+			const y1 = Math.min(height - 1, Math.ceil((r.y + r.h) * scale));
+			for (let y = y0; y <= y1; y++)
+				for (let x = x0; x <= x1; x++) {
+					const k = (y * width + x) * 4;
+					if (pixels[k + 3]! < 128) continue;
+					const [R, G, B] = [pixels[k]!, pixels[k + 1]!, pixels[k + 2]!];
+					px.push({ lum: 0.2126 * lin(R / 255) + 0.7152 * lin(G / 255) + 0.0722 * lin(B / 255), hex: `#${[R, G, B].map((v) => v.toString(16).padStart(2, '0')).join('').toUpperCase()}` });
+				}
+		}
+		if (!px.length) return l;
+		px.sort((a, b) => a.lum - b.lum);
+		// The nearest brand color to the darkest and the lightest: a blurred edge between two tokens is still theirs.
+		const at = (q: number) => nearestColor(px[Math.min(px.length - 1, Math.floor(q * px.length))]!.hex);
+		return { ...l, text: { ...l.text, ground: [...new Set([at(0.01), at(0.99)])] } };
+	});
 }
 
 /** A drawn scene as PNG: rasterized in its margin at `scale`, cropped to the frame, straight alpha. */
-export async function rasterizeScene(d: DrawResult, opts: { scale?: number; dpi?: number } = {}): Promise<{ png: Buffer; pixels: Buffer; width: number; height: number }> {
+export async function rasterizeScene(d: DrawResult, opts: { scale?: number; dpi?: number; under?: boolean } = {}): Promise<{ png: Buffer; pixels: Buffer; width: number; height: number }> {
 	const scale = opts.scale ?? 1;
-	let raster = d.raster;
+	let raster = opts.under ? d.under : d.raster;
 	for (const [i, l] of d.lights.entries()) {
 		// The light alone, inside a margin wider than its filter, cropped to its window.
 		const [, , w, h] = l.win;

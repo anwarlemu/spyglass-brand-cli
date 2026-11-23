@@ -61,6 +61,7 @@
   },
   "dependencies": {
     "@babel/parser": "7.29.3",
+    "@napi-rs/canvas": "1.1.0",
     "@resvg/resvg-js": "^2.6.2",
     "@vue/compiler-sfc": "3.5.43",
     "jpeg-js": "0.4.4",

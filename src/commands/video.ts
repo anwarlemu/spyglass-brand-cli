@@ -134,20 +134,17 @@ export async function runVideo(cwd: string, args: string[], flags: Flags): Promi
 		}
 		if (keepFrames) files.push({ path: display(cwd, join(dir, name)), format: 'frames', width: size[0], height: size[1], frames: count, fps });
 		if (ff) {
-			const run = (out: string, codec: string[]) => {
-				const r = spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', String(fps), '-i', join(work, 'frame-%04d.png'), ...codec, '-threads', '1', out], { encoding: 'utf8' });
-				if (r.status !== 0) throw new Error(`ffmpeg failed: ${r.stderr || r.error?.message}`);
-			};
+			const input = join(work, 'frame-%04d.png');
 			if (fmt === 'mp4' || fmt === 'all') {
 				const out = join(dir, `${name}.mp4`);
 				write(out, '');
-				run(out, ['-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '18', '-preset', 'medium', '-movflags', '+faststart', '-bitexact']);
+				encodeMp4(input, fps, out);
 				files.push({ path: display(cwd, out), format: 'mp4', width: size[0], height: size[1], frames: count, fps, encoder: 'ffmpeg libx264' });
 			}
 			if (fmt === 'webm' || fmt === 'all') {
 				const out = join(dir, `${name}.webm`);
 				write(out, '');
-				run(out, ['-c:v', 'libvpx-vp9', '-pix_fmt', 'yuv420p', '-b:v', '0', '-crf', '32', '-row-mt', '0']);
+				ffmpeg(input, fps, out, ['-c:v', 'libvpx-vp9', '-pix_fmt', 'yuv420p', '-b:v', '0', '-crf', '32', '-row-mt', '0']);
 				files.push({ path: display(cwd, out), format: 'webm', width: size[0], height: size[1], frames: count, fps, encoder: 'ffmpeg libvpx-vp9' });
 			}
 		} else if (fmt === 'mp4' || fmt === 'all') {
@@ -159,4 +156,36 @@ export async function runVideo(cwd: string, args: string[], flags: Flags): Promi
 		rmSync(work, { recursive: true, force: true });
 	}
 	return { json: { files, template: t.id, size: sizeId, seed, light, ffmpeg: ff }, text: files.map((f) => `${f.path}  ${f.width}x${f.height}${f.frames ? `, ${f.frames} frames at ${f.fps} fps` : ''}${f.encoder ? ` (${f.encoder})` : ''}`).join('\n') };
+}
+
+export type LoopRequest = { template: string; size: string; seed: number; light: 'brand' | 'generated'; seconds?: number; fps?: number };
+
+/** A loop's first frame, and the loop itself as MP4 (ffmpeg). */
+export async function renderVideo(q: LoopRequest): Promise<{ still: Buffer }> {
+	const { t, size } = loopOf(q);
+	const r = await rasterizeScene(await drawScene(videoFrame(t, size, 0, q.seed, q.light)));
+	return { still: r.png };
+}
+renderVideo.mp4 = async (q: LoopRequest, work: string): Promise<Buffer> => {
+	const { t, size, fps, seconds } = loopOf(q);
+	const count = Math.round(fps * seconds);
+	for (let i = 0; i < count; i++) write(join(work, `frame-${String(i + 1).padStart(4, '0')}.png`), (await rasterizeScene(await drawScene(videoFrame(t, size, i / count, q.seed, q.light)))).png);
+	const out = join(work, 'loop.mp4');
+	encodeMp4(join(work, 'frame-%04d.png'), fps, out);
+	return readFileSync(out);
+};
+function loopOf(q: LoopRequest) {
+	const d = videoDoc();
+	const t = d.templates.find((x) => x.id === q.template);
+	if (!t) throw unknown('template', q.template, d.templates.map((x) => x.id));
+	const size = d.sizes[q.size];
+	if (!size) throw unknown('size', q.size, Object.keys(d.sizes));
+	return { t, size, fps: q.fps ?? d.fps, seconds: q.seconds ?? d.seconds };
+}
+function ffmpeg(input: string, fps: number, out: string, codec: string[]) {
+	const r = spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', String(fps), '-i', input, ...codec, '-threads', '1', out], { encoding: 'utf8' });
+	if (r.status !== 0) throw new Error(`ffmpeg failed: ${r.stderr || r.error?.message}`);
+}
+export function encodeMp4(input: string, fps: number, out: string) {
+	ffmpeg(input, fps, out, ['-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '18', '-preset', 'medium', '-movflags', '+faststart', '-bitexact']);
 }

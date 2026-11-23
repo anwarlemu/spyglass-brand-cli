@@ -83,7 +83,7 @@ const HELP = () => {
 	].join('\n');
 };
 
-const VALUE_FLAGS = new Set(['headline', 'body', 'label', 'cta', 'price', 'plan', 'features', 'prompt', 'quote', 'name', 'role', 'url', 'kicker', 'items', 'stat', 'light', 'input', 'slide', 'item', 'dpi', 'fps', 'seconds', 'variant', 'seed', 'source', 'width', 'height', 'density', 'cwd', 'components', 'pages', 'framework', 'title', 'text', 'subtitle', 'eyebrow', 'by', 'author', 'image', 'template', 'size', 'ground', 'out', 'format', 'section', 'token', 'surface', 'group', 'state', 'part', 'prop', 'set', 'preset', 'texture', 'example', 'browser', 'file']);
+const VALUE_FLAGS = new Set(['theme', 'scale', 'badge', 'page', 'headline', 'body', 'label', 'cta', 'price', 'plan', 'features', 'prompt', 'quote', 'name', 'role', 'url', 'kicker', 'items', 'stat', 'light', 'input', 'slide', 'item', 'dpi', 'fps', 'seconds', 'variant', 'seed', 'source', 'width', 'height', 'density', 'cwd', 'components', 'pages', 'framework', 'title', 'text', 'subtitle', 'eyebrow', 'by', 'author', 'image', 'template', 'size', 'ground', 'out', 'format', 'section', 'token', 'surface', 'group', 'state', 'part', 'prop', 'set', 'preset', 'texture', 'example', 'browser', 'file']);
 const REPEAT_FLAGS = new Set(['prop', 'image', 'set']);
 
 export function parse(argv: string[]) {
@@ -142,6 +142,17 @@ const FLAGS: Record<string, string[]> = {
 };
 
 async function main() {
+	// `design` reads its own arguments, untouched.
+	if (process.argv[2] === 'design') {
+		const { runDesign } = await import('./design/index.js');
+		const { adapter, paint } = await import('./design/adapter.js');
+		const argv = process.argv.slice(3);
+		let cwd = process.cwd();
+		const at = argv.indexOf('--cwd');
+		if (at >= 0) cwd = resolve(argv.splice(at, 2)[1] ?? '.');
+		process.exitCode = await runDesign(argv, adapter(), { cwd, bin: brand().bin, out: console.log, err: console.error, paint });
+		return;
+	}
 	const { command, args, flags } = parse(process.argv.slice(2));
 	const known = command ? FLAGS[command] : undefined;
 	if (known) {

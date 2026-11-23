@@ -1,8 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { brand, packageRoot } from '../lib/brand.js';
+import { packageRoot } from '../lib/brand.js';
 import type { Layer, Scene } from './scene.js';
-import { unknown } from './templates.js';
+import type { LayerEdit } from '../design/types.js';
+import { drawScene, FitError, type DrawResult } from './scene.js';
+import { checkDrawn, fill, unknown } from './templates.js';
 
 // Merch print files: brand/assets/merch.json holds each item's trim size, bleed and safe area (inches, with their
 // source) and layouts in inches from the trim. This turns an item and a variant into a scene in pixels at 300 per inch
@@ -22,6 +24,7 @@ export type MerchItem = {
 	variants: Record<string, { ink: string; ground: string }>;
 	layers: Layer[] | Record<string, Layer[]>;
 	slots?: Record<string, string>;
+	required?: string[];
 };
 
 let doc: { dpi: number; items: MerchItem[] } | undefined;
@@ -48,36 +51,40 @@ export function merchCatalog() {
 		variants: Object.keys(i.variants),
 		pixels: { width: Math.round((i.size[0] + 2 * i.bleed) * PX_PER_IN), height: Math.round((i.size[1] + 2 * i.bleed) * PX_PER_IN), dpi: PX_PER_IN },
 		dieCut: Boolean(i.cut),
+		slots: Object.fromEntries(Object.entries(i.slots ?? {}).map(([k, v]) => [k, fill(v)])),
+		required: i.required ?? [],
 		source: i.source,
 	}));
 }
 
-const LEN = new Set(['x', 'top', 'w', 'size', 'leading', 'gap', 'shift']);
+const LEN = new Set(['x', 'top', 'w', 'h', 'size', 'leading', 'gap', 'itemGap', 'shift', 'min', 'pad', 'padTop', 'padBottom', 'grow', 'bottom', 'radius', 'prefer']);
+/** Lengths that are places, so they move by the bleed. */
+const PLACE = new Set(['x', 'top', 'bottom', 'prefer']);
 
 /** Inches to pixels, moving positions by the bleed. */
-function convert(layer: Layer, bleed: number, vars: Record<string, string>): Layer {
+function convert<T>(layer: T, bleed: number, vars: Record<string, string>): T {
 	const o = bleed * PX_PER_IN;
 	const px = (n: number) => n * PX_PER_IN;
 	const out: Record<string, unknown> = {};
-	for (const [k, v] of Object.entries(layer)) {
+	for (const [k, v] of Object.entries(layer as Record<string, unknown>)) {
 		if (typeof v === 'string' && v.startsWith('$')) out[k] = vars[v.slice(1)] ?? v;
 		else if (k === 'box' || k === 'window') out[k] = (v as number[]).map((n, i) => px(n) + (i < 2 ? o : 0));
-		else if (k === 'b') out[k] = (v as number[]).map((n, i) => px(n) + (i < 2 && !('window' in layer) ? o : 0));
+		else if (k === 'b') out[k] = (v as number[]).map((n, i) => px(n) + (i < 2 && !('window' in (layer as object)) ? o : 0));
 		else if (k === 'quad' || k === 'clipQuad') out[k] = (v as number[][]).map(([x, y]) => [px(x!) + o, px(y!) + o]);
-		else if (k === 'after') out[k] = { ...(v as { slot: string; gap: number }), gap: px((v as { gap: number }).gap) };
-		else if (LEN.has(k) && typeof v === 'number') out[k] = k === 'x' || k === 'top' ? px(v) + o : px(v);
+		else if (k === 'items' && Array.isArray(v)) out[k] = v.map((i) => (i && typeof i === 'object' ? convert(i, 0, vars) : i));
+		else if (LEN.has(k) && typeof v === 'number') out[k] = PLACE.has(k) ? px(v) + o : px(v);
 		else out[k] = v;
 	}
-	return out as Layer;
+	return out as T;
 }
 
-export type MerchRequest = { variant?: string; seed?: number; light?: 'brand' | 'generated'; guides?: boolean; slots?: Record<string, string> };
+export type MerchRequest = { variant?: string; seed?: number; light?: 'brand' | 'generated'; texture?: boolean; guides?: boolean; slots?: Record<string, string>; sample?: boolean; edits?: Record<string, LayerEdit> };
 
-export function merchScene(item: MerchItem, req: MerchRequest): { scene: Scene; variant: string; widthIn: number; heightIn: number } {
+export function merchScene(item: MerchItem, req: MerchRequest): { scene: Scene; variant: string; widthIn: number; heightIn: number; given: string[] } {
 	const names = Object.keys(item.variants);
 	const variant = (req.variant ?? names[0]!).toLowerCase();
 	const vars = item.variants[variant];
-	if (!vars) throw unknown(`variant for ${item.id}`, variant, names);
+	if (!vars) throw unknown(`theme for ${item.id}`, variant, names);
 	const raw = Array.isArray(item.layers) ? item.layers : item.layers[variant] ?? item.layers.default ?? [];
 	const layers = raw.map((l) => convert(l, item.bleed, vars));
 	const widthIn = item.size[0] + 2 * item.bleed;
@@ -95,13 +102,42 @@ export function merchScene(item: MerchItem, req: MerchRequest): { scene: Scene; 
 		if (item.bleed) layers.push({ type: 'path', id: 'Trim', d: rect(o, o, tw, th), stroke: 'cyan', strokeWidth: 3 });
 		layers.push({ type: 'path', id: 'Safe', d: rect(o + s, o + s, tw - 2 * s, th - 2 * s), stroke: 'cyan', strokeWidth: 3, dash: '18 12' });
 	}
-	const b = brand() as ReturnType<typeof brand> & { domain?: string; tagline?: string };
-	const fill = (v: string) => v.replaceAll('{domain}', b.domain ?? new URL(b.site).host).replaceAll('{tagline}', b.tagline ?? '');
 	const takes = item.slots ?? {};
 	for (const k of Object.keys(req.slots ?? {})) if (!(k in takes)) throw new Error(`${item.id} does not draw --${k}.${Object.keys(takes).length ? ` It takes ${Object.keys(takes).map((s) => `--${s}`).join(', ')}.` : ' It takes no text.'}`);
-	const slots = Object.fromEntries(Object.entries(takes).map(([k, v]) => [k, fill(req.slots?.[k] ?? v)]));
+	const slots: Record<string, string> = {};
+	const sampled: string[] = [];
+	const own: string[] = [];
+	for (const [k, v] of Object.entries(takes)) {
+		const given = req.slots?.[k];
+		if (given !== undefined) slots[k] = given;
+		else if (k === 'url') {
+			slots[k] = fill(v);
+			own.push(k);
+		}
+		else if (req.sample) {
+			slots[k] = fill(v);
+			sampled.push(k);
+		} else slots[k] = '';
+	}
+	const missing = (item.required ?? []).filter((k) => !slots[k]?.trim());
+	if (missing.length) throw new Error(`${item.id} needs ${missing.map((k) => `--${k}`).join(' and ')} (--sample fills sample copy to look at it).`);
 	const ground = vars.ground === 'none' ? undefined : vars.ground;
-	return { scene: { width: W, height: H, ground, layers, slots, seed: req.seed, light: req.light, clearPadding: 0.05 * PX_PER_IN }, variant, widthIn, heightIn };
+	const s = item.safe * PX_PER_IN;
+	return { scene: { width: W, height: H, ground, layers, slots, sampled, own, seed: req.seed, light: req.light, texture: req.texture, clearPadding: 0.05 * PX_PER_IN, frame: [o + s, o + s, tw - 2 * s, th - 2 * s], unit: 1.8, density: PX_PER_IN / 96, edits: req.edits }, variant, widthIn, heightIn, given: Object.keys(req.slots ?? {}) };
+}
+
+/** Draws an item, and refuses to leave out a word that was passed. */
+export async function drawMerch(item: MerchItem, req: MerchRequest): Promise<{ drawn: DrawResult; variant: string; widthIn: number; heightIn: number; scene: Scene }> {
+	const r = merchScene(item, req);
+	let drawn: DrawResult;
+	try {
+		drawn = await drawScene(r.scene);
+	} catch (err) {
+		if (err instanceof FitError) throw new FitError(`${item.id}: ${err.message}`, err.slot, err.detail);
+		throw err;
+	}
+	checkDrawn(`${item.id} in ${r.variant}`, r.scene, r.given, drawn);
+	return { drawn, variant: r.variant, widthIn: r.widthIn, heightIn: r.heightIn, scene: r.scene };
 }
 
 /** The SVG at physical size: inches on the root, pixels at 300 per inch inside. */

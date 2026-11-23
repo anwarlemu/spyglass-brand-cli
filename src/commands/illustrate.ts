@@ -108,7 +108,7 @@ export async function runIllustrate(cwd: string, args: string[], flags: Flags): 
 		if (args.length > 2) throw new Error(`illustrate takes a style and at most one subject; got ${args.join(' ')}.`);
 		const images = list(flags.image);
 		if (images.length > 1) throw new Error('--image takes one picture here.');
-		const photo = images[0] ? readPhoto(cwd, images[0]) : undefined;
+		const photo = images[0] ? await readPhoto(cwd, images[0], { alpha: true }) : undefined;
 		const req: IllustrateRequest = {
 			style: style as StyleId,
 			subject: args[1],
