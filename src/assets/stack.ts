@@ -48,7 +48,9 @@ function textSet(ctx: StackContext, i: Extract<StackItem, { face: unknown }>, va
 	const min = floorOf(i, ctx.unit, ctx.floor);
 	const pin = t.pins.get(itemId(i));
 	const size = pin ?? Math.max(min, i.size * t.s);
-	const lines = linesAt(face, v, size, i.w ? Math.min(i.w, w) : w, tracking);
+	// An item's own measure is how it is set when it fits; copy that has to step down takes the whole width first.
+	const own = i.w && t.s === 1 && !t.loose ? Math.min(i.w, w) : w;
+	const lines = linesAt(face, v, size, own, tracking);
 	return { lines, size, leading: i.leading * (size / i.size), min, face, tracking, caps, value: v, pinned: pin !== undefined };
 }
 
@@ -207,7 +209,7 @@ function place(ctx: StackContext, list: Measured[], x: number, y0: number, w: nu
 		} else {
 			const i = m.item;
 			for (const [k, t] of m.text!.entries()) {
-				const tw = i.w ? Math.min(i.w, w) : w;
+				const tw = w;
 				const tx = a === 'left' ? x : a === 'right' ? x + w - tw : x + (w - tw) / 2;
 				out.push(textOf({ id: m.id, slot: i.slot, asked: i.type === 'list' ? valueOf(ctx, i).split('|').map((p) => p.trim()).filter(Boolean)[k]! : valueOf(ctx, i), face: t.face, size: t.size, leading: t.leading, min: t.min, tracking: t.tracking, caps: t.caps, lines: t.lines, x: tx + dx, top: top + (m.offsets?.[k] ?? 0), w: tw, align: a, color: i.color, opacity: i.opacity, over, pinned: t.pinned, required: i.required, listStart: k === 0 }));
 			}
@@ -247,7 +249,7 @@ function stackError(ctx: StackContext, items: StackItem[], flat: StackItem[], w:
 		const tracking = i.tracking ?? (i.face === 'label' ? 0.06 : 0);
 		const v = (i.caps ?? i.face === 'label') ? value(i).toUpperCase() : value(i);
 		const longest = v.split(/[\s|]+/).reduce((a, b) => (measure(face, b, min, tracking) > measure(face, a, min, tracking) ? b : a), '');
-		const room = i.w ? Math.min(i.w, w) : w;
+		const room = w;
 		if (measure(face, longest, min, tracking) > room) return tooLong(i.slot, longest, 0, `${Math.round(room)}px wide, at ${Math.round(min)}px, the smallest readable size`);
 	}
 	for (const i of flat) {

@@ -212,7 +212,8 @@ function grid(c) {
 	const lh = gy + 410 * k;
 	const foot = gy + side;
 	return done(v, [A(),
-		L(scaled([-453, -30, 2913.3, 1821.3], v.W / 1080, 0, Math.max(0, gy - 178 * u)), (44.2 * v.W) / 1080, [0, v.shape === 'square' ? -2 * u : 0, v.W, v.shape === 'square' ? 586 * u : lh], { fixed: true }),
+		// On the taller frames the light is a band behind the lockup and the top of the grid.
+		L(scaled([-453, -30, 2913.3, 1821.3], v.W / 1080), (44.2 * v.W) / 1080, [0, story ? gy - 178 * u : -2 * u, v.W, story ? lh - gy + 178 * u : v.shape === 'square' ? 586 * u : lh], { fixed: true }),
 		...cells(at, k),
 		// The lockup stands on the light's pale mass: the approved Black on pale, where White has no contrast.
 		logo(v, 'top', { tone: 'auto' }),
@@ -290,7 +291,7 @@ function band(c, card = false) {
 		const size = withBody ? 64 : 72;
 		return done(v, [A(), L(scaled(BAND, k), 44.2 * k, [0, by, v.W, bh]),
 			logo(v, 'top-left'), address(v, 'top-right'),
-			stack([v.x, v.y + 68 * u, 760 * u, by - 40 * u - v.y - 68 * u], [head(v, size, size * 1.07, { maxLines: 3 })], { prefer: v.y + (withBody ? 84 : 128 + (v.H / u - 630) / 2) * u, grow: v.w }),
+			stack([v.x, v.y + 68 * u, (withBody ? 940 : 760) * u, by - 40 * u - v.y - 68 * u], [head(v, size, size * 1.07, { maxLines: 3 })], { prefer: v.y + (withBody ? 84 : 128 + (v.H / u - 630) / 2) * u, grow: v.w }),
 			withBody && stack([v.r - bw, by + bh + 32 * u, bw, v.b + 6 * u - by - bh - 32 * u], [body(v, 24, 31, 0, { maxLines: 4 })], { valign: 'bottom', align: 'left' }),
 			c.has('page') && page(v, 'bottom-left')]);
 	}
@@ -477,7 +478,7 @@ function plan(c) {
 	if (v.shape === 'wide') {
 		const cw = 520 * u;
 		return done(v, [A(),
-			L(scaled(FIELD, (v.r - cw - 40 * u) / 1080), (37.4 * (v.r - cw - 40 * u)) / 1080, [0, 0, v.W, v.H * 0.36]),
+			L(scaled(FIELD, k), 37.4 * k, [0, 0, v.W, v.H * 0.36]),
 			stack([v.x, v.y + v.h * 0.3, hasCard ? v.w - cw - 56 * u : v.w, v.h * 0.7 - 72 * u], [head(v, 64, 69, { maxLines: 4 })], { valign: 'bottom' }),
 			hasCard && stack([v.r - cw, v.y, cw, v.h], [card({ w: cw, pad: 40 * u, padTop: 40 * u, gap: 0 })], { valign: 'center' }),
 			logo(v, 'bottom-left'),
@@ -587,6 +588,7 @@ function closeUp(c) {
 	const v = canvas(c, 64);
 	const f = v.W === 1500 ? [[-1540, -422, 5378.4, 3362.4], 81.6] : v.W === 1584 ? [[-1498, -474, 5378.4, 3362.4], 81.6] : v.W / v.H > 5 ? [scaled([-962, -352, 3585.6, 2241.6], v.W / 1128), (54.4 * v.W) / 1128] : undefined;
 	const strip = v.shape === 'strip';
+	if (f && c.has('headline') && v.W / v.H > 5) f[0][1] -= v.H * 0.3; // the headline stands under the light
 	const light = f && strip ? L(f[0], f[1]) : cover([-1540, -422, 5378.4, 3362.4], 81.6, [1500, 500], v);
 	const u = strip ? Math.max(0.8, Math.min(1, v.u)) : v.u;
 	const size = Math.max(v.f, 18 * u);
@@ -596,7 +598,7 @@ function closeUp(c) {
 	return done(v, [light,
 		{ type: 'text', slot: 'url', face: 'body', size, leading: size * 1.33, x: v.r - 300, top, w: 300, align: 'right', maxLines: 1, corner: 'bottom-right' },
 		// Over the address, where the light leaves the frame Black.
-		stack([v.r - w, v.y, w, top - s * 0.6 - v.y], [text('headline', 'display', s, s * 1.05, { maxLines: 2 })], { align: 'right', valign: 'bottom', grow: v.w }),
+		stack([v.r - w, v.y, w, top - s * 0.6 - v.y], [text('headline', 'display', s, s * 1.05, { maxLines: v.W / v.H > 5 ? 1 : 2 })], { align: 'right', valign: 'bottom', grow: v.w }),
 	]);
 }
 

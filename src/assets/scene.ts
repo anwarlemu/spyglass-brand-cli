@@ -942,22 +942,26 @@ async function clearLight(light: LightModule, base: PlacedLight, keeps: Box[], W
 	const rects = keeps.map((k) => ({ x: k[0], y: k[1], w: k[2], h: k[3] }));
 	const tries = base.source === 'generated' ? 6 : 1;
 	// The brand's light also settles a little larger or smaller, about its window's middle, before it gives up.
-	const sizes = fixed ? [1] : [1, 1.12, 0.9, 1.3, 0.78, 1.6];
+	const sizes = fixed ? [1] : [1, 1.12, 0.92, 1.3, 1.6, 2];
 	const zoomed = (p: PlacedLight, k: number): PlacedLight => (k === 1 ? p : { ...p, b: moved(p.b!, [p.win[2] / 2, p.win[3] / 2], k, 0, 0), shift: (p.shift ?? 34) * k });
 	for (const k of sizes) for (let t = 0; t < tries; t++) {
 		const p = zoomed(t ? { ...base, seed: base.seed + t * 1009 } : base, k);
 		const map = await lit(light, p, 0.3);
-		if (!rects.some((r) => touches(map, r, 0, 0, p.win))) return { p, moved: [0, 0], blocked: false };
+		if (k === 1 && !rects.some((r) => touches(map, r, 0, 0, p.win))) return { p, moved: [0, 0], blocked: false };
 		if (fixed) continue;
 		const [, , w, h] = p.win;
 		const steps: { dx: number; dy: number; d: number }[] = [];
 		for (let i = -14; i <= 14; i++) for (let j = -14; j <= 14; j++) steps.push({ dx: i * 0.02 * w, dy: j * 0.02 * h, d: Math.hypot(i * 0.02 * w, j * 0.02 * h) });
 		steps.sort((a, b) => a.d - b.d || a.dx - b.dx || a.dy - b.dy);
 		const total = shown(map, p.win, 0, 0);
+		// Where the heat map covered the window it still does: its own edge never shows.
+		const gaps = (b: Box, dx: number, dy: number) => [b[0] + dx, w - (b[0] + b[2] + dx), b[1] + dy, h - (b[1] + b[3] + dy)];
+		const was = gaps(base.b!, 0, 0).map((g) => Math.max(0.5, g));
 		for (const s of steps) {
+			if (gaps(p.b!, s.dx, s.dy).some((g, i) => g > was[i]!)) continue;
 			if (rects.some((r) => touches(map, r, s.dx, s.dy, p.win))) continue;
 			// It still has to be a light: at least a third of what it showed.
-			if (shown(map, p.win, s.dx, s.dy) < total * (k === 1 ? 0.35 : 0.25)) continue;
+			if (shown(map, p.win, s.dx, s.dy) < total * (k === 1 ? 0.35 : 0.12)) continue;
 			return { p: { ...p, b: [p.b![0] + s.dx, p.b![1] + s.dy, p.b![2], p.b![3]] }, moved: [s.dx, s.dy], blocked: false };
 		}
 	}
