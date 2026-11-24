@@ -7,7 +7,7 @@
 // Text tops are the top of the capitals. A stack closes up around the copy that is there and steps down together when it
 // is long. Lights: b is the Light B layer (x, y, width, height in its window), shift the step to Light G and Light R.
 //
-// layout(c) gets { W, H, size (the size id), has(slot), pictures (how many), safe, keepOut } and returns
+// layout(c) gets { W, H, size (the size id), has(slot), pictures (how many, placeholders included), real (how many were passed), safe, keepOut } and returns
 // { layers, frame, unit }.
 
 const A = (o = {}) => ({ type: 'ascii', ...o });
@@ -538,7 +538,9 @@ function bannerLight(v, which) {
 function tagline(c, pictures) {
 	const v = canvas(c, 64);
 	const strip = v.shape === 'strip';
-	const s = strip ? stripHead(v) : 72 * v.u;
+	// On a strip without pictures the tagline fills the room first: two lines at half again the banners' size, stepping
+	// down only when the words need it (fill before shrinking).
+	const s = strip ? stripHead(v) * (pictures || v.H < 300 ? 1 : 1.5) : 72 * v.u;
 	const n = pictures ? 6 : 0;
 	if (strip) {
 		const figma = v.W === 1500 && v.H === 500 ? [96, 12, 120] : v.W === 1584 && v.H === 396 ? [104, 16, 130] : undefined;
@@ -547,7 +549,7 @@ function tagline(c, pictures) {
 		const row = n * pw + (n - 1) * gap;
 		// Six pictures right of the profile picture, then the tagline.
 		const space = v.w - row - 24;
-		const tw = Math.min(pictures ? space : v.w, v.H < 300 ? s * 15.2 : s * 8.04);
+		const tw = Math.min(pictures ? space : v.w * 0.62, v.H < 300 ? s * 15.2 : pictures ? s * 8.04 : s * 10);
 		const py = v.safe ? v.safe.y + (h - ph) / 2 : v.H / 2 - ph / 2;
 		const top = v.y;
 		return done(v, [A(), bannerLight(v, 't'),
@@ -643,7 +645,9 @@ function ogSite(c) {
 	const v = { ...v0, m: 60 * u, x: ox + 60 * u, y: oy + 60 * u, w: 1080 * u, h: 510 * u, r: ox + 1140 * u, b: oy + 570 * u, frame: [ox + 60 * u, oy + 60 * u, 1080 * u, 510 * u] };
 	v.cx = v.x + v.w / 2;
 	const sizes = [[124, 156], [152, 188], [192, 240], [152, 188], [124, 156]];
-	const n = Math.max(0, Math.min(5, c.pictures ?? 5));
+	// Only pictures that were passed make the row: without them (even with --sample) the card is the lockup, the page and
+	// the headline, never empty boxes.
+	const n = Math.max(0, Math.min(5, c.real ?? c.pictures ?? 0));
 	const pick = n === 5 ? [0, 1, 2, 3, 4] : n === 4 ? [0, 1, 2, 3] : n === 3 ? [1, 2, 3] : n === 2 ? [1, 2] : n === 1 ? [2] : [];
 	const row = pick.reduce((sum, i) => sum + sizes[i][0], 0) + Math.max(0, pick.length - 1) * 12;
 	let x = ox + (1136 - row) * u;
@@ -660,7 +664,7 @@ function ogSite(c) {
 		lockup,
 		c.has('page') && { ...page(v, 'top-right'), top: v.y + ((152 * 28) / 183 / 2 - 4) * u },
 		...photos,
-		stack([v.x, oy + (300 * u), 680 * u, v.b - oy - 300 * u - 0 * u], [head(v, 72, 76, { maxLines: 3 })], { valign: 'bottom' }),
+		stack([v.x, oy + (n ? 300 : 140) * u, (n ? 680 : 880) * u, v.b - oy - (n ? 300 : 140) * u], [head(v, n ? 72 : 88, n ? 76 : 92, { maxLines: 3 })], { valign: 'bottom' }),
 	]);
 }
 

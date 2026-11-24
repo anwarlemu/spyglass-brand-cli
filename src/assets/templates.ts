@@ -36,7 +36,7 @@ export type Template = {
 	layouts?: Record<string, SizeLayout>;
 };
 
-type LayoutInput = { W: number; H: number; size: string; has: (slot: string) => boolean; pictures: number; safe?: Rect; avoid: Rect[]; floor: number };
+type LayoutInput = { W: number; H: number; size: string; has: (slot: string) => boolean; pictures: number; /** Pictures that were passed (pictures counts placeholders too). */ real?: number; safe?: Rect; avoid: Rect[]; floor: number };
 type LayoutFn = (c: LayoutInput) => { layers: Layer[]; frame?: Box; unit?: number };
 const { LAYOUTS } = (await import(pathToFileURL(join(packageRoot, 'brand', 'assets', 'layouts.mjs')).href)) as { LAYOUTS: Record<string, LayoutFn> };
 
@@ -194,7 +194,7 @@ export function sceneFor(t: Template, req: SceneRequest): { scene: Scene; size: 
 	const photos = passed.length ? Array.from({ length: want }, (_, i) => passed[i % passed.length]!) : [];
 	const has = (s: string) => Boolean(slots[s]?.trim()) && !req.edits?.[s]?.hidden;
 	const zones = zonesOf(size.id, size.width, size.height);
-	const raw: SizeLayout = t.layouts ? t.layouts[size.id]! : { width: size.width, height: size.height, ...LAYOUTS[t.id]!({ W: size.width, H: size.height, size: size.id, has, pictures: fake && !passed.length ? want : photos.length, safe: zones.safe, avoid: zones.avoid, floor: zones.floor }) };
+	const raw: SizeLayout = t.layouts ? t.layouts[size.id]! : { width: size.width, height: size.height, ...LAYOUTS[t.id]!({ W: size.width, H: size.height, size: size.id, has, pictures: fake && !passed.length ? want : photos.length, real: photos.length, safe: zones.safe, avoid: zones.avoid, floor: zones.floor }) };
 	const pictures = photos.length > 0 || (fake && want > 0);
 	const layout = substitute({ ...raw, layers: raw.layers.filter((l) => !l.when || (l.when === 'pictures') === pictures) }, vars);
 	return {
