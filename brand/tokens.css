@@ -548,6 +548,9 @@
   --ds-ph-scrim-top: color-mix(in srgb, var(--ds-color-black) 72%, transparent); /* site --ph-scrim-top */
   --ds-ph-detail-intent: 80ms; /* the wait before a card's detail shows under the pointer (site --dur-ph-detail-intent) */
   --ds-ph-caret-blink: 1060ms; /* the composer's caret, a loop (site --dur-caret-blink) */
+  /* product-visual */
+  --ds-pv-ascii-clear-w: 46%; /* the clear middle of a feature stage's ASCII field (site --features-ascii-clear-w) */
+  --ds-pv-ascii-clear-h: 50%; /* site --features-ascii-clear-h */
   /* group: use-cases-resources-templates */
   /* use-case-wheel: the ring of creatives around the headline and the drum of labels (site tokens.css 355-393, 659-700).
      The ring's measures step up at 768 (-md), 1024 (-lg) and 1280 (-xl); the component picks them by width. The wheel is a
