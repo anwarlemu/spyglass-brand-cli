@@ -30,9 +30,7 @@ const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-lay
 export function EnterprisePage({ content: c = enterprisePageContent, cards, logos = proofPlaceholders, run, features, className }: EnterprisePageProps) {
   return (
     <div data-ds="enterprise-page" className={cn('bg-surface text-fg', className)}>
-      <div className={WRAP}>
-        <SiteHeader links={c.header.links} secondary={c.header.secondary} variant="centered" />
-      </div>
+      <SiteHeader links={c.header.links} secondary={c.header.secondary} variant="centered" />
       <main>
         <EnterpriseHero content={c.hero} cards={cards} />
         <section aria-label={c.proof} className="pt-(--ds-ent-logos-above) pb-(--ds-layout-section) md:pt-(--ds-ent-logos-above-md)">

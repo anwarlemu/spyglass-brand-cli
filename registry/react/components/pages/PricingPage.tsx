@@ -22,9 +22,7 @@ const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-lay
 export function PricingPage({ content: c = pricingContent, className }: PricingPageProps) {
   return (
     <div data-ds="pricing-page" className={cn('bg-surface text-fg', className)}>
-      <div className={WRAP}>
-        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
-      </div>
+      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main>
         <PageHead id="pricing" lines={c.head.lines} lead={c.head.lead} align="centre" />
         <section aria-label="Plans" className="pb-[calc(var(--ds-layout-section)-var(--ds-space-xs))] md:pb-(--ds-layout-section)">
