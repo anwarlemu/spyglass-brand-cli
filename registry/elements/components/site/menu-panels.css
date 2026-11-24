@@ -1,0 +1,5 @@
+.ds-docs-wave { animation: ds-docs-slide var(--ds-header-band-slide) var(--ds-easing-drift) infinite alternate; }
+.ds-docs-ribbon > * { animation: ds-docs-bob var(--ds-header-band-bob) var(--ds-easing-drift) infinite alternate; }
+@keyframes ds-docs-slide { from { transform: translateX(calc(-1 * var(--ds-space-xl))); } to { transform: translateX(var(--ds-space-xl)); } }
+@keyframes ds-docs-bob { from { transform: translateY(calc(-1 * var(--ds-space-sm))) rotate(-2deg); } to { transform: translateY(var(--ds-space-sm)) rotate(2deg); } }
+@media (prefers-reduced-motion: reduce) { .ds-docs-wave, .ds-docs-ribbon > * { animation: none; } }

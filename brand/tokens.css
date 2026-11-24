@@ -467,6 +467,15 @@
   --ds-page-close-drift-w: 480px; /* the closing section's lower left drift at most (site --space-480) */
   --ds-page-close-drift-high-w: 320px; /* its upper right drift at most (site --space-320) */
   --ds-stroke: 2px; /* a drawn line: the FAQ's plus, a tab's underline (site --stroke) */
+  --ds-header-menu-gap: 24px; /* a header menu panel's distance under the bar's links (site .panel top) */
+  --ds-header-menu-rise: 8px; /* how far a header menu panel rises as it opens (site --menu-rise) */
+  --ds-header-menu-products-w: 874px; /* the products menu: a 320px list, a 540px live card, 4px gaps (site .panelProducts) */
+  --ds-header-menu-cases-w: 944px; /* the use cases menu: two 320px columns and a 288px card (site .panelCases) */
+  --ds-header-menu-resources-w: 556px; /* the resources menu: a 256px list and a 288px card (site .panelResources) */
+  --ds-header-live-card-w: 540px; /* the products menu's live card (site --live-card-w) */
+  --ds-header-band-slide: 22s; /* the docs card's light drifting across (site --hero-band-slide-time) */
+  --ds-header-band-bob: 14s; /* and bobbing (site --hero-band-bob-time) */
+  --ds-header-bar-phone: 64px; /* the site header's bar below 1024 (site --header-h; --ds-size-header from 1024) */
   /* group: home */
   /* The creative sequence (site --dur-seq-*, --ease-seq-*): sets of creatives fading and settling in turn, a loop. The
      site leaves on an ease-in (--ease-seq-out); here it leaves on the in-out ease, as interface motion never eases in. */
