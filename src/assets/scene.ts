@@ -84,6 +84,8 @@ export type StackLayer = Named & {
 
 export type Layer =
 	| (Named & { type: 'rect'; box: Box; fill: string; radius?: number; stroke?: string; opacity?: number })
+	/** The brand's own pre-made art (brand/assets/art/<file>.png with its ink map <file>.json), drawn as is over `box`. */
+	| (Named & { type: 'art'; file: string; box: Box })
 	| TextLayer
 	| StackLayer
 	| (Named & { type: 'logo'; lockup: string; color: string; box: Box; align?: 'left' | 'center' | 'right'; /** `auto`: Black where the light under it is pale. */ tone?: 'auto'; /** For stings that bring the lockup in: 0 to 1. */ opacity?: number })
@@ -414,6 +416,19 @@ export function named(layers: Layer[]): Layer[] {
 		n++;
 		return { ...l, id: n === 1 ? 'light' : `light-${n}` };
 	});
+}
+
+const arts = new Map<string, { data: string; width: number; height: number; ink: [number, number, number, number][] }>();
+/** The brand's pre-made art: the PNG as base64 and where it is lit, in its own pixels. */
+function artOf(file: string) {
+	let a = arts.get(file);
+	if (!a) {
+		const dir = join(packageRoot, 'brand', 'assets', 'art');
+		const map = JSON.parse(readFileSync(join(dir, `${file}.json`), 'utf8')) as { width: number; height: number; ink: [number, number, number, number][] };
+		a = { data: readFileSync(join(dir, `${file}.png`)).toString('base64'), ...map };
+		arts.set(file, a);
+	}
+	return a;
 }
 
 function boxOf(l: Layer): Box | undefined {
@@ -794,6 +809,16 @@ export async function drawScene(scene: Scene, opts: { embedFonts?: boolean } = {
 	for (const l of layers) {
 		const id = layerId(l);
 		switch (l.type) {
+			case 'art': {
+				const a = artOf(l.file);
+				const [x, y, w, h] = l.box;
+				parts.push({ svg: `<image href="data:image/png;base64,${a.data}" x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" preserveAspectRatio="none"/>` });
+				const sx = w / a.width;
+				const sy = h / a.height;
+				const ink = a.ink.map(([ix, iy, iw, ih]) => ({ x: x + ix * sx, y: y + iy * sy, w: iw * sx, h: ih * sy })).filter((r) => r.x < W && r.y < H && r.x + r.w > 0 && r.y + r.h > 0);
+				note(id, 'art', l.box, { ink, bleeds: true, over: ['texture', ...(l.over ?? [])], can: { hide: true } });
+				break;
+			}
 			case 'rect': {
 				const [x, y, w, h] = l.box;
 				const stroke = l.stroke ? ` stroke="${color(l.stroke)}" stroke-width="1"` : '';

@@ -280,7 +280,7 @@
    "required": [
     "headline"
    ],
-   "logoAnchors": ["top-left","top","top-right","bottom","bottom-right"],
+   "logoAnchors": ["top-left","top","top-right","bottom"],
    "sizes": ["og","landscape","linkedin","youtube-thumbnail","primary","pinterest","facebook-cover","facebook","ad-970x250","desktop","phone-wallpaper"]
   },
   {
