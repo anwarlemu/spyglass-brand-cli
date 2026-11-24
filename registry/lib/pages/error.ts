@@ -1,10 +1,9 @@
-// The 500 page's copy: what happened in a plain sentence, a way to try again and the way home. Both flavors read it.
+// The error page's copy (site content/pages/errors.ts): the title, what happened in a plain sentence, try again and the
+// way home. Both flavors read this file.
 export const errorContent = {
-	eyebrow: 'Error 500',
-	headline: 'Something broke on our side.',
-	body: 'It is not you. Try again in a moment; if it keeps happening, write to us.',
-	retry: { label: 'Try again', href: '' },
-	home: { label: 'Go home', href: '/' },
-	contact: { label: 'Write to us', href: '/contact' },
+	lines: ['Something went wrong'],
+	lead: 'This page did not load. Try again, or start from the homepage.',
+	retry: 'Try again',
+	home: { label: 'Go to the homepage', href: '/' },
 }
 export type ErrorContent = typeof errorContent

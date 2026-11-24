@@ -21,3 +21,20 @@
   .ds-pp-run { left: var(--ds-price-run-x-xl); }
   .ds-pp-card { --w: var(--ds-price-card-w-xl); --h: var(--ds-price-card-h-xl); --z: var(--ds-price-step-z-xl); }
 }
+.ds-pp-band { display: none; }
+.ds-pp-band-light { position: absolute; top: 50%; left: 50%; display: block; width: var(--ds-price-phone-light-w); height: var(--ds-price-phone-light-h); translate: -50% -50%; scale: 0.8; mix-blend-mode: plus-lighter; }
+@media (min-width: 768px) and (width < 1024px) { .ds-pp-band { position: relative; display: block; height: calc(0.8 * var(--ds-price-phone-band-h)); pointer-events: none; } }
+.ds-pp-light { display: none; }
+@media (min-width: 1280px) {
+  .ds-pp-light {
+    --f0: var(--ds-price-light-fade-from);
+    --fd: calc(var(--ds-price-light-fade-to) - var(--ds-price-light-fade-from));
+    position: absolute; z-index: -1; display: block;
+    left: calc(var(--ds-price-run-x-xl) - var(--ds-price-light-anchor-x)); bottom: calc(var(--ds-price-light-anchor-y) - var(--ds-price-light-h));
+    width: var(--ds-price-light-w); height: var(--ds-price-light-h); mix-blend-mode: plus-lighter;
+    mask-image:
+      linear-gradient(to right, transparent var(--f0), color-mix(in srgb, var(--ds-color-black) 4%, transparent) calc(var(--f0) + var(--fd) * 0.125), color-mix(in srgb, var(--ds-color-black) 16%, transparent) calc(var(--f0) + var(--fd) * 0.25), color-mix(in srgb, var(--ds-color-black) 32%, transparent) calc(var(--f0) + var(--fd) * 0.375), color-mix(in srgb, var(--ds-color-black) 50%, transparent) calc(var(--f0) + var(--fd) * 0.5), color-mix(in srgb, var(--ds-color-black) 68%, transparent) calc(var(--f0) + var(--fd) * 0.625), color-mix(in srgb, var(--ds-color-black) 84%, transparent) calc(var(--f0) + var(--fd) * 0.75), color-mix(in srgb, var(--ds-color-black) 96%, transparent) calc(var(--f0) + var(--fd) * 0.875), var(--ds-color-black) var(--ds-price-light-fade-to)),
+      linear-gradient(to bottom, transparent 136px, var(--ds-color-black) 232px);
+    mask-composite: intersect;
+  }
+}

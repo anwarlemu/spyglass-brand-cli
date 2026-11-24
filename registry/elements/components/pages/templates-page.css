@@ -1,0 +1,4 @@
+.ds-tpl-cities { padding-bottom: calc(var(--ds-layout-section) - var(--ds-space-lg)); }
+.ds-tpl-cities-rows { margin-top: var(--ds-space-3xl); }
+@media (min-width: 768px) { .ds-tpl-cities-rows { margin-top: calc(var(--ds-space-4xl) + var(--ds-space-sm)); } }
+@media (min-width: 1024px) { .ds-tpl-cities { padding-bottom: var(--ds-layout-section); } }
