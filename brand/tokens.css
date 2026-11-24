@@ -468,6 +468,21 @@
   --ds-stories-lead-min-h: 560px; /* a lead case story from 1024 (site --stories-lead-min-h) */
   --ds-stories-panel-w: 480px; /* its panel (site --stories-panel-w) */
   --ds-session-min-h: 480px; /* the MCP session's least height (site --session-min-h) */
+  /* The home hero (site --hero-*): its least height, the light band's frame (the hero-band picture's 2800 by 696, its
+     anchor and crossing in that frame), its tilt, slide and bob (loops), and the room it leaves under the words. */
+  --ds-hero-min-h: 640px;
+  --ds-hero-light-lift: 240px; /* 96px from 768 (site --hero-light-lift) */
+  --ds-hero-light-lift-md: 96px;
+  --ds-hero-band-w: 2800;
+  --ds-hero-band-h: 696;
+  --ds-hero-band-x: 440;
+  --ds-hero-band-y: 28;
+  --ds-hero-band-centre: 960;
+  --ds-hero-band-cross: 184;
+  --ds-hero-band-tilt: 4deg;
+  --ds-hero-band-slide: 60;
+  --ds-hero-band-bob: 16;
+  --ds-hero-band-drop: 160px; /* the band lowered behind the frame (site hero option a) */
   /* The home's close (site --close-*): the scatter's field heights, the words' lift by width, the creatives at rest
      (grey and dim until the light wakes them), the light's sweep and the pointer's reach. */
   --ds-close-min-h: 640px;
