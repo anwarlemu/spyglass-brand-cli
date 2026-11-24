@@ -661,14 +661,14 @@ function ogSite(c) {
 		x += (w + 12) * u;
 		return P(i, box, { id: `picture-${i + 1}` });
 	});
-	const k = (v0.H / 630) * 1.05;
 	const lockup = { ...logo(v, 'top-left'), box: [v.x, v.y, 152 * u, (152 * u * 28) / 183] };
 	return done(v, [A(),
-		L(scaled(BAND, k, v0.W - 500 * k, -200 * k), 44.2 * k),
+		// The site's own share-card light (public/og/pitch-light.png), at the card's height against its right edge.
+		{ type: 'art', id: 'light', file: 'og-light', box: [ox + 313 * u, oy, 887 * u, 630 * u] },
 		lockup,
 		c.has('page') && { ...page(v, 'top-right'), top: v.y + ((152 * 28) / 183 / 2 - 4) * u },
 		...photos,
-		stack([v.x, oy + (n ? 300 : 140) * u, (n ? 680 : 880) * u, v.b - oy - (n ? 300 : 140) * u], [head(v, n ? 72 : 88, n ? 76 : 92, { maxLines: 3 })], { valign: 'bottom' }),
+		stack([v.x, oy + (n ? 300 : 140) * u, 680 * u, v.b - oy - (n ? 300 : 140) * u], [head(v, n ? 72 : 88, n ? 76 : 92, { maxLines: 3 })], { valign: 'bottom' }),
 	]);
 }
 

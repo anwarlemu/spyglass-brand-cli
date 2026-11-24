@@ -1,0 +1,23 @@
+.ds-pp { padding-block: var(--ds-layout-section); }
+.ds-pp-drift { position: absolute; z-index: -1; display: none; pointer-events: none; user-select: none; }
+.ds-pp-stage { display: none; }
+.ds-pp-view { position: absolute; inset: 0; perspective: var(--ds-price-perspective); perspective-origin: 50% var(--ds-price-eye-y); }
+.ds-pp-run { position: absolute; left: 0; bottom: 0; transform-style: preserve-3d; transform: rotateY(var(--ds-price-turn)); }
+.ds-pp-card { --w: var(--ds-price-card-w); --h: var(--ds-price-card-h); --z: var(--ds-price-step-z); position: absolute; left: 0; bottom: 0; width: var(--w); height: var(--h); transform: translate3d(0, calc(var(--i) * var(--ds-price-step-y) * -1), calc(var(--i) * var(--z) * -1)); backface-visibility: hidden; pointer-events: none; }
+.ds-pp-picture { position: absolute; inset: 0; opacity: 0; user-select: none; }
+.ds-pp-picture[data-set="0"] { opacity: 1; }
+@media (width < 768px) { .ds-pp-sentence { display: inline-block; } }
+@media (width < 1024px) { .ds-pp-head { text-box: trim-start cap alphabetic; } }
+@media (min-width: 768px) and (width < 1024px) { .ds-pp { padding-bottom: calc(var(--ds-layout-section) - var(--ds-space-md)); } }
+@media (min-width: 1024px) {
+  .ds-pp { padding-block: calc(var(--ds-layout-section) + var(--ds-space-4xl)) calc(var(--ds-layout-section) * 2 + var(--ds-space-7xl) + var(--ds-space-2xl) + var(--ds-space-xs)); }
+  .ds-pp-drift { display: block; top: var(--ds-layout-section); right: 0; width: min(480px, 36%); height: calc(var(--ds-space-7xl) + var(--ds-space-2xl)); }
+  .ds-pp-stage { position: relative; display: block; align-self: end; margin-bottom: calc(var(--ds-space-3xl) * -1); height: var(--ds-price-stage-h); pointer-events: none; }
+}
+@media (min-width: 1024px) and (width < 1600px) { .ds-pp { padding-bottom: calc(var(--ds-layout-section) * 2 + var(--ds-space-7xl) + var(--ds-space-2xl) + var(--ds-space-lg) + var(--ds-space-xs)); } }
+@media (min-width: 1280px) {
+  .ds-pp-stage { height: var(--ds-price-stage-h-xl); }
+  .ds-pp-view { perspective: var(--ds-price-perspective-xl); }
+  .ds-pp-run { left: var(--ds-price-run-x-xl); }
+  .ds-pp-card { --w: var(--ds-price-card-w-xl); --h: var(--ds-price-card-h-xl); --z: var(--ds-price-step-z-xl); }
+}
