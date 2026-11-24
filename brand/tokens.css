@@ -445,6 +445,34 @@
   --ds-ent-run-glide: 400ms; /* site --dur-ent-run-lift (--dur-abstract-glide): the lift's spring */
   --ds-ent-run-intent: 80ms; /* site --dur-ent-run-note-intent (--dur-close-tag-intent) */
   --ds-ent-run-big-tracking: -0.02em; /* the note's big number (site .noteBig letter-spacing) */
+  /* The enterprise hero (site tokens.css 107, 136-137, 560-589; Enterprise.module.css, HeroRing.module.css): twelve
+     creatives around the headline, each a set that steps on a press. */
+  --ds-ent-hero-min-h: 640px; /* site --hero-min-h */
+  --ds-ent-hero-ascii-tile: 1080px; /* site --ascii-tile */
+  --ds-ent-hero-ascii-opacity: 0.5; /* site --ascii-quiet */
+  --ds-ent-hero-ascii-clear: 464px; /* site .heroAscii --words-clear (5 x 80 + 64): the texture keeps off the words */
+  --ds-ent-hero-ascii-feather: 96px; /* site --words-feather */
+  --ds-ent-hero-head-w: 800px; /* site .heroHead max-width (10 x 80) */
+  --ds-ent-hero-title-w: 720px; /* site .heroHead > h1 max-width (9 x 80) */
+  --ds-ent-ring-card: 240px; /* site --ent-ring-card: the long side of a card at its largest */
+  --ds-ent-ring-card-min: 136px; /* site --ent-ring-card-min */
+  --ds-ent-ring-card-phone: 128px; /* site --ent-ring-card-phone */
+  --ds-ent-ring-words: 216px; /* site --ent-ring-words: the room the headline keeps in the middle */
+  --ds-ent-ring-edge: 24px; /* site --ent-ring-edge */
+  --ds-ent-ring-enter-y: 40px; /* site --ent-ring-enter-y */
+  --ds-ent-ring-enter-scale: 0.8; /* site --ent-ring-enter-scale */
+  --ds-ent-ring-enter-turn: -5deg; /* site --ent-ring-enter-turn */
+  --ds-ent-ring-ease-enter: cubic-bezier(0.16, 1, 0.3, 1); /* site --ease-ent-ring-enter (an ease-out) */
+  --ds-ent-ring-float: 8px; /* site --ent-ring-float: how far a card bobs */
+  --ds-ent-ring-forward: 1.1; /* site --ent-ring-forward: a card under the pointer */
+  --ds-ent-ring-press: 0.95; /* site --ent-ring-press */
+  --ds-ent-ring-ease-hover: cubic-bezier(0.25, 0.25, 0, 1); /* site --ease-ent-ring-hover */
+  --ds-ent-ring-swap-from: 1.1; /* site --ent-ring-swap-from: the next creative settles from this scale */
+  --ds-ent-ring-tag-gap: 8px; /* site --ent-ring-tag-gap */
+  --ds-ent-ring-tag-clear: 16px; /* site --ent-ring-tag-clear */
+  --ds-ent-ring-intent: 80ms; /* site --dur-menu-intent: the pause before a hovered card comes forward */
+  --ds-ent-ring-hint-every: 6000ms; /* site --dur-ent-ring-hint-every: a card comes forward on its own this often */
+  --ds-ent-ring-hint-hold: 2000ms; /* site --dur-ent-ring-hint-hold */
   /* group: use-cases-resources-templates */
 }
 
