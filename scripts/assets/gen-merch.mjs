@@ -65,6 +65,33 @@ const items = [
     variants: { ...full, white: { ink: 'white', ground: 'black' } },
     layers: { 'full-color': [A({ size: 0.08 }), L(scale(STRIP, 7 / 1080, -0.4), 0.22, [0, 0, 1.2, 7]), logo([1.6, 2.6, 1.4, 0.7], 'mark', 'white'), logo([1.45, 5.6, 1.7, 0.26], 'horizontal', 'white')],
       default: [logo([0.95, 2.6, 1.6, 0.8], 'mark'), logo([0.75, 5.6, 2, 0.31], 'horizontal')] } },
+  // Conventions shared with the sibling brands (no vendor template is sourced here): posters at the other standard
+  // sizes, the 18 by 24 layout scaled; a sticker sheet; an A5 notebook cover; a sublimated lanyard strap.
+  ...[[11, 17], [24, 36]].map(([w, h]) => {
+    const k = w / 18;
+    const sc = (b) => [b[0] * k, b[1] * k, b[2] * k, b[3] * k];
+    return { id: `poster-${w}x${h}`, name: `Poster, ${w} by ${h} in`, size: [w, h], bleed: 0.125, safe: 0.5, method: 'digital or offset print',
+      source: `Standard ${w} by ${h} in poster with 0.125 in bleed and a 0.5 in safe margin; the 18 by 24 layout scaled to it. ` + CONFIRM,
+      variants: { ...full, black: { ink: 'white', ground: 'black' }, white: { ink: 'black', ground: 'white' } },
+      layers: { 'full-color': [A({ size: 0.24 * k }), L(scale(FIELD, w / 1080), 0.62 * k, [0, 0, w, 10.2 * (h / 24)]), S([1.2 * k, 11 * (h / 24), 15.6 * k, 9.9 * (h / 24)], [I('headline', 'display', 1.6 * k, 1.71 * k, 0, { maxLines: 3 }), I('body', 'body', 0.4 * k, 0.53 * k, 1 * k, { w: 10 * k, maxLines: 4 })]), logo([1.2 * k, h - 2.1 * k, 3.66 * k, 0.56 * k], 'horizontal', 'white', 'left'), T('url', 'label', 0.22 * k, 0.22 * k, w - 7.2 * k, h - 1.92 * k, 6 * k, { align: 'right', maxLines: 1 })],
+        default: [S(sc([1.2, 2.4, 15.6, 18.4]).map((v, n) => (n % 2 ? v * (h / 24) / k : v)), [I('headline', 'display', 1.6 * k, 1.71 * k, 0, { maxLines: 4 }), I('body', 'body', 0.4 * k, 0.53 * k, 1 * k, { w: 10 * k, maxLines: 6 })]), logo([1.2 * k, h - 2.1 * k, 3.66 * k, 0.56 * k], 'horizontal', '$ink', 'left'), T('url', 'label', 0.22 * k, 0.22 * k, w - 7.2 * k, h - 1.92 * k, 6 * k, { align: 'right', maxLines: 1 })] },
+      slots: { headline: '{tagline}', body: 'AI search across millions of creatives. Ask a question and get instant, structured results.', url: '{domain}' }, required: ['headline'] };
+  }),
+  { id: 'sticker-sheet', name: 'Sticker sheet, letter', size: [8.5, 11], bleed: 0.125, safe: 0.25, method: 'kiss-cut vinyl sheet',
+    source: 'A letter-size kiss-cut sheet with six stickers (the lockups and the mark), 0.125 in bleed. The cut lines come from the vendor\u2019s template; this file is the art. ' + CONFIRM,
+    variants: { ...full, white: { ink: 'black', ground: 'white' } },
+    layers: { 'full-color': [logo([0.75, 0.9, 3.25, 1.62], 'mark', 'white'), logo([4.5, 1.2, 3.25, 0.5], 'horizontal', 'white'), logo([0.75, 4.2, 3.25, 2.08], 'vertical', 'white'), logo([4.5, 4.4, 3.25, 1.62], 'mark-3d', 'white'), logo([0.75, 8.1, 3.25, 0.5], 'wordmark', 'white'), logo([4.5, 7.6, 3.25, 1.62], 'mark', 'white')],
+      default: [logo([0.75, 0.9, 3.25, 1.62], 'mark'), logo([4.5, 1.2, 3.25, 0.5], 'horizontal'), logo([0.75, 4.2, 3.25, 2.08], 'vertical'), logo([4.5, 4.4, 3.25, 1.62], 'mark-3d'), logo([0.75, 8.1, 3.25, 0.5], 'wordmark'), logo([4.5, 7.6, 3.25, 1.62], 'mark')] } },
+  { id: 'notebook-cover', name: 'Notebook cover, A5', size: [5.83, 8.27], bleed: 0.125, safe: 0.25, method: 'digital print',
+    source: 'A5 notebook cover (5.83 by 8.27 in) with 0.125 in bleed; the light comes down from the top, the lockup sits low. ' + CONFIRM,
+    variants: { ...full, white: { ink: 'black', ground: 'white' } },
+    layers: { 'full-color': [A({ size: 0.08 }), L(scale(FIELD, 5.83 / 1080), 0.2, [0, 0, 5.83, 3.4]), logo([0.6, 7.1, 2.4, 0.37], 'horizontal', 'white', 'left')],
+      default: [logo([0.6, 7.1, 2.4, 0.37], 'horizontal', '$ink', 'left')] } },
+  { id: 'lanyard', name: 'Lanyard strap, 36 by 0.75 in', size: [36, 0.75], bleed: 0.0625, safe: 0.06, method: 'dye sublimation',
+    source: 'A 36 by 0.75 in sublimated lanyard strap, the lockup repeated every 6 in, 1/16 in bleed. Vendors fold and stitch the ends, so 1 in stays clear at each end. ' + CONFIRM,
+    variants: { ...full, white: { ink: 'black', ground: 'white' } },
+    layers: { 'full-color': [1, 7, 13, 19, 25, 31].map((x) => logo([x + 0.5, 0.2, 2.6, 0.38], 'horizontal', 'white')),
+      default: [1, 7, 13, 19, 25, 31].map((x) => logo([x + 0.5, 0.2, 2.6, 0.38], 'horizontal', '$ink')) } },
 ];
 writeFileSync(process.argv[2], JSON.stringify({
   $comment: 'Merch print files only (no mockups). Each item: trim size and bleed and safe area in inches with its source or convention, the variants it takes (full color: the light and the texture on Black; white or black: one color, transparent ground, an approved lockup only), and layouts in inches from the trim. Files are SVG at physical size and PNG at 300 dpi (--dpi) with the bleed included.',

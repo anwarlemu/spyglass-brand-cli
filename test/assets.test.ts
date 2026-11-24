@@ -193,7 +193,7 @@ describe('video', () => {
 describe('merch', () => {
 	it('lists every item with its trim, bleed, safe area and source', () => {
 		const items = merchItems();
-		expect(items.map((i) => i.id)).toEqual(['cap-front', 'tee-front', 'tee-back', 'hoodie-front', 'tote', 'mug-wrap', 'sticker', 'poster', 'socks']);
+		expect(items.map((i) => i.id)).toEqual(['cap-front', 'tee-front', 'tee-back', 'hoodie-front', 'tote', 'mug-wrap', 'sticker', 'poster', 'socks', 'poster-11x17', 'poster-24x36', 'sticker-sheet', 'notebook-cover', 'lanyard']);
 		for (const i of items) {
 			expect(i.source.length, i.id).toBeGreaterThan(20);
 			expect(i.safe).toBeGreaterThan(0);
