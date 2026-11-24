@@ -1,82 +1,61 @@
-import type { ReactNode } from 'react'
-import { Button } from '@/react/components/ui/Button'
-import { Card } from '@/react/components/ui/Card'
-import { SearchBar } from '@/react/components/product/SearchBar'
-import { CreativeGrid } from '@/react/components/site/CreativeGrid'
-import { CreativeRing } from '@/react/components/site/CreativeRing'
-import { CreativeRow } from '@/react/components/site/CreativeRow'
-import { FooterRow } from '@/react/components/site/FooterRow'
+import { DispersionField } from '@/react/components/visuals/DispersionField'
+import { PageClose } from '@/react/components/site/PageClose'
+import { ProductCompare } from '@/react/components/site/ProductCompare'
+import { ProductFeatures } from '@/react/components/site/ProductFeatures'
+import { ProductHero } from '@/react/components/site/ProductHero'
+import { ProductPricing } from '@/react/components/site/ProductPricing'
+import { ProductVisual } from '@/react/components/site/ProductVisual'
+import { ProofBlock } from '@/react/components/site/ProofBlock'
 import { SiteHeader } from '@/react/components/site/SiteHeader'
-import { HeroBlock } from '@/react/components/blocks/HeroBlock'
-import { OfferBlock } from '@/react/components/blocks/OfferBlock'
-import { StatBlock } from '@/react/components/blocks/StatBlock'
-import { Logo } from '@/react/components/visuals/Logo'
-import { productContent, type ProductContent } from '@/lib/pages/product'
+import { FaqBlock } from '@/react/components/blocks/FaqBlock'
+import { SiteFooter } from '@/react/components/blocks/SiteFooter'
+import { productContent, type ProductContent, type ProductPageContent } from '@/lib/pages/product'
 import { cn } from '@/react/lib/cn'
 
-// The product page from library items: the deck cover's hero (the headline at the right, creatives on the curved
-// strip), then one section per thing the product does, copy and picture side by side and alternating (search, the
-// brief, the category, adding a brand, agents), and the offer. `content` replaces the copy (lib/pages/product.ts).
+// The site's product page (app/products/[slug], pages/Products/ProductPage.tsx): one template for every product, from
+// library items. The header, the product hero (the name, the line, the composer running the product's questions over
+// their results, the works light behind), the proof row, the feature rows (each with its product visual), the
+// comparison where the product has one, the pricing receipt, the questions with the docs button, the closing section
+// and the footer. `product` is the product's copy (lib/pages/product.ts has Creator search, Comments and Landing
+// pages); `content` the page's chrome. `live` draws the works light live (the dispersion field) over its still.
 export interface ProductPageProps {
+  product?: ProductPageContent
   content?: ProductContent
+  /** Draw the hero's light live in WebGL over its still, as the site does. */
+  live?: boolean
   className?: string
 }
 
-const WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'
+const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
-function Split({ headline, body, reverse, children }: { headline: string; body?: string; reverse?: boolean; children: ReactNode }) {
-  return (
-    <section className={cn(WRAP, 'grid grid-cols-2 items-center gap-12 py-24 max-md:grid-cols-1 max-sm:gap-8 max-sm:py-16')}>
-      <div className={cn('grid gap-6', reverse && 'md:order-last')}>
-        <h2 className="type-section">{headline}</h2>
-        {body && <p className="type-body-lg text-fg-soft">{body}</p>}
-      </div>
-      <div className="min-w-0">{children}</div>
-    </section>
-  )
-}
-
-export function ProductPage({ content: c = productContent, className }: ProductPageProps) {
+export function ProductPage({ product, content: c = productContent, live = false, className }: ProductPageProps) {
+  const p = product ?? c.product
   return (
     <div data-ds="product-page" className={cn('bg-surface text-fg', className)}>
       <div className={WRAP}>
         <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       </div>
       <main>
-        <HeroBlock headline={c.hero.headline} body={c.hero.body} actions={<Button href={c.hero.action.href}>{c.hero.action.label}</Button>} placement="right" light="strip" texture>
-          <CreativeRow items={c.hero.row} variant="peak" className="mt-32 max-sm:mt-16" />
-        </HeroBlock>
-        <Split headline={c.search.headline} body={c.search.body}>
-          <div className="grid gap-4">
-            <SearchBar placeholder={c.search.prompt} label="Search creatives" />
-            <CreativeGrid items={c.search.results} ratio="3/4" />
-          </div>
-        </Split>
-        <Split headline={c.brief.headline} body={c.brief.body} reverse>
-          <Card title={c.brief.card.title}>
-            <ul className="flex flex-col gap-2 type-ui text-fg">
-              {c.brief.card.lines.map((l) => <li key={l}>{l}</li>)}
-            </ul>
-          </Card>
-        </Split>
-        <Split headline={c.category.headline} body={c.category.body}>
-          <StatBlock stats={c.category.stats} variant="card" />
-        </Split>
-        <Split headline={c.add.headline} reverse>
-          <CreativeGrid items={c.add.grid} />
-        </Split>
-        <Split headline={c.agents.headline}>
-          <CreativeRing items={c.agents.ring} className="w-full">
-            <Logo height={20} />
-          </CreativeRing>
-        </Split>
-        <OfferBlock headline={c.offer.headline} note={c.offer.note} cta={c.offer.cta} />
-      </main>
-      <footer className="border-t border-edge">
-        <div className={cn(WRAP, 'py-10')}>
-          <FooterRow domain={c.footer.domain} homeHref="/" links={c.footer.links} />
+        <ProductHero
+          id={p.slug}
+          name={p.name}
+          line={p.line}
+          primary={c.primary}
+          secondary={{ label: c.docsLabel, href: p.docs }}
+          sets={p.hero.sets}
+          lit={p.hero.lit !== false}
+          light={live ? <DispersionField composition="works" seed={7} className="absolute inset-0 size-full" /> : undefined}
+        />
+        <ProofBlock id={`${p.slug}-proof`} title={c.proof} />
+        <ProductFeatures id={p.slug} features={p.features.map((f, i) => ({ headline: f.headline, text: f.text, link: f.link, visual: <ProductVisual kind={f.visual} texture={i % 4} /> }))} />
+        {p.compare?.length ? <ProductCompare id={p.slug} rows={p.compare} /> : null}
+        <ProductPricing id={p.slug} value={p.pricing.value} unit={p.pricing.unit} product={p.name} rows={p.pricing.rows} free={p.pricing.free} tally={p.pricing.tally} note={c.pricing.note} primary={c.primary} secondary={c.pricing.secondary} />
+        <div className={cn(WRAP, 'py-(--ds-layout-section)')}>
+          <FaqBlock id={`${p.slug}-faq`} title={c.faq.title} body={c.faq.lead} action={{ label: c.docsLabel, href: p.docs }} items={p.faq} />
         </div>
-      </footer>
+        <PageClose id={`${p.slug}-close`} lines={c.close.lines} note={c.close.note} primary={c.close.primary} />
+      </main>
+      <SiteFooter columns={c.footer.columns} legal={c.footer.legal} />
     </div>
   )
 }
