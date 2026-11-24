@@ -1,2 +1,5 @@
-<!-- The 500 page with its own copy (Acme). -->
-<spyglass-error-page></spyglass-error-page>
+<!-- The error page as the site sets it: Try again would render the page again. -->
+<spyglass-error-page id="error-page"></spyglass-error-page>
+<script type="module">
+  document.getElementById('error-page').addEventListener('retry', () => {})
+</script>
