@@ -1,0 +1,24 @@
+<!-- A media search request in three tabs beside its response and the creatives it returned (Acme). -->
+<spyglass-product-example prefix="media-search" question="Find running shoe ads that ran for more than 30 days." tabs='[{"id": "mcp", "label": "MCP", "language": "bash", "code": "# Ask your agent\nFind running shoe ads that ran for more than 30 days.\n\n# It calls searchMedia\nsearchMedia({\n  \"query\": \"running shoe ads\",\n  \"minDaysLive\": 30,\n  \"limit\": 3\n})"}, {"id": "rest", "label": "REST", "language": "bash", "code": "curl -X POST https://api.acme.com/v1/media \\\n  -H \"Authorization: Bearer $ACME_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d &#39;{\n    \"query\": \"running shoe ads\",\n    \"minDaysLive\": 30,\n    \"limit\": 3\n  }&#39;"}, {"id": "python", "label": "Python", "language": "python", "code": "import os\nfrom acme import Acme\n\nclient = Acme(token=os.environ[\"ACME_API_KEY\"])\n\nresult = client.search_media(\n    query=\"running shoe ads\",\n    min_days_live=30,\n    limit=3,\n)"}]' response='{
+  "count": 3,
+  "media": [
+    {
+      "id": "1001",
+      "brand": "Acme Run",
+      "platform": "Instagram",
+      "daysLive": 74
+    },
+    {
+      "id": "1002",
+      "brand": "Acme Trail",
+      "platform": "TikTok",
+      "daysLive": 61
+    },
+    {
+      "id": "1003",
+      "brand": "Acme Fit",
+      "platform": "Meta",
+      "daysLive": 48
+    }
+  ]
+}' specs='[{"label": "Endpoint", "value": "POST /media"}, {"label": "MCP tool", "value": "searchMedia"}, {"label": "Rate limit", "value": "120 requests a minute"}]' media='{"label": "Returned creatives", "items": [{"brand": "Acme Run", "tone": 3, "caption": "Built for miles.", "meta": "Acme Run, 74 days live"}, {"brand": "Acme Trail", "tone": 2, "caption": "Off the road.", "meta": "Acme Trail, 61 days live"}, {"brand": "Acme Fit", "tone": 4, "caption": "First 5K.", "meta": "Acme Fit, 48 days live"}]}'></spyglass-product-example>

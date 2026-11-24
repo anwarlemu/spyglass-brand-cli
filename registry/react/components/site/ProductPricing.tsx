@@ -207,7 +207,7 @@ export function ProductPricing({
           <h2 id={headingId} className="type-section">{headline ?? 'You pay for what comes back'}</h2>
           <p className="mt-4 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft">{lead ?? 'No per-call fee. You pay per record returned, and the API and the MCP server share one pool.'}</p>
           {note && <p className="mt-4 type-ui text-fg-muted">{note}</p>}
-          <Actions primary={primary} secondary={secondary} className="mt-8 flex-col justify-center md:flex-row" />
+          <Actions primary={primary} secondary={secondary} className="mt-8 flex-col justify-center self-stretch md:flex-row md:self-auto" />
         </div>
         <figure className="min-w-0 rounded-panel bg-surface-subtle p-4 md:p-8">
           <figcaption className="flex justify-between gap-4 type-ui text-fg-muted">
