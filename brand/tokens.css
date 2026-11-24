@@ -450,6 +450,17 @@
   --ds-price-phone-band-h: 560px;
   /* group: pricing-products-enterprise */
   /* group: use-cases-resources-templates */
+  /* use-case-hero: the chat and the build visual in the use case hero (site tokens.css 270-273, 526-536, 176-177). */
+  --ds-uc-chat-w: 448px; /* site --chat-w */
+  --ds-uc-chat-w-l: 528px; /* site --chat-w-l, from 1280 */
+  --ds-uc-chat-thumb: 36px; /* site --chat-thumb */
+  --ds-uc-chat-strip-h: 80px; /* site --chat-strip-h */
+  --ds-uc-chat-thread-fade: 24px; /* site --chat-thread-fade */
+  --ds-uc-ascii-opacity: 0.5; /* site --features-ascii-opacity */
+  --ds-uc-ascii-clear-w: 46%; /* site --features-ascii-clear-w */
+  --ds-uc-ascii-clear-h: 50%; /* site --features-ascii-clear-h */
+  --ds-uc-loop-change: 700ms; /* a loop's step changing: the build tiles gliding (site --dur-loop-change) */
+  --ds-uc-loop-badge: 500ms; /* a loop's text swapping (site --dur-loop-badge) */
   /* templates-wall: the tunnel of templates around the headline (site tokens.css 395-414, 605-608, 355-357) */
   --ds-templates-design-w: 500; /* site --templates-design-w; 1960 from 768 (-md) */
   --ds-templates-design-w-md: 1960;
