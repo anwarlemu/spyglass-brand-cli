@@ -401,6 +401,13 @@
   --ds-asset-ascii-size: 13.333px; /* Geist Mono at 1.2, opacity 0.35 */
   --ds-asset-ascii-leading: 1.2;
   --ds-asset-lockup-width: 183px; /* the lockup on posts and ads (183x28); 240 on decks */
+
+  /* Site parts (each group adds its tokens under its own line, so parallel work merges cleanly). */
+  /* group: effects */
+  /* group: chrome */
+  /* group: home */
+  /* group: pricing-products-enterprise */
+  /* group: use-cases-resources-templates */
 }
 
 /* The site's gutters, section padding and header by width (site tokens.css 585-640). */
