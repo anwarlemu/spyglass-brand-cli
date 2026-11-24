@@ -1,0 +1,7 @@
+.ds-copy-idle, .ds-copy-done { transition: opacity var(--ds-duration-micro) var(--ds-easing-out), transform var(--ds-duration-micro) var(--ds-easing-out); }
+.ds-copy-done { opacity: 0; transform: translateY(var(--ds-space-xs)); }
+.ds-copy[data-copied] .ds-copy-idle { opacity: 0; transform: translateY(calc(-1 * var(--ds-space-xs))); }
+.ds-copy[data-copied] .ds-copy-done { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .ds-copy-done, .ds-copy[data-copied] .ds-copy-idle { transform: none; }
+}

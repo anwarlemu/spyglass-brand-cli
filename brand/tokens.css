@@ -426,6 +426,7 @@
   --ds-menu-from-scale: 0.96; /* a menu panel grows in from this scale (site --menu-from-scale) */
   --ds-page-close-drift-w: 480px; /* the closing section's lower left drift at most (site --space-480) */
   --ds-page-close-drift-high-w: 320px; /* its upper right drift at most (site --space-320) */
+  --ds-stroke: 2px; /* a drawn line: the FAQ's plus, a tab's underline (site --stroke) */
   /* group: home */
   /* The creative sequence (site --dur-seq-*, --ease-seq-*): sets of creatives fading and settling in turn, a loop. The
      site leaves on an ease-in (--ease-seq-out); here it leaves on the in-out ease, as interface motion never eases in. */

@@ -1,0 +1,11 @@
+.ds-faq { --faq-dur: var(--ds-duration-glide); --faq-ease: var(--ds-easing-out); }
+.ds-faq-icon { transition: transform var(--ds-duration-press) var(--ds-easing-out); }
+.ds-faq-icon::before, .ds-faq-icon::after { content: ""; position: absolute; inset: 0; width: var(--ds-space-md); height: var(--ds-stroke); margin: auto; background: currentColor; }
+.ds-faq-icon::after { transform: rotate(90deg); transition: transform var(--ds-duration-glide) var(--ds-easing-out); }
+[aria-expanded="true"] > .ds-faq-icon::after { transform: rotate(0deg); }
+[aria-expanded="false"]:active > .ds-faq-icon { transform: scale(0.75); }
+.ds-faq-panel { visibility: hidden; opacity: 0; transition: opacity var(--ds-duration-glide) var(--ds-easing-out), visibility var(--ds-duration-instant) linear var(--ds-duration-glide); }
+[data-open="true"] .ds-faq-panel { visibility: visible; opacity: 1; transition: opacity var(--ds-duration-glide) var(--ds-easing-out); }
+@media (prefers-reduced-motion: reduce) {
+  .ds-faq-panel, [data-open="true"] .ds-faq-panel, .ds-faq-icon::after { transition: none; }
+}
