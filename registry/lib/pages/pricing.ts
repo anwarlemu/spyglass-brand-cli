@@ -51,7 +51,11 @@ export const pricingContent = {
 					{ label: 'Brands API', tip: 'Every brand, its ads and its pages.', href: '/products/brands', cells: [...all] },
 					{ label: 'Creators API', tip: 'Creators, their posts and their audience.', href: '/products/creators', cells: [...all] },
 					{ label: 'Media API', tip: 'Every creative, searchable by what is in it.', href: '/products/media', cells: [...all] },
+					{ label: 'Tagged Posts API', tip: 'Posts that tag a brand or a creator.', href: '/products/tagged-posts', cells: [...all] },
 					{ label: 'Comments API', tip: 'What people say under a post.', href: '/products/comments', cells: [...all] },
+					{ label: 'Collabs API', tip: 'Who works with whom, post by post.', href: '/products/collabs', cells: [...all] },
+					{ label: 'Landing Pages API', tip: 'The pages an ad sends people to.', href: '/products/landing-pages', cells: [...all] },
+					{ label: 'Creative insights', tip: 'What is in a creative, read for you.', href: '/products/insights', cells: [...all] },
 				],
 			},
 			{
@@ -110,6 +114,7 @@ export const pricingContent = {
 			{ q: 'Can I set a spend limit on Pro?', a: 'Spend limits on Pro are planned. Until then, you can check your remaining credits through the API at any time, free.' },
 		],
 	},
+	close: { lines: ['Give your agents', 'the social internet'], note: '500 free credits every month. No card required.', primary: { label: 'Get a free API key', href: '/sign-up' } },
 	footer: {
 		legal: '© 2026 Acme Inc.',
 		columns: [
