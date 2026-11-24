@@ -25,7 +25,7 @@ export const COVERAGE: { rows: CoverageRow[]; missing: { need: string; why: stri
 		{ need: 'Email header, email signature', how: 'recipe', run: 'recipe email-header|email-signature ...' },
 		{ need: 'Email templates (newsletter, announcement, receipt, password reset) that survive mail clients', how: 'command', run: 'email newsletter|announcement|receipt|password-reset --set headline="..."' },
 		{ need: 'Deck: covers, section, statement, bullets, stat, quote, image, closing, agenda, timeline, team, comparison, image grid, questions', how: 'template', run: 'deck --list; deck <slide> --headline "..."; deck --input deck.json' },
-		{ need: 'Loops, stings and animated cards (MP4, WebM, GIF)', how: 'command', run: 'video --list; video <loop> --size square|vertical|landscape' },
+		{ need: 'Light loops, a logo reveal and an outro sting (MP4, WebM, frames)', how: 'command', run: 'video --list; video logo-reveal|outro|light-band --size square|vertical|landscape' },
 		{ need: 'Favicon set, app icons, maskable icon, avatars, web manifest', how: 'command', run: 'icons' },
 		{ need: 'Video-call background, desktop and phone wallpaper', how: 'recipe', run: 'recipe meeting-background|desktop-wallpaper|phone-wallpaper' },
 		{ need: 'The light or the ASCII texture as a still at any size', how: 'command', run: 'light --variant band --width W --height H; ascii --width W --height H; illustrate pattern' },
@@ -36,7 +36,7 @@ export const COVERAGE: { rows: CoverageRow[]; missing: { need: string; why: stri
 	missing: [
 		{ need: 'Other companies\' logos, customer names and photos of real people', why: 'Never shipped: use Acme and --image with your own pictures.' },
 		{ need: 'Graded or filtered photo treatments', why: 'The principles refuse grading: pictures stay in their posted color.' },
-		{ need: 'Intro and outro stings, lower thirds, logo reveal and walkthrough videos', why: 'Not built yet: the video command draws the brand loops only.' },
+		{ need: 'Lower thirds, animated stats and product walkthrough videos', why: 'Not built yet: the video command draws the light loops and the two stings; words that move need a type-in rule the site does not set for video.' },
 		{ need: 'A chart slide', why: 'Not a slide template: compose at the primary size (1920x1080) with the chart block makes one.' },
 	],
 };

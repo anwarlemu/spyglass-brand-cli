@@ -19,7 +19,7 @@ const jpeg = require('jpeg-js') as { encode: (img: { data: Buffer; width: number
 export const VIDEO_FLAGS = ['template', 'size', 'seed', 'light', 'seconds', 'fps', 'format', 'out', 'still', 'list'];
 
 type LightSpec = { window?: Box; b: Box; shift: number };
-type VideoTemplate = { id: string; name: string; from: string; description: string; light?: LightSpec; lights?: LightSpec[]; drift: [number, number]; logo: boolean; url: boolean; logoAt?: 'top-left' | 'bottom-left' | 'center' };
+type VideoTemplate = { id: string; name: string; from: string; description: string; light?: LightSpec; lights?: LightSpec[]; drift: [number, number]; logo: boolean; url: boolean; logoAt?: 'top-left' | 'bottom-left' | 'center'; /** A sting, not a loop: the light sweeps across once and the lockup comes in (`reveal`) or leaves (`outro`). */ sting?: 'reveal' | 'outro' };
 type VideoDoc = { fps: number; seconds: number; sizes: Record<string, [number, number]>; templates: VideoTemplate[] };
 
 let doc: VideoDoc | undefined;
@@ -57,8 +57,10 @@ export function videoFrame(t: VideoTemplate, size: [number, number], phase: numb
 	const layers: Layer[] = [{ type: 'ascii' }];
 	for (const l of t.lights ?? (t.light ? [t.light] : [])) {
 		// The path: a figure eight, sideways drift[0] and up and down drift[1] of the heat map's size, at a constant rate.
-		const dx = t.drift[0] * l.b[2] * Math.sin(a);
-		const dy = t.drift[1] * l.b[3] * Math.sin(2 * a);
+		// A sting sweeps once, eased on the site's out curve; a loop follows its figure eight.
+		const sweep = t.sting ? 1 - (1 - phase) ** 3 : 0;
+		const dx = t.sting ? t.drift[0] * l.b[2] * (2 * sweep - 1) : t.drift[0] * l.b[2] * Math.sin(a);
+		const dy = t.sting ? 0 : t.drift[1] * l.b[3] * Math.sin(2 * a);
 		const win = tx(l.window ?? [0, 0, 1080, 1080]);
 		// Fixed: a loop's light follows its path and nothing else, so the last frame meets the first.
 		layers.push({ type: 'light', window: win, b: [(l.b[0] + dx) * s, (l.b[1] + dy) * s, l.b[2] * s, l.b[3] * s], shift: l.shift * s, fixed: true });
@@ -73,7 +75,10 @@ export function videoFrame(t: VideoTemplate, size: [number, number], phase: numb
 	const foot = H > W * 1.5 ? H - 356 * k : H - m;
 	const ly = t.logoAt === 'bottom-left' ? foot - 28 * k - 40 * k : mid ? H / 2 - 14 * k : top;
 	// In the corner light's empty middle, the lockup is centered and the address under it at the foot.
-	if (t.logo) layers.push({ type: 'logo', lockup: 'horizontal', color: 'white', box: [mid ? W / 2 - 91.5 * k : lx, ly, 183 * k, 28 * k], align: mid ? 'center' : 'left' });
+	// A reveal brings the lockup in over the first 40% (ease out) and holds; an outro holds and lets it go over the last 30%.
+	const ease = (x: number) => 1 - (1 - Math.min(1, Math.max(0, x))) ** 3;
+	const opacity = t.sting === 'reveal' ? ease(phase / 0.4) : t.sting === 'outro' ? 1 - ease((phase - 0.7) / 0.3) : undefined;
+	if (t.logo) layers.push({ type: 'logo', lockup: 'horizontal', color: 'white', box: [mid ? W / 2 - 91.5 * k : lx, ly, 183 * k, 28 * k], align: mid ? 'center' : 'left', ...(opacity !== undefined ? { opacity } : {}) });
 	if (t.url) layers.push({ type: 'text', slot: 'url', face: 'label', size: Math.max(14 * k, (8 * W) / 540), leading: 14, x: mid ? W / 2 - 300 : lx, top: foot - 10 * k, w: 600, align: mid ? 'center' : 'left', maxLines: 1 });
 	const b = brand() as ReturnType<typeof brand> & { domain?: string };
 	return { width: W, height: H, ground: 'black', layers, slots: { url: b.domain ?? new URL(b.site).host }, seed, light };
