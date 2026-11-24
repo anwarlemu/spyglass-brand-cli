@@ -13,7 +13,7 @@ import styles from 'virtual:tw'
 
 // BlogPostPage.tsx as <spyglass-blog-post-page>: the way back, the title, a wide image, the body in a 720px column,
 // more posts and the offer. `content` replaces the post; its `body` is a list of blocks.
-const WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'
+const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 const COLUMN = 'mx-auto w-full max-w-180 px-12 max-sm:px-4'
 const TITLE = 'rounded-control transition-[color] duration-160 ease-standard hover:text-fg-soft'
 
@@ -38,7 +38,7 @@ export class BlogPostPage extends DsElement {
 	render() {
 		const c = this.content ?? blogPostContent
 		return html`<div data-ds="blog-post-page" class="bg-surface text-fg">
-<div class=${WRAP}><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header></div>
+<spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header>
 <main>
 <article><header class=${`${COLUMN} flex flex-col items-start pt-16 max-sm:pt-10`}><a href=${c.back.href} class="inline-flex items-center gap-1.5 rounded-control type-ui text-fg-muted transition-[color] duration-160 ease-standard hover:text-fg">${icon(ChevronLeft, 'chevron-left', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } })}${c.back.label}</a><p class="mt-8 type-label text-fg-muted">${`${c.date} · ${c.category}`}</p><h1 class="mt-4 type-hero text-balance max-sm:type-heading-1">${c.title}</h1><p class="mt-6 type-ui text-fg-muted">${c.byline}</p></header>
 <div class=${`${WRAP} mt-12 max-sm:mt-8`}><spyglass-creative-card brand=${c.image.brand} tone=${c.image.tone} caption=${ifDefined('caption' in c.image ? (c.image as { caption?: string }).caption : undefined)} alt=${c.title} ratio="16/9" class="mx-auto max-w-page"></spyglass-creative-card></div>

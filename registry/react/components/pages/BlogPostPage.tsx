@@ -16,7 +16,7 @@ export interface BlogPostPageProps {
   className?: string
 }
 
-const WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'
+const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 const COLUMN = 'mx-auto w-full max-w-180 px-12 max-sm:px-4'
 const TITLE = 'rounded-control transition-[color] duration-160 ease-standard hover:text-fg-soft'
 
@@ -36,9 +36,7 @@ function Block({ block: b }: { block: BlogPostBlock }) {
 export function BlogPostPage({ content: c = blogPostContent, className }: BlogPostPageProps) {
   return (
     <div data-ds="blog-post-page" className={cn('bg-surface text-fg', className)}>
-      <div className={WRAP}>
-        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
-      </div>
+      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main>
         <article>
           <header className={cn(COLUMN, 'flex flex-col items-start pt-16 max-sm:pt-10')}>

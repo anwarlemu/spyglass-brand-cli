@@ -18,15 +18,13 @@ export interface ContactPageProps {
   className?: string
 }
 
-const WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'
+const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
 export function ContactPage({ content: c = contactContent, onSubmit, className }: ContactPageProps) {
   const f = c.form
   return (
     <div data-ds="contact-page" className={cn('flex min-h-dvh flex-col bg-surface text-fg', className)}>
-      <div className={WRAP}>
-        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
-      </div>
+      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main className={cn(WRAP, 'grid flex-1 grid-cols-2 items-start gap-12 py-24 max-md:grid-cols-1 max-md:gap-8 max-sm:py-16')}>
         <div className="grid max-w-xl gap-6">
           <h1 className="type-section">{c.headline}</h1>

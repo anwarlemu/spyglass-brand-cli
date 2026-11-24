@@ -13,14 +13,12 @@ export interface ChangelogPageProps {
   className?: string
 }
 
-const WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'
+const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
 export function ChangelogPage({ content: c = changelogContent, className }: ChangelogPageProps) {
   return (
     <div data-ds="changelog-page" className={cn('bg-surface text-fg', className)}>
-      <div className={WRAP}>
-        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
-      </div>
+      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main>
         <div className={cn(WRAP, 'grid gap-4 pt-16 pb-12 max-sm:pt-10 max-sm:pb-8')}>
           <h1 className="type-section">{c.title}</h1>

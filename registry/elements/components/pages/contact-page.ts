@@ -12,7 +12,7 @@ import styles from 'virtual:tw'
 // ContactPage.tsx as <spyglass-contact-page>: the heading and a line beside the form on the card fill. The form posts
 // to `content.form.action`; it first fires a cancelable `send` event with { name, email, message }, and a listener
 // that calls preventDefault() takes the values instead (React's `onSubmit`).
-const WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'
+const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
 /**
  * @summary The contact page template.
@@ -37,7 +37,7 @@ export class ContactPage extends DsElement {
 		const c = this.content ?? contactContent
 		const f = c.form
 		return html`<div data-ds="contact-page" class="flex min-h-dvh flex-col bg-surface text-fg">
-<div class=${WRAP}><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header></div>
+<spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header>
 <main class=${`${WRAP} grid flex-1 grid-cols-2 items-start gap-12 py-24 max-md:grid-cols-1 max-md:gap-8 max-sm:py-16`}>
 <div class="grid max-w-xl gap-6"><h1 class="type-section">${c.headline}</h1><p class="type-body-lg text-fg-soft">${c.body}</p></div>
 <form aria-label=${f.label} action=${f.action} method="post" @submit=${this.onSubmit} class="grid gap-6 rounded-container bg-surface-raised p-8 max-sm:p-6">

@@ -14,13 +14,13 @@ export interface CareersPageProps {
   className?: string
 }
 
-const WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'
+const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
 export function CareersPage({ content: c = careersContent, className }: CareersPageProps) {
   const h = notFoundContent
   return (
     <div data-ds="careers-page" className={cn('flex min-h-dvh flex-col bg-surface text-fg', className)}>
-      <div className={WRAP}><SiteHeader links={h.header.nav} secondary={h.header.secondary} cta={h.header.cta} /></div>
+      <SiteHeader links={h.header.nav} secondary={h.header.secondary} cta={h.header.cta} />
       <main className="flex-1">
         <HeroBlock eyebrow={c.eyebrow} headline={c.headline} body={c.body} light="field" />
         <section className={cn(WRAP, 'grid gap-4 pb-16 md:grid-cols-3')}>
