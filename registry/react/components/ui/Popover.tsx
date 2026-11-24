@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useId, useImperativeHandle, useRef, type ReactNode, type Ref, type MouseEvent } from 'react'
+import { followGlow } from '@/lib/glow'
 import { buttonClasses } from '@/react/components/ui/Button'
 import { PopoverPanel } from '@/react/components/ui/PopoverPanel'
 import { firstFocusable, usePopover, type Align, type Side } from '@/react/hooks/usePopover'
@@ -72,6 +73,7 @@ export function Popover({ label, side = 'bottom', align = 'start', width = '288p
         aria-controls={pop.open ? id : undefined}
         aria-label={triggerLabel}
         onClick={onClick}
+        onPointerMove={(event) => followGlow(event.currentTarget, event)}
       >
         {typeof trigger === 'function' ? trigger(pop.open) : trigger}
       </button>

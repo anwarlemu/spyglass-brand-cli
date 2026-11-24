@@ -20,7 +20,7 @@ export function Textarea({ invalid, rows = 4, className, ...rest }: TextareaProp
       {...rest}
       rows={rows}
       aria-invalid={invalid || undefined}
-      className={cn('block w-full min-w-0 resize-y rounded-control border border-edge-strong bg-surface-subtle px-3 py-2.5 type-ui text-fg outline-none transition-[border-color] duration-160 ease-standard placeholder:text-fg-muted hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', className)}
+      className={cn('block w-full min-w-0 resize-y rounded-control border border-edge-strong bg-surface-subtle px-3 py-2.5 type-ui text-fg outline-none transition-[border-color] duration-160 ease-standard placeholder:text-fg-muted hover:not-disabled:not-focus-visible:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', className)}
     />
   )
 }

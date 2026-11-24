@@ -41,8 +41,10 @@ export class Label extends DsElement {
 	private onClick() {
 		const t = this.target()
 		if (!t) return
-		// A press on a label is a pointer focus: no keyboard ring, as a native label gives its field.
-		t.focus({ focusVisible: false } as FocusOptions)
+		// A press on a label focuses its control as a native label does: a field you type in shows its focus (browsers
+		// match :focus-visible on text fields however they are focused); a checkbox, switch or radio gets no ring.
+		const text = t.matches('spyglass-input, spyglass-textarea, textarea, input:not([type=checkbox], [type=radio], [type=range], [type=button], [type=submit], [type=reset], [type=color], [type=file])')
+		t.focus({ focusVisible: text } as FocusOptions)
 		t.click()
 	}
 
