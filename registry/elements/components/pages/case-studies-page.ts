@@ -6,6 +6,7 @@ import '@/elements/components/site/page-head'
 import '@/elements/components/blocks/case-stories-block'
 import '@/elements/components/site/page-close'
 import '@/elements/components/blocks/site-footer'
+import '@/elements/components/visuals/ascii-trail'
 import styles from 'virtual:tw'
 
 // CaseStudiesPage.tsx as <spyglass-case-studies-page>: the header, the page head, the home's case stories without
@@ -26,7 +27,7 @@ export class CaseStudiesPage extends DsElement {
 
 	render() {
 		const c = this.content ?? caseStudiesIndexContent
-		return html`<div data-ds="case-studies-page" class="overflow-x-clip bg-surface text-fg"><div class=${CONTAINER}><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header></div><main><spyglass-page-head head-id=${c.head.id} .lines=${c.head.lines} lead=${c.head.lead}></spyglass-page-head><div aria-label=${c.head.lines.join(' ')} role="region" class="-mt-(--ds-layout-section) pb-[calc(96px-var(--ds-layout-section))]"><spyglass-case-stories-block .cases=${c.cases} .quotes=${c.quotes} head="false"></spyglass-case-stories-block></div><spyglass-page-close .lines=${c.close.lines} note=${c.close.note} .primary=${c.close.primary}></spyglass-page-close></main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`
+		return html`<div data-ds="case-studies-page" class="isolate overflow-x-clip bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><div class=${CONTAINER}><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header></div><main><spyglass-page-head head-id=${c.head.id} .lines=${c.head.lines} lead=${c.head.lead}></spyglass-page-head><div aria-label=${c.head.lines.join(' ')} role="region" class="-mt-(--ds-layout-section) pb-[calc(96px-var(--ds-layout-section))]"><spyglass-case-stories-block .cases=${c.cases} .quotes=${c.quotes} head="false"></spyglass-case-stories-block></div><spyglass-page-close .lines=${c.close.lines} note=${c.close.note} .primary=${c.close.primary}></spyglass-page-close></main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`
 	}
 }
 

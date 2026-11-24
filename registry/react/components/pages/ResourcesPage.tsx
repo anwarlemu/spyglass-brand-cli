@@ -1,4 +1,5 @@
 import { PageClose } from '@/react/components/site/PageClose'
+import { AsciiTrail } from '@/react/components/visuals/AsciiTrail'
 import { PageHead } from '@/react/components/site/PageHead'
 import { ResourceCards } from '@/react/components/site/ResourceCards'
 import { SiteHeader } from '@/react/components/site/SiteHeader'
@@ -19,7 +20,8 @@ const CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--d
 
 export function ResourcesPage({ content: c = resourcesContent, className }: ResourcesPageProps) {
   return (
-    <div data-ds="resources-page" className={cn('overflow-x-clip bg-surface text-fg', className)}>
+    <div data-ds="resources-page" className={cn('isolate overflow-x-clip bg-surface text-fg', className)}>
+      <AsciiTrail mode="page" />
       <div className={CONTAINER}>
         <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       </div>

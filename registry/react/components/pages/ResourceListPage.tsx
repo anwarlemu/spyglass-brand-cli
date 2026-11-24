@@ -1,4 +1,5 @@
 import { Button } from '@/react/components/ui/Button'
+import { AsciiTrail } from '@/react/components/visuals/AsciiTrail'
 import { PageClose } from '@/react/components/site/PageClose'
 import { PageHead } from '@/react/components/site/PageHead'
 import { SiteHeader } from '@/react/components/site/SiteHeader'
@@ -23,7 +24,8 @@ export function ResourceListPage({ list, content: c = resourceListContent, class
   const l = list ?? c.list
   const entries = [...l.entries].sort((a, b) => b.date.localeCompare(a.date))
   return (
-    <div data-ds="resource-list-page" className={cn('overflow-x-clip bg-surface text-fg', className)}>
+    <div data-ds="resource-list-page" className={cn('isolate overflow-x-clip bg-surface text-fg', className)}>
+      <AsciiTrail mode="page" />
       <div className={CONTAINER}>
         <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       </div>
