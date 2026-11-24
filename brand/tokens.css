@@ -434,6 +434,15 @@
   --ds-fan-enter-scale: 0.85;
   --ds-fan-card-scale: 0.875;
   --ds-fan-cta-top: -12px;
+  /* The wordmark glow (site --footer-glow-*, --footer-dot-*): a 20px dot grid, the spectrum under the pointer. */
+  --ds-glow-radius: 260px;
+  --ds-glow-centre: 0.375;
+  --ds-glow-strength: 0.8;
+  --ds-glow-dot-pitch: 20px;
+  --ds-glow-dot-offset: 4px;
+  --ds-glow-dot-fade: 128px;
+  --ds-glow-dot-color: color-mix(in srgb, var(--ds-color-white) 10%, transparent); /* site --footer-dot-color, white at 0.1 */
+  --ds-easing-glow: cubic-bezier(0.33, 1, 0.68, 1); /* site --ease-footer-glow */
   --ds-fan-below-gap: 40px; /* the cards under the name on phones (site --cities-below-gap) */
   --ds-easing-fan-pop: cubic-bezier(0.45, 0, 0.55, 1); /* site --ease-cities-pop */
   --ds-easing-fan-lift: cubic-bezier(0.33, 1, 0.68, 1); /* site --ease-cities-lift */
