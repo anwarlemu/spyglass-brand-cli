@@ -85,8 +85,8 @@ describe('cli', () => {
 		const dir = reactApp();
 		const out = JSON.parse(run(dir, 'add', 'home-page', '--no-install'));
 		expect(out.flavor).toBe('react');
-		for (const item of ['home-page', 'hero-block', 'offer-block', 'stat-block', 'site-header', 'footer-row', 'creative-card', 'creative-corridor', 'creative-ring', 'testimonial', 'search-bar', 'card']) expect(out.items, item).toContain(item);
-		for (const f of ['components/pages/HomePage.tsx', 'lib/pages/home.ts', 'lib/creative-layouts.ts', 'components/blocks/HeroBlock.tsx', 'components/site/CreativeCorridor.tsx']) expect(existsSync(join(dir, f)), f).toBe(true);
+		for (const item of ['home-page', 'playground-hero', 'features-block', 'why-block', 'how-it-works-block', 'case-stories-block', 'pricing-panels-block', 'close-block', 'faq-block', 'site-header', 'site-footer', 'proof-strip', 'mcp-session', 'creative-card']) expect(out.items, item).toContain(item);
+		for (const f of ['components/pages/HomePage.tsx', 'lib/pages/home.ts', 'components/blocks/PlaygroundHero.tsx', 'components/site/McpSession.tsx', 'lib/home/session.ts']) expect(existsSync(join(dir, f)), f).toBe(true);
 		const page = readFileSync(join(dir, 'components/pages/HomePage.tsx'), 'utf8');
 		expect(page).toContain("from '@/lib/pages/home'");
 		expect(page).not.toContain('@/react/');
