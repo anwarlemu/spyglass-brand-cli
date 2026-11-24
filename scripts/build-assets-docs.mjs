@@ -24,20 +24,22 @@ const shot = async (scene, file, longest) => {
 
 const images = [];
 for (const t of templates('image')) {
-	for (const [size, layout] of Object.entries(t.sizes)) {
+	// t.sizes is the list of size ids (layouts are functions of the canvas since the layout engine).
+	for (const size of t.sizes) {
 		for (const variant of t.variants ? Object.keys(t.variants) : [undefined]) {
-			const name = `${t.id}${Object.keys(t.sizes).length > 1 ? `-${size}` : ''}${variant ? `-${variant}` : ''}`;
-			const img = await shot(sceneFor(t, { size, variant }).scene, `${name}.png`, 720);
-			images.push({ name, template: t.id, group: t.group, title: t.name, size, variant, canvas: `${layout.width}x${layout.height}`, ...img });
+			const name = `${t.id}${t.sizes.length > 1 ? `-${size}` : ''}${variant ? `-${variant}` : ''}`;
+			const drawn = sceneFor(t, { size, variant, sample: true });
+			const img = await shot(drawn.scene, `${name}.png`, 720);
+			images.push({ name, template: t.id, group: t.group, title: t.name, size, variant, canvas: `${drawn.width}x${drawn.height}`, ...img });
 		}
 	}
 }
 const slides = [];
-for (const [i, t] of templates('deck').entries()) slides.push({ name: t.id, title: t.name, group: t.group, ...(await shot(sceneFor(t, { seed: i }).scene, `deck-${t.id}.png`, 960)) });
+for (const [i, t] of templates('deck').entries()) slides.push({ name: t.id, title: t.name, group: t.group, ...(await shot(sceneFor(t, { seed: i, sample: true }).scene, `deck-${t.id}.png`, 960)) });
 const merch = [];
 for (const item of merchItems()) {
 	for (const variant of Object.keys(item.variants)) {
-		const { scene } = merchScene(item, { variant });
+		const { scene } = merchScene(item, { variant, sample: true });
 		merch.push({ name: `${item.id}-${variant}`, item: item.id, title: item.name, variant, ...(await shot(scene, `merch-${item.id}-${variant}.png`, 640)) });
 	}
 }

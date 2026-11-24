@@ -626,6 +626,44 @@ function story(c) {
 	]);
 }
 
+// ----- The site's Open Graph card -----
+
+/** The site's own Open Graph card (spyglass.zip: src/app/tokens.css --og-*, public/og/*.png): the lockup top left (152
+ * of 1200), the page in capitals top right, a row of up to five pictures (124x156, 152x188, 192x240, 152x188, 124x156,
+ * 12 apart, from x 344, centered on y 264), the headline at the foot left in Funnel Display (72/76, stepping down as the
+ * site's title sizes do), the ASCII texture behind, and the brand band across the top corner (the site bakes its lights as images and
+ * runs them in from the right edge; the renderer draws the heat map unmirrored, so it enters from the top). Wide frames only; the
+ * other shapes take the band card. */
+function ogSite(c) {
+	const v0 = canvas(c, 60);
+	if (v0.shape !== 'wide') return band(c, true);
+	const u = v0.u;
+	const ox = (v0.W - 1200 * u) / 2;
+	const oy = (v0.H - 630 * u) / 2;
+	const v = { ...v0, m: 60 * u, x: ox + 60 * u, y: oy + 60 * u, w: 1080 * u, h: 510 * u, r: ox + 1140 * u, b: oy + 570 * u, frame: [ox + 60 * u, oy + 60 * u, 1080 * u, 510 * u] };
+	v.cx = v.x + v.w / 2;
+	const sizes = [[124, 156], [152, 188], [192, 240], [152, 188], [124, 156]];
+	const n = Math.max(0, Math.min(5, c.pictures ?? 5));
+	const pick = n === 5 ? [0, 1, 2, 3, 4] : n === 4 ? [0, 1, 2, 3] : n === 3 ? [1, 2, 3] : n === 2 ? [1, 2] : n === 1 ? [2] : [];
+	const row = pick.reduce((sum, i) => sum + sizes[i][0], 0) + Math.max(0, pick.length - 1) * 12;
+	let x = ox + (1136 - row) * u;
+	const photos = pick.map((s, i) => {
+		const [w, h] = sizes[s];
+		const box = [x, oy + (264 - h / 2) * u, w * u, h * u];
+		x += (w + 12) * u;
+		return P(i, box, { id: `picture-${i + 1}` });
+	});
+	const k = (v0.H / 630) * 1.05;
+	const lockup = { ...logo(v, 'top-left'), box: [v.x, v.y, 152 * u, (152 * u * 28) / 183] };
+	return done(v, [A(),
+		L(scaled(BAND, k, v0.W - 500 * k, -200 * k), 44.2 * k),
+		lockup,
+		c.has('page') && { ...page(v, 'top-right'), top: v.y + ((152 * 28) / 183 / 2 - 4) * u },
+		...photos,
+		stack([v.x, oy + (300 * u), 680 * u, v.b - oy - 300 * u - 0 * u], [head(v, 72, 76, { maxLines: 3 })], { valign: 'bottom' }),
+	]);
+}
+
 export const LAYOUTS = {
 	'post-creative-ring': ring,
 	'post-agents': agents,
@@ -649,6 +687,7 @@ export const LAYOUTS = {
 	'logo-primary': mark([1920, 1080], [480, 239]),
 	og: (c) => band(c, true),
 	'og-offer': (c) => offer(c, true),
+	'og-site': ogSite,
 	story,
 	'story-offer': plan,
 };

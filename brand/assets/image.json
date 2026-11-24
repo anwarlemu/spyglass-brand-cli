@@ -257,6 +257,29 @@
    "sizes": ["og","square","portrait","story","landscape","linkedin","linkedin-square","youtube-thumbnail","x-banner","linkedin-banner","linkedin-page","youtube","email"]
   },
   {
+   "id": "og-site",
+   "group": "derived",
+   "name": "Open Graph, the site's card",
+   "figma": "none: the site's own Open Graph card (spyglass.zip, src/app/tokens.css --og-* and public/og/*.png), 1200 by 630 and 1920 by 1080",
+   "description": "The lockup and the page on top, a row of up to five pictures, the headline at the foot left, the light across the top corner.",
+   "photos": 5,
+   "minPhotos": 0,
+   "slots": {
+    "headline": "{tagline}",
+    "page": ""
+   },
+   "required": [
+    "headline"
+   ],
+   "sizes": [
+    "og",
+    "landscape",
+    "linkedin",
+    "youtube-thumbnail",
+    "primary"
+   ]
+  },
+  {
    "id": "story",
    "group": "derived",
    "name": "Story",
