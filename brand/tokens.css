@@ -404,6 +404,8 @@
 
   /* Site parts (each group adds its tokens under its own line, so parallel work merges cleanly). */
   /* group: effects */
+  --ds-light-grain-reach: 64px; /* how far the light image's grain reaches from the light (site --light-grain-reach) */
+  --ds-light-grain-lens: 192px; /* the grain's reach under the pointer's lens (site --light-grain-lens) */
   /* group: chrome */
   /* group: home */
   /* group: pricing-products-enterprise */
