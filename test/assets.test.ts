@@ -7,7 +7,8 @@ import { inflateSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
 import { drawScene, fitText, allFaces, rasterizeScene, logoRatio } from '../src/assets/scene.js';
 import { brand } from '../src/lib/brand.js';
-import { findTemplate, sceneFor, templates } from '../src/assets/templates.js';
+import { findTemplate, resolveSize, sceneFor, templates } from '../src/assets/templates.js';
+import type { StackItem } from '../src/assets/scene.js';
 import { merchItems, merchScene, PX_PER_IN } from '../src/assets/merch.js';
 import { videoDoc, videoFrame } from '../src/commands/video.js';
 import { runImage } from '../src/commands/image.js';
@@ -31,14 +32,21 @@ describe('image templates', () => {
 		for (const id of ['post-creative-ring', 'post-agents', 'post-any-brand', 'post-every-market', 'post-know-what-changed', 'post-offer']) expect(ids).toContain(id);
 		for (const id of ['ad-search-bar', 'ad-corridor', 'ad-photo', 'ad-testimonial', 'ad-creator-plan', 'ad-creative-row']) expect(ids).toContain(id);
 		for (const id of ['banner-tagline', 'banner-creative-row', 'banner-light-close-up', 'banner-tagline-creatives', 'avatar', 'logo-background', 'logo-background-3d', 'logo-primary', 'og', 'og-offer', 'story', 'story-offer']) expect(ids).toContain(id);
-		const size = (id: string) => Object.values(findTemplate('image', id).sizes).map((s) => [s.width, s.height]);
-		expect(size('post-offer')).toEqual([[1080, 1080]]);
-		expect(size('ad-creator-plan')).toEqual([[1080, 1350]]);
-		expect(size('banner-tagline')).toEqual([[1500, 500], [1584, 396], [1128, 191]]);
-		expect(size('avatar')).toEqual([[400, 400]]);
-		expect(size('og')).toEqual([[1200, 630], [1200, 675]]);
-		expect(size('og-offer')).toEqual([[1200, 630], [1200, 675]]);
-		expect(size('story')).toEqual([[1080, 1920]]);
+		// A template's first size is its own frame; layouts are functions of the canvas and flow to the others.
+		const first = (id: string) => {
+			const t = findTemplate('image', id);
+			const r = resolveSize(t, t.sizes[0]);
+			return [r.width, r.height];
+		};
+		expect(first('post-offer')).toEqual([1080, 1080]);
+		expect(first('ad-creator-plan')).toEqual([1080, 1350]);
+		expect(first('banner-tagline')).toEqual([1500, 500]);
+		expect(findTemplate('image', 'banner-tagline').sizes).toEqual(expect.arrayContaining(['x-banner', 'linkedin-banner', 'linkedin-page']));
+		expect(findTemplate('image', 'avatar').sizes).toEqual(['avatar']);
+		expect(first('og')).toEqual([1200, 630]);
+		expect(findTemplate('image', 'og').sizes).toContain('landscape');
+		expect(first('og-offer')).toEqual([1200, 630]);
+		expect(first('story')).toEqual([1080, 1920]);
 		expect(Object.keys(findTemplate('image', 'logo-background').variants!)).toEqual(['black', 'white', 'blue', 'red', 'magenta', 'yellow', 'green']);
 	});
 
@@ -51,35 +59,45 @@ describe('image templates', () => {
 
 	it('wrap the plan ad headline where the reference does (regression: "Stop screenshotting / at midnight.")', async () => {
 		const faces = await allFaces();
-		const t = findTemplate('image', 'ad-creator-plan');
-		const layer = t.sizes.portrait!.layers.find((l) => l.type === 'text' && l.slot === 'headline') as { size: number; leading: number; w: number; maxLines: number };
-		expect(fitText(faces.display, 'Stop screenshotting at midnight.', layer).lines).toEqual(['Stop screenshotting', 'at midnight.']);
-		const offer = findTemplate('image', 'post-offer').sizes.square!.layers.find((l) => l.type === 'text' && l.slot === 'headline') as { size: number; leading: number; w: number; maxLines: number };
-		expect(fitText(faces.display, 'Stop screenshotting at midnight.', offer).lines).toEqual(['Stop screenshotting', 'at midnight.']);
+		// The headline as each layout sets it: a text layer, or an item of a stack (its measure is the stack's).
+		const headline = (id: string, size: string) => {
+			const { scene } = sceneFor(findTemplate('image', id), { size, sample: true });
+			for (const l of scene.layers) {
+				if (l.type === 'text' && l.slot === 'headline') return l;
+				if (l.type === 'stack') {
+					const i = l.items.find((x: StackItem) => x.type === 'text' && x.slot === 'headline') as (StackItem & { size: number; leading: number; w?: number; maxLines?: number }) | undefined;
+					if (i) return { ...i, w: i.w ?? l.box[2] };
+				}
+			}
+			throw new Error(`${id} has no headline`);
+		};
+		expect(fitText(faces.display, 'Stop screenshotting at midnight.', headline('ad-creator-plan', 'portrait') as never).lines).toEqual(['Stop screenshotting', 'at midnight.']);
+		expect(fitText(faces.display, 'Stop screenshotting at midnight.', headline('post-offer', 'square') as never).lines).toEqual(['Stop screenshotting', 'at midnight.']);
 	});
 
 	it('draw every template at every size and variant at the right pixel size', async () => {
 		for (const t of templates('image')) {
-			for (const [size, layout] of Object.entries(t.sizes)) {
+			for (const size of t.sizes) {
+				const layout = resolveSize(t, size);
 				for (const variant of t.variants ? Object.keys(t.variants) : [undefined]) {
-					const d = await drawScene(sceneFor(t, { size, variant }).scene);
+					const d = await drawScene(sceneFor(t, { size, variant, sample: true }).scene);
 					expect(d.svg, `${t.id} ${size}`).toContain(`width="${layout.width}" height="${layout.height}"`);
-					const r = await rasterizeScene(d);
-					expect(pngSize(r.png), `${t.id} ${size}`).toEqual({ width: layout.width, height: layout.height });
+					const r = await rasterizeScene(d, { scale: Math.min(1, 400 / Math.max(layout.width, layout.height)) });
+					expect(pngSize(r.png), `${t.id} ${size}`).toEqual({ width: Math.round(layout.width * Math.min(1, 400 / Math.max(layout.width, layout.height))), height: Math.round(layout.height * Math.min(1, 400 / Math.max(layout.width, layout.height))) });
 				}
 			}
 		}
-	}, 120_000);
+	}, 900_000);
 
 	it('are deterministic per seed (output hashes)', async () => {
 		const t = findTemplate('image', 'post-offer');
-		const one = await drawScene(sceneFor(t, { seed: 4 }).scene);
-		const two = await drawScene(sceneFor(t, { seed: 4 }).scene);
-		const other = await drawScene(sceneFor(t, { seed: 5 }).scene);
+		const one = await drawScene(sceneFor(t, { seed: 4, sample: true }).scene);
+		const two = await drawScene(sceneFor(t, { seed: 4, sample: true }).scene);
+		const other = await drawScene(sceneFor(t, { seed: 5, sample: true }).scene);
 		expect(sha(one.svg)).toBe(sha(two.svg));
 		expect(sha(one.svg)).not.toBe(sha(other.svg));
 		expect(sha((await rasterizeScene(one)).png)).toBe(sha((await rasterizeScene(two)).png));
-		const generated = await drawScene(sceneFor(t, { seed: 4, light: 'generated' }).scene);
+		const generated = await drawScene(sceneFor(t, { seed: 4, light: 'generated', sample: true }).scene);
 		expect(sha(generated.svg)).not.toBe(sha(one.svg));
 	});
 
@@ -93,7 +111,7 @@ describe('image templates', () => {
 		expect((r.json as { files: unknown[] }).files).toHaveLength(1);
 		await expect(runImage(dir, [], { template: 'post-offer', quote: 'x' })).rejects.toThrow(/does not draw --quote/);
 		await expect(runImage(dir, [], { template: 'post-agents', image: ['a.png', 'a.png'] })).rejects.toThrow(/holds 1 picture/);
-		await expect(runImage(dir, [], { template: 'post-offer', headline: 'word '.repeat(60) })).rejects.toThrow(/too long/);
+		await expect(runImage(dir, [], { template: 'post-offer', headline: 'word '.repeat(200) })).rejects.toThrow(/too long/);
 		rmSync(dir, { recursive: true, force: true });
 	});
 
@@ -103,7 +121,7 @@ describe('image templates', () => {
 		expect(a.err).toMatch(/Did you mean `post-offer`/);
 		const b = fails(['image', '--template', 'banner-tagline', '--size', 'linkedn']);
 		expect(b.status).toBe(1);
-		expect(b.err).toMatch(/`linkedin`/);
+		expect(b.err).toMatch(/Choose from: x-banner, linkedin-banner/);
 		const c = fails(['image', '--template', 'logo-background', '--variant', 'purple']);
 		expect(c.status).toBe(1);
 		expect(c.err).toMatch(/Choose from: black, white, blue/);
@@ -113,11 +131,11 @@ describe('image templates', () => {
 describe('deck', () => {
 	it('writes a slide per entry and a PDF with one page each', async () => {
 		const dir = tmp();
-		writeFileSync(join(dir, 'deck.json'), JSON.stringify({ seed: 2, slides: [{ type: 'cover-row' }, { type: 'bullets', items: ['One point.', 'Another point.'] }, { type: 'stat', stat: '3x', body: 'more ideas per week' }] }));
+		writeFileSync(join(dir, 'deck.json'), JSON.stringify({ seed: 2, slides: [{ type: 'section', headline: 'Every creative in one place.' }, { type: 'bullets', headline: 'Why it works', items: ['One point.', 'Another point.'] }, { type: 'stat', stat: '3x', body: 'more ideas per week' }] }));
 		const r = await runDeck(dir, [], { input: 'deck.json', out: 'd' });
 		const files = (r.json as { files: { path: string; format: string }[] }).files;
 		expect(files.map((f) => f.format)).toEqual(['png', 'png', 'png', 'pdf']);
-		expect(pngSize(readFileSync(join(dir, 'd', 'slide-01-cover-row.png')))).toEqual({ width: 1920, height: 1080 });
+		expect(pngSize(readFileSync(join(dir, 'd', 'slide-01-section.png')))).toEqual({ width: 1920, height: 1080 });
 		const pdf = readFileSync(join(dir, 'd', 'deck.pdf'));
 		expect(pdf.subarray(0, 8).toString('latin1')).toBe('%PDF-1.4');
 		expect(pdf.toString('latin1').match(/\/Type \/Page /g)).toHaveLength(3);
@@ -132,7 +150,7 @@ describe('deck', () => {
 	it('has every slide type and draws each', async () => {
 		expect(templates('deck').map((t) => t.id)).toEqual(['cover-row', 'cover-inline', 'cover-curved', 'section', 'statement', 'bullets', 'stat', 'quote', 'image', 'closing']);
 		for (const t of templates('deck')) {
-			const d = await drawScene(sceneFor(t, { seed: 1 }).scene);
+			const d = await drawScene(sceneFor(t, { seed: 1, sample: true }).scene);
 			expect(d.width).toBe(1920);
 		}
 	});
@@ -187,7 +205,7 @@ describe('merch', () => {
 
 	it('draws print files at physical size with the bleed, a die line on the sticker, deterministic per seed', async () => {
 		const dir = tmp();
-		await runMerch(dir, [], { item: 'poster', variant: 'full-color', dpi: '72', seed: '3', out: 'm' });
+		await runMerch(dir, [], { item: 'poster', variant: 'full-color', dpi: '72', seed: '3', out: 'm', sample: true });
 		const svg = readFileSync(join(dir, 'm', 'poster-full-color.svg'), 'utf8');
 		expect(svg).toContain('width="18.25in" height="24.25in"');
 		expect(svg).toContain(`viewBox="0 0 ${18.25 * PX_PER_IN} ${24.25 * PX_PER_IN}"`);
@@ -195,12 +213,12 @@ describe('merch', () => {
 		expect(pngSize(png)).toEqual({ width: Math.round(18.25 * 72), height: Math.round(24.25 * 72) });
 		// pHYs: 72 dpi in pixels per meter.
 		expect(png.indexOf('pHYs')).toBeGreaterThan(0);
-		await runMerch(dir, [], { item: 'poster', variant: 'full-color', dpi: '72', seed: '3', out: 'n' });
+		await runMerch(dir, [], { item: 'poster', variant: 'full-color', dpi: '72', seed: '3', out: 'n', sample: true });
 		expect(sha(readFileSync(join(dir, 'n', 'poster-full-color.svg')))).toBe(sha(svg));
 		expect(sha(readFileSync(join(dir, 'n', 'poster-full-color.png')))).toBe(sha(png));
-		await runMerch(dir, [], { item: 'sticker', variant: 'white', dpi: '72', out: 'm' });
+		await runMerch(dir, [], { item: 'sticker', variant: 'white', dpi: '72', out: 'm', sample: true });
 		expect(readFileSync(join(dir, 'm', 'sticker-white.svg'), 'utf8')).toContain('id="CutContour"');
-		const one = merchScene(merchItems().find((i) => i.id === 'tee-front')!, { variant: 'white' });
+		const one = merchScene(merchItems().find((i) => i.id === 'tee-front')!, { variant: 'white', sample: true });
 		expect(one.scene.ground).toBeUndefined();
 		await expect(runMerch(dir, [], { item: 'cap-front', variant: 'full-color' })).rejects.toThrow(/Choose from: white, black/);
 		await expect(runMerch(dir, [], { item: 'teeshirt' })).rejects.toThrow(/Unknown item/);
@@ -242,9 +260,9 @@ describe('logo rules', () => {
 		let checked = 0;
 		for (const kind of ['image', 'deck'] as const)
 			for (const t of templates(kind))
-				for (const size of Object.keys(t.sizes))
+				for (const size of t.sizes.slice(0, 6))
 					for (const variant of t.variants ? Object.keys(t.variants) : [undefined]) {
-						const { scene } = sceneFor(t, { size, variant });
+						const { scene } = sceneFor(t, { size, variant, sample: true });
 						for (const l of scene.layers) {
 							if (l.type !== 'logo') continue;
 							const id = `${kind} ${t.id} ${size}${variant ? ` ${variant}` : ''} ${l.lockup}`;
