@@ -473,6 +473,31 @@
   --ds-ent-ring-intent: 80ms; /* site --dur-menu-intent: the pause before a hovered card comes forward */
   --ds-ent-ring-hint-every: 6000ms; /* site --dur-ent-ring-hint-every: a card comes forward on its own this often */
   --ds-ent-ring-hint-hold: 2000ms; /* site --dur-ent-ring-hint-hold */
+  /* The enterprise features (site tokens.css 754-783, FeatureGrid.module.css, FeatureVisuals.module.css): eight cards,
+     each a looping product sketch over a crop of the ASCII texture. The loop's timings are read by the sketches. */
+  --ds-ent-feat-gap: 16px; /* site --ent-feat-gap */
+  --ds-ent-feat-pad: 24px; /* site --ent-feat-pad */
+  --ds-ent-feat-visual-h: 288px; /* site --ent-feat-visual-h */
+  --ds-ent-feat-visual-h-lg: 320px; /* from 1024 */
+  --ds-ent-feat-tile: 48px; /* site --ent-feat-tile */
+  --ds-ent-feat-glyph: 24px; /* site --ent-feat-glyph */
+  --ds-ent-feat-hub: 64px; /* site --ent-feat-hub */
+  --ds-ent-feat-hub-glyph: 40px; /* site --ent-feat-hub-glyph */
+  --ds-ent-feat-thumb-w: 40px; /* site --ent-feat-thumb-w */
+  --ds-ent-feat-thumb-h: 48px; /* site --ent-feat-thumb-h */
+  --ds-ent-feat-cursor: 16px; /* site --ent-feat-cursor */
+  --ds-ent-feat-report-fade: 64px; /* site --ent-feat-report-fade */
+  --ds-ent-feat-report-travel: 1.6805; /* site --ent-feat-report-travel */
+  --ds-ent-feat-report-grey: 0.2; /* site --ent-feat-report-grey */
+  --ds-ent-feat-report-bright: 0.8; /* site --ent-feat-report-bright */
+  --ds-ent-feat-ascii-tile: 1080px; /* site --features-ascii-tile */
+  --ds-ent-feat-ascii-opacity: 0.5; /* site --features-ascii-opacity */
+  --ds-ent-feat-step: 2600ms; /* site --dur-ent-feat-step (--dur-loop-step): one beat of a sketch's loop */
+  --ds-ent-feat-change: 700ms; /* site --dur-ent-feat-change (--dur-loop-change) */
+  --ds-ent-feat-fade: 500ms; /* site --dur-ent-feat-fade (--dur-loop-badge) */
+  --ds-ent-feat-switch: 150ms; /* site --dur-ent-feat-switch (--dur-loop-pill) */
+  --ds-ent-feat-glide: 400ms; /* site --dur-ent-feat-glide (--dur-abstract-glide) */
+  --ds-ent-feat-stagger: 180ms; /* site --dur-seq-stagger */
   /* group: use-cases-resources-templates */
 }
 
