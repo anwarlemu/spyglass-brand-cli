@@ -1,0 +1,63 @@
+import { PricingTable } from '@/react/components/site/PricingTable'
+// Acme's four plans, the third lit as the most popular.
+
+const plans = [
+  {
+    "name": "Free",
+    "description": "Try the API and MCP server.",
+    "price": "$0",
+    "unit": "/mo",
+    "cta": "Get a free key",
+    "href": "#free",
+    "features": [
+      "500 credits a month",
+      "No card needed",
+      "API and MCP access"
+    ]
+  },
+  {
+    "name": "Creator",
+    "description": "For individuals.",
+    "price": "$10",
+    "unit": "/mo",
+    "cta": "Start with Creator",
+    "href": "#creator",
+    "ladder": "Everything in Free, plus:",
+    "features": [
+      "5,000 credits a month",
+      "$2 per 1K after that"
+    ]
+  },
+  {
+    "name": "Pro",
+    "description": "For teams and builders.",
+    "price": "$20",
+    "unit": "/mo",
+    "badge": "Most popular",
+    "featured": true,
+    "cta": "Start with Pro",
+    "href": "#pro",
+    "ladder": "Everything in Creator, plus:",
+    "features": [
+      "Your whole minimum goes to credits",
+      "$1.50 per 1K after that"
+    ]
+  },
+  {
+    "name": "Enterprise",
+    "description": "For brands and agencies.",
+    "price": "Custom",
+    "cta": "Book a demo",
+    "href": "#demo",
+    "ladder": "Everything in Pro, plus:",
+    "features": [
+      "Volume pricing",
+      "Annual contract",
+      "Hands-on support"
+    ]
+  }
+]
+
+export default function Plans() {
+  return <PricingTable plans={plans} />
+}

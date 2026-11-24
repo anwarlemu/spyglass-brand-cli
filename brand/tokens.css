@@ -280,6 +280,8 @@
   --ds-text-heading-3-leading: 1.1667;
   --ds-text-heading-2: 32px; /* plan names, a section head on phones, 32/36 (h4) */
   --ds-text-heading-2-leading: 1.125;
+  --ds-text-figure: 40px; /* Funnel Display 400: a price or a figure, 40/44 (h3; the site's plan amount) */
+  --ds-text-figure-leading: 1.1;
   --ds-text-heading-1: 44px; /* Funnel Display 450: a section head at 768, 44/48 (h2) */
   --ds-text-heading-1-leading: 1.0909;
   --ds-text-hero: 56px; /* the page and section head at 1024 and up, 56/60 (h1, .t-head) */

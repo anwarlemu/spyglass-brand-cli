@@ -156,6 +156,7 @@ const type = {
 	hero: ['heading', 'hero', 'heading'],
 	'heading-1': ['heading', 'heading-1', 'heading'],
 	'heading-2': ['heading', 'heading-2', 'regular'],
+	figure: ['heading', 'figure', 'regular'],
 	'heading-3': ['heading', 'heading-3', 'regular'],
 	'heading-4': ['heading', 'heading-4', 'regular'],
 	'body-xl': ['text', 'body-xl', 'regular'],

@@ -3,7 +3,7 @@ name: faq-block
 title: FAQ block
 type: registry:block
 group: blocks
-description: "Questions and answers as the pricing page sets them: the heading in the first of three columns, each question under a hairline in Funnel Display with its answer in DM Sans in the soft gray."
+description: "The site's FAQ: the section head, a lead and a quiet Contact button on the left, the questions as accordion rows under hairlines on the right; one column on phones."
 use_for: "The questions section of a pricing, product or contact page."
 never:
   - "Answers the product does not state"

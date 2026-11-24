@@ -21,5 +21,5 @@ const items = [
 ]
 
 export default function Questions() {
-  return <FaqBlock items={items} />
+  return <FaqBlock title="Frequently asked questions" body="Everything Acme's team asked before starting." action={{ label: 'Contact us', href: '#contact' }} items={items} />
 }
