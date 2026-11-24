@@ -435,6 +435,31 @@
   --ds-stories-lead-min-h: 560px; /* a lead case story from 1024 (site --stories-lead-min-h) */
   --ds-stories-panel-w: 480px; /* its panel (site --stories-panel-w) */
   --ds-session-min-h: 480px; /* the MCP session's least height (site --session-min-h) */
+  /* The home's close (site --close-*): the scatter's field heights, the words' lift by width, the creatives at rest
+     (grey and dim until the light wakes them), the light's sweep and the pointer's reach. */
+  --ds-close-min-h: 640px;
+  --ds-close-field: 880;
+  --ds-close-phone-field: 720;
+  --ds-close-lift-phone-a: 208px;
+  --ds-close-lift-phone-b: 218;
+  --ds-close-lift-tablet-a: 168px;
+  --ds-close-lift-tablet-b: 176;
+  --ds-close-lift-laptop-a: 196px;
+  --ds-close-lift-laptop-b: 190;
+  --ds-close-lift-desktop-a: 252px;
+  --ds-close-lift-desktop-b: 220;
+  --ds-close-ascii: 0.8;
+  --ds-close-rest-bright: 0.32;
+  --ds-close-rest-grey: 1;
+  --ds-close-sweep-alpha: 0.16; /* the sweep is the light's overlap ice (site --close-sweep-ice, #D3DEE7) */
+  --ds-close-sweep-w: 640px;
+  --ds-close-sweep-tilt: 16deg;
+  --ds-close-light-fade: 32%; /* site --light-fade */
+  --ds-close-reach: 400px;
+  --ds-close-lean: 4px;
+  --ds-close-tag-travel: 4px;
+  --ds-close-tag-blur: 4px;
+  --ds-close-tag-intent: 80ms; /* how long the pointer rests before the tag shows (site --dur-close-tag-intent) */
   --ds-price-card-w: 144px;
   --ds-price-card-h: 240px;
   --ds-price-card-w-xl: 192px;
