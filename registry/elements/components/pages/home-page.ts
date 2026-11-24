@@ -1,24 +1,23 @@
 import { html } from 'lit'
 import { DsElement, define, HostLayoutController } from '@/elements/lib/element'
 import { homeContent, type HomeContent } from '@/lib/pages/home'
-import '@/elements/components/ui/button'
-import '@/elements/components/ui/card'
-import '@/elements/components/product/search-bar'
-import '@/elements/components/site/creative-corridor'
-import '@/elements/components/site/creative-grid'
-import '@/elements/components/site/creative-ring'
-import '@/elements/components/site/footer-row'
 import '@/elements/components/site/site-header'
-import '@/elements/components/site/testimonial'
-import '@/elements/components/blocks/hero-block'
-import '@/elements/components/blocks/offer-block'
-import '@/elements/components/blocks/stat-block'
-import '@/elements/components/visuals/logo'
+import '@/elements/components/site/proof-strip'
+import '@/elements/components/blocks/playground-hero'
+import '@/elements/components/blocks/features-block'
+import '@/elements/components/blocks/why-block'
+import '@/elements/components/blocks/how-it-works-block'
+import '@/elements/components/blocks/case-stories-block'
+import '@/elements/components/blocks/pricing-panels-block'
+import '@/elements/components/blocks/faq-block'
+import '@/elements/components/blocks/close-block'
+import '@/elements/components/blocks/site-footer'
 import styles from 'virtual:tw'
 
-// HomePage.tsx as <spyglass-home-page>: the home page template from the library's elements. `content` (an object, as
-// lib/pages/home.ts) replaces the copy.
-const WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'
+// HomePage.tsx as <spyglass-home-page>: the site's home in its order: the header, the playground hero, the proof row,
+// the features, the reasons, the set-up steps, the case stories, the pricing strip, the questions, the close and the
+// footer. `content` replaces the header, proof row, questions and footer (lib/pages/home.ts).
+const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
 /**
  * @summary The home page template.
@@ -32,20 +31,7 @@ export class HomePage extends DsElement {
 
 	render() {
 		const c = this.content ?? homeContent
-		return html`<div data-ds="home-page" class="bg-surface text-fg">
-<div class=${WRAP}><spyglass-site-header .links=${c.nav} .secondary=${c.secondary} .cta=${c.cta}></spyglass-site-header></div>
-<main>
-<spyglass-hero-block headline=${c.hero.headline} body=${c.hero.body} light="band" seed="2" texture><spyglass-button slot="actions" href=${c.hero.action.href}>${c.hero.action.label}</spyglass-button><spyglass-search-bar placeholder=${c.hero.search} aria-label="Search creatives"></spyglass-search-bar></spyglass-hero-block>
-<section aria-label="Results" class=${`${WRAP} pt-12 pb-24 max-sm:pt-8 max-sm:pb-16`}><spyglass-creative-grid .items=${c.results} ratio="3/4" gap="md"></spyglass-creative-grid></section>
-<section class=${`${WRAP} flex flex-col items-center gap-12 py-24 text-center max-sm:gap-8 max-sm:py-16`}><h2 class="max-w-3xl type-section">${c.index.headline}</h2><spyglass-creative-corridor .items=${c.index.corridor} class="max-w-page"></spyglass-creative-corridor><p class="max-w-120 type-body-lg text-fg-soft">${c.index.body}</p></section>
-<section aria-label="What it does" class=${`${WRAP} grid grid-cols-3 gap-4 py-24 max-md:grid-cols-1 max-sm:py-16`}>${c.features.map((f) => html`<spyglass-card heading=${f.title} description=${f.body}></spyglass-card>`)}</section>
-<div class=${`${WRAP} py-24 max-sm:py-16`}><spyglass-stat-block heading=${c.stats.title} .stats=${c.stats.items}></spyglass-stat-block></div>
-<section class=${`${WRAP} grid grid-cols-2 items-center gap-12 py-24 max-md:grid-cols-1 max-sm:py-16`}><h2 class="max-w-xl type-section">${c.agents.headline}</h2><spyglass-creative-ring .items=${c.agents.ring} class="w-full"><spyglass-logo height="20"></spyglass-logo></spyglass-creative-ring></section>
-<div class=${`${WRAP} py-24 max-sm:py-16`}><spyglass-testimonial layout="side" quote=${c.testimonial.quote} name=${c.testimonial.name} position=${c.testimonial.position}></spyglass-testimonial></div>
-<spyglass-offer-block headline=${c.offer.headline} note=${c.offer.note} .cta=${c.offer.cta}></spyglass-offer-block>
-</main>
-<footer class="border-t border-edge"><div class=${`${WRAP} py-10`}><spyglass-footer-row domain=${c.footer.domain} home-href="/" .links=${c.footer.links}></spyglass-footer-row></div></footer>
-</div>`
+		return html`<div data-ds="home-page" class="bg-surface text-fg"><div class=${WRAP}><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header></div><main><spyglass-playground-hero></spyglass-playground-hero><section aria-label=${c.proof.title} class="pb-(--ds-layout-section)"><div class=${`${WRAP} flex flex-col items-center gap-6 text-center`}><h2 class="type-body-lg text-fg">${c.proof.title}</h2><spyglass-proof-strip .logos=${c.proof.logos}></spyglass-proof-strip></div></section><spyglass-features-block></spyglass-features-block><spyglass-why-block></spyglass-why-block><spyglass-how-it-works-block></spyglass-how-it-works-block><spyglass-case-stories-block></spyglass-case-stories-block><spyglass-pricing-panels-block></spyglass-pricing-panels-block><div class=${`${WRAP} py-(--ds-layout-section)`}><spyglass-faq-block head-id="home-faq" heading=${c.faq.title} body=${c.faq.lead} .action=${c.faq.action} .items=${c.faq.items}></spyglass-faq-block></div><spyglass-close-block></spyglass-close-block></main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`
 	}
 }
 
