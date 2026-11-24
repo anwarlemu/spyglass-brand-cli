@@ -406,6 +406,21 @@
   /* group: effects */
   --ds-light-grain-reach: 64px; /* how far the light image's grain reaches from the light (site --light-grain-reach) */
   --ds-light-grain-lens: 192px; /* the grain's reach under the pointer's lens (site --light-grain-lens) */
+  /* The dispersion field's tuning (read by lib/effects/field-engine.ts on the canvas): the footer wordmark's crest
+     (site --footer-crest-*, --footer-wave-*, --dur-footer-*) and the horizon's tilt (site --hero-light-tilt, -cross). */
+  --ds-footer-crest-width: 0.07;
+  --ds-footer-crest-low: 0.1;
+  --ds-footer-crest-high: 0.36;
+  --ds-footer-crest-idle: 0.5;
+  --ds-footer-wave-hollow: 0.25;
+  --ds-footer-wave-spread: 2;
+  --ds-footer-wave-tint: 1;
+  --ds-dur-footer-crest-in: 800ms;
+  --ds-dur-footer-crest-out: 1200ms;
+  --ds-dur-footer-crest-follow: 300ms;
+  --ds-dur-footer-wave-pass: 7800ms;
+  --ds-hero-light-tilt: 0.14;
+  --ds-hero-light-cross: 0.72;
   /* group: chrome */
   /* group: home */
   /* group: pricing-products-enterprise */
