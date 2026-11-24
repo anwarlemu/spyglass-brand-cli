@@ -187,6 +187,8 @@ const steps = (name, list) => `@utility type-${name} {\n  font-family: var(--ds-
 	return at ? `  @media (min-width: ${at}px) { ${decl} }` : `  ${decl}`;
 }).join('\n')}\n}`;
 utilities.push(steps('section', [[0, 'heading-2'], [768, 'heading-1'], [1024, 'hero']]));
+// A page title at the head of a short form (the site's sign-in and sign-up title): 32/36 on phones, 40/44 from 768.
+utilities.push(steps('title', [[0, 'heading-2'], [768, 'figure']]));
 utilities.push(steps('display-fluid', [[0, 'display-phone'], [768, 'display-m'], [1280, 'display'], [1600, 'display-xl']]));
 
 writeFileSync(

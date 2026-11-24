@@ -1,0 +1,4 @@
+.ds-auth-spin { animation: ds-auth-spin 800ms linear infinite; }
+@keyframes ds-auth-spin { to { transform: rotate(1turn); } }
+@keyframes ds-auth-breathe { 50% { opacity: 0.5; } }
+@media (prefers-reduced-motion: reduce) { .ds-auth-spin { animation: ds-auth-breathe 2s var(--ds-easing-in-out) infinite; } }

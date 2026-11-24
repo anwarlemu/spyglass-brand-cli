@@ -1,36 +1,41 @@
 import { html, nothing } from 'lit'
-import { ifDefined } from 'lit/directives/if-defined.js'
 import { DsElement, define, HostLayoutController } from '@/elements/lib/element'
+import { asciiDriftStyle } from '@/lib/ascii-drift'
 import { authContent, type AuthContent } from '@/lib/pages/auth'
-import '@/elements/components/ui/button'
-import '@/elements/components/ui/field'
-import '@/elements/components/ui/input'
-import '@/elements/components/visuals/brand-light'
+import { AUTH_LIGHT_LEFT, AUTH_LIGHT_RIGHT, AUTH_LIGHT_RIGHT_PHONE } from '@/lib/textures'
+import { proofPlaceholders, type ProofLogo } from '@/elements/components/site/proof-strip'
+import '@/elements/components/site/auth-form'
+import '@/elements/components/site/proof-strip'
 import '@/elements/components/visuals/logo'
 import styles from 'virtual:tw'
 
-// AuthPage.tsx as <spyglass-auth-page>: sign in or sign up (`mode`), the light field, the lockup and the card with the
-// fields and the one White button. `content` replaces the copy; the form posts to `action`.
+// AuthPage.tsx as <spyglass-auth-page>: the site's sign-in and sign-up pages, Black with the site's light images in two
+// corners bobbing slowly (still with reduced motion), two ASCII crops from 1024, the lockup bar, the form centered in the
+// height left and the proof row under it. `mode`, `content`, `logos` (JSON) and `proof` (the row, on sign-up by default); the provider's
+// mark in the `provider-icon` slot; the form's `provider` and `email` events bubble out.
 
 /**
  * @summary The sign-in and sign-up page.
+ * @slot provider-icon - The provider's mark, 20px.
  */
 export class AuthPage extends DsElement {
 	static styles = [DsElement.styles, styles]
 	protected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds="auth-page"]'))
-	static properties = { mode: {}, content: { type: Object }, action: {} }
+	static properties = { mode: { reflect: true }, content: { type: Object }, logos: { type: Array }, proof: { type: Boolean } }
 	/** sign-in or sign-up. */
-	mode: 'sign-in' | 'sign-up' = 'sign-in'
-	/** The page's copy (lib/pages/auth.ts by default). */
+	mode: 'sign-in' | 'sign-up' = 'sign-up'
+	/** The copy (lib/pages/auth.ts by default). */
 	content: AuthContent = authContent
-	/** Where the form posts. */
-	action?: string
+	/** The proof row's marks: { name, src?, ratio?, height? }. */
+	logos: ProofLogo[] = proofPlaceholders
+	/** Show the proof row; by default on sign-up only (sign-in keeps its room empty). */
+	proof?: boolean
 
 	render() {
 		const c = this.content ?? authContent
-		const m = this.mode === 'sign-up' ? c.signUp : c.signIn
-		const link = 'rounded-ds-sm underline decoration-edge-strong underline-offset-4 transition-[text-decoration-color] duration-160 ease-out hover:decoration-fg'
-		return html`<div data-ds="auth-page" class="relative isolate flex min-h-dvh flex-col items-center bg-surface px-4 pt-24 pb-16 text-fg"><spyglass-brand-light variant="field" ground="false" cover class="absolute inset-x-0 top-0 -z-10 h-64 mask-b-from-30%"></spyglass-brand-light><a href="/" aria-label="Home" class="rounded-control"><spyglass-logo height="24"></spyglass-logo></a><main class="mt-10 grid w-full max-w-100 gap-6 rounded-container bg-surface-raised p-8 max-sm:p-6"><div class="grid gap-2"><h1 class="type-heading-2">${m.headline}</h1><p class="type-body text-fg-soft">${m.body}</p></div><form action=${ifDefined(this.action)} method="post" class="grid gap-5"><spyglass-field label=${c.email.label}><spyglass-input name="email" type="email" autocomplete="email" placeholder=${c.email.placeholder} required></spyglass-input></spyglass-field><spyglass-field label=${c.password.label}><spyglass-input name="password" type="password" autocomplete=${this.mode === 'sign-up' ? 'new-password' : 'current-password'} placeholder=${c.password.placeholder} required></spyglass-input></spyglass-field>${this.mode === 'sign-in' ? html`<a href=${c.forgot.href} class=${`justify-self-start type-ui text-fg-soft ${link}`}>${c.forgot.label}</a>` : nothing}<spyglass-button type="submit" class="w-full">${m.submit}</spyglass-button></form><p class="type-ui text-fg-muted">${m.switch.text} <a href=${m.switch.href} class=${`text-fg ${link}`}>${m.switch.label}</a></p></main><p class="mt-6 max-w-100 text-center type-caption text-fg-muted">${c.legal}</p></div>`
+		const logos = this.logos ?? proofPlaceholders
+		const icon = this.querySelector('[slot="provider-icon"]') ? html`<slot name="provider-icon" slot="provider-icon"></slot>` : nothing
+		return html`<div data-ds="auth-page" class="relative isolate grid min-h-svh grid-cols-[minmax(0,1fr)] grid-rows-[auto_1fr] overflow-clip bg-surface text-fg"><div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-1 overflow-clip"><span class="ds-auth-light" data-side="left" style=${`background-image: url("${AUTH_LIGHT_LEFT}")`}></span><span class="ds-auth-light" data-side="right" style=${`--light-phone: url("${AUTH_LIGHT_RIGHT_PHONE}"); --light: url("${AUTH_LIGHT_RIGHT}")`}></span><span class="pointer-events-none absolute top-0 left-0 -z-1 hidden h-[44%] w-[36%] select-none lg:block" style=${asciiDriftStyle('mass', 'left')}></span><span class="pointer-events-none absolute right-0 bottom-0 -z-1 hidden h-[44%] w-[36%] select-none lg:block" style=${asciiDriftStyle('cluster', 'right')}></span></div><header class="relative z-1"><div class="mx-auto flex h-16 w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] items-center px-(--ds-layout-gutter) lg:h-header"><a href="/" aria-label=${c.home} class="-ms-2 block rounded-ds-sm px-2 py-3 text-fg"><spyglass-logo height="20"></spyglass-logo></a></div></header><main class="ds-auth-main flex min-w-0 flex-col justify-center gap-16 py-8"><spyglass-auth-form mode=${this.mode} .content=${c}>${icon}</spyglass-auth-form>${(this.proof ?? this.mode === 'sign-up') ? html`<section aria-label=${c.proof} class="mx-auto flex min-h-(--ds-layout-auth-proof-h) w-full max-w-[calc(var(--ds-layout-auth-proof)+2*var(--ds-layout-gutter))] flex-col items-center gap-6 px-(--ds-layout-gutter)"><h2 class="type-ui text-fg-muted">${c.proof}</h2><spyglass-proof-strip .logos=${logos} tight></spyglass-proof-strip></section>` : html`<div aria-hidden="true" class="mx-auto min-h-(--ds-layout-auth-proof-h) w-full"></div>`}</main></div>`
 	}
 }
 

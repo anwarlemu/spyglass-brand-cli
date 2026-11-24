@@ -1,2 +1,7 @@
-<!-- The sign-in page with its own copy (Acme). -->
-<spyglass-auth-page mode="sign-in"></spyglass-auth-page>
+<!-- The sign-in page: the same page in its other mode. -->
+<spyglass-auth-page id="auth-in" mode="sign-in"><i slot="provider-icon" data-lucide="key-round" data-size="20" data-stroke-width="1.5" aria-hidden="true"></i></spyglass-auth-page>
+<script type="module">
+  const page = document.getElementById('auth-in')
+  page.addEventListener('provider', (event) => event.preventDefault())
+  page.addEventListener('email', (event) => event.preventDefault())
+</script>

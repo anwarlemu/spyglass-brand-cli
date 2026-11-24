@@ -3,16 +3,19 @@ name: auth-page
 title: Sign-in page
 type: registry:block
 group: pages
-description: "The sign-in and sign-up page: the light field, the lockup, a card with the email and password fields and the one White button."
-use_for: "Sign-in and sign-up screens; `mode` picks the copy, the form posts to `action`."
+description: "The site's sign-in and sign-up page: Black with the site's own light images in two corners bobbing slowly, two ASCII crops from 1024, the lockup bar, the form centered in the height left, and the proof row of marks under it."
+use_for: "Sign-in and sign-up screens; `mode` picks the copy, `onProvider` and `onEmail` (events in web components) take the presses."
 never:
-  - "New colors, shadows or type sizes added to a section: use the items' props"
+  - "A third-party logo shipped in the provider button or the proof row: pass the marks you may show"
   - "More than one White button in a view"
   - "Real people or customers in the copy: Acme only"
-source: "Built from the library and the site's surfaces (cards on --surface, the rail on --raised, hairlines, the 36px links of the header)"
+  - "Light that keeps moving with reduced motion"
+source: "Site app/(auth) and pages/Auth (AuthShell, AuthForm, AuthProof, Auth.module.css): the lights public/brand/light/auth-light-*.webp at min(29vw, 520px) (144px, top right only, on phones), 11:16, bobbing 12px over 14s on --ease-drift; ASCII drifts 36% by 44% from 1024; the bar 64/72px with the 20px lockup; main centered with 64px between the form and the proof row, 32px in"
 files:
   - react/components/pages/AuthPage.tsx
-  - lib/pages/auth.ts
+  - lib/textures.ts
+  - lib/ascii-drift.ts
 examples:
+  - "SignUp | Sign up | bleed"
   - "SignIn | Sign in | bleed"
 ---

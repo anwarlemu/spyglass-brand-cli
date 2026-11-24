@@ -10,7 +10,7 @@ import { followGlow } from '@/lib/glow'
 // the pointer inside it and the fill changes (160ms on the site's ease-out); like the site, it does not scale on press.
 // Disabled is a #1A1A1A fill with a #666666 label, never faded. `href` renders a link that looks the same.
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost'
-export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg'
+export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'form'
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary: 'bg-action-primary text-action-primary-fg hover:not-disabled:bg-action-primary-hover',
@@ -23,19 +23,20 @@ const SIZES: Record<ButtonSize, string> = {
   sm: 'h-control-sm gap-1.5 type-ui-strong',
   md: 'h-control-md gap-2 type-ui-strong',
   lg: 'h-control-lg gap-2 type-body-lg font-medium',
+  form: 'h-control-form gap-3 type-body font-medium',
 }
 
 // The site's glow (globals.css .btn::before): a gradient layer under the label at the pointer, shown on hover only.
 const GLOW =
   'relative isolate overflow-hidden before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:bg-[radial-gradient(circle_var(--ds-glow-radius)_at_var(--glow-x,50%)_var(--glow-y,50%),var(--ds-color-action-glow),transparent)] before:opacity-0 before:transition-opacity before:duration-240 before:ease-out hover:not-disabled:before:opacity-100'
 // One padding class per button, so a square button's 0 never competes with a label's padding in the stylesheet.
-const PADDING: Record<ButtonSize, string> = { xs: 'px-4', sm: 'px-3', md: 'px-4', lg: 'px-8' }
-const SQUARE: Record<ButtonSize, string> = { xs: 'w-control-xs px-0', sm: 'w-control-sm px-0', md: 'w-control-md px-0', lg: 'w-control-lg px-0' }
+const PADDING: Record<ButtonSize, string> = { xs: 'px-4', sm: 'px-3', md: 'px-4', lg: 'px-8', form: 'px-4' }
+const SQUARE: Record<ButtonSize, string> = { xs: 'w-control-xs px-0', sm: 'w-control-sm px-0', md: 'w-control-md px-0', lg: 'w-control-lg px-0', form: 'w-control-form px-0' }
 
 export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
   /** primary (White), secondary or ghost. */
   variant?: ButtonVariant
-  /** xs (36px, the site header's), sm (32px), md (40px) or lg (56px). */
+  /** xs (36px, the site header's), sm (32px), md (40px), lg (56px) or form (48px, a short form's buttons, full width). */
   size?: ButtonSize
   /** A square icon button: put its name in aria-label. */
   icon?: boolean

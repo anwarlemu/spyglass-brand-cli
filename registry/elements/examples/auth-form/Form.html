@@ -1,0 +1,7 @@
+<!-- The form alone, for a page of your own: sign up with a neutral mark in the provider button. -->
+<spyglass-auth-form id="auth-form" mode="sign-up"><i slot="provider-icon" data-lucide="key-round" data-size="20" data-stroke-width="1.5" aria-hidden="true"></i></spyglass-auth-form>
+<script type="module">
+  const form = document.getElementById('auth-form')
+  form.addEventListener('provider', (event) => event.preventDefault())
+  form.addEventListener('email', (event) => event.preventDefault())
+</script>

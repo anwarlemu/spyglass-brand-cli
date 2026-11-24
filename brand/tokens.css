@@ -178,6 +178,9 @@
   --ds-ascii-opacity: 0.35;
   --ds-ascii-quiet: 0.5;
   --ds-ascii-faint: 0.32;
+  --ds-ascii-tile: 1080px; /* the texture tile's size on a page (site --ascii-tile) */
+  --ds-ascii-core: 24%; /* where a drift's radial fade starts (site --ascii-core); 56% for a hero (--ascii-hero-core) */
+  --ds-ascii-hero-core: 56%;
 
   /* Measured fills. */
   --ds-color-card-fill: #171717; /* the Figma plan card on the 1080 canvas only; the site's cards are neutral-4 */
@@ -317,6 +320,7 @@
   --ds-size-control-xs: 36px; /* the header's buttons and nav links (site --control-xs) */
   --ds-size-control-sm: 32px;
   --ds-size-control-md: 40px; /* the button (site --control-s) */
+  --ds-size-control-form: 48px; /* the controls of a short form, a sign-in's field and buttons (site --control-m) */
   --ds-size-control-lg: 56px; /* the large button: 32px padding, 20/24 label (site .btn--l) */
   --ds-size-control-field: 48px; /* site --control-m */
   --ds-size-control-touch: 44px;
@@ -334,6 +338,14 @@
   --ds-layout-measure-sm: 360px;
   --ds-layout-gutter: 16px; /* 32 at 768, 48 at 1024, 64 at 1280, 96 at 1600 (below) */
   --ds-layout-section: 56px; /* section padding: 72 at 768, 80 at 1024, 96 at 1600 */
+  --ds-layout-auth: 400px; /* the sign-in and sign-up column (site --auth-w) */
+  --ds-layout-auth-proof: 560px; /* the proof row under it (site --auth-proof-w) */
+  --ds-layout-auth-proof-h: 76px; /* the room the proof row keeps (site --auth-proof-h) */
+  --ds-auth-light-w: min(29vw, 520px); /* the corner lights from 768 (site --auth-light-w) */
+  --ds-auth-light-w-phone: 144px; /* the one corner light on phones */
+  --ds-auth-light-drift: 12px; /* how far the lights bob */
+  --ds-auth-light-tilt: 0.05deg; /* a hair of rotation, so the bob renders smoothly */
+  --ds-auth-light-left-rise: 40px; /* the left light's distance from the bottom */
 
   /* Radius (site --radius-s/m/l): 8px for buttons, fields, the segmented tray and plan tiers; 4px for cards, tiles,
      badges and menu cards; 20px for a large panel. */
@@ -366,6 +378,7 @@
   --ds-easing-in-out: cubic-bezier(0.65, 0, 0.35, 1); /* things moving on screen (site --ease-in-out) */
   --ds-easing-drawer: cubic-bezier(0.32, 0.72, 0, 1); /* drawers and sheets */
   --ds-easing-loop: cubic-bezier(0.4, 0, 0.2, 1); /* product loops: a sliding pill, a row changing (site --ease-loop) */
+  --ds-easing-drift: cubic-bezier(0.37, 0, 0.63, 1); /* the lights' slow bob, a loop that eases at both turns (site --ease-drift) */
   --ds-glow-radius: 80px; /* the button glow's circle (site --btn-glow-r) */
 
   /* The 1080px canvas, exactly as measured in Figma (posts 1080x1080, ads 1080x1350, decks 1920x1080). */

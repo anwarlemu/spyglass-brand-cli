@@ -66,3 +66,16 @@ Line numbers are the site's files. "Old" is `brand/` before this change.
    layouts the library lacks are added.
 3. Assets: the renderers draw headings at 450 and body at opsz 14 (static instances), cards in #262626 with 4px corners.
 4. Docs site: fonts, theme, type.
+
+## The newer site (sign-up and sign-in, received 2026-11-24)
+
+| What | Value | Site source |
+| --- | --- | --- |
+| Auth column | 400px (`--ds-layout-auth`), proof row 560px wide and 76px tall (`--ds-layout-auth-proof`, `-proof-h`) | tokens.css `--auth-w`, `--auth-proof-w`, `--auth-proof-h` |
+| Corner lights | min(29vw, 520px) from 768, 144px on phones, bobbing 12px with a 0.05deg tilt, the left one 40px off the bottom (`--ds-auth-light-*`) | tokens.css `--auth-light-*` |
+| Light bob | 14s, `cubic-bezier(0.37, 0, 0.63, 1)` (`--ds-easing-drift`), alternate, none with reduced motion | tokens.css `--hero-band-bob-time`, `--ease-drift` |
+| Spinner | a 2px ring turning every 800ms | tokens.css `--dur-spin` |
+| Form controls | 48px (`--ds-size-control-form`, the button's `form` size), labels 16/24 | tokens.css `--control-m` |
+| Page title | 32/36, 40/44 from 768, at 450 (`type-title`) | Auth.module.css `.title` (h4, h3) |
+| ASCII drift | the texture tile at 1080px, fading from 24% (56% on a hero) (`--ds-ascii-tile`, `--ds-ascii-core`, `--ds-ascii-hero-core`) | tokens.css `--ascii-tile`, `--ascii-core`, `--ascii-hero-core`; ui/AsciiDrift |
+| Header | the Products menu's "live soon" panel groups its platforms under a label (14/20, --text-2, 16px under it, 24px between marks) and centers them; the home link no longer prefetches | Header.module.css `.liveSoon`, `.liveGroup`, `.liveGroupLabel`; HomeLink.tsx. The library's header has no Products menu panel yet: it lands with the header's menus. |

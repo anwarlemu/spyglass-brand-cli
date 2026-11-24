@@ -1,0 +1,7 @@
+<!-- The sign-up page as the site sets it, with Acme's copy, a neutral mark in the provider button and Acme placeholder marks. -->
+<spyglass-auth-page id="auth-up" mode="sign-up"><i slot="provider-icon" data-lucide="key-round" data-size="20" data-stroke-width="1.5" aria-hidden="true"></i></spyglass-auth-page>
+<script type="module">
+  const page = document.getElementById('auth-up')
+  page.addEventListener('provider', (event) => event.preventDefault())
+  page.addEventListener('email', (event) => event.preventDefault())
+</script>

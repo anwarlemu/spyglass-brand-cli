@@ -1,0 +1,5 @@
+.ds-proof-strip { mask-image: linear-gradient(to right, transparent, var(--ds-color-black) 14%, var(--ds-color-black) 86%, transparent); }
+.ds-proof-track { animation: ds-proof-strip 68s linear infinite; }
+@keyframes ds-proof-strip { to { transform: translateX(calc(-100% / 3)); } }
+@media (hover: hover) and (pointer: fine) { .ds-proof-strip:hover .ds-proof-track { animation-play-state: paused; } }
+@media (prefers-reduced-motion: reduce) { .ds-proof-track { animation: none; } }
