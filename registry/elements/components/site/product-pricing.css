@@ -1,0 +1,13 @@
+.ds-pp-value { font-family: var(--ds-font-heading); font-weight: var(--ds-font-weight-regular); font-size: var(--ds-text-display-phone); line-height: var(--ds-text-display-phone-leading); }
+.ds-pp-amount { font-family: var(--ds-font-heading); font-weight: var(--ds-font-weight-regular); font-size: var(--ds-text-heading-4); line-height: var(--ds-text-heading-4-leading); }
+.ds-pp-open { grid-template-areas: "head" "rate" "free" "actions"; }
+.ds-pp-plans { grid-template-areas: "headline" "rate" "plans" "actions"; }
+.ds-pp-plan { grid-template-areas: "name price" "gets gets"; }
+@media (min-width: 768px) { .ds-pp-value { font-size: var(--ds-text-display-s); line-height: var(--ds-text-display-s-leading); } }
+@media (min-width: 1024px) {
+  .ds-pp-value { font-size: var(--ds-text-display); line-height: var(--ds-text-display-leading); }
+  .ds-pp-amount { font-size: var(--ds-text-display-phone); line-height: var(--ds-text-display-phone-leading); }
+  .ds-pp-open { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); grid-template-rows: auto 1fr; grid-template-areas: "head rate" "actions free"; }
+  .ds-pp-plans { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); grid-template-areas: "headline rate" "plans plans" "actions actions"; }
+  .ds-pp-plan { grid-template-areas: "name" "price" "gets"; }
+}

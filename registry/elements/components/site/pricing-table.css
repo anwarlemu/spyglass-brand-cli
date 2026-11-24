@@ -1,0 +1,80 @@
+.ds-plan { --lit: 0; }
+.ds-plan[data-featured] { --lit: 1; }
+@media (hover: hover) and (pointer: fine) {
+  .ds-plans:has(.ds-plan:hover) .ds-plan { --lit: 0; }
+  .ds-plans:has(.ds-plan:hover) .ds-plan:hover { --lit: 1; }
+}
+.ds-tier {
+  color: color-mix(in srgb, var(--ds-color-black) calc(var(--lit) * 100%), var(--ds-color-fg));
+  background: color-mix(in srgb, var(--ds-color-surface-raised) calc(100% - var(--lit) * 100%), transparent);
+  transition: color var(--ds-duration-glide) var(--ds-easing-out), background-color var(--ds-duration-glide) var(--ds-easing-out);
+}
+.ds-tier::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; border-radius: inherit; pointer-events: none;
+  border: var(--ds-border-hairline) solid var(--ds-color-edge-surface);
+  opacity: var(--lit); transition: opacity var(--ds-duration-glide) var(--ds-easing-out);
+}
+.ds-plan-for { color: color-mix(in srgb, var(--ds-color-black) calc(var(--lit) * 100%), var(--ds-color-fg-soft)); transition: color var(--ds-duration-glide) var(--ds-easing-out); }
+.ds-plan-unit { color: color-mix(in srgb, var(--ds-color-neutral-6) calc(var(--lit) * 100%), var(--ds-color-fg-muted)); transition: color var(--ds-duration-glide) var(--ds-easing-out); }
+.ds-plan-badge { font-family: var(--ds-font-text); font-size: var(--ds-text-caption); line-height: var(--ds-text-caption-leading); font-weight: var(--ds-font-weight-medium); }
+.ds-plan-save { line-height: var(--ds-text-ui-leading); }
+.ds-tier-ascii {
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: var(--ascii) 0 0 / var(--ds-ascii-tile) var(--ds-ascii-tile);
+  opacity: calc(var(--ds-ascii-quiet) * (1 - var(--lit))); mix-blend-mode: screen;
+  transition: opacity var(--ds-duration-glide) var(--ds-easing-out);
+  mask-image: radial-gradient(ellipse 64% 56% at 100% 0%, var(--ds-color-black) 24%, transparent 100%);
+}
+.ds-plan-drift {
+  position: absolute; inset: 0 auto 0 -4%; z-index: -1; width: 116%; pointer-events: none;
+  opacity: var(--lit); transition: opacity var(--ds-duration-glide) var(--ds-easing-out);
+  will-change: transform, opacity;
+  animation: ds-plan-drift var(--ds-plan-light-drift) var(--ds-easing-drift) infinite alternate paused;
+}
+.ds-plan-light { position: absolute; inset: 0; background: var(--ds-color-plan-ice) var(--light) 0 0 / 100% 100% no-repeat; }
+.ds-plan-black, .ds-plan-rim, .ds-plan-trail { position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit; overflow: hidden; }
+.ds-plan-black { z-index: 0; border-radius: 0; mask: var(--light-black) 0 0 / 100% 100% no-repeat; }
+.ds-plan-glyphs {
+  position: absolute; inset: calc(-1 * var(--ds-space-2xl));
+  background: var(--ascii-alpha) 0 0 / var(--ds-ascii-tile) var(--ds-ascii-tile);
+  will-change: transform;
+  animation: ds-plan-ascii var(--ds-plan-ascii-drift) var(--ds-easing-drift) infinite alternate paused;
+}
+.ds-plan-shimmer {
+  background-position: calc(-1 * var(--ds-space-xs) * 114) calc(-1 * var(--ds-space-xs) * 144); opacity: 0;
+  animation: ds-plan-ascii var(--ds-plan-ascii-drift) var(--ds-easing-drift) infinite alternate paused, ds-plan-shimmer var(--ds-plan-rim-cycle) var(--ds-easing-drift) infinite alternate paused;
+}
+.ds-plan-rim { padding: var(--ds-plan-rim-w); mask: linear-gradient(var(--ds-color-black) 0 0) content-box exclude, linear-gradient(var(--ds-color-black) 0 0); }
+.ds-plan-sweep, .ds-plan-window {
+  position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; will-change: transform;
+  animation: ds-plan-glide var(--ds-plan-rim-glide) var(--ds-easing-drift) infinite backwards paused;
+}
+.ds-plan-sweep { background: linear-gradient(135deg, transparent 44.5%, color-mix(in srgb, var(--ds-color-plan-ice) 70%, transparent) 47%, var(--ds-color-plan-ice) 49.5%, color-mix(in srgb, var(--ds-color-plan-ice) 70%, transparent) 52%, transparent 54.5%); }
+.ds-plan-corners {
+  position: absolute; inset: 0;
+  mask: radial-gradient(circle at 0 0, var(--ds-color-black) 0, transparent var(--ds-space-3xl)), radial-gradient(circle at 100% 0, var(--ds-color-black) 0, transparent var(--ds-space-3xl)), radial-gradient(circle at 100% 100%, var(--ds-color-black) 0, transparent var(--ds-space-3xl)), radial-gradient(circle at 0 100%, var(--ds-color-black) 0, transparent var(--ds-space-3xl));
+  mask-composite: add;
+}
+.ds-plan-sweep-color { background: linear-gradient(135deg, transparent 44%, var(--ds-color-spectrum-light-blue) 46%, var(--ds-color-spectrum-light-cyan) 48%, var(--ds-color-plan-ice) 49.5%, var(--ds-color-spectrum-light-yellow) 51%, var(--ds-color-spectrum-light-magenta) 52.5%, var(--ds-color-spectrum-light-red) 54%, transparent 56%); }
+.ds-plan-trail {
+  mask: linear-gradient(to right, var(--ds-color-black), transparent var(--ds-plan-rim-edge), transparent calc(100% - var(--ds-plan-rim-edge)), var(--ds-color-black)), linear-gradient(to bottom, var(--ds-color-black), transparent var(--ds-plan-rim-edge), transparent calc(100% - var(--ds-plan-rim-edge)), var(--ds-color-black));
+  mask-composite: add;
+}
+.ds-plan-window { mask-image: linear-gradient(135deg, transparent 20%, color-mix(in srgb, var(--ds-color-black) 30%, transparent) 33%, var(--ds-color-black) 46%, transparent 56%); }
+.ds-plan-trail-glyphs {
+  position: absolute; top: 25%; left: 25%; width: 50%; height: 50%;
+  background: var(--ascii-alpha) calc(-1 * var(--ds-space-xs) * 78) calc(-1 * var(--ds-space-xs) * 132) / var(--ds-ascii-tile) var(--ds-ascii-tile);
+  opacity: 0.75; will-change: transform;
+  animation: ds-plan-hold var(--ds-plan-rim-glide) var(--ds-easing-drift) infinite backwards paused;
+}
+.ds-plans[data-run="true"] :is(.ds-plan-drift, .ds-plan-glyphs, .ds-plan-sweep, .ds-plan-window, .ds-plan-trail-glyphs) { animation-play-state: running; }
+@keyframes ds-plan-drift { from { transform: translateX(-4%); } to { transform: translateX(4%); } }
+@keyframes ds-plan-ascii { to { transform: translate(var(--ds-plan-ascii-drift-x), var(--ds-plan-ascii-drift-y)); } }
+@keyframes ds-plan-shimmer { to { opacity: var(--ds-ascii-quiet); } }
+@keyframes ds-plan-glide { 0% { transform: translate(-58%, -58%); } 50%, 100% { transform: translate(58%, 58%); } }
+@keyframes ds-plan-hold { 0% { transform: translate(116%, 116%); } 50%, 100% { transform: translate(-116%, -116%); } }
+@media (prefers-reduced-motion: reduce) {
+  .ds-plan-drift, .ds-plan-glyphs, .ds-plan-shimmer { animation: none; }
+  .ds-plan-sweep, .ds-plan-trail { display: none; }
+  .ds-plan-rim { padding: var(--ds-border-hairline); background: var(--ds-color-edge-surface); }
+}

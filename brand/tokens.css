@@ -474,6 +474,62 @@
   --ds-price-phone-light-h: 700px;
   --ds-price-phone-band-h: 560px;
   /* group: pricing-products-enterprise */
+  /* pricing */
+  --ds-compare-tip-w: 288px; /* the compare table's tip, at most (site .compareTip: --space-320 - --space-32) */
+  --ds-compare-tip-delay: 80ms; /* a hovering pointer rests this long before the tip shows (site --dur-menu-intent) */
+  --ds-plan-tier-min-h: 208px; /* a plan's tier at least (site .tier: 2 * --space-80 + --space-48) */
+  --ds-plan-copy-w: 55%; /* who a plan is for, at most (site --plan-copy-w) */
+  --ds-plan-rim-w: 2px; /* the running light's width around a plan (site --plan-rim-w) */
+  --ds-plan-rim-edge: 24px; /* how far the trailing glyphs reach in from the edge (site --plan-rim-edge) */
+  --ds-plan-ascii-drift-x: 16px; /* the lit tier's glyphs drift this far (site --plan-ascii-drift-x, -y) */
+  --ds-plan-ascii-drift-y: -16px;
+  --ds-plan-light-drift: 14s; /* loop: the lit tier's light sways (site --dur-pro-light-drift, --hero-band-bob-time) */
+  --ds-plan-rim-glide: 10.4s; /* loop: one lap of the rim light (site --dur-plan-rim-glide: 4 * --dur-loop-step) */
+  --ds-plan-rim-cycle: 7.8s; /* loop: the glyphs' shimmer (site --dur-plan-rim-cycle: 3 * --dur-loop-step) */
+  --ds-plan-ascii-drift: 15.6s; /* loop: the glyphs' drift (site --dur-plan-ascii-drift: 2 * the cycle) */
+  /* enterprise */
+  /* The automation run (site tokens.css 684-740, --ent-run-*): a skewed conveyor of ads under a quote. The -md and -xl
+     values apply from 768 and 1280, -lg from 1024. Fractions are of the run's width. */
+  --ds-ent-run-stage-h: 480px; /* site --ent-run-stage-h (--space-480) */
+  --ds-ent-run-stage-h-md: 640px;
+  --ds-ent-run-stage-h-xl: 800px;
+  --ds-ent-run-overlap: 0px; /* site --ent-run-overlap: how far the stage rises under the quote */
+  --ds-ent-run-overlap-md: 96px;
+  --ds-ent-run-overlap-xl: 128px;
+  --ds-ent-run-head-w: 320px; /* site --ent-run-head-w */
+  --ds-ent-run-head-w-md: 704px;
+  --ds-ent-run-head-w-lg: 960px;
+  --ds-ent-run-card: 0.322; /* site --ent-run-card: a card's side */
+  --ds-ent-run-card-md: 0.161;
+  --ds-ent-run-step-x: 0.13; /* site --ent-run-step-x: the step between cards */
+  --ds-ent-run-step-x-md: 0.065;
+  --ds-ent-run-rise: 0.585; /* site --ent-run-rise: the rise per step, of the step */
+  --ds-ent-run-rise-md: 0.356;
+  --ds-ent-run-enter: 0.3; /* site --ent-run-enter */
+  --ds-ent-run-offset-y: 0.08; /* site --ent-run-offset-y, of the stage's height */
+  --ds-ent-run-offset-y-md: 0;
+  --ds-ent-run-lift: 112px; /* site --ent-run-lift: how high a card rises under the pointer */
+  --ds-ent-run-lift-md: 140px;
+  --ds-ent-run-lift-xl: 180px;
+  --ds-ent-run-skew: 14.8deg; /* site --ent-run-skew */
+  --ds-ent-run-tilt: 12deg; /* site --ent-run-tilt: the raised card's turn */
+  --ds-ent-run-wave: 16px; /* site --ent-run-wave */
+  --ds-ent-run-wave-slots: 20; /* site --ent-run-wave-slots */
+  --ds-ent-run-push: 1.8; /* site --ent-run-push: steps the cards ahead give way */
+  --ds-ent-run-push-reach: 3; /* site --ent-run-push-reach */
+  --ds-ent-run-drift: 15; /* site --ent-run-drift: px a second the conveyor keeps moving */
+  --ds-ent-run-note-w: 288px; /* site --ent-run-note-w */
+  --ds-ent-run-note-gap: 16px; /* site --ent-run-note-gap */
+  --ds-ent-run-deliver: 700ms; /* site --dur-ent-run-deliver (--dur-loop-change): the batch rushing in, read by the engine */
+  --ds-ent-run-calm: 700ms; /* site --dur-ent-run-calm: the conveyor slowing under the pointer */
+  --ds-ent-run-glide: 400ms; /* site --dur-ent-run-lift (--dur-abstract-glide): the lift's spring */
+  --ds-ent-run-intent: 80ms; /* site --dur-ent-run-note-intent (--dur-close-tag-intent) */
+  --ds-ent-run-big-tracking: -0.02em; /* the note's big number (site .noteBig letter-spacing) */
+  /* products */
+  --ds-feature-ascii-tile: 1080px; /* the ASCII tile behind a feature's stage (site --features-ascii-tile) */
+  --ds-feature-ascii-opacity: 0.5; /* site --features-ascii-opacity */
+  --ds-feature-ascii-clear-w: 46%; /* the clear middle of the stage (site --features-ascii-clear-w) */
+  --ds-feature-ascii-clear-h: 50%; /* site --features-ascii-clear-h */
   /* group: use-cases-resources-templates */
 }
 
