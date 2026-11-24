@@ -69,9 +69,9 @@ describe('manifest', () => {
 		const commands = (doc.commands as { name: string }[]).map((command) => command.name);
 		for (const name of ['manifest', 'describe', 'brand', 'principles', 'component', 'image', 'deck', 'video', 'merch', 'light', 'ascii', 'list', 'view', 'add', 'check', 'tokens']) expect(commands).toContain(name);
 		expect((doc.image as { templates: { id: string }[] }).templates.map((template) => template.id)).toEqual(expect.arrayContaining(['post-offer', 'ad-creator-plan', 'ad-search-bar', 'banner-tagline', 'avatar', 'logo-background', 'og', 'story']));
-		expect((doc.deck as { slides: { id: string }[] }).slides.map((slide) => slide.id)).toEqual(['cover-row', 'cover-inline', 'cover-curved', 'section', 'statement', 'bullets', 'stat', 'quote', 'image', 'closing']);
-		expect((doc.merch as { items: { id: string }[] }).items.map((item) => item.id)).toEqual(['cap-front', 'tee-front', 'tee-back', 'hoodie-front', 'tote', 'mug-wrap', 'sticker', 'poster', 'socks']);
-		expect((doc.video as { templates: { id: string }[] }).templates.map((template) => template.id)).toEqual(['light-band', 'light-corner', 'light-field', 'light-strips', 'light-close-up']);
+		expect((doc.deck as { slides: { id: string }[] }).slides.map((slide) => slide.id)).toEqual(['cover-row', 'cover-inline', 'cover-curved', 'section', 'statement', 'bullets', 'stat', 'quote', 'image', 'closing', 'agenda', 'timeline', 'team', 'comparison', 'image-grid', 'qa']);
+		expect((doc.merch as { items: { id: string }[] }).items.map((item) => item.id)).toEqual(['cap-front', 'tee-front', 'tee-back', 'hoodie-front', 'tote', 'mug-wrap', 'sticker', 'poster', 'socks', 'poster-11x17', 'poster-24x36', 'sticker-sheet', 'notebook-cover', 'lanyard']);
+		expect((doc.video as { templates: { id: string }[] }).templates.map((template) => template.id)).toEqual(['light-band', 'light-corner', 'light-field', 'light-strips', 'light-close-up', 'logo-reveal', 'outro']);
 		expect((doc.video as { sizes: { id: string; width: number; height: number }[] }).sizes.map((size) => [size.id, size.width, size.height])).toEqual([
 			['square', 1080, 1080],
 			['vertical', 1080, 1920],
