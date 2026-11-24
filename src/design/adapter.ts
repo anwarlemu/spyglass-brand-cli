@@ -13,6 +13,10 @@ import { renderVideo, videoDoc, hasFfmpeg } from '../commands/video.js';
 import { illustrate, illustrateData, LIGHT_FRAMES, type StyleId } from '../illustrate/build.js';
 import { checkDesign, checkText, errorsOf, sheetSvg, type Adapter, type DesignDoc, type Finding, type Format, type Painter, type TemplateInfo } from './index.js';
 import { PLATFORMS } from './platforms.js';
+import { BLOCKS, COMPOSE_THEMES, drawCompose, recipeFor } from '../assets/compose.js';
+import { SIZES } from '../assets/sizes.js';
+import { blockRects } from './compose.js';
+import { SECTIONS, writePage } from '../assets/page.js';
 
 // This brand's side of the design core: every template, slide, print item, illustration and loop as something a design
 // file can hold, and a document as the engine's own request. The layout, the copy and the edits all go through the same
@@ -143,6 +147,18 @@ async function filesOf(drawn: DrawResult, formats: Format[], scale: number, pdfW
 	return files;
 }
 
+async function renderCompose(doc: DesignDoc, dir: string, formats: Format[], scale: number) {
+	const pictures: Record<string, Photo> = {};
+	for (const { block } of blockRects(doc)) {
+		const v = doc.images[block.id];
+		if (block.type === 'picture' && v && v !== PLACEHOLDER && v !== 'none') pictures[block.id] = await readPhoto(dir, v);
+	}
+	const { drawn, layers } = await drawCompose(doc, pictures);
+	// Print sizes are 300 dpi; a PDF of anything else is a screen picture.
+	const print = ['a4', 'letter', 'business-card'].includes(doc.size.id);
+	return { files: await filesOf(drawn, formats, scale, print ? (doc.size.width / 300) * 72 : undefined), layers };
+}
+
 async function renderMerch(doc: DesignDoc, formats: Format[], scale: number) {
 	const item = findItem(doc.template);
 	const { drawn, widthIn, heightIn, scene } = await drawMerch(item, { variant: doc.theme, seed: doc.seed, light: doc.options.light as 'brand' | 'generated' | undefined, texture: yes(doc.options.texture), guides: yes(doc.options.guides), slots: doc.copy });
@@ -202,6 +218,11 @@ export function adapter(): Adapter {
 		brand: brand().bin,
 		templates: allTemplates,
 		defaults(template, size) {
+			if (template === 'compose') {
+				const p = SIZES.find((x) => x.id === size);
+				const [width, height] = p ? [p.width, p.height] : [1200, 675];
+				return { size: { id: size, width, height }, theme: 'black', seed: 0, options: {} };
+			}
 			const kind = kindOf(template);
 			if (kind === 'image' || kind === 'slide') {
 				const t = findTemplate(kind === 'slide' ? 'deck' : 'image', template);
@@ -224,6 +245,7 @@ export function adapter(): Adapter {
 			return { size: { id: size, width, height }, theme: 'black', seed: template === 'split' ? undefined : 0, options };
 		},
 		async render(doc, dir, out) {
+			if (doc.template === 'compose') return renderCompose(doc, dir, out.formats, out.scale);
 			if (doc.kind === 'merch') return renderMerch(doc, out.formats, out.scale);
 			if (doc.kind === 'illustration') return renderIllustration(doc, dir, out.formats, out.scale);
 			if (doc.kind === 'video') return renderLoop(doc, out.formats);
@@ -231,12 +253,25 @@ export function adapter(): Adapter {
 			const { drawn } = await drawTemplate(t, req);
 			return { files: await filesOf(drawn, out.formats, out.scale), layers: await groundsOf(drawn) };
 		},
+		compose: {
+			blocks: () => BLOCKS,
+			themes: Object.keys(COMPOSE_THEMES),
+			grounds: Object.fromEntries(Object.entries(COMPOSE_THEMES).map(([k, v]) => [k, color(v.ground)])),
+			// Square first: every template's recipe draws there as well as at its own size.
+			sizes: ['square', ...SIZES.map((x) => x.id).filter((id) => id !== 'square'), 'custom'],
+			formats: ['png', 'svg', 'jpg', 'webp', 'pdf'],
+			recipe: (template, size, copy) => recipeFor(template, size, copy),
+		},
+		page: { sections: () => SECTIONS, flavors: ['react', 'elements', 'html'], write: writePage },
 		sample(template) {
+			if (template === 'compose') return {};
 			const kind = kindOf(template);
 			const slots = kind === 'image' || kind === 'slide' ? findTemplate(kind === 'slide' ? 'deck' : 'image', template).slots : kind === 'merch' ? findItem(template).slots ?? {} : {};
 			return Object.fromEntries(Object.entries(slots).filter(([k, v]) => v && k !== 'url').map(([k, v]) => [k, fill(v)]));
 		},
 		colors: brandColors,
+		// A chart's points are drawn one under each bar, so the commas between them are not words.
+		words: (t) => t.replace(/,(?=\s|$)/g, ''),
 		aliases: {
 			sizes: { x: 'x-banner', 'linkedin-company': 'linkedin-page', card: 'landscape', tile: 'tile' },
 			themes: { dark: 'black', light: 'white' },
