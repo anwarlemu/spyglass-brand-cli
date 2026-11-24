@@ -1,0 +1,11 @@
+/* The host is the box, as AsciiDrift.tsx's root: absolute, behind the content; the page's classes size and place it. */
+:host {
+  position: absolute;
+  z-index: -1;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+@media print {
+  :host { display: none; }
+}
