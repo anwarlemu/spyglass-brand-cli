@@ -13,8 +13,6 @@ never:
 source: "Site app/(auth) and pages/Auth (AuthShell, AuthForm, AuthProof, Auth.module.css): the lights public/brand/light/auth-light-*.webp at min(29vw, 520px) (144px, top right only, on phones), 11:16, bobbing 12px over 14s on --ease-drift; ASCII drifts 36% by 44% from 1024; the bar 64/72px with the 20px lockup; main centered with 64px between the form and the proof row, 32px in"
 files:
   - react/components/pages/AuthPage.tsx
-  - lib/textures.ts
-  - lib/ascii-drift.ts
 examples:
   - "SignUp | Sign up | bleed"
   - "SignIn | Sign in | bleed"

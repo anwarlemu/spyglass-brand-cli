@@ -277,7 +277,7 @@ export function layersOf(t: Template): { id: string; can: DrawnLayer['can'] }[] 
 			else if (l.type === 'search') add(id, { move: true, scale: [0.8, 1.2], hide: true });
 			else if (l.type === 'photo' || l.type === 'panel' || l.type === 'split') add(id, { move: true, scale: [0.6, 1.4], hide: !t.minPhotos });
 			else if (l.type === 'light' && id !== 'pictures') add(id, l.b ? { move: true, scale: [0.6, 1.8], hide: true } : { hide: true });
-			else if (l.type === 'ascii') add(id, { hide: true });
+			else if (l.type === 'ascii' || l.type === 'art') add(id, { hide: true });
 			else if (l.type === 'rect') add(id, { move: true, hide: !l.required });
 		}
 	}
@@ -299,7 +299,7 @@ export function reflowsOf(t: Template): Record<string, string[]> {
 		const spec = SIZES.find((s) => s.id === size);
 		const zones = spec ? zonesOf(size, spec.width, spec.height) : undefined;
 		const layers = named(t.layouts ? t.layouts[size]!.layers : LAYOUTS[t.id]!({ W: spec!.width, H: spec!.height, size, has: () => true, pictures: t.photos ?? 0, safe: zones!.safe, avoid: zones!.avoid, floor: zones!.floor }).layers);
-		const art = layers.filter((l) => l.type === 'light' || l.type === 'photo' || l.type === 'panel' || l.type === 'split').map(layerId);
+		const art = layers.filter((l) => l.type === 'light' || l.type === 'art' || l.type === 'photo' || l.type === 'panel' || l.type === 'split').map(layerId);
 		const words: string[] = [];
 		for (const l of layers) {
 			if (l.type === 'stack') {

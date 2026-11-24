@@ -404,7 +404,13 @@
 
   /* Site parts (each group adds its tokens under its own line, so parallel work merges cleanly). */
   /* group: effects */
+  --ds-light-grain-reach: 64px; /* how far the light image's grain reaches from the light (site --light-grain-reach) */
+  --ds-light-grain-lens: 192px; /* the grain's reach under the pointer's lens (site --light-grain-lens) */
   /* group: chrome */
+  --ds-page-head-drift-clear: 320px; /* a centered page head's drift starts this far right of the middle (site --space-320) */
+  --ds-menu-from-scale: 0.96; /* a menu panel grows in from this scale (site --menu-from-scale) */
+  --ds-page-close-drift-w: 480px; /* the closing section's lower left drift at most (site --space-480) */
+  --ds-page-close-drift-high-w: 320px; /* its upper right drift at most (site --space-320) */
   /* group: home */
   /* The creative sequence (site --dur-seq-*, --ease-seq-*): sets of creatives fading and settling in turn, a loop. The
      site leaves on an ease-in (--ease-seq-out); here it leaves on the in-out ease, as interface motion never eases in. */

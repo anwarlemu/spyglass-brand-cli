@@ -1,0 +1,4 @@
+/* The host is the box, as LightImage.tsx's root: the page's classes size, place and position it. */
+:host {
+  display: block;
+}
