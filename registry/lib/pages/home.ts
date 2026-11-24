@@ -1,8 +1,6 @@
 // The home page's copy (site app/v2/page.tsx: the header, the proof row, the questions and the footer; each section's
 // own copy lives with its block in lib/home/). The questions are the site's own; the marks, customers and links are
 // Acme placeholders. Both flavors read this file.
-/** A mark in the proof row: a file drawn in the muted gray, or the name as a wordmark. */
-export interface HomeProofLogo { name: string; src?: string; ratio?: number; height?: number }
 
 const nav = [
 	{ label: 'Products', href: '/products' },
@@ -14,7 +12,7 @@ const nav = [
 
 export const homeContent = {
 	header: { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get a free API key', href: '/sign-up' } },
-	proof: { title: 'Trusted by teams and agents at', logos: [{ name: 'Acme' }, { name: 'Acme Labs' }, { name: 'Acme Studio' }, { name: 'Acme Goods' }, { name: 'Acme Air' }, { name: 'Acme & Co' }] as HomeProofLogo[] },
+	proof: { title: 'Trusted by teams and agents at', logos: [{ name: 'Acme' }, { name: 'Acme Labs' }, { name: 'Acme Studio' }, { name: 'Acme Goods' }, { name: 'Acme Air' }, { name: 'Acme & Co' }] as { name: string; src?: string; ratio?: number; height?: number }[] },
 	faq: {
 		title: 'Frequently asked questions',
 		lead: 'Anything else is in the docs, with every endpoint and tool.',
