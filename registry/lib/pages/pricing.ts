@@ -6,7 +6,7 @@ export interface PricingPlanCopy { name: string, description?: string, price: st
 export type CompareCellCopy = true | '' | string
 export interface CompareGroupCopy { title: string, rows: { label: string, tip?: string, href?: string, soon?: boolean, cells: CompareCellCopy[] }[] }
 
-const plans: PricingPlanCopy[] = [
+const plans: { name: string, description?: string, price: string, unit?: string, yearly?: { price: string, unit?: string }, tag?: string, badge?: string, featured?: boolean, rim?: boolean, cta?: string, href?: string, ladder?: string, features?: string[] }[] = [
 	{ name: 'Free', description: 'Try the API and MCP server.', price: '$0', unit: '/mo', cta: 'Get a free API key', href: '/sign-up', features: ['500 credits a month', 'No card needed', 'API and MCP access', 'Ads, posts and short videos', 'Python and Node SDKs'] },
 	{ name: 'Creator', description: 'For individuals.', price: '$10', unit: '/mo', yearly: { price: '$8', unit: '/mo, billed yearly' }, cta: 'Start with Creator', href: '/sign-up', ladder: 'Everything in Free, plus:', features: ['5,000 credits ($2/1K)', '$2 per 1K additional credits'] },
 	{ name: 'Pro', description: 'For teams and builders.', price: '$20', unit: '/mo', yearly: { price: '$16', unit: '/mo, billed yearly' }, tag: 'Save 25%', badge: 'Most popular', featured: true, cta: 'Start with Pro', href: '/sign-up', ladder: 'Everything in Creator, plus:', features: ['13,334 credits ($1.5/1K)', '$1.5 per 1K additional credits', 'Beta-access to new features'] },
@@ -35,7 +35,7 @@ export const pricingContent = {
 		label: 'Compare plans',
 		plans: plans.map((p) => ({ key: p.name.toLowerCase(), name: p.name })),
 		defaultPlan: 'pro',
-		groups: <CompareGroupCopy[]>[
+		groups: <{ title: string, rows: { label: string, tip?: string, href?: string, soon?: boolean, cells: (true | string)[] }[] }[]>[
 			{
 				title: 'Usage',
 				rows: [

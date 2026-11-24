@@ -25,7 +25,7 @@ export const comingSoonContent = {
 	},
 	nextLabel: 'Next on Acme',
 	feedsLabel: 'Comes to',
-	next: <ComingSource[]>[
+	next: <{ name: string, line: string, apis: { name: string, href: string }[], mark?: string }[]>[
 		{ name: 'Long-form video', line: 'The videos and shorts brands and creators post, and how they perform.', apis: [api('Brands API', 'brands'), api('Creators API', 'creators'), api('Media API', 'media')] },
 		{ name: 'Search ads', line: 'The ads a brand runs on search, and the pages they lead to.', apis: [api('Brands API', 'brands'), api('Media API', 'media'), api('Landing Pages API', 'landing-pages')] },
 		{ name: 'Work network ads', line: 'The ads a company runs to professionals, and where they send people.', apis: [api('Brands API', 'brands'), api('Media API', 'media'), api('Landing Pages API', 'landing-pages')] },
@@ -35,7 +35,7 @@ export const comingSoonContent = {
 	also: {
 		title: 'Also on the list',
 		note: 'Organic posts',
-		sources: <ComingAlso[]>[{ name: 'Text threads' }, { name: 'Disappearing stories' }, { name: 'Open networks' }, { name: 'Forums' }],
+		sources: <{ name: string, mark?: string }[]>[{ name: 'Text threads' }, { name: 'Disappearing stories' }, { name: 'Open networks' }, { name: 'Forums' }],
 	},
 	close: { lines: ['Give your agents', 'the social internet'], note: '500 free credits every month. No card required.', primary: { label: 'Get a free API key', href: '/sign-up' } },
 	footer: {

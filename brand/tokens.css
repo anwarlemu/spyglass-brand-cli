@@ -659,6 +659,9 @@
   --ds-ent-feat-stagger: 180ms; /* site --dur-seq-stagger */
   --ds-ent-logos-above: 24px; /* site --ent-logos-above: the logo row under the hero */
   --ds-ent-logos-above-md: 16px; /* from 768 (40 less the ring's 24px edge) */
+  /* product-visual */
+  --ds-pv-ascii-clear-w: 46%; /* the clear middle of a feature stage's ASCII field (site --features-ascii-clear-w) */
+  --ds-pv-ascii-clear-h: 50%; /* site --features-ascii-clear-h */
   /* group: use-cases-resources-templates */
   /* scroll-story */
   /* scroll-story: the pinned story on use-case pages (site tokens.css 820-836): five chapter lengths and a tail in screens, the 1512x982 design frame drawn at the 1280 content width, text rise and rates. */
