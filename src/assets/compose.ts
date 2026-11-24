@@ -133,8 +133,16 @@ function scalePath(d: string, x: number, y: number, k: number): string {
 		const t = tokens[i]!;
 		if (/[a-zA-Z]/.test(t)) {
 			cmd = t;
-			out.push(t);
 			i++;
+			// A path's first moveto is absolute even when written small; the pairs after it are relative lines.
+			if (i === 1 && t === 'm') {
+				const [mx, my] = [Number(tokens[i]), Number(tokens[i + 1])];
+				i += 2;
+				out.push(`M${(x + mx * k).toFixed(2)} ${(y + my * k).toFixed(2)}`);
+				cmd = 'l';
+				if (i >= tokens.length || /[a-zA-Z]/.test(tokens[i]!)) continue;
+				out.push('l');
+			} else out.push(cmd);
 			if (cmd.toLowerCase() === 'z') continue;
 		}
 		const lower = cmd.toLowerCase();
@@ -241,7 +249,15 @@ function composeScene(doc: DesignDoc, photosIn: Photo[], floor: number, fitted: 
 				const g = geometryOf(doc, id);
 				const seed = opt(doc, id, 'seed');
 				if (g?.window || g?.b) layers.push({ type: 'light', id, window: g.window, b: g.b, shift: g.shift, variant: g.variant, source: g.source, fixed: g.fixed, ...(seed !== undefined ? { seed: num(seed, 0) } : {}) });
-				else layers.push({ type: 'light', id, window: box(r), variant: str(opt(doc, id, 'variant'), 'band'), ...(seed !== undefined ? { seed: num(seed, 0) } : {}) });
+				else {
+					// The light is never boxed in: a side whose cells reach the grid's edge runs on to the canvas edge.
+					const grid = doc.grid ?? { cols: 12, rows: 12 };
+					const x0 = b.at.col === 0 ? 0 : r.x;
+					const y0 = b.at.row === 0 ? 0 : r.y;
+					const x1 = b.at.col + b.at.cols >= grid.cols ? W : r.x + r.w;
+					const y1 = b.at.row + b.at.rows >= grid.rows ? H : r.y + r.h;
+					layers.push({ type: 'light', id, window: [x0, y0, x1 - x0, y1 - y0], variant: str(opt(doc, id, 'variant'), 'band'), bleeds: true, ...(seed !== undefined ? { seed: num(seed, 0) } : {}) });
+				}
 				break;
 			}
 			case 'ascii':

@@ -11,7 +11,7 @@
    "minPhotos": 1,
    "slots": {},
    "required": [],
-   "sizes": ["square","portrait","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail"]
+   "sizes": ["square","portrait","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail","pinterest","facebook-cover","facebook","desktop","phone-wallpaper"]
   },
   {
    "id": "post-agents",
@@ -23,7 +23,7 @@
    "minPhotos": 1,
    "slots": {"headline":"Give your agents access to Instagram and TikTok.","page":""},
    "required": [],
-   "sizes": ["square","portrait","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail"]
+   "sizes": ["square","portrait","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail","pinterest","facebook-cover","facebook","ad-970x250","desktop","phone-wallpaper"]
   },
   {
    "id": "post-any-brand",
@@ -35,7 +35,7 @@
    "minPhotos": 1,
    "slots": {"headline":"Add any brand or creator in under a minute.","url":"{domain}","page":""},
    "required": [],
-   "sizes": ["square","portrait","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail"]
+   "sizes": ["square","portrait","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail","pinterest","facebook","desktop","phone-wallpaper"]
   },
   {
    "id": "post-every-market",
@@ -45,7 +45,7 @@
    "description": "A headline and a paragraph between two light strips.",
    "slots": {"headline":"Understand what is working in any category.","body":"Compare brands, creators, campaigns, and formats to uncover what is gaining traction, what is falling behind, and why.","url":"{domain}","page":""},
    "required": ["headline"],
-   "sizes": ["square","portrait","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail","x-banner","linkedin-banner","linkedin-page","youtube","email"]
+   "sizes": ["square","portrait","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail","x-banner","linkedin-banner","linkedin-page","youtube","email","pinterest","facebook-cover","facebook","desktop","phone-wallpaper"]
   },
   {
    "id": "post-know-what-changed",
@@ -55,7 +55,7 @@
    "description": "A large headline top left, a light band across, a paragraph bottom right.",
    "slots": {"headline":"Know what changed before your next meeting.","body":"Spyglass follows the brands, creators, and niches that matter to you then turns the changes into a brief you actually want to read.","url":"{domain}","page":""},
    "required": ["headline"],
-   "sizes": ["square","portrait","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail","x-banner","linkedin-banner","linkedin-page","youtube","email"]
+   "sizes": ["square","portrait","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail","x-banner","linkedin-banner","linkedin-page","youtube","email","pinterest","facebook-cover","facebook","ad-970x250","desktop","phone-wallpaper"]
   },
   {
    "id": "post-offer",
@@ -66,7 +66,7 @@
    "slots": {"headline":"Stop screenshotting at midnight.","price":"$10 for your first month, then $20/month","cta":"Start Creator for 50% off","url":"{domain}","page":""},
    "required": ["headline"],
    "aliases": {"badge":"price"},
-   "sizes": ["square","portrait","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail","x-banner","linkedin-banner","linkedin-page","youtube","email"]
+   "sizes": ["square","portrait","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail","x-banner","linkedin-banner","linkedin-page","youtube","email","pinterest","facebook-cover","facebook","desktop","phone-wallpaper"]
   },
   {
    "id": "ad-search-bar",
@@ -78,7 +78,7 @@
    "minPhotos": 1,
    "slots": {"headline":"{tagline}","body":"AI search across millions of creatives. Ask a question and get instant, structured results.","prompt":"Show me UGC ads for skincare brands using before/after hooks","cta":"Get 50% off","url":"{domain}"},
    "required": ["headline"],
-   "sizes": ["portrait","square","story","linkedin-square"]
+   "sizes": ["portrait","square","story","linkedin-square","pinterest","facebook","phone-wallpaper"]
   },
   {
    "id": "ad-corridor",
@@ -90,7 +90,7 @@
    "minPhotos": 1,
    "slots": {"headline":"The world’s largest creative search engine.","body":"Meta, TikTok, Instagram, and YouTube creatives in one index.","cta":"Get 50% off","url":"{domain}"},
    "required": ["headline"],
-   "sizes": ["portrait","square","story","linkedin-square"]
+   "sizes": ["portrait","square","story","linkedin-square","pinterest","facebook","desktop","phone-wallpaper"]
   },
   {
    "id": "ad-photo",
@@ -102,7 +102,7 @@
    "minPhotos": 1,
    "slots": {"headline":"Search millions of creators in one place.","body":"Spyglass monitors millions of brands and creators across Meta Ads, Instagram, and TikTok.","cta":"Get Spyglass 50% off","url":"{domain}"},
    "required": [],
-   "sizes": ["portrait","square","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail"]
+   "sizes": ["portrait","square","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail","pinterest","facebook-cover","facebook","phone-wallpaper"]
   },
   {
    "id": "ad-testimonial",
@@ -115,7 +115,7 @@
    "slots": {"quote":"“This is the only tool that gives me full competitive visibility across every account I manage.”","name":"Acme customer","role":"Head of growth, Acme","cta":"Get 50% off","url":"{domain}"},
    "required": ["quote"],
    "aliases": {"headline":"quote"},
-   "sizes": ["portrait","square","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail"]
+   "sizes": ["portrait","square","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail","pinterest","facebook","desktop","phone-wallpaper"]
   },
   {
    "id": "ad-creator-plan",
@@ -125,7 +125,7 @@
    "description": "The headline over the plan card (name, price, features, button), under the light field.",
    "slots": {"headline":"Stop screenshotting at midnight.","plan":"Creator","price":"$10 for your first month, then $20/month","features":"AI-powered research across brands, creators, ads, and campaigns | Unlimited board swipe files, alerts, and tracked brands | Unlimited team seats","cta":"Start Creator for 50% off","url":"{domain}"},
    "required": ["headline"],
-   "sizes": ["portrait","square","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail"]
+   "sizes": ["portrait","square","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail","pinterest","facebook","phone-wallpaper"]
   },
   {
    "id": "ad-creative-row",
@@ -137,7 +137,7 @@
    "minPhotos": 1,
    "slots": {"headline":"Search millions of brands and creators.","cta":"Explore the product"},
    "required": [],
-   "sizes": ["portrait","square","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail"]
+   "sizes": ["portrait","square","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail","facebook-cover","facebook","ad-970x250","desktop","phone-wallpaper"]
   },
   {
    "id": "banner-tagline",
@@ -148,7 +148,7 @@
    "description": "The tagline on the right, the light flowing in from the left.",
    "slots": {"headline":"{tagline}"},
    "required": ["headline"],
-   "sizes": ["x-banner","linkedin-banner","linkedin-page","youtube","email","og","landscape","square","portrait","story","linkedin-square","youtube-thumbnail"],
+   "sizes": ["x-banner","linkedin-banner","linkedin-page","youtube","email","og","landscape","square","portrait","story","linkedin-square","youtube-thumbnail","pinterest","facebook-cover","facebook","ad-728x90","ad-970x250","desktop","phone-wallpaper"],
    "sizeAliases": {"x":"x-banner","linkedin":"linkedin-banner"}
   },
   {
@@ -162,7 +162,7 @@
    "minPhotos": 1,
    "slots": {},
    "required": [],
-   "sizes": ["x-banner","linkedin-banner","linkedin-page","youtube","email","og","landscape","square","portrait","story","linkedin-square","youtube-thumbnail"],
+   "sizes": ["x-banner","linkedin-banner","linkedin-page","youtube","email","og","landscape","square","portrait","story","linkedin-square","youtube-thumbnail","pinterest","facebook-cover","facebook","ad-300x250","ad-336x280","ad-728x90","ad-300x600","ad-320x50","ad-160x600","ad-970x250","meeting","desktop","phone-wallpaper"],
    "sizeAliases": {"x":"x-banner","linkedin":"linkedin-banner"}
   },
   {
@@ -173,7 +173,7 @@
    "description": "A close-up of the light and the domain.",
    "slots": {"url":"{domain}","headline":"{tagline}"},
    "required": [],
-   "sizes": ["x-banner","linkedin-banner","linkedin-page","youtube","email","og","landscape","square","portrait","story","linkedin-square","youtube-thumbnail"],
+   "sizes": ["x-banner","linkedin-banner","linkedin-page","youtube","email","og","landscape","square","portrait","story","linkedin-square","youtube-thumbnail","pinterest","facebook-cover","facebook","ad-300x250","ad-336x280","ad-728x90","ad-300x600","ad-160x600","ad-970x250","desktop","phone-wallpaper"],
    "sizeAliases": {"x":"x-banner","linkedin":"linkedin-banner"}
   },
   {
@@ -187,7 +187,7 @@
    "minPhotos": 1,
    "slots": {"headline":"{tagline}"},
    "required": ["headline"],
-   "sizes": ["x-banner","linkedin-banner","linkedin-page","youtube","email","og","landscape","square","portrait","story","linkedin-square","youtube-thumbnail"],
+   "sizes": ["x-banner","linkedin-banner","linkedin-page","youtube","email","og","landscape","square","portrait","story","linkedin-square","youtube-thumbnail","pinterest","facebook-cover","facebook","ad-728x90","ad-970x250","desktop","phone-wallpaper"],
    "sizeAliases": {"x":"x-banner","linkedin":"linkedin-banner"}
   },
   {
@@ -199,7 +199,7 @@
    "slots": {},
    "required": [],
    "variants": {"white":{"ground":"white","mark":"black"}},
-   "sizes": ["avatar"]
+   "sizes": ["avatar","pinterest","facebook-cover","facebook","ad-300x250","ad-336x280","ad-728x90","ad-300x600","ad-160x600","ad-970x250","desktop","phone-wallpaper"]
   },
   {
    "id": "logo-background",
@@ -210,7 +210,7 @@
    "slots": {},
    "required": [],
    "variants": {"black":{"ground":"black","mark":"white"},"white":{"ground":"white","mark":"black"},"blue":{"ground":"blue","mark":"white"},"red":{"ground":"red","mark":"white"},"magenta":{"ground":"magenta","mark":"white"},"yellow":{"ground":"yellow","mark":"black"},"green":{"ground":"green","mark":"black"}},
-   "sizes": ["tile","avatar","square","linkedin-square"]
+   "sizes": ["tile","avatar","square","linkedin-square","pinterest","facebook-cover","facebook","ad-300x250","ad-336x280","ad-728x90","ad-300x600","ad-160x600","ad-970x250","desktop","phone-wallpaper"]
   },
   {
    "id": "logo-background-3d",
@@ -221,7 +221,7 @@
    "slots": {},
    "required": [],
    "variants": {"black":{"ground":"black","mark":"white"},"white":{"ground":"white","mark":"black"}},
-   "sizes": ["tile","avatar","square","linkedin-square"]
+   "sizes": ["tile","avatar","square","linkedin-square","pinterest","facebook-cover","facebook","ad-300x250","ad-336x280","ad-728x90","ad-300x600","ad-320x50","ad-160x600","ad-970x250","desktop","phone-wallpaper"]
   },
   {
    "id": "logo-primary",
@@ -232,7 +232,7 @@
    "slots": {},
    "required": [],
    "variants": {"black":{"ground":"black","mark":"white"}},
-   "sizes": ["primary","og","linkedin","youtube-thumbnail"],
+   "sizes": ["primary","og","linkedin","youtube-thumbnail","pinterest","facebook-cover","facebook","ad-300x250","ad-336x280","ad-728x90","ad-300x600","ad-160x600","ad-970x250","desktop","phone-wallpaper"],
    "sizeAliases": {"landscape":"primary"}
   },
   {
@@ -243,7 +243,7 @@
    "description": "Lockup and domain on top, the headline, a light band across the foot.",
    "slots": {"headline":"{tagline}","url":"{domain}","page":"","body":""},
    "required": ["headline"],
-   "sizes": ["og","square","portrait","story","landscape","linkedin","linkedin-square","youtube-thumbnail","x-banner","linkedin-banner","linkedin-page","youtube","email"]
+   "sizes": ["og","square","portrait","story","landscape","linkedin","linkedin-square","youtube-thumbnail","x-banner","linkedin-banner","linkedin-page","youtube","email","pinterest","facebook-cover","facebook","ad-970x250","desktop","phone-wallpaper"]
   },
   {
    "id": "og-offer",
@@ -254,7 +254,7 @@
    "slots": {"headline":"Stop screenshotting at midnight.","cta":"Start Creator for 50% off","url":"{domain}","price":""},
    "required": ["headline"],
    "aliases": {"badge":"price"},
-   "sizes": ["og","square","portrait","story","landscape","linkedin","linkedin-square","youtube-thumbnail","x-banner","linkedin-banner","linkedin-page","youtube","email"]
+   "sizes": ["og","square","portrait","story","landscape","linkedin","linkedin-square","youtube-thumbnail","x-banner","linkedin-banner","linkedin-page","youtube","email","pinterest","facebook-cover","facebook","desktop","phone-wallpaper"]
   },
   {
    "id": "og-site",
@@ -271,13 +271,7 @@
    "required": [
     "headline"
    ],
-   "sizes": [
-    "og",
-    "landscape",
-    "linkedin",
-    "youtube-thumbnail",
-    "primary"
-   ]
+   "sizes": ["og","landscape","linkedin","youtube-thumbnail","primary","pinterest","facebook-cover","facebook","ad-970x250","desktop","phone-wallpaper"]
   },
   {
    "id": "story",
@@ -287,7 +281,7 @@
    "description": "The corner light around the frame, headline, line and button inside the story safe area (250px top and bottom).",
    "slots": {"headline":"{tagline}","body":"AI search across millions of creatives. Ask a question and get instant, structured results.","cta":"Get 50% off","url":"{domain}","page":""},
    "required": ["headline"],
-   "sizes": ["story","portrait","square","linkedin-square"]
+   "sizes": ["story","portrait","square","linkedin-square","pinterest","facebook","phone-wallpaper"]
   },
   {
    "id": "story-offer",
@@ -297,7 +291,7 @@
    "description": "The plan ad, centered in the story safe area, under a taller light field.",
    "slots": {"headline":"Stop screenshotting at midnight.","plan":"Creator","price":"$10 for your first month, then $20/month","features":"AI-powered research across brands, creators, ads, and campaigns | Unlimited board swipe files, alerts, and tracked brands | Unlimited team seats","cta":"Start Creator for 50% off","url":"{domain}"},
    "required": ["headline"],
-   "sizes": ["story","square","portrait","og","landscape","linkedin","linkedin-square","youtube-thumbnail"]
+   "sizes": ["story","square","portrait","og","landscape","linkedin","linkedin-square","youtube-thumbnail","pinterest","facebook","phone-wallpaper"]
   }
  ]
 }

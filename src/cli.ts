@@ -18,6 +18,7 @@ import { runVideo, VIDEO_FLAGS, videoHelp } from './commands/video.js';
 import { patternHelp, runAscii, runLight } from './commands/pattern.js';
 import { helpRow } from './lib/help-row.js';
 import { ILLUSTRATE_FLAGS, illustrateHelp, runIllustrate } from './commands/illustrate.js';
+import { RECIPE_FLAGS, runRecipe } from './commands/recipe.js';
 import { FIGMA_FLAGS, figmaHelp, runFigma } from './commands/figma.js';
 import { suggest } from './lib/names.js';
 
@@ -68,6 +69,7 @@ const HELP = () => {
 		'Brand graphics:',
 		row('light --variant band --seed 1', 'The brand light as SVG or PNG, seeded (--source brand|generated, --list)'),
 		row('ascii --seed 4', 'The ASCII texture as SVG or PNG, seeded (--density, --ground)'),
+		row('recipe <name>', 'Ready layouts for what no template covers: display ads, cards, print, email, backgrounds (--list)'),
 		row('illustrate <style> [subject]', 'Brand imagery: pattern, light, texture, split (--image), shader (--list)'),
 		row('figma tokens|push|pull|check', 'Files and the ordered Figma MCP calls; the CLI never calls Figma'),
 		'',
@@ -144,6 +146,7 @@ const FLAGS: Record<string, string[]> = {
 	light: ['variant', 'seed', 'source', 'width', 'height', 'out', 'format', 'ground', 'list'],
 	ascii: ['seed', 'width', 'height', 'density', 'out', 'format', 'ground'],
 	illustrate: ILLUSTRATE_FLAGS,
+	recipe: RECIPE_FLAGS,
 	figma: FIGMA_FLAGS,
 	design: [],
 };
@@ -169,7 +172,7 @@ async function main() {
 	const cwd = resolve(typeof flags.cwd === 'string' ? flags.cwd : process.cwd());
 	const json = flags.json === true;
 	const out = (value: unknown, text: string) => console.log(json ? JSON.stringify(value, null, 2) : text);
-	const ownHelp = new Set(['image', 'deck', 'merch', 'video', 'brand', 'principles', 'component', 'manifest', 'describe', 'light', 'ascii', 'illustrate', 'figma']);
+	const ownHelp = new Set(['image', 'deck', 'merch', 'video', 'brand', 'principles', 'component', 'manifest', 'describe', 'light', 'ascii', 'illustrate', 'figma', 'recipe']);
 	if (flags.help && command && !ownHelp.has(command)) {
 		console.log(HELP());
 		return;
@@ -342,6 +345,10 @@ async function main() {
 			const r = command === 'light' ? await runLight(cwd, args, flags) : await runAscii(cwd, args, flags);
 			out(r.json, r.text);
 			return;
+		}
+		case 'recipe': {
+			process.exitCode = await runRecipe(cwd, args, { ...flags, ...(flags.help ? { list: true } : {}) });
+			break;
 		}
 		case 'illustrate': {
 			if (flags.help) {
