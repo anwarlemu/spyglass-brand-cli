@@ -28,3 +28,20 @@ describe('icons', () => {
 		for (const f of ['favicon.svg', 'favicon.ico', 'favicon-16.png', 'favicon-32.png', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'site.webmanifest']) expect(files.some((x) => x.endsWith(`/${f}`)), f).toBe(true);
 	});
 });
+
+describe('email', () => {
+	it('writes each kind as one table with inline styles, only the words passed, and refuses missing words', async () => {
+		const { EMAILS, renderEmail, runEmail } = await import('../src/commands/email.js');
+		for (const [kind, k] of Object.entries(EMAILS)) {
+			const html = renderEmail(kind, k.sample);
+			expect(html).toContain('role="presentation"');
+			expect(html).not.toMatch(/<style|class="/);
+			for (const v of Object.values(k.sample)) for (const w of v.split(/[\s|]+/).filter((x) => /^[A-Za-z]{4,}$/.test(x))) expect(html, `${kind} ${w}`).toContain(w);
+		}
+		expect(() => renderEmail('receipt', { headline: 'Hi' })).toThrow(/needs --set items/);
+		expect(() => renderEmail('receipt', { headline: 'Hi', items: 'a | 1', total: '1', subject: 'x' })).toThrow(/does not take subject/);
+		const dir = mkdtempSync(join(tmpdir(), 'email-'));
+		const files = runEmail(dir, ['newsletter'], { sample: true }, () => {});
+		expect(files.some((f) => f.endsWith('logo.png'))).toBe(true);
+	});
+});

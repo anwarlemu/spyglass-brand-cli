@@ -20,6 +20,7 @@ import { helpRow } from './lib/help-row.js';
 import { ILLUSTRATE_FLAGS, illustrateHelp, runIllustrate } from './commands/illustrate.js';
 import { RECIPE_FLAGS, runRecipe } from './commands/recipe.js';
 import { ICONS_FLAGS, iconsHelp, runIcons } from './commands/icons.js';
+import { EMAIL_FLAGS, emailHelp, runEmail } from './commands/email.js';
 import { FIGMA_FLAGS, figmaHelp, runFigma } from './commands/figma.js';
 import { suggest } from './lib/names.js';
 
@@ -70,6 +71,7 @@ const HELP = () => {
 		'Brand graphics:',
 		row('light --variant band --seed 1', 'The brand light as SVG or PNG, seeded (--source brand|generated, --list)'),
 		row('ascii --seed 4', 'The ASCII texture as SVG or PNG, seeded (--density, --ground)'),
+		row('email <kind>', 'Emails as mail clients read them (tables, inline styles): newsletter, announcement, receipt, password-reset'),
 		row('icons', 'The favicon set, app icons, a maskable icon, avatars and the web manifest'),
 		row('recipe <name>', 'Ready layouts for what no template covers: display ads, cards, print, email, backgrounds (--list)'),
 		row('illustrate <style> [subject]', 'Brand imagery: pattern, light, texture, split (--image), shader (--list)'),
@@ -150,6 +152,7 @@ const FLAGS: Record<string, string[]> = {
 	illustrate: ILLUSTRATE_FLAGS,
 	recipe: RECIPE_FLAGS,
 	icons: ICONS_FLAGS,
+	email: EMAIL_FLAGS,
 	figma: FIGMA_FLAGS,
 	design: [],
 };
@@ -175,7 +178,7 @@ async function main() {
 	const cwd = resolve(typeof flags.cwd === 'string' ? flags.cwd : process.cwd());
 	const json = flags.json === true;
 	const out = (value: unknown, text: string) => console.log(json ? JSON.stringify(value, null, 2) : text);
-	const ownHelp = new Set(['image', 'deck', 'merch', 'video', 'brand', 'principles', 'component', 'manifest', 'describe', 'light', 'ascii', 'illustrate', 'figma', 'recipe', 'icons']);
+	const ownHelp = new Set(['image', 'deck', 'merch', 'video', 'brand', 'principles', 'component', 'manifest', 'describe', 'light', 'ascii', 'illustrate', 'figma', 'recipe', 'icons', 'email']);
 	if (flags.help && command && !ownHelp.has(command)) {
 		console.log(HELP());
 		return;
@@ -348,6 +351,11 @@ async function main() {
 			const r = command === 'light' ? await runLight(cwd, args, flags) : await runAscii(cwd, args, flags);
 			out(r.json, r.text);
 			return;
+		}
+		case 'email': {
+			if (flags.help) console.log(emailHelp());
+			else runEmail(cwd, args, flags);
+			break;
 		}
 		case 'icons': {
 			if (flags.help) console.log(iconsHelp());

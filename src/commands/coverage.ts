@@ -23,7 +23,7 @@ export const COVERAGE: { rows: CoverageRow[]; missing: { need: string; why: stri
 		{ need: 'One-pager, report cover, letterhead, certificate (A4 or Letter)', how: 'recipe', run: 'recipe one-pager|report-cover|letterhead|certificate --size a4|letter ...' },
 		{ need: 'Business card (print size with bleed), event badge', how: 'recipe', run: 'recipe business-card|event-badge ...' },
 		{ need: 'Email header, email signature', how: 'recipe', run: 'recipe email-header|email-signature ...' },
-		{ need: 'Email templates (newsletter, announcement, receipt, password reset)', how: 'command', run: 'design page compose outline.json --flavor html (plain HTML; see missing for table-based mail)' },
+		{ need: 'Email templates (newsletter, announcement, receipt, password reset) that survive mail clients', how: 'command', run: 'email newsletter|announcement|receipt|password-reset --set headline="..."' },
 		{ need: 'Deck: covers, section, statement, bullets, stat, quote, image, closing', how: 'template', run: 'deck --list; deck <slide> --headline "..."; deck --input deck.json' },
 		{ need: 'Loops, stings and animated cards (MP4, WebM, GIF)', how: 'command', run: 'video --list; video <loop> --size square|vertical|landscape' },
 		{ need: 'Favicon set, app icons, maskable icon, avatars, web manifest', how: 'command', run: 'icons' },
@@ -36,7 +36,6 @@ export const COVERAGE: { rows: CoverageRow[]; missing: { need: string; why: stri
 	missing: [
 		{ need: 'Other companies\' logos, customer names and photos of real people', why: 'Never shipped: use Acme and --image with your own pictures.' },
 		{ need: 'Graded or filtered photo treatments', why: 'The principles refuse grading: pictures stay in their posted color.' },
-		{ need: 'Table-based email HTML for old mail clients', why: 'The page writer makes modern HTML on the brand stylesheet; mail-client tables are not built yet.' },
 		{ need: 'Sticker sheet, notebook, lanyard and more poster sizes', why: 'Not sourced: the site and the guide have no rules for them; a print vendor\'s template is needed for each.' },
 		{ need: 'Intro and outro stings, lower thirds, logo reveal and walkthrough videos', why: 'Not built yet: the video command draws the brand loops only.' },
 		{ need: 'Deck agenda, team, timeline, chart, comparison, image-grid and Q&A slides', why: 'Not slide templates yet; compose at the primary size (1920x1080) makes any of them from the blocks.' },
