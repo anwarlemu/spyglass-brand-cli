@@ -407,6 +407,11 @@
   /* group: chrome */
   /* group: home */
   /* group: pricing-products-enterprise */
+  /* products */
+  --ds-feature-ascii-tile: 1080px; /* the ASCII tile behind a feature's stage (site --features-ascii-tile) */
+  --ds-feature-ascii-opacity: 0.5; /* site --features-ascii-opacity */
+  --ds-feature-ascii-clear-w: 46%; /* the clear middle of the stage (site --features-ascii-clear-w) */
+  --ds-feature-ascii-clear-h: 50%; /* site --features-ascii-clear-h */
   /* group: use-cases-resources-templates */
 }
 
