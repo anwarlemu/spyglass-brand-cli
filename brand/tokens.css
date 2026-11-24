@@ -540,6 +540,8 @@
   --ds-ent-feat-switch: 150ms; /* site --dur-ent-feat-switch (--dur-loop-pill) */
   --ds-ent-feat-glide: 400ms; /* site --dur-ent-feat-glide (--dur-abstract-glide) */
   --ds-ent-feat-stagger: 180ms; /* site --dur-seq-stagger */
+  --ds-ent-logos-above: 24px; /* site --ent-logos-above: the logo row under the hero */
+  --ds-ent-logos-above-md: 16px; /* from 768 (40 less the ring's 24px edge) */
   /* group: use-cases-resources-templates */
 }
 

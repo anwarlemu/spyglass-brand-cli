@@ -19,3 +19,33 @@ export const enterpriseCloseContent = {
 	secondary: { label: 'Get a free API key', href: '/sign-up' },
 }
 export type EnterpriseCloseContent = typeof enterpriseCloseContent
+
+/** The site chrome around the enterprise page: the header's links (Enterprise current) and the footer's columns. */
+export const enterprisePageContent = {
+	header: {
+		links: [
+			{ label: 'Products', href: '/products' },
+			{ label: 'Use cases', href: '/use-cases' },
+			{ label: 'Enterprise', href: '/enterprise', current: true },
+			{ label: 'Resources', href: '/resources' },
+			{ label: 'Pricing', href: '/pricing' },
+		],
+		secondary: { label: 'Sign in', href: '/sign-in' },
+	},
+	/** The logo row's name. */
+	proof: 'Teams using Acme',
+	hero: enterpriseHeroContent,
+	close: enterpriseCloseContent,
+	footer: {
+		columns: [
+			{ title: 'Products', wide: true, links: [{ label: 'Brands and creators', href: '/products/brands' }, { label: 'Media archive', href: '/products/archive' }, { label: 'Collaborations', href: '/products/collaborations' }, { label: 'Creative insights', href: '/products/insights' }, { label: 'Realtime search', href: '/products/search' }, { label: 'Coming soon', href: '/products/coming-soon' }] },
+			{ title: 'Use cases', wide: true, links: [{ label: 'Build your own', href: '/use-cases/build' }, { label: 'Creative research', href: '/use-cases/research' }, { label: 'Paid ads', href: '/use-cases/paid' }, { label: 'Organic social', href: '/use-cases/organic' }, { label: 'Competitive analysis', href: '/use-cases/competitive' }, { label: 'Creator sourcing', href: '/use-cases/creators' }] },
+			{ title: 'Resources', links: [{ label: 'Templates', href: '/templates' }, { label: 'Docs', href: '/docs' }, { label: 'Blog', href: '/blog' }, { label: 'Articles', href: '/articles' }] },
+			{ title: 'Company', links: [{ label: 'Enterprise', href: '/enterprise' }, { label: 'Talk to us', href: '/demo' }, { label: 'Sign in', href: '/sign-in' }] },
+			{ title: 'Legal', links: [{ label: 'Terms', href: '/terms' }, { label: 'Privacy', href: '/privacy' }] },
+			{ title: 'Community', links: [{ label: 'X', href: 'https://x.com' }, { label: 'LinkedIn', href: 'https://linkedin.com' }, { label: 'Instagram', href: 'https://instagram.com' }] },
+		],
+		legal: '© 2026 Acme Inc.',
+	},
+}
+export type EnterprisePageContent = typeof enterprisePageContent

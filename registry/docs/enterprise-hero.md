@@ -14,7 +14,6 @@ source: "Site pages/Enterprise (EnterprisePage .hero, Enterprise.module.css, Her
 files:
   - react/components/site/EnterpriseHero.tsx
   - lib/enterprise-ring.ts
-  - lib/pages/enterprise.ts
 examples:
   - "Hero | Ring of creatives | bleed"
 ---
