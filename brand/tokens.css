@@ -429,6 +429,7 @@
   --ds-loop-flick: 1400ms;
   --ds-loop-badge: 500ms;
   --ds-loop-pill: 150ms;
+  --ds-loop-glide: 400ms; /* a reel gliding to its next card (site --dur-abstract-glide) */
   --ds-read-first: 3800ms; /* the first hold of a reading loop (site --dur-read-first) */
   --ds-read-hold: 2800ms; /* each later hold (site --dur-read-hold) */
   /* The home pricing panels (site --price-*): a run of five creatives turned away in perspective; 1280 values as -xl. */
