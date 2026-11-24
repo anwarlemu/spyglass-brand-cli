@@ -450,6 +450,52 @@
   --ds-price-phone-band-h: 560px;
   /* group: pricing-products-enterprise */
   /* group: use-cases-resources-templates */
+  /* use-case-wheel: the ring of creatives around the headline and the drum of labels (site tokens.css 355-393, 659-700).
+     The ring's measures step up at 768 (-md), 1024 (-lg) and 1280 (-xl); the component picks them by width. The wheel is a
+     loop: it turns every 2.4s on the site's strong in-out curve, the creatives staggered 50ms. */
+  --ds-wheel-ease: cubic-bezier(0.85, 0, 0.15, 1); /* site --ease-skills */
+  --ds-wheel-every: 2400ms; /* site --dur-skills-step */
+  --ds-wheel-move: 600ms; /* site --dur-skills-move */
+  --ds-wheel-fade: 500ms; /* site --dur-skills-fade */
+  --ds-wheel-stagger: 50ms; /* site --dur-skills-stagger */
+  --ds-wheel-fade-lead: 100ms; /* site --dur-skills-fade-lead */
+  --ds-wheel-crossfade: 360ms; /* site --dur-skills-crossfade (reduced motion) */
+  --ds-wheel-light-spring: 720ms; /* site --dur-light-spring */
+  --ds-wheel-step: 52px; /* site --skills-step: one row of the drum */
+  --ds-wheel-pill-w: 312px; /* site --skills-pill-w */
+  --ds-wheel-send: 36px; /* site --skills-send */
+  --ds-wheel-rx: 152px; /* site --ring-rx */
+  --ds-wheel-rx-md: 300px;
+  --ds-wheel-rx-lg: 384px;
+  --ds-wheel-rx-xl: 440px;
+  --ds-wheel-ry: 216px; /* site --ring-ry; 140px under 768 (V2UseCases.module.css) */
+  --ds-wheel-ry-phone: 140px;
+  --ds-wheel-ry-md: 240px;
+  --ds-wheel-ry-lg: 292px;
+  --ds-wheel-ry-xl: 332px;
+  --ds-wheel-card-w: 48px; /* site --ring-card-w */
+  --ds-wheel-card-w-md: 80px;
+  --ds-wheel-card-w-lg: 96px;
+  --ds-wheel-card-w-xl: 108px;
+  --ds-wheel-card-h: 64px; /* site --ring-card-h */
+  --ds-wheel-card-h-md: 108px;
+  --ds-wheel-card-h-lg: 128px;
+  --ds-wheel-card-h-xl: 144px;
+  --ds-wheel-slots: 3; /* site --ring-slots */
+  --ds-wheel-slots-md: 4;
+  --ds-wheel-slots-lg: 5;
+  --ds-wheel-head-w: 240px; /* site --ring-head-w */
+  --ds-wheel-head-w-md: 384px;
+  --ds-wheel-head-w-lg: 400px;
+  --ds-wheel-head-w-xl: 480px;
+  --ds-wheel-below: 96px; /* site --ring-below */
+  --ds-wheel-clear: 16px; /* site --ring-clear */
+  --ds-wheel-perspective: 1600px; /* site --ring-perspective */
+  --ds-wheel-turn: 32deg; /* site --ring-turn */
+  --ds-wheel-depth: 120px; /* site --ring-depth */
+  --ds-wheel-pop-scale: 0.4; /* site --ring-pop-scale */
+  --ds-wheel-exit-z: -2400px; /* site --ring-exit-z */
+  --ds-wheel-exit-turn: 96deg; /* site --ring-exit-turn */
   /* use-case-hero: the chat and the build visual in the use case hero (site tokens.css 270-273, 526-536, 176-177). */
   --ds-uc-chat-w: 448px; /* site --chat-w */
   --ds-uc-chat-w-l: 528px; /* site --chat-w-l, from 1280 */
