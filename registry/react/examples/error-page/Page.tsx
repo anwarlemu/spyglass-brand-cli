@@ -1,6 +1,7 @@
+'use client'
 import { ErrorPage } from '@/react/components/pages/ErrorPage'
-// The 500 page with its own copy (Acme).
+// The error page as the site sets it: Try again would render the page again.
 
 export default function Page() {
-  return <ErrorPage />
+  return <ErrorPage onRetry={() => {}} />
 }
