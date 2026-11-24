@@ -22,4 +22,5 @@ examples:
 Each set is a question and its results; a result shows a `picture` (4:5), a `pair` of pictures or a `stat` figure,
 optional `notes` chips, a `mark` beside its `label`, and the `detail` that rises in on hover or focus (facts that do
 not fit are dropped from the end). The light is the site's pre-drawn still of its works light; pass the dispersion
-field through `light` (React) or the `light` slot (web component) to make it live.
+field (composition `works`) through `light` (React) or the `light` slot (web component) to make it live: it lies
+over the still and covers it once it has drawn.

@@ -14,8 +14,8 @@ import { cn } from '@/react/lib/cn'
 // up to five from 768 to 1279). The run types each question at a human pace and flicks its row in, lets it drift while
 // it is read and flicks it out as the question is erased (lib/product-hero.ts). A card under a mouse, or focused, turns
 // to face you and comes forward, and its detail rises in over a dark scrim, one fact after another; the run eases to a
-// stop meanwhile. Lit (the default): the site's works light behind it, fading out at the foot (its pre-drawn still, or
-// your own `light`, such as the dispersion field); unlit: the ASCII texture in the margins from 1024. Reduced motion:
+// stop meanwhile. Lit (the default): the site's works light behind it, fading out at the foot (its pre-drawn still, with
+// a live `light` over it once that draws, such as the dispersion field); unlit: the ASCII texture in the margins from 1024. Reduced motion:
 // the first question and row stay still and the cards do not turn.
 export type { HeroResult, HeroSet } from '@/lib/product-hero'
 
@@ -32,7 +32,7 @@ export interface ProductHeroProps {
   sets: HeroSet[]
   /** The works light behind the hero (true) or the texture in its margins (false). */
   lit?: boolean
-  /** Your own light in place of the still (the dispersion field). */
+  /** A live light over the still (the dispersion field, composition works), which covers it once it draws. */
   light?: ReactNode
   /** The composer's hint while it is empty. */
   placeholder?: string
@@ -150,12 +150,13 @@ export function ProductHero({
           ))}
         </div>
       </div>
-      {lit && (light ?? (
+      {lit && (
         <picture aria-hidden="true" className="ds-ph-light">
           {WORKS_STILLS.slice(0, -1).map((s) => <source key={s.width} media={s.media} srcSet={s.picture} />)}
           <img src={WORKS_STILLS[WORKS_STILLS.length - 1].picture} alt="" draggable={false} />
         </picture>
-      ))}
+      )}
+      {lit && light ? <span aria-hidden="true" className="ds-ph-light">{light}</span> : null}
     </section>
   )
 }
