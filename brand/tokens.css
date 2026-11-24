@@ -532,6 +532,25 @@
   --ds-feature-ascii-clear-w: 46%; /* the clear middle of the stage (site --features-ascii-clear-w) */
   --ds-feature-ascii-clear-h: 50%; /* site --features-ascii-clear-h */
   /* group: use-cases-resources-templates */
+  /* scroll-story */
+  /* scroll-story: the pinned story on use-case pages (site tokens.css 820-836): five chapter lengths and a tail in screens, the 1512x982 design frame drawn at the 1280 content width, text rise and rates. */
+  --ds-story-len-1: 0.02; /* site --story-len-1 */
+  --ds-story-len-2: 0.98; /* site --story-len-2 */
+  --ds-story-len-3: 1.15; /* site --story-len-3 */
+  --ds-story-len-4: 0.98; /* site --story-len-4 */
+  --ds-story-len-5: 0.89; /* site --story-len-5 */
+  --ds-story-tail: 0.3; /* site --story-tail */
+  --ds-story-frame-w: 1512; /* site --story-frame-w */
+  --ds-story-frame-h: 982; /* site --story-frame-h */
+  --ds-story-frame-content: 1280; /* site --story-frame-content */
+  --ds-story-text-rise: 152px; /* site --story-text-rise: calc(var(--space-8) * 19) */
+  --ds-story-exit-rate: 0.81; /* site --story-exit-rate */
+  --ds-story-text-rate: 1; /* site --story-text-rate */
+  --ds-story-follow: 0; /* site --story-follow */
+  --ds-story-settle: 0; /* site --story-settle */
+  --ds-story-text-w: 41.6%; /* site --story-text-w */
+  --ds-story-search-w: 560px; /* site .search width: calc(var(--space-480) + var(--space-80)) */
+  --ds-story-profile-w: 400px; /* site still profile: calc(var(--space-320) + var(--space-80)) */
   /* use-case-wheel: the ring of creatives around the headline and the drum of labels (site tokens.css 355-393, 659-700).
      The ring's measures step up at 768 (-md), 1024 (-lg) and 1280 (-xl); the component picks them by width. The wheel is a
      loop: it turns every 2.4s on the site's strong in-out curve, the creatives staggered 50ms. */
