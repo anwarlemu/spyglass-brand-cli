@@ -1,0 +1,22 @@
+<!-- A plan's price that swaps with the billing period: the amount and the unit each rise out as the new ones rise in. -->
+<div class="flex flex-col items-start gap-8">
+  <div role="group" aria-label="Billing" class="flex gap-1 rounded-control bg-surface-raised p-1">
+    <button type="button" aria-pressed="true" data-period="monthly" class="h-8 rounded-ds-sm px-3 type-ui text-fg-muted transition-[background-color,color] duration-160 ease-standard aria-pressed:bg-surface-subtle aria-pressed:text-fg">Monthly</button>
+    <button type="button" aria-pressed="false" data-period="yearly" class="h-8 rounded-ds-sm px-3 type-ui text-fg-muted transition-[background-color,color] duration-160 ease-standard aria-pressed:bg-surface-subtle aria-pressed:text-fg">Yearly</button>
+  </div>
+  <p class="flex flex-wrap items-baseline gap-x-2 text-fg">
+    <spyglass-text-swap id="price-amount" class="font-heading text-heading-3" text="$20"></spyglass-text-swap>
+    <spyglass-text-swap id="price-unit" class="type-ui text-fg-muted" text="/month"></spyglass-text-swap>
+  </p>
+</div>
+<script type="module">
+  const amount = document.getElementById('price-amount')
+  const unit = document.getElementById('price-unit')
+  for (const b of document.querySelectorAll('[data-period]')) b.addEventListener('click', () => {
+    const yearly = b.dataset.period === 'yearly'
+    for (const o of document.querySelectorAll('[data-period]')) o.setAttribute('aria-pressed', String(o === b))
+    amount.text = yearly ? '$16' : '$20'
+    unit.text = yearly ? '/month, billed yearly' : '/month'
+    unit.tag = yearly ? 'Save 20%' : undefined
+  })
+</script>

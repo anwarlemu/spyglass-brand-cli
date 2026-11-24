@@ -1,0 +1,28 @@
+.ds-connect-panel {
+  opacity: 0; visibility: hidden; transform-origin: top left;
+  transform: translateY(calc(-1 * var(--ds-space-xs))) scale(var(--ds-menu-from-scale));
+  transition: opacity var(--ds-duration-press) var(--ds-easing-out), transform var(--ds-duration-press) var(--ds-easing-out), visibility var(--ds-duration-instant) linear var(--ds-duration-press);
+}
+.ds-connect[data-up] .ds-connect-panel { transform-origin: bottom left; transform: translateY(var(--ds-space-xs)) scale(var(--ds-menu-from-scale)); }
+.ds-connect[data-open] .ds-connect-panel {
+  opacity: 1; visibility: visible; transform: none;
+  transition: opacity var(--ds-duration-micro) var(--ds-easing-out), transform var(--ds-duration-micro) var(--ds-easing-out), visibility var(--ds-duration-instant);
+}
+.ds-connect[data-instant] .ds-connect-panel { transition: none; }
+.ds-connect-chevron { transition: transform var(--ds-duration-micro) var(--ds-easing-out); }
+.ds-connect[data-open] .ds-connect-chevron { transform: rotate(180deg); }
+.ds-connect-pill { transition: transform var(--ds-duration-micro) var(--ds-easing-loop); }
+.ds-connect-swap, .ds-connect-label { transition: opacity var(--ds-duration-micro) var(--ds-easing-out), transform var(--ds-duration-micro) var(--ds-easing-out); }
+.ds-connect-label:not([data-on]) { opacity: 0; transform: translateY(var(--ds-space-xs)); }
+.ds-connect-label:not([data-on]):first-child { transform: translateY(calc(-1 * var(--ds-space-xs))); }
+.ds-connect-swap:last-child, .ds-connect-copy[data-copied] .ds-connect-swap:first-child { opacity: 0; transform: scale(0.8); }
+.ds-connect-copy[data-copied] .ds-connect-swap:last-child { opacity: 1; transform: none; }
+@media (max-width: 767px) {
+  .ds-connect-panel { transform-origin: top center; }
+  .ds-connect[data-up] .ds-connect-panel { transform-origin: bottom center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-connect-panel, .ds-connect[data-up] .ds-connect-panel, .ds-connect[data-open] .ds-connect-panel { transform: none; }
+  .ds-connect-chevron, .ds-connect-pill, .ds-connect-swap, .ds-connect-label { transition: opacity var(--ds-duration-micro) var(--ds-easing-out); }
+  .ds-connect-label:not([data-on]), .ds-connect-label:not([data-on]):first-child, .ds-connect-swap:last-child, .ds-connect-copy[data-copied] .ds-connect-swap:first-child { transform: none; }
+}
