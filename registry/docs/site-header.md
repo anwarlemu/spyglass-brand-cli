@@ -14,6 +14,7 @@ files:
   - react/components/site/SiteHeader.tsx
 examples:
   - "Default | Default"
+  - "Minimal | Minimal"
 ---
 The panel on phones opens in place, without motion: it is a tool opened often. Escape closes it and returns focus to
 the menu button.

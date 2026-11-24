@@ -32,14 +32,21 @@ export interface SiteHeaderProps {
   homeHref?: string
   /** The lockup's accessible name. */
   label?: string
+  /** default (links centered from 1280), centered (from 1024) or minimal (the lockup and the button only, for a
+   * checkout or a sign-in flow). */
+  variant?: 'default' | 'centered' | 'minimal'
   className?: string
 }
+
+const GRID = { default: 'xl:grid xl:grid-cols-[1fr_auto_1fr] xl:gap-4', centered: 'lg:grid lg:grid-cols-[1fr_auto_1fr] lg:gap-4', minimal: '' }
 
 // The bar's links take h-control-xs and their padding; the folded panel's take the touch height.
 const BAR = 'h-control-xs px-4'
 const LINK = 'flex items-center rounded-control type-ui text-fg-soft transition-[color,background-color] duration-160 ease-standard hover:bg-surface-raised hover:text-fg aria-[current=page]:text-fg'
 
-export function SiteHeader({ links = [], cta, secondary, homeHref = '/', label = 'Spyglass', className }: SiteHeaderProps) {
+export function SiteHeader({ links: all = [], cta, secondary: second, homeHref = '/', label = 'Spyglass', variant = 'default', className }: SiteHeaderProps) {
+  const links = variant === 'minimal' ? [] : all
+  const secondary = variant === 'minimal' ? undefined : second
   const [open, setOpen] = useState(false)
   const panel = `site-menu${useId().replace(/[^\w-]/g, '')}`
   const toggle = useRef<HTMLButtonElement & HTMLAnchorElement>(null)
@@ -55,7 +62,7 @@ export function SiteHeader({ links = [], cta, secondary, homeHref = '/', label =
   }, [open])
   const folded = links.length > 0 || !!secondary
   return (
-    <header data-ds="site-header" className={cn('relative flex h-16 items-center gap-8 text-fg lg:h-header xl:grid xl:grid-cols-[1fr_auto_1fr] xl:gap-4', className)}>
+    <header data-ds="site-header" className={cn('relative flex h-16 items-center gap-8 text-fg lg:h-header', GRID[variant] ?? GRID.default, className)}>
       <a href={homeHref} aria-label={label} className="shrink-0 justify-self-start rounded-control"><Logo height={20} label={label} /></a>
       {links.length > 0 && (
         <nav aria-label="Main" className="max-lg:hidden">

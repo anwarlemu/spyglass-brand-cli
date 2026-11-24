@@ -24,7 +24,9 @@ const LINK = 'flex items-center rounded-control type-ui text-fg-soft transition-
 export class SiteHeader extends DsElement {
 	static styles = [DsElement.styles, styles]
 	protected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds="site-header"]'))
-	static properties = { links: { type: Array }, cta: { type: Object }, secondary: { type: Object }, homeHref: { attribute: 'home-href' }, label: { attribute: 'logo-label' }, open: { state: true } }
+	static properties = { links: { type: Array }, cta: { type: Object }, secondary: { type: Object }, homeHref: { attribute: 'home-href' }, label: { attribute: 'logo-label' }, variant: {}, open: { state: true } }
+	/** default (links centered from 1280), centered (from 1024) or minimal (the lockup and the button only). */
+	variant: 'default' | 'centered' | 'minimal' = 'default'
 	links: HeaderLink[] = []
 	/** The White button on the right ({ label, href }). */
 	cta?: HeaderAction
@@ -52,10 +54,12 @@ export class SiteHeader extends DsElement {
 	}
 
 	render() {
-		const links = this.links ?? []
-		const folded = links.length > 0 || !!this.secondary
+		const links = this.variant === 'minimal' ? [] : this.links ?? []
+		const secondary = this.variant === 'minimal' ? undefined : this.secondary
+		const GRID = { default: 'xl:grid xl:grid-cols-[1fr_auto_1fr] xl:gap-4', centered: 'lg:grid lg:grid-cols-[1fr_auto_1fr] lg:gap-4', minimal: '' }
+		const folded = links.length > 0 || !!secondary
 		const link = (l: HeaderLink, extra = '') => html`<li><a href=${l.href} aria-current=${ifDefined(l.current ? 'page' : undefined)} class=${extra ? `${LINK} ${extra}` : LINK}>${l.label}</a></li>`
-		return html`<header data-ds="site-header" class="relative flex h-16 items-center gap-8 text-fg lg:h-header xl:grid xl:grid-cols-[1fr_auto_1fr] xl:gap-4"><a href=${this.homeHref} aria-label=${this.label} class="shrink-0 justify-self-start rounded-control"><spyglass-logo height="20" aria-label=${this.label}></spyglass-logo></a>${links.length ? html`<nav aria-label="Main" class="max-lg:hidden"><ul class="flex items-center gap-1">${links.map((l) => link(l, BAR))}</ul></nav>` : nothing}<div class="ml-auto flex items-center gap-2 justify-self-end">${this.secondary ? html`<div class="flex max-lg:hidden"><a href=${this.secondary.href} class=${`${LINK} h-control-xs px-3`}>${this.secondary.label}</a></div>` : nothing}${this.cta ? html`<spyglass-button href=${this.cta.href} size="xs">${this.cta.label}</spyglass-button>` : nothing}${folded ? html`<div class="flex lg:hidden"><spyglass-button data-menu-toggle variant="ghost" size="xs" icon aria-label=${this.open ? 'Close the menu' : 'Open the menu'} .expanded=${String(this.open)} .controls=${this.panelId} @click=${() => (this.open = !this.open)}>${this.open ? icon(X, 'x', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } }) : icon(Menu, 'menu', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } })}</spyglass-button></div>` : nothing}</div>${folded ? html`<div id=${this.panelId} ?hidden=${!this.open} class="absolute inset-x-0 top-full z-20 border-b border-edge bg-surface pt-2 pb-6 lg:hidden"><ul class="grid gap-1">${links.map((l) => link(l, 'h-control-touch px-3'))}${this.secondary ? link({ label: this.secondary.label, href: this.secondary.href }, 'h-control-touch px-3') : nothing}</ul></div>` : nothing}</header>`
+		return html`<header data-ds="site-header" class=${`relative flex h-16 items-center gap-8 text-fg lg:h-header ${GRID[this.variant] ?? GRID.default}`}><a href=${this.homeHref} aria-label=${this.label} class="shrink-0 justify-self-start rounded-control"><spyglass-logo height="20" aria-label=${this.label}></spyglass-logo></a>${links.length ? html`<nav aria-label="Main" class="max-lg:hidden"><ul class="flex items-center gap-1">${links.map((l) => link(l, BAR))}</ul></nav>` : nothing}<div class="ml-auto flex items-center gap-2 justify-self-end">${secondary ? html`<div class="flex max-lg:hidden"><a href=${secondary.href} class=${`${LINK} h-control-xs px-3`}>${secondary.label}</a></div>` : nothing}${this.cta ? html`<spyglass-button href=${this.cta.href} size="xs">${this.cta.label}</spyglass-button>` : nothing}${folded ? html`<div class="flex lg:hidden"><spyglass-button data-menu-toggle variant="ghost" size="xs" icon aria-label=${this.open ? 'Close the menu' : 'Open the menu'} .expanded=${String(this.open)} .controls=${this.panelId} @click=${() => (this.open = !this.open)}>${this.open ? icon(X, 'x', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } }) : icon(Menu, 'menu', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } })}</spyglass-button></div>` : nothing}</div>${folded ? html`<div id=${this.panelId} ?hidden=${!this.open} class="absolute inset-x-0 top-full z-20 border-b border-edge bg-surface pt-2 pb-6 lg:hidden"><ul class="grid gap-1">${links.map((l) => link(l, 'h-control-touch px-3'))}${secondary ? link({ label: secondary.label, href: secondary.href }, 'h-control-touch px-3') : nothing}</ul></div>` : nothing}</header>`
 	}
 }
 
