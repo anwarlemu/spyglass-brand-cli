@@ -10,7 +10,11 @@ type Shot = { name: string; title: string; src: string; width: number; height: n
 type Image = Shot & { template: string; group: string; size: string; variant?: string; canvas: string };
 type Merch = Shot & { item: string; variant: string };
 type MerchInfo = { id: string; name: string; trim: { width: number; height: number }; bleed: number; safe: number; method: string; variants: string[]; source: string; pixels: { width: number; height: number } };
+type Recipe = Shot & { group: string; description: string; size: string };
+type Coverage = { rows: { need: string; how: string; run: string }[]; missing: { need: string; why: string }[] };
 type Doc = {
+  recipes?: Recipe[];
+  coverage?: Coverage;
   images: Image[];
   slides: (Shot & { group: string })[];
   merch: Merch[];
@@ -93,6 +97,43 @@ export default function AssetsPage() {
           </div>
           <p className="type-ui text-fg-muted">Sizes: {doc.catalog.video.sizes.map((s) => `${s.id} ${s.width}x${s.height}`).join(", ")}.</p>
         </Section>
+
+        {doc.coverage && (
+          <Section id="coverage" title="I need X" description="The command for each kind of graphic, document, page or part. manifest --json carries the same table as coverage.">
+            <div className="overflow-hidden rounded-control border border-edge">
+              <div className="overflow-x-auto fade-x">
+                <table className="w-full border-collapse type-ui">
+                  <thead>
+                    <tr className="text-left text-fg-muted">
+                      {["I need", "Made by", "Run"].map((h) => <th key={h} className="border-b border-edge px-4 py-2.5 type-label font-normal">{h}</th>)}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {doc.coverage.rows.map((r) => (
+                      <tr key={r.need} className="align-top">
+                        <td className="min-w-60 border-b border-edge px-4 py-2.5 text-fg">{r.need}</td>
+                        <td className="border-b border-edge px-4 py-2.5 whitespace-nowrap text-fg-soft">{r.how}</td>
+                        <td className="min-w-80 border-b border-edge px-4 py-2.5 type-code text-fg-soft">{`${CLI} ${r.run}`}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <ul className="grid gap-1 type-caption text-fg-muted">
+              {doc.coverage.missing.map((m) => <li key={m.need}>Not made: {m.need}. {m.why}</li>)}
+            </ul>
+          </Section>
+        )}
+
+        {doc.recipes && (
+          <Section id="recipes" title="Recipes" description="Ready compose layouts for what no template covers: display ads, cards, print, email and backgrounds. Shown with their sample copy; the words are always yours.">
+            <Command command={`${CLI} recipe quote-card --set quote.text="..." --set quote.name="..."`} />
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {doc.recipes.map((r) => <Tile key={r.name} shot={r} caption={r.name} detail={`${r.size}: ${r.description}`} />)}
+            </div>
+          </Section>
+        )}
 
         <Section id="merch" title="Merch print files" description="Print files only, no mockups: SVG at physical size and PNG at 300 dpi with the bleed. Full color uses the light and the texture on Black; one-color files are an approved lockup in White or Black on a transparent ground (shown on a checker).">
           <div className="overflow-hidden rounded-control border border-edge">

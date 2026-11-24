@@ -13,6 +13,9 @@ import { ILLUSTRATE_FLAGS } from './illustrate.js';
 import { FIGMA_ACTIONS, FIGMA_FLAGS, PUSH_KINDS } from './figma.js';
 import { illustrateData, LIGHT_FRAMES } from '../illustrate/build.js';
 import { designManifest } from '../design/index.js';
+import { recipes, RECIPE_FLAGS } from './recipe.js';
+import { ICONS_FLAGS } from './icons.js';
+import { COVERAGE } from './coverage.js';
 import { adapter } from '../design/adapter.js';
 import { SIZES } from '../assets/sizes.js';
 
@@ -31,6 +34,8 @@ const COMMANDS = [
 	{ name: 'merch', summary: 'Merch print files: SVG at physical size and PNG at 300 dpi with bleed and safe area.', flags: [...MERCH_FLAGS, 'help'] },
 	{ name: 'light', summary: 'The brand light as SVG or PNG, seeded: windows onto the brand heat map or a generated one.', flags: ['variant', 'seed', 'source', 'width', 'height', 'out', 'format', 'ground', 'list', 'help'] },
 	{ name: 'ascii', summary: 'The ASCII texture as SVG or PNG, seeded.', flags: ['seed', 'width', 'height', 'density', 'out', 'format', 'ground', 'help'] },
+	{ name: 'recipe', summary: 'Ready compose layouts for what no template covers: display ads, cards, print, email and backgrounds; writes a design file and draws it (the check runs).', flags: [...RECIPE_FLAGS, 'help'] },
+	{ name: 'icons', summary: 'The favicon set (svg, ico, 16, 32), app icons (180, 192, 512, maskable), avatars and the web manifest, from the brand favicon.', flags: [...ICONS_FLAGS, 'help'] },
 	{ name: 'illustrate', summary: "The brand's own imagery as PNG and SVG: pattern (the light with the texture behind it), light (any variant), texture, split (a picture split into its color channels) and shader (a subject or picture turned into spectral light).", flags: [...ILLUSTRATE_FLAGS, 'help'] },
 	{ name: 'design', summary: 'Make a design (an image, slide, print item, illustration or loop) as a small JSON file, revise it in plain words or exact edits, undo, variants, sizes, compare and check. Every write is checked against the brand; errors change nothing. design --help.', flags: ['json', 'help'] },
 	{ name: 'figma', summary: 'Figma through its MCP tools, which the CLI never calls itself: tokens (variables and use_figma scripts), push (illustration, asset, slide, component, page), pull (read steps for a frame), check (off-brand values with the nearest token; exit 1).', flags: [...FIGMA_FLAGS, 'help'] },
@@ -104,6 +109,9 @@ export async function manifest(): Promise<Record<string, unknown>> {
 		illustrate,
 		figma,
 		design: designManifest(adapter(), brand().bin),
+		recipes: Object.entries(recipes()).map(([id, r]) => ({ id, group: r.group, description: r.description, size: r.size, blocks: r.blocks.map((b) => ({ id: b.id, type: b.type })), make: `${brand().bin} recipe ${id} --set <block>.<slot>=...` })),
+		// What to run for each kind of graphic, page or part: the agent guide's decision table as data.
+		coverage: COVERAGE,
 		gaps: [...logo.missing, principles.website.gap].filter((gap): gap is string => Boolean(gap)),
 	};
 }

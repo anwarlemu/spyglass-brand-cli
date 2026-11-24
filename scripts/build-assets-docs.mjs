@@ -11,6 +11,10 @@ const { merchItems, merchScene, merchCatalog } = await import(join(root, 'dist/a
 const { videoCatalog } = await import(join(root, 'dist/commands/video.js'));
 const { illustrate, illustrateData, LIGHT_FRAMES } = await import(join(root, 'dist/illustrate/build.js'));
 const { Resvg } = await import('@resvg/resvg-js');
+const { recipes } = await import(join(root, 'dist/commands/recipe.js'));
+const { drawCompose } = await import(join(root, 'dist/assets/compose.js'));
+const { adapter } = await import(join(root, 'dist/design/adapter.js'));
+const { COVERAGE } = await import(join(root, 'dist/commands/coverage.js'));
 
 const out = join(root, 'apps/www/public/assets');
 rmSync(out, { recursive: true, force: true });
@@ -64,6 +68,17 @@ const art = await illustrate({ style: 'light', variant: 'corner', seed: 1 });
 await small({ style: 'split', photo: { mime: 'image/png', data: art.png } }, 'ill-split.png', 'Photo light split', 'split --image (here the brand light itself)');
 for (const [preset, subject] of [['wordmark-trails', 'lockup'], ['trail-one-side', 'lockup'], ['banner-trails', 'lockup'], ['glass-icon', 'mark'], ['glass-split', 'wave'], ['burst', 'orb']]) await small({ style: 'shader', subject, preset }, `ill-shader-${preset}.png`, ill.shader.presets[preset].name, `shader ${subject} --preset ${preset}`);
 for (const look of Object.keys(ill.shader.looks)) await small({ style: 'shader', subject: 'mark', set: { look, effect: 'burst' } }, `ill-look-${look}.png`, ill.shader.looks[look].name, `shader mark --set effect=burst --set look=${look}`, 480);
-const doc = { images, slides, merch, illustrations, illustrate: { styles: ill.styles, subjects: ill.subjects, presets: ill.shader.presets, looks: ill.shader.looks, notes: ill.shader.notes }, catalog: { image: catalogOf('image'), deck: catalogOf('deck'), merch: merchCatalog(), video: videoCatalog() } };
+// Recipes: each compose layout with its sample copy, drawn by the same compose engine as `recipe`.
+const recipeShots = [];
+for (const [id, r] of Object.entries(recipes())) {
+	const base = adapter().defaults('compose', r.size);
+	const d = { ...base, version: 1, kind: 'image', template: 'compose', copy: { ...r.sample }, images: {}, layers: {}, blocks: r.blocks, grid: r.grid ?? { cols: 12, rows: 12 }, theme: r.theme, options: { ...r.options } };
+	const { drawn } = await drawCompose(d, {});
+	const k = Math.min(1, 480 / Math.max(drawn.width, drawn.height));
+	const ras = await rasterizeScene(drawn, { scale: k });
+	writeFileSync(join(out, `recipe-${id}.png`), ras.png);
+	recipeShots.push({ name: id, title: id, group: r.group, description: r.description, size: r.size, src: `/assets/recipe-${id}.png`, width: ras.width, height: ras.height });
+}
+const doc = { recipes: recipeShots, coverage: COVERAGE, images, slides, merch, illustrations, illustrate: { styles: ill.styles, subjects: ill.subjects, presets: ill.shader.presets, looks: ill.shader.looks, notes: ill.shader.notes }, catalog: { image: catalogOf('image'), deck: catalogOf('deck'), merch: merchCatalog(), video: videoCatalog() } };
 writeFileSync(join(root, 'apps/www/lib/assets.generated.json'), JSON.stringify(doc, null, 1) + '\n');
-console.log(`assets docs: ${illustrations.length} illustrations, ${images.length} images, ${slides.length} slides, ${merch.length} print files -> apps/www/public/assets`);
+console.log(`assets docs: ${recipeShots.length} recipes, ${illustrations.length} illustrations, ${images.length} images, ${slides.length} slides, ${merch.length} print files -> apps/www/public/assets`);

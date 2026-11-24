@@ -19,3 +19,12 @@ describe('recipes', () => {
 		await expect(runRecipe(dir, ['nope'], {})).rejects.toThrow(/Recipes: /);
 	});
 });
+
+describe('icons', () => {
+	it('writes the favicon set, app icons, a maskable icon and the manifest', async () => {
+		const { runIcons } = await import('../src/commands/icons.js');
+		const dir = mkdtempSync(join(tmpdir(), 'icons-'));
+		const files = runIcons(dir, {}, () => {});
+		for (const f of ['favicon.svg', 'favicon.ico', 'favicon-16.png', 'favicon-32.png', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'site.webmanifest']) expect(files.some((x) => x.endsWith(`/${f}`)), f).toBe(true);
+	});
+});

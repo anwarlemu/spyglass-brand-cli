@@ -151,3 +151,45 @@ file with `create_session`.
    as your edit hook to check every edit as you make it.
 3. Test every interaction with mouse and keyboard, at desktop and phone widths, with reduced motion on.
 4. Compare with the library's previews at {{registry}}.
+
+## I need X
+
+The command for each kind of graphic, document, page or part (`{{cli}} manifest --json` carries the same table as `coverage`). Words are always yours; `--sample` fills sample copy (Acme) to look.
+
+| I need | Made by | Run |
+| --- | --- | --- |
+| X post, LinkedIn post, Instagram post or portrait, Threads, Facebook post | template | `{{cli}} image post-offer --headline "..." --size square\|portrait\|linkedin\|facebook` |
+| Instagram or TikTok story, Reels or TikTok cover | template | `{{cli}} image story --headline "..."` |
+| Instagram carousel | command | `{{cli}} image --input carousel.json --out carousel` |
+| Pinterest pin | template | `{{cli}} image post-offer --headline "..." --size pinterest` |
+| YouTube thumbnail | template | `{{cli}} image og-site --headline "..." --size youtube-thumbnail` |
+| YouTube channel art, X header, LinkedIn banner and page cover, Facebook cover | template | `{{cli}} image banner-tagline --headline "..." --size youtube\|x-banner\|linkedin-banner\|linkedin-page\|facebook-cover` |
+| Profile picture for any platform | template | `{{cli}} image avatar` |
+| Open Graph card (the site's own) | template | `{{cli}} image og-site --headline "..." --page pricing --image a.png` |
+| Google display ads 300x250, 336x280, 728x90, 300x600, 320x50, 160x600, 970x250 | recipe | `{{cli}} recipe ad-300x250 --set headline.text="..." --set button.text="..."` |
+| Meta feed and story ad, LinkedIn ad | recipe | `{{cli}} recipe meta-feed --size square\|story\|linkedin ...  (or image ad-search-bar, ad-photo)` |
+| Quote, stat, customer story, launch or changelog, feature, comparison, pricing, event or webinar, hiring card | recipe | `{{cli}} recipe quote-card\|stat-card\|customer-story\|launch-card\|feature-card\|comparison\|pricing-card\|event-card\|hiring-card ...` |
+| Framed screenshot (the site's browser frame), before and after | recipe | `{{cli}} recipe screenshot-card --image picture=shot.png ...; recipe before-after --image picture-1=a.png --image picture-2=b.png` |
+| Chart (bar, line, donut), flow or architecture boxes | recipe | `{{cli}} recipe chart-card --set chart.data="Mon 12, Tue 18"; recipe flow-diagram ...` |
+| Anything no template or recipe anticipated, at any size | compose | `{{cli}} design new compose --size <id\|custom>; design compose add <file> <block> "..."; design revise <file> "..."` |
+| One-pager, report cover, letterhead, certificate (A4 or Letter) | recipe | `{{cli}} recipe one-pager\|report-cover\|letterhead\|certificate --size a4\|letter ...` |
+| Business card (print size with bleed), event badge | recipe | `{{cli}} recipe business-card\|event-badge ...` |
+| Email header, email signature | recipe | `{{cli}} recipe email-header\|email-signature ...` |
+| Email templates (newsletter, announcement, receipt, password reset) | command | `{{cli}} design page compose outline.json --flavor html (plain HTML; see missing for table-based mail)` |
+| Deck: covers, section, statement, bullets, stat, quote, image, closing | template | `{{cli}} deck --list; deck <slide> --headline "..."; deck --input deck.json` |
+| Loops, stings and animated cards (MP4, WebM, GIF) | command | `{{cli}} video --list; video <loop> --size square\|vertical\|landscape` |
+| Favicon set, app icons, maskable icon, avatars, web manifest | command | `{{cli}} icons` |
+| Video-call background, desktop and phone wallpaper | recipe | `{{cli}} recipe meeting-background\|desktop-wallpaper\|phone-wallpaper` |
+| The light or the ASCII texture as a still at any size | command | `{{cli}} light --variant band --width W --height H; ascii --width W --height H; illustrate pattern` |
+| Merch: cap, tee front and back, hoodie, tote, mug wrap, sticker, poster, socks | command | `{{cli}} merch --list; merch <item> --headline "..."` |
+| Any component, section or page for a web app or site | library | `{{cli}} list; add <item> (React or web components); design page compose outline.json --flavor react\|elements\|html` |
+| Restyle an existing app to the brand | command | `{{cli}} apply; check` |
+
+Not made, and why:
+
+- Other companies' logos, customer names and photos of real people: Never shipped: use Acme and --image with your own pictures.
+- Graded or filtered photo treatments: The principles refuse grading: pictures stay in their posted color.
+- Table-based email HTML for old mail clients: The page writer makes modern HTML on the brand stylesheet; mail-client tables are not built yet.
+- Sticker sheet, notebook, lanyard and more poster sizes: Not sourced: the site and the guide have no rules for them; a print vendor's template is needed for each.
+- Intro and outro stings, lower thirds, logo reveal and walkthrough videos: Not built yet: the video command draws the brand loops only.
+- Deck agenda, team, timeline, chart, comparison, image-grid and Q&A slides: Not slide templates yet; compose at the primary size (1920x1080) makes any of them from the blocks.
