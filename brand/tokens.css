@@ -406,11 +406,27 @@
   /* group: effects */
   --ds-light-grain-reach: 64px; /* how far the light image's grain reaches from the light (site --light-grain-reach) */
   --ds-light-grain-lens: 192px; /* the grain's reach under the pointer's lens (site --light-grain-lens) */
+  /* The dispersion field's tuning (read by lib/effects/field-engine.ts on the canvas): the footer wordmark's crest
+     (site --footer-crest-*, --footer-wave-*, --dur-footer-*) and the horizon's tilt (site --hero-light-tilt, -cross). */
+  --ds-footer-crest-width: 0.07;
+  --ds-footer-crest-low: 0.1;
+  --ds-footer-crest-high: 0.36;
+  --ds-footer-crest-idle: 0.5;
+  --ds-footer-wave-hollow: 0.25;
+  --ds-footer-wave-spread: 2;
+  --ds-footer-wave-tint: 1;
+  --ds-dur-footer-crest-in: 800ms;
+  --ds-dur-footer-crest-out: 1200ms;
+  --ds-dur-footer-crest-follow: 300ms;
+  --ds-dur-footer-wave-pass: 7800ms;
+  --ds-hero-light-tilt: 0.14;
+  --ds-hero-light-cross: 0.72;
   /* group: chrome */
   --ds-page-head-drift-clear: 320px; /* a centered page head's drift starts this far right of the middle (site --space-320) */
   --ds-menu-from-scale: 0.96; /* a menu panel grows in from this scale (site --menu-from-scale) */
   --ds-page-close-drift-w: 480px; /* the closing section's lower left drift at most (site --space-480) */
   --ds-page-close-drift-high-w: 320px; /* its upper right drift at most (site --space-320) */
+  --ds-stroke: 2px; /* a drawn line: the FAQ's plus, a tab's underline (site --stroke) */
   /* group: home */
   /* The creative sequence (site --dur-seq-*, --ease-seq-*): sets of creatives fading and settling in turn, a loop. The
      site leaves on an ease-in (--ease-seq-out); here it leaves on the in-out ease, as interface motion never eases in. */
@@ -422,9 +438,19 @@
   --ds-seq-light-low: 0.88; /* the light between sets (site --seq-light-low) */
   --ds-easing-seq-settle: linear(0, 0.119 1.6%, 0.224 3.1%, 0.317 4.7%, 0.398 6.3%, 0.47 7.9%, 0.562 10.2%, 0.638 12.6%, 0.719 15.7%, 0.782 18.9%, 0.842 22.8%, 0.892 27.6%, 0.931 33.1%, 0.958 39.4%, 0.978 47.2%, 0.99 57.1%, 0.996 68.9%, 0.999 82.7%, 1); /* site --ease-seq-settle */
   --ds-easing-seq-settle-fallback: cubic-bezier(0.14, 1, 0.22, 1); /* site --ease-seq-settle-fallback */
+  /* The product loops' pacing (site --dur-loop-*): how long a state holds, a change, a flick home, a row fading in and a
+     quick switch. Loop timings for scripted visuals, not transitions (transitions use the --ds-duration-* steps). */
+  --ds-loop-step: 2600ms;
+  --ds-loop-change: 700ms;
+  --ds-loop-flick: 1400ms;
+  --ds-loop-badge: 500ms;
+  --ds-loop-pill: 150ms;
   --ds-read-first: 3800ms; /* the first hold of a reading loop (site --dur-read-first) */
   --ds-read-hold: 2800ms; /* each later hold (site --dur-read-hold) */
   /* The home pricing panels (site --price-*): a run of five creatives turned away in perspective; 1280 values as -xl. */
+  --ds-stories-lead-min-h: 560px; /* a lead case story from 1024 (site --stories-lead-min-h) */
+  --ds-stories-panel-w: 480px; /* its panel (site --stories-panel-w) */
+  --ds-session-min-h: 480px; /* the MCP session's least height (site --session-min-h) */
   --ds-price-card-w: 144px;
   --ds-price-card-h: 240px;
   --ds-price-card-w-xl: 192px;
@@ -449,6 +475,57 @@
   --ds-price-phone-light-h: 700px;
   --ds-price-phone-band-h: 560px;
   /* group: pricing-products-enterprise */
+  /* pricing */
+  --ds-compare-tip-w: 288px; /* the compare table's tip, at most (site .compareTip: --space-320 - --space-32) */
+  --ds-compare-tip-delay: 80ms; /* a hovering pointer rests this long before the tip shows (site --dur-menu-intent) */
+  --ds-plan-tier-min-h: 208px; /* a plan's tier at least (site .tier: 2 * --space-80 + --space-48) */
+  --ds-plan-copy-w: 55%; /* who a plan is for, at most (site --plan-copy-w) */
+  --ds-plan-rim-w: 2px; /* the running light's width around a plan (site --plan-rim-w) */
+  --ds-plan-rim-edge: 24px; /* how far the trailing glyphs reach in from the edge (site --plan-rim-edge) */
+  --ds-plan-ascii-drift-x: 16px; /* the lit tier's glyphs drift this far (site --plan-ascii-drift-x, -y) */
+  --ds-plan-ascii-drift-y: -16px;
+  --ds-plan-light-drift: 14s; /* loop: the lit tier's light sways (site --dur-pro-light-drift, --hero-band-bob-time) */
+  --ds-plan-rim-glide: 10.4s; /* loop: one lap of the rim light (site --dur-plan-rim-glide: 4 * --dur-loop-step) */
+  --ds-plan-rim-cycle: 7.8s; /* loop: the glyphs' shimmer (site --dur-plan-rim-cycle: 3 * --dur-loop-step) */
+  --ds-plan-ascii-drift: 15.6s; /* loop: the glyphs' drift (site --dur-plan-ascii-drift: 2 * the cycle) */
+  /* enterprise */
+  /* The automation run (site tokens.css 684-740, --ent-run-*): a skewed conveyor of ads under a quote. The -md and -xl
+     values apply from 768 and 1280, -lg from 1024. Fractions are of the run's width. */
+  --ds-ent-run-stage-h: 480px; /* site --ent-run-stage-h (--space-480) */
+  --ds-ent-run-stage-h-md: 640px;
+  --ds-ent-run-stage-h-xl: 800px;
+  --ds-ent-run-overlap: 0px; /* site --ent-run-overlap: how far the stage rises under the quote */
+  --ds-ent-run-overlap-md: 96px;
+  --ds-ent-run-overlap-xl: 128px;
+  --ds-ent-run-head-w: 320px; /* site --ent-run-head-w */
+  --ds-ent-run-head-w-md: 704px;
+  --ds-ent-run-head-w-lg: 960px;
+  --ds-ent-run-card: 0.322; /* site --ent-run-card: a card's side */
+  --ds-ent-run-card-md: 0.161;
+  --ds-ent-run-step-x: 0.13; /* site --ent-run-step-x: the step between cards */
+  --ds-ent-run-step-x-md: 0.065;
+  --ds-ent-run-rise: 0.585; /* site --ent-run-rise: the rise per step, of the step */
+  --ds-ent-run-rise-md: 0.356;
+  --ds-ent-run-enter: 0.3; /* site --ent-run-enter */
+  --ds-ent-run-offset-y: 0.08; /* site --ent-run-offset-y, of the stage's height */
+  --ds-ent-run-offset-y-md: 0;
+  --ds-ent-run-lift: 112px; /* site --ent-run-lift: how high a card rises under the pointer */
+  --ds-ent-run-lift-md: 140px;
+  --ds-ent-run-lift-xl: 180px;
+  --ds-ent-run-skew: 14.8deg; /* site --ent-run-skew */
+  --ds-ent-run-tilt: 12deg; /* site --ent-run-tilt: the raised card's turn */
+  --ds-ent-run-wave: 16px; /* site --ent-run-wave */
+  --ds-ent-run-wave-slots: 20; /* site --ent-run-wave-slots */
+  --ds-ent-run-push: 1.8; /* site --ent-run-push: steps the cards ahead give way */
+  --ds-ent-run-push-reach: 3; /* site --ent-run-push-reach */
+  --ds-ent-run-drift: 15; /* site --ent-run-drift: px a second the conveyor keeps moving */
+  --ds-ent-run-note-w: 288px; /* site --ent-run-note-w */
+  --ds-ent-run-note-gap: 16px; /* site --ent-run-note-gap */
+  --ds-ent-run-deliver: 700ms; /* site --dur-ent-run-deliver (--dur-loop-change): the batch rushing in, read by the engine */
+  --ds-ent-run-calm: 700ms; /* site --dur-ent-run-calm: the conveyor slowing under the pointer */
+  --ds-ent-run-glide: 400ms; /* site --dur-ent-run-lift (--dur-abstract-glide): the lift's spring */
+  --ds-ent-run-intent: 80ms; /* site --dur-ent-run-note-intent (--dur-close-tag-intent) */
+  --ds-ent-run-big-tracking: -0.02em; /* the note's big number (site .noteBig letter-spacing) */
   /* products */
   --ds-feature-ascii-tile: 1080px; /* the ASCII tile behind a feature's stage (site --features-ascii-tile) */
   --ds-feature-ascii-opacity: 0.5; /* site --features-ascii-opacity */
@@ -472,6 +549,91 @@
   --ds-ph-detail-intent: 80ms; /* the wait before a card's detail shows under the pointer (site --dur-ph-detail-intent) */
   --ds-ph-caret-blink: 1060ms; /* the composer's caret, a loop (site --dur-caret-blink) */
   /* group: use-cases-resources-templates */
+  /* use-case-wheel: the ring of creatives around the headline and the drum of labels (site tokens.css 355-393, 659-700).
+     The ring's measures step up at 768 (-md), 1024 (-lg) and 1280 (-xl); the component picks them by width. The wheel is a
+     loop: it turns every 2.4s on the site's strong in-out curve, the creatives staggered 50ms. */
+  --ds-wheel-ease: cubic-bezier(0.85, 0, 0.15, 1); /* site --ease-skills */
+  --ds-wheel-every: 2400ms; /* site --dur-skills-step */
+  --ds-wheel-move: 600ms; /* site --dur-skills-move */
+  --ds-wheel-fade: 500ms; /* site --dur-skills-fade */
+  --ds-wheel-stagger: 50ms; /* site --dur-skills-stagger */
+  --ds-wheel-fade-lead: 100ms; /* site --dur-skills-fade-lead */
+  --ds-wheel-crossfade: 360ms; /* site --dur-skills-crossfade (reduced motion) */
+  --ds-wheel-light-spring: 720ms; /* site --dur-light-spring */
+  --ds-wheel-step: 52px; /* site --skills-step: one row of the drum */
+  --ds-wheel-pill-w: 312px; /* site --skills-pill-w */
+  --ds-wheel-send: 36px; /* site --skills-send */
+  --ds-wheel-rx: 152px; /* site --ring-rx */
+  --ds-wheel-rx-md: 300px;
+  --ds-wheel-rx-lg: 384px;
+  --ds-wheel-rx-xl: 440px;
+  --ds-wheel-ry: 216px; /* site --ring-ry; 140px under 768 (V2UseCases.module.css) */
+  --ds-wheel-ry-phone: 140px;
+  --ds-wheel-ry-md: 240px;
+  --ds-wheel-ry-lg: 292px;
+  --ds-wheel-ry-xl: 332px;
+  --ds-wheel-card-w: 48px; /* site --ring-card-w */
+  --ds-wheel-card-w-md: 80px;
+  --ds-wheel-card-w-lg: 96px;
+  --ds-wheel-card-w-xl: 108px;
+  --ds-wheel-card-h: 64px; /* site --ring-card-h */
+  --ds-wheel-card-h-md: 108px;
+  --ds-wheel-card-h-lg: 128px;
+  --ds-wheel-card-h-xl: 144px;
+  --ds-wheel-slots: 3; /* site --ring-slots */
+  --ds-wheel-slots-md: 4;
+  --ds-wheel-slots-lg: 5;
+  --ds-wheel-head-w: 240px; /* site --ring-head-w */
+  --ds-wheel-head-w-md: 384px;
+  --ds-wheel-head-w-lg: 400px;
+  --ds-wheel-head-w-xl: 480px;
+  --ds-wheel-below: 96px; /* site --ring-below */
+  --ds-wheel-clear: 16px; /* site --ring-clear */
+  --ds-wheel-perspective: 1600px; /* site --ring-perspective */
+  --ds-wheel-turn: 32deg; /* site --ring-turn */
+  --ds-wheel-depth: 120px; /* site --ring-depth */
+  --ds-wheel-pop-scale: 0.4; /* site --ring-pop-scale */
+  --ds-wheel-exit-z: -2400px; /* site --ring-exit-z */
+  --ds-wheel-exit-turn: 96deg; /* site --ring-exit-turn */
+  /* use-case-hero: the chat and the build visual in the use case hero (site tokens.css 270-273, 526-536, 176-177). */
+  --ds-uc-chat-w: 448px; /* site --chat-w */
+  --ds-uc-chat-w-l: 528px; /* site --chat-w-l, from 1280 */
+  --ds-uc-chat-thumb: 36px; /* site --chat-thumb */
+  --ds-uc-chat-strip-h: 80px; /* site --chat-strip-h */
+  --ds-uc-chat-thread-fade: 24px; /* site --chat-thread-fade */
+  --ds-uc-ascii-opacity: 0.5; /* site --features-ascii-opacity */
+  --ds-uc-ascii-clear-w: 46%; /* site --features-ascii-clear-w */
+  --ds-uc-ascii-clear-h: 50%; /* site --features-ascii-clear-h */
+  --ds-uc-loop-change: 700ms; /* a loop's step changing: the build tiles gliding (site --dur-loop-change) */
+  --ds-uc-loop-badge: 500ms; /* a loop's text swapping (site --dur-loop-badge) */
+  /* templates-wall: the tunnel of templates around the headline (site tokens.css 395-414, 605-608, 355-357) */
+  --ds-templates-design-w: 500; /* site --templates-design-w; 1960 from 768 (-md) */
+  --ds-templates-design-w-md: 1960;
+  --ds-templates-design-h: 1084; /* site --templates-design-h; 982 from 768 */
+  --ds-templates-design-h-md: 982;
+  --ds-templates-count: 74; /* site --templates-count: tiles in the tunnel; 128 from 768 */
+  --ds-templates-count-md: 128;
+  --ds-templates-near: 832px; /* site --templates-near: the nearest tile's depth; 132px from 768 */
+  --ds-templates-near-md: 132px;
+  --ds-templates-tile-w: 176px; /* site --templates-tile-w */
+  --ds-templates-tile-h: 220px; /* site --templates-tile-h */
+  --ds-templates-tile-gap: 20px; /* site --templates-tile-gap */
+  --ds-templates-per-turn: 18.5; /* site --templates-per-turn: tiles per turn of the helix */
+  --ds-templates-perspective: 520px; /* site --templates-perspective */
+  --ds-templates-drift: 24px; /* site --templates-drift: px per second toward the viewer */
+  --ds-templates-turn: 1.5; /* site --templates-turn: degrees per second */
+  --ds-templates-near-dim: 0.6; /* site --templates-near-dim */
+  --ds-templates-bright-from: 560px; /* site --templates-bright-from */
+  --ds-templates-bright-until: 880px; /* site --templates-bright-until */
+  --ds-templates-clear: 32px; /* site --templates-clear: room kept around the words */
+  --ds-templates-edge: 16px; /* site --templates-edge */
+  --ds-templates-appear: 600ms; /* site --dur-templates-appear: a tile fading in (a loop's step) */
+  --ds-templates-appear-scale: 0.92; /* site --templates-appear-scale */
+  --ds-templates-gather: 1000ms; /* site --dur-templates-gather: the longest the first frame waits for pictures */
+  --ds-templates-chip-opacity: 0.72; /* site --templates-chip-opacity */
+  --ds-templates-name-step: 2400ms; /* site --dur-skills-step: one name per step (a loop) */
+  --ds-templates-name-move: 600ms; /* site --dur-skills-move: the names rolling */
+  --ds-easing-templates-name: cubic-bezier(0.85, 0, 0.15, 1); /* site --ease-skills: the roll, in and out */
 }
 
 /* The site's gutters, section padding and header by width (site tokens.css 585-640). */

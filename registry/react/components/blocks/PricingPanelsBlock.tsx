@@ -2,6 +2,7 @@
 import { useEffect, useRef, type CSSProperties } from 'react'
 import { Button } from '@/react/components/ui/Button'
 import { CreativeCard } from '@/react/components/site/CreativeCard'
+import { LightImage } from '@/react/components/visuals/LightImage'
 import { asciiDriftStyleObject } from '@/lib/ascii-drift'
 import { startPanelsMotion } from '@/lib/panels-motion'
 import { PANEL_RANK, pricingPanelSets, pricingPanelsContent, sentences, type PanelCreative, type PricingPanelsContent } from '@/lib/home/pricing'
@@ -12,7 +13,8 @@ import { cn } from '@/react/lib/cn'
 // to the right, turned away in perspective, each slot stepping back and up, and the sets take turns: one creative after
 // another fades in while settling from 85% on a spring-like curve, holds, and gives way to the next set (the motion in
 // lib/panels-motion.ts, shared with the products pages' records). It runs only on screen; reduced motion keeps the
-// first set still. Under 768 the copy centers and the buttons stack full width. `sets` are five sets of five
+// first set still. The site's pricing light (light-image) runs through the stage from 1280, dimming a little between
+// sets, and fills a band under the copy from 768 to 1024. Under 768 the copy centers and the buttons stack full width. `sets` are five sets of five
 // creatives (Acme placeholders by default; images through `src`).
 export interface PricingPanelsBlockProps {
   content?: PricingPanelsContent
@@ -44,7 +46,9 @@ export function PricingPanelsBlock({ content: c = pricingPanelsContent, sets = p
             <Button href={c.secondary.href} variant="secondary">{c.secondary.label}</Button>
           </div>
         </div>
+        <div aria-hidden="true" className="ds-pp-band"><span className="ds-pp-band-light"><LightImage art="pricing" width={1320} height={700} split={12} className="absolute inset-0 size-full" /></span></div>
         <div ref={stage} aria-hidden="true" className="ds-pp-stage">
+          <span className="ds-pp-light" data-light=""><LightImage art="pricing" className="absolute inset-0 size-full" /></span>
           <div className="ds-pp-view">
             <div className="ds-pp-run">
               {Array.from({ length: slots }, (_, slot) => (
@@ -92,5 +96,22 @@ const css = `
   .ds-pp-view { perspective: var(--ds-price-perspective-xl); }
   .ds-pp-run { left: var(--ds-price-run-x-xl); }
   .ds-pp-card { --w: var(--ds-price-card-w-xl); --h: var(--ds-price-card-h-xl); --z: var(--ds-price-step-z-xl); }
+}
+.ds-pp-band { display: none; }
+.ds-pp-band-light { position: absolute; top: 50%; left: 50%; display: block; width: var(--ds-price-phone-light-w); height: var(--ds-price-phone-light-h); translate: -50% -50%; scale: 0.8; mix-blend-mode: plus-lighter; }
+@media (min-width: 768px) and (width < 1024px) { .ds-pp-band { position: relative; display: block; height: calc(0.8 * var(--ds-price-phone-band-h)); pointer-events: none; } }
+.ds-pp-light { display: none; }
+@media (min-width: 1280px) {
+  .ds-pp-light {
+    --f0: var(--ds-price-light-fade-from);
+    --fd: calc(var(--ds-price-light-fade-to) - var(--ds-price-light-fade-from));
+    position: absolute; z-index: -1; display: block;
+    left: calc(var(--ds-price-run-x-xl) - var(--ds-price-light-anchor-x)); bottom: calc(var(--ds-price-light-anchor-y) - var(--ds-price-light-h));
+    width: var(--ds-price-light-w); height: var(--ds-price-light-h); mix-blend-mode: plus-lighter;
+    mask-image:
+      linear-gradient(to right, transparent var(--f0), color-mix(in srgb, var(--ds-color-black) 4%, transparent) calc(var(--f0) + var(--fd) * 0.125), color-mix(in srgb, var(--ds-color-black) 16%, transparent) calc(var(--f0) + var(--fd) * 0.25), color-mix(in srgb, var(--ds-color-black) 32%, transparent) calc(var(--f0) + var(--fd) * 0.375), color-mix(in srgb, var(--ds-color-black) 50%, transparent) calc(var(--f0) + var(--fd) * 0.5), color-mix(in srgb, var(--ds-color-black) 68%, transparent) calc(var(--f0) + var(--fd) * 0.625), color-mix(in srgb, var(--ds-color-black) 84%, transparent) calc(var(--f0) + var(--fd) * 0.75), color-mix(in srgb, var(--ds-color-black) 96%, transparent) calc(var(--f0) + var(--fd) * 0.875), var(--ds-color-black) var(--ds-price-light-fade-to)),
+      linear-gradient(to bottom, transparent 136px, var(--ds-color-black) 232px);
+    mask-composite: intersect;
+  }
 }
 `

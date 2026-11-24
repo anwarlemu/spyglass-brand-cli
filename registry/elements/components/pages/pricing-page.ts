@@ -1,14 +1,19 @@
 import { html } from 'lit'
 import { DsElement, define, HostLayoutController } from '@/elements/lib/element'
 import { pricingContent, type PricingContent } from '@/lib/pages/pricing'
-import '@/elements/components/site/plan-card'
-import '@/elements/components/blocks/offer-block'
-import '@/elements/components/site/footer-row'
+import '@/elements/components/site/page-head'
+import '@/elements/components/site/page-close'
+import '@/elements/components/blocks/faq-block'
+import '@/elements/components/site/compare-table'
+import '@/elements/components/site/pricing-table'
 import '@/elements/components/site/site-header'
+import '@/elements/components/blocks/site-footer'
 import styles from 'virtual:tw'
 
-// PricingPage.tsx as <spyglass-pricing-page>: the Creator plan ad as the top and the questions. `content` replaces the copy.
-const WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'
+// PricingPage.tsx as <spyglass-pricing-page>: the site's pricing page: the header, the centered page head, the plan
+// cards with the billing switch, the compare table (from 768), the questions, the closing section and the footer. `content`
+// replaces the copy (lib/pages/pricing.ts).
+const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
 /**
  * @summary The pricing page template.
@@ -22,14 +27,7 @@ export class PricingPage extends DsElement {
 
 	render() {
 		const c = this.content ?? pricingContent
-		return html`<div data-ds="pricing-page" class="bg-surface text-fg">
-<div class=${WRAP}><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header></div>
-<main>
-<spyglass-offer-block headline=${c.offer.headline} light="field" seed="0"><div class="flex w-full flex-wrap justify-center gap-4">${c.plans.map((p) => html`<spyglass-plan-card heading=${p.title} price=${p.price} .features=${p.features} cta=${p.cta} href=${p.href} class="w-150 max-w-full text-left"></spyglass-plan-card>`)}</div></spyglass-offer-block>
-<section class=${`${WRAP} grid grid-cols-3 gap-12 py-24 max-md:grid-cols-1 max-md:gap-8 max-sm:py-16`}><h2 class="type-section">${c.faq.title}</h2><dl class="col-span-2 m-0 grid max-md:col-span-1">${c.faq.items.map((i) => html`<div class="grid gap-2 border-t border-edge py-6"><dt class="type-heading-4">${i.q}</dt><dd class="m-0 type-body text-fg-soft">${i.a}</dd></div>`)}</dl></section>
-</main>
-<footer class="border-t border-edge"><div class=${`${WRAP} py-10`}><spyglass-footer-row domain=${c.footer.domain} home-href="/" .links=${c.footer.links}></spyglass-footer-row></div></footer>
-</div>`
+		return html`<div data-ds="pricing-page" class="bg-surface text-fg"><div class=${WRAP}><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header></div><main><spyglass-page-head head-id="pricing" .lines=${c.head.lines} lead=${c.head.lead} align="centre"></spyglass-page-head><section aria-label="Plans" class="pb-[calc(var(--ds-layout-section)-var(--ds-space-xs))] md:pb-(--ds-layout-section)"><div class=${WRAP}><spyglass-pricing-table .plans=${c.plans} .billing=${c.billing} .note=${c.note}></spyglass-pricing-table></div></section><section aria-label=${c.compare.label} class="py-(--ds-layout-section) max-md:hidden"><div class=${WRAP}><spyglass-compare-table .plans=${c.compare.plans} .groups=${c.compare.groups} default-plan=${c.compare.defaultPlan}></spyglass-compare-table></div></section><div class=${`${WRAP} py-(--ds-layout-section)`}><spyglass-faq-block heading=${c.faq.title} body=${c.faq.lead} .action=${c.faq.action} .items=${c.faq.items}></spyglass-faq-block></div><spyglass-page-close .lines=${c.close.lines} note=${c.close.note} .primary=${c.close.primary}></spyglass-page-close></main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`
 	}
 }
 
