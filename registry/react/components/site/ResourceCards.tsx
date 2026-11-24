@@ -1,6 +1,7 @@
 import { Badge } from '@/react/components/ui/Badge'
+import { Code } from '@/react/components/site/Code'
 import { CreativeCard } from '@/react/components/site/CreativeCard'
-import { codeTokens, isExternal, type ResourceCard, type ResourceCover, type ResourceRow } from '@/lib/resource-cards'
+import { isExternal, type ResourceCard, type ResourceCover, type ResourceRow } from '@/lib/resource-cards'
 import { cn } from '@/react/lib/cn'
 
 export type { ResourceCard, ResourceCover, ResourceCreative, ResourceRow } from '@/lib/resource-cards'
@@ -28,7 +29,7 @@ function Cover({ cover, columns }: { cover: ResourceCover; columns: 2 | 3 }) {
   if (cover.kind === 'code') {
     return (
       <span className="max-w-full overflow-hidden">
-        <pre className="m-0 w-max type-code text-fg"><code>{codeTokens(cover.source, cover.language).map((t, i) => (t.dim ? <span key={i} className="text-fg-muted">{t.text}</span> : t.text))}</code></pre>
+        <Code source={cover.source} language={cover.language} />
       </span>
     )
   }

@@ -1,7 +1,8 @@
 import { html, nothing } from 'lit'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { DsElement, define, HostLayoutController } from '@/elements/lib/element'
-import { codeTokens, isExternal, type ResourceCard, type ResourceCover, type ResourceRow } from '@/lib/resource-cards'
+import { isExternal, type ResourceCard, type ResourceCover, type ResourceRow } from '@/lib/resource-cards'
+import '@/elements/components/site/code'
 import '@/elements/components/site/creative-card'
 import '@/elements/components/ui/badge'
 import styles from 'virtual:tw'
@@ -32,7 +33,7 @@ export class ResourceCards extends DsElement {
 	columns: 2 | 3 = 2
 
 	cover(cover: ResourceCover, columns: 2 | 3) {
-		if (cover.kind === 'code') return html`<span class="max-w-full overflow-hidden"><pre class="m-0 w-max type-code text-fg"><code>${codeTokens(cover.source, cover.language).map((t) => (t.dim ? html`<span class="text-fg-muted">${t.text}</span>` : t.text))}</code></pre></span>`
+		if (cover.kind === 'code') return html`<span class="max-w-full overflow-hidden"><spyglass-code source=${cover.source} language=${cover.language ?? 'shell'}></spyglass-code></span>`
 		const size = columns === 3 ? 'shrink-0 basis-20 lg:basis-16 xl:basis-20 min-[1440px]:basis-24' : 'shrink grow-0 basis-30'
 		return html`<span class="flex w-full justify-center gap-3">${cover.items.map((c) => html`<span class=${['block aspect-4/5 min-w-0', size].join(' ')}><spyglass-creative-card ratio="fill" src=${ifDefined(c.src)} alt=${ifDefined(c.alt)} brand=${ifDefined(c.brand)} caption=${ifDefined(c.caption)} tone=${ifDefined(c.tone)}></spyglass-creative-card></span>`)}</span>`
 	}
