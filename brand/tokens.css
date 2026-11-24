@@ -432,6 +432,8 @@
   --ds-read-first: 3800ms; /* the first hold of a reading loop (site --dur-read-first) */
   --ds-read-hold: 2800ms; /* each later hold (site --dur-read-hold) */
   /* The home pricing panels (site --price-*): a run of five creatives turned away in perspective; 1280 values as -xl. */
+  --ds-stories-lead-min-h: 560px; /* a lead case story from 1024 (site --stories-lead-min-h) */
+  --ds-stories-panel-w: 480px; /* its panel (site --stories-panel-w) */
   --ds-price-card-w: 144px;
   --ds-price-card-h: 240px;
   --ds-price-card-w-xl: 192px;
