@@ -148,7 +148,7 @@ describe('deck', () => {
 	}, 60_000);
 
 	it('has every slide type and draws each', async () => {
-		expect(templates('deck').map((t) => t.id)).toEqual(['cover-row', 'cover-inline', 'cover-curved', 'section', 'statement', 'bullets', 'stat', 'quote', 'image', 'closing']);
+		expect(templates('deck').map((t) => t.id)).toEqual(['cover-row', 'cover-inline', 'cover-curved', 'section', 'statement', 'bullets', 'stat', 'quote', 'image', 'closing', 'agenda', 'timeline', 'team', 'comparison', 'image-grid', 'qa']);
 		for (const t of templates('deck')) {
 			const d = await drawScene(sceneFor(t, { seed: 1, sample: true }).scene);
 			expect(d.width).toBe(1920);

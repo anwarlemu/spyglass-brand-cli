@@ -1340,6 +1340,1069 @@
      ]
     }
    }
+  },
+  {
+   "id": "agenda",
+   "group": "content",
+   "name": "Agenda",
+   "figma": "derived",
+   "description": "A title on the left, the items numbered on the right in Funnel Display, a light strip at the left edge.",
+   "slots": {
+    "headline": "Agenda",
+    "items": "01  Where creative is going | 02  What we found | 03  What we will do next",
+    "label": "Pitch deck"
+   },
+   "required": [
+    "headline",
+    "items"
+   ],
+   "sizes": {
+    "slide": {
+     "width": 1920,
+     "height": 1080,
+     "frame": [
+      96,
+      96,
+      1728,
+      888
+     ],
+     "unit": 1.333,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "window": [
+        0,
+        0,
+        160,
+        1080
+       ],
+       "b": [
+        -134,
+        -160,
+        2241,
+        1401
+       ],
+       "shift": 34
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        232,
+        96,
+        240,
+        36.721
+       ],
+       "align": "left",
+       "corner": "top-left"
+      },
+      {
+       "type": "text",
+       "slot": "label",
+       "face": "label",
+       "size": 16,
+       "leading": 16,
+       "x": 1224,
+       "top": 104,
+       "w": 600,
+       "align": "right",
+       "maxLines": 1,
+       "min": 14,
+       "corner": "top-right"
+      },
+      {
+       "type": "stack",
+       "box": [
+        232,
+        200,
+        560,
+        784
+       ],
+       "items": [
+        {
+         "type": "text",
+         "slot": "headline",
+         "face": "display",
+         "size": 112,
+         "leading": 112,
+         "gap": 0,
+         "maxLines": 3
+        }
+       ],
+       "prefer": 260
+      },
+      {
+       "type": "stack",
+       "box": [
+        880,
+        200,
+        944,
+        784
+       ],
+       "items": [
+        {
+         "type": "list",
+         "slot": "items",
+         "face": "display",
+         "size": 56,
+         "leading": 60,
+         "w": 944,
+         "itemGap": 56,
+         "maxLines": 2,
+         "min": 32
+        }
+       ],
+       "prefer": 268
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "timeline",
+   "group": "content",
+   "name": "Timeline",
+   "figma": "derived",
+   "description": "A title, then up to four steps on a hairline, each a label (a date) and a line.",
+   "slots": {
+    "headline": "From question to answer.",
+    "when-1": "Week 1",
+    "step-1": "Connect the brands you track.",
+    "when-2": "Week 2",
+    "step-2": "See every launch the day it ships.",
+    "when-3": "Week 4",
+    "step-3": "Share boards with the team.",
+    "when-4": "",
+    "step-4": "",
+    "label": "Pitch deck"
+   },
+   "required": [
+    "headline",
+    "step-1"
+   ],
+   "sizes": {
+    "slide": {
+     "width": 1920,
+     "height": 1080,
+     "frame": [
+      96,
+      96,
+      1728,
+      888
+     ],
+     "unit": 1.333,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "window": [
+        0,
+        920,
+        1920,
+        160
+       ],
+       "b": [
+        -2366,
+        -53,
+        5179,
+        3238
+       ],
+       "shift": 78.6
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        96,
+        96,
+        240,
+        36.721
+       ],
+       "align": "left",
+       "corner": "top-left"
+      },
+      {
+       "type": "text",
+       "slot": "label",
+       "face": "label",
+       "size": 16,
+       "leading": 16,
+       "x": 1224,
+       "top": 104,
+       "w": 600,
+       "align": "right",
+       "maxLines": 1,
+       "min": 14,
+       "corner": "top-right"
+      },
+      {
+       "type": "stack",
+       "box": [
+        96,
+        190,
+        1500,
+        300
+       ],
+       "items": [
+        {
+         "type": "text",
+         "slot": "headline",
+         "face": "display",
+         "size": 72,
+         "leading": 77,
+         "gap": 0,
+         "maxLines": 2
+        }
+       ],
+       "prefer": 230
+      },
+      {
+       "type": "rect",
+       "id": "rule",
+       "box": [
+        96,
+        560,
+        1728,
+        2
+       ],
+       "fill": "neutral-5"
+      },
+      {
+       "type": "stack",
+       "box": [
+        96,
+        600,
+        396,
+        280
+       ],
+       "items": [
+        {
+         "type": "text",
+         "slot": "when-1",
+         "face": "label",
+         "size": 16,
+         "leading": 20,
+         "gap": 0,
+         "maxLines": 1
+        },
+        {
+         "type": "text",
+         "slot": "step-1",
+         "face": "body",
+         "size": 32,
+         "leading": 42.5,
+         "gap": 28,
+         "maxLines": 4
+        }
+       ]
+      },
+      {
+       "type": "stack",
+       "box": [
+        540,
+        600,
+        396,
+        280
+       ],
+       "items": [
+        {
+         "type": "text",
+         "slot": "when-2",
+         "face": "label",
+         "size": 16,
+         "leading": 20,
+         "gap": 0,
+         "maxLines": 1
+        },
+        {
+         "type": "text",
+         "slot": "step-2",
+         "face": "body",
+         "size": 32,
+         "leading": 42.5,
+         "gap": 28,
+         "maxLines": 4
+        }
+       ]
+      },
+      {
+       "type": "stack",
+       "box": [
+        984,
+        600,
+        396,
+        280
+       ],
+       "items": [
+        {
+         "type": "text",
+         "slot": "when-3",
+         "face": "label",
+         "size": 16,
+         "leading": 20,
+         "gap": 0,
+         "maxLines": 1
+        },
+        {
+         "type": "text",
+         "slot": "step-3",
+         "face": "body",
+         "size": 32,
+         "leading": 42.5,
+         "gap": 28,
+         "maxLines": 4
+        }
+       ]
+      },
+      {
+       "type": "stack",
+       "box": [
+        1428,
+        600,
+        396,
+        280
+       ],
+       "items": [
+        {
+         "type": "text",
+         "slot": "when-4",
+         "face": "label",
+         "size": 16,
+         "leading": 20,
+         "gap": 0,
+         "maxLines": 1
+        },
+        {
+         "type": "text",
+         "slot": "step-4",
+         "face": "body",
+         "size": 32,
+         "leading": 42.5,
+         "gap": 28,
+         "maxLines": 4
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "team",
+   "group": "content",
+   "name": "Team",
+   "figma": "derived",
+   "description": "A title and up to four people: a picture each (yours, never stock), the name and the role.",
+   "photos": 4,
+   "slots": {
+    "headline": "The team.",
+    "name-1": "Alex Kim",
+    "role-1": "Founder",
+    "name-2": "Sam Lee",
+    "role-2": "Engineering",
+    "name-3": "",
+    "role-3": "",
+    "name-4": "",
+    "role-4": "",
+    "label": "Pitch deck"
+   },
+   "required": [
+    "headline",
+    "name-1"
+   ],
+   "minPhotos": 0,
+   "sizes": {
+    "slide": {
+     "width": 1920,
+     "height": 1080,
+     "frame": [
+      96,
+      96,
+      1728,
+      888
+     ],
+     "unit": 1.333,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "window": [
+        1760,
+        0,
+        160,
+        1080
+       ],
+       "b": [
+        -2014,
+        -160,
+        2241,
+        1401
+       ],
+       "shift": 34
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        96,
+        96,
+        240,
+        36.721
+       ],
+       "align": "left",
+       "corner": "top-left"
+      },
+      {
+       "type": "text",
+       "slot": "label",
+       "face": "label",
+       "size": 16,
+       "leading": 16,
+       "x": 1064,
+       "top": 104,
+       "w": 600,
+       "align": "right",
+       "maxLines": 1,
+       "min": 14,
+       "corner": "top-right"
+      },
+      {
+       "type": "stack",
+       "box": [
+        96,
+        190,
+        1500,
+        200
+       ],
+       "items": [
+        {
+         "type": "text",
+         "slot": "headline",
+         "face": "display",
+         "size": 72,
+         "leading": 77,
+         "gap": 0,
+         "maxLines": 1
+        }
+       ],
+       "prefer": 230
+      },
+      {
+       "type": "photo",
+       "index": 0,
+       "box": [
+        96,
+        360,
+        376,
+        420
+       ],
+       "id": "picture-1"
+      },
+      {
+       "type": "photo",
+       "index": 1,
+       "box": [
+        508,
+        360,
+        376,
+        420
+       ],
+       "id": "picture-2"
+      },
+      {
+       "type": "photo",
+       "index": 2,
+       "box": [
+        920,
+        360,
+        376,
+        420
+       ],
+       "id": "picture-3"
+      },
+      {
+       "type": "photo",
+       "index": 3,
+       "box": [
+        1332,
+        360,
+        376,
+        420
+       ],
+       "id": "picture-4"
+      },
+      {
+       "type": "stack",
+       "box": [
+        96,
+        810,
+        376,
+        170
+       ],
+       "items": [
+        {
+         "type": "text",
+         "slot": "name-1",
+         "face": "display",
+         "size": 32,
+         "leading": 36,
+         "gap": 0,
+         "maxLines": 1
+        },
+        {
+         "type": "text",
+         "slot": "role-1",
+         "face": "body",
+         "size": 24,
+         "leading": 32,
+         "gap": 16,
+         "maxLines": 2
+        }
+       ]
+      },
+      {
+       "type": "stack",
+       "box": [
+        508,
+        810,
+        376,
+        170
+       ],
+       "items": [
+        {
+         "type": "text",
+         "slot": "name-2",
+         "face": "display",
+         "size": 32,
+         "leading": 36,
+         "gap": 0,
+         "maxLines": 1
+        },
+        {
+         "type": "text",
+         "slot": "role-2",
+         "face": "body",
+         "size": 24,
+         "leading": 32,
+         "gap": 16,
+         "maxLines": 2
+        }
+       ]
+      },
+      {
+       "type": "stack",
+       "box": [
+        920,
+        810,
+        376,
+        170
+       ],
+       "items": [
+        {
+         "type": "text",
+         "slot": "name-3",
+         "face": "display",
+         "size": 32,
+         "leading": 36,
+         "gap": 0,
+         "maxLines": 1
+        },
+        {
+         "type": "text",
+         "slot": "role-3",
+         "face": "body",
+         "size": 24,
+         "leading": 32,
+         "gap": 16,
+         "maxLines": 2
+        }
+       ]
+      },
+      {
+       "type": "stack",
+       "box": [
+        1332,
+        810,
+        376,
+        170
+       ],
+       "items": [
+        {
+         "type": "text",
+         "slot": "name-4",
+         "face": "display",
+         "size": 32,
+         "leading": 36,
+         "gap": 0,
+         "maxLines": 1
+        },
+        {
+         "type": "text",
+         "slot": "role-4",
+         "face": "body",
+         "size": 24,
+         "leading": 32,
+         "gap": 16,
+         "maxLines": 2
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "comparison",
+   "group": "content",
+   "name": "Comparison",
+   "figma": "derived",
+   "description": "A title and two cards side by side, each a heading and its points.",
+   "slots": {
+    "headline": "Before and after.",
+    "left-title": "Before",
+    "left-items": "Screenshots at midnight | Five tabs per brand",
+    "right-title": "After",
+    "right-items": "One search across every network | Alerts the day it ships",
+    "label": "Pitch deck"
+   },
+   "required": [
+    "headline"
+   ],
+   "sizes": {
+    "slide": {
+     "width": 1920,
+     "height": 1080,
+     "frame": [
+      96,
+      96,
+      1728,
+      888
+     ],
+     "unit": 1.333,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "window": [
+        0,
+        960,
+        1920,
+        120
+       ],
+       "b": [
+        -2366,
+        -53,
+        5179,
+        3238
+       ],
+       "shift": 78.6
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        96,
+        96,
+        240,
+        36.721
+       ],
+       "align": "left",
+       "corner": "top-left"
+      },
+      {
+       "type": "text",
+       "slot": "label",
+       "face": "label",
+       "size": 16,
+       "leading": 16,
+       "x": 1224,
+       "top": 104,
+       "w": 600,
+       "align": "right",
+       "maxLines": 1,
+       "min": 14,
+       "corner": "top-right"
+      },
+      {
+       "type": "stack",
+       "box": [
+        96,
+        190,
+        1500,
+        200
+       ],
+       "items": [
+        {
+         "type": "text",
+         "slot": "headline",
+         "face": "display",
+         "size": 72,
+         "leading": 77,
+         "gap": 0,
+         "maxLines": 2
+        }
+       ],
+       "prefer": 230
+      },
+      {
+       "type": "stack",
+       "box": [
+        96,
+        400,
+        848,
+        520
+       ],
+       "items": [
+        {
+         "type": "card",
+         "id": "left-card",
+         "w": 848,
+         "pad": 48,
+         "fill": "neutral-4",
+         "radius": 8,
+         "items": [
+          {
+           "type": "text",
+           "slot": "left-title",
+           "face": "display",
+           "size": 48,
+           "leading": 52,
+           "gap": 0,
+           "maxLines": 1
+          },
+          {
+           "type": "list",
+           "slot": "left-items",
+           "face": "body",
+           "size": 32,
+           "leading": 42.5,
+           "itemGap": 24,
+           "gap": 40,
+           "maxLines": 2,
+           "min": 24
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "stack",
+       "box": [
+        976,
+        400,
+        848,
+        520
+       ],
+       "items": [
+        {
+         "type": "card",
+         "id": "right-card",
+         "w": 848,
+         "pad": 48,
+         "fill": "neutral-4",
+         "radius": 8,
+         "items": [
+          {
+           "type": "text",
+           "slot": "right-title",
+           "face": "display",
+           "size": 48,
+           "leading": 52,
+           "gap": 0,
+           "maxLines": 1
+          },
+          {
+           "type": "list",
+           "slot": "right-items",
+           "face": "body",
+           "size": 32,
+           "leading": 42.5,
+           "itemGap": 24,
+           "gap": 40,
+           "maxLines": 2,
+           "min": 24
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "image-grid",
+   "group": "content",
+   "name": "Image grid",
+   "figma": "derived",
+   "description": "A title and up to six pictures in a grid (yours).",
+   "photos": 6,
+   "slots": {
+    "headline": "What is running now.",
+    "label": "Pitch deck"
+   },
+   "required": [
+    "headline"
+   ],
+   "minPhotos": 1,
+   "sizes": {
+    "slide": {
+     "width": 1920,
+     "height": 1080,
+     "frame": [
+      96,
+      96,
+      1728,
+      888
+     ],
+     "unit": 1.333,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        96,
+        96,
+        240,
+        36.721
+       ],
+       "align": "left",
+       "corner": "top-left"
+      },
+      {
+       "type": "text",
+       "slot": "label",
+       "face": "label",
+       "size": 16,
+       "leading": 16,
+       "x": 1224,
+       "top": 104,
+       "w": 600,
+       "align": "right",
+       "maxLines": 1,
+       "min": 14,
+       "corner": "top-right"
+      },
+      {
+       "type": "stack",
+       "box": [
+        96,
+        190,
+        1500,
+        160
+       ],
+       "items": [
+        {
+         "type": "text",
+         "slot": "headline",
+         "face": "display",
+         "size": 72,
+         "leading": 77,
+         "gap": 0,
+         "maxLines": 1
+        }
+       ],
+       "prefer": 230
+      },
+      {
+       "type": "photo",
+       "index": 0,
+       "box": [
+        96,
+        340,
+        560,
+        310
+       ],
+       "id": "picture-1",
+       "radius": 8
+      },
+      {
+       "type": "photo",
+       "index": 1,
+       "box": [
+        680,
+        340,
+        560,
+        310
+       ],
+       "id": "picture-2",
+       "radius": 8
+      },
+      {
+       "type": "photo",
+       "index": 2,
+       "box": [
+        1264,
+        340,
+        560,
+        310
+       ],
+       "id": "picture-3",
+       "radius": 8
+      },
+      {
+       "type": "photo",
+       "index": 3,
+       "box": [
+        96,
+        670,
+        560,
+        310
+       ],
+       "id": "picture-4",
+       "radius": 8
+      },
+      {
+       "type": "photo",
+       "index": 4,
+       "box": [
+        680,
+        670,
+        560,
+        310
+       ],
+       "id": "picture-5",
+       "radius": 8
+      },
+      {
+       "type": "photo",
+       "index": 5,
+       "box": [
+        1264,
+        670,
+        560,
+        310
+       ],
+       "id": "picture-6",
+       "radius": 8
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "qa",
+   "group": "content",
+   "name": "Questions",
+   "figma": "derived",
+   "description": "The questions slide: a large title, a line and the address, the light field above.",
+   "slots": {
+    "headline": "Questions?",
+    "body": "Write to us any time.",
+    "url": "{domain}"
+   },
+   "required": [
+    "headline"
+   ],
+   "sizes": {
+    "slide": {
+     "width": 1920,
+     "height": 1080,
+     "frame": [
+      96,
+      96,
+      1728,
+      888
+     ],
+     "unit": 1.333,
+     "layers": [
+      {
+       "type": "ascii"
+      },
+      {
+       "type": "light",
+       "window": [
+        0,
+        0,
+        1920,
+        420
+       ],
+       "b": [
+        -1652,
+        -69,
+        4383,
+        2740
+       ],
+       "shift": 66.5
+      },
+      {
+       "type": "logo",
+       "lockup": "horizontal",
+       "color": "white",
+       "box": [
+        840,
+        500,
+        240,
+        36.721
+       ],
+       "align": "center"
+      },
+      {
+       "type": "stack",
+       "box": [
+        410,
+        580,
+        1100,
+        384
+       ],
+       "items": [
+        {
+         "type": "text",
+         "slot": "headline",
+         "face": "display",
+         "size": 144,
+         "leading": 144,
+         "gap": 0,
+         "align": "center",
+         "maxLines": 1
+        },
+        {
+         "type": "text",
+         "slot": "body",
+         "face": "body",
+         "size": 32,
+         "leading": 42.5,
+         "gap": 48,
+         "align": "center",
+         "maxLines": 2
+        }
+       ],
+       "align": "center",
+       "prefer": 610
+      },
+      {
+       "type": "text",
+       "slot": "url",
+       "face": "label",
+       "size": 16,
+       "leading": 16,
+       "x": 560,
+       "top": 1000,
+       "w": 800,
+       "align": "center",
+       "maxLines": 1,
+       "min": 14
+      }
+     ]
+    }
+   }
   }
  ]
 }
