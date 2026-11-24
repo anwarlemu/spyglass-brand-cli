@@ -500,6 +500,11 @@
   --ds-ent-run-glide: 400ms; /* site --dur-ent-run-lift (--dur-abstract-glide): the lift's spring */
   --ds-ent-run-intent: 80ms; /* site --dur-ent-run-note-intent (--dur-close-tag-intent) */
   --ds-ent-run-big-tracking: -0.02em; /* the note's big number (site .noteBig letter-spacing) */
+  /* products */
+  --ds-feature-ascii-tile: 1080px; /* the ASCII tile behind a feature's stage (site --features-ascii-tile) */
+  --ds-feature-ascii-opacity: 0.5; /* site --features-ascii-opacity */
+  --ds-feature-ascii-clear-w: 46%; /* the clear middle of the stage (site --features-ascii-clear-w) */
+  --ds-feature-ascii-clear-h: 50%; /* site --features-ascii-clear-h */
   /* group: use-cases-resources-templates */
 }
 

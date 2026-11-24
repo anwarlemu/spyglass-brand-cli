@@ -1,0 +1,5 @@
+.ds-pf-title { font-family: var(--ds-font-heading); font-weight: var(--ds-font-weight-heading); font-size: var(--ds-text-heading-3); line-height: var(--ds-text-heading-3-leading); letter-spacing: 0; text-wrap: balance; }
+@media (min-width: 768px) { .ds-pf-title { font-size: var(--ds-text-heading-2); line-height: var(--ds-text-heading-2-leading); } }
+@media (min-width: 1280px) { .ds-pf-title { font-size: var(--ds-text-figure); line-height: var(--ds-text-figure-leading); } }
+.ds-pf-stage { container: stage / inline-size; }
+.ds-pf-ascii { position: absolute; inset: 0; z-index: -1; pointer-events: none; background-size: var(--ds-feature-ascii-tile) var(--ds-feature-ascii-tile); opacity: var(--ds-feature-ascii-opacity); mix-blend-mode: screen; mask-image: radial-gradient(ellipse var(--ds-feature-ascii-clear-w) var(--ds-feature-ascii-clear-h) at 50% 50%, transparent 40%, var(--ds-color-black) 100%); }
