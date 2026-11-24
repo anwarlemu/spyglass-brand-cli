@@ -449,6 +449,9 @@
   --ds-price-phone-light-h: 700px;
   --ds-price-phone-band-h: 560px;
   /* group: pricing-products-enterprise */
+  /* product-visual */
+  --ds-pv-ascii-clear-w: 46%; /* the clear middle of a feature stage's ASCII field (site --features-ascii-clear-w) */
+  --ds-pv-ascii-clear-h: 50%; /* site --features-ascii-clear-h */
   /* group: use-cases-resources-templates */
 }
 
