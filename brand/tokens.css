@@ -405,6 +405,7 @@
   /* Site parts (each group adds its tokens under its own line, so parallel work merges cleanly). */
   /* group: effects */
   /* group: chrome */
+  --ds-page-head-drift-clear: 320px; /* a centered page head's drift starts this far right of the middle (site --space-320) */
   /* group: home */
   /* group: pricing-products-enterprise */
   /* group: use-cases-resources-templates */
