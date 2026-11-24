@@ -19,11 +19,11 @@ const LINK = 'flex h-control-xs items-center rounded-control px-3 type-ui text-f
 
 export function SettingsPage({ content: c = settingsContent, action, className }: SettingsPageProps) {
   return (
-    <div data-ds="settings-page" className={cn('grid min-h-dvh bg-surface text-fg lg:grid-cols-[256px_minmax(0,1fr)]', className)}>
-      <aside className="flex flex-col gap-6 border-b border-edge bg-surface-subtle p-4 lg:border-r lg:border-b-0">
+    <div data-ds="settings-page" className={cn('grid min-h-dvh grid-cols-[minmax(0,1fr)] bg-surface text-fg lg:grid-cols-[256px_minmax(0,1fr)]', className)}>
+      <aside className="flex min-w-0 flex-col gap-6 border-b border-edge bg-surface-subtle p-4 lg:border-r lg:border-b-0">
         <a href="/" aria-label="Home" className="self-start rounded-control px-2 py-2"><Logo height={20} /></a>
         <nav aria-label="Settings">
-          <ul role="list" className="m-0 flex list-none gap-1 overflow-x-auto p-0 max-lg:fade-x lg:flex-col">
+          <ul role="list" className="m-0 flex list-none gap-1 overflow-x-auto p-0 fade-x lg:flex-col">
             {c.nav.map((n) => <li key={n.href} className="shrink-0"><a href={n.href} aria-current={n.current ? 'page' : undefined} className={LINK}>{n.label}</a></li>)}
           </ul>
         </nav>
