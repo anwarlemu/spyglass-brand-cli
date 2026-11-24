@@ -406,6 +406,8 @@
   /* group: effects */
   --ds-light-grain-reach: 64px; /* how far the light image's grain reaches from the light (site --light-grain-reach) */
   --ds-light-grain-lens: 192px; /* the grain's reach under the pointer's lens (site --light-grain-lens) */
+  --ds-ascii-trail-radius: 72px; /* how far the pointer's ASCII trail reaches (site --ascii-trail-radius) */
+  --ds-ascii-trail-fade: 700ms; /* how long the trail takes to fade, a decay, not a transition (site --ascii-trail-fade) */
   /* The dispersion field's tuning (read by lib/effects/field-engine.ts on the canvas): the footer wordmark's crest
      (site --footer-crest-*, --footer-wave-*, --dur-footer-*) and the horizon's tilt (site --hero-light-tilt, -cross). */
   --ds-footer-crest-width: 0.07;

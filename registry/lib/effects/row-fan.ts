@@ -422,9 +422,12 @@ export function mountRowFan(root: HTMLElement): () => void {
 
   let frame = 0;
   let listening = false;
+  // The scroll pick waits until the fonts have loaded and a frame has laid the rows out, so which row it picks depends
+  // only on the rows and the viewport, never on how fast the page loaded.
+  let settled = false;
   const pick = () => {
     frame = 0;
-    if (!scrollDrives()) return;
+    if (!settled || !scrollDrives()) return;
     const mid = window.innerHeight * 0.5;
     let row = 0;
     if (v.pickNearest) {
@@ -447,9 +450,27 @@ export function mountRowFan(root: HTMLElement): () => void {
       });
     }
     if (row === scrollRow && row === active) return;
+    // Leaving the screen is confirmed a frame later: a moment's resize (a screenshot, a toolbar) must not drop the row.
+    if (row < 0 && scrollRow >= 0) {
+      if (!dropping) dropping = requestAnimationFrame(confirmDrop);
+      return;
+    }
     scrollRow = row;
     resolve();
   };
+  let dropping = 0;
+  const offscreen = () => {
+    const r = root.getBoundingClientRect();
+    const m = window.innerHeight * 0.2;
+    return r.bottom <= -m || r.top >= window.innerHeight + m;
+  };
+  function confirmDrop() {
+    dropping = 0;
+    const r = root.getBoundingClientRect();
+    if (r.bottom > 0 && r.top < window.innerHeight) return;
+    scrollRow = -1;
+    resolve();
+  }
   const onScroll = () => {
     if (!frame) frame = requestAnimationFrame(pick);
   };
@@ -474,8 +495,17 @@ export function mountRowFan(root: HTMLElement): () => void {
       listen(near && scrollDrives());
       if (near && scrollDrives()) pick();
       else if (!near && v.pickNearest && scrollRow >= 0) {
-        scrollRow = -1;
-        resolve();
+        requestAnimationFrame(() => {
+          if (!offscreen()) {
+            near = true;
+            listen(scrollDrives());
+            pick();
+            return;
+          }
+          if (near || scrollRow < 0) return;
+          scrollRow = -1;
+          resolve();
+        });
       }
     },
     { rootMargin: "20% 0px 20% 0px" },
@@ -501,8 +531,6 @@ export function mountRowFan(root: HTMLElement): () => void {
   const relayout = () => {
     v = read();
     listen(near && scrollDrives());
-    // The styles may arrive after the mount (a framework that inserts its sheet late): pick the row now if scroll drives.
-    if (near && scrollDrives() && active < 0) pick();
     if (active < 0) return;
     placeSlots("place");
     const k = cta;
@@ -525,10 +553,24 @@ export function mountRowFan(root: HTMLElement): () => void {
     ro.observe(root);
   }
   let alive = true;
-  document.fonts?.ready.then(() => alive && relayout());
+  let settle = 0;
+  const ready = document.fonts?.ready ?? Promise.resolve();
+  ready.then(() => {
+    if (!alive) return;
+    settle = requestAnimationFrame(() => {
+      settle = requestAnimationFrame(() => {
+        if (!alive) return;
+        settled = true;
+        relayout();
+        if (near && scrollDrives()) pick();
+      });
+    });
+  });
 
   return () => {
     alive = false;
+    cancelAnimationFrame(settle);
+    cancelAnimationFrame(dropping);
     root.removeEventListener("pointerover", onOver);
     root.removeEventListener("pointerleave", onLeave);
     root.removeEventListener("pointerdown", onDown);
