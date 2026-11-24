@@ -5,7 +5,7 @@ import styles from 'virtual:tw'
 
 // Toggle.tsx as <spyglass-toggle>: a button that stays pressed: no fill at rest (or, as `outline`, a #363636
 // hairline); pressed it takes the primary White with Black text. Sizes sm (32px), md (40px), lg (48px); `icon` makes it
-// square (put its name in aria-label). A press gives a little (scale 0.97); colors change over 150ms. `pressed` (an
+// square (put its name in aria-label). colors change over 160ms. `pressed` (an
 // attribute) with `pressed-change`.
 
 const VARIANTS = {
@@ -50,7 +50,7 @@ export class Toggle extends DsElement {
 		const size = SIZES[this.size] ? this.size : 'md'
 		const classes = [
 			'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-control whitespace-nowrap select-none text-fg-soft',
-			'transition-[background-color,color,border-color,scale] duration-150 ease-out active:not-disabled:scale-97 motion-reduce:active:not-disabled:scale-100',
+			'transition-[background-color,color,border-color] duration-160 ease-out',
 			'not-aria-pressed:hover:not-disabled:bg-action-ghost-hover not-aria-pressed:hover:not-disabled:text-fg aria-pressed:bg-action-primary aria-pressed:text-action-primary-fg aria-pressed:hover:not-disabled:bg-action-primary-hover',
 			'disabled:cursor-not-allowed disabled:text-action-disabled-fg disabled:aria-pressed:bg-action-disabled',
 			SIZES[size],

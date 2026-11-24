@@ -17,7 +17,7 @@
 .ds-resize-handle[data-dragging], .ds-resize-handle:focus-visible { background: var(--ds-color-edge-focus); }
 .ds-resize-handle:focus-visible { outline: none; }
 @media (hover: hover) and (pointer: fine) { .ds-resize-handle:hover { background: var(--ds-color-edge-focus); } }
-/* The grip: a small box on the hairline, the card's fill in a #363636 hairline that turns White with it. */
+/* The grip: a small box on the hairline, the card's fill in a #666666 hairline that turns White with it. */
 .ds-resize-grip { position: relative; z-index: 1; flex-shrink: 0; border: var(--ds-border-hairline) solid var(--ds-color-edge-strong); border-radius: var(--ds-radius-sm); background: var(--ds-color-surface-raised); transition: border-color var(--ds-duration-micro) var(--ds-easing-standard); }
 .ds-resize-handle[data-direction="horizontal"] .ds-resize-grip { width: var(--ds-space-md); height: var(--ds-space-xl); }
 .ds-resize-handle[data-direction="vertical"] .ds-resize-grip { width: var(--ds-space-xl); height: var(--ds-space-md); }

@@ -21,7 +21,7 @@ export default function Navigation() {
       <Drawer open={open} onOpenChange={setOpen} title="Spyglass" side="left">
         <nav className="flex flex-col gap-1" aria-label="Pages">
           {pages.map(({ label, icon: Icon }) => (
-            <a key={label} href="#" aria-current={page === label ? 'page' : undefined} className="flex h-10 items-center gap-3 rounded-ds-sm px-3 type-ui text-fg-soft outline-none transition-[background-color,color] duration-150 ease-standard hover:bg-ds-neutral-4 hover:text-fg focus-visible:bg-ds-neutral-4 aria-[current=page]:bg-ds-neutral-4 aria-[current=page]:text-fg" onClick={(e) => { e.preventDefault(); setPage(label); setOpen(false) }}>
+            <a key={label} href="#" aria-current={page === label ? 'page' : undefined} className="flex h-10 items-center gap-3 rounded-ds-sm px-3 type-ui text-fg-soft outline-none transition-[background-color,color] duration-160 ease-standard hover:bg-ds-neutral-4 hover:text-fg focus-visible:bg-ds-neutral-4 aria-[current=page]:bg-ds-neutral-4 aria-[current=page]:text-fg" onClick={(e) => { e.preventDefault(); setPage(label); setOpen(false) }}>
               <Icon size={16} strokeWidth={1.5} aria-hidden="true" />{label}
             </a>
           ))}

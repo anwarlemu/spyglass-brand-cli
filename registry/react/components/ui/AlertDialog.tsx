@@ -3,11 +3,11 @@ import { useEffect, useId, useRef, type ReactNode, type SyntheticEvent } from 'r
 import { Button } from '@/react/components/ui/Button'
 import { useControllable } from '@/react/hooks/useControllable'
 
-// shadcn's alert dialog in the brand: a question that needs an answer before anything else, on the #171717 overlay
+// shadcn's alert dialog in the brand: a question that needs an answer before anything else, on the #262626 overlay
 // surface in a neutral hairline with the brand corner and no shadow, over a Black scrim. A Funnel Display title, one
 // line saying what happens, then Cancel (secondary) and the action: the red fill for what removes something
 // (`danger`, the default), the White primary otherwise. Focus starts on Cancel; the scrim does nothing, so only a
-// choice closes it; Escape cancels and focus returns to what opened it. It comes in over 300ms (a fade and a scale
+// choice closes it; Escape cancels and focus returns to what opened it. It comes in over 360ms (a fade and a scale
 // from 0.96, centered, ease-out) and leaves at once; reduced motion keeps the fade. `open` with `onOpenChange` (or
 // `defaultOpen` alone); `onConfirm` and `onCancel` say which was chosen.
 export interface AlertDialogProps {
@@ -31,7 +31,7 @@ export interface AlertDialogProps {
 }
 
 // The button's md shape with the danger fill (the seed button has no danger variant).
-export const DANGER_BUTTON = 'inline-flex h-control-md shrink-0 cursor-pointer items-center justify-center gap-2 rounded-control px-4 whitespace-nowrap select-none type-ui-strong bg-action-danger text-ds-neutral-15 transition-[background-color,scale] duration-150 ease-out hover:bg-action-danger-hover active:scale-97 motion-reduce:active:scale-100'
+export const DANGER_BUTTON = 'inline-flex h-control-md shrink-0 cursor-pointer items-center justify-center gap-2 rounded-control px-4 whitespace-nowrap select-none type-ui-strong bg-action-danger text-ds-neutral-15 transition-[background-color] duration-160 ease-out hover:bg-action-danger-hover'
 
 export function AlertDialog({ title, description, action, cancel = 'Cancel', danger = true, open: openProp, defaultOpen = false, onOpenChange, onConfirm, onCancel, children }: AlertDialogProps) {
   const [open, setOpen] = useControllable(openProp, defaultOpen, onOpenChange)

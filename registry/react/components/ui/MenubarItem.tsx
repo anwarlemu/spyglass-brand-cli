@@ -42,7 +42,7 @@ export function MenubarItem({ shortcut, danger, disabled, keepOpen, checked, rol
       aria-checked={role === 'menuitem' ? undefined : !!checked}
       disabled={disabled}
       data-danger={danger || undefined}
-      className={cn('flex h-control-sm w-full shrink-0 cursor-pointer items-center gap-3 rounded-ds-sm px-2 text-left type-ui text-fg-soft outline-none transition-[background-color,color] duration-150 ease-standard focus:bg-action-secondary focus:text-fg disabled:cursor-not-allowed disabled:text-fg-faint data-danger:text-fg-danger max-md:h-control-touch', className)}
+      className={cn('flex h-control-sm w-full shrink-0 cursor-pointer items-center gap-3 rounded-ds-sm px-2 text-left type-ui text-fg-soft outline-none transition-[background-color,color] duration-160 ease-standard focus:bg-action-secondary focus:text-fg disabled:cursor-not-allowed disabled:text-fg-faint data-danger:text-fg-danger max-md:h-control-touch', className)}
       onPointerMove={onPointerMove}
       onClick={choose}
     >

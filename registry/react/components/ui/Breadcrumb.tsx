@@ -4,7 +4,7 @@ import { ChevronRight } from 'lucide-react'
 import { cn } from '@/react/lib/cn'
 
 // shadcn's breadcrumb in the brand: where you are, in DM Sans 14px. Each step back is a muted link that turns White
-// under the pointer (150ms), a small chevron between them, and the page itself in White, the only step that truncates.
+// under the pointer (160ms), a small chevron between them, and the page itself in White, the only step that truncates.
 // `as` renders a router link component for the steps back (it gets `href` and `to`); `onNavigate` hears a click.
 export interface Crumb {
   label: string
@@ -28,7 +28,7 @@ export function Breadcrumb({ items, label = 'Breadcrumb', as: Link = 'a', onNavi
         <Fragment key={i}>
           {i > 0 && <ChevronRight size={14} strokeWidth={1.5} className="shrink-0 text-fg-faint rtl:-scale-x-100" aria-hidden="true" />}
           {i < items.length - 1
-            ? <Link href={crumb.href ?? '#'} to={Link === 'a' ? undefined : crumb.href} className="shrink-0 rounded-ds-sm text-fg-muted transition-[color] duration-150 ease-standard hover:text-fg" onClick={(event: MouseEvent) => onNavigate?.(crumb, event)}>{crumb.label}</Link>
+            ? <Link href={crumb.href ?? '#'} to={Link === 'a' ? undefined : crumb.href} className="shrink-0 rounded-ds-sm text-fg-muted transition-[color] duration-160 ease-standard hover:text-fg" onClick={(event: MouseEvent) => onNavigate?.(crumb, event)}>{crumb.label}</Link>
             : <span className="min-w-0 truncate text-fg" aria-current="page">{crumb.label}</span>}
         </Fragment>
       ))}

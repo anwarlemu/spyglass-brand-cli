@@ -22,7 +22,7 @@ function addMonths(d: Date, n: number) {
 	const last = new Date(d.getFullYear(), d.getMonth() + n + 1, 0).getDate()
 	return new Date(d.getFullYear(), d.getMonth() + n, Math.min(d.getDate(), last))
 }
-const DAY = 'inline-flex size-control-md cursor-pointer items-center justify-center rounded-ds-sm border border-transparent type-ui tabular-nums text-fg outline-none transition-[background-color,color] duration-150 ease-standard hover:not-data-picked:not-aria-disabled:bg-ds-neutral-4 aria-[current=date]:border-fg-faint data-outside:text-fg-faint data-picked:bg-action-primary data-picked:font-medium data-picked:text-action-primary-fg aria-disabled:cursor-not-allowed aria-disabled:text-fg-faint aria-disabled:line-through focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus data-picked:focus-visible:outline-fg-inverse max-md:size-control-touch'
+const DAY = 'inline-flex size-control-md cursor-pointer items-center justify-center rounded-ds-sm border border-transparent type-ui tabular-nums text-fg outline-none transition-[background-color,color] duration-160 ease-standard hover:not-data-picked:not-aria-disabled:bg-ds-neutral-4 aria-[current=date]:border-fg-faint data-outside:text-fg-faint data-picked:bg-action-primary data-picked:font-medium data-picked:text-action-primary-fg aria-disabled:cursor-not-allowed aria-disabled:text-fg-faint aria-disabled:line-through focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus data-picked:focus-visible:outline-fg-inverse max-md:size-control-touch'
 // "2026-11-13" is that day where the page is, not midnight UTC.
 const dateAttr = { fromAttribute: (v: string | null) => (v ? new Date(`${v}T00:00:00`) : null) }
 

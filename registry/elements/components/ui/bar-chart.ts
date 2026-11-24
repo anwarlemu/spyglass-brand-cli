@@ -6,7 +6,7 @@ import { type DayPoint, compactNumber, dayMarks, formatDay, formatNumber, niceTi
 import styles from 'virtual:tw'
 
 // BarChart.tsx as <spyglass-bar-chart>: a White bar per day on the Black ground. The axis starts at 0 and ends on a
-// round number in about four steps; grid lines are #262626 hairlines; axis figures are DM Sans 12px muted in tabular
+// round number in about four steps; grid lines are #363636 hairlines; axis figures are DM Sans 12px muted in tabular
 // figures. Pointing at a bar names its day and value in the caption and quiets the others to #4D4D4D. The bars rise
 // from the axis once, then only their color changes. `focus` (React's `focus`; the property is `lit`, as `focus` is
 // HTMLElement's own method): bars lit from outside; `note`: what the caption says meanwhile. `points` is a property

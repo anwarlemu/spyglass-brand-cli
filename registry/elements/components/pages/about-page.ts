@@ -30,9 +30,9 @@ export class AboutPage extends DsElement {
 <main>
 <spyglass-hero-block eyebrow=${c.hero.eyebrow} headline=${c.hero.headline} body=${c.hero.body} placement="center" light="field"></spyglass-hero-block>
 <div class=${`${WRAP} pb-24 max-sm:pb-16`}><spyglass-creative-row .items=${c.row}></spyglass-creative-row></div>
-<section class=${`${WRAP} grid gap-10 py-24 max-sm:gap-8 max-sm:py-16`}><h2 class="type-heading-1 text-balance max-sm:type-heading-2">${c.beliefs.title}</h2><div class="grid grid-cols-3 gap-4 max-md:grid-cols-1">${c.beliefs.items.map((b) => html`<spyglass-card heading=${b.title} description=${b.body}></spyglass-card>`)}</div></section>
+<section class=${`${WRAP} grid gap-10 py-24 max-sm:gap-8 max-sm:py-16`}><h2 class="type-section">${c.beliefs.title}</h2><div class="grid grid-cols-3 gap-4 max-md:grid-cols-1">${c.beliefs.items.map((b) => html`<spyglass-card heading=${b.title} description=${b.body}></spyglass-card>`)}</div></section>
 <div class=${`${WRAP} py-24 max-sm:py-16`}><spyglass-stat-block heading=${c.stats.title} .stats=${c.stats.items}></spyglass-stat-block></div>
-<section class=${`${WRAP} flex flex-col items-start gap-6 py-24 max-sm:py-16`}><h2 class="type-heading-1 text-balance max-sm:type-heading-2">${c.join.title}</h2><p class="max-w-140 type-body-lg text-fg-soft">${c.join.body}</p><spyglass-button href=${c.join.cta.href} class="mt-2">${c.join.cta.label}</spyglass-button></section>
+<section class=${`${WRAP} flex flex-col items-start gap-6 py-24 max-sm:py-16`}><h2 class="type-section">${c.join.title}</h2><p class="max-w-140 type-body-lg text-fg-soft">${c.join.body}</p><spyglass-button href=${c.join.cta.href} class="mt-2">${c.join.cta.label}</spyglass-button></section>
 </main>
 <footer class="border-t border-edge"><div class=${`${WRAP} py-10`}><spyglass-footer-row domain=${c.footer.domain} home-href="/" .links=${c.footer.links}></spyglass-footer-row></div></footer>
 </div>`

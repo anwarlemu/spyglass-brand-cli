@@ -3,7 +3,7 @@ name: testimonial-block
 title: Testimonial block
 type: registry:block
 group: blocks
-description: "One customer as a section: an optional label in capitals over the testimonial, the headshot beside the words or above them, on Black or on the #171717 fill."
+description: "One customer as a section: an optional label in capitals over the testimonial, the headshot beside the words or above them, on Black or on the #262626 fill."
 use_for: "A customer's own words on a home, product or pricing page."
 never:
   - "A quote written for a customer, or a real person's name without permission"

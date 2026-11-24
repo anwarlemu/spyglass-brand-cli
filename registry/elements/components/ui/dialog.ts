@@ -5,11 +5,11 @@ import { icon } from '@/elements/lib/icon'
 import '@/elements/components/ui/button'
 import styles from 'virtual:tw'
 
-// Dialog.tsx as <spyglass-dialog>: a native modal window on the #171717 overlay surface in a neutral hairline with the
+// Dialog.tsx as <spyglass-dialog>: a native modal window on the #262626 overlay surface in a neutral hairline with the
 // brand corner, over a Black scrim. A Funnel Display heading, an optional line under it, a ghost close button, the body
 // (a short form) and the `foot` slot for buttons. Focus stays inside; Escape, the close button and the scrim close it
 // (`locked`: the scrim does nothing). It starts in the first field; with none, focus rests on the window. It comes in
-// over 300ms (a fade and a scale from 0.96) and leaves at once. React's `open` with `onOpenChange` is the `open`
+// over 360ms (a fade and a scale from 0.96) and leaves at once. React's `open` with `onOpenChange` is the `open`
 // attribute with an `open-change` event, and `close` fires as it closes; React's `title` is `heading` (title is HTML's
 // tooltip attribute).
 

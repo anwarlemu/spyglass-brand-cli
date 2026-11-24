@@ -18,7 +18,7 @@ export interface BlogPostPageProps {
 
 const WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'
 const COLUMN = 'mx-auto w-full max-w-180 px-12 max-sm:px-4'
-const TITLE = 'rounded-control transition-[color] duration-150 ease-standard hover:text-fg-soft'
+const TITLE = 'rounded-control transition-[color] duration-160 ease-standard hover:text-fg-soft'
 
 function Block({ block: b }: { block: BlogPostBlock }) {
   if (b.kind === 'h2') return <h2 className="mt-6 type-heading-2 text-fg">{b.text}</h2>
@@ -42,7 +42,7 @@ export function BlogPostPage({ content: c = blogPostContent, className }: BlogPo
       <main>
         <article>
           <header className={cn(COLUMN, 'flex flex-col items-start pt-16 max-sm:pt-10')}>
-            <a href={c.back.href} className="inline-flex items-center gap-1.5 rounded-control type-ui text-fg-muted transition-[color] duration-150 ease-standard hover:text-fg">
+            <a href={c.back.href} className="inline-flex items-center gap-1.5 rounded-control type-ui text-fg-muted transition-[color] duration-160 ease-standard hover:text-fg">
               <ChevronLeft size={16} strokeWidth={1.5} aria-hidden="true" />
               {c.back.label}
             </a>
@@ -58,7 +58,7 @@ export function BlogPostPage({ content: c = blogPostContent, className }: BlogPo
           </div>
         </article>
         <section className={cn(WRAP, 'grid gap-10 py-24 max-sm:gap-8 max-sm:py-16')}>
-          <h2 className="type-heading-1 max-sm:type-heading-2">{c.related.title}</h2>
+          <h2 className="type-section">{c.related.title}</h2>
           <div className="grid grid-cols-3 gap-6 max-md:grid-cols-1">
             {c.related.posts.map((p) => (
               <article key={p.href} className="grid content-start gap-4">

@@ -41,7 +41,7 @@ export function OfferBlock({ headline, note, cta, light = 'corner', seed = 0, te
         <BrandLight variant="field" seed={seed} ground={false} cover className="absolute inset-x-0 top-0 -z-10 h-80 mask-b-from-40% max-sm:h-48" />
       )}
       <div className={cn('mx-auto flex w-full max-w-page flex-col items-center px-12 text-center max-sm:px-4', light === 'field' ? 'pt-72 pb-24 max-sm:pt-44 max-sm:pb-16' : 'py-32 max-sm:pt-44 max-sm:pb-20')}>
-        <h2 className="max-w-3xl type-display text-balance max-md:type-hero max-sm:type-heading-1">{headline}</h2>
+        <h2 className="max-w-3xl type-section">{headline}</h2>
         {children ? (
           <div className="mt-12 flex w-full justify-center max-sm:mt-8">{children}</div>
         ) : (

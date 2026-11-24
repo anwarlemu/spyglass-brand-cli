@@ -3,10 +3,10 @@ import { useId, useRef, type KeyboardEvent, type ReactNode } from 'react'
 import { useControllable } from '@/react/hooks/useControllable'
 import { cn } from '@/react/lib/cn'
 
-// Views of one thing, one at a time. `variant` default is a segmented control: a #171717 track with the brand corner,
+// Views of one thing, one at a time. `variant` default is a segmented control: a #262626 track with the brand corner,
 // the current view a White block with a Black DM Sans Medium label, the rest muted and White under the pointer. `line`
-// is for a page's sections: labels 24px apart over a #262626 hairline, the current one White with a 2px White line
-// under it. Colors change over 150ms; nothing slides. Arrow keys move between tabs and select (Home and End for the
+// is for a page's sections: labels 24px apart over a #363636 hairline, the current one White with a 2px White line
+// under it. Colors change over 160ms; nothing slides. Arrow keys move between tabs and select (Home and End for the
 // ends); Tab moves into the panel. Pass `panels` (content by value) to draw the current panel under the list. The
 // value is `value` with `onValueChange` (or `defaultValue` alone).
 export type TabOption<T extends string> = T | { value: T, label: string, disabled?: boolean }
@@ -34,8 +34,8 @@ const LIST: Record<TabsVariant, string> = {
   line: 'flex items-center gap-6 border-b border-edge',
 }
 const TAB: Record<TabsVariant, string> = {
-  default: 'inline-flex h-full flex-1 cursor-pointer items-center justify-center rounded-ds-sm px-3 type-ui-strong whitespace-nowrap transition-[background-color,color] duration-150 ease-standard disabled:cursor-not-allowed disabled:text-fg-faint',
-  line: '-mb-px inline-flex h-control-md cursor-pointer items-center border-b-2 type-ui-strong whitespace-nowrap transition-[border-color,color] duration-150 ease-standard disabled:cursor-not-allowed disabled:text-fg-faint',
+  default: 'inline-flex h-full flex-1 cursor-pointer items-center justify-center rounded-ds-sm px-3 type-ui-strong whitespace-nowrap transition-[background-color,color] duration-160 ease-standard disabled:cursor-not-allowed disabled:text-fg-faint',
+  line: '-mb-px inline-flex h-control-md cursor-pointer items-center border-b-2 type-ui-strong whitespace-nowrap transition-[border-color,color] duration-160 ease-standard disabled:cursor-not-allowed disabled:text-fg-faint',
 }
 const ON: Record<TabsVariant, string> = { default: 'bg-action-primary text-action-primary-fg', line: 'border-action-primary text-fg' }
 const OFF: Record<TabsVariant, string> = { default: 'text-fg-muted hover:not-disabled:text-fg', line: 'border-transparent text-fg-muted hover:not-disabled:text-fg' }

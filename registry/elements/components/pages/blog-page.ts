@@ -10,7 +10,7 @@ import styles from 'virtual:tw'
 // BlogPage.tsx as <spyglass-blog-page>: the title, the newest post large and the others in a grid of three. Titles
 // change color on hover; nothing moves. `content` replaces the copy and the posts.
 const WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'
-const TITLE = 'rounded-control transition-[color] duration-150 ease-standard hover:text-fg-soft'
+const TITLE = 'rounded-control transition-[color] duration-160 ease-standard hover:text-fg-soft'
 
 /**
  * @summary The blog index template.
@@ -28,8 +28,8 @@ export class BlogPage extends DsElement {
 		return html`<div data-ds="blog-page" class="bg-surface text-fg">
 <div class=${WRAP}><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header></div>
 <main>
-<div class=${`${WRAP} grid gap-4 pt-16 pb-12 max-sm:pt-10 max-sm:pb-8`}><h1 class="type-display max-md:type-hero max-sm:type-heading-1">${c.title}</h1><p class="max-w-140 type-body-lg text-fg-soft">${c.body}</p></div>
-${first ? html`<article class=${`${WRAP} grid grid-cols-2 items-center gap-12 pb-16 max-md:grid-cols-1 max-sm:gap-6 max-sm:pb-12`}><spyglass-creative-card brand=${first.image.brand} tone=${first.image.tone} alt=${first.title} ratio="7/5"></spyglass-creative-card><div class="flex flex-col items-start gap-4"><p class="type-label text-fg-muted">${`${first.date} · ${first.category}`}</p><h2 class="type-heading-1 text-balance max-sm:type-heading-2"><a href=${first.href} class=${TITLE}>${first.title}</a></h2><p class="type-body-lg text-fg-soft">${first.excerpt}</p><spyglass-button href=${first.href} variant="secondary" class="mt-2">${c.read}</spyglass-button></div></article>` : nothing}
+<div class=${`${WRAP} grid gap-4 pt-16 pb-12 max-sm:pt-10 max-sm:pb-8`}><h1 class="type-section">${c.title}</h1><p class="max-w-140 type-body-lg text-fg-soft">${c.body}</p></div>
+${first ? html`<article class=${`${WRAP} grid grid-cols-2 items-center gap-12 pb-16 max-md:grid-cols-1 max-sm:gap-6 max-sm:pb-12`}><spyglass-creative-card brand=${first.image.brand} tone=${first.image.tone} alt=${first.title} ratio="7/5"></spyglass-creative-card><div class="flex flex-col items-start gap-4"><p class="type-label text-fg-muted">${`${first.date} · ${first.category}`}</p><h2 class="type-section"><a href=${first.href} class=${TITLE}>${first.title}</a></h2><p class="type-body-lg text-fg-soft">${first.excerpt}</p><spyglass-button href=${first.href} variant="secondary" class="mt-2">${c.read}</spyglass-button></div></article>` : nothing}
 <section aria-label="More posts" class=${`${WRAP} grid grid-cols-3 gap-x-6 gap-y-12 pt-12 pb-24 max-md:grid-cols-2 max-sm:grid-cols-1 max-sm:pb-16`}>${rest.map((p) => html`<article class="grid content-start gap-4"><spyglass-creative-card brand=${p.image.brand} tone=${p.image.tone} alt=${p.title} ratio="7/5"></spyglass-creative-card><p class="type-label text-fg-muted">${`${p.date} · ${p.category}`}</p><h3 class="type-heading-3 text-balance"><a href=${p.href} class=${TITLE}>${p.title}</a></h3><p class="type-ui text-fg-soft">${p.excerpt}</p></article>`)}</section>
 </main>
 <footer class="border-t border-edge"><div class=${`${WRAP} py-10`}><spyglass-footer-row domain=${c.footer.domain} home-href="/" .links=${c.footer.links}></spyglass-footer-row></div></footer>

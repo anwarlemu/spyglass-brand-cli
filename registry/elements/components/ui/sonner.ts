@@ -11,7 +11,7 @@ export { toast } from '@/lib/sonner'
 // Sonner.tsx as <spyglass-sonner>: the corner where notes from toast() show: the bottom right, full width on a phone.
 // The newest is in front; the two before it peek out above, 12px apart and a little smaller. Pointing at the stack (or
 // tabbing into it) spreads it out and stops every note's time, as does a hidden tab. A note rises in from below over
-// 300ms and leaves faster, 150ms, fading as it drops. Each has a close button; an action closes it after it runs. Put
+// 360ms and leaves faster, 160ms, fading as it drops. Each has a close button; an action closes it after it runs. Put
 // one on the page; show a note with `toast(title, { description, action })` from this module, or the element's
 // toast() method.
 
@@ -127,7 +127,7 @@ export class Sonner extends DsElement {
 			this.exits.set(i.id, setTimeout(() => {
 				this.exits.delete(i.id)
 				this.items = this.items.filter((x) => x.id !== i.id)
-			}, 150))
+			}, 160))
 		}
 	}
 

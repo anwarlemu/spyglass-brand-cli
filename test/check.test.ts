@@ -49,7 +49,7 @@ const cls = 'bg-blue-500 text-white'
 		expect(found).toContain('icon-pack');
 	});
 	it('passes brand classes', () => {
-		expect(rules('C.vue', '<template><div class="bg-surface-subtle text-fg-muted border border-edge hover:border-edge-focus duration-150 ease-standard type-ui rounded-control" /></template>')).toEqual([]);
+		expect(rules('C.vue', '<template><div class="bg-surface-subtle text-fg-muted border border-edge hover:border-edge-focus duration-160 ease-standard type-ui rounded-control" /></template>')).toEqual([]);
 	});
 	it('flags the brand radius as a raw value and offers its token', () => {
 		const { findings } = checkText('a.css', '.a { border-radius: 8px; }');

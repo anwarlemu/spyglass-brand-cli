@@ -8,7 +8,7 @@ export { toast } from '@/lib/sonner'
 // The corner where notes from toast() show (shadcn's sonner): the bottom right, full width on a phone. The newest is in
 // front; the two before it peek out above, 12px apart and a little smaller. Pointing at the stack (or tabbing into it)
 // spreads it out and stops every note's time, as does a hidden tab, so none leaves unread. A note rises in from below
-// over 300ms on the strong ease-out and leaves faster, 150ms, fading as it drops; the others move to their new places
+// over 360ms on the strong ease-out and leaves faster, 160ms, fading as it drops; the others move to their new places
 // as one goes. Each has a close button; an action closes it after it runs. Reduced motion keeps only the fades. Mount
 // one per app, then call toast('Saved to board', { description, action }) from anywhere.
 export interface ToasterProps {
@@ -66,7 +66,7 @@ export function Toaster({ label = 'Notifications' }: ToasterProps) {
       exits.current.set(i.id, setTimeout(() => {
         exits.current.delete(i.id)
         setItems((p) => p.filter((x) => x.id !== i.id))
-      }, 150))
+      }, 160))
     }
     return () => cancelAnimationFrame(frame)
   }, [items])

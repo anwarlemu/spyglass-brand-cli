@@ -4,7 +4,7 @@ import { boxOf, PopoverController, popoverStyles, type Align, type Side } from '
 import styles from 'virtual:tw'
 
 // Tooltip.tsx as <spyglass-tooltip>: a control's name, for icon buttons: a White fill with Black caption text and the
-// small corner, 4px from its trigger. Under the pointer it waits 300ms, then fades and moves 2px in over 150ms; on
+// small corner, 4px from its trigger. Under the pointer it waits 300ms, then fades and moves 2px in over 160ms; on
 // keyboard focus it shows at once, without motion; a press, Escape or leaving hides it. Right after another tooltip it
 // shows at once. It never shows on touch (a tap presses the button). Wrap one focusable trigger; it gets
 // aria-description (an id cannot reach into the element's shadow root, as React's aria-describedby does).

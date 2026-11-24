@@ -26,7 +26,7 @@ export interface FooterRowProps {
   className?: string
 }
 
-const LINK = 'rounded-control text-fg-muted transition-[color] duration-150 ease-standard hover:text-fg'
+const LINK = 'rounded-control text-fg-muted transition-[color] duration-160 ease-standard hover:text-fg'
 
 export function FooterRow({ domain, domainHref, homeHref, caps = false, links = [], label = 'Spyglass', className }: FooterRowProps) {
   return (

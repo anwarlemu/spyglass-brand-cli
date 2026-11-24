@@ -35,7 +35,7 @@ export default function Board() {
       >
         <ul className="flex flex-col gap-1">
           {creatives.map((c) => (
-            <li key={c.id} data-context={c.id} tabIndex={0} className="flex h-row items-center gap-3 rounded-control px-3 outline-none transition-[background-color] duration-150 ease-standard hover:bg-surface-raised focus-visible:bg-surface-raised focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus">
+            <li key={c.id} data-context={c.id} tabIndex={0} className="flex h-row items-center gap-3 rounded-control px-3 outline-none transition-[background-color] duration-160 ease-standard hover:bg-surface-raised focus-visible:bg-surface-raised focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus">
               <Image size={16} strokeWidth={1.5} className="shrink-0 text-fg-muted" aria-hidden="true" />
               <span className="min-w-0 flex-1 truncate type-ui">{c.title}</span>
               <span className="type-caption text-fg-muted max-sm:hidden">{c.format}</span>

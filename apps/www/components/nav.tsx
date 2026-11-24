@@ -14,7 +14,7 @@ type Group = { id: string; label: string; items: Entry[] };
 
 // A rail row: 36px, DM Sans 14px, muted until hovered; the current page sits on the card fill. Color changes only.
 const ROW =
-  "flex h-9 items-center gap-2.5 rounded-control px-3 type-ui text-fg-muted outline-none transition-[color,background-color] duration-150 ease-standard hover:bg-surface-subtle hover:text-fg aria-[current=page]:bg-surface-raised aria-[current=page]:text-fg";
+  "flex h-9 items-center gap-2.5 rounded-control px-3 type-ui text-fg-muted outline-none transition-[color,background-color] duration-160 ease-standard hover:bg-surface-subtle hover:text-fg aria-[current=page]:bg-surface-raised aria-[current=page]:text-fg";
 
 const PAGES = [
   { href: "/", label: "Introduction", icon: BookOpen },
@@ -79,7 +79,7 @@ export function DocsRail({ groups }: { groups: Group[] }) {
         <Link href="/" aria-label="Spyglass design system" className="rounded-control">
           <Logo height={22} />
         </Link>
-        <button type="button" aria-expanded={open} aria-controls="docs-rail" onClick={() => setOpen((o) => !o)} className="inline-flex size-10 items-center justify-center rounded-control text-fg transition-[background-color] duration-150 ease-standard hover:bg-surface-subtle">
+        <button type="button" aria-expanded={open} aria-controls="docs-rail" onClick={() => setOpen((o) => !o)} className="inline-flex size-10 items-center justify-center rounded-control text-fg transition-[background-color] duration-160 ease-standard hover:bg-surface-subtle">
           {open ? <X size={20} strokeWidth={1.5} aria-hidden="true" /> : <Menu size={20} strokeWidth={1.5} aria-hidden="true" />}
           <span className="sr-only">{open ? "Close the library" : "Open the library"}</span>
         </button>

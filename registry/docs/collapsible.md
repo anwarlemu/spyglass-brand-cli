@@ -9,7 +9,7 @@ never:
   - "Hiding what most people need"
   - "A chevron that moves on hover"
   - "Animating it when it is toggled from the keyboard"
-source: "Derived from the guidelines: DM Sans Medium labels, muted neutrals for secondary text, the #171717 card fill. shadcn's collapsible for anatomy and ARIA."
+source: "Derived from the guidelines: DM Sans Medium labels, muted neutrals for secondary text, the #262626 card fill. shadcn's collapsible for anatomy and ARIA."
 files:
   - react/components/ui/Collapsible.tsx
 examples:

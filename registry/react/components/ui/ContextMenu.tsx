@@ -4,7 +4,7 @@ import { MenuClose } from '@/react/components/ui/DropdownMenu'
 import { PopoverPanel } from '@/react/components/ui/PopoverPanel'
 import { onMenuRows, usePopover } from '@/react/hooks/usePopover'
 
-// shadcn's context menu in the brand: the dropdown menu's rows (MenuItem, MenuLabel, MenuSeparator) on the #171717
+// shadcn's context menu in the brand: the dropdown menu's rows (MenuItem, MenuLabel, MenuSeparator) on the #262626
 // overlay panel, opened at the pointer: a right-click (or a long press on
 // Android) on children opens `menu` where it landed, flipped and kept inside the viewport. From the keyboard,
 // Shift+F10 or the context menu key opens it under the focused element, at once, on its first row. Arrows, Home and

@@ -2,7 +2,7 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { Search } from 'lucide-react'
 
-// shadcn's command menu in the brand: a box to type in over a list of actions and places, on the #171717 overlay
+// shadcn's command menu in the brand: a box to type in over a list of actions and places, on the #262626 overlay
 // surface in a neutral hairline with the brand corner. The field sits on top over a hairline, DM Sans with a search
 // glyph; groups have a capital label; rows are the menus' rows (32px, a 4px corner, a #262626 fill on the row the
 // arrows or the pointer are on), an icon first and a shortcut last. The field keeps focus: typing filters (label and
@@ -39,7 +39,7 @@ export interface CommandProps {
   className?: string
 }
 
-export const COMMAND_ROW = 'flex h-control-sm shrink-0 cursor-pointer items-center gap-2 rounded-ds-sm px-2 type-ui text-fg transition-[background-color] duration-150 ease-standard data-active:bg-ds-neutral-4 aria-disabled:cursor-not-allowed aria-disabled:text-fg-faint max-md:h-auto max-md:min-h-control-touch'
+export const COMMAND_ROW = 'flex h-control-sm shrink-0 cursor-pointer items-center gap-2 rounded-ds-sm px-2 type-ui text-fg transition-[background-color] duration-160 ease-standard data-active:bg-ds-neutral-4 aria-disabled:cursor-not-allowed aria-disabled:text-fg-faint max-md:h-auto max-md:min-h-control-touch'
 
 export function matches(item: CommandItem, q: string) {
   if (!q) return true

@@ -3,7 +3,7 @@ import { DsElement, define, tagName } from '@/elements/lib/element'
 import styles from 'virtual:tw'
 
 // NavigationMenu.tsx as <spyglass-navigation-menu>: a site's top navigation, a row of triggers and links in DM Sans
-// Medium (<spyglass-navigation-menu-item>), each trigger opening a panel of links in the card's #171717 fill. Under a
+// Medium (<spyglass-navigation-menu-item>), each trigger opening a panel of links in the card's #262626 fill. Under a
 // pointer a panel opens after a short wait and closes a moment after the pointer leaves both; while one is open,
 // pointing at another trigger switches at once. A click toggles it; Enter, Space or Down opens it at once with focus on
 // its first link; Left and Right move along the row; Escape closes it.

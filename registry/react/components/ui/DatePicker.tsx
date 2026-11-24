@@ -7,8 +7,8 @@ import { cn } from '@/react/lib/cn'
 import { useControllable } from '@/react/hooks/useControllable'
 import { usePopover } from '@/react/hooks/usePopover'
 
-// shadcn's date picker in the brand: a button drawn as the text field (40px, the 8px corner, a #363636 hairline that
-// turns White while it is open or focused, the placeholder muted) that opens a Calendar on the #171717 overlay panel
+// shadcn's date picker in the brand: a button drawn as the text field (40px, the 8px corner, a #666666 hairline that
+// turns White while it is open or focused, the placeholder muted) that opens a Calendar on the #262626 overlay panel
 // under it. Opening puts focus on the picked day (or today); picking a day closes it and returns focus to the field;
 // Escape closes it unchanged. `value` with `onValueChange` (or `defaultValue` alone).
 export interface DatePickerProps {
@@ -63,7 +63,7 @@ export function DatePicker({ id, placeholder = 'Pick a date', min, max, disabled
         id={id}
         ref={(el) => { pop.anchor.current = el }}
         type="button"
-        className={cn('flex h-control-md w-full cursor-pointer items-center gap-2 rounded-control border border-edge-strong bg-surface px-3 text-left type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-expanded:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input', className)}
+        className={cn('flex h-control-md w-full cursor-pointer items-center gap-2 rounded-control border border-edge-strong bg-surface-subtle px-3 text-left type-ui text-fg outline-none transition-[border-color] duration-160 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-expanded:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input', className)}
         aria-haspopup="dialog"
         aria-expanded={pop.open}
         aria-controls={pop.open ? panelId : undefined}

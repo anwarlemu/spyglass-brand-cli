@@ -3,9 +3,9 @@ import type { ReactNode } from 'react'
 import { cn } from '@/react/lib/cn'
 
 // A row: media, a title in DM Sans Medium with a muted line under it, and what goes at the end. `variant` default has
-// no fill (rows in a list, split by ItemGroup's hairlines), outline a #262626 hairline box, muted the card's #171717
+// no fill (rows in a list, split by ItemGroup's hairlines), outline a #363636 hairline box, muted the card's #262626
 // fill; both boxes take the brand corner. `size` sm is tighter. With `href` the whole row is one link that takes the
-// ghost fill under the pointer (150ms), and `arrow` adds a chevron that brightens with it and never moves. A link holds
+// ghost fill under the pointer (160ms), and `arrow` adds a chevron that brightens with it and never moves. A link holds
 // no buttons: `actions` only show on a row without `href`.
 export type ItemVariant = 'default' | 'outline' | 'muted'
 export type ItemSize = 'default' | 'sm'
@@ -52,9 +52,9 @@ export function Item({ title, description, variant = 'default', size = 'default'
   )
   if (href) {
     return (
-      <a data-ds="item" href={href} className={cn(classes, 'cursor-pointer rounded-container transition-[background-color] duration-150 ease-standard hover:bg-action-ghost-hover', className)}>
+      <a data-ds="item" href={href} className={cn(classes, 'cursor-pointer rounded-container transition-[background-color] duration-160 ease-standard hover:bg-action-ghost-hover', className)}>
         {body}
-        {arrow && <ChevronRight size={16} strokeWidth={1.5} className="shrink-0 text-fg-muted transition-[color] duration-150 ease-standard group-hover/item:text-fg" aria-hidden="true" />}
+        {arrow && <ChevronRight size={16} strokeWidth={1.5} className="shrink-0 text-fg-muted transition-[color] duration-160 ease-standard group-hover/item:text-fg" aria-hidden="true" />}
       </a>
     )
   }

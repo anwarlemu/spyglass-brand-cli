@@ -17,7 +17,7 @@ export default function Format() {
           <ul className="flex flex-col gap-1">
             {formats.map((f) => (
               <li key={f}>
-                <button type="button" aria-pressed={format === f} data-autofocus={format === f || undefined} className="flex h-11 w-full cursor-pointer items-center gap-3 rounded-ds-sm px-3 text-left type-body text-fg outline-none transition-[background-color] duration-150 ease-standard hover:bg-ds-neutral-4 focus-visible:bg-ds-neutral-4" onClick={() => { setFormat(f); close() }}>
+                <button type="button" aria-pressed={format === f} data-autofocus={format === f || undefined} className="flex h-11 w-full cursor-pointer items-center gap-3 rounded-ds-sm px-3 text-left type-body text-fg outline-none transition-[background-color] duration-160 ease-standard hover:bg-ds-neutral-4 focus-visible:bg-ds-neutral-4" onClick={() => { setFormat(f); close() }}>
                   <span className="min-w-0 flex-1">{f}</span>
                   {format === f && <Check size={16} strokeWidth={1.5} aria-hidden="true" />}
                 </button>

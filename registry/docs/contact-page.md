@@ -3,7 +3,7 @@ name: contact-page
 title: Contact page
 type: registry:block
 group: pages
-description: "The contact page template, built only from library items: the heading and a line beside a form on the #171717 fill (name, work email, message, one White button), the header and the footer row."
+description: "The contact page template, built only from library items: the heading and a line beside a form on the #262626 fill (name, work email, message, one White button), the header and the footer row."
 use_for: "A website's contact page. Edit lib/pages/contact.ts or pass `content`; the form posts to `content.form.action`, or `onSubmit` (the element's `send` event) takes the values."
 never:
   - "An address, phone number or reply time you cannot keep"

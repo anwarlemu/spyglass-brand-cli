@@ -27,7 +27,7 @@ export function SidebarLink({ href, active, icon: Icon, status, as: Link = 'a', 
       href={href}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'flex h-row shrink-0 cursor-pointer items-center gap-3 rounded-control type-ui -outline-offset-2 transition-[background-color,color] duration-150 ease-standard max-md:h-control-touch',
+        'flex h-row shrink-0 cursor-pointer items-center gap-3 rounded-control type-ui -outline-offset-2 transition-[background-color,color] duration-160 ease-standard max-md:h-control-touch',
         collapsed ? 'w-row justify-center px-0' : 'px-3',
         active ? 'bg-action-primary text-action-primary-fg' : 'text-fg-soft hover:bg-action-ghost-hover hover:text-fg',
         className,

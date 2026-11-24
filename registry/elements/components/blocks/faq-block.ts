@@ -18,7 +18,7 @@ export class FaqBlock extends DsElement {
 	heading = 'Questions.'
 
 	render() {
-		return html`<section data-ds="faq-block" class="grid grid-cols-3 gap-12 text-fg max-md:grid-cols-1 max-md:gap-8"><h2 class="type-heading-1 max-sm:type-heading-2">${this.heading}</h2><dl class="col-span-2 m-0 grid max-md:col-span-1">${(this.items ?? []).map((i) => html`<div class="grid gap-2 border-t border-edge py-6"><dt class="type-heading-4">${i.q}</dt><dd class="m-0 type-body text-fg-soft">${i.a}</dd></div>`)}</dl></section>`
+		return html`<section data-ds="faq-block" class="grid grid-cols-3 gap-12 text-fg max-md:grid-cols-1 max-md:gap-8"><h2 class="type-section">${this.heading}</h2><dl class="col-span-2 m-0 grid max-md:col-span-1">${(this.items ?? []).map((i) => html`<div class="grid gap-2 border-t border-edge py-5"><dt class="type-body text-fg">${i.q}</dt><dd class="m-0 max-w-measure type-body text-fg-soft">${i.a}</dd></div>`)}</dl></section>`
 	}
 }
 

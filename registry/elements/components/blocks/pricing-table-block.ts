@@ -21,7 +21,7 @@ export class PricingTableBlock extends DsElement {
 	body?: string
 
 	render() {
-		return html`<section data-ds="pricing-table-block" class="flex flex-col gap-12 text-fg max-sm:gap-8">${this.heading || this.body ? html`<div class="mx-auto grid max-w-3xl gap-4 text-center">${this.heading ? html`<h2 class="type-heading-1 text-balance max-sm:type-heading-2">${this.heading}</h2>` : nothing}${this.body ? html`<p class="type-body-lg text-fg-soft">${this.body}</p>` : nothing}</div>` : nothing}<div class="flex flex-wrap items-stretch justify-center gap-4">${(this.plans ?? []).map((p) => html`<spyglass-plan-card heading=${p.title} .price=${p.price} .features=${p.features ?? []} .cta=${p.cta} .href=${p.href} class="w-100 max-w-full"></spyglass-plan-card>`)}</div></section>`
+		return html`<section data-ds="pricing-table-block" class="flex flex-col gap-12 text-fg max-sm:gap-8">${this.heading || this.body ? html`<div class="mx-auto grid max-w-3xl gap-4 text-center">${this.heading ? html`<h2 class="type-section">${this.heading}</h2>` : nothing}${this.body ? html`<p class="type-body-lg text-fg-soft">${this.body}</p>` : nothing}</div>` : nothing}<div class="flex flex-wrap items-stretch justify-center gap-4">${(this.plans ?? []).map((p) => html`<spyglass-plan-card heading=${p.title} .price=${p.price} .features=${p.features ?? []} .cta=${p.cta} .href=${p.href} class="w-100 max-w-full"></spyglass-plan-card>`)}</div></section>`
 	}
 }
 

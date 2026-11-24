@@ -5,7 +5,7 @@ import '@/elements/components/ui/button'
 import styles from 'virtual:tw'
 
 // SearchBar.tsx as <spyglass-search-bar>: the ad's search bar, a Black field with the brand corner (56px), the prompt
-// in White DM Sans and a White Search button inside it, 8px in. A #363636 hairline turns White while the field has
+// in White DM Sans and a White Search button inside it, 8px in. A #666666 hairline turns White while the field has
 // focus. Enter or the button fires `search` with the query in event.detail.query; the value is `value` with the native
 // `input` and `change` events, and it goes with a surrounding form under `name`.
 
@@ -54,7 +54,7 @@ export class SearchBar extends DsFormElement {
 	}
 
 	render() {
-		return html`<form data-ds="search-bar" role="search" class="flex h-search w-full items-center gap-2 rounded-control border border-edge-strong bg-surface pr-2 pl-4 transition-[border-color] duration-150 ease-standard has-[input:focus-visible]:border-edge-focus" @submit=${this.onSubmit}><input type="search" name=${this.name} .value=${live(this.value)} placeholder=${this.placeholder} aria-label=${this.label} ?disabled=${this.inactive} autocomplete="off" class="h-full min-w-0 flex-1 bg-transparent type-body text-fg outline-none placeholder:text-fg-muted disabled:cursor-not-allowed [&::-webkit-search-cancel-button]:hidden" @input=${this.onInput}><spyglass-button type="submit" ?disabled=${this.inactive}>${this.buttonLabel}</spyglass-button></form>`
+		return html`<form data-ds="search-bar" role="search" class="flex h-search w-full items-center gap-2 rounded-control border border-edge-strong bg-surface pr-2 pl-4 transition-[border-color] duration-160 ease-standard has-[input:focus-visible]:border-edge-focus" @submit=${this.onSubmit}><input type="search" name=${this.name} .value=${live(this.value)} placeholder=${this.placeholder} aria-label=${this.label} ?disabled=${this.inactive} autocomplete="off" class="h-full min-w-0 flex-1 bg-transparent type-body text-fg outline-none placeholder:text-fg-muted disabled:cursor-not-allowed [&::-webkit-search-cancel-button]:hidden" @input=${this.onInput}><spyglass-button type="submit" ?disabled=${this.inactive}>${this.buttonLabel}</spyglass-button></form>`
 	}
 }
 

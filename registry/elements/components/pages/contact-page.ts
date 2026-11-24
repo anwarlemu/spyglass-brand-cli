@@ -39,7 +39,7 @@ export class ContactPage extends DsElement {
 		return html`<div data-ds="contact-page" class="flex min-h-dvh flex-col bg-surface text-fg">
 <div class=${WRAP}><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header></div>
 <main class=${`${WRAP} grid flex-1 grid-cols-2 items-start gap-12 py-24 max-md:grid-cols-1 max-md:gap-8 max-sm:py-16`}>
-<div class="grid max-w-xl gap-6"><h1 class="type-display max-md:type-hero max-sm:type-heading-1">${c.headline}</h1><p class="type-body-lg text-fg-soft">${c.body}</p></div>
+<div class="grid max-w-xl gap-6"><h1 class="type-section">${c.headline}</h1><p class="type-body-lg text-fg-soft">${c.body}</p></div>
 <form aria-label=${f.label} action=${f.action} method="post" @submit=${this.onSubmit} class="grid gap-6 rounded-container bg-surface-raised p-8 max-sm:p-6">
 <spyglass-field label=${f.name.label}><spyglass-input name="name" autocomplete="name" placeholder=${f.name.placeholder} required></spyglass-input></spyglass-field>
 <spyglass-field label=${f.email.label} description=${f.email.description}><spyglass-input name="email" type="email" autocomplete="email" placeholder=${f.email.placeholder} required></spyglass-input></spyglass-field>

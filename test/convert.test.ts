@@ -37,8 +37,8 @@ describe('classes', () => {
 		expect(convertClassList('text-sm text-gray-500', { merge: true })).toBe('text-[length:var(--ds-text-ui)] text-fg-muted');
 	});
 	it('names the transition properties and snaps durations to the steps', () => {
-		expect(convertClassList('transition-all duration-300 ease-in', {})).toBe('transition-colors duration-300 ease-out');
-		expect(convertClassList('transition hover:scale-105 duration-[250ms]', {})).toBe('transition-[color,background-color,border-color,transform,translate,scale,rotate] hover:scale-105 duration-250');
+		expect(convertClassList('transition-all duration-300 ease-in', {})).toBe('transition-colors duration-320 ease-out');
+		expect(convertClassList('transition hover:scale-105 duration-[250ms]', {})).toBe('transition-[color,background-color,border-color,transform,translate,scale,rotate] hover:scale-105 duration-240');
 	});
 });
 
@@ -79,7 +79,7 @@ describe('kinds', () => {
 	it("gives a cn() root of a kind with no variants its whole look, once (shadcn's Input)", () => {
 		const src = vue("  <input :class=\"cn('border-input h-8 rounded-lg border bg-transparent px-2.5 py-1 text-base w-full min-w-0 placeholder:text-muted-foreground', props.class)\">", "const props = defineProps<{ class?: string }>()\nconst cn = (...a: unknown[]) => a.join(' ')");
 		const out = twice(src, { ...all, componentKind: 'input', merge: true });
-		expect(out).toContain('h-control-md w-full border border-edge-strong bg-surface px-3 type-ui text-fg rounded-control');
+		expect(out).toContain('h-control-md w-full border border-edge-strong bg-surface-subtle px-3 type-ui text-fg rounded-control');
 		expect(out).toContain('min-w-0');
 	});
 	it('sizes a heading from its own size class', () => {
@@ -127,7 +127,7 @@ describe('css', () => {
 		expect(out).toContain('box-shadow: none');
 		expect(out).toContain('border-radius: var(--ds-radius-container)');
 		expect(out).toContain('color: var(--ds-color-fg-soft)');
-		expect(out).toContain('opacity var(--ds-duration-enter) var(--ds-easing-out)');
+		expect(out).toContain('opacity var(--ds-duration-micro) var(--ds-easing-out)');
 		expect(out).toContain('padding: 14px');
 		expect(out).toContain('border: var(--ds-border-hairline) solid var(--ds-color-edge);');
 		expect(convertCss(out)).toBe(out);

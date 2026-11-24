@@ -4,8 +4,8 @@ import { ChevronDown } from 'lucide-react'
 import { useAccordion } from '@/react/hooks/useAccordion'
 
 // One row of an Accordion: the question as a full-width button (DM Sans 16px, soft White that turns full White under
-// the pointer and while open) over a neutral hairline, and the answer under it in muted DM Sans 14px. The chevron turns
-// half a circle as the row opens (250ms, ease-in-out); it never moves on hover. The closed answer is inert, so its
+// the pointer and while open) over a neutral hairline, and the answer under it in #D4D4D4 DM Sans 16/24, no wider than 640px (the site's FAQ: rows 56px tall, 20px in). The chevron turns
+// half a circle as the row opens (320ms, ease-in-out); it never moves on hover. The closed answer is inert, so its
 // links leave the tab order. `title` names the row; children are the answer.
 export interface AccordionItemProps {
   /** The value the accordion opens it by. */
@@ -31,7 +31,7 @@ export function AccordionItem({ value, title, disabled, children }: AccordionIte
             aria-expanded={open}
             aria-controls={`${id}-body`}
             disabled={disabled}
-            className="flex w-full cursor-pointer items-center justify-between gap-4 py-4 text-left type-body text-fg-soft transition-[color] duration-150 ease-standard hover:text-fg aria-expanded:text-fg disabled:cursor-not-allowed disabled:text-fg-faint"
+            className="flex min-h-control-lg w-full cursor-pointer items-center justify-between gap-6 py-5 text-left type-body text-fg-soft transition-[color] duration-160 ease-standard hover:text-fg aria-expanded:text-fg disabled:cursor-not-allowed disabled:text-fg-faint"
             onClick={() => ctx?.toggle(value)}
           >
             {title}
@@ -39,7 +39,7 @@ export function AccordionItem({ value, title, disabled, children }: AccordionIte
           </button>
         </h3>
         <div id={`${id}-body`} role="region" aria-labelledby={`${id}-head`} inert={!open} className="ds-collapse" data-open={open}>
-          <div><div className="ds-collapse-body pb-4 type-ui text-fg-muted">{children}</div></div>
+          <div><div className="ds-collapse-body max-w-measure pb-6 type-body text-fg-soft">{children}</div></div>
         </div>
       </div>
     </>
@@ -49,7 +49,7 @@ export function AccordionItem({ value, title, disabled, children }: AccordionIte
 export default AccordionItem
 
 const css = `
-/* The row opens to its content's height (0fr to 1fr) over 250ms and closes in 150ms, on the strong ease-out; the words
+/* The row opens to its content's height (0fr to 1fr) over 320ms and closes in 160ms, on the strong ease-out; the words
    fade and settle 4px down, so they never pop. Reduced motion: no height or move, opacity only. */
 .ds-collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--ds-duration-exit) var(--ds-easing-out); }
 .ds-collapse[data-open="true"] { grid-template-rows: 1fr; transition-duration: var(--ds-duration-glide); }

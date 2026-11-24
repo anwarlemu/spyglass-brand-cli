@@ -5,7 +5,7 @@ import { useControllable } from '@/react/hooks/useControllable'
 import { cn } from '@/react/lib/cn'
 
 // The ad's search bar: a Black field with the brand corner (88px tall on the canvas, 56px here), the prompt in White
-// DM Sans and a White "Search" button inside it, 8px in (16px on the canvas). A #363636 hairline lets it read on Black
+// DM Sans and a White "Search" button inside it, 8px in (16px on the canvas). A #666666 hairline lets it read on Black
 // and turns White while the field has focus. Enter or the button calls onSearch with the query; the value is
 // controlled (value + onValueChange) or kept inside (defaultValue).
 export interface SearchBarProps {
@@ -32,7 +32,7 @@ export function SearchBar({ value, defaultValue = '', onValueChange, onSearch, p
     if (!disabled) onSearch?.(query)
   }
   return (
-    <form data-ds="search-bar" ref={ref} role="search" onSubmit={submit} className={cn('flex h-search w-full items-center gap-2 rounded-control border border-edge-strong bg-surface pr-2 pl-4 transition-[border-color] duration-150 ease-standard has-[input:focus-visible]:border-edge-focus', className)}>
+    <form data-ds="search-bar" ref={ref} role="search" onSubmit={submit} className={cn('flex h-search w-full items-center gap-2 rounded-control border border-edge-strong bg-surface pr-2 pl-4 transition-[border-color] duration-160 ease-standard has-[input:focus-visible]:border-edge-focus', className)}>
       <input
         type="search"
         name={name}

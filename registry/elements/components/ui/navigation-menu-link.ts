@@ -22,7 +22,7 @@ export class NavigationMenuLink extends DsElement {
 	description?: string
 
 	render() {
-		return html`<a data-ds="navigation-menu-link" href=${ifDefined(this.href)} class="flex flex-col gap-1 rounded-ds-sm p-3 -outline-offset-2 transition-[background-color] duration-150 ease-standard hover:bg-action-secondary focus-visible:bg-action-secondary"><span class="type-ui-strong text-fg">${this.heading}</span>${this.description ? html`<span class="type-caption text-fg-muted">${this.description}</span>` : nothing}</a>`
+		return html`<a data-ds="navigation-menu-link" href=${ifDefined(this.href)} class="flex flex-col gap-1 rounded-ds-sm p-3 -outline-offset-2 transition-[background-color] duration-160 ease-standard hover:bg-action-secondary focus-visible:bg-action-secondary"><span class="type-ui-strong text-fg">${this.heading}</span>${this.description ? html`<span class="type-caption text-fg-muted">${this.description}</span>` : nothing}</a>`
 	}
 }
 

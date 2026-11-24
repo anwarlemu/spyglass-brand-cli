@@ -5,7 +5,7 @@ import { icon } from '@/elements/lib/icon'
 import styles from 'virtual:tw'
 
 // Collapsible.tsx as <spyglass-collapsible>: a part that opens in place and pushes what follows. The part grows to its
-// content's height over 250ms on the strong ease-out and closes in 150ms; the content fades and settles 4px down; the
+// content's height over 320ms on the strong ease-out and closes in 160ms; the content fades and settles 4px down; the
 // muted chevron turns half a circle. Toggled from the keyboard it opens at once. The trigger: content in the `trigger`
 // slot, drawn as a quiet DM Sans Medium row with the chevron, or a <button slot="trigger"> you style yourself (React's
 // triggerClass; draw your own chevron in it). `open` (the attribute) with `open-change`.

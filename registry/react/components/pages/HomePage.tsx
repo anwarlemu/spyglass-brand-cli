@@ -38,7 +38,7 @@ export function HomePage({ content: c = homeContent, className }: HomePageProps)
           <CreativeGrid items={c.results} ratio="3/4" gap="md" />
         </section>
         <section className={cn(WRAP, 'flex flex-col items-center gap-12 py-24 text-center max-sm:gap-8 max-sm:py-16')}>
-          <h2 className="max-w-3xl type-heading-1 text-balance max-sm:type-heading-2">{c.index.headline}</h2>
+          <h2 className="max-w-3xl type-section">{c.index.headline}</h2>
           <CreativeCorridor items={c.index.corridor} className="max-w-page" />
           <p className="max-w-120 type-body-lg text-fg-soft">{c.index.body}</p>
         </section>
@@ -49,7 +49,7 @@ export function HomePage({ content: c = homeContent, className }: HomePageProps)
           <StatBlock title={c.stats.title} stats={c.stats.items} />
         </div>
         <section className={cn(WRAP, 'grid grid-cols-2 items-center gap-12 py-24 max-md:grid-cols-1 max-sm:py-16')}>
-          <h2 className="max-w-xl type-heading-1 text-balance max-sm:type-heading-2">{c.agents.headline}</h2>
+          <h2 className="max-w-xl type-section">{c.agents.headline}</h2>
           <CreativeRing items={c.agents.ring} className="w-full">
             <Logo height={20} />
           </CreativeRing>

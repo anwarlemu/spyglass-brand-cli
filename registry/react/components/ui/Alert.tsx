@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/react/lib/cn'
 
-// shadcn's alert in the brand: a #171717 box on Black with the brand corner and no border or shadow, a 16px Lucide
+// shadcn's alert in the brand: a #262626 box on Black with the brand corner and no border or shadow, a 16px Lucide
 // icon, the subject in DM Sans Medium and a line of muted DM Sans under it, and a button at the end if one helps.
 // `destructive` turns the icon and the subject red for what broke. role="alert" so it is read out; for a note that
 // was there from the start, pass role="status".

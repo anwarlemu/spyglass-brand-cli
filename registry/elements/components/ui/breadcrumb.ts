@@ -27,7 +27,7 @@ export class Breadcrumb extends DsElement {
 	render() {
 		const last = this.items.length - 1
 		return html`<nav data-ds="breadcrumb" class="flex min-w-0 items-center gap-1.5 overflow-hidden type-ui" aria-label=${this.label}>${this.items.map((crumb, i) => html`${i > 0 ? icon(ChevronRight, 'chevron-right', { size: 14, strokeWidth: 1.5, class: 'shrink-0 text-fg-faint rtl:-scale-x-100', attrs: { 'aria-hidden': 'true' } }) : ''}${i < last
-			? html`<a href=${crumb.href ?? '#'} class="shrink-0 rounded-ds-sm text-fg-muted transition-[color] duration-150 ease-standard hover:text-fg" @click=${(event: MouseEvent) => this.emit('navigate', { crumb, event })}>${crumb.label}</a>`
+			? html`<a href=${crumb.href ?? '#'} class="shrink-0 rounded-ds-sm text-fg-muted transition-[color] duration-160 ease-standard hover:text-fg" @click=${(event: MouseEvent) => this.emit('navigate', { crumb, event })}>${crumb.label}</a>`
 			: html`<span class="min-w-0 truncate text-fg" aria-current="page">${crumb.label}</span>`}`)}</nav>`
 	}
 }

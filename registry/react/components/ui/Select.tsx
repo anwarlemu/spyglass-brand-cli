@@ -6,8 +6,8 @@ import { useControllable } from '@/react/hooks/useControllable'
 import { onMenuRows, usePopover } from '@/react/hooks/usePopover'
 import { cn } from '@/react/lib/cn'
 
-// One choice from a short list, drawn as the field is (shadcn's select): a Black field with a #363636 hairline that
-// turns White while open, the chosen label (or a muted placeholder) and a chevron. The list opens in the card's #171717
+// One choice from a short list, drawn as the field is (shadcn's select): a Black field with a #666666 hairline that
+// turns White while open, the chosen label (or a muted placeholder) and a chevron. The list opens in the card's #262626
 // panel, as wide as the field, focus on the chosen row; the chosen row has a check. Arrow keys, Home, End and the first
 // letter move through it, Enter or Space picks, Escape closes and returns focus. Opened from the keyboard it shows at
 // once; from a click it grows from the field. `value` with `onValueChange`; `name` sends the value with a form.
@@ -107,7 +107,7 @@ export function Select({ options, value: given, defaultValue = '', onValueChange
         aria-label={label}
         aria-invalid={invalid || undefined}
         disabled={disabled}
-        className={cn('flex w-full min-w-0 cursor-pointer items-center justify-between gap-2 rounded-control border border-edge-strong bg-surface type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-expanded:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', SIZES[size], className)}
+        className={cn('flex w-full min-w-0 cursor-pointer items-center justify-between gap-2 rounded-control border border-edge-strong bg-surface-subtle type-ui text-fg outline-none transition-[border-color] duration-160 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-expanded:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', SIZES[size], className)}
         onClick={onClick}
         onKeyDown={onTriggerKey}
       >
@@ -124,7 +124,7 @@ export function Select({ options, value: given, defaultValue = '', onValueChange
             data-value={o.value}
             aria-selected={o.value === value}
             aria-disabled={o.disabled || undefined}
-            className="flex h-control-sm cursor-pointer items-center justify-between gap-3 rounded-ds-sm px-2 type-ui text-fg-soft outline-none transition-[background-color,color] duration-150 ease-standard focus:bg-action-secondary focus:text-fg aria-disabled:cursor-not-allowed aria-disabled:text-fg-faint aria-selected:text-fg max-md:h-control-touch"
+            className="flex h-control-sm cursor-pointer items-center justify-between gap-3 rounded-ds-sm px-2 type-ui text-fg-soft outline-none transition-[background-color,color] duration-160 ease-standard focus:bg-action-secondary focus:text-fg aria-disabled:cursor-not-allowed aria-disabled:text-fg-faint aria-selected:text-fg max-md:h-control-touch"
             onPointerMove={(event) => { if (!o.disabled && document.activeElement !== event.currentTarget) event.currentTarget.focus({ preventScroll: true }) }}
             onClick={(event) => { if (!o.disabled) pick(o.value, event.detail === 0) }}
           >

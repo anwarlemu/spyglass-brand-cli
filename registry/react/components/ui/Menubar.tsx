@@ -2,7 +2,7 @@
 import { createContext, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
 
 // Menu triggers in a row (shadcn's menubar): a Black strip in a hairline with the brand corner, 32px triggers in DM Sans
-// Medium, each opening a panel of rows in the card's #171717 fill (MenubarMenu with MenubarItem, MenubarLabel and
+// Medium, each opening a panel of rows in the card's #262626 fill (MenubarMenu with MenubarItem, MenubarLabel and
 // MenubarSeparator). One trigger is in the tab order; Left and Right move along the row, Down, Enter or Space open, and
 // with a menu open Left and Right open the next one. While one is open, pointing at another trigger switches to it at
 // once. Menus opened from the keyboard show without motion.

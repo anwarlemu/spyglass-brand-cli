@@ -3,7 +3,7 @@ import { DsFormElement, define } from '@/elements/lib/element'
 import styles from 'virtual:tw'
 
 // Switch.tsx as <spyglass-switch>: on or off, with no words: a 36 by 20 track with the brand corner and a 14px thumb.
-// Off is the secondary #262626 fill with a gray thumb; on is White with a Black thumb. The thumb slides over 250ms on
+// Off is the secondary #262626 fill with a gray thumb; on is White with a Black thumb. The thumb slides over 320ms on
 // the strong ease-out. `checked` (an attribute, as a checkbox's) with `input` and `change` events. Form-associated: its
 // `name` goes with the form as "on" while checked.
 

@@ -7,7 +7,7 @@ import { PopoverController, popoverStyles, type Align, type Side } from '@/eleme
 import styles from 'virtual:tw'
 
 // Combobox.tsx as <spyglass-combobox>: a field-like trigger that opens a list to pick one option from, with a filter
-// over it, on the #171717 overlay panel; rows are the menus' rows with a #262626 fill on the row the arrows or the
+// over it, on the #262626 overlay panel; rows are the menus' rows with a #262626 fill on the row the arrows or the
 // pointer are on, the pick checked at the end. `filter="auto"` shows the filter past six options, `filter="false"`
 // makes it a plain listbox. `pinned` options stay above a hairline and are never filtered. Arrows, Home and End move,
 // Enter picks, typing filters (or, with no filter, jumps to the option it starts), Escape closes and returns focus to
@@ -75,7 +75,7 @@ export class Combobox extends DsFormElement {
 
 	/** The trigger button's classes (React's triggerClass); a subclass returns its own. */
 	protected triggerClasses() {
-		return 'group inline-flex h-control-md w-full min-w-0 cursor-pointer items-center gap-2 rounded-control border border-edge-strong bg-surface px-3 text-left type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-expanded:border-edge-focus disabled:cursor-not-allowed disabled:text-fg-faint max-md:h-control-touch max-md:text-input pointer-coarse:h-control-touch'
+		return 'group inline-flex h-control-md w-full min-w-0 cursor-pointer items-center gap-2 rounded-control border border-edge-strong bg-surface-subtle px-3 text-left type-ui text-fg outline-none transition-[border-color] duration-160 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-expanded:border-edge-focus disabled:cursor-not-allowed disabled:text-fg-faint max-md:h-control-touch max-md:text-input pointer-coarse:h-control-touch'
 	}
 	/** The trigger's content (React's `trigger`). */
 	protected renderTrigger(selected: ComboOption | undefined, _open: boolean): TemplateResult {
@@ -202,7 +202,7 @@ export class Combobox extends DsFormElement {
 					? html`<label class="-mx-1 -mt-1 mb-1 flex h-control-md items-center gap-2 border-b border-edge px-3">${icon(Search, 'search', { size: 16, strokeWidth: 1.5, class: 'pointer-events-none shrink-0 text-fg-muted', attrs: { 'aria-hidden': 'true' } })}<input .value=${this.query} class="h-full min-w-0 flex-1 bg-transparent type-ui text-fg outline-none placeholder:text-fg-muted max-md:text-input" role="combobox" aria-label=${this.filterLabel} placeholder=${this.filterLabel} aria-autocomplete="list" aria-expanded="true" aria-controls=${listId} aria-activedescendant=${activeId ?? nothing} autocomplete="off" spellcheck="false" @input=${this.onQuery} @keydown=${this.onKey}></label>`
 					: nothing}
 				<div id=${listId} role="listbox" aria-label=${this.label} tabindex=${filtering ? '-1' : '0'} aria-activedescendant=${!filtering && activeId ? activeId : nothing} class="flex max-h-65 flex-col overflow-y-auto outline-none fade-y" @keydown=${this.onKey}>
-					${repeat(list, (o) => `${o.pinned ? 'p' : 'o'}-${o.value}`, (o, i) => html`${i === pinned.length && pinned.length && rest.length ? html`<div class="-mx-1 my-1 h-px shrink-0 bg-edge" role="separator"></div>` : nothing}<div id=${this.optionId(i)} role="option" class="flex h-control-sm shrink-0 cursor-pointer items-center gap-2 rounded-ds-sm px-2 type-ui text-fg transition-[background-color] duration-150 ease-standard data-active:bg-ds-neutral-4 aria-disabled:cursor-not-allowed aria-disabled:text-fg-faint max-md:h-auto max-md:min-h-control-touch" aria-selected=${String(o.value === this.value)} aria-disabled=${o.disabled ? 'true' : nothing} ?data-active=${i === this.active} @pointermove=${() => { if (!o.disabled) this.active = i }} @mousedown=${(e: Event) => e.preventDefault()} @click=${() => this.pick(o, false)}>${this.renderOption(o, o.value === this.value)}</div>`)}
+					${repeat(list, (o) => `${o.pinned ? 'p' : 'o'}-${o.value}`, (o, i) => html`${i === pinned.length && pinned.length && rest.length ? html`<div class="-mx-1 my-1 h-px shrink-0 bg-edge" role="separator"></div>` : nothing}<div id=${this.optionId(i)} role="option" class="flex h-control-sm shrink-0 cursor-pointer items-center gap-2 rounded-ds-sm px-2 type-ui text-fg transition-[background-color] duration-160 ease-standard data-active:bg-ds-neutral-4 aria-disabled:cursor-not-allowed aria-disabled:text-fg-faint max-md:h-auto max-md:min-h-control-touch" aria-selected=${String(o.value === this.value)} aria-disabled=${o.disabled ? 'true' : nothing} ?data-active=${i === this.active} @pointermove=${() => { if (!o.disabled) this.active = i }} @mousedown=${(e: Event) => e.preventDefault()} @click=${() => this.pick(o, false)}>${this.renderOption(o, o.value === this.value)}</div>`)}
 					${!rest.length && this.query ? html`<p class="px-2 py-2 type-ui text-fg-muted">${this.renderEmpty(this.query)}</p>` : nothing}
 				</div>
 			</div>`

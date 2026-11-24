@@ -15,7 +15,7 @@ export default function ComponentsPage() {
             <ul className="grid grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] gap-3">
               {g.items.map((i) => (
                 <li key={i.name}>
-                  <Link href={`/components/${i.name}`} className="grid h-full content-start gap-2 rounded-container bg-surface-raised p-5 transition-[background-color] duration-150 ease-standard hover:bg-surface-subtle">
+                  <Link href={`/components/${i.name}`} className="grid h-full content-start gap-2 rounded-container bg-surface-raised p-5 transition-[background-color] duration-160 ease-standard hover:bg-surface-subtle">
                     <span className="type-heading-4">{i.title}</span>
                     <span className="type-ui text-fg-muted">{i.description}</span>
                   </Link>

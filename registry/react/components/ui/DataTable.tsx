@@ -9,7 +9,7 @@ import { cn } from '@/react/lib/cn'
 // shadcn's data table in the brand: a table people filter, sort and page through. Over it, a dropdown per filter
 // (radio rows, the trigger saying what is picked) and a way to clear them; heads in DM Sans Medium capitals, muted,
 // that sort when they can (aria-sort; the arrow shows the order, a faint pair where it could); 40px rows on hairlines
-// that take the #171717 fill under the pointer; numbers right-aligned in tabular figures; the whole in a hairline box
+// that take the #262626 fill under the pointer; numbers right-aligned in tabular figures; the whole in a hairline box
 // with the 8px corner that scrolls sideways on its own, so a phone never scrolls the page. Under it, where the page is
 // and Previous and Next. Filters and sort go back to the first page. Cells render the value (numbers in en-US), or
 // `cell[key]({ row, value })`. Nothing matching shows one line with a way to clear the filters (`empty` replaces it).
@@ -35,8 +35,8 @@ export interface DataTableProps<Row extends Record<string, unknown>> {
 }
 
 const display = (v: unknown) => (typeof v === 'number' ? v.toLocaleString('en-US') : String(v ?? ''))
-export const FILTER = 'inline-flex h-control-sm cursor-pointer items-center gap-1.5 rounded-control border border-edge-strong bg-surface px-3 type-ui text-fg transition-[border-color] duration-150 ease-standard hover:border-action-secondary-edge-hover aria-expanded:border-edge-focus max-md:h-control-touch'
-export const SORT = '-mx-1 inline-flex cursor-pointer items-center gap-1 rounded-ds-sm px-1 align-middle uppercase transition-[color] duration-150 ease-standard hover:text-fg'
+export const FILTER = 'inline-flex h-control-sm cursor-pointer items-center gap-1.5 rounded-control border border-edge-strong bg-surface-subtle px-3 type-ui text-fg transition-[border-color] duration-160 ease-standard hover:border-action-secondary-edge-hover aria-expanded:border-edge-focus max-md:h-control-touch'
+export const SORT = '-mx-1 inline-flex cursor-pointer items-center gap-1 rounded-ds-sm px-1 align-middle uppercase transition-[color] duration-160 ease-standard hover:text-fg'
 
 export function DataTable<Row extends Record<string, unknown>>({ columns, rows, rowKey, label, filters = [], pageSize = 5, cell = {}, empty, className }: DataTableProps<Row>) {
   const [picked, setPicked] = useState<Record<string, string>>({})
@@ -109,7 +109,7 @@ export function DataTable<Row extends Record<string, unknown>>({ columns, rows, 
             </thead>
             <tbody>
               {visible.map(r => (
-                <tr key={String(r[rowKey])} className="transition-[background-color] duration-150 ease-standard hover:bg-surface-raised">
+                <tr key={String(r[rowKey])} className="transition-[background-color] duration-160 ease-standard hover:bg-surface-raised">
                   {columns.map(c => (
                     <td key={c.key} className={cn('h-row border-b border-edge px-3 py-1 whitespace-nowrap [tr:last-child>&]:border-b-0', c.align === 'right' && 'text-right tabular-nums', c.muted && 'text-fg-muted')}>
                       {cell[c.key] ? cell[c.key]!({ row: r, value: r[c.key] }) : display(r[c.key])}

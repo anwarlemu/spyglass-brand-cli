@@ -3,7 +3,7 @@ import { Testimonial } from '@/react/components/site/Testimonial'
 import { cn } from '@/react/lib/cn'
 
 // One customer, as a section: an optional label in capitals, then the testimonial with the headshot beside the words
-// (`side`, as a page sets it) or above them (`stacked`, as the ad does). `card` sets it on the #171717 fill. The quote
+// (`side`, as a page sets it) or above them (`stacked`, as the ad does). `card` sets it on the #262626 fill. The quote
 // is a customer's own words: never write one for them.
 export interface TestimonialBlockProps {
   /** The words, without quote marks. */

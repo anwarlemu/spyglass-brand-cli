@@ -3,7 +3,7 @@ name: table
 title: Table
 type: registry:ui
 group: ui
-description: "Rows of one kind of thing on Black: heads as capital labels in muted DM Sans Medium, cells in DM Sans 14px, a #262626 hairline between rows and the ghost fill under the pointer. Framed, it sits in a hairline box with the brand corner. It scrolls sideways with fading edges inside the frame."
+description: "Rows of one kind of thing on Black: heads as capital labels in muted DM Sans Medium, cells in DM Sans 14px, a #363636 hairline between rows and the ghost fill under the pointer. Framed, it sits in a hairline box with the brand corner. It scrolls sideways with fading edges inside the frame."
 use_for: "Boards, tracked brands, ads with a few columns to compare. Numbers right-aligned in tabular figures; a total in the footer; a caption under it."
 never:
   - "A table for one record: use Item or a card"

@@ -7,11 +7,11 @@ import { SheetController } from '@/elements/controllers/sheet'
 import '@/elements/components/ui/button'
 import styles from 'virtual:tw'
 
-// Drawer.tsx as <spyglass-drawer>: a panel that slides in from an edge over a Black scrim, on the #171717 overlay
+// Drawer.tsx as <spyglass-drawer>: a panel that slides in from an edge over a Black scrim, on the #262626 overlay
 // surface with a neutral hairline on its inner edge. `bottom` (the default) is the screen's width and up to 85% of its
 // height, with the 8px corner on its top edge and a grab handle; `left` and `right` are min(320px, 85vw) and full
-// height. A Funnel Display heading, an optional line and a ghost close button head it. It slides in over 300ms on the
-// drawer curve and out in 200ms. A press on the scrim or Escape (at once) closes it, and focus returns to what opened
+// height. A Funnel Display heading, an optional line and a ghost close button head it. It slides in over 360ms on the
+// drawer curve and out in 240ms. A press on the scrim or Escape (at once) closes it, and focus returns to what opened
 // it. React's `open` with `onOpenChange` is the reflected `open` attribute with an `open-change` event; React's
 // `title` is `heading`; React's `close` (children as a function) is the element's close().
 

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { Card } from '@/react/components/ui/Card'
 import { cn } from '@/react/lib/cn'
 
-// What the product does, as cards: an optional Funnel Display heading and line over a grid of cards on the #171717
+// What the product does, as cards: an optional Funnel Display heading and line over a grid of cards on the #262626
 // fill, each a title and a sentence (the home page's three cards, as a block). Three across (or two), one on phones.
 // No icons and no color: the words carry it.
 export interface Feature {
@@ -26,7 +26,7 @@ export function FeatureGridBlock({ features, title, body, columns = 3, className
     <section data-ds="feature-grid-block" className={cn('grid gap-10 text-fg max-sm:gap-8', className)}>
       {(title || body) && (
         <div className="grid max-w-3xl gap-4">
-          {title && <h2 className="type-heading-1 text-balance max-sm:type-heading-2">{title}</h2>}
+          {title && <h2 className="type-section">{title}</h2>}
           {body && <p className="type-body-lg text-fg-soft">{body}</p>}
         </div>
       )}

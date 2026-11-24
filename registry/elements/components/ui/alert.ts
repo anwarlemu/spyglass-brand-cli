@@ -2,7 +2,7 @@ import { html, nothing } from 'lit'
 import { DsElement, define, HostLayoutController } from '@/elements/lib/element'
 import styles from 'virtual:tw'
 
-// Alert.tsx as <spyglass-alert>: a #171717 box on Black with the brand corner and no border or shadow, a 16px Lucide
+// Alert.tsx as <spyglass-alert>: a #262626 box on Black with the brand corner and no border or shadow, a 16px Lucide
 // icon (the `icon` slot), the subject in DM Sans Medium (`heading`, React's `title`) and a line of muted DM Sans under
 // it (the default slot), and a button at the end (the `action` slot). `variant="destructive"` turns the icon and the
 // subject red. role="alert" so it is read out; `role="status"` for a note that was there from the start.
@@ -13,7 +13,7 @@ const VARIANTS: Record<AlertVariant, string> = {
 }
 
 /**
- * @summary A note or a problem in a #171717 box: an icon, the subject and a line.
+ * @summary A note or a problem in a #262626 box: an icon, the subject and a line.
  * @slot - The line under the subject.
  * @slot icon - A 16px Lucide icon.
  * @slot action - A button at the end.

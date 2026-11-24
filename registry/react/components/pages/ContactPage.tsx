@@ -29,7 +29,7 @@ export function ContactPage({ content: c = contactContent, onSubmit, className }
       </div>
       <main className={cn(WRAP, 'grid flex-1 grid-cols-2 items-start gap-12 py-24 max-md:grid-cols-1 max-md:gap-8 max-sm:py-16')}>
         <div className="grid max-w-xl gap-6">
-          <h1 className="type-display max-md:type-hero max-sm:type-heading-1">{c.headline}</h1>
+          <h1 className="type-section">{c.headline}</h1>
           <p className="type-body-lg text-fg-soft">{c.body}</p>
         </div>
         <form

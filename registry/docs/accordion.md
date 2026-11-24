@@ -7,7 +7,7 @@ description: "A stack of disclosures on Black: neutral hairlines between the row
 use_for: "Questions on a pricing or help page, filters a person opens one by one, settings that would crowd a view."
 never:
   - "Hiding the one thing a person came for: put it on the page"
-  - "A #171717 card per row: rows are hairlines on Black"
+  - "A #262626 card per row: rows are hairlines on Black"
   - "A chevron that moves on hover"
 source: "Derived from the guidelines: Black ground, neutral hairlines, DM Sans for body text. shadcn's accordion for anatomy, ARIA and keys."
 files:

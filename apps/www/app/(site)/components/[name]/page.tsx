@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
   return item ? { title: item.title, description: item.description } : {};
 }
 
-const LINK = "inline-flex items-center gap-1.5 rounded-control px-2 py-1.5 type-ui text-fg-muted transition-[color] duration-150 ease-standard hover:text-fg";
+const LINK = "inline-flex items-center gap-1.5 rounded-control px-2 py-1.5 type-ui text-fg-muted transition-[color] duration-160 ease-standard hover:text-fg";
 
 export default async function ComponentPage({ params }: { params: Promise<{ name: string }> }) {
   const item = findItem((await params).name);

@@ -50,7 +50,7 @@ export default function HomePage() {
             <ul className="grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-3">
               {g.items.map((i) => (
                 <li key={i.name}>
-                  <Link href={`/components/${i.name}`} className="grid h-full content-start gap-2 rounded-container bg-surface-raised p-5 transition-[background-color] duration-150 ease-standard hover:bg-surface-subtle">
+                  <Link href={`/components/${i.name}`} className="grid h-full content-start gap-2 rounded-container bg-surface-raised p-5 transition-[background-color] duration-160 ease-standard hover:bg-surface-subtle">
                     <span className="type-heading-4">{i.title}</span>
                     <span className="line-clamp-3 type-ui text-fg-muted">{i.description}</span>
                   </Link>
@@ -60,7 +60,7 @@ export default function HomePage() {
           </Section>
         ))}
         <p className="type-caption text-fg-faint">
-          Source: <a href={REPO} className="underline decoration-edge-strong underline-offset-4 transition-[text-decoration-color] duration-150 ease-standard hover:decoration-fg">{REPO.replace("https://", "")}</a>
+          Source: <a href={REPO} className="underline decoration-edge-strong underline-offset-4 transition-[text-decoration-color] duration-160 ease-standard hover:decoration-fg">{REPO.replace("https://", "")}</a>
         </p>
       </PageBody>
     </>

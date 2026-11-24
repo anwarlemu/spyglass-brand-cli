@@ -30,7 +30,7 @@ export function AboutPage({ content: c = aboutContent, className }: AboutPagePro
           <CreativeRow items={c.row} />
         </div>
         <section className={cn(WRAP, 'grid gap-10 py-24 max-sm:gap-8 max-sm:py-16')}>
-          <h2 className="type-heading-1 text-balance max-sm:type-heading-2">{c.beliefs.title}</h2>
+          <h2 className="type-section">{c.beliefs.title}</h2>
           <div className="grid grid-cols-3 gap-4 max-md:grid-cols-1">
             {c.beliefs.items.map((b) => <Card key={b.title} title={b.title} description={b.body} />)}
           </div>
@@ -39,7 +39,7 @@ export function AboutPage({ content: c = aboutContent, className }: AboutPagePro
           <StatBlock title={c.stats.title} stats={c.stats.items} />
         </div>
         <section className={cn(WRAP, 'flex flex-col items-start gap-6 py-24 max-sm:py-16')}>
-          <h2 className="type-heading-1 text-balance max-sm:type-heading-2">{c.join.title}</h2>
+          <h2 className="type-section">{c.join.title}</h2>
           <p className="max-w-140 type-body-lg text-fg-soft">{c.join.body}</p>
           <Button href={c.join.cta.href} className="mt-2">{c.join.cta.label}</Button>
         </section>

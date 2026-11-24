@@ -7,7 +7,7 @@ import styles from 'virtual:tw'
 // `links` (a list of { label, href }) between them for a website footer.
 export interface FooterLink { label: string; href: string }
 
-const LINK = 'rounded-control text-fg-muted transition-[color] duration-150 ease-standard hover:text-fg'
+const LINK = 'rounded-control text-fg-muted transition-[color] duration-160 ease-standard hover:text-fg'
 
 /**
  * @summary The footer row: lockup left, domain right, links between.

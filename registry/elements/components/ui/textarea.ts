@@ -4,7 +4,7 @@ import { live } from 'lit/directives/live.js'
 import { DsFormElement, define, HostLayoutController } from '@/elements/lib/element'
 import styles from 'virtual:tw'
 
-// Textarea.tsx as <spyglass-textarea>: several lines of text, drawn as the input is: a #363636 hairline on Black that
+// Textarea.tsx as <spyglass-textarea>: several lines of text, drawn as the input is: a #666666 hairline on Black that
 // turns White on focus, DM Sans at 14px (16px on phones), a #A3A3A3 placeholder and the brand corner. It grows by hand
 // downward only; `invalid` turns the hairline red. Form-associated (its `name` and `value` go with its form); the value
 // is `value` with the native `input` and `change` events. aria-label and aria-description pass to the inner textarea.
@@ -80,7 +80,7 @@ export class Textarea extends DsFormElement {
 	}
 
 	render() {
-		const classes = 'block w-full min-w-0 resize-y rounded-control border border-edge-strong bg-surface px-3 py-2.5 type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard placeholder:text-fg-muted hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input'
+		const classes = 'block w-full min-w-0 resize-y rounded-control border border-edge-strong bg-surface-subtle px-3 py-2.5 type-ui text-fg outline-none transition-[border-color] duration-160 ease-standard placeholder:text-fg-muted hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input'
 		return html`<textarea data-ds="textarea" .value=${live(this.value)} rows=${this.rows} name=${ifDefined(this.name)} placeholder=${ifDefined(this.placeholder)} maxlength=${ifDefined(this.maxlength)} ?disabled=${this.inactive} ?readonly=${this.readonly} ?required=${this.required} aria-invalid=${ifDefined(this.invalid ? 'true' : undefined)} aria-label=${ifDefined(this.label)} aria-description=${ifDefined(this.description)} class=${classes} @input=${this.onInput} @change=${this.onChange}></textarea>`
 	}
 }

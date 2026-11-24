@@ -3,7 +3,7 @@ name: item
 title: Item
 type: registry:ui
 group: ui
-description: "A row: media, a title in DM Sans Medium with a muted line under it, and actions at the end. No fill, a hairline box or the card's #171717 fill. ItemGroup puts a hairline between rows."
+description: "A row: media, a title in DM Sans Medium with a muted line under it, and actions at the end. No fill, a hairline box or the card's #262626 fill. ItemGroup puts a hairline between rows."
 use_for: "A board, a tracked brand, a setting or a notification as one row; a list of them in a card. With href the whole row is a link."
 never:
   - "Buttons inside a row that is a link"

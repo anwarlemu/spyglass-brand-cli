@@ -3,8 +3,8 @@ import { useId, useRef, useState, type KeyboardEvent, type PointerEvent, type Re
 import { useControllable } from '@/react/hooks/useControllable'
 import { cn } from '@/react/lib/cn'
 
-// Two panes and the #262626 hairline between them. The hairline is the handle, with a 12px reach either side (20px
-// on touch); it turns White under the pointer, while dragged and when focused (150ms). `withHandle` adds a small grip
+// Two panes and the #363636 hairline between them. The hairline is the handle, with a 12px reach either side (20px
+// on touch); it turns White under the pointer, while dragged and when focused (160ms). `withHandle` adds a small grip
 // on it in the card's fill. Drag it, or focus it and use the arrow keys (Shift for bigger steps, Home and End for the
 // limits). The split follows the hand with no easing. The value is the first pane's share in percent, held between
 // `min` and `max` (`value` with `onValueChange`, or `defaultValue` alone). The panes go in `first` and `second`.
@@ -112,7 +112,7 @@ const css = `
 .ds-resize-handle[data-dragging], .ds-resize-handle:focus-visible { background: var(--ds-color-edge-focus); }
 .ds-resize-handle:focus-visible { outline: none; }
 @media (hover: hover) and (pointer: fine) { .ds-resize-handle:hover { background: var(--ds-color-edge-focus); } }
-/* The grip: a small box on the hairline, the card's fill in a #363636 hairline that turns White with it. */
+/* The grip: a small box on the hairline, the card's fill in a #666666 hairline that turns White with it. */
 .ds-resize-grip { position: relative; z-index: 1; flex-shrink: 0; border: var(--ds-border-hairline) solid var(--ds-color-edge-strong); border-radius: var(--ds-radius-sm); background: var(--ds-color-surface-raised); transition: border-color var(--ds-duration-micro) var(--ds-easing-standard); }
 .ds-resize-handle[data-direction="horizontal"] .ds-resize-grip { width: var(--ds-space-md); height: var(--ds-space-xl); }
 .ds-resize-handle[data-direction="vertical"] .ds-resize-grip { width: var(--ds-space-xl); height: var(--ds-space-md); }

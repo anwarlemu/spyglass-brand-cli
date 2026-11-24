@@ -2,11 +2,11 @@
 import { cn } from '@/react/lib/cn'
 import { useControllable } from '@/react/hooks/useControllable'
 
-// Buttons that stay pressed, side by side on one track: a #363636 hairline on Black with the brand corner, 4px in,
-// each pressed one a White block with Black text (the small corner, nested inside the track's), the rest soft gray
-// that turns White under a hovering pointer. 32px (sm) or 40px (md) tall in all. `multiple` lets several stay on (the
-// value is an array); otherwise one at most, and pressing it again lets it go. Colors change over 150ms; a press gives
-// a little (scale 0.97, not with reduced motion). For views of one thing use Tabs; this is for options that are on or
+// Buttons that stay pressed, side by side on one track, as the site's segmented control (controls.css --seg-*): a
+// #1A1A1A tray in a #262626 ring with the 8px corner, 4px in, each pressed one a #363636 segment with White text (the
+// small corner, nested inside the tray's), the rest soft gray that turns White under a hovering pointer. 32px (sm) or 40px (md) tall in all. `multiple` lets several stay on (the
+// value is an array); otherwise one at most, and pressing it again lets it go. Colors change over 160ms; like the site's
+// controls, nothing scales on press. For views of one thing use Tabs; this is for options that are on or
 // off. `value` with `onValueChange` controls it (or `defaultValue` alone).
 export type ToggleGroupOption<T extends string> = T | { value: T, label: string, disabled?: boolean }
 export type ToggleGroupSize = 'sm' | 'md'
@@ -41,7 +41,7 @@ export function ToggleGroup<T extends string>({ options, label, multiple, size =
     else setModel(model === v ? null : v)
   }
   return (
-    <div data-ds="toggle-group" role="group" aria-label={label} className={cn('inline-flex max-w-full rounded-control border border-edge-strong bg-surface', className)}>
+    <div data-ds="toggle-group" role="group" aria-label={label} className={cn('inline-flex max-w-full rounded-control bg-surface-subtle shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-neutral-4)]', className)}>
       <div className="flex min-w-0 items-center gap-1 overflow-x-auto p-1 fade-x">
         {options.map(norm).map(o => (
           <button
@@ -50,7 +50,7 @@ export function ToggleGroup<T extends string>({ options, label, multiple, size =
             aria-pressed={on(o.value)}
             disabled={o.disabled}
             onClick={() => press(o.value)}
-            className={cn('inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-ds-sm whitespace-nowrap type-ui-strong text-fg-soft select-none transition-[background-color,color,scale] duration-150 ease-out active:not-disabled:scale-97 motion-reduce:active:not-disabled:scale-100 not-aria-pressed:hover:not-disabled:text-fg aria-pressed:bg-action-primary aria-pressed:text-action-primary-fg disabled:cursor-not-allowed disabled:text-action-disabled-fg', ITEM[size])}
+            className={cn('inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-ds-sm whitespace-nowrap type-ui-strong text-fg-soft select-none transition-[background-color,color] duration-160 ease-out not-aria-pressed:hover:not-disabled:text-fg aria-pressed:bg-surface-inset aria-pressed:text-fg disabled:cursor-not-allowed disabled:text-action-disabled-fg', ITEM[size])}
           >
             {o.label}
           </button>

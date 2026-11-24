@@ -23,7 +23,7 @@ export function ChangelogPage({ content: c = changelogContent, className }: Chan
       </div>
       <main>
         <div className={cn(WRAP, 'grid gap-4 pt-16 pb-12 max-sm:pt-10 max-sm:pb-8')}>
-          <h1 className="type-display max-md:type-hero max-sm:type-heading-1">{c.title}</h1>
+          <h1 className="type-section">{c.title}</h1>
           <p className="max-w-140 type-body-lg text-fg-soft">{c.body}</p>
         </div>
         <ol className={cn(WRAP, 'grid pb-24 max-sm:pb-16')}>

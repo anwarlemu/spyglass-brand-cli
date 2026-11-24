@@ -6,10 +6,10 @@ import { icon } from '@/elements/lib/icon'
 import { firstFocusable } from '@/elements/lib/popover'
 import styles from 'virtual:tw'
 
-// Sheet.tsx as <spyglass-sheet>: a panel at an edge of the screen over the page: the card's #171717 fill with a
+// Sheet.tsx as <spyglass-sheet>: a panel at an edge of the screen over the page: the card's #262626 fill with a
 // hairline on its inner edge, 384px at the right (the default) or left, full width at the top or bottom. A Funnel
 // Display title and a muted line, a close button, the body scrolling on its own, buttons at the foot. It is modal: the
-// page dims under the scrim and stays inert. It slides in over 300ms on the drawer curve and leaves in 200ms; Escape
+// page dims under the scrim and stays inert. It slides in over 360ms on the drawer curve and leaves in 240ms; Escape
 // closes it at once; focus returns to what opened it. `open` (reflected) with `open-change`; React's `title` is
 // `heading`.
 export type SheetSide = 'right' | 'left' | 'top' | 'bottom'
@@ -57,7 +57,7 @@ export class Sheet extends DsElement {
 					<h2 class="type-heading-4 text-fg">${this.heading}</h2>
 					${this.description ? html`<p class="type-ui text-fg-muted">${this.description}</p>` : nothing}
 				</div>
-				<button type="button" class="-mt-1.5 -mr-2 inline-flex size-control-sm shrink-0 cursor-pointer items-center justify-center rounded-control text-fg-muted transition-[background-color,color] duration-150 ease-standard hover:bg-action-ghost-hover hover:text-fg max-md:size-control-touch" aria-label="Close" @click=${() => this.setOpen(false)}>${icon(X, 'x', { size: 16, strokeWidth: 1.5 })}</button>
+				<button type="button" class="-mt-1.5 -mr-2 inline-flex size-control-sm shrink-0 cursor-pointer items-center justify-center rounded-control text-fg-muted transition-[background-color,color] duration-160 ease-standard hover:bg-action-ghost-hover hover:text-fg max-md:size-control-touch" aria-label="Close" @click=${() => this.setOpen(false)}>${icon(X, 'x', { size: 16, strokeWidth: 1.5 })}</button>
 			</div>
 			<div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-6 fade-y" data-sheet-body>
 				<slot></slot>

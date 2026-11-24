@@ -2,14 +2,15 @@ import { html } from 'lit'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { DsFormElement, define, HostLayoutController } from '@/elements/lib/element'
 import styles from 'virtual:tw'
+import { followGlow } from '@/lib/glow'
 
 // Button.tsx as a web component, <spyglass-button>: a White fill with a Black DM Sans Medium label for the one main
-// action, secondary (#262626) for the rest, ghost for tools in rows. Sizes sm (32px), md (40px) and lg (48px); `icon`
-// makes it square. A press gives a little (scale 0.97); hover changes the fill only where a pointer hovers. `href`
-// renders a link. It is form-associated: type="submit" submits its form, type="reset" resets it. aria-label,
+// action, secondary (the site's quiet button: #1A1A1A in a #363636 ring) for the rest, ghost for tools in rows. Sizes
+// sm (32px), md (40px) and lg (56px); `icon` makes it square. Under a mouse a White glow follows the pointer and the
+// fill changes; it does not scale on press (the site's buttons do not). `href` renders a link. It is form-associated: type="submit" submits its form, type="reset" resets it. aria-label,
 // aria-description, aria-expanded, aria-haspopup and aria-controls on it pass to the inner button.
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost'
-export type ButtonSize = 'sm' | 'md' | 'lg'
+export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg'
 
 // The attributes that move from the element to its inner button, by property.
 const MOVED = ['aria-expanded', 'aria-haspopup', 'aria-controls']
@@ -17,17 +18,21 @@ const FIELD: Record<string, 'expanded' | 'haspopup' | 'controls'> = { 'aria-expa
 
 const VARIANTS: Record<ButtonVariant, string> = {
 	primary: 'bg-action-primary text-action-primary-fg hover:not-disabled:bg-action-primary-hover',
-	secondary: 'bg-action-secondary text-action-secondary-fg hover:not-disabled:bg-action-secondary-hover',
+	secondary: 'bg-action-secondary text-action-secondary-fg shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-action-secondary-edge)] hover:not-disabled:bg-action-secondary-hover',
 	ghost: 'bg-transparent text-fg hover:not-disabled:bg-action-ghost-hover',
 }
 const SIZES: Record<ButtonSize, string> = {
+	xs: 'h-control-xs gap-1.5 type-ui-strong',
 	sm: 'h-control-sm gap-1.5 type-ui-strong',
 	md: 'h-control-md gap-2 type-ui-strong',
-	lg: 'h-control-lg gap-2 type-body font-medium',
+	lg: 'h-control-lg gap-2 type-body-lg font-medium',
 }
+// The site's glow (globals.css .btn::before): a gradient layer under the label at the pointer, shown on hover only.
+const GLOW =
+  'relative isolate overflow-hidden before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:bg-[radial-gradient(circle_var(--ds-glow-radius)_at_var(--glow-x,50%)_var(--glow-y,50%),var(--ds-color-action-glow),transparent)] before:opacity-0 before:transition-opacity before:duration-240 before:ease-out hover:not-disabled:before:opacity-100'
 // One padding class per button, so a square button's 0 never competes with a label's padding in the stylesheet.
-const PADDING: Record<ButtonSize, string> = { sm: 'px-3', md: 'px-4', lg: 'px-5' }
-const SQUARE: Record<ButtonSize, string> = { sm: 'w-control-sm px-0', md: 'w-control-md px-0', lg: 'w-control-lg px-0' }
+const PADDING: Record<ButtonSize, string> = { xs: 'px-4', sm: 'px-3', md: 'px-4', lg: 'px-8' }
+const SQUARE: Record<ButtonSize, string> = { xs: 'w-control-xs px-0', sm: 'w-control-sm px-0', md: 'w-control-md px-0', lg: 'w-control-lg px-0' }
 
 /**
  * @summary An action: primary (White) by default, secondary or ghost; three sizes; `icon` for a square icon button.
@@ -59,7 +64,7 @@ export class Button extends DsFormElement {
 
 	/** primary (White), secondary or ghost. */
 	variant: ButtonVariant = 'primary'
-	/** sm (32px), md (40px) or lg (48px). */
+	/** xs (36px, the site header's), sm (32px), md (40px) or lg (56px). */
 	size: ButtonSize = 'md'
 	/** A square icon button (put the name in aria-label). */
 	icon = false
@@ -96,6 +101,10 @@ export class Button extends DsFormElement {
 		}
 	}
 
+	private onMove(event: PointerEvent) {
+		followGlow(event.currentTarget as HTMLElement, event)
+	}
+
 	private onClick() {
 		if (this.inactive || this.href) return
 		if (this.type === 'submit') this.form?.requestSubmit()
@@ -106,15 +115,16 @@ export class Button extends DsFormElement {
 		const size = SIZES[this.size] ? this.size : 'md'
 		const classes = [
 			'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-control whitespace-nowrap select-none',
-			'transition-[background-color,color,scale] duration-150 ease-out active:not-disabled:scale-97 motion-reduce:active:not-disabled:scale-100',
+			'transition-[background-color,color] duration-160 ease-out',
+			GLOW,
 			'disabled:cursor-not-allowed disabled:bg-action-disabled disabled:text-action-disabled-fg',
 			SIZES[size],
 			this.icon ? SQUARE[size] : PADDING[size],
 			VARIANTS[this.variant] ?? VARIANTS.primary,
 		].join(' ')
 		return this.href
-			? html`<a data-ds="${this.rootName}" part="control" href=${this.href} class=${classes} aria-label=${ifDefined(this.label)} aria-description=${ifDefined(this.description)} aria-expanded=${ifDefined(this.expanded)} aria-haspopup=${ifDefined(this.haspopup as never)}><slot></slot></a>`
-			: html`<button data-ds="${this.rootName}" part="control" type="button" ?disabled=${this.inactive} class=${classes} aria-label=${ifDefined(this.label)} aria-description=${ifDefined(this.description)} aria-expanded=${ifDefined(this.expanded)} aria-haspopup=${ifDefined(this.haspopup as never)} @click=${this.onClick}><slot></slot></button>`
+			? html`<a data-ds="${this.rootName}" part="control" href=${this.href} class=${classes} aria-label=${ifDefined(this.label)} aria-description=${ifDefined(this.description)} aria-expanded=${ifDefined(this.expanded)} aria-haspopup=${ifDefined(this.haspopup as never)} @pointermove=${this.onMove}><slot></slot></a>`
+			: html`<button data-ds="${this.rootName}" part="control" type="button" ?disabled=${this.inactive} class=${classes} aria-label=${ifDefined(this.label)} aria-description=${ifDefined(this.description)} aria-expanded=${ifDefined(this.expanded)} aria-haspopup=${ifDefined(this.haspopup as never)} @click=${this.onClick} @pointermove=${this.onMove}><slot></slot></button>`
 	}
 }
 

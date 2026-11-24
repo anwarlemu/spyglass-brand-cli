@@ -4,9 +4,9 @@ import { type DayPoint, compactNumber, dayMarks, formatDay, formatNumber, niceTi
 import { cn } from '@/react/lib/cn'
 
 // A White bar per day on the Black ground. The axis starts at 0 and ends on a round number in about four steps; grid
-// lines are #262626 hairlines; axis figures are DM Sans 12px muted in tabular figures. A day with any activity keeps a
+// lines are #363636 hairlines; axis figures are DM Sans 12px muted in tabular figures. A day with any activity keeps a
 // visible bar. Pointing at a bar names its day and value in the caption and quiets the others to #4D4D4D. The bars
-// rise from the axis once (300ms, ease-out, staggered over 120ms), then only their color changes; with reduced motion
+// rise from the axis once (360ms, ease-out, staggered over 120ms), then only their color changes; with reduced motion
 // they are simply there. `focus`: bars lit from outside, the rest quiet; `note`: what the caption says meanwhile.
 export interface BarChartProps {
   /** One value per day: [{ day (ISO), value }]. */

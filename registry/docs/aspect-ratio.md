@@ -3,7 +3,7 @@ name: aspect-ratio
 title: Aspect ratio
 type: registry:ui
 group: ui
-description: "A box that keeps its shape as it grows: a 1:1 post, a 4:5 ad, a 16:9 slide. It draws nothing itself; the brand corner and a #171717 ground are classes on it."
+description: "A box that keeps its shape as it grows: a 1:1 post, a 4:5 ad, a 16:9 slide. It draws nothing itself; the brand corner and a #262626 ground are classes on it."
 use_for: "Creatives in a grid, previews of posts and ads, a video or a slide that must not reflow while it loads."
 never:
   - "Stretching or cropping a logo to fit the box"

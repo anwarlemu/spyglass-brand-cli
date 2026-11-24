@@ -4,14 +4,14 @@ import { firstFocusable, PopoverController, popoverStyles, type Align, type Side
 import styles from 'virtual:tw'
 
 // Popover.tsx as <spyglass-popover>: a panel for any content (a short form, a few settings, a note), opened from a
-// button: the card's #171717 fill on Black with a hairline and the brand corner. The trigger: a <button
+// button: the card's #262626 fill on Black with a hairline and the brand corner. The trigger: a <button
 // slot="trigger"> you style yourself (React's triggerClass), or other content in the `trigger` slot, drawn as a small
 // secondary button. Opening moves focus to the panel's first control (or the panel); Escape, a press outside or tabbing
 // away closes it, and Escape returns focus to the trigger. It flips to the side with room and stays 8px inside the
 // viewport, in the top layer. `open` (reflected) with `open-change`; close() closes it.
 
 // Button.tsx's classes for a small secondary button, in its order.
-const TRIGGER = 'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-control whitespace-nowrap select-none transition-[background-color,color,scale] duration-150 ease-out active:not-disabled:scale-97 motion-reduce:active:not-disabled:scale-100 disabled:cursor-not-allowed disabled:bg-action-disabled disabled:text-action-disabled-fg h-control-sm gap-1.5 type-ui-strong px-3 bg-action-secondary text-action-secondary-fg hover:not-disabled:bg-action-secondary-hover'
+const TRIGGER = 'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-control whitespace-nowrap select-none transition-[background-color,color] duration-160 ease-out disabled:cursor-not-allowed disabled:bg-action-disabled disabled:text-action-disabled-fg h-control-sm gap-1.5 type-ui-strong px-3 bg-action-secondary text-action-secondary-fg hover:not-disabled:bg-action-secondary-hover'
 
 /**
  * @summary A panel for any content, opened from a button.

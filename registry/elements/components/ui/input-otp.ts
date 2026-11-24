@@ -4,7 +4,7 @@ import { live } from 'lit/directives/live.js'
 import { DsFormElement, define } from '@/elements/lib/element'
 import styles from 'virtual:tw'
 
-// InputOtp.tsx as <spyglass-input-otp>: a one-time code: square cells drawn as the input is (a #363636 hairline on
+// InputOtp.tsx as <spyglass-input-otp>: a one-time code: square cells drawn as the input is (a #666666 hairline on
 // Black, the brand corner, 48px; 40px on phones), DM Sans digits at 18px, the cell being typed into edged in White with
 // a caret, and an optional gap after `split` cells. It is one real input laid over the cells, so paste, the phone's code
 // suggestion, arrows and delete all work as in any field. Fires `complete` when every cell is filled. A red hairline on

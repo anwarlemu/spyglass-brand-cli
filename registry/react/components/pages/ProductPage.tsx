@@ -28,7 +28,7 @@ function Split({ headline, body, reverse, children }: { headline: string; body?:
   return (
     <section className={cn(WRAP, 'grid grid-cols-2 items-center gap-12 py-24 max-md:grid-cols-1 max-sm:gap-8 max-sm:py-16')}>
       <div className={cn('grid gap-6', reverse && 'md:order-last')}>
-        <h2 className="type-heading-1 text-balance max-sm:type-heading-2">{headline}</h2>
+        <h2 className="type-section">{headline}</h2>
         {body && <p className="type-body-lg text-fg-soft">{body}</p>}
       </div>
       <div className="min-w-0">{children}</div>

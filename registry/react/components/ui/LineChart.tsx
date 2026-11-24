@@ -3,10 +3,10 @@ import { useState, type PointerEvent } from 'react'
 import { type LineSeries, PLOT, compactNumber, lineLayout } from '@/lib/chart'
 import { cn } from '@/react/lib/cn'
 
-// Lines over time: one axis from 0 on #262626 hairlines, 2px lines in the brand's series order (White, #A3A3A3,
+// Lines over time: one axis from 0 on #363636 hairlines, 2px lines in the brand's series order (White, #A3A3A3,
 // #4D4D4D dashed, then the spectrum: Magenta, Red, Orange, Yellow, Green, Cyan, Blue), the first series shading the
 // area under it, a legend when there is more than one, and a crosshair with the values under the pointer on the
-// #171717 overlay panel. Ten series at most. On a #171717 card by default; `bare` drops the card, for a chart already
+// #262626 overlay panel. Ten series at most. On a #262626 card by default; `bare` drops the card, for a chart already
 // inside one. `format` writes a value (axis figures use the compact form unless `formatAxis` is given).
 export type { LineSeries }
 

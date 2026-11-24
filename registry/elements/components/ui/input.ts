@@ -4,7 +4,7 @@ import { live } from 'lit/directives/live.js'
 import { DsFormElement, define, HostLayoutController } from '@/elements/lib/element'
 import styles from 'virtual:tw'
 
-// Input.tsx as <spyglass-input>: a text field on Black, a #363636 hairline that turns White on focus, DM Sans at 14px
+// Input.tsx as <spyglass-input>: a text field on Black, a #666666 hairline that turns White on focus, DM Sans at 14px
 // (16px on phones), a #A3A3A3 placeholder and the brand corner. Sizes sm, md and lg; `invalid` turns the hairline red.
 // It is form-associated (its `name` and `value` go with its form) and its value is `value` with the native `input`
 // and `change` events. aria-label, aria-description and aria-describedby's text pass to the inner <input>.
@@ -85,7 +85,7 @@ export class Input extends DsFormElement {
 
 	render() {
 		const size = SIZES[this.size] ? this.size : 'md'
-		const classes = ['w-full min-w-0 rounded-control border border-edge-strong bg-surface type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard placeholder:text-fg-muted hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', SIZES[size]].join(' ')
+		const classes = ['w-full min-w-0 rounded-control border border-edge-strong bg-surface-subtle type-ui text-fg outline-none transition-[border-color] duration-160 ease-standard placeholder:text-fg-muted hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', SIZES[size]].join(' ')
 		return html`<input data-ds="input" .value=${live(this.value)} type=${this.type} name=${ifDefined(this.name)} placeholder=${ifDefined(this.placeholder)} autocomplete=${ifDefined(this.autocomplete as never)} ?disabled=${this.inactive} ?readonly=${this.readonly} ?required=${this.required} aria-invalid=${ifDefined(this.invalid ? 'true' : undefined)} aria-label=${ifDefined(this.label)} aria-description=${ifDefined(this.description)} class=${classes} @input=${this.onInput} @change=${this.onChange} @keydown=${this.onKeyDown}>`
 	}
 }

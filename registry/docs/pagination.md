@@ -3,7 +3,7 @@ name: pagination
 title: Pagination
 type: registry:ui
 group: ui
-description: "Previous and Next around the page numbers: 32px ghost buttons that fill under the pointer, the current page in a #363636 hairline box in White. First and last always show, an ellipsis stands for the rest."
+description: "Previous and Next around the page numbers: 32px ghost buttons that fill under the pointer, the current page in a #666666 hairline box in White. First and last always show, an ellipsis stands for the rest."
 use_for: "Pages of a long list people come back to by place: a board's results, an archive of ads."
 never:
   - "A filled White current page: one primary per view, and this is not it"

@@ -5,11 +5,11 @@ import { Button } from '@/react/components/ui/Button'
 import { useControllable } from '@/react/hooks/useControllable'
 import { useSheet } from '@/react/hooks/useSheet'
 
-// shadcn's drawer in the brand: a panel that slides in from an edge over a Black scrim, on the #171717 overlay surface
+// shadcn's drawer in the brand: a panel that slides in from an edge over a Black scrim, on the #262626 overlay surface
 // with a neutral hairline on its inner edge. `bottom` (the default) is the screen's width and up to 85% of its
 // height, with the 8px corner on its top edge only and a grab handle; `left` and `right` are min(320px, 85vw) and full
 // height. A Funnel Display title, an optional line under it and a ghost close button head it; the children are the
-// body. It slides its own size in over 300ms on the drawer curve and out in 200ms; the scrim fades with it. A press on
+// body. It slides its own size in over 360ms on the drawer curve and out in 240ms; the scrim fades with it. A press on
 // the scrim or Escape (at once, keyboard actions don't animate) closes it, and focus returns to what opened it.
 // Reduced motion fades instead of sliding. `open` with `onOpenChange`; children may be a function of `close`.
 export interface DrawerProps {

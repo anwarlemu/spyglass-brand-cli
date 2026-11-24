@@ -2,7 +2,7 @@
 import { useRef, useState, type FormEvent } from 'react'
 import { useControllable } from '@/react/hooks/useControllable'
 
-// A one-time code: square cells drawn as the Input is (a #363636 hairline on Black, the brand corner, 48px; 40px on
+// A one-time code: square cells drawn as the Input is (a #666666 hairline on Black, the brand corner, 48px; 40px on
 // phones), DM Sans digits at 18px in tabular figures, the cell being typed into edged in White with a caret, and an
 // optional gap after `split` cells. It is one real input laid over the cells, so paste, the phone's code suggestion
 // (autocomplete="one-time-code"), arrows and delete all work as in any field. Calls `onComplete` when every cell is

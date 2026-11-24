@@ -3,9 +3,9 @@ import { createContext, useEffect, useId, useImperativeHandle, useRef, type Reac
 import { useMenu } from '@/react/hooks/useMenu'
 import { cn } from '@/react/lib/cn'
 
-// shadcn's dropdown menu in the brand: a button that opens a short list of actions or choices on the #171717 overlay
+// shadcn's dropdown menu in the brand: a button that opens a short list of actions or choices on the #262626 overlay
 // surface, a neutral hairline, the 8px corner, no shadow, 4px inside; rows are MenuItem (shadcn's DropdownMenuItem),
-// with MenuLabel and MenuSeparator between groups. It comes in over 200ms (a 4px drop and a touch of scale from its
+// with MenuLabel and MenuSeparator between groups. It comes in over 240ms (a 4px drop and a touch of scale from its
 // trigger's edge, ease-out), leaves at once, and does not animate when opened from the keyboard, which is how menus
 // are opened most. Arrows, Home, End, Escape, Tab and a click outside are handled (useMenu). The trigger's content is
 // `trigger` (a node, or a function of `open`), drawn as a small secondary button unless `triggerClass` says
@@ -38,7 +38,7 @@ export interface DropdownMenuProps {
   ref?: Ref<DropdownMenuHandle>
 }
 
-export const MENU_TRIGGER = 'inline-flex h-control-sm cursor-pointer items-center gap-1.5 rounded-control bg-action-secondary px-3 type-ui-strong text-action-secondary-fg transition-[background-color] duration-150 ease-standard hover:bg-action-secondary-hover aria-expanded:bg-action-secondary-hover max-md:h-control-touch'
+export const MENU_TRIGGER = 'inline-flex h-control-sm cursor-pointer items-center gap-1.5 rounded-control bg-action-secondary px-3 type-ui-strong text-action-secondary-fg transition-[background-color] duration-160 ease-standard hover:bg-action-secondary-hover aria-expanded:bg-action-secondary-hover max-md:h-control-touch'
 
 export function DropdownMenu({ label, up, align = 'start', width = '240px', offset = '0px', triggerClass, triggerLabel, trigger: triggerContent, defaultOpen, onOpenChange, className, children, ref }: DropdownMenuProps) {
   const { open, root, trigger, show, close, toggle, onTriggerKey, onMenuKey } = useMenu(defaultOpen)

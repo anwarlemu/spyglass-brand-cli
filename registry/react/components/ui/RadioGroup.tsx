@@ -2,9 +2,9 @@
 import { useId } from 'react'
 import { useControllable } from '@/react/hooks/useControllable'
 
-// One of a few, all in view: 16px circles in the #363636 hairline (round, as the lens in the logomark; every other
+// One of a few, all in view: 16px circles in the #666666 hairline (round, as the lens in the logomark; every other
 // control keeps the brand corner), the picked one edged in White with a White 8px dot that settles in from 0.6 over
-// 150ms on the strong ease-out (reduced motion fades it). Rows 32px (44px on phones) with a DM Sans label and an
+// 160ms on the strong ease-out (reduced motion fades it). Rows 32px (44px on phones) with a DM Sans label and an
 // optional muted hint. Arrows move the pick, as native radios do; focus is the White ring. More than five options is a
 // Native Select or a Select; views of one thing are Tabs. `value` with `onValueChange` controls it (or `defaultValue`).
 export interface RadioOption<T extends string> { value: T, label: string, hint?: string, disabled?: boolean }

@@ -22,7 +22,7 @@ export default function Brand() {
             </>
           )}
         >
-          <a href="#" className="text-fg underline decoration-edge-strong underline-offset-4 transition-[text-decoration-color] duration-150 ease-standard hover:decoration-fg" onClick={(e) => e.preventDefault()}>Acme Studio</a>
+          <a href="#" className="text-fg underline decoration-edge-strong underline-offset-4 transition-[text-decoration-color] duration-160 ease-standard hover:decoration-fg" onClick={(e) => e.preventDefault()}>Acme Studio</a>
         </HoverCard>
         , the brand your team saved most.
       </p>

@@ -1,7 +1,7 @@
 import { cn } from '@/react/lib/cn'
 
 // How far a task has got: a White bar on a 6px #262626 track with round ends. The fill slides to a new value over
-// 250ms on the strong ease-out, on transform only. Leave out `value` when the end is not known: a short White bar
+// 320ms on the strong ease-out, on transform only. Leave out `value` when the end is not known: a short White bar
 // sweeps across the track at a steady pace, and with reduced motion it rests and breathes instead. `label` names it
 // for assistive tech (a progressbar); say the number in text beside it too.
 export interface ProgressProps {
@@ -30,7 +30,7 @@ export function Progress({ value, max = 100, label, className }: ProgressProps) 
         className={cn('relative h-1.5 w-full overflow-hidden rounded-full bg-action-secondary', className)}
       >
         {known
-          ? <div className="h-full w-full rounded-full bg-action-primary transition-transform duration-250 ease-out motion-reduce:transition-none" style={{ transform: `translateX(-${(1 - share) * 100}%)` }} />
+          ? <div className="h-full w-full rounded-full bg-action-primary transition-transform duration-320 ease-out motion-reduce:transition-none" style={{ transform: `translateX(-${(1 - share) * 100}%)` }} />
           : <div className="ds-progress-sweep h-full w-2/5 rounded-full bg-action-primary" />}
       </div>
     </>

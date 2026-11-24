@@ -2,7 +2,7 @@ import type { InputHTMLAttributes, ReactNode, Ref } from 'react'
 import { cn } from '@/react/lib/cn'
 
 // A field with something at its start or end inside the same hairline: an icon, a unit or a prefix in the muted gray,
-// or a small button. It is drawn as the Input is (a #363636 hairline on Black that turns White while the field has
+// or a small button. It is drawn as the Input is (a #666666 hairline on Black that turns White while the field has
 // focus, DM Sans at 14px, 16px on phones, the brand corner) and sized as it is: sm 32px, md 40px, lg 48px. A button in
 // `end` sits 4px from the edge (use a ghost or secondary sm button in md, md in lg). `invalid` turns the hairline red.
 // `className` lands on the group; every other prop on the <input> (value and onChange as React's own).
@@ -29,7 +29,7 @@ export function InputGroup({ start, end, size = 'md', invalid, className, ...res
     <div
       data-ds="input-group"
       data-invalid={invalid || undefined}
-      className={cn('flex w-full min-w-0 items-center rounded-control border border-edge-strong bg-surface text-fg transition-[border-color] duration-150 ease-standard hover:not-has-[input:disabled]:border-action-secondary-edge-hover has-[input:focus-visible]:border-edge-focus data-invalid:border-action-danger has-[input:disabled]:cursor-not-allowed', SIZES[size], className)}
+      className={cn('flex w-full min-w-0 items-center rounded-control border border-edge-strong bg-surface-subtle text-fg transition-[border-color] duration-160 ease-standard hover:not-has-[input:disabled]:border-action-secondary-edge-hover has-[input:focus-visible]:border-edge-focus data-invalid:border-action-danger has-[input:disabled]:cursor-not-allowed', SIZES[size], className)}
     >
       {start && <span className="flex shrink-0 items-center gap-1.5 type-ui text-fg-muted">{start}</span>}
       <input {...rest} aria-invalid={invalid || undefined} className="h-full w-full min-w-0 flex-1 bg-transparent type-ui text-fg outline-none placeholder:text-fg-muted disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input" />

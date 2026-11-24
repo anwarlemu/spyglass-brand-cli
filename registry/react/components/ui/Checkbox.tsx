@@ -4,7 +4,7 @@ import { useControllable } from '@/react/hooks/useControllable'
 
 // shadcn's checkbox in the brand: a yes or no that is part of a form. A 16px box with a 4px corner in a #363636
 // hairline on Black that lifts to #4D4D4D under the pointer; checked, it fills White and a Black check draws its stroke
-// (250ms on the strong ease-out); `indeterminate` shows a bar for a group partly on. Focus is the White ring. The label
+// (320ms on the strong ease-out); `indeterminate` shows a bar for a group partly on. Focus is the White ring. The label
 // sits right of it in DM Sans 14px, the whole row pressable, 32px tall (44px on phones); `hint` is a muted line under
 // it. `invalid` turns the hairline red. A setting that takes effect at once is a switch. `checked` with
 // `onCheckedChange` (or `defaultChecked` alone); the label goes in `label` or `children`.

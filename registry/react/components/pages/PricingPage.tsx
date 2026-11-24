@@ -28,7 +28,7 @@ export function PricingPage({ content: c = pricingContent, className }: PricingP
           </div>
         </OfferBlock>
         <section className={cn(WRAP, 'grid grid-cols-3 gap-12 py-24 max-md:grid-cols-1 max-md:gap-8 max-sm:py-16')}>
-          <h2 className="type-heading-1 max-sm:type-heading-2">{c.faq.title}</h2>
+          <h2 className="type-section">{c.faq.title}</h2>
           <dl className="col-span-2 m-0 grid max-md:col-span-1">
             {c.faq.items.map((i) => (
               <div key={i.q} className="grid gap-2 border-t border-edge py-6">

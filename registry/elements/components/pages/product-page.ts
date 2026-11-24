@@ -20,7 +20,7 @@ import styles from 'virtual:tw'
 const WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'
 
 const split = (headline: string, body: string | undefined, reverse: boolean, media: TemplateResult) =>
-	html`<section class=${`${WRAP} grid grid-cols-2 items-center gap-12 py-24 max-md:grid-cols-1 max-sm:gap-8 max-sm:py-16`}><div class=${reverse ? 'grid gap-6 md:order-last' : 'grid gap-6'}><h2 class="type-heading-1 text-balance max-sm:type-heading-2">${headline}</h2>${body ? html`<p class="type-body-lg text-fg-soft">${body}</p>` : nothing}</div><div class="min-w-0">${media}</div></section>`
+	html`<section class=${`${WRAP} grid grid-cols-2 items-center gap-12 py-24 max-md:grid-cols-1 max-sm:gap-8 max-sm:py-16`}><div class=${reverse ? 'grid gap-6 md:order-last' : 'grid gap-6'}><h2 class="type-section">${headline}</h2>${body ? html`<p class="type-body-lg text-fg-soft">${body}</p>` : nothing}</div><div class="min-w-0">${media}</div></section>`
 
 /**
  * @summary The product page template.

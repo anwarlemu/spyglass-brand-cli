@@ -3,7 +3,7 @@ name: input
 title: Input
 type: registry:ui
 group: ui
-description: "A text field on Black: a #363636 hairline that turns White on focus, DM Sans, a #A3A3A3 placeholder and the brand corner. Sizes match the button's."
+description: "A text field on Black: a #666666 hairline that turns White on focus, DM Sans, a #A3A3A3 placeholder and the brand corner. Sizes match the button's."
 use_for: "Free text in forms and filters: an email, a brand or creator to track, a board name. Label every field (a visible label, or aria-label)."
 never:
   - "A placeholder as the only label"

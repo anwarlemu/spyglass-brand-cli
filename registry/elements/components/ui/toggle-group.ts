@@ -2,8 +2,9 @@ import { html } from 'lit'
 import { DsElement, define, HostLayoutController } from '@/elements/lib/element'
 import styles from 'virtual:tw'
 
-// ToggleGroup.tsx as <spyglass-toggle-group>: buttons that stay pressed, side by side on one track: a #363636 hairline
-// on Black with the brand corner, each pressed one a White block with Black text, the rest soft gray. sm (32px) or md
+// ToggleGroup.tsx as <spyglass-toggle-group>: buttons that stay pressed, side by side on one track: the site's
+// segmented control, a #1A1A1A tray in a #262626 ring, each pressed one a #363636 segment with White text, the rest soft
+// gray. sm (32px) or md
 // (40px) tall in all. `multiple` lets several stay on (the value is an array); otherwise one at most, and pressing it
 // again lets it go. `options` is a JSON attribute or a property; the value is `value` (a string, a JSON array with
 // `multiple`, or null) with `input` and `change`.
@@ -49,8 +50,8 @@ export class ToggleGroup extends DsElement {
 
 	render() {
 		const item = ITEM[this.size] ?? ITEM.md
-		const classes = `inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-ds-sm whitespace-nowrap type-ui-strong text-fg-soft select-none transition-[background-color,color,scale] duration-150 ease-out active:not-disabled:scale-97 motion-reduce:active:not-disabled:scale-100 not-aria-pressed:hover:not-disabled:text-fg aria-pressed:bg-action-primary aria-pressed:text-action-primary-fg disabled:cursor-not-allowed disabled:text-action-disabled-fg ${item}`
-		return html`<div data-ds="toggle-group" role="group" aria-label=${this.label} class="inline-flex max-w-full rounded-control border border-edge-strong bg-surface"><div class="flex min-w-0 items-center gap-1 overflow-x-auto p-1 fade-x">${this.options.map(norm).map((o) => html`<button type="button" aria-pressed=${String(this.on(o.value))} ?disabled=${o.disabled} class=${classes} @click=${() => this.press(o.value)}>${o.label}</button>`)}</div></div>`
+		const classes = `inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-ds-sm whitespace-nowrap type-ui-strong text-fg-soft select-none transition-[background-color,color] duration-160 ease-out not-aria-pressed:hover:not-disabled:text-fg aria-pressed:bg-surface-inset aria-pressed:text-fg disabled:cursor-not-allowed disabled:text-action-disabled-fg ${item}`
+		return html`<div data-ds="toggle-group" role="group" aria-label=${this.label} class="inline-flex max-w-full rounded-control bg-surface-subtle shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-neutral-4)]"><div class="flex min-w-0 items-center gap-1 overflow-x-auto p-1 fade-x">${this.options.map(norm).map((o) => html`<button type="button" aria-pressed=${String(this.on(o.value))} ?disabled=${o.disabled} class=${classes} @click=${() => this.press(o.value)}>${o.label}</button>`)}</div></div>`
 	}
 }
 

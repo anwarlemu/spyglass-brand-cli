@@ -44,7 +44,7 @@ export class Item extends DsElement {
 		const classes = ['group/item flex min-w-0 items-center', VARIANTS[this.variant] ?? VARIANTS.default, SIZES[this.size] ?? SIZES.default].join(' ')
 		const body = html`${this.hasSlot('media') ? html`<span class="flex shrink-0 items-center justify-center text-fg-soft"><slot name="media"></slot></span>` : nothing}<span class="flex min-w-0 flex-1 flex-col gap-1"><span class="truncate type-ui-strong text-fg"><slot></slot>${this.hasSlot() ? nothing : this.heading}</span>${this.description ? html`<span class="line-clamp-2 type-ui text-fg-muted">${this.description}</span>` : nothing}</span>`
 		if (this.href) {
-			return html`<a data-ds="item" href=${this.href} class=${`${classes} cursor-pointer rounded-container transition-[background-color] duration-150 ease-standard hover:bg-action-ghost-hover`}>${body}${this.arrow ? icon(ChevronRight, 'chevron-right', { size: 16, strokeWidth: 1.5, class: 'shrink-0 text-fg-muted transition-[color] duration-150 ease-standard group-hover/item:text-fg', attrs: { 'aria-hidden': 'true' } }) : nothing}</a>`
+			return html`<a data-ds="item" href=${this.href} class=${`${classes} cursor-pointer rounded-container transition-[background-color] duration-160 ease-standard hover:bg-action-ghost-hover`}>${body}${this.arrow ? icon(ChevronRight, 'chevron-right', { size: 16, strokeWidth: 1.5, class: 'shrink-0 text-fg-muted transition-[color] duration-160 ease-standard group-hover/item:text-fg', attrs: { 'aria-hidden': 'true' } }) : nothing}</a>`
 		}
 		return html`<div data-ds="item" class=${classes}>${body}${this.hasSlot('actions') ? html`<span class="flex shrink-0 items-center gap-2"><slot name="actions"></slot></span>` : nothing}</div>`
 	}

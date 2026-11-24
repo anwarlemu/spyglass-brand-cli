@@ -3,7 +3,7 @@ name: pricing-table-block
 title: Pricing table block
 type: registry:block
 group: blocks
-description: "Plans side by side: an optional centered heading and line over plan cards on the #171717 fill, each the same width, centered as a row; one plan sits alone in the middle."
+description: "Plans side by side: an optional centered heading and line over plan cards on the #262626 fill, each the same width, centered as a row; one plan sits alone in the middle."
 use_for: "A pricing section with one to three plans, each stated exactly as sold."
 never:
   - "A price or feature the plan does not state"

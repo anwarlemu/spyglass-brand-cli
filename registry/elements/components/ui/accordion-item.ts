@@ -32,10 +32,10 @@ export class AccordionItem extends DsElement {
 		const open = ctx?.isOpen(this.value) ?? false
 		return html`<div data-ds="accordion-item" class="border-b border-edge" data-open=${String(open)}>
 			<h3>
-				<button id=${`${this.rowId}-head`} type="button" aria-expanded=${String(open)} aria-controls=${`${this.rowId}-body`} ?disabled=${this.disabled} class="flex w-full cursor-pointer items-center justify-between gap-4 py-4 text-left type-body text-fg-soft transition-[color] duration-150 ease-standard hover:text-fg aria-expanded:text-fg disabled:cursor-not-allowed disabled:text-fg-faint" @click=${() => ctx?.toggle(this.value)}><slot name="title">${this.heading}</slot>${icon(ChevronDown, 'chevron-down', { size: 16, strokeWidth: 1.5, class: 'ds-accordion-chev shrink-0 text-fg-muted', attrs: { 'aria-hidden': 'true' } })}</button>
+				<button id=${`${this.rowId}-head`} type="button" aria-expanded=${String(open)} aria-controls=${`${this.rowId}-body`} ?disabled=${this.disabled} class="flex min-h-control-lg w-full cursor-pointer items-center justify-between gap-6 py-5 text-left type-body text-fg-soft transition-[color] duration-160 ease-standard hover:text-fg aria-expanded:text-fg disabled:cursor-not-allowed disabled:text-fg-faint" @click=${() => ctx?.toggle(this.value)}><slot name="title">${this.heading}</slot>${icon(ChevronDown, 'chevron-down', { size: 16, strokeWidth: 1.5, class: 'ds-accordion-chev shrink-0 text-fg-muted', attrs: { 'aria-hidden': 'true' } })}</button>
 			</h3>
 			<div id=${`${this.rowId}-body`} role="region" aria-labelledby=${`${this.rowId}-head`} ?inert=${!open} class="ds-collapse" data-open=${String(open)}>
-				<div><div class="ds-collapse-body pb-4 type-ui text-fg-muted"><slot></slot></div></div>
+				<div><div class="ds-collapse-body max-w-measure pb-6 type-body text-fg-soft"><slot></slot></div></div>
 			</div>
 		</div>`
 	}

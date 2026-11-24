@@ -12,7 +12,7 @@ import styles from 'virtual:tw'
 // DataTable.tsx as <spyglass-data-table>: a table people filter, sort and page through. Over it, a dropdown per filter
 // (radio rows, the trigger saying what is picked) and a way to clear them; heads in DM Sans Medium capitals, muted,
 // that sort when they can (aria-sort; the arrow shows the order, a faint pair where it could); 40px rows on hairlines
-// that take the #171717 fill under the pointer; numbers right-aligned in tabular figures; the whole in a hairline box
+// that take the #262626 fill under the pointer; numbers right-aligned in tabular figures; the whole in a hairline box
 // with the 8px corner that scrolls sideways on its own. Under it, where the page is and Previous and Next. Filters and
 // sort go back to the first page. Cells render the value (numbers in en-US), or what `cells[key]({ row, value })`
 // returns (a node or text: React's `cell`). Nothing matching shows one line with a way to clear the filters, or the
@@ -24,8 +24,8 @@ export type DataRow = Record<string, unknown>
 export type DataCell = (slot: { row: DataRow, value: unknown }) => unknown
 
 const display = (v: unknown) => (typeof v === 'number' ? v.toLocaleString('en-US') : String(v ?? ''))
-const FILTER = 'inline-flex h-control-sm cursor-pointer items-center gap-1.5 rounded-control border border-edge-strong bg-surface px-3 type-ui text-fg transition-[border-color] duration-150 ease-standard hover:border-action-secondary-edge-hover aria-expanded:border-edge-focus max-md:h-control-touch'
-const SORT = '-mx-1 inline-flex cursor-pointer items-center gap-1 rounded-ds-sm px-1 align-middle uppercase transition-[color] duration-150 ease-standard hover:text-fg'
+const FILTER = 'inline-flex h-control-sm cursor-pointer items-center gap-1.5 rounded-control border border-edge-strong bg-surface-subtle px-3 type-ui text-fg transition-[border-color] duration-160 ease-standard hover:border-action-secondary-edge-hover aria-expanded:border-edge-focus max-md:h-control-touch'
+const SORT = '-mx-1 inline-flex cursor-pointer items-center gap-1 rounded-ds-sm px-1 align-middle uppercase transition-[color] duration-160 ease-standard hover:text-fg'
 
 /**
  * @summary A table people filter, sort and page through.
@@ -108,7 +108,7 @@ export class DataTable extends DsElement {
 			: nothing
 		return html`<div data-ds="data-table" class="flex min-w-0 flex-col gap-3">${filterBar}<div class="overflow-hidden rounded-container border border-edge"><div class="overflow-x-auto -outline-offset-2 fade-x" role="region" aria-label=${this.label} tabindex="0"><table class="w-full border-collapse type-ui">
 			<thead><tr>${columns.map((c) => html`<th scope="col" class=${['h-10 border-b border-edge px-3 align-middle type-label whitespace-nowrap text-fg-muted', c.align === 'right' ? 'text-right' : 'text-left'].join(' ')} aria-sort=${ifDefined(sort?.key === c.key ? sort.dir : c.sortable ? 'none' : undefined)}>${c.sortable ? html`<button type="button" class=${[SORT, c.align === 'right' ? 'flex-row-reverse' : ''].filter(Boolean).join(' ')} @click=${() => this.toggleSort(c.key)}>${c.label}${arrow(c)}</button>` : c.label}</th>`)}</tr></thead>
-			<tbody>${repeat(visible, (r) => String(r[this.rowKey]), (r) => html`<tr class="transition-[background-color] duration-150 ease-standard hover:bg-surface-raised">${columns.map((c) => html`<td class=${['h-row border-b border-edge px-3 py-1 whitespace-nowrap [tr:last-child>&]:border-b-0', c.align === 'right' ? 'text-right tabular-nums' : '', c.muted ? 'text-fg-muted' : ''].filter(Boolean).join(' ')}>${this.cells?.[c.key] ? this.cells[c.key]!({ row: r, value: r[c.key] }) : display(r[c.key])}</td>`)}</tr>`)}${!visible.length ? html`<tr><td colspan=${columns.length} class="px-3 py-6 text-center text-fg-muted"><slot name="empty">Nothing matches these filters. <button type="button" class="cursor-pointer font-medium text-fg underline-offset-4 hover:underline" @click=${() => this.pick({})}>Clear filters</button></slot></td></tr>` : nothing}</tbody>
+			<tbody>${repeat(visible, (r) => String(r[this.rowKey]), (r) => html`<tr class="transition-[background-color] duration-160 ease-standard hover:bg-surface-raised">${columns.map((c) => html`<td class=${['h-row border-b border-edge px-3 py-1 whitespace-nowrap [tr:last-child>&]:border-b-0', c.align === 'right' ? 'text-right tabular-nums' : '', c.muted ? 'text-fg-muted' : ''].filter(Boolean).join(' ')}>${this.cells?.[c.key] ? this.cells[c.key]!({ row: r, value: r[c.key] }) : display(r[c.key])}</td>`)}</tr>`)}${!visible.length ? html`<tr><td colspan=${columns.length} class="px-3 py-6 text-center text-fg-muted"><slot name="empty">Nothing matches these filters. <button type="button" class="cursor-pointer font-medium text-fg underline-offset-4 hover:underline" @click=${() => this.pick({})}>Clear filters</button></slot></td></tr>` : nothing}</tbody>
 		</table></div></div>${sorted.length > size ? html`<div class="flex items-center justify-between gap-3"><span class="type-caption text-fg-muted tabular-nums" aria-live="polite">${`${at * size + 1} to ${at * size + visible.length} of ${sorted.length}`}</span><div class="flex gap-2"><spyglass-button variant="secondary" size="sm" ?disabled=${at === 0} @click=${() => { this.page = at - 1 }}>Previous</spyglass-button><spyglass-button variant="secondary" size="sm" ?disabled=${at >= pages - 1} @click=${() => { this.page = at + 1 }}>Next</spyglass-button></div></div>` : nothing}</div>`
 	}
 }

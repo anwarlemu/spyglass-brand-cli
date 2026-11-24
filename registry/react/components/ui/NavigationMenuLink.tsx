@@ -14,7 +14,7 @@ export interface NavigationMenuLinkProps extends Omit<AnchorHTMLAttributes<HTMLA
 
 export function NavigationMenuLink({ href, title, description, className, ...rest }: NavigationMenuLinkProps) {
   return (
-    <a data-ds="navigation-menu-link" href={href} className={cn('flex flex-col gap-1 rounded-ds-sm p-3 -outline-offset-2 transition-[background-color] duration-150 ease-standard hover:bg-action-secondary focus-visible:bg-action-secondary', className)} {...rest}>
+    <a data-ds="navigation-menu-link" href={href} className={cn('flex flex-col gap-1 rounded-ds-sm p-3 -outline-offset-2 transition-[background-color] duration-160 ease-standard hover:bg-action-secondary focus-visible:bg-action-secondary', className)} {...rest}>
       <span className="type-ui-strong text-fg">{title}</span>
       {description && <span className="type-caption text-fg-muted">{description}</span>}
     </a>

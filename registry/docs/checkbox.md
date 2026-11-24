@@ -3,7 +3,7 @@ name: checkbox
 title: Checkbox
 type: registry:ui
 group: ui
-description: "A yes or no that is part of a form: a 16px box in a #363636 hairline on Black that fills White with a Black check, a bar for a group partly on, and a DM Sans label beside it. Form-associated."
+description: "A yes or no that is part of a form: a 16px box in a #666666 hairline on Black that fills White with a Black check, a bar for a group partly on, and a DM Sans label beside it. Form-associated."
 use_for: "Filters a person combines, consent in a form, picking rows. A setting that takes effect at once is a switch."
 never:
   - "A spectrum color for the checked box"

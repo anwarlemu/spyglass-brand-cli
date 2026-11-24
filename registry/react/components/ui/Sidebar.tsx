@@ -39,7 +39,7 @@ export function Sidebar({ label = 'Main', head, foot, collapsible, collapsed: gi
         <div className={cn('flex h-14 shrink-0 items-center gap-2 border-b border-edge px-3', collapsed ? 'justify-center' : 'justify-between')}>
           {head && !collapsed && <div className="flex min-w-0 flex-1 items-center pl-1">{head}</div>}
           {collapsible && (
-            <button type="button" className="inline-flex size-control-md shrink-0 cursor-pointer items-center justify-center rounded-control text-fg-muted transition-[background-color,color] duration-150 ease-standard hover:bg-action-ghost-hover hover:text-fg" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} aria-expanded={!collapsed} onClick={() => setCollapsed(!collapsed)}>
+            <button type="button" className="inline-flex size-control-md shrink-0 cursor-pointer items-center justify-center rounded-control text-fg-muted transition-[background-color,color] duration-160 ease-standard hover:bg-action-ghost-hover hover:text-fg" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} aria-expanded={!collapsed} onClick={() => setCollapsed(!collapsed)}>
               <Icon size={16} strokeWidth={1.5} aria-hidden="true" />
             </button>
           )}

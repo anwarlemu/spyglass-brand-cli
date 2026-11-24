@@ -4,10 +4,10 @@ import { DsElement, define } from '@/elements/lib/element'
 import { type LineSeries, PLOT, compactNumber, lineLayout } from '@/lib/chart'
 import styles from 'virtual:tw'
 
-// LineChart.tsx as <spyglass-line-chart>: lines over time: one axis from 0 on #262626 hairlines, 2px lines in the
+// LineChart.tsx as <spyglass-line-chart>: lines over time: one axis from 0 on #363636 hairlines, 2px lines in the
 // brand's series order (White, #A3A3A3, #4D4D4D dashed, then the spectrum: Magenta, Red, Orange, Yellow, Green, Cyan,
 // Blue), the first series shading the area under it, a legend when there is more than one, and a crosshair with the
-// values under the pointer on the #171717 overlay panel. Ten series at most. On a #171717 card by default; `bare`
+// values under the pointer on the #262626 overlay panel. Ten series at most. On a #262626 card by default; `bare`
 // drops the card. React's `title` is `heading`; `series`, `format`, `formatAxis` and `formatTime` are properties.
 export type { LineSeries }
 

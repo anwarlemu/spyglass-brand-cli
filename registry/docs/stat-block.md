@@ -3,7 +3,7 @@ name: stat-block
 title: Stat block
 type: registry:block
 group: blocks
-description: "Numbers that say what the product does: Funnel Display figures over a line of DM Sans each, under a hairline or on the #171717 fill, four across."
+description: "Numbers that say what the product does: Funnel Display figures over a line of DM Sans each, under a hairline or on the #262626 fill, four across."
 use_for: "A section of facts on a home, product or about page. Every figure is true and checkable."
 never:
   - "Invented, rounded-up or unsourced numbers"

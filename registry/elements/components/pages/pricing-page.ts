@@ -26,7 +26,7 @@ export class PricingPage extends DsElement {
 <div class=${WRAP}><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header></div>
 <main>
 <spyglass-offer-block headline=${c.offer.headline} light="field" seed="0"><div class="flex w-full flex-wrap justify-center gap-4">${c.plans.map((p) => html`<spyglass-plan-card heading=${p.title} price=${p.price} .features=${p.features} cta=${p.cta} href=${p.href} class="w-150 max-w-full text-left"></spyglass-plan-card>`)}</div></spyglass-offer-block>
-<section class=${`${WRAP} grid grid-cols-3 gap-12 py-24 max-md:grid-cols-1 max-md:gap-8 max-sm:py-16`}><h2 class="type-heading-1 max-sm:type-heading-2">${c.faq.title}</h2><dl class="col-span-2 m-0 grid max-md:col-span-1">${c.faq.items.map((i) => html`<div class="grid gap-2 border-t border-edge py-6"><dt class="type-heading-4">${i.q}</dt><dd class="m-0 type-body text-fg-soft">${i.a}</dd></div>`)}</dl></section>
+<section class=${`${WRAP} grid grid-cols-3 gap-12 py-24 max-md:grid-cols-1 max-md:gap-8 max-sm:py-16`}><h2 class="type-section">${c.faq.title}</h2><dl class="col-span-2 m-0 grid max-md:col-span-1">${c.faq.items.map((i) => html`<div class="grid gap-2 border-t border-edge py-6"><dt class="type-heading-4">${i.q}</dt><dd class="m-0 type-body text-fg-soft">${i.a}</dd></div>`)}</dl></section>
 </main>
 <footer class="border-t border-edge"><div class=${`${WRAP} py-10`}><spyglass-footer-row domain=${c.footer.domain} home-href="/" .links=${c.footer.links}></spyglass-footer-row></div></footer>
 </div>`

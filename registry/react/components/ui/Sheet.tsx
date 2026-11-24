@@ -5,10 +5,10 @@ import { useControllable } from '@/react/hooks/useControllable'
 import { firstFocusable } from '@/react/hooks/usePopover'
 
 // A panel at an edge of the screen over the page, for details, filters or settings beside what someone is doing: the
-// card's #171717 fill with a #363636 hairline on its inner edge, no shadow. 384px wide at the right (the default) or
+// card's #262626 fill with a #666666 hairline on its inner edge, no shadow. 384px wide at the right (the default) or
 // left, the screen on a phone; full width at the top or bottom. A Funnel Display title and a muted line, a close
 // button, the body scrolling on its own, and buttons at the foot. It is modal: the page dims under the scrim and stays
-// inert, focus stays inside. It slides in from its edge over 300ms on the drawer curve and leaves in 200ms; Escape
+// inert, focus stays inside. It slides in from its edge over 360ms on the drawer curve and leaves in 240ms; Escape
 // closes it at once; focus returns to what opened it. Reduced motion fades it instead. `open` with `onOpenChange`.
 export type SheetSide = 'right' | 'left' | 'top' | 'bottom'
 
@@ -41,7 +41,7 @@ export function Sheet({ title, description, side = 'right', open: given, default
           <h2 className="type-heading-4 text-fg">{title}</h2>
           {description && <p className="type-ui text-fg-muted">{description}</p>}
         </div>
-        <button type="button" className="-mt-1.5 -mr-2 inline-flex size-control-sm shrink-0 cursor-pointer items-center justify-center rounded-control text-fg-muted transition-[background-color,color] duration-150 ease-standard hover:bg-action-ghost-hover hover:text-fg max-md:size-control-touch" aria-label="Close" onClick={() => setOpen(false)}><X size={16} strokeWidth={1.5} aria-hidden="true" /></button>
+        <button type="button" className="-mt-1.5 -mr-2 inline-flex size-control-sm shrink-0 cursor-pointer items-center justify-center rounded-control text-fg-muted transition-[background-color,color] duration-160 ease-standard hover:bg-action-ghost-hover hover:text-fg max-md:size-control-touch" aria-label="Close" onClick={() => setOpen(false)}><X size={16} strokeWidth={1.5} aria-hidden="true" /></button>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-6 fade-y" data-sheet-body="">
         {children}

@@ -3,7 +3,7 @@ name: textarea
 title: Textarea
 type: registry:ui
 group: ui
-description: "Several lines of text, drawn as the input is: a #363636 hairline on Black that turns White on focus, DM Sans, the brand corner. It grows by hand downward."
+description: "Several lines of text, drawn as the input is: a #666666 hairline on Black that turns White on focus, DM Sans, the brand corner. It grows by hand downward."
 use_for: "Text longer than a line: a board brief, a note on a creative, feedback. Label it, and say under it what the text is for."
 never:
   - "A question to search: use the search bar"

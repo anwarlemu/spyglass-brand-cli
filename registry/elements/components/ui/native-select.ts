@@ -5,7 +5,7 @@ import { DsFormElement, define } from '@/elements/lib/element'
 import { icon } from '@/elements/lib/icon'
 import styles from 'virtual:tw'
 
-// NativeSelect.tsx as <spyglass-native-select>: the browser's own select, drawn as the input is: a #363636 hairline on
+// NativeSelect.tsx as <spyglass-native-select>: the browser's own select, drawn as the input is: a #666666 hairline on
 // Black that turns White on focus, DM Sans at 14px (16px on phones), the brand corner and its own 16px chevron in the
 // muted gray. Sizes sm, md and lg. Options go inside as <option>s: a <select> takes only its own children, so the
 // element draws a copy of them in its shadow root and follows changes to them. The host is the box (React's wrapper
@@ -91,7 +91,7 @@ export class NativeSelect extends DsFormElement {
 	render() {
 		const size = SIZES[this.size] ? this.size : 'md'
 		const options = [...this.querySelectorAll('option')]
-		const classes = ['w-full min-w-0 cursor-pointer appearance-none rounded-control border border-edge-strong bg-surface type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', SIZES[size]].join(' ')
+		const classes = ['w-full min-w-0 cursor-pointer appearance-none rounded-control border border-edge-strong bg-surface-subtle type-ui text-fg outline-none transition-[border-color] duration-160 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', SIZES[size]].join(' ')
 		return html`<select name=${ifDefined(this.name)} ?disabled=${this.inactive} ?required=${this.required} aria-invalid=${ifDefined(this.invalid ? 'true' : undefined)} aria-label=${ifDefined(this.label)} aria-description=${ifDefined(this.description)} class=${classes} @input=${this.onInput} @change=${this.onChange}>${options.map((o) => html`<option value=${o.value} ?disabled=${o.disabled}>${o.text}</option>`)}</select>${icon(ChevronDown, 'chevron-down', { size: 16, strokeWidth: 1.5, class: `pointer-events-none absolute text-fg-muted ${CHEVRON[size]}`, attrs: { 'aria-hidden': 'true' } })}`
 	}
 }

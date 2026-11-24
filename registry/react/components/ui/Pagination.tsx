@@ -4,7 +4,7 @@ import { useControllable } from '@/react/hooks/useControllable'
 import { cn } from '@/react/lib/cn'
 
 // Pages of a long list: Previous and Next around the page numbers, 32px ghost buttons in DM Sans 14px that fill under
-// the pointer. The current page sits in a #363636 hairline box in White, the others muted; the first and last pages
+// the pointer. The current page sits in a #666666 hairline box in White, the others muted; the first and last pages
 // always show, `siblings` pages either side of the current one, and an ellipsis for the rest. On phones Previous and
 // Next keep only their chevrons. The page is `page` with `onPageChange` (or `defaultPage` alone), from 1.
 export interface PaginationProps {
@@ -34,7 +34,7 @@ export function pageRange(page: number, pages: number, siblings = 1): (number | 
   return out
 }
 
-const BASE = 'inline-flex h-control-sm min-w-control-sm cursor-pointer items-center justify-center gap-1.5 rounded-control px-2 type-ui whitespace-nowrap select-none transition-[background-color,color,scale] duration-150 ease-out active:not-disabled:scale-97 motion-reduce:active:not-disabled:scale-100 disabled:cursor-not-allowed disabled:text-fg-faint'
+const BASE = 'inline-flex h-control-sm min-w-control-sm cursor-pointer items-center justify-center gap-1.5 rounded-control px-2 type-ui whitespace-nowrap select-none transition-[background-color,color] duration-160 ease-out disabled:cursor-not-allowed disabled:text-fg-faint'
 const IDLE = 'text-fg-muted hover:not-disabled:bg-action-ghost-hover hover:not-disabled:text-fg'
 const CURRENT = 'border border-edge-strong text-fg'
 

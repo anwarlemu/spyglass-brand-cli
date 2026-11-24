@@ -4,7 +4,7 @@ import { ChevronDown } from 'lucide-react'
 import { useControllable } from '@/react/hooks/useControllable'
 
 // shadcn's collapsible in the brand: a part that opens in place and pushes what follows. The part grows to its
-// content's height over 250ms on the strong ease-out and closes in 150ms; the content fades and settles 4px down; the
+// content's height over 320ms on the strong ease-out and closes in 160ms; the content fades and settles 4px down; the
 // muted chevron turns half a circle. Toggled from the keyboard it opens at once. The trigger's content is `trigger` (a
 // node, or a function of `open`), drawn as a quiet DM Sans Medium row unless `triggerClass` says otherwise; it is a
 // real button with aria-expanded and aria-controls. `open` with `onOpenChange` (or `defaultOpen` alone).
@@ -52,8 +52,8 @@ export function Collapsible({ triggerClass, trigger, open: openProp, defaultOpen
 export default Collapsible
 
 const css = `
-/* The part opens to its content's height (0fr to 1fr) over 250ms and closes in 150ms, on the strong ease-out; the
-   content fades and settles 4px down. The chevron turns half a circle (250ms, ease-in-out). Toggled from the keyboard
+/* The part opens to its content's height (0fr to 1fr) over 320ms and closes in 160ms, on the strong ease-out; the
+   content fades and settles 4px down. The chevron turns half a circle (320ms, ease-in-out). Toggled from the keyboard
    it opens at once. Reduced motion: no height, move or turn, opacity only. */
 .ds-collapsible-region { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--ds-duration-exit) var(--ds-easing-out); }
 .ds-collapsible[data-open] > .ds-collapsible-region { grid-template-rows: 1fr; transition-duration: var(--ds-duration-glide); }

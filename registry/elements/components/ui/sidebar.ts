@@ -41,7 +41,7 @@ export class Sidebar extends DsElement {
 			${head || this.collapsible
 				? html`<div class=${`flex h-14 shrink-0 items-center gap-2 border-b border-edge px-3 ${this.collapsed ? 'justify-center' : 'justify-between'}`}>
 					${head && !this.collapsed ? html`<div class="flex min-w-0 flex-1 items-center pl-1"><slot name="head"></slot></div>` : nothing}
-					${this.collapsible ? html`<button type="button" class="inline-flex size-control-md shrink-0 cursor-pointer items-center justify-center rounded-control text-fg-muted transition-[background-color,color] duration-150 ease-standard hover:bg-action-ghost-hover hover:text-fg" aria-label=${this.collapsed ? 'Expand sidebar' : 'Collapse sidebar'} aria-expanded=${String(!this.collapsed)} @click=${() => this.commit(!this.collapsed, 'collapsed')}>${icon(Icon, this.collapsed ? 'panel-left-open' : 'panel-left-close', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } })}</button>` : nothing}
+					${this.collapsible ? html`<button type="button" class="inline-flex size-control-md shrink-0 cursor-pointer items-center justify-center rounded-control text-fg-muted transition-[background-color,color] duration-160 ease-standard hover:bg-action-ghost-hover hover:text-fg" aria-label=${this.collapsed ? 'Expand sidebar' : 'Collapse sidebar'} aria-expanded=${String(!this.collapsed)} @click=${() => this.commit(!this.collapsed, 'collapsed')}>${icon(Icon, this.collapsed ? 'panel-left-open' : 'panel-left-close', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } })}</button>` : nothing}
 				</div>`
 				: nothing}
 			<div class="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto p-3 fade-y"><slot></slot></div>

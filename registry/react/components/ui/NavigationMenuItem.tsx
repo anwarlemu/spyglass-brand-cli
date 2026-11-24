@@ -21,9 +21,9 @@ export interface NavigationMenuItemProps {
   children?: ReactNode
 }
 
-const WAIT = 150
-const GRACE = 150
-const ROW = 'inline-flex h-control-md cursor-pointer items-center gap-1.5 rounded-control px-4 type-ui-strong -outline-offset-2 transition-[background-color,color] duration-150 ease-standard max-md:h-control-touch'
+const WAIT = 80 // the site's menu intent (--dur-menu-intent)
+const GRACE = 240 // the site's menu grace (--dur-menu-grace)
+const ROW = 'inline-flex h-control-md cursor-pointer items-center gap-1.5 rounded-control px-4 type-ui-strong -outline-offset-2 transition-[background-color,color] duration-160 ease-standard max-md:h-control-touch'
 
 export function NavigationMenuItem({ label, href, active, width = '400px', children }: NavigationMenuItemProps) {
   const nav = useContext(NavigationMenuContext)!

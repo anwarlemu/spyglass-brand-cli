@@ -5,8 +5,8 @@ import { PopoverPanel } from '@/react/components/ui/PopoverPanel'
 import { usePopover, type Align, type Side } from '@/react/hooks/usePopover'
 import { useControllable } from '@/react/hooks/useControllable'
 
-// shadcn's combobox in the brand: a field-like trigger (the input's #363636 hairline, White on focus, the brand
-// corner) that opens a list to pick one option from, with a filter over it, on the #171717 overlay panel. Rows are the
+// shadcn's combobox in the brand: a field-like trigger (the input's #666666 hairline, White on focus, the brand
+// corner) that opens a list to pick one option from, with a filter over it, on the #262626 overlay panel. Rows are the
 // menus' rows: 32px, DM Sans 14px, a 4px corner and a #262626 fill on the row the arrows or the pointer are on (the
 // highlight follows both, so hover draws nothing of its own), the pick checked at the end. The filter sits at the top
 // over a neutral hairline; `filter: 'auto'` shows it past six options, and `false` makes it a plain listbox. `pinned`
@@ -152,7 +152,7 @@ export function Combobox(props: ComboboxProps) {
         {...attrs}
         ref={(el) => { pop.anchor.current = el }}
         type="button"
-        className={triggerClass ?? 'group inline-flex h-control-md w-full min-w-0 cursor-pointer items-center gap-2 rounded-control border border-edge-strong bg-surface px-3 text-left type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-expanded:border-edge-focus disabled:cursor-not-allowed disabled:text-fg-faint max-md:h-control-touch max-md:text-input pointer-coarse:h-control-touch'}
+        className={triggerClass ?? 'group inline-flex h-control-md w-full min-w-0 cursor-pointer items-center gap-2 rounded-control border border-edge-strong bg-surface-subtle px-3 text-left type-ui text-fg outline-none transition-[border-color] duration-160 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-expanded:border-edge-focus disabled:cursor-not-allowed disabled:text-fg-faint max-md:h-control-touch max-md:text-input pointer-coarse:h-control-touch'}
         aria-haspopup="listbox"
         aria-expanded={pop.open}
         aria-controls={pop.open ? `${id}-list` : undefined}
@@ -208,7 +208,7 @@ export function Combobox(props: ComboboxProps) {
               <div
                 id={optionId(i)}
                 role="option"
-                className="flex h-control-sm shrink-0 cursor-pointer items-center gap-2 rounded-ds-sm px-2 type-ui text-fg transition-[background-color] duration-150 ease-standard data-active:bg-ds-neutral-4 aria-disabled:cursor-not-allowed aria-disabled:text-fg-faint max-md:h-auto max-md:min-h-control-touch"
+                className="flex h-control-sm shrink-0 cursor-pointer items-center gap-2 rounded-ds-sm px-2 type-ui text-fg transition-[background-color] duration-160 ease-standard data-active:bg-ds-neutral-4 aria-disabled:cursor-not-allowed aria-disabled:text-fg-faint max-md:h-auto max-md:min-h-control-touch"
                 aria-selected={o.value === model}
                 aria-disabled={o.disabled || undefined}
                 data-active={i === active || undefined}

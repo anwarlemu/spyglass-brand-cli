@@ -1,6 +1,6 @@
 'use client'
 import { Carousel } from '@/react/components/ui/Carousel'
-// One quote at a time from Acme's team, on the #171717 card.
+// One quote at a time from Acme's team, on the #262626 card.
 const quotes = [
   'We found the hook our competitors ran for 90 days in one search.',
   'Every brief starts with a board now. The team agrees faster.',

@@ -10,7 +10,7 @@ import styles from 'virtual:tw'
 
 // DatePicker.tsx as <spyglass-date-picker>: a button drawn as the text field (40px, the 8px corner, a #363636
 // hairline that turns White while it is open or focused, the placeholder muted) that opens a <spyglass-calendar> on
-// the #171717 overlay panel under it, in the top layer. Opening puts focus on the picked day (or today); picking a day
+// the #262626 overlay panel under it, in the top layer. Opening puts focus on the picked day (or today); picking a day
 // closes it and returns focus to the field; Escape closes it unchanged. `value` (a Date, or an ISO date attribute)
 // with `input` and `change`. `min` and `max` are Dates (or ISO date attributes); `disabled` is a function of the day,
 // set as a property. Form-associated: its `name` goes with the form as the day's ISO date (2026-11-13). aria-label
@@ -112,7 +112,7 @@ export class DatePicker extends DsFormElement {
 		return html`<button
 				data-ds="date-picker"
 				type="button"
-				class="flex h-control-md w-full cursor-pointer items-center gap-2 rounded-control border border-edge-strong bg-surface px-3 text-left type-ui text-fg outline-none transition-[border-color] duration-150 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-expanded:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input"
+				class="flex h-control-md w-full cursor-pointer items-center gap-2 rounded-control border border-edge-strong bg-surface-subtle px-3 text-left type-ui text-fg outline-none transition-[border-color] duration-160 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-expanded:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input"
 				?disabled=${this.inactive}
 				aria-haspopup="dialog"
 				aria-expanded=${String(this.pop.open)}

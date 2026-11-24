@@ -15,7 +15,7 @@ export interface BlogPageProps {
 }
 
 const WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'
-const TITLE = 'rounded-control transition-[color] duration-150 ease-standard hover:text-fg-soft'
+const TITLE = 'rounded-control transition-[color] duration-160 ease-standard hover:text-fg-soft'
 
 export function BlogPage({ content: c = blogContent, className }: BlogPageProps) {
   const [first, ...rest] = c.posts
@@ -26,7 +26,7 @@ export function BlogPage({ content: c = blogContent, className }: BlogPageProps)
       </div>
       <main>
         <div className={cn(WRAP, 'grid gap-4 pt-16 pb-12 max-sm:pt-10 max-sm:pb-8')}>
-          <h1 className="type-display max-md:type-hero max-sm:type-heading-1">{c.title}</h1>
+          <h1 className="type-section">{c.title}</h1>
           <p className="max-w-140 type-body-lg text-fg-soft">{c.body}</p>
         </div>
         {first && (
@@ -34,7 +34,7 @@ export function BlogPage({ content: c = blogContent, className }: BlogPageProps)
             <CreativeCard {...first.image} alt={first.title} ratio="7/5" />
             <div className="flex flex-col items-start gap-4">
               <p className="type-label text-fg-muted">{`${first.date} · ${first.category}`}</p>
-              <h2 className="type-heading-1 text-balance max-sm:type-heading-2"><a href={first.href} className={TITLE}>{first.title}</a></h2>
+              <h2 className="type-section"><a href={first.href} className={TITLE}>{first.title}</a></h2>
               <p className="type-body-lg text-fg-soft">{first.excerpt}</p>
               <Button href={first.href} variant="secondary" className="mt-2">{c.read}</Button>
             </div>

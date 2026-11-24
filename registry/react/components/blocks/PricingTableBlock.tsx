@@ -27,7 +27,7 @@ export function PricingTableBlock({ plans, title, body, className }: PricingTabl
     <section data-ds="pricing-table-block" className={cn('flex flex-col gap-12 text-fg max-sm:gap-8', className)}>
       {(title || body) && (
         <div className="mx-auto grid max-w-3xl gap-4 text-center">
-          {title && <h2 className="type-heading-1 text-balance max-sm:type-heading-2">{title}</h2>}
+          {title && <h2 className="type-section">{title}</h2>}
           {body && <p className="type-body-lg text-fg-soft">{body}</p>}
         </div>
       )}

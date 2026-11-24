@@ -4,9 +4,9 @@ import { DsElement, define, uid } from '@/elements/lib/element'
 import { CloseOnSelect, menuRows } from '@/elements/lib/menu'
 import styles from 'virtual:tw'
 
-// DropdownMenu.tsx as <spyglass-dropdown-menu>: a button that opens a short list of actions or choices on the #171717
+// DropdownMenu.tsx as <spyglass-dropdown-menu>: a button that opens a short list of actions or choices on the #262626
 // overlay surface, a neutral hairline, the 8px corner, no shadow, 4px inside; rows are <spyglass-menu-item>, with
-// <spyglass-menu-label> and <spyglass-menu-separator> between groups. It comes in over 200ms (a 4px drop and a touch
+// <spyglass-menu-label> and <spyglass-menu-separator> between groups. It comes in over 240ms (a 4px drop and a touch
 // of scale from the trigger's edge), leaves at once, and does not animate when opened from the keyboard. Arrows, Home,
 // End, Escape, Tab and a click outside are handled. The trigger: a <button slot="trigger"> you style yourself (React's
 // triggerClass), or any other content in the `trigger` slot, drawn as a small secondary button. `open` opens it;
@@ -168,7 +168,7 @@ export class DropdownMenu extends DsElement {
 			: nothing
 		const trigger = own
 			? html`<slot name="trigger"></slot>`
-			: html`<button data-trigger type="button" class="inline-flex h-control-sm cursor-pointer items-center gap-1.5 rounded-control bg-action-secondary px-3 type-ui-strong text-action-secondary-fg transition-[background-color] duration-150 ease-standard hover:bg-action-secondary-hover aria-expanded:bg-action-secondary-hover max-md:h-control-touch" aria-haspopup="menu" aria-expanded=${String(this.open)} aria-label=${this.triggerLabel ?? nothing} @click=${this.toggle} @keydown=${this.onTriggerKey}><slot name="trigger"></slot></button>`
+			: html`<button data-trigger type="button" class="inline-flex h-control-sm cursor-pointer items-center gap-1.5 rounded-control bg-action-secondary px-3 type-ui-strong text-action-secondary-fg transition-[background-color] duration-160 ease-standard hover:bg-action-secondary-hover aria-expanded:bg-action-secondary-hover max-md:h-control-touch" aria-haspopup="menu" aria-expanded=${String(this.open)} aria-label=${this.triggerLabel ?? nothing} @click=${this.toggle} @keydown=${this.onTriggerKey}><slot name="trigger"></slot></button>`
 		return html`${trigger}${panel}`
 	}
 }

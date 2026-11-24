@@ -4,8 +4,8 @@ import { live } from 'lit/directives/live.js'
 import { DsFormElement, define, uid } from '@/elements/lib/element'
 import styles from 'virtual:tw'
 
-// RadioGroup.tsx as <spyglass-radio-group>: one of a few, all in view: 16px circles in the #363636 hairline, the picked
-// one edged in White with a White 8px dot that settles in from 0.6 over 150ms (reduced motion fades it), rows 32px (44px
+// RadioGroup.tsx as <spyglass-radio-group>: one of a few, all in view: 16px circles in the #666666 hairline, the picked
+// one edged in White with a White 8px dot that settles in from 0.6 over 160ms (reduced motion fades it), rows 32px (44px
 // on phones) with a DM Sans label and an optional muted hint. Arrows move the pick, as native radios do. `options` is a
 // JSON attribute or a property; the value is `value` with the native `input` and `change` events. Form-associated: its
 // `name` goes with the form as the picked value.

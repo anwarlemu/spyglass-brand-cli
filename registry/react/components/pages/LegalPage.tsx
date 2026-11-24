@@ -21,14 +21,14 @@ export function LegalPage({ content: c = legalContent, className }: LegalPagePro
       </div>
       <main>
         <div className={cn(WRAP, 'grid gap-4 pt-16 pb-12 max-sm:pt-10 max-sm:pb-8')}>
-          <h1 className="type-display max-md:type-hero max-sm:type-heading-1">{c.title}</h1>
+          <h1 className="type-section">{c.title}</h1>
           <p className="type-label text-fg-muted">{c.updated}</p>
         </div>
         <div className={cn(WRAP, 'grid grid-cols-4 gap-12 pt-12 pb-24 max-md:grid-cols-1 max-md:gap-8 max-sm:pb-16')}>
           <nav aria-label={c.contents} className="self-start md:sticky md:top-8">
             <p className="mb-3 type-label text-fg-faint">{c.contents}</p>
             <ul className="grid gap-2">
-              {c.sections.map((s) => <li key={s.id}><a href={`#${s.id}`} className="rounded-control type-ui text-fg-muted transition-[color] duration-150 ease-standard hover:text-fg">{s.title}</a></li>)}
+              {c.sections.map((s) => <li key={s.id}><a href={`#${s.id}`} className="rounded-control type-ui text-fg-muted transition-[color] duration-160 ease-standard hover:text-fg">{s.title}</a></li>)}
             </ul>
           </nav>
           <div className="col-span-3 grid max-w-180 gap-12 max-md:col-span-1">

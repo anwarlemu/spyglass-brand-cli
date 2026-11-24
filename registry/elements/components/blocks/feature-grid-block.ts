@@ -23,7 +23,7 @@ export class FeatureGridBlock extends DsElement {
 	columns: 2 | 3 = 3
 
 	render() {
-		return html`<section data-ds="feature-grid-block" class="grid gap-10 text-fg max-sm:gap-8">${this.heading || this.body ? html`<div class="grid max-w-3xl gap-4">${this.heading ? html`<h2 class="type-heading-1 text-balance max-sm:type-heading-2">${this.heading}</h2>` : nothing}${this.body ? html`<p class="type-body-lg text-fg-soft">${this.body}</p>` : nothing}</div>` : nothing}<div class=${['grid gap-4 max-md:grid-cols-1', this.columns === 2 ? 'grid-cols-2' : 'grid-cols-3'].join(' ')}>${(this.features ?? []).map((f) => html`<spyglass-card heading=${f.title} description=${f.body}></spyglass-card>`)}</div></section>`
+		return html`<section data-ds="feature-grid-block" class="grid gap-10 text-fg max-sm:gap-8">${this.heading || this.body ? html`<div class="grid max-w-3xl gap-4">${this.heading ? html`<h2 class="type-section">${this.heading}</h2>` : nothing}${this.body ? html`<p class="type-body-lg text-fg-soft">${this.body}</p>` : nothing}</div>` : nothing}<div class=${['grid gap-4 max-md:grid-cols-1', this.columns === 2 ? 'grid-cols-2' : 'grid-cols-3'].join(' ')}>${(this.features ?? []).map((f) => html`<spyglass-card heading=${f.title} description=${f.body}></spyglass-card>`)}</div></section>`
 	}
 }
 

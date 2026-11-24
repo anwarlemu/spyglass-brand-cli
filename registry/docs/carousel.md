@@ -10,7 +10,7 @@ never:
   - "Icons that move when the arrows are hovered"
   - "Dots in spectrum colors: the place reads in figures"
   - "Hiding the only copy of something important on a later slide"
-source: "Derived from the guidelines: creatives on Black with the #171717 card fill, the 10px canvas corner (8px here), DM Sans figures. shadcn's carousel (a region with slide groups and previous and next) for anatomy and ARIA."
+source: "Derived from the guidelines: creatives on Black with the #262626 card fill, the 10px canvas corner (8px here), DM Sans figures. shadcn's carousel (a region with slide groups and previous and next) for anatomy and ARIA."
 files:
   - react/components/ui/Carousel.tsx
 examples:

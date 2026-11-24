@@ -4,7 +4,7 @@ import { DsElement, define, HostLayoutController } from '@/elements/lib/element'
 import '@/elements/components/ui/button'
 import styles from 'virtual:tw'
 
-// PlanCard.tsx as <spyglass-plan-card>: the Creator plan card, the #171717 fill with the brand corner, the plan's name
+// PlanCard.tsx as <spyglass-plan-card>: the site's plan tier, the #262626 fill with the 8px corner, the plan's name
 // (`heading`, React's `title`), the price line, the lines it includes (`features`, a list) and one full-width White
 // button (`cta`, a link with `href`). Pressing the button fires `select`.
 
@@ -29,7 +29,7 @@ export class PlanCard extends DsElement {
 
 	render() {
 		const features = this.features ?? []
-		return html`<div data-ds="plan-card" class="flex flex-col rounded-container bg-surface-raised p-8 text-fg max-sm:p-6"><h3 class="type-heading-2">${this.heading}</h3>${this.price ? html`<p class="mt-4 type-body text-fg">${this.price}</p>` : nothing}${features.length ? html`<ul class="mt-6 flex grow flex-col gap-2 type-ui text-fg">${features.map((f) => html`<li>${f}</li>`)}</ul>` : nothing}${this.cta ? html`<spyglass-button href=${ifDefined(this.href)} class="mt-6 w-full" @click=${() => this.emit('select')}>${this.cta}</spyglass-button>` : nothing}</div>`
+		return html`<div data-ds="plan-card" class="flex flex-col rounded-panel bg-surface-raised p-6 text-fg"><h3 class="type-heading-2">${this.heading}</h3>${this.price ? html`<p class="mt-4 type-body text-fg">${this.price}</p>` : nothing}${features.length ? html`<ul class="mt-6 flex grow flex-col gap-2 border-t border-edge-surface pt-6 type-ui text-fg-soft">${features.map((f) => html`<li>${f}</li>`)}</ul>` : nothing}${this.cta ? html`<spyglass-button href=${ifDefined(this.href)} class="mt-6 w-full" @click=${() => this.emit('select')}>${this.cta}</spyglass-button>` : nothing}</div>`
 	}
 }
 

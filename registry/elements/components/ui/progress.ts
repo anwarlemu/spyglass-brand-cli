@@ -5,7 +5,7 @@ import { DsElement, define, HostLayoutController } from '@/elements/lib/element'
 import styles from 'virtual:tw'
 
 // Progress.tsx as <spyglass-progress>: a White bar on a 6px #262626 track with round ends, sliding to a new value over
-// 250ms on transform only. Without `value` a short White bar sweeps across at a steady pace (breathing in place with
+// 320ms on transform only. Without `value` a short White bar sweeps across at a steady pace (breathing in place with
 // reduced motion). `label` names it for assistive tech.
 
 /** @summary How far a task has got, as a bar. */
@@ -25,7 +25,7 @@ export class Progress extends DsElement {
 		const known = typeof this.value === 'number' && !Number.isNaN(this.value)
 		const share = known ? Math.max(0, Math.min(1, (this.value as number) / (this.max || 1))) : 0
 		return html`<div data-ds="progress" role="progressbar" aria-label=${ifDefined(this.label)} aria-valuemin="0" aria-valuemax=${this.max} aria-valuenow=${ifDefined(known ? String(this.value) : undefined)} class="relative h-1.5 w-full overflow-hidden rounded-full bg-action-secondary">${known
-			? html`<div class="h-full w-full rounded-full bg-action-primary transition-transform duration-250 ease-out motion-reduce:transition-none" style=${styleMap({ transform: `translateX(-${(1 - share) * 100}%)` })}></div>`
+			? html`<div class="h-full w-full rounded-full bg-action-primary transition-transform duration-320 ease-out motion-reduce:transition-none" style=${styleMap({ transform: `translateX(-${(1 - share) * 100}%)` })}></div>`
 			: html`<div class="ds-progress-sweep h-full w-2/5 rounded-full bg-action-primary"></div>`}</div>`
 	}
 }

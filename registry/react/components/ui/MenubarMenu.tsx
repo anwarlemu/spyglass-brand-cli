@@ -78,7 +78,7 @@ export function MenubarMenu({ label, width = '224px', children }: MenubarMenuPro
         aria-haspopup="menu"
         aria-expanded={pop.open}
         tabIndex={bar.focused === key ? 0 : -1}
-        className="inline-flex h-control-sm cursor-pointer items-center rounded-ds-sm px-3 type-ui-strong text-fg-soft -outline-offset-2 transition-[background-color,color] duration-150 ease-standard hover:not-aria-expanded:bg-action-ghost-hover hover:text-fg aria-expanded:bg-action-secondary aria-expanded:text-fg max-md:h-control-touch"
+        className="inline-flex h-control-sm cursor-pointer items-center rounded-ds-sm px-3 type-ui-strong text-fg-soft -outline-offset-2 transition-[background-color,color] duration-160 ease-standard hover:not-aria-expanded:bg-action-ghost-hover hover:text-fg aria-expanded:bg-action-secondary aria-expanded:text-fg max-md:h-control-touch"
         onClick={onClick}
         onPointerEnter={onEnter}
         onFocus={() => bar.setFocused(key)}

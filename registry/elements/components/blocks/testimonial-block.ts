@@ -4,7 +4,7 @@ import '@/elements/components/site/testimonial'
 import styles from 'virtual:tw'
 
 // TestimonialBlock.tsx as <spyglass-testimonial-block>: a `label` in capitals over the testimonial, the headshot
-// beside the words (layout="side") or above them (layout="stacked"); `card` sets it on the #171717 fill.
+// beside the words (layout="side") or above them (layout="stacked"); `card` sets it on the #262626 fill.
 
 /**
  * @summary One customer, as a section.
