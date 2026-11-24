@@ -234,8 +234,11 @@ try {
 			assert.equal(await page.getByRole('tab').nth(2).getAttribute('aria-selected'), 'true');
 			assert.ok(await page.locator('a.ds-btnlink[data-arrow]').count(), 'the action is a button link');
 		},
+		// Spyglass's site footer (no rolling labels, unlike the sibling brands'): the wordmark, the columns, a soon badge.
 		async 'site-footer/Site'(page) {
-			assert.ok((await page.locator('.ds-roll-host .ds-roll').count()) > 10, 'labels roll');
+			assert.ok(await page.locator('[data-ds="site-footer"] svg.fill-wordmark-gray').count(), 'the wordmark is drawn');
+			assert.ok((await page.locator('[data-ds="site-footer"] nav h2').count()) >= 6, 'six columns');
+			assert.ok(await page.locator('[data-ds="site-footer"] [aria-disabled="true"] [data-ds="badge"]').count(), 'a page that is not live shows its badge');
 		},
 		async 'product-menu/Site'(page) {
 			await page.locator('.ds-product-art[data-active] .ds-viz').first().waitFor({ timeout: 3000 });
