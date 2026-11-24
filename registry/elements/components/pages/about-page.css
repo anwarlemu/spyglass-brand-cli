@@ -1,0 +1,8 @@
+.ds-about-band {
+  position: absolute; inset-block: 0; left: -10%; z-index: -1; width: 120%; pointer-events: none;
+  background-position: 50% 50%; background-size: 100% 100%; background-repeat: no-repeat;
+  will-change: transform;
+  animation: ds-about-band 14s var(--ds-easing-drift) infinite alternate;
+}
+@keyframes ds-about-band { from { transform: translateX(-4%); } to { transform: translateX(4%); } }
+@media (prefers-reduced-motion: reduce) { .ds-about-band { animation: none; } }

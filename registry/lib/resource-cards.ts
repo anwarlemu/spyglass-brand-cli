@@ -1,5 +1,5 @@
-// The resource cards' data and the code cover's tokens, shared by both flavors (the site's ResourceHub and
-// sections/Connect/Code: comments, quotes and punctuation in the muted gray, the rest White).
+// The resource cards' data, shared by both flavors (the site's ResourceHub; the code cover is the code-block item's
+// Code).
 
 /** A creative in a card's cover: the user's image as `src`, or an Acme placeholder (advertiser and tone). */
 export interface ResourceCreative {
@@ -34,28 +34,3 @@ export interface ResourceRow {
 
 /** A link to another site opens in a new tab. */
 export const isExternal = (href: string) => /^https?:\/\//.test(href)
-
-export interface CodeToken {
-	text: string
-	dim: boolean
-}
-
-const TOKEN = /(#.*$)|("(?:[^"\\]|\\.)*")|(https?:\/\/[^\s"']+)|([{}[\]():,=\\.'])/gm
-
-/** The site's code tokens: comments, quote marks and punctuation dim, strings and URLs White. */
-export function codeTokens(source: string, language = 'shell'): CodeToken[] {
-	const out: CodeToken[] = []
-	let last = 0
-	for (const match of source.matchAll(TOKEN)) {
-		const [text, comment, string, url, mark] = match
-		const at = match.index ?? 0
-		if (comment && language === 'json') continue
-		if (at > last) out.push({ text: source.slice(last, at), dim: false })
-		if (comment || mark) out.push({ text, dim: true })
-		else if (url) out.push({ text, dim: false })
-		else if (string) out.push({ text: '"', dim: true }, { text: string.slice(1, -1), dim: false }, { text: '"', dim: true })
-		last = at + text.length
-	}
-	if (last < source.length) out.push({ text: source.slice(last), dim: false })
-	return out
-}
