@@ -1,0 +1,258 @@
+import { ProductHero } from '@/react/components/site/ProductHero'
+// Creator search's hero with Acme results: the run types two questions in turn, the works light behind.
+
+const sets = [
+  {
+    "question": "Find fitness creators in Texas with 50K to 500K followers.",
+    "resultsLabel": "Fitness creators in Texas",
+    "results": [
+      {
+        "id": "acmefit",
+        "stat": {
+          "value": "367K",
+          "caption": "followers on Instagram"
+        },
+        "label": "@acmefit",
+        "meta": "367K followers, Austin",
+        "detail": {
+          "title": "Acme Fit",
+          "facts": [
+            {
+              "term": "Instagram",
+              "value": "367K followers"
+            },
+            {
+              "term": "Location",
+              "value": "Austin, Texas"
+            },
+            {
+              "term": "Focus",
+              "value": "Functional workouts and recovery"
+            },
+            {
+              "term": "Age",
+              "value": "25 to 34"
+            }
+          ]
+        }
+      },
+      {
+        "id": "acmerun",
+        "stat": {
+          "value": "457K",
+          "caption": "followers on Instagram"
+        },
+        "label": "@acmerun",
+        "meta": "457K followers, Austin",
+        "detail": {
+          "title": "Acme Run",
+          "facts": [
+            {
+              "term": "Instagram",
+              "value": "457K followers"
+            },
+            {
+              "term": "Location",
+              "value": "Austin, Texas"
+            },
+            {
+              "term": "Focus",
+              "value": "Beginner strength and running"
+            },
+            {
+              "term": "Age",
+              "value": "25 to 34"
+            }
+          ]
+        }
+      },
+      {
+        "id": "acmegym",
+        "stat": {
+          "value": "194K",
+          "caption": "followers on Instagram"
+        },
+        "label": "@acmegym",
+        "meta": "194K followers, Amarillo",
+        "detail": {
+          "title": "Acme Gym",
+          "facts": [
+            {
+              "term": "Instagram",
+              "value": "194K followers"
+            },
+            {
+              "term": "Location",
+              "value": "Amarillo, Texas"
+            },
+            {
+              "term": "Focus",
+              "value": "Home-gym workouts and nutrition"
+            },
+            {
+              "term": "Age",
+              "value": "25 to 34"
+            }
+          ]
+        }
+      },
+      {
+        "id": "acmeyoga",
+        "stat": {
+          "value": "212K",
+          "caption": "followers on TikTok"
+        },
+        "label": "@acmeyoga",
+        "meta": "212K followers, Houston",
+        "detail": {
+          "title": "Acme Yoga",
+          "facts": [
+            {
+              "term": "TikTok",
+              "value": "212K followers"
+            },
+            {
+              "term": "Location",
+              "value": "Houston, Texas"
+            },
+            {
+              "term": "Focus",
+              "value": "Yoga and mobility"
+            },
+            {
+              "term": "Age",
+              "value": "18 to 24"
+            }
+          ]
+        }
+      },
+      {
+        "id": "acmelift",
+        "stat": {
+          "value": "88K",
+          "caption": "followers on Instagram"
+        },
+        "label": "@acmelift",
+        "meta": "88K followers, Dallas",
+        "detail": {
+          "title": "Acme Lift",
+          "facts": [
+            {
+              "term": "Instagram",
+              "value": "88K followers"
+            },
+            {
+              "term": "Location",
+              "value": "Dallas, Texas"
+            },
+            {
+              "term": "Focus",
+              "value": "Strength training"
+            },
+            {
+              "term": "Age",
+              "value": "25 to 34"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "question": "Which skincare creators post in Spanish?",
+    "resultsLabel": "Skincare creators who post in Spanish",
+    "results": [
+      {
+        "id": "acmeskin",
+        "stat": {
+          "value": "1.1M",
+          "caption": "followers on TikTok"
+        },
+        "label": "@acmeskin",
+        "meta": "1.1M on TikTok",
+        "detail": {
+          "title": "Acme Skin",
+          "facts": [
+            {
+              "term": "TikTok",
+              "value": "1.1M followers"
+            },
+            {
+              "term": "Language",
+              "value": "Spanish"
+            },
+            {
+              "term": "Focus",
+              "value": "Skincare routines"
+            }
+          ]
+        },
+        "notes": [
+          "Spanish"
+        ]
+      },
+      {
+        "id": "acmeglow",
+        "stat": {
+          "value": "380K",
+          "caption": "followers on Instagram"
+        },
+        "label": "@acmeglow",
+        "meta": "380K on Instagram",
+        "detail": {
+          "title": "Acme Glow",
+          "facts": [
+            {
+              "term": "Instagram",
+              "value": "380K followers"
+            },
+            {
+              "term": "Language",
+              "value": "Spanish"
+            },
+            {
+              "term": "Focus",
+              "value": "Product reviews"
+            }
+          ]
+        },
+        "notes": [
+          "Spanish"
+        ]
+      },
+      {
+        "id": "acmebalm",
+        "stat": {
+          "value": "610K",
+          "caption": "followers on Instagram"
+        },
+        "label": "@acmebalm",
+        "meta": "610K on Instagram",
+        "detail": {
+          "title": "Acme Balm",
+          "facts": [
+            {
+              "term": "Instagram",
+              "value": "610K followers"
+            },
+            {
+              "term": "Language",
+              "value": "Spanish and English"
+            },
+            {
+              "term": "Focus",
+              "value": "Sensitive skin"
+            }
+          ]
+        },
+        "notes": [
+          "Spanish"
+        ]
+      }
+    ]
+  }
+]
+
+export default function Creators() {
+  return <ProductHero id="creator-search" name="Creator search" line="Find creators by name, handle or description. Filter by location, language, gender, age and followers." sets={sets} />
+}

@@ -454,6 +454,23 @@
   --ds-feature-ascii-opacity: 0.5; /* site --features-ascii-opacity */
   --ds-feature-ascii-clear-w: 46%; /* the clear middle of the stage (site --features-ascii-clear-w) */
   --ds-feature-ascii-clear-h: 50%; /* site --features-ascii-clear-h */
+  --ds-ph-min-h: 640px; /* the product hero's least height (site --hero-min-h) */
+  --ds-ph-head-w: 800px; /* its head's measure (site --space-80 * 10) */
+  --ds-ph-card-w: 192px; /* a result card (site --ph-card-w) */
+  --ds-ph-card-w-phone: 144px; /* under 768 (site --ph-card-w at width < 768) */
+  --ds-ph-card-turn: -24deg; /* the cards turned away (site --ph-card-turn) */
+  --ds-ph-card-depth: 800px; /* their perspective (site --ph-card-depth) */
+  --ds-ph-card-forward: 32px; /* a card coming forward under the pointer (site --ph-card-forward) */
+  --ds-ph-ascii-h: 560px; /* the unlit hero's texture margins (site --ph-ascii-h) */
+  --ds-ph-ascii-top: 160px; /* their fade in at the top (site --space-160) */
+  --ds-ph-ascii-foot: 240px; /* and out at the foot (site --space-240) */
+  --ds-ph-light-foot: 160px; /* the light fading out at the hero's foot (site --ph-light-foot) */
+  --ds-ph-stat-size: 28px; /* a result's figure, Funnel Display 28/36 (site --body-xl-size) */
+  --ds-ph-stat-leading: 1.2857;
+  --ds-ph-scrim: color-mix(in srgb, var(--ds-color-black) 92%, transparent); /* a card's detail scrim (site --ph-scrim) */
+  --ds-ph-scrim-top: color-mix(in srgb, var(--ds-color-black) 72%, transparent); /* site --ph-scrim-top */
+  --ds-ph-detail-intent: 80ms; /* the wait before a card's detail shows under the pointer (site --dur-ph-detail-intent) */
+  --ds-ph-caret-blink: 1060ms; /* the composer's caret, a loop (site --dur-caret-blink) */
   /* group: use-cases-resources-templates */
 }
 
