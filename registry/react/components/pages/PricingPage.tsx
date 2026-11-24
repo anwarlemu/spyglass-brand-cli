@@ -1,19 +1,23 @@
-import { PlanCard } from '@/react/components/site/PlanCard'
-import { FooterRow } from '@/react/components/site/FooterRow'
+import { Accordion } from '@/react/components/ui/Accordion'
+import { AccordionItem } from '@/react/components/ui/AccordionItem'
+import { Button } from '@/react/components/ui/Button'
+import { CompareTable } from '@/react/components/site/CompareTable'
+import { PricingTable } from '@/react/components/site/PricingTable'
 import { SiteHeader } from '@/react/components/site/SiteHeader'
-import { OfferBlock } from '@/react/components/blocks/OfferBlock'
+import { SiteFooter } from '@/react/components/blocks/SiteFooter'
 import { pricingContent, type PricingContent } from '@/lib/pages/pricing'
 import { cn } from '@/react/lib/cn'
 
-// The pricing page from library items: the Creator plan ad as the top (the offer headline under the light field, the
-// plan card below it) and the questions, answered only with what the plan says. `content` replaces the copy
-// (lib/pages/pricing.ts); more plans in `plans` sit side by side.
+// The site's pricing page (app/pricing, pages/Pricing/PricingPage.tsx): the centered head ("Start free. Pay for what
+// you use"), the plan cards with the billing switch, the compare table (from 768; the site leaves it out on phones),
+// the questions beside their sticky head from 1024 (5 and 7 columns) with a quiet button, and the footer. `content`
+// replaces the copy (lib/pages/pricing.ts).
 export interface PricingPageProps {
   content?: PricingContent
   className?: string
 }
 
-const WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'
+const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
 export function PricingPage({ content: c = pricingContent, className }: PricingPageProps) {
   return (
@@ -22,28 +26,32 @@ export function PricingPage({ content: c = pricingContent, className }: PricingP
         <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       </div>
       <main>
-        <OfferBlock headline={c.offer.headline} light="field" seed={0}>
-          <div className="flex w-full flex-wrap justify-center gap-4">
-            {c.plans.map((p) => <PlanCard key={p.title} title={p.title} price={p.price} features={p.features} cta={p.cta} href={p.href} className="w-150 max-w-full text-left" />)}
+        <header className={cn(WRAP, 'flex flex-col items-center gap-6 pt-16 pb-12 text-center md:pt-24 md:pb-16')}>
+          <h1 className="m-0 type-section">{c.head.lines.map((l, i) => <span key={l} className="block">{l}{i < c.head.lines.length - 1 ? ' ' : ''}</span>)}</h1>
+          <p className="m-0 max-w-(--ds-layout-measure) type-body-lg text-fg-soft">{c.head.lead}</p>
+        </header>
+        <section aria-label="Plans" className="pb-(--ds-layout-section)">
+          <div className={WRAP}><PricingTable plans={c.plans} billing={c.billing} note={c.note} /></div>
+        </section>
+        <section aria-label={c.compare.label} className="py-(--ds-layout-section) max-md:hidden">
+          <div className={WRAP}><CompareTable plans={c.compare.plans} groups={c.compare.groups} defaultPlan={c.compare.defaultPlan} /></div>
+        </section>
+        <section aria-labelledby="pricing-faq-heading" className="py-(--ds-layout-section)">
+          <div className={cn(WRAP, 'grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start lg:gap-16')}>
+            <div className="flex flex-col items-start gap-6 lg:sticky lg:top-[calc(var(--ds-size-header)+var(--ds-space-2xl))]">
+              <h2 id="pricing-faq-heading" className="m-0 type-section">{c.faq.title}</h2>
+              <p className="m-0 type-body-lg text-fg-soft">{c.faq.lead}</p>
+              <Button href={c.faq.action.href} variant="secondary" className="mt-4">{c.faq.action.label}</Button>
+            </div>
+            <div className="min-w-0">
+              <Accordion defaultValue="faq-0">
+                {c.faq.items.map((f, i) => <AccordionItem key={f.q} value={`faq-${i}`} title={f.q}>{f.a}</AccordionItem>)}
+              </Accordion>
+            </div>
           </div>
-        </OfferBlock>
-        <section className={cn(WRAP, 'grid grid-cols-3 gap-12 py-24 max-md:grid-cols-1 max-md:gap-8 max-sm:py-16')}>
-          <h2 className="type-section">{c.faq.title}</h2>
-          <dl className="col-span-2 m-0 grid max-md:col-span-1">
-            {c.faq.items.map((i) => (
-              <div key={i.q} className="grid gap-2 border-t border-edge py-6">
-                <dt className="type-heading-4">{i.q}</dt>
-                <dd className="m-0 type-body text-fg-soft">{i.a}</dd>
-              </div>
-            ))}
-          </dl>
         </section>
       </main>
-      <footer className="border-t border-edge">
-        <div className={cn(WRAP, 'py-10')}>
-          <FooterRow domain={c.footer.domain} homeHref="/" links={c.footer.links} />
-        </div>
-      </footer>
+      <SiteFooter columns={c.footer.columns} legal={c.footer.legal} />
     </div>
   )
 }

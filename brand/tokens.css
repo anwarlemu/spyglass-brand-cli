@@ -407,6 +407,19 @@
   /* group: chrome */
   /* group: home */
   /* group: pricing-products-enterprise */
+  /* pricing */
+  --ds-compare-tip-w: 288px; /* the compare table's tip, at most (site .compareTip: --space-320 - --space-32) */
+  --ds-compare-tip-delay: 80ms; /* a hovering pointer rests this long before the tip shows (site --dur-menu-intent) */
+  --ds-plan-tier-min-h: 208px; /* a plan's tier at least (site .tier: 2 * --space-80 + --space-48) */
+  --ds-plan-copy-w: 55%; /* who a plan is for, at most (site --plan-copy-w) */
+  --ds-plan-rim-w: 2px; /* the running light's width around a plan (site --plan-rim-w) */
+  --ds-plan-rim-edge: 24px; /* how far the trailing glyphs reach in from the edge (site --plan-rim-edge) */
+  --ds-plan-ascii-drift-x: 16px; /* the lit tier's glyphs drift this far (site --plan-ascii-drift-x, -y) */
+  --ds-plan-ascii-drift-y: -16px;
+  --ds-plan-light-drift: 14s; /* loop: the lit tier's light sways (site --dur-pro-light-drift, --hero-band-bob-time) */
+  --ds-plan-rim-glide: 10.4s; /* loop: one lap of the rim light (site --dur-plan-rim-glide: 4 * --dur-loop-step) */
+  --ds-plan-rim-cycle: 7.8s; /* loop: the glyphs' shimmer (site --dur-plan-rim-cycle: 3 * --dur-loop-step) */
+  --ds-plan-ascii-drift: 15.6s; /* loop: the glyphs' drift (site --dur-plan-ascii-drift: 2 * the cycle) */
   /* group: use-cases-resources-templates */
 }
 
