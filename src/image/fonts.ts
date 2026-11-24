@@ -34,7 +34,8 @@ export function faces(): Promise<Faces> {
 }
 
 async function load(): Promise<Faces> {
-	const files = brand().fonts.files;
+	// The renderers read static faces: the variable web files are skipped (`use: "web"`).
+	const files = brand().fonts.files.filter((f) => f.use !== 'web');
 	const heading = files.find((f) => f.role === 'heading');
 	const text = files.find((f) => f.role === 'text' && f.weight === 400) ?? files.find((f) => f.role === 'text');
 	const medium = files.find((f) => f.role === 'text' && f.weight === 500) ?? text;
@@ -62,7 +63,7 @@ let codePending: Promise<Face> | undefined;
 /** The code face (the brand's monospace, used by the ASCII texture), decoded for the rasterizer. */
 export function codeFace(): Promise<Face> {
 	codePending ??= (async () => {
-		const entry = brand().fonts.files.find((f) => f.role === 'code');
+		const entry = brand().fonts.files.find((f) => f.role === 'code' && f.use !== 'web');
 		if (!entry) throw new Error('The brand font list has no code face.');
 		return loadFace(entry);
 	})().catch((err) => {

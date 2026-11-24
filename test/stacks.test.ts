@@ -300,7 +300,7 @@ describe('A plain HTML site (no package.json)', () => {
 		expect([info.framework, info.flavor, info.stylesheet, info.publicDir, info.packageManager]).toEqual(['html', 'elements', 'css/site.css', '.', null]);
 		json(dir, 'init');
 		for (const page of ['index.html', 'about.html']) expect(read(dir, page)).toContain('    <link rel="stylesheet" href="/spyglass-ds/brand.css">\n    <link rel="stylesheet" href="/spyglass-ds/kinds.css">\n    <link rel="stylesheet" href="/css/site.css" />');
-		expect(read(dir, 'spyglass-ds/brand.css')).toContain('url("./fonts/DMSans-400.woff2")');
+		expect(read(dir, 'spyglass-ds/brand.css')).toContain('url("./fonts/DMSans.woff2")');
 		expect(existsSync(join(dir, 'spyglass-ds/fonts/DMSans-400.woff2'))).toBe(true);
 	});
 	it('a page selection links and restyles that page only: the other pages stay byte for byte', () => {

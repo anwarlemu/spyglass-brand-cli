@@ -23,7 +23,7 @@ describe('build', () => {
 	});
 	it('serves every font file it declares', () => {
 		const fonts = read('build/fonts.css');
-		expect(fonts.match(/url\("\/spyglass-ds\/fonts\//g)?.length).toBe(4);
+		expect(fonts.match(/url\("\/spyglass-ds\/fonts\//g)?.length).toBe(3); // variable Funnel Display and DM Sans, Geist Mono
 		for (const m of fonts.matchAll(/url\("\/spyglass-ds\/fonts\/([^"]+)"\)/g)) expect(existsSync(join(root, 'build', 'fonts', m[1])), m[1]).toBe(true);
 	});
 	it('resolves the default theme to Black and White', () => {
@@ -31,7 +31,7 @@ describe('build', () => {
 		expect(t['--ds-color-surface'].light).toBe('#000000');
 		expect(t['--ds-color-surface'].dark).toBe('#000000');
 		expect(t['--ds-color-fg'].light).toBe('#FFFFFF');
-		expect(t['--ds-color-surface-raised'].light).toBe('#171717');
+		expect(t['--ds-color-surface-raised'].light).toBe('#262626'); // the site's --surface
 		expect(t['--ds-color-red'].light).toBe('#DF0000');
 	});
 	it('ships the generators, icons and logos', () => {

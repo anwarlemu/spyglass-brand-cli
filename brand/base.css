@@ -1,4 +1,5 @@
-/* Base layer: what every Spyglass page sets once. Black ground, White DM Sans type, a White focus ring. */
+/* Base layer: what every Spyglass page sets once (the site's globals.css). Black ground, White DM Sans type at optical
+   size 14, Funnel Display heads at 450, a White focus ring, a #4D4D4D selection. */
 @layer base {
   html {
     background-color: var(--ds-color-surface);
@@ -14,21 +15,24 @@
     font-family: var(--ds-font-text);
     font-size: var(--ds-text-body);
     line-height: var(--ds-text-body-leading);
+    font-variation-settings: "opsz" var(--ds-opsz-text);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
   :where(h1, h2, h3, h4) {
     font-family: var(--ds-font-heading);
-    font-weight: var(--ds-font-weight-regular);
+    font-weight: var(--ds-font-weight-heading);
     line-height: var(--ds-text-heading-1-leading);
+    font-variation-settings: normal;
+    text-wrap: balance;
   }
   :focus-visible {
     outline: var(--ds-border-focus) solid var(--ds-color-edge-focus);
     outline-offset: var(--ds-border-focus);
   }
   ::selection {
-    background: var(--ds-color-white);
-    color: var(--ds-color-black);
+    background: var(--ds-color-selection);
+    color: var(--ds-color-fg);
   }
   a,
   button,

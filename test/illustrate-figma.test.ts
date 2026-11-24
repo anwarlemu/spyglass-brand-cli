@@ -128,7 +128,7 @@ describe('figma', () => {
 		const surface = doc.variables.find((v) => v.css === '--ds-color-surface')!;
 		expect(surface.values).toEqual([[0, 0, 0, 1], [1, 1, 1, 1]]);
 		expect(doc.variables.find((v) => v.css === '--ds-font-heading')!.values[0]).toBe('Funnel Display');
-		expect(doc.variables.find((v) => v.css === '--ds-color-scrim')!.values[0]).toEqual([0, 0, 0, 0.64]);
+		expect(doc.variables.find((v) => v.css === '--ds-color-scrim')!.values[0]).toEqual([0, 0, 0, 0.72]);
 		const scripts = figmaTokenScripts(doc);
 		for (const s of scripts) expect(s.length).toBeLessThanOrEqual(45000);
 		expect(scripts.join('')).toContain('"Spyglass tokens"'.replace('Spyglass', brand().name));

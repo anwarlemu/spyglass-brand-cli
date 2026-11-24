@@ -18,7 +18,7 @@ export type Brand = {
 	assetBase: string;
 	/** Web components are named `<elementPrefix>-<item>`. */
 	elementPrefix?: string;
-	fonts: { files: { family: string; weight: number; file: string; role: string }[]; css: string };
+	fonts: { files: { family: string; weight: number; range?: string; file: string; role: string; use?: 'web' | 'render' }[]; css: string };
 	icons: { name: string; packages: string[]; stroke?: number };
 	type: { caps: boolean; bold: boolean };
 	groups: Record<string, string>;

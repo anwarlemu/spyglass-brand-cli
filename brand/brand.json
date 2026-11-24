@@ -10,13 +10,17 @@
   "assetBase": "/spyglass-ds",
   "tagline": "The only creative search engine.",
   "fonts": {
+    "$comment": "Faces from the site (layout.tsx, next/font: the same latin files Google Fonts serves). use web: the variable files the stylesheet loads (Funnel Display wght 300-800, DM Sans opsz 9-40 and wght 100-1000). use render: static instances cut from them with fontTools (headings at 450 and 400, DM Sans at optical size 14, 400 and 500), for the image and video renderers, which read static TrueType; they keep the old file names, so apps that preloaded them still find them. All SIL OFL 1.1.",
     "files": [
-      { "family": "Funnel Display", "weight": 400, "file": "FunnelDisplay-400.woff2", "role": "heading", "license": "licenses/FunnelDisplay-OFL.txt" },
-      { "family": "DM Sans", "weight": 400, "file": "DMSans-400.woff2", "role": "text", "license": "licenses/DMSans-OFL.txt" },
-      { "family": "DM Sans", "weight": 500, "file": "DMSans-500.woff2", "role": "text", "license": "licenses/DMSans-OFL.txt" },
-      { "family": "Geist Mono", "weight": 400, "file": "GeistMono-400.woff2", "role": "code", "license": "licenses/GeistMono-OFL.txt" }
+      { "family": "Funnel Display", "weight": 400, "range": "300 800", "file": "FunnelDisplay.woff2", "role": "heading", "use": "web", "license": "licenses/FunnelDisplay-OFL.txt" },
+      { "family": "DM Sans", "weight": 400, "range": "100 1000", "file": "DMSans.woff2", "role": "text", "use": "web", "license": "licenses/DMSans-OFL.txt" },
+      { "family": "Geist Mono", "weight": 400, "file": "GeistMono-400.woff2", "role": "code", "license": "licenses/GeistMono-OFL.txt" },
+      { "family": "Funnel Display", "weight": 450, "file": "FunnelDisplay-450.woff2", "role": "heading", "use": "render", "license": "licenses/FunnelDisplay-OFL.txt" },
+      { "family": "Funnel Display", "weight": 400, "file": "FunnelDisplay-400.woff2", "role": "subheading", "use": "render", "license": "licenses/FunnelDisplay-OFL.txt" },
+      { "family": "DM Sans", "weight": 400, "file": "DMSans-400.woff2", "role": "text", "use": "render", "license": "licenses/DMSans-OFL.txt" },
+      { "family": "DM Sans", "weight": 500, "file": "DMSans-500.woff2", "role": "text", "use": "render", "license": "licenses/DMSans-OFL.txt" }
     ],
-    "css": "https://fonts.googleapis.com/css2?family=Funnel+Display&family=DM+Sans:wght@400;500&family=Geist+Mono&display=swap"
+    "css": "https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=DM+Sans:opsz,wght@9..40,100..1000&family=Geist+Mono&display=swap"
   },
   "icons": {
     "name": "Lucide",

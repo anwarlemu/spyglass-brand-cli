@@ -19,19 +19,21 @@ const steps = (name: string) => Array.from({ length: 15 }, (_, i) => `--ds-color
 const ROLES = all.filter(([k, v]) => k.startsWith("--ds-color-") && v.value.startsWith("var(") && !/^--ds-color-(magenta|red|orange|yellow|green|cyan|blue|light-[rgb])$/.test(k));
 
 const TYPE = [
-  ["type-display", "Funnel Display 64 at 1.07"],
-  ["type-hero", "Funnel Display 48 at 1.07"],
-  ["type-heading-1", "Funnel Display 36 at 1.07"],
-  ["type-heading-2", "Funnel Display 28 at 1.0, card titles"],
-  ["type-heading-3", "Funnel Display 24 at 1.07"],
-  ["type-heading-4", "Funnel Display 20 at 1.07"],
-  ["type-body-lg", "DM Sans 18 at 1.33"],
-  ["type-body", "DM Sans 16 at 1.33"],
-  ["type-ui", "DM Sans 14 at 1.3"],
-  ["type-ui-strong", "DM Sans Medium 14, buttons"],
-  ["type-caption", "DM Sans 12 at 1.3"],
-  ["type-label", "DM Sans Medium 12, capitals, 6%"],
-  ["type-code", "Geist Mono 14"],
+  ["type-section", "Funnel Display 450: 32/36, 44/48 at 768, 56/60 from 1024 (the site's page and section head)"],
+  ["type-display", "Funnel Display 450, 96/100"],
+  ["type-display-m", "Funnel Display 450, 72/76"],
+  ["type-hero", "Funnel Display 450, 56/60"],
+  ["type-heading-1", "Funnel Display 450, 44/48"],
+  ["type-heading-2", "Funnel Display 400, 32/36, plan names"],
+  ["type-heading-3", "Funnel Display 400, 24/28, card titles"],
+  ["type-heading-4", "Funnel Display 400, 20/24"],
+  ["type-body-lg", "DM Sans 20/28, the lead"],
+  ["type-body", "DM Sans 16/24"],
+  ["type-ui", "DM Sans 14/20"],
+  ["type-ui-strong", "DM Sans Medium 14/20, buttons"],
+  ["type-caption", "DM Sans 12/16"],
+  ["type-label", "DM Sans Medium 12/16, capitals, 6%"],
+  ["type-code", "System mono 14/20"],
 ] as const;
 
 const LOCKUPS = [
@@ -116,7 +118,7 @@ export default function ThemePage() {
           </div>
         </Section>
 
-        <Section id="type" title="Type" description="Funnel Display Regular for headlines and titles, DM Sans for everything else (Medium for labels and buttons), Geist Mono for code and the texture. Self-hosted, OFL.">
+        <Section id="type" title="Type" description="From the site: Funnel Display at 450 for heads and 400 for titles, DM Sans at optical size 14 for everything else (Medium for labels and buttons), the system mono for code, Geist Mono for the texture. Variable faces, self-hosted, OFL.">
           <div className="divide-y divide-edge rounded-control border border-edge px-5">
             {TYPE.map(([cls, note]) => (
               <div key={cls} className="grid items-baseline gap-2 py-5 md:grid-cols-[14rem_1fr]">
@@ -139,7 +141,7 @@ export default function ThemePage() {
           <Table rows={[["--ds-color-light-r", value("--ds-color-light-r"), "Light R, at 0.85"], ["--ds-color-light-g", value("--ds-color-light-g"), "Light G, at 0.782"], ["--ds-color-light-b", value("--ds-color-light-b"), "Light B, at 0.782"], ["--ds-light-offset", value("--ds-light-offset"), "each layer's shift, of the heat map's width"], ["--ds-light-blur", value("--ds-light-blur"), "blur, of the heat map's width"], ["--ds-color-light-overlap", value("--ds-color-light-overlap"), "where all three overlap"]]} />
         </Section>
 
-        <Section id="ascii" title="The ASCII texture" description="Geist Mono characters from &quot; .:-=+*#&quot; off a soft heat map, White at 0.35. Behind the light, clear of text, the logo and photos.">
+        <Section id="ascii" title="The ASCII texture" description="Geist Mono characters from &quot; .:-=+*#&quot; off a soft heat map, White at 0.5 for a field (0.35 on the canvas). Behind the light, clear of text, the logo and photos.">
           <AsciiTexture seed={4} width={1080} height={360} className="w-full rounded-container border border-edge bg-surface" />
         </Section>
 
@@ -152,7 +154,7 @@ export default function ThemePage() {
           <Table rows={[...pick("--ds-space-"), ...pick("--ds-size-"), ...pick("--ds-layout-"), ...pick("--ds-border-")]} />
         </Section>
 
-        <Section id="motion" title="Motion" description="Quick and quiet: color 150ms, press 160ms, entrances 200ms, exits faster, nothing over 300ms. Never ease-in; hover only where it exists; reduced motion keeps opacity and color; icons never move on hover.">
+        <Section id="motion" title="Motion" description="Quick and quiet: color 160ms, press 160ms, entrances 240ms, exits faster, nothing over 360ms. Never ease-in; hover only where it exists; reduced motion keeps opacity and color; icons never move on hover.">
           <Table rows={[...pick("--ds-duration-"), ...pick("--ds-easing-")]} />
         </Section>
 

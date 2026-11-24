@@ -15,8 +15,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        <link rel="preload" href="/spyglass-ds/fonts/DMSans-400.woff2" as="font" type="font/woff2" crossOrigin="" />
-        <link rel="preload" href="/spyglass-ds/fonts/FunnelDisplay-400.woff2" as="font" type="font/woff2" crossOrigin="" />
+        <link rel="preload" href="/spyglass-ds/fonts/DMSans.woff2" as="font" type="font/woff2" crossOrigin="" />
+        <link rel="preload" href="/spyglass-ds/fonts/FunnelDisplay.woff2" as="font" type="font/woff2" crossOrigin="" />
       </head>
       <body>{children}</body>
     </html>
