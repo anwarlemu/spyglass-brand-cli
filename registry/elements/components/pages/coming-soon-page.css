@@ -1,0 +1,6 @@
+.ds-coming-cover::before, .ds-coming-cover::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.ds-coming-cover::before {
+  background: var(--ds-color-white); opacity: var(--ds-feature-ascii-opacity); mix-blend-mode: screen;
+  mask-image: var(--ascii-alpha); mask-position: var(--at, 0 0); mask-size: var(--ds-feature-ascii-tile) var(--ds-feature-ascii-tile); mask-repeat: repeat;
+}
+.ds-coming-cover::after { background: radial-gradient(ellipse var(--ds-feature-ascii-clear-w) var(--ds-feature-ascii-clear-h) at 50% 50%, var(--ds-color-surface) 40%, transparent 100%); }
