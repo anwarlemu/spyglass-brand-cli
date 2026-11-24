@@ -2,7 +2,8 @@ import { html } from 'lit'
 import { DsElement, define, HostLayoutController } from '@/elements/lib/element'
 import { homeContent, type HomeContent } from '@/lib/pages/home'
 import '@/elements/components/site/site-header'
-import '@/elements/components/site/proof-strip'
+import '@/elements/components/site/proof-block'
+import '@/elements/components/visuals/ascii-trail'
 import '@/elements/components/blocks/playground-hero'
 import '@/elements/components/blocks/features-block'
 import '@/elements/components/blocks/why-block'
@@ -14,7 +15,7 @@ import '@/elements/components/blocks/close-block'
 import '@/elements/components/blocks/site-footer'
 import styles from 'virtual:tw'
 
-// HomePage.tsx as <spyglass-home-page>: the site's home in its order: the header, the playground hero, the proof row,
+// HomePage.tsx as <spyglass-home-page>: the site's home in its order: the ASCII trail, the header, the playground hero, the proof row,
 // the features, the reasons, the set-up steps, the case stories, the pricing strip, the questions, the close and the
 // footer. `content` replaces the header, proof row, questions and footer (lib/pages/home.ts).
 const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
@@ -31,7 +32,7 @@ export class HomePage extends DsElement {
 
 	render() {
 		const c = this.content ?? homeContent
-		return html`<div data-ds="home-page" class="bg-surface text-fg"><div class=${WRAP}><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header></div><main><spyglass-playground-hero></spyglass-playground-hero><section aria-label=${c.proof.title} class="pb-(--ds-layout-section)"><div class=${`${WRAP} flex flex-col items-center gap-6 text-center`}><h2 class="type-body-lg text-fg">${c.proof.title}</h2><spyglass-proof-strip .logos=${c.proof.logos}></spyglass-proof-strip></div></section><spyglass-features-block></spyglass-features-block><spyglass-why-block></spyglass-why-block><spyglass-how-it-works-block></spyglass-how-it-works-block><spyglass-case-stories-block></spyglass-case-stories-block><spyglass-pricing-panels-block></spyglass-pricing-panels-block><div class=${`${WRAP} py-(--ds-layout-section)`}><spyglass-faq-block head-id="home-faq" heading=${c.faq.title} body=${c.faq.lead} .action=${c.faq.action} .items=${c.faq.items}></spyglass-faq-block></div><spyglass-close-block></spyglass-close-block></main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`
+		return html`<div data-ds="home-page" class="bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header><main><spyglass-playground-hero></spyglass-playground-hero><spyglass-proof-block heading=${c.proof.title} .logos=${c.proof.logos}></spyglass-proof-block><spyglass-features-block></spyglass-features-block><spyglass-why-block></spyglass-why-block><spyglass-how-it-works-block></spyglass-how-it-works-block><spyglass-case-stories-block></spyglass-case-stories-block><spyglass-pricing-panels-block></spyglass-pricing-panels-block><div class=${`${WRAP} py-(--ds-layout-section)`}><spyglass-faq-block head-id="home-faq" heading=${c.faq.title} body=${c.faq.lead} .action=${c.faq.action} .items=${c.faq.items}></spyglass-faq-block></div><spyglass-close-block></spyglass-close-block></main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`
 	}
 }
 

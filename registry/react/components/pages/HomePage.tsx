@@ -1,5 +1,6 @@
 import { SiteHeader } from '@/react/components/site/SiteHeader'
-import { ProofStrip } from '@/react/components/site/ProofStrip'
+import { ProofBlock } from '@/react/components/site/ProofBlock'
+import { AsciiTrail } from '@/react/components/visuals/AsciiTrail'
 import { PlaygroundHero } from '@/react/components/blocks/PlaygroundHero'
 import { FeaturesBlock } from '@/react/components/blocks/FeaturesBlock'
 import { WhyBlock } from '@/react/components/blocks/WhyBlock'
@@ -12,7 +13,8 @@ import { SiteFooter } from '@/react/components/blocks/SiteFooter'
 import { homeContent, type HomeContent } from '@/lib/pages/home'
 import { cn } from '@/react/lib/cn'
 
-// The site's home (app/page.tsx, which renders app/v2/page.tsx), from library items in the site's order: the header,
+// The site's home (app/page.tsx, which renders app/v2/page.tsx), from library items in the site's order: the ASCII
+// trail behind the page (a mouse leaves it), the header,
 // the playground hero, the proof row, the features, the reasons, the set-up steps beside the MCP session, the case
 // stories, the pricing strip, the questions, the close among the creatives and the footer. Each block carries its own
 // copy (lib/home/*); `content` replaces the header, proof row, questions and footer (lib/pages/home.ts).
@@ -26,17 +28,11 @@ const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-lay
 export function HomePage({ content: c = homeContent, className }: HomePageProps) {
   return (
     <div data-ds="home-page" className={cn('bg-surface text-fg', className)}>
-      <div className={WRAP}>
-        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
-      </div>
+      <AsciiTrail mode="page" />
+      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main>
         <PlaygroundHero />
-        <section aria-label={c.proof.title} className="pb-(--ds-layout-section)">
-          <div className={cn(WRAP, 'flex flex-col items-center gap-6 text-center')}>
-            <h2 className="type-body-lg text-fg">{c.proof.title}</h2>
-            <ProofStrip logos={c.proof.logos} />
-          </div>
-        </section>
+        <ProofBlock title={c.proof.title} logos={c.proof.logos} />
         <FeaturesBlock />
         <WhyBlock />
         <HowItWorksBlock />
