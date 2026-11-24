@@ -1,6 +1,7 @@
 // The templates wall's copy and the templates page's copy (site content/v2/templates.ts, content/home.ts templates,
 // content/pages/templates.ts and templatesCities.ts), with Acme's material: the names are the templates' own kinds,
-// never a platform's product. Both flavors read this file.
+// never a platform's product. Both flavors read this file; the page's header and footer come from site-chrome.ts.
+import { siteChrome } from '@/lib/pages/site-chrome'
 
 export interface TemplatesWallContent {
 	/** The line over the rolling chip. */
@@ -44,6 +45,7 @@ const acme = (key: string, n: number, meta: (i: number) => string): TemplateCity
 	Array.from({ length: n }, (_, i) => ({ key: `${key}-${i + 1}`, alt: `Acme creative ${i + 1}`, title: 'Acme', meta: meta(i) }))
 
 export const templatesPageContent = {
+	chrome: siteChrome,
 	wall: templatesWallContent,
 	cities: {
 		id: 'templates-cities',
@@ -76,3 +78,5 @@ export const templatesPageContent = {
 		secondary: { label: 'Read the docs', href: '/docs' },
 	},
 }
+
+export type TemplatesPageContent = typeof templatesPageContent
