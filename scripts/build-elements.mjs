@@ -305,6 +305,23 @@ function typesOf(decl, file, { ts, program, checker }) {
 		if (wanted.has(name)) return;
 		wanted.set(name, d);
 		refsIn(d);
+		// An alias built from a value (typeof content) is written out resolved, so the named types inside it are needed too.
+		if (ts.isTypeAliasDeclaration(d) && /\btypeof\b/.test(d.type.getText())) namedWithin(checker.getTypeAtLocation(d.name));
+	}
+	// The named types anywhere inside a resolved type: through unions, arrays, tuples and object members.
+	function namedWithin(type) {
+		const seen = new Set();
+		const walk = (t) => {
+			if (!t || seen.has(t)) return;
+			seen.add(t);
+			const sym = t.aliasSymbol ?? t.getSymbol();
+			const d = sym?.declarations?.[0];
+			if (d && !isLib(d) && named(d) && !['__type', '__object', '__function'].includes(sym.name)) return void (inRegistry(d) && addDecl(sym.name, d));
+			if (t.isUnion?.() || t.isIntersection?.()) return t.types.forEach(walk);
+			if (checker.isArrayType?.(t) || checker.isTupleType?.(t)) return checker.getTypeArguments(t).forEach(walk);
+			if (t.flags & ts.TypeFlags.Object) for (const p of t.getProperties()) walk(checker.getTypeOfSymbolAtLocation(p, cls));
+		};
+		walk(type);
 	}
 	// The types a declaration's text names (`state?: DownloadState`), followed through imports to where they are
 	// declared: a union with undefined loses its alias on the type, but not in the source.

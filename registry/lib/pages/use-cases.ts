@@ -13,7 +13,14 @@ const cover = (a: string, b: string, c: string, tone: 1 | 2 | 3 | 4 = 2): Resour
 	],
 })
 
-export const useCasesContent = {
+export interface UseCasesContent {
+	id: string
+	head: { lines: string[]; lead: string }
+	cards: ResourceCard[]
+	chrome: SiteChrome
+}
+
+export const useCasesContent: UseCasesContent = {
 	id: 'use-cases',
 	head: {
 		lines: ['Use cases'],
@@ -29,8 +36,6 @@ export const useCasesContent = {
 		{ title: 'Consumer sentiment', line: 'What people say about brands and products in the comments, sorted into what to act on.', meta: 'For brand, social, product and insights teams.', href: '/use-cases/consumer-sentiment', cover: cover('Acme', 'Acme', 'Acme', 3) },
 		{ title: 'Landing page development', line: 'Where a brand’s ads lead, and the pages it keeps sending them to.', meta: 'For growth, CRO and web teams.', href: '/use-cases/landing-page-development', cover: cover('Acme', 'Acme', 'Acme', 4) },
 		{ title: '360-degree research', line: 'One brand, all of it: its ads, posts, creators, landing pages and comments on one record.', meta: 'For strategists, agencies and brand teams.', href: '/use-cases/360-degree-research', cover: cover('Acme', 'Acme', 'Acme', 2) },
-	] satisfies ResourceCard[],
-	chrome: siteChrome as SiteChrome,
+	],
+	chrome: siteChrome,
 }
-
-export type UseCasesContent = typeof useCasesContent
