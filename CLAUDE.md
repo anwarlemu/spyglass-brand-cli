@@ -28,8 +28,8 @@ sweeps it.
   product scale is derived from it in the header); `base.css` the base layer; `fade.css` the scroll fade (`fade-y`, `fade-x`, `fade-xy`), shipped with every base and the
   elements' shadow base: every scroll box that can cut content off takes it; `brand.json` names, fonts, icons, groups,
   the light's layers and the texture's ramp; `principles.md` and `principles.json` (product and website rules, voice),
-  `agent-guide.md`, `contract.md`, `elements.json` (apply's roles and per-kind recipes); `fonts/` (Funnel Display, DM
-  Sans, Geist Mono woff2 with their OFL licenses); `logo/source/` (the SVGs Figma exports) and `logo/svg/` (every
+  `agent-guide.md`, `contract.md`, `elements.json` (apply's roles and per-kind recipes); `fonts/` (the site's variable
+  Funnel Display and DM Sans for the web, static instances for the renderers, Geist Mono; woff2 with their OFL licenses); `logo/source/` (the SVGs Figma exports) and `logo/svg/` (every
   lockup in Black and White, split from the source paths by `scripts/make-logos.mjs`, never redrawn); `light/` (the
   brand heat map's Light R layer as exported).
 - `registry/`: the library. `react/components/<group>/<Name>.tsx` (groups in brand.json: ui, product, site, visuals),
@@ -61,10 +61,13 @@ sweeps it.
 
 ## Source of truth
 
-The brand guidelines and the Figma page "8. Brand assets" (file Qx2i6GhXZD1V4O7RE7hYQi), as the screenshots, the SVG
-exports and the measured values in the spec. Every value traces to them; `tokens.css` comments say where. spyglass.so
-is on the old brand: use it for nothing visual. Never ship third-party brands' photos or real people's names (the Figma
-uses some): examples use Acme.
+How Spyglass looks comes from the Spyglass marketing site: the owner's `spyglass.zip` (Next 16; `src/app/tokens.css`,
+`globals.css`, `controls.css`, `layout.tsx` and the CSS modules), received 2026-11-24, measured as computed styles in a
+browser at 1440 and 390. `brand/site-changes.md` lists every value it changed (old, new, site file:line). Where the site
+is silent (logo clear space and minimums, merch, decks, the 1080 canvas `--ds-asset-*`), the brand guidelines and the
+Figma page "8. Brand assets" (file Qx2i6GhXZD1V4O7RE7hYQi) stay the source. spyglass.so may lag the zip: compare with the
+zip. Never ship the site's third-party material (clients, customers, brands, logos, testimonials, team, avatars, stories)
+or its screenshots (they show other brands' ads): keep them out of the repo. Examples use Acme.
 
 ## Rules
 

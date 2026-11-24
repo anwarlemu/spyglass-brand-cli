@@ -2,25 +2,29 @@
 
 Spyglass is the creative search engine: it watches the ads, posts and creators that brands put out across Meta, TikTok,
 Instagram and YouTube, and lets a team (or its agents) search them. Everything it makes sits on Black, in White type,
-with real creative and the brand light as the only color. These rules come from the brand guidelines (logo, color,
-type, pattern, imagery and applications pages) and the Figma brand assets page.
+with real creative and the brand light as the only color. How it looks comes from the Spyglass site (the owner's
+spyglass.zip, 2026-11-24; brand/site-changes.md lists what it changed); the logo, merch, decks and the 1080 canvas
+still come from the brand guidelines and the Figma brand assets page, where the site is silent.
 
 ## Product
 
-- Black is the ground. Surfaces are Black (#000000); a card is #171717 on Black with a 10px corner on the canvas (8px
-  in the product). Separate with a fill or a #262626 hairline, never a shadow.
-- Type is White. Secondary text comes from the neutral steps (#BFBFBF, #A3A3A3); #4D4D4D and darker are never text.
+- Black is the ground. Surfaces are Black (#000000); a card is #262626 on Black with a 4px corner (8px for controls,
+  fields and plan tiers; #171717 with a 10px corner only on the 1080 canvas). Separate with a fill or a hairline (#363636
+  on Black, #4D4D4D on a surface), never a shadow.
+- Type is White. Secondary text comes from the neutral steps (#D4D4D4, #A3A3A3, #858585); #4D4D4D and darker are never text.
   Pick grays from the 15 neutral steps, never by eye.
 - Most screens use only Black and White. The spectrum colors (Magenta, Red, Orange, Yellow, Green, Cyan, Blue) come
   from the brand light and small accents; when shown together they keep that order.
-- Funnel Display Regular for headlines, titles and subheadings (line height 1.07 at display sizes, 1.0 on card titles);
-  DM Sans Regular for body and captions, DM Sans Medium for labels and buttons; labels in capitals with 6% letter
-  spacing. Weights 400 and 500 only.
-- The primary button is a White fill with a Black DM Sans Medium label, 10px corner, 56px tall on the canvas (40px in
-  the product). One primary button per view; secondary is a #262626 fill, ghost has no fill until hovered.
+- Funnel Display at 450 for page and section heads and at 400 for card titles and subheads, each line 4px taller than
+  its size (56/60, 44/48, 32/36, 24/28, 20/24); DM Sans at optical size 14, Regular for body (16/24) and captions,
+  Medium for labels, badges and buttons; labels in capitals with 6% letter spacing. Weights 400, 450 and 500 only.
+- The primary button is a White fill with a Black DM Sans Medium 14/20 label, an 8px corner, 40px tall (36px in the
+  header, 56px large; 56px with a 10px corner on the canvas). One primary button per view; secondary is the quiet button
+  (#1A1A1A inside a #363636 ring), ghost has no fill until hovered. Under a mouse a White glow follows the pointer.
 - The search bar is a Black field with a hairline, the prompt in White DM Sans and a White "Search" button inside.
-- Motion is quick and quiet: 150ms color changes, 200ms entrances, exits faster, nothing over 300ms, never ease-in,
-  hover only behind (hover: hover), reduced motion keeps opacity and color. Icons never move on hover.
+- Motion is quick and quiet, on the site's ease-out (0.22, 1, 0.36, 1): 160ms color changes, 240ms entrances, 360ms for
+  a dialog or menu panel and 280ms to close it, never ease-in, hover only behind (hover: hover), reduced motion keeps
+  opacity and color. Icons never move on hover.
 
 ## Website and assets
 
@@ -29,7 +33,7 @@ type, pattern, imagery and applications pages) and the Figma brand assets page.
   edges and turn pale where they overlap. It flows in from the edges and corners of a layout, never boxed in, with a
   main mass and a smaller counterpart elsewhere.
 - The ASCII texture is a field of Geist Mono characters (" .:-=+*#") from a soft heat map, on Black, at 0.35 opacity,
-  behind the light. It is an accent, never the main graphic, kept clear of text, the logo and photos, with soft edges.
+  behind the light (0.5 for a field on the site, 0.32 faint). It is an accent, never the main graphic, kept clear of text, the logo and photos, with soft edges.
 - Imagery is real creative (ads, product shots, UGC) in its posted color: no grading, filters or neon. Photos sit on
   Black with the light behind or between them. Examples and templates use Acme placeholders or supplied images, never
   another brand's photos or a real person's name.
@@ -45,12 +49,12 @@ type, pattern, imagery and applications pages) and the Figma brand assets page.
 
 - Keep what each screen or asset is for: its headline and its one action stay the most prominent things.
 - Visible focus on every control (a 2px White outline); touch targets at least 44px on phones.
-- Press feedback on pointer-down (scale 0.97 on buttons); no size changes on hover.
+- Feedback on pointer: a fill change and the button glow; buttons hold their size on press and on hover, as the site's do.
 
 ## Refuse
 
 - Shadows, gradients other than the light, a colored ground, a second accent color, the spectrum as text color, bold
-  (600+) weights, stretched, recolored, outlined, rotated or effected logos, the light inside a box with hard edges,
+  (600+) weights, other companies' logos or photos, stretched, recolored, outlined, rotated or effected logos, the light inside a box with hard edges,
   filtered or graded photos, emoji, exclamation marks.
 
 ## Voice (for any text an agent writes)

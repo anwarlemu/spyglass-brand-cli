@@ -2,8 +2,9 @@
 
 The Spyglass brand system in one CLI: design tokens, every logo lockup, the self-hosted fonts, the brand light and the
 ASCII texture as seeded generators, a component library in React and as web components, and checks that keep pages,
-interfaces and assets on brand. Every value traces to the brand guidelines and the Figma brand assets; anything else is
-an error, never a guess.
+interfaces and assets on brand. How it looks traces to the Spyglass site (the owner's site source, received 2026-11-24;
+`brand/site-changes.md` lists every value it changed); the logo rules, merch, decks and the 1080 canvas still trace to the
+brand guidelines and the Figma brand assets. Anything else is an error, never a guess.
 
 Library site: https://spyglass-ds.vercel.app (the `apps/www` Next.js app in this repository).
 

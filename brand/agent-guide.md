@@ -63,13 +63,19 @@ Angular needs `schemas: [CUSTOM_ELEMENTS_SCHEMA]` for the elements; Vue and Nuxt
 
 ## Compose
 
-- Black is the ground and White the type. Surfaces: `bg-surface` (Black), `bg-surface-raised` (the #171717 card),
-  `bg-surface-subtle`; text: `text-fg`, `text-fg-soft`, `text-fg-muted`; lines: `border-edge`, `border-edge-strong`.
+- The look is the Spyglass site's (`brand/site-changes.md`). Black is the ground and White the type. Surfaces:
+  `bg-surface` (Black), `bg-surface-raised` (the #262626 card), `bg-surface-subtle` (#1A1A1A: fields, the quiet button),
+  `bg-surface-inset` (#363636: badges, the chosen segment); text: `text-fg`, `text-fg-soft`, `text-fg-muted`,
+  `text-fg-faint`; lines: `border-edge` (#363636 on Black), `border-edge-surface` (#4D4D4D on a card),
+  `border-edge-strong` (#666666). Cards take `rounded-container` (4px), controls `rounded-control` (8px).
 - One primary action per view (`Button variant="primary"`: White fill, Black label); `secondary` for the rest, `ghost`
-  for tools in rows. Sizes `sm`, `md` (the default) and `lg`.
-- Type utilities: `type-display`, `type-hero`, `type-heading-1` to `type-heading-4` (Funnel Display), `type-body-lg`,
-  `type-body`, `type-ui`, `type-ui-strong`, `type-caption` (DM Sans), `type-label` (DM Sans Medium capitals, 6%),
-  `type-code` (Geist Mono).
+  for tools in rows. Sizes `xs` (36px, the header's), `sm`, `md` (the default, 40px) and `lg` (56px).
+- Type utilities: `type-section` (the site's page and section head: 32, 44 at 768, 56 from 1024) and
+  `type-display-fluid` (48 to 112) for heads; `type-display`, `type-display-m`, `type-display-s`, `type-hero`,
+  `type-heading-1` (Funnel Display 450), `type-heading-2` to `type-heading-4` (Funnel Display 400: card titles and
+  subheads); `type-body-xl`, `type-body-lg` (the 20/28 lead), `type-body`, `type-ui`, `type-ui-strong`, `type-caption`
+  (DM Sans at optical size 14), `type-label` (DM Sans Medium capitals, 6%), `type-code` (the system mono). Geist Mono
+  is only the ASCII texture's.
 - The light and the ASCII texture come from the `brand-light` and `ascii-texture` components (seeded, so the same seed
   draws the same picture). Put the light at an edge or a corner of a section, behind content, never boxed in; keep the
   texture clear of text and photos (its `clear` areas).
@@ -132,8 +138,9 @@ file with `create_session`.
 
 ## Motion
 
-- Hover and color: 150ms on `ease-standard`. Press: scale 0.97 over 160ms on `ease-out`. Menus and popovers in: 200ms
-  on `ease-out`, out: 150ms. Dialogs and drawers: 300ms. Never ease-in, never `transition-all`.
+- The site's steps: hover and color 160ms (`duration-160`) on its ease-out (0.22, 1, 0.36, 1); menus and popovers in
+  240ms, out 160ms; dialogs, drawers and menu panels in 360ms, out 280ms; moves on screen 320ms. Buttons do not scale on
+  press (the site's hold still); under a mouse their glow follows the pointer. Never ease-in, never `transition-all`.
 - Keyboard-opened surfaces do not animate. Hover effects only where hover exists. Reduced motion keeps opacity and
   color. Icons never move on hover.
 
