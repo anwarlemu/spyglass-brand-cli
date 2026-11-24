@@ -1,38 +1,30 @@
-import { Button } from '@/react/components/ui/Button'
-import { SearchBar } from '@/react/components/product/SearchBar'
-import { FooterRow } from '@/react/components/site/FooterRow'
 import { SiteHeader } from '@/react/components/site/SiteHeader'
-import { HeroBlock } from '@/react/components/blocks/HeroBlock'
+import { PageHead } from '@/react/components/site/PageHead'
+import { SiteFooter } from '@/react/components/blocks/SiteFooter'
 import { notFoundContent, type NotFoundContent } from '@/lib/pages/not-found'
 import { cn } from '@/react/lib/cn'
 
-// The 404 page from library items: a centered hero with the light flowing in from the corners, the headline as a
-// plain sentence, the search bar and the way home. The page fills the window, the footer at the foot. `content`
-// replaces the copy (lib/pages/not-found.ts); `onSearch` receives the query.
+// The site's 404 page (app/not-found.tsx): the header, the page head with its title, the plain sentence, the White way
+// home and the quiet way to the docs, the ASCII drift in the right columns, and the footer. As the last section on the
+// page the head keeps the site's section padding under it (56px, 76 at 768, 84 at 1024), so it sits in a box that
+// takes back what the page head keeps below. `content` replaces the copy (lib/pages/not-found.ts).
 export interface NotFoundPageProps {
   content?: NotFoundContent
-  onSearch?: (query: string) => void
   className?: string
 }
 
-const WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'
-
-export function NotFoundPage({ content: c = notFoundContent, onSearch, className }: NotFoundPageProps) {
+export function NotFoundPage({ content: c = notFoundContent, className }: NotFoundPageProps) {
   return (
-    <div data-ds="not-found-page" className={cn('flex min-h-dvh flex-col bg-surface text-fg', className)}>
-      <div className={WRAP}>
-        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
+    <div data-ds="not-found-page" className={cn('bg-surface text-fg', className)}>
+      <div className="relative z-10 mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)">
+        <SiteHeader links={c.shell.header.nav} secondary={c.shell.header.secondary} />
       </div>
-      <main className="flex flex-1 flex-col">
-        <HeroBlock eyebrow={c.eyebrow} headline={c.headline} body={c.body} actions={<Button href={c.home.href} variant="secondary">{c.home.label}</Button>} placement="center" light="corner" className="flex-1">
-          <SearchBar placeholder={c.search} label="Search" onSearch={onSearch} className="mx-auto max-w-160" />
-        </HeroBlock>
-      </main>
-      <footer className="border-t border-edge">
-        <div className={cn(WRAP, 'py-10')}>
-          <FooterRow domain={c.footer.domain} homeHref="/" links={c.footer.links} />
+      <main id="main">
+        <div className="-mb-6 md:-mb-5 lg:-mb-3">
+          <PageHead id="not-found" lines={c.lines} lead={c.lead} primary={c.primary} secondary={c.secondary} />
         </div>
-      </footer>
+      </main>
+      <SiteFooter columns={c.shell.footer.columns} legal={c.shell.footer.legal} />
     </div>
   )
 }

@@ -1,0 +1,30 @@
+.ds-compare-head {
+  --fade: var(--ds-space-3xl);
+  background: linear-gradient(to bottom, var(--ds-color-surface) calc(100% - var(--fade)), color-mix(in srgb, var(--ds-color-surface) 85%, transparent) calc(100% - var(--fade) * 0.75), color-mix(in srgb, var(--ds-color-surface) 60%, transparent) calc(100% - var(--fade) * 0.5), color-mix(in srgb, var(--ds-color-surface) 30%, transparent) calc(100% - var(--fade) * 0.25), transparent);
+}
+.ds-compare-term:hover, .ds-compare-term:focus-within { z-index: 3; }
+.ds-compare-soon { font-family: var(--ds-font-text); font-size: var(--ds-text-caption); line-height: var(--ds-text-caption-leading); font-weight: var(--ds-font-weight-medium); }
+.ds-compare-link {
+  text-decoration: underline dotted var(--ds-color-fg-muted);
+  text-decoration-thickness: var(--ds-border-hairline);
+  text-underline-offset: var(--ds-space-xs);
+  transition: text-decoration-color var(--ds-duration-micro) var(--ds-easing-out);
+}
+.ds-compare-link:focus-visible { outline: 2px solid var(--ds-color-fg); outline-offset: var(--ds-space-xs); border-radius: var(--ds-radius-sm); }
+.ds-compare-tip {
+  max-width: min(var(--ds-compare-tip-w), calc(100vw - 2 * var(--ds-layout-gutter)));
+  opacity: 0; visibility: hidden; translate: 0 var(--ds-space-xs);
+  transition: opacity var(--ds-duration-micro) var(--ds-easing-out), translate var(--ds-duration-micro) var(--ds-easing-out), visibility 0s linear var(--ds-duration-micro);
+}
+.ds-compare-term:focus-within .ds-compare-tip {
+  opacity: 1; visibility: visible; translate: 0 0;
+  transition: opacity var(--ds-duration-micro) var(--ds-easing-out), translate var(--ds-duration-micro) var(--ds-easing-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ds-compare-link:hover { text-decoration-color: var(--ds-color-fg); }
+  .ds-compare-term:hover .ds-compare-tip {
+    opacity: 1; visibility: visible; translate: 0 0;
+    transition: opacity var(--ds-duration-micro) var(--ds-easing-out) var(--ds-compare-tip-delay), translate var(--ds-duration-micro) var(--ds-easing-out) var(--ds-compare-tip-delay);
+  }
+}
+@media (prefers-reduced-motion: reduce) { .ds-compare-tip { translate: none; } }

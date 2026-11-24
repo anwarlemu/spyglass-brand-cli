@@ -1,53 +1,70 @@
-// The about page template's copy: the deck's headline, the imagery principles from the guidelines and the assets' facts; the rest is neutral template copy. Both flavors read this file.
-/** An Acme placeholder creative: the advertiser, a neutral tone (1 to 4) and a headline. */
-const creative = (brand: string, tone: 1 | 2 | 3 | 4, caption?: string) => (caption ? { brand, tone, caption } : { brand, tone })
+// The about page's copy (site content/pages/about.ts): the head, the strip of photos (the site's light tiles at both
+// ends and Acme placeholders where a team's own photos go), the story and the benefits. Both flavors read this file.
 
-const nav = [
-	{ label: 'Product', href: '/product' },
-	{ label: 'Pricing', href: '/pricing' },
-	{ label: 'Changelog', href: '/changelog' },
-	{ label: 'Blog', href: '/blog' },
-]
-const footer = {
-	domain: 'spyglass.so',
-	links: [
-		{ label: 'Product', href: '/product' },
-		{ label: 'Pricing', href: '/pricing' },
-		{ label: 'About', href: '/about' },
-		{ label: 'Changelog', href: '/changelog' },
-		{ label: 'Blog', href: '/blog' },
-		{ label: 'Terms', href: '/legal' },
-	],
+// The header's five pages and the sign-in, the footer's six columns and Acme's legal line.
+const shell = {
+	header: {
+		nav: [
+			{ label: 'Products', href: '/products' },
+			{ label: 'Use cases', href: '/use-cases' },
+			{ label: 'Enterprise', href: '/enterprise' },
+			{ label: 'Resources', href: '/resources' },
+			{ label: 'Pricing', href: '/pricing' },
+		],
+		secondary: { label: 'Sign in', href: '/sign-in' },
+	},
+	footer: {
+		columns: [
+			{ title: 'Products', wide: true, links: [{ label: 'Brands and creators', href: '/products/brand-search' }, { label: 'Media archive', href: '/products/media-search' }, { label: 'Collaborations', href: '/products/creator-collabs' }, { label: 'Creative insights', href: '/products/creative-insights' }, { label: 'Realtime search', href: '/products/realtime-search' }, { label: 'Coming soon', href: '/products' }] },
+			{ title: 'Use cases', wide: true, links: [{ label: 'Build your own', href: '/use-cases/build' }, { label: 'Creative research', href: '/use-cases/creative-research' }, { label: 'Paid ads', href: '/use-cases/paid-ads' }, { label: 'Organic social', href: '/use-cases/organic-social' }, { label: 'Competitive analysis', href: '/use-cases/competitive-analysis' }, { label: 'Creator sourcing', href: '/use-cases/creator-sourcing' }] },
+			{ title: 'Resources', links: [{ label: 'Templates', href: '/templates' }, { label: 'Docs', href: '/docs' }, { label: 'Blog', href: '/resources/blog' }, { label: 'Articles', href: '/resources/articles' }] },
+			{ title: 'Company', links: [{ label: 'Enterprise', href: '/enterprise' }, { label: 'About', href: '/about' }, { label: 'Careers', href: '/about#careers' }, { label: 'Talk to us', href: '/enterprise#talk' }, { label: 'Sign in', href: '/sign-in' }] },
+			{ title: 'Legal', links: [{ label: 'Terms', href: '/terms' }, { label: 'Privacy', href: '/privacy' }] },
+			{ title: 'Community', links: [{ label: 'X', href: 'https://x.com' }, { label: 'LinkedIn', href: 'https://linkedin.com' }, { label: 'Instagram', href: 'https://instagram.com' }] },
+		],
+		legal: '© 2026 Acme Inc.',
+	},
 }
-const header = { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get 50% off', href: '/pricing' } }
+
+/** One tile in the strip: your photo (`src`, with `alt`), one of the site's light tiles (`light`), or an empty tile. */
+export interface AboutPhoto {
+	src?: string
+	alt?: string
+	/** The site's light tile b or c instead of a photo. */
+	light?: 'b' | 'c'
+	/** Two columns wide. */
+	wide?: boolean
+}
 
 export const aboutContent = {
-	header,
-	hero: {
-		eyebrow: 'About',
-		headline: 'The largest historical record of creative data.',
-		body: 'Spyglass keeps the ads, posts and videos brands and creators publish, and makes every one of them searchable in plain words.',
+	shell,
+	id: 'about',
+	head: {
+		lines: ['Come help the world', 'look closer'],
+		lead: 'We’re looking for people who notice what others miss.',
+		primary: { label: 'Join us', href: 'mailto:careers@acme.com' },
 	},
-	row: [creative('Acme Skin', 2), creative('Acme Drinks', 3), creative('Acme Studio', 1), creative('Acme Fit', 4), creative('Acme Drinks', 2), creative('Acme Motors', 3)],
-	beliefs: {
-		title: 'What we keep to.',
-		items: [
-			{ title: 'Real creative.', body: 'Ads, product shots and UGC, from the brands people track. Never a mock-up.' },
-			{ title: 'Color as posted.', body: 'No grading, no filters, no neon. What you see is what ran.' },
-			{ title: 'One index.', body: 'Meta, TikTok, Instagram, and YouTube creatives in one index.' },
+	film: 'The team',
+	photos: [{ light: 'b' }, { alt: '' }, { alt: '' }, { alt: '', wide: true }, { alt: '' }, { light: 'c' }] as AboutPhoto[],
+	story: {
+		headline: 'Spyglass is where the internet’s creative comes into focus.',
+		paragraphs: [
+			'It’s where marketers and their agents come to see what’s working across ads, posts and creators. Now, we’re building the record behind it: every brand, every channel, ready for any agent to search.',
+			'We’re a small team that obsesses over craft and moves quickly. Every detail we ship is one we’d want to use ourselves.',
+			'Teams in many countries already brief from Spyglass, from founders running their first ads to global agencies.',
+			'If you care about craft, curiosity and doing the best work of your career, come build with us.',
 		],
 	},
-	stats: {
-		title: 'Every creative in one place.',
-		items: [
-			{ value: '4', label: 'Networks in one index: Meta, TikTok, Instagram and YouTube.' },
-			{ value: '1 min', label: 'To add any brand or creator.' },
-			{ value: 'Unlimited', label: 'Team seats on the Creator plan.' },
-			{ value: '$10', label: 'For your first month, then $20/month.' },
+	perks: {
+		id: 'careers',
+		headline: 'Benefits',
+		lead: 'We take care of the people doing the work.',
+		groups: [
+			{ title: 'Focus', items: ['Top-spec hardware', 'Every AI tool you need', 'Lunch on us'] },
+			{ title: 'Culture', items: ['Seasonal offsites', 'Team dinners', 'Friday demos'] },
+			{ title: 'Care', items: ['Full health cover', 'Generous time off', 'Learning budget'] },
 		],
 	},
-	join: { title: 'Build the archive with us.', body: 'We are a small team. We read every note.', cta: { label: 'See open roles', href: '/careers' } },
-	footer,
 }
 
 export type AboutContent = typeof aboutContent

@@ -1,19 +1,23 @@
-import { PlanCard } from '@/react/components/site/PlanCard'
-import { FooterRow } from '@/react/components/site/FooterRow'
+import { CompareTable } from '@/react/components/site/CompareTable'
+import { PageClose } from '@/react/components/site/PageClose'
+import { PageHead } from '@/react/components/site/PageHead'
+import { PricingTable } from '@/react/components/site/PricingTable'
 import { SiteHeader } from '@/react/components/site/SiteHeader'
-import { OfferBlock } from '@/react/components/blocks/OfferBlock'
+import { FaqBlock } from '@/react/components/blocks/FaqBlock'
+import { SiteFooter } from '@/react/components/blocks/SiteFooter'
 import { pricingContent, type PricingContent } from '@/lib/pages/pricing'
 import { cn } from '@/react/lib/cn'
 
-// The pricing page from library items: the Creator plan ad as the top (the offer headline under the light field, the
-// plan card below it) and the questions, answered only with what the plan says. `content` replaces the copy
-// (lib/pages/pricing.ts); more plans in `plans` sit side by side.
+// The site's pricing page (app/pricing, pages/Pricing/PricingPage.tsx), from library items: the header, the centered
+// page head ("Start free. Pay for what you use"), the plan cards with the billing switch, the compare table (from 768;
+// the site leaves it out on phones), the questions, the closing section with the connect menu and the footer.
+// `content` replaces the copy (lib/pages/pricing.ts).
 export interface PricingPageProps {
   content?: PricingContent
   className?: string
 }
 
-const WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'
+const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
 export function PricingPage({ content: c = pricingContent, className }: PricingPageProps) {
   return (
@@ -22,28 +26,19 @@ export function PricingPage({ content: c = pricingContent, className }: PricingP
         <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       </div>
       <main>
-        <OfferBlock headline={c.offer.headline} light="field" seed={0}>
-          <div className="flex w-full flex-wrap justify-center gap-4">
-            {c.plans.map((p) => <PlanCard key={p.title} title={p.title} price={p.price} features={p.features} cta={p.cta} href={p.href} className="w-150 max-w-full text-left" />)}
-          </div>
-        </OfferBlock>
-        <section className={cn(WRAP, 'grid grid-cols-3 gap-12 py-24 max-md:grid-cols-1 max-md:gap-8 max-sm:py-16')}>
-          <h2 className="type-section">{c.faq.title}</h2>
-          <dl className="col-span-2 m-0 grid max-md:col-span-1">
-            {c.faq.items.map((i) => (
-              <div key={i.q} className="grid gap-2 border-t border-edge py-6">
-                <dt className="type-heading-4">{i.q}</dt>
-                <dd className="m-0 type-body text-fg-soft">{i.a}</dd>
-              </div>
-            ))}
-          </dl>
+        <PageHead id="pricing" lines={c.head.lines} lead={c.head.lead} align="centre" />
+        <section aria-label="Plans" className="pb-[calc(var(--ds-layout-section)-var(--ds-space-xs))] md:pb-(--ds-layout-section)">
+          <div className={WRAP}><PricingTable plans={c.plans} billing={c.billing} note={c.note} /></div>
         </section>
-      </main>
-      <footer className="border-t border-edge">
-        <div className={cn(WRAP, 'py-10')}>
-          <FooterRow domain={c.footer.domain} homeHref="/" links={c.footer.links} />
+        <section aria-label={c.compare.label} className="py-(--ds-layout-section) max-md:hidden">
+          <div className={WRAP}><CompareTable plans={c.compare.plans} groups={c.compare.groups} defaultPlan={c.compare.defaultPlan} /></div>
+        </section>
+        <div className={cn(WRAP, 'py-(--ds-layout-section)')}>
+          <FaqBlock title={c.faq.title} body={c.faq.lead} action={c.faq.action} items={c.faq.items} />
         </div>
-      </footer>
+        <PageClose lines={c.close.lines} note={c.close.note} primary={c.close.primary} />
+      </main>
+      <SiteFooter columns={c.footer.columns} legal={c.footer.legal} />
     </div>
   )
 }
