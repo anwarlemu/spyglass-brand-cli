@@ -109,7 +109,7 @@ const slides = [
     required: ['headline'], minPhotos: 1,
     sizes: { slide: { ...D, layers: [A(), logo(), label(),
       S([96, 190, 1500, 160], [I('headline', 'display', 72, 77, 0, { maxLines: 1 })], { prefer: 230 }),
-      ...[0, 1, 2, 3, 4, 5].map((n) => P(n, [96 + (n % 3) * 584, 340 + Math.floor(n / 3) * 330, 560, 310], { id: `picture-${n + 1}`, radius: 8 }))] } } },
+      ...[0, 1, 2, 3, 4, 5].map((n) => P(n, [96 + (n % 3) * 584, 380 + Math.floor(n / 3) * 310, 560, 290], { id: `picture-${n + 1}`, radius: 8 }))] } } },
   { id: 'qa', group: 'content', name: 'Questions', figma: 'derived', description: 'The questions slide: a large title, a line and the address, the light field above.',
     slots: { headline: 'Questions?', body: 'Write to us any time.', url: '{domain}' },
     required: ['headline'],
@@ -118,5 +118,8 @@ const slides = [
       S([410, 580, 1100, 384], [I('headline', 'display', 144, 144, 0, { align: 'center', maxLines: 1 }), I('body', 'body', 32, 42.5, 48, { align: 'center', maxLines: 2 })], { align: 'center', prefer: 610 }),
       { type: 'text', slot: 'url', face: 'label', size: 16, leading: 16, x: 560, top: 1000, w: 800, align: 'center', maxLines: 1, min: 14 }] } } },
 ];
+// The corners the lockup may move to and keep its clear space at every size (scripts/assets/logo-anchors.mjs found them).
+const LOGO_ANCHORS = { "image-grid": ["top-left", "top", "top-right"], "statement": ["top-left", "top", "top-right"], "comparison": ["top-left", "top", "top-right"], "section": ["top-left", "top", "top-right", "bottom", "bottom-right"], "team": ["top-left", "top", "top-right", "bottom-left", "bottom"], "cover-curved": ["top-left", "top", "top-right"], "timeline": ["top-left", "top", "top-right", "bottom"], "stat": ["top-left", "top", "top-right", "bottom", "bottom-right"], "bullets": ["top-left", "top", "top-right", "bottom-left", "bottom"], "quote": ["top-left", "top", "top-right", "bottom"], "cover-row": ["top-left", "top", "top-right", "bottom", "bottom-right"], "image": ["top-left", "bottom-left"]};
+for (const t of slides) if (LOGO_ANCHORS[t.id]) t.logoAnchors = LOGO_ANCHORS[t.id];
 writeFileSync(process.argv[2], JSON.stringify({ $comment: 'Deck slides at 1920 by 1080: the three covers from the Figma pitch deck section (frame sizes and positions from its layer tree, type measured from the reference renders) and content slides derived from the same rules. A deck is a list of slides: `deck --input deck.json` with { "slides": [{ "type": "cover-row", "headline": "...", "images": ["a.png"] }] }.', templates: slides }, null, 1) + '\n');
 console.log(slides.length, 'slides');

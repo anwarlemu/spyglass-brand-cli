@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { brand } from '../lib/brand.js';
 import { brandColors, color, groundsOf, rasterizeScene, rasterizeSvg, type DrawResult } from '../assets/scene.js';
-import { drawTemplate, fill, findTemplate, layersOf, resolveSize, sizesOf, templates, type SceneRequest, type Template } from '../assets/templates.js';
+import { drawTemplate, fill, findTemplate, layersOf, reflowsOf, resolveSize, sizesOf, templates, type SceneRequest, type Template } from '../assets/templates.js';
 import { drawMerch, findItem, merchItems, physicalSvg, PX_PER_IN } from '../assets/merch.js';
 import { imagesToPdf } from '../assets/pdf.js';
 import { rgbOf } from '../assets/png.js';
@@ -46,6 +46,7 @@ function templateInfo(t: Template, kind: 'image' | 'slide'): TemplateInfo {
 		images: (t.photos ? pics : []).map((id, i) => ({ id, ...(i < (t.minPhotos ?? 0) ? { required: true } : {}), values: [PLACEHOLDER] })),
 		options: seeded(t) ? LIGHT_OPTIONS : [],
 		layers: layersOf(t),
+		reflows: reflowsOf(t),
 		formats: kind === 'slide' ? ['png', 'svg', 'jpg', 'webp', 'pdf'] : ['png', 'svg', 'jpg', 'webp'],
 	};
 }

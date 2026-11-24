@@ -34,6 +34,8 @@ export type Template = {
 	sizes: string[];
 	sizeAliases?: Record<string, string>;
 	layouts?: Record<string, SizeLayout>;
+	/** The corners the logo may go to here and keep its clear space at every size (scripts/assets/logo-anchors.mjs). */
+	logoAnchors?: Anchor[];
 };
 
 type LayoutInput = { W: number; H: number; size: string; has: (slot: string) => boolean; pictures: number; /** Pictures that were passed (pictures counts placeholders too). */ real?: number; safe?: Rect; avoid: Rect[]; floor: number };
@@ -198,7 +200,7 @@ export function sceneFor(t: Template, req: SceneRequest): { scene: Scene; size: 
 	const pictures = photos.length > 0 || (fake && want > 0);
 	const layout = substitute({ ...raw, layers: raw.layers.filter((l) => !l.when || (l.when === 'pictures') === pictures) }, vars);
 	return {
-		scene: { width: size.width, height: size.height, ground: layout.ground ?? vars.ground ?? 'black', layers: layout.layers, frame: layout.frame, unit: layout.unit, floor: zones.floor, slots, sampled, own, photos, placeholders: fake, seed: req.seed, light: req.light, texture: req.texture, edits: req.edits },
+		scene: { logoAnchors: t.logoAnchors, width: size.width, height: size.height, ground: layout.ground ?? vars.ground ?? 'black', layers: layout.layers, frame: layout.frame, unit: layout.unit, floor: zones.floor, slots, sampled, own, photos, placeholders: fake, seed: req.seed, light: req.light, texture: req.texture, edits: req.edits },
 		size: size.id,
 		width: size.width,
 		height: size.height,
@@ -260,11 +262,18 @@ export function layersOf(t: Template): { id: string; can: DrawnLayer['can'] }[] 
 				const v = l.valign === 'center' ? '' : l.valign === 'bottom' ? 'bottom' : 'top';
 				const h = l.align === 'right' ? 'right' : l.align === 'center' ? '' : 'left';
 				const at = (v && h ? `${v}-${h}` : v || h || 'center') as Anchor;
-				items(l.items, first(at, all));
-			} else if (l.type === 'logo') add(id, { move: true, scale: [0.6, l.corner ? 1.8 : 1.4], hide: !l.required, ...(l.corner ? { anchors: first(l.corner, CORNERS) } : {}) });
+				// A stack that takes most of the height cannot move far up or down: it keeps its own row of anchors.
+				const tall = l.box[3] > 0.55 * (t.layouts ? t.layouts[size]!.height : spec!.height);
+				const row = all.filter((x) => (v === 'top' ? x.startsWith('top') : v === 'bottom' ? x.startsWith('bottom') : !x.startsWith('top') && !x.startsWith('bottom')));
+				items(l.items, first(at, tall ? row : all));
+			} else if (l.type === 'logo') add(id, { move: true, scale: [0.6, l.corner ? 1.8 : 1.4], hide: !l.required, ...(l.corner ? { anchors: t.logoAnchors ? CORNERS.filter((a) => t.logoAnchors!.includes(a)).sort((x, y) => (x === l.corner ? -1 : y === l.corner ? 1 : 0)) : first(l.corner, CORNERS) } : {}) });
 			else if (l.type === 'text') add(id, { move: true, scale: [0.8, 1.6], hide: hide(id), ...(l.corner ? { anchors: first(l.corner, CORNERS) } : {}) });
 			else if (l.type === 'button') add(id, { move: true, scale: [0.8, 1.5], hide: true, ...(l.corner ? { anchors: first(l.corner, CORNERS) } : {}) });
-			else if (l.type === 'inline') add(id, { move: true, scale: [0.6, 1.4] });
+			else if (l.type === 'inline') {
+				add(id, { move: true, scale: [0.6, 1.4] });
+				// The pictures set between its words are a layer of their own (they follow the words).
+				if (l.lines.some((line) => line.some((x) => 'photo' in x))) add('pictures', { hide: !t.minPhotos });
+			}
 			else if (l.type === 'search') add(id, { move: true, scale: [0.8, 1.2], hide: true });
 			else if (l.type === 'photo' || l.type === 'panel' || l.type === 'split') add(id, { move: true, scale: [0.6, 1.4], hide: !t.minPhotos });
 			else if (l.type === 'light' && id !== 'pictures') add(id, l.b ? { move: true, scale: [0.6, 1.8], hide: true } : { hide: true });
@@ -273,6 +282,41 @@ export function layersOf(t: Template): { id: string; can: DrawnLayer['can'] }[] 
 		}
 	}
 	return [...out].map(([id, can]) => ({ id, can }));
+}
+
+/** What gives way on purpose when a layer changes (the core's reflows): the other items of its stack close up or move
+ * down, an inline heading's pictures follow its words, the light and pictures that keep clear of copy move, and copy
+ * steps aside for the logo's clear space when the logo goes to another corner. */
+export function reflowsOf(t: Template): Record<string, string[]> {
+	const out = new Map<string, Set<string>>();
+	const give = (id: string, ids: string[]) => {
+		const set = out.get(id) ?? new Set<string>();
+		for (const x of ids) if (x !== id) set.add(x);
+		out.set(id, set);
+	};
+	const ids = (list: StackItem[]): string[] => list.flatMap((i) => (i.type === 'card' ? [itemId(i), ...ids(i.items)] : [itemId(i)]));
+	for (const size of t.sizes) {
+		const spec = SIZES.find((s) => s.id === size);
+		const zones = spec ? zonesOf(size, spec.width, spec.height) : undefined;
+		const layers = named(t.layouts ? t.layouts[size]!.layers : LAYOUTS[t.id]!({ W: spec!.width, H: spec!.height, size, has: () => true, pictures: t.photos ?? 0, safe: zones!.safe, avoid: zones!.avoid, floor: zones!.floor }).layers);
+		const art = layers.filter((l) => l.type === 'light' || l.type === 'photo' || l.type === 'panel' || l.type === 'split').map(layerId);
+		const words: string[] = [];
+		for (const l of layers) {
+			if (l.type === 'stack') {
+				const group = ids(l.items);
+				words.push(...group);
+				for (const id of group) give(id, [...group, ...art]);
+			} else if (l.type === 'inline') {
+				words.push(layerId(l));
+				give(layerId(l), ['pictures', ...art]);
+			} else if (l.type === 'text' || l.type === 'button' || l.type === 'search') {
+				words.push(layerId(l));
+				give(layerId(l), art);
+			}
+		}
+		give('logo', [...words, ...art]);
+	}
+	return Object.fromEntries([...out].map(([k, v]) => [k, [...v]]));
 }
 
 export function catalogOf(kind: 'image' | 'deck') {

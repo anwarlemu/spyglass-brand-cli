@@ -23,6 +23,7 @@
    "minPhotos": 1,
    "slots": {"headline":"Give your agents access to Instagram and TikTok.","page":""},
    "required": [],
+   "logoAnchors": ["top","top-left","top-right","bottom-left","bottom-right"],
    "sizes": ["square","portrait","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail","pinterest","facebook-cover","facebook","ad-970x250","desktop","phone-wallpaper"]
   },
   {
@@ -35,6 +36,7 @@
    "minPhotos": 1,
    "slots": {"headline":"Add any brand or creator in under a minute.","url":"{domain}","page":""},
    "required": [],
+   "logoAnchors": ["top-left","bottom-left"],
    "sizes": ["square","portrait","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail","pinterest","facebook","desktop","phone-wallpaper"]
   },
   {
@@ -45,6 +47,7 @@
    "description": "A headline and a paragraph between two light strips.",
    "slots": {"headline":"Understand what is working in any category.","body":"Compare brands, creators, campaigns, and formats to uncover what is gaining traction, what is falling behind, and why.","url":"{domain}","page":""},
    "required": ["headline"],
+   "logoAnchors": ["top-left","top","top-right","bottom-left","bottom-right"],
    "sizes": ["square","portrait","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail","x-banner","linkedin-banner","linkedin-page","youtube","email","pinterest","facebook-cover","facebook","desktop","phone-wallpaper"]
   },
   {
@@ -55,6 +58,7 @@
    "description": "A large headline top left, a light band across, a paragraph bottom right.",
    "slots": {"headline":"Know what changed before your next meeting.","body":"Spyglass follows the brands, creators, and niches that matter to you then turns the changes into a brief you actually want to read.","url":"{domain}","page":""},
    "required": ["headline"],
+   "logoAnchors": ["top-left","top","top-right","bottom-left","bottom-right"],
    "sizes": ["square","portrait","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail","x-banner","linkedin-banner","linkedin-page","youtube","email","pinterest","facebook-cover","facebook","ad-970x250","desktop","phone-wallpaper"]
   },
   {
@@ -102,6 +106,7 @@
    "minPhotos": 1,
    "slots": {"headline":"Search millions of creators in one place.","body":"Spyglass monitors millions of brands and creators across Meta Ads, Instagram, and TikTok.","cta":"Get Spyglass 50% off","url":"{domain}"},
    "required": [],
+   "logoAnchors": ["bottom-left","bottom","bottom-right"],
    "sizes": ["portrait","square","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail","pinterest","facebook-cover","facebook","phone-wallpaper"]
   },
   {
@@ -137,6 +142,7 @@
    "minPhotos": 1,
    "slots": {"headline":"Search millions of brands and creators.","cta":"Explore the product"},
    "required": [],
+   "logoAnchors": ["top-left","top","bottom-right"],
    "sizes": ["portrait","square","story","og","landscape","linkedin","linkedin-square","youtube-thumbnail","facebook-cover","facebook","ad-970x250","desktop","phone-wallpaper"]
   },
   {
@@ -148,6 +154,7 @@
    "description": "The tagline on the right, the light flowing in from the left.",
    "slots": {"headline":"{tagline}"},
    "required": ["headline"],
+   "logoAnchors": ["top-right","top-left","top","bottom-left","bottom"],
    "sizes": ["x-banner","linkedin-banner","linkedin-page","youtube","email","og","landscape","square","portrait","story","linkedin-square","youtube-thumbnail","pinterest","facebook-cover","facebook","ad-728x90","ad-970x250","desktop","phone-wallpaper"],
    "sizeAliases": {"x":"x-banner","linkedin":"linkedin-banner"}
   },
@@ -187,6 +194,7 @@
    "minPhotos": 1,
    "slots": {"headline":"{tagline}"},
    "required": ["headline"],
+   "logoAnchors": ["top-right","top-left","top"],
    "sizes": ["x-banner","linkedin-banner","linkedin-page","youtube","email","og","landscape","square","portrait","story","linkedin-square","youtube-thumbnail","pinterest","facebook-cover","facebook","ad-728x90","ad-970x250","desktop","phone-wallpaper"],
    "sizeAliases": {"x":"x-banner","linkedin":"linkedin-banner"}
   },
@@ -243,6 +251,7 @@
    "description": "Lockup and domain on top, the headline, a light band across the foot.",
    "slots": {"headline":"{tagline}","url":"{domain}","page":"","body":""},
    "required": ["headline"],
+   "logoAnchors": ["top-left","top","top-right","bottom-left","bottom-right"],
    "sizes": ["og","square","portrait","story","landscape","linkedin","linkedin-square","youtube-thumbnail","x-banner","linkedin-banner","linkedin-page","youtube","email","pinterest","facebook-cover","facebook","ad-970x250","desktop","phone-wallpaper"]
   },
   {
@@ -271,6 +280,7 @@
    "required": [
     "headline"
    ],
+   "logoAnchors": ["top-left","top","top-right","bottom","bottom-right"],
    "sizes": ["og","landscape","linkedin","youtube-thumbnail","primary","pinterest","facebook-cover","facebook","ad-970x250","desktop","phone-wallpaper"]
   },
   {

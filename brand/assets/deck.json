@@ -143,7 +143,14 @@
       }
      ]
     }
-   }
+   },
+   "logoAnchors": [
+    "top-left",
+    "top",
+    "top-right",
+    "bottom",
+    "bottom-right"
+   ]
   },
   {
    "id": "cover-inline",
@@ -536,7 +543,12 @@
       }
      ]
     }
-   }
+   },
+   "logoAnchors": [
+    "top-left",
+    "top",
+    "top-right"
+   ]
   },
   {
    "id": "section",
@@ -637,7 +649,14 @@
       }
      ]
     }
-   }
+   },
+   "logoAnchors": [
+    "top-left",
+    "top",
+    "top-right",
+    "bottom",
+    "bottom-right"
+   ]
   },
   {
    "id": "statement",
@@ -728,7 +747,12 @@
       }
      ]
     }
-   }
+   },
+   "logoAnchors": [
+    "top-left",
+    "top",
+    "top-right"
+   ]
   },
   {
    "id": "bullets",
@@ -850,7 +874,14 @@
       }
      ]
     }
-   }
+   },
+   "logoAnchors": [
+    "top-left",
+    "top",
+    "top-right",
+    "bottom-left",
+    "bottom"
+   ]
   },
   {
    "id": "stat",
@@ -958,7 +989,14 @@
       }
      ]
     }
-   }
+   },
+   "logoAnchors": [
+    "top-left",
+    "top",
+    "top-right",
+    "bottom",
+    "bottom-right"
+   ]
   },
   {
    "id": "quote",
@@ -1128,7 +1166,13 @@
       }
      ]
     }
-   }
+   },
+   "logoAnchors": [
+    "top-left",
+    "top",
+    "top-right",
+    "bottom"
+   ]
   },
   {
    "id": "image",
@@ -1233,7 +1277,11 @@
       }
      ]
     }
-   }
+   },
+   "logoAnchors": [
+    "top-left",
+    "bottom-left"
+   ]
   },
   {
    "id": "closing",
@@ -1692,7 +1740,13 @@
       }
      ]
     }
-   }
+   },
+   "logoAnchors": [
+    "top-left",
+    "top",
+    "top-right",
+    "bottom"
+   ]
   },
   {
    "id": "team",
@@ -1959,7 +2013,14 @@
       }
      ]
     }
-   }
+   },
+   "logoAnchors": [
+    "top-left",
+    "top",
+    "top-right",
+    "bottom-left",
+    "bottom"
+   ]
   },
   {
    "id": "comparison",
@@ -2141,7 +2202,12 @@
       }
      ]
     }
-   }
+   },
+   "logoAnchors": [
+    "top-left",
+    "top",
+    "top-right"
+   ]
   },
   {
    "id": "image-grid",
@@ -2226,9 +2292,9 @@
        "index": 0,
        "box": [
         96,
-        340,
+        380,
         560,
-        310
+        290
        ],
        "id": "picture-1",
        "radius": 8
@@ -2238,9 +2304,9 @@
        "index": 1,
        "box": [
         680,
-        340,
+        380,
         560,
-        310
+        290
        ],
        "id": "picture-2",
        "radius": 8
@@ -2250,9 +2316,9 @@
        "index": 2,
        "box": [
         1264,
-        340,
+        380,
         560,
-        310
+        290
        ],
        "id": "picture-3",
        "radius": 8
@@ -2262,9 +2328,9 @@
        "index": 3,
        "box": [
         96,
-        670,
+        690,
         560,
-        310
+        290
        ],
        "id": "picture-4",
        "radius": 8
@@ -2274,9 +2340,9 @@
        "index": 4,
        "box": [
         680,
-        670,
+        690,
         560,
-        310
+        290
        ],
        "id": "picture-5",
        "radius": 8
@@ -2286,16 +2352,21 @@
        "index": 5,
        "box": [
         1264,
-        670,
+        690,
         560,
-        310
+        290
        ],
        "id": "picture-6",
        "radius": 8
       }
      ]
     }
-   }
+   },
+   "logoAnchors": [
+    "top-left",
+    "top",
+    "top-right"
+   ]
   },
   {
    "id": "qa",

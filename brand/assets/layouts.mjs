@@ -199,7 +199,8 @@ function grid(c) {
 			logo(v, 'top-left'),
 			stack([v.x, v.y + 80 * u, gx - v.x - 2 * cell * 0.5 - 24 * u, v.h - 130 * u], [head(v, 44, 48, { maxLines: 4 })], { valign: 'center', prefer: v.cy }),
 			address(v, 'bottom-left', 'label'),
-			c.has('page') && page(v, 'top-right'),
+			// The page number under the lockup: the light and the grid take the right side.
+			c.has('page') && { ...page(v, 'top-left'), top: v.y + (ROW_H + 24) * u, w: Math.max(120 * u, gx - v.x - cell) },
 		]);
 	}
 	const story = v.shape === 'story';
@@ -293,7 +294,8 @@ function band(c, card = false) {
 			logo(v, 'top-left'), address(v, 'top-right'),
 			stack([v.x, v.y + 68 * u, (withBody ? 940 : 760) * u, by - 40 * u - v.y - 68 * u], [head(v, size, size * 1.07, { maxLines: 3 })], { prefer: v.y + (withBody ? 84 : 128 + (v.H / u - 630) / 2) * u, grow: v.w }),
 			withBody && stack([v.r - bw, by + bh + 32 * u, bw, v.b + 6 * u - by - bh - 32 * u], [body(v, 24, 31, 0, { maxLines: 4 })], { valign: 'bottom', align: 'left' }),
-			c.has('page') && page(v, 'bottom-left')]);
+			// The page number keeps to the left of the paragraph.
+			c.has('page') && { ...page(v, 'bottom-left'), w: withBody ? Math.max(80 * u, v.w - bw - 32 * u) : page(v, 'bottom-left').w }]);
 	}
 	// Without a paragraph the band sits lower and the headline takes the room, as on the Open Graph card.
 	const plain = card && !c.has('body');
@@ -516,9 +518,11 @@ function row(c) {
 		...[3, 4, 5].map((i) => ({ type: 'panel', quad: ROW[i].map(q), index: i })),
 		logo(v, 'top-left'),
 		wide
-			? stack([v.x, v.y + 68 * u, v.w * 0.33, foot - 32 * u - v.y - 68 * u], [head(v, 44, 48, { maxLines: 5 })], { valign: 'top' })
-			: stack([v.x, oy + 840.5 * k + 24 * u, 468 * u, v.b - oy - 840.5 * k - 24 * u], [head(v, 48, 51.6, { maxLines: 2 })], { valign: 'bottom', prefer: v.b - 0.2 * u, grow: c.has('cta') ? v.w - 290 * u : v.w }),
-		wide ? button(v, [v.x, foot, 241 * u, 56 * u], 'bottom-left') : button(v, [v.r - 241 * u, foot, 241 * u, 56 * u], 'bottom-right'),
+			// On a wide frame the button stands under the headline in its column, so a long label never reaches the row.
+			? stack([v.x, v.y + 68 * u, v.w * 0.33, v.b - v.y - 68 * u], [head(v, 44, 48, { maxLines: 5 }), key(v, 241, 56, 40)], { valign: 'top' })
+			// With a button the headline keeps to its own measure: a long label widens the button toward it.
+			: stack([v.x, oy + 840.5 * k + 24 * u, 468 * u, v.b - oy - 840.5 * k - 24 * u], [head(v, 48, 51.6, { maxLines: 2 })], { valign: 'bottom', prefer: v.b - 0.2 * u, grow: c.has('cta') ? 468 * u : v.w }),
+		!wide && button(v, [v.r - 241 * u, foot, 241 * u, 56 * u], 'bottom-right'),
 	]);
 }
 

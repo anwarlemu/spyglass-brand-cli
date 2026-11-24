@@ -86,7 +86,7 @@ export type Layer =
 	| (Named & { type: 'rect'; box: Box; fill: string; radius?: number; stroke?: string; opacity?: number })
 	| TextLayer
 	| StackLayer
-	| (Named & { type: 'logo'; lockup: string; color: string; box: Box; align?: 'left' | 'center' | 'right'; /** `auto`: Black where the light under it is pale. */ tone?: 'auto' })
+	| (Named & { type: 'logo'; lockup: string; color: string; box: Box; align?: 'left' | 'center' | 'right'; /** `auto`: Black where the light under it is pale. */ tone?: 'auto'; /** For stings that bring the lockup in: 0 to 1. */ opacity?: number })
 	| (Named & { type: 'light'; window?: Box; b?: Box; shift?: number; variant?: string; seed?: number; source?: 'brand' | 'generated'; clipQuad?: [Pt, Pt, Pt, Pt]; /** Stays where it is: it is not moved to keep copy clear. */ fixed?: boolean })
 	| (Named & { type: 'ascii'; box?: Box; seed?: number; density?: number; size?: number })
 	| InlineLayer
@@ -151,6 +151,8 @@ export type Scene = {
 	density?: number;
 	/** Changes to single layers, by id. */
 	edits?: Record<string, LayerEdit>;
+	/** The corners the logo may go to (the template's, where some would crowd its copy). */
+	logoAnchors?: Anchor[];
 };
 
 // ----- Colors -----
@@ -833,11 +835,12 @@ export async function drawScene(scene: Scene, opts: { embedFonts?: boolean } = {
 					}
 					if (finalLights.size && (lo + 0.05) / 0.05 > 1.05 / (hi + 0.05)) tone = 'black';
 				}
-				parts.push({ svg: logoSvg(l.lockup, tone, l.box, l.align), under: '' });
+				const mark = logoSvg(l.lockup, tone, l.box, l.align);
+				parts.push({ svg: l.opacity !== undefined && l.opacity < 1 ? `<g opacity="${f(l.opacity)}">${mark}</g>` : mark, under: '' });
 				const spec = brand().logo;
 				const min = (spec?.minHeight[l.lockup] ?? 0) * (scene.density ?? 1);
 				const lo = Math.max(0.5, Math.ceil((min / b[3]) * 100) / 100);
-				note(id, 'logo', b, { over: [...underneath(b), ...(l.tone === 'auto' ? ['light', 'light-2'] : []), ...(l.over ?? [])], logo: { clear: round(clearOf(l.lockup, b[3])), min }, can: { move: true, scale: [Math.min(1, lo), l.corner ? 1.8 : 1.4], hide: !l.required, ...(l.corner ? { anchors: CORNERS } : {}) } });
+				note(id, 'logo', b, { over: [...underneath(b), ...(l.tone === 'auto' ? ['light', 'light-2'] : []), ...(l.over ?? [])], logo: { clear: round(clearOf(l.lockup, b[3])), min }, can: { move: true, scale: [Math.min(1, lo), l.corner ? 1.8 : 1.4], hide: !l.required, ...(l.corner ? { anchors: scene.logoAnchors ? CORNERS.filter((a) => scene.logoAnchors!.includes(a)).sort((x, y) => (x === l.corner ? -1 : y === l.corner ? 1 : 0)) : [l.corner, ...CORNERS.filter((a) => a !== l.corner)] } : {}) } });
 				break;
 			}
 			case 'light': {
