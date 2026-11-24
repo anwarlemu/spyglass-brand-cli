@@ -1,24 +1,28 @@
 import { html } from 'lit'
 import { DsElement, define, HostLayoutController } from '@/elements/lib/element'
-import { legalContent, type LegalContent } from '@/lib/pages/legal'
-import '@/elements/components/site/footer-row'
+import { legalContent, legalPrivacyContent, type LegalContent } from '@/lib/pages/legal'
 import '@/elements/components/site/site-header'
+import '@/elements/components/site/page-head'
+import '@/elements/components/blocks/site-footer'
 import styles from 'virtual:tw'
 
-// LegalPage.tsx as <spyglass-legal-page>: the title and date, the list of sections and the sections in a 720px column.
-// The sections live in the shadow root, where the page's #fragment cannot reach them, so the list scrolls to them
-// itself (and puts the fragment in the address bar). `content` replaces the text.
-const WRAP = 'mx-auto w-full max-w-page-wide px-12 max-sm:px-4'
+// LegalPage.tsx as <spyglass-legal-page>: the header, the page head, the sections in the left columns and their list
+// staying in view in the right ones, then the footer. The sections live in the shadow root, where the page's #fragment
+// cannot reach them, so the list scrolls to them itself (and puts the fragment in the address bar). `page` picks terms or privacy;
+// `content` replaces the text.
+const CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
 /**
- * @summary The legal page template.
+ * @summary The legal page (terms, privacy).
  */
 export class LegalPage extends DsElement {
 	static styles = [DsElement.styles, styles]
 	protected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds="legal-page"]'))
-	static properties = { content: { type: Object } }
-	/** The text (lib/pages/legal.ts by default). */
-	content: LegalContent = legalContent
+	static properties = { page: {}, content: { type: Object } }
+	/** Which page's copy to show when there is no `content`: terms or privacy. */
+	page: 'terms' | 'privacy' = 'terms'
+	/** The text as JSON (lib/pages/legal.ts by default). */
+	content?: LegalContent
 
 	private go(event: Event, id: string) {
 		const target = (this.renderRoot as ShadowRoot).getElementById(id)
@@ -29,15 +33,8 @@ export class LegalPage extends DsElement {
 	}
 
 	render() {
-		const c = this.content ?? legalContent
-		return html`<div data-ds="legal-page" class="bg-surface text-fg">
-<div class=${WRAP}><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header></div>
-<main>
-<div class=${`${WRAP} grid gap-4 pt-16 pb-12 max-sm:pt-10 max-sm:pb-8`}><h1 class="type-section">${c.title}</h1><p class="type-label text-fg-muted">${c.updated}</p></div>
-<div class=${`${WRAP} grid grid-cols-4 gap-12 pt-12 pb-24 max-md:grid-cols-1 max-md:gap-8 max-sm:pb-16`}><nav aria-label=${c.contents} class="self-start md:sticky md:top-8"><p class="mb-3 type-label text-fg-faint">${c.contents}</p><ul class="grid gap-2">${c.sections.map((s) => html`<li><a href=${`#${s.id}`} class="rounded-control type-ui text-fg-muted transition-[color] duration-160 ease-standard hover:text-fg" @click=${(e: Event) => this.go(e, s.id)}>${s.title}</a></li>`)}</ul></nav><div class="col-span-3 grid max-w-180 gap-12 max-md:col-span-1">${c.sections.map((s) => html`<section id=${s.id} class="grid scroll-mt-8 gap-4"><h2 class="type-heading-2">${s.title}</h2>${s.body.map((p) => html`<p class="type-body text-fg-soft">${p}</p>`)}</section>`)}</div></div>
-</main>
-<footer class="border-t border-edge"><div class=${`${WRAP} py-10`}><spyglass-footer-row domain=${c.footer.domain} home-href="/" .links=${c.footer.links}></spyglass-footer-row></div></footer>
-</div>`
+		const c = this.content ?? (this.page === 'privacy' ? legalPrivacyContent : legalContent)
+		return html`<div data-ds="legal-page" class="bg-surface text-fg"><div class=${`${CONTAINER} relative z-10`}><spyglass-site-header .links=${c.shell.header.nav} .secondary=${c.shell.header.secondary} .cta=${c.shell.header.cta}></spyglass-site-header></div><main id="main"><spyglass-page-head head-id=${c.id} .lines=${[c.title]} .lead=${c.lead}></spyglass-page-head><div class=${`${CONTAINER} grid grid-cols-[minmax(0,1fr)] gap-12 pb-(--ds-layout-section) md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16`}><nav aria-label=${c.contents} class="self-start md:sticky md:top-8 md:order-last"><p class="mb-4 type-label text-fg-muted">${c.contents}</p><ul role="list" class="grid gap-2">${c.sections.map((s) => html`<li><a href=${`#${s.id}`} class="rounded-ds-sm type-ui text-fg-soft transition-[color] duration-160 ease-out hover:text-fg" @click=${(e: Event) => this.go(e, s.id)}>${s.title}</a></li>`)}</ul></nav><div class="grid max-w-measure gap-10"><p class="type-ui text-fg-muted">${c.updated}</p>${c.sections.map((s) => html`<section id=${s.id} aria-labelledby=${`${s.id}-title`} class="grid scroll-mt-8 gap-4"><h2 id=${`${s.id}-title`} class="type-heading-4 text-balance md:type-heading-3">${s.title}</h2>${s.body.map((p) => html`<p class="type-body text-pretty text-fg">${p}</p>`)}</section>`)}</div></div></main><spyglass-site-footer .columns=${c.shell.footer.columns} legal=${c.shell.footer.legal}></spyglass-site-footer></div>`
 	}
 }
 
