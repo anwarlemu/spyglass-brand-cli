@@ -1,0 +1,3 @@
+.ds-live-stage { transition: opacity var(--ds-duration-micro) var(--ds-easing-out); }
+@starting-style { .ds-live-stage[data-on] { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .ds-live-stage { transition: none; } }

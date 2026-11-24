@@ -1,0 +1,10 @@
+.ds-sheet-collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--ds-duration-exit) var(--ds-easing-out); }
+.ds-sheet-collapse[data-open="true"] { grid-template-rows: 1fr; transition-duration: var(--ds-duration-glide); }
+.ds-sheet-collapse > div { min-height: 0; overflow: hidden; }
+.ds-sheet-collapse-body { opacity: 0; transition: opacity var(--ds-duration-exit) var(--ds-easing-out); }
+.ds-sheet-collapse[data-open="true"] .ds-sheet-collapse-body { opacity: 1; transition-duration: var(--ds-duration-glide); }
+.ds-sheet-chevron { transition: transform var(--ds-duration-glide) var(--ds-easing-in-out); }
+[aria-expanded="true"] > .ds-sheet-chevron { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) {
+  .ds-sheet-collapse, .ds-sheet-collapse[data-open="true"], .ds-sheet-chevron { transition: none; }
+}
