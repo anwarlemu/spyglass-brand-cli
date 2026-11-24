@@ -1,0 +1,6 @@
+/* The host is the box, as DispersionField.tsx's canvas: the page's classes size and place it. */
+:host {
+  position: relative;
+  display: block;
+  overflow: clip;
+}
