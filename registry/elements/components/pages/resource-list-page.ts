@@ -6,6 +6,7 @@ import '@/elements/components/site/site-header'
 import '@/elements/components/site/page-head'
 import '@/elements/components/site/page-close'
 import '@/elements/components/blocks/site-footer'
+import '@/elements/components/visuals/ascii-trail'
 import styles from 'virtual:tw'
 
 // ResourceListPage.tsx as <spyglass-resource-list-page>: the header, the page head, the entries newest first as
@@ -33,7 +34,7 @@ export class ResourceListPage extends DsElement {
 		const body = entries.length
 			? html`<ul role="list" class="m-0 list-none border-t border-edge p-0">${entries.map((e) => html`<li><a href=${e.href} class="group grid gap-1 border-b border-edge py-6 focus-visible:-outline-offset-2 md:grid-cols-[160px_minmax(0,1fr)] md:gap-x-8"><time datetime=${e.date} class="type-ui text-fg-muted">${formatResourceDate(e.date)}</time><span class="type-body-lg text-fg">${e.title}</span><span class="type-body text-pretty text-fg-soft md:col-start-2">${e.line}</span></a></li>`)}</ul>`
 			: html`<div class="flex min-h-80 flex-col items-center justify-center gap-6 rounded-panel bg-surface-subtle p-8 text-center text-fg-soft"><p class="type-body-lg">${l.empty}</p><spyglass-button href=${c.back.href} variant="secondary">${c.back.label}</spyglass-button></div>`
-		return html`<div data-ds="resource-list-page" class="overflow-x-clip bg-surface text-fg"><div class=${CONTAINER}><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header></div><main><spyglass-page-head head-id=${l.key} .lines=${[l.title]} lead=${l.line}></spyglass-page-head><section aria-label=${l.title} class="pb-(--ds-layout-section)"><div class=${CONTAINER}>${body}</div></section><spyglass-page-close .lines=${c.close.lines} note=${c.close.note} .primary=${c.close.primary}></spyglass-page-close></main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`
+		return html`<div data-ds="resource-list-page" class="isolate overflow-x-clip bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><div class=${CONTAINER}><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header></div><main><spyglass-page-head head-id=${l.key} .lines=${[l.title]} lead=${l.line}></spyglass-page-head><section aria-label=${l.title} class="pb-(--ds-layout-section)"><div class=${CONTAINER}>${body}</div></section><spyglass-page-close .lines=${c.close.lines} note=${c.close.note} .primary=${c.close.primary}></spyglass-page-close></main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`
 	}
 }
 

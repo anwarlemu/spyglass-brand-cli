@@ -1,4 +1,5 @@
 import { SiteHeader } from '@/react/components/site/SiteHeader'
+import { AsciiTrail } from '@/react/components/visuals/AsciiTrail'
 import { PageHead } from '@/react/components/site/PageHead'
 import { SiteFooter } from '@/react/components/blocks/SiteFooter'
 import { notFoundContent, type NotFoundContent } from '@/lib/pages/not-found'
@@ -15,7 +16,8 @@ export interface NotFoundPageProps {
 
 export function NotFoundPage({ content: c = notFoundContent, className }: NotFoundPageProps) {
   return (
-    <div data-ds="not-found-page" className={cn('bg-surface text-fg', className)}>
+    <div data-ds="not-found-page" className={cn('isolate bg-surface text-fg', className)}>
+      <AsciiTrail mode="page" />
       <div className="relative z-10 mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)">
         <SiteHeader links={c.shell.header.nav} secondary={c.shell.header.secondary} />
       </div>

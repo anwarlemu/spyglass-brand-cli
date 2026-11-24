@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import { AsciiTrail } from '@/react/components/visuals/AsciiTrail'
 import { Badge } from '@/react/components/ui/Badge'
 import { CreativeCard } from '@/react/components/site/CreativeCard'
 import { PageClose } from '@/react/components/site/PageClose'
@@ -45,7 +46,8 @@ export function CaseStudyPage({ study: s = caseStudies[0], content: c = caseStud
   const { previous, next } = caseStudyNeighbors(c.studies, s.slug)
   const id = `${s.slug}-heading`
   return (
-    <div data-ds="case-study-page" className={cn('overflow-x-clip bg-surface text-fg', className)}>
+    <div data-ds="case-study-page" className={cn('isolate overflow-x-clip bg-surface text-fg', className)}>
+      <AsciiTrail mode="page" />
       <div className={CONTAINER}>
         <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       </div>

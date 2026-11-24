@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { AsciiTrail } from '@/react/components/visuals/AsciiTrail'
 import { SiteHeader } from '@/react/components/site/SiteHeader'
 import { RowFan } from '@/react/components/site/RowFan'
 import { AutomationRun } from '@/react/components/site/AutomationRun'
@@ -27,7 +28,8 @@ const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-lay
 export function TemplatesPage({ content: c = templatesPageContent, fan, className }: TemplatesPageProps) {
   const t = c.cities
   return (
-    <div data-ds="templates-page" className={cn('bg-surface text-fg', className)}>
+    <div data-ds="templates-page" className={cn('isolate bg-surface text-fg', className)}>
+      <AsciiTrail mode="page" />
       <style href="ds-templates-page" precedence="ds">{css}</style>
       <div className={cn(WRAP, 'relative z-10')}>
         <SiteHeader links={c.chrome.header.nav} secondary={c.chrome.header.secondary} cta={c.chrome.header.cta} />

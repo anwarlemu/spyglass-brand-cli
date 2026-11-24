@@ -1,4 +1,5 @@
 import { SiteHeader } from '@/react/components/site/SiteHeader'
+import { AsciiTrail } from '@/react/components/visuals/AsciiTrail'
 import { PageHead } from '@/react/components/site/PageHead'
 import { ResourceCards } from '@/react/components/site/ResourceCards'
 import { PageClose } from '@/react/components/site/PageClose'
@@ -19,7 +20,8 @@ const CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--d
 
 export function UseCasesPage({ content: c = useCasesContent, className }: UseCasesPageProps) {
   return (
-    <div data-ds="use-cases-page" className={cn('bg-surface text-fg', className)}>
+    <div data-ds="use-cases-page" className={cn('isolate bg-surface text-fg', className)}>
+      <AsciiTrail mode="page" />
       <div className={cn(CONTAINER, 'relative z-10')}>
         <SiteHeader links={c.chrome.header.nav} secondary={c.chrome.header.secondary} cta={c.chrome.header.cta} />
       </div>

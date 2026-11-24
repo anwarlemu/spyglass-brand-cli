@@ -1,4 +1,5 @@
 import { SiteHeader } from '@/react/components/site/SiteHeader'
+import { AsciiTrail } from '@/react/components/visuals/AsciiTrail'
 import { SiteFooter } from '@/react/components/blocks/SiteFooter'
 import { Button } from '@/react/components/ui/Button'
 import { HERO_BAND } from '@/lib/effects/light-art'
@@ -33,7 +34,8 @@ function Tile({ photo }: { photo: AboutPhoto }) {
 
 export function AboutPage({ content: c = aboutContent, className }: AboutPageProps) {
   return (
-    <div data-ds="about-page" className={cn('bg-surface text-fg', className)}>
+    <div data-ds="about-page" className={cn('isolate bg-surface text-fg', className)}>
+      <AsciiTrail mode="page" />
       <style href="ds-about-page" precedence="ds">{css}</style>
       <div className={cn(CONTAINER, 'relative z-10')}>
         <SiteHeader links={c.shell.header.nav} secondary={c.shell.header.secondary} />
