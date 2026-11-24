@@ -443,6 +443,19 @@
   --ds-glow-dot-fade: 128px;
   --ds-glow-dot-color: color-mix(in srgb, var(--ds-color-white) 10%, transparent); /* site --footer-dot-color, white at 0.1 */
   --ds-easing-glow: cubic-bezier(0.33, 1, 0.68, 1); /* site --ease-footer-glow */
+  /* The abstract canvases' loop timings, frame clocks on a canvas, not transitions (site --dur-abstract-*, the loop and
+     proof steps they borrow, --search-drift). */
+  --ds-abstract-line: 267ms;
+  --ds-abstract-line-step: 433ms;
+  --ds-abstract-glide: 400ms;
+  --ds-abstract-gather: 400ms;
+  --ds-abstract-decode: 600ms;
+  --ds-abstract-tag-step: 2000ms;
+  --ds-abstract-loop-step: 2600ms;
+  --ds-abstract-stagger: 70ms;
+  --ds-abstract-swap: 600ms;
+  --ds-abstract-ease: cubic-bezier(0, 0, 0.58, 1);
+  --ds-abstract-drift: 8px;
   --ds-fan-below-gap: 40px; /* the cards under the name on phones (site --cities-below-gap) */
   --ds-easing-fan-pop: cubic-bezier(0.45, 0, 0.55, 1); /* site --ease-cities-pop */
   --ds-easing-fan-lift: cubic-bezier(0.33, 1, 0.68, 1); /* site --ease-cities-lift */
