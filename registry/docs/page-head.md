@@ -16,6 +16,7 @@ files:
 examples:
   - "Margin | Copy left, drift right | bleed"
   - "Centre | Centered | bleed"
+  - "Control | With the connect menu | bleed"
   - "Eyebrow | With an eyebrow, no buttons | bleed"
   - "Error | The error head | bleed"
 ---

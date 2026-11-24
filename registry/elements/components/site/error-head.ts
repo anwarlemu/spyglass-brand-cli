@@ -26,7 +26,7 @@ export class ErrorHead extends DsElement {
 
 	render() {
 		const c = this.content ?? errorHeadContent
-		return html`<div data-ds="error-head" class="contents"><spyglass-page-head head-id="error" .lines=${[c.lines.join(' ')]} .lead=${c.lead} .drift=${false} .secondary=${c.home}><spyglass-button slot="control" @click=${() => this.emit('retry')}>${c.retry}</spyglass-button></spyglass-page-head></div>`
+		return html`<div data-ds="error-head" class="contents"><spyglass-page-head head-id="error" .lines=${[c.lines.join(' ')]} .lead=${c.lead} .drift=${false} .pair=${false} .secondary=${c.home}><spyglass-button slot="control" @click=${() => this.emit('retry')}>${c.retry}</spyglass-button></spyglass-page-head></div>`
 	}
 }
 

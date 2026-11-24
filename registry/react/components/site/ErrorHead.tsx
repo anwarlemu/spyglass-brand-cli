@@ -32,6 +32,7 @@ export function ErrorHead({ content: c = errorHeadContent, onRetry, className }:
         lines={[c.lines.join(' ')]}
         lead={c.lead}
         drift={false}
+        pair={false}
         control={<Button onClick={onRetry}>{c.retry}</Button>}
         secondary={c.home}
         className={className}
