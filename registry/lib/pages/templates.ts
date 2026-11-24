@@ -41,8 +41,19 @@ export interface TemplateCityRow {
 	items: TemplateCityItem[]
 }
 
-const acme = (key: string, n: number, meta: (i: number) => string): TemplateCityItem[] =>
-	Array.from({ length: n }, (_, i) => ({ key: `${key}-${i + 1}`, alt: `Acme creative ${i + 1}`, title: 'Acme', meta: meta(i) }))
+// Acme placeholder pictures for the rows: a square in one of four neutral steps, lighter at the top, with the
+// advertiser at the foot, so the fan never needs a third-party picture. Pass your own `src`.
+const STEPS = [['#262626', '#0F0F0F'], ['#363636', '#1A1A1A'], ['#4D4D4D', '#262626'], ['#666666', '#363636']] // the creative card's four tones (neutral 4 to 2 up to 7 to 5)
+const placeholder = (n: number, label: string) => {
+	const [top, bottom] = STEPS[n % STEPS.length]!
+	return `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${top}"/><stop offset="1" stop-color="${bottom}"/></linearGradient></defs><rect width="256" height="256" fill="url(#g)"/><text x="20" y="232" fill="#D4D4D4" font-family="sans-serif" font-size="22" letter-spacing="1">${label.toUpperCase()}</text></svg>`)}`
+}
+const ADVERTISERS = ['Acme Skin', 'Acme Drinks', 'Acme Fit', 'Acme Studio', 'Acme Home', 'Acme Motors', 'Acme Foods', 'Acme Travel', 'Acme Pets', 'Acme Wear']
+const acme = (key: string, n: number, meta: (i: number) => string, shift = 0): TemplateCityItem[] =>
+	Array.from({ length: n }, (_, i) => {
+		const title = ADVERTISERS[(i + shift) % ADVERTISERS.length]!
+		return { key: `${key}-${i + 1}`, src: placeholder(i + shift, title), alt: `${title} creative`, title, meta: meta(i) }
+	})
 
 export const templatesPageContent = {
 	chrome: siteChrome,
@@ -54,9 +65,9 @@ export const templatesPageContent = {
 		status: templatesWallContent.status,
 		rows: [
 			{ key: 'adLibrary', name: 'Ad library', href: '/use-cases/paid-ads', line: 'Every morning at 8:00, every ad from the brands you follow.', items: acme('ads', 10, (i) => `Ad, ${[74, 26, 48, 12, 9, 31, 5, 17, 40, 22][i]} days live`) },
-			{ key: 'creators', name: 'Creator sourcing tool', href: '/use-cases/creator-sourcing', line: 'Every Friday at 10:00, creators who fit your audience, place and size.', items: acme('creators', 10, () => 'Creator post') },
-			{ key: 'monitor', name: 'Competitor monitor', href: '/use-cases/competitive-analysis', line: "Every Monday at 8:00, a competitor's new ads, pages and creators.", items: acme('monitor', 10, (i) => (i % 3 === 1 ? 'Landing page' : 'Ad')) },
-			{ key: 'trends', name: 'Trend tracker', href: '/use-cases/organic-social', line: 'Every day at 7:00, the hooks gaining share in your category.', items: acme('trends', 10, (i) => `Post, ${['275.5K', '652.9K', '36.3K', '28.2K', '91K'][i % 5]} views`) },
+			{ key: 'creators', name: 'Creator sourcing tool', href: '/use-cases/creator-sourcing', line: 'Every Friday at 10:00, creators who fit your audience, place and size.', items: acme('creators', 10, () => 'Creator post', 1) },
+			{ key: 'monitor', name: 'Competitor monitor', href: '/use-cases/competitive-analysis', line: "Every Monday at 8:00, a competitor's new ads, pages and creators.", items: acme('monitor', 10, (i) => (i % 3 === 1 ? 'Landing page' : 'Ad'), 2) },
+			{ key: 'trends', name: 'Trend tracker', href: '/use-cases/organic-social', line: 'Every day at 7:00, the hooks gaining share in your category.', items: acme('trends', 10, (i) => `Post, ${['275.5K', '652.9K', '36.3K', '28.2K', '91K'][i % 5]} views`, 3) },
 		] satisfies TemplateCityRow[],
 	},
 	faq: {

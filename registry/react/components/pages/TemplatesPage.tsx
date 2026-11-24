@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { SiteHeader } from '@/react/components/site/SiteHeader'
+import { RowFan } from '@/react/components/site/RowFan'
 import { AutomationRun } from '@/react/components/site/AutomationRun'
 import { PageClose } from '@/react/components/site/PageClose'
 import { TemplatesWall } from '@/react/components/blocks/TemplatesWall'
@@ -11,12 +12,12 @@ import { cn } from '@/react/lib/cn'
 // The site's templates page (app/templates): the header, the templates wall as the hero (an h1 filling the window under
 // the header), the automation run (a quote over the batch drifting by), what each template brings back
 // (pages/TemplatesPage/TemplateCities: a centered head and a row per template, its name 32/36, 44/48 at 768, 64/68 at
-// 1024, each row a link with room under it for its items to fan out), the questions, the close with a White and a quiet
-// button, and the footer. `fan` replaces the rows with your own arrangement of them (the row fan); `content` replaces
+// 1024, each row a link whose items fan out in perspective, the row fan), the questions, the close with a White and a quiet
+// button, and the footer. `fan` replaces the row fan with your own arrangement of the rows; `content` replaces
 // the copy (lib/pages/templates.ts).
 export interface TemplatesPageProps {
   content?: TemplatesPageContent
-  /** The cities' rows as an arrangement of your own (the row fan); the plain rows by default. */
+  /** Your own arrangement of the rows in place of the row fan. */
   fan?: ReactNode
   className?: string
 }
@@ -40,18 +41,7 @@ export function TemplatesPage({ content: c = templatesPageContent, fan, classNam
             <p className="mt-4 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft">{t.lead}</p>
           </div>
           <div className="ds-tpl-cities-rows relative">
-            {fan ?? (
-              <ul role="list" className="ds-tpl-cities-list m-0 flex list-none flex-col p-0">
-                {t.rows.map((r) => (
-                  <li key={r.key}>
-                    <a href={r.href} className="ds-tpl-cities-row flex justify-center text-fg no-underline outline-none">
-                      <span className="ds-tpl-cities-name inline-block whitespace-nowrap">{r.name}</span>
-                      <span className="sr-only">{`: ${t.status.toLowerCase()}. ${r.line}`}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {fan ?? <RowFan rows={t.rows.map((r) => ({ key: r.key, name: r.name, href: r.href, cta: r.line, srLabel: `: ${t.status.toLowerCase()}. ${r.line}`, items: r.items.map((i) => ({ ...i, src: i.src ?? '' })) }))} />}
           </div>
         </section>
         <div className={cn(WRAP, 'py-(--ds-layout-section)')}>
@@ -69,21 +59,6 @@ export default TemplatesPage
 const css = `
 .ds-tpl-cities { padding-bottom: calc(var(--ds-layout-section) - var(--ds-space-lg)); }
 .ds-tpl-cities-rows { margin-top: var(--ds-space-3xl); }
-.ds-tpl-cities-row { padding-top: var(--ds-space-lg); padding-bottom: var(--ds-space-7xl); }
-.ds-tpl-cities-name {
-  font-family: var(--ds-font-heading); font-weight: var(--ds-font-weight-regular);
-  font-size: var(--ds-text-heading-2); line-height: var(--ds-text-heading-2-leading);
-}
-.ds-tpl-cities-row:focus-visible .ds-tpl-cities-name { outline: var(--ds-border-focus) solid var(--ds-color-edge-focus); outline-offset: var(--ds-space-sm); }
-@media (min-width: 768px) {
-  .ds-tpl-cities-rows { margin-top: calc(var(--ds-space-4xl) + var(--ds-space-sm)); }
-  .ds-tpl-cities-row { padding-bottom: calc(var(--ds-space-lg) + var(--ds-space-xl) + var(--ds-space-6xl)); }
-  .ds-tpl-cities-name { font-size: var(--ds-text-heading-1); line-height: var(--ds-text-heading-1-leading); }
-}
-@media (min-width: 1024px) {
-  .ds-tpl-cities { padding-bottom: var(--ds-layout-section); }
-  .ds-tpl-cities-list { gap: calc(var(--ds-space-xl) + var(--ds-space-lg)); }
-  .ds-tpl-cities-row { padding-bottom: var(--ds-space-lg); }
-  .ds-tpl-cities-name { font-size: var(--ds-text-display-s); line-height: var(--ds-text-display-s-leading); }
-}
+@media (min-width: 768px) { .ds-tpl-cities-rows { margin-top: calc(var(--ds-space-4xl) + var(--ds-space-sm)); } }
+@media (min-width: 1024px) { .ds-tpl-cities { padding-bottom: var(--ds-layout-section); } }
 `
