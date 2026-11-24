@@ -106,7 +106,7 @@ describe('cli', () => {
 	it('manifest lists the page templates and blocks with the command that adds each', () => {
 		const doc = JSON.parse(run(mkdtempSync(join(tmpdir(), 'spyglass-ds-')), 'manifest'));
 		expect(doc.pages.map((p: { name: string }) => p.name).sort()).toEqual(['about-page', 'blog-page', 'blog-post-page', 'changelog-page', 'contact-page', 'home-page', 'legal-page', 'not-found-page', 'pricing-page', 'product-page']);
-		expect(doc.blocks.map((b: { name: string }) => b.name).sort()).toEqual(['faq-block', 'feature-grid-block', 'footer-block', 'hero-block', 'logo-strip-block', 'offer-block', 'pricing-table-block', 'stat-block', 'testimonial-block']);
+		expect(doc.blocks.map((b: { name: string }) => b.name).sort()).toEqual(['faq-block', 'feature-grid-block', 'footer-block', 'hero-block', 'logo-strip-block', 'offer-block', 'pricing-table-block', 'site-footer', 'stat-block', 'testimonial-block']);
 		expect(doc.pages.find((p: { name: string }) => p.name === 'home-page').add).toBe('spyglass-ds add home-page');
 		expect(doc.groups.map((g: { id: string }) => g.id)).toEqual(expect.arrayContaining(['pages', 'blocks']));
 	});
