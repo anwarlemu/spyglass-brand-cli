@@ -450,6 +450,34 @@
   --ds-price-phone-band-h: 560px;
   /* group: pricing-products-enterprise */
   /* group: use-cases-resources-templates */
+  /* templates-wall: the tunnel of templates around the headline (site tokens.css 395-414, 605-608, 355-357) */
+  --ds-templates-design-w: 500; /* site --templates-design-w; 1960 from 768 (-md) */
+  --ds-templates-design-w-md: 1960;
+  --ds-templates-design-h: 1084; /* site --templates-design-h; 982 from 768 */
+  --ds-templates-design-h-md: 982;
+  --ds-templates-count: 74; /* site --templates-count: tiles in the tunnel; 128 from 768 */
+  --ds-templates-count-md: 128;
+  --ds-templates-near: 832px; /* site --templates-near: the nearest tile's depth; 132px from 768 */
+  --ds-templates-near-md: 132px;
+  --ds-templates-tile-w: 176px; /* site --templates-tile-w */
+  --ds-templates-tile-h: 220px; /* site --templates-tile-h */
+  --ds-templates-tile-gap: 20px; /* site --templates-tile-gap */
+  --ds-templates-per-turn: 18.5; /* site --templates-per-turn: tiles per turn of the helix */
+  --ds-templates-perspective: 520px; /* site --templates-perspective */
+  --ds-templates-drift: 24px; /* site --templates-drift: px per second toward the viewer */
+  --ds-templates-turn: 1.5; /* site --templates-turn: degrees per second */
+  --ds-templates-near-dim: 0.6; /* site --templates-near-dim */
+  --ds-templates-bright-from: 560px; /* site --templates-bright-from */
+  --ds-templates-bright-until: 880px; /* site --templates-bright-until */
+  --ds-templates-clear: 32px; /* site --templates-clear: room kept around the words */
+  --ds-templates-edge: 16px; /* site --templates-edge */
+  --ds-templates-appear: 600ms; /* site --dur-templates-appear: a tile fading in (a loop's step) */
+  --ds-templates-appear-scale: 0.92; /* site --templates-appear-scale */
+  --ds-templates-gather: 1000ms; /* site --dur-templates-gather: the longest the first frame waits for pictures */
+  --ds-templates-chip-opacity: 0.72; /* site --templates-chip-opacity */
+  --ds-templates-name-step: 2400ms; /* site --dur-skills-step: one name per step (a loop) */
+  --ds-templates-name-move: 600ms; /* site --dur-skills-move: the names rolling */
+  --ds-easing-templates-name: cubic-bezier(0.85, 0, 0.15, 1); /* site --ease-skills: the roll, in and out */
 }
 
 /* The site's gutters, section padding and header by width (site tokens.css 585-640). */
