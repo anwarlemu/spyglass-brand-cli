@@ -101,11 +101,11 @@ describe('cli', () => {
 		const dir = nuxtApp();
 		const out = JSON.parse(run(dir, 'add', 'pricing-page', '--no-install'));
 		expect(out.flavor).toBe('elements');
-		for (const f of ['pricing-page', 'plan-card', 'offer-block', 'site-header', 'footer-row']) expect(existsSync(join(dir, `public/spyglass-ds/elements/${f}.js`)), f).toBe(true);
+		for (const f of ['pricing-page', 'pricing-table', 'compare-table', 'page-head', 'site-header', 'site-footer']) expect(existsSync(join(dir, `public/spyglass-ds/elements/${f}.js`)), f).toBe(true);
 	});
 	it('manifest lists the page templates and blocks with the command that adds each', () => {
 		const doc = JSON.parse(run(mkdtempSync(join(tmpdir(), 'spyglass-ds-')), 'manifest'));
-		expect(doc.pages.map((p: { name: string }) => p.name).sort()).toEqual(['about-page', 'auth-page', 'blog-page', 'blog-post-page', 'careers-page', 'changelog-page', 'contact-page', 'dashboard-page', 'error-page', 'home-page', 'legal-page', 'not-found-page', 'pricing-page', 'product-page', 'settings-page']);
+		expect(doc.pages.map((p: { name: string }) => p.name).sort()).toEqual(['about-page', 'auth-page', 'blog-page', 'blog-post-page', 'careers-page', 'changelog-page', 'coming-soon-page', 'contact-page', 'dashboard-page', 'error-page', 'home-page', 'legal-page', 'not-found-page', 'pricing-page', 'product-page', 'settings-page']);
 		expect(doc.blocks.map((b: { name: string }) => b.name).sort()).toEqual(['bento-block', 'faq-block', 'feature-grid-block', 'footer-block', 'hero-block', 'logo-strip-block', 'newsletter-block', 'offer-block', 'pricing-panels-block', 'pricing-table-block', 'site-footer', 'stat-block', 'steps-block', 'testimonial-block']);
 		expect(doc.pages.find((p: { name: string }) => p.name === 'home-page').add).toBe('spyglass-ds add home-page');
 		expect(doc.groups.map((g: { id: string }) => g.id)).toEqual(expect.arrayContaining(['pages', 'blocks']));

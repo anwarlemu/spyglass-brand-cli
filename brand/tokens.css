@@ -462,6 +462,11 @@
   --ds-plan-rim-glide: 10.4s; /* loop: one lap of the rim light (site --dur-plan-rim-glide: 4 * --dur-loop-step) */
   --ds-plan-rim-cycle: 7.8s; /* loop: the glyphs' shimmer (site --dur-plan-rim-cycle: 3 * --dur-loop-step) */
   --ds-plan-ascii-drift: 15.6s; /* loop: the glyphs' drift (site --dur-plan-ascii-drift: 2 * the cycle) */
+  /* coming soon */
+  --ds-coming-ascii-at-2: -320px -160px; /* where each card's cover takes the ASCII tile (site .card:nth-child(n) --ascii-at) */
+  --ds-coming-ascii-at-3: -480px -320px;
+  --ds-coming-ascii-at-4: -160px -480px;
+  --ds-coming-ascii-at-5: -240px -96px;
   /* enterprise */
   /* The automation run (site tokens.css 684-740, --ent-run-*): a skewed conveyor of ads under a quote. The -md and -xl
      values apply from 768 and 1280, -lg from 1024. Fractions are of the run's width. */
