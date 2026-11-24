@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Button } from '@/react/components/ui/Button'
 import { Segmented } from '@/react/components/site/Segmented'
+import { TextSwap } from '@/react/components/ui/TextSwap'
 import { ASCII_TEXTURE } from '@/lib/textures'
 import { ASCII_TEXTURE_ALPHA, PLAN_LIGHTS, type PlanLight } from '@/lib/plan-lights'
 import { cn } from '@/react/lib/cn'
@@ -136,13 +137,8 @@ export function PricingTable({ plans, billing, note, value, defaultBilling = 'mo
                 </div>
                 {p.description && <p className="ds-plan-for m-0 max-w-(--ds-plan-copy-w) type-ui text-pretty">{p.description}</p>}
                 <p className="m-0 mt-auto flex flex-wrap items-baseline gap-x-2 pt-8">
-                  <span className="type-figure tabular-nums">{price}</span>
-                  {(unit || (p.tag && !y)) && (
-                    <span className="ds-plan-unit type-ui whitespace-nowrap">
-                      {unit}
-                      {p.tag && !y && <span className="ds-plan-badge ds-plan-save ms-2 inline-block rounded-ds-sm bg-(--ds-color-black) px-2 text-(--ds-color-white) shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-edge-surface)]">{p.tag}</span>}
-                    </span>
-                  )}
+                  <TextSwap className="type-figure tabular-nums" text={price} />
+                  {(unit || p.tag) && <span className="ds-plan-unit type-ui"><TextSwap text={unit ?? ''} tag={p.tag && !y ? p.tag : undefined} /></span>}
                 </p>
               </div>
               {p.cta ? <Button href={p.href} variant={p.featured ? 'primary' : 'secondary'} className="w-full" aria-describedby={id}>{p.cta}</Button> : <span />}
