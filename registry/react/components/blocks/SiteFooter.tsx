@@ -60,7 +60,7 @@ export function SiteFooter({ columns, legal, homeHref = '/', soon = 'Coming soon
           <div aria-hidden="true" className="relative w-full" style={{ aspectRatio: `${w.width} / ${w.height}` }}>
             <svg viewBox={`0 0 ${w.width} ${w.height}`} className="absolute inset-0 block size-full fill-wordmark-gray" dangerouslySetInnerHTML={{ __html: w.body }} />
             <div className="absolute inset-0" style={{ maskImage: mask, WebkitMaskImage: mask, maskSize: '100% 100%', WebkitMaskSize: '100% 100%', maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat' }}>
-              <BrandLight variant="band" seed={seed} ground={false} cover className="absolute inset-x-0 bottom-0 h-3/5 mix-blend-screen" />
+              <BrandLight variant="curved-strip" seed={seed} ground={false} cover className="absolute inset-x-0 top-1/4 h-3/4 mix-blend-screen" />
             </div>
           </div>
         )}
