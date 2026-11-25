@@ -13,17 +13,19 @@ import styles from 'virtual:tw'
 export class ProductVisual extends DsElement {
 	static styles = [DsElement.styles, styles, unsafeCSS(productVisualCss)]
 	protected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds="product-visual"]'))
-	static properties = { kind: { reflect: true }, data: { type: Object }, texture: {} }
+	static properties = { kind: { reflect: true }, data: { type: Object }, texture: {}, fill: { type: Boolean } }
 	/** Which scene. */
 	kind: ProductVisualKind = 'brand-record'
 	/** The kind's content; Acme by default. */
 	data?: unknown
 	/** The ASCII field's position, 0 to 3, or "none". */
 	texture?: number | string
+	/** Fill the box it is in (its height, no 4:3, no panel of its own): the header's live card. */
+	fill = false
 	private stop?: () => void
 
 	render() {
-		return html`<div data-ds="product-visual" data-kind=${this.kind} class="ds-pv"></div>`
+		return html`<div data-ds="product-visual" data-kind=${this.kind} ?data-fill=${this.fill} class="ds-pv"></div>`
 	}
 
 	protected updated(changed: PropertyValues) {

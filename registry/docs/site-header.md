@@ -21,6 +21,7 @@ files:
   - react/components/site/SheetDisclosure.tsx
   - react/components/site/NavIcon.tsx
   - lib/site-header.ts
+  - lib/home-link.ts
 examples:
   - "Default | With the menus | bleed"
   - "Centered | Links from 1024 | bleed"

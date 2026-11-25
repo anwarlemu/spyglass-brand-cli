@@ -1,7 +1,7 @@
 import { html, nothing } from 'lit'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { DsElement, define, HostLayoutController, uid } from '@/elements/lib/element'
-import { faqSlotHeight, slideFaqRows, type FaqMove } from '@/lib/faq'
+import { faqShift, faqSlotHeight, slideFaqRows, type FaqMove } from '@/lib/faq'
 import styles from 'virtual:tw'
 
 // FaqAccordion.tsx as <spyglass-faq-accordion>: the site's FAQ rows, one answer open at a time, every open slot as tall
@@ -32,7 +32,8 @@ export class FaqAccordion extends DsElement {
 
 	private select(clicked: number, current: number, closed: number) {
 		const next = clicked === current ? closed : clicked
-		this.move = { from: current, to: next, distance: faqSlotHeight(this.list) }
+		const distance = faqSlotHeight(this.list)
+		this.move = { from: current, to: next, distance, shift: faqShift(this.list, current, next, distance, closed) }
 		this.open = next
 	}
 

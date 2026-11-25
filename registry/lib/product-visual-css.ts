@@ -10,6 +10,7 @@ export const productVisualCss = `
   color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-caption);
   line-height: var(--ds-text-caption-leading); font-weight: var(--ds-font-weight-regular); text-align: left;
 }
+.ds-pv[data-fill] { aspect-ratio: auto; height: 100%; border-radius: var(--ds-radius-sm); background: transparent; }
 .ds-pv *, .ds-pv *::before, .ds-pv *::after { box-sizing: border-box; }
 .ds-pv-ascii {
   position: absolute; inset: 0; z-index: -1; pointer-events: none; background-image: var(--pv-ascii);

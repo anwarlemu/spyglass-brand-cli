@@ -19,10 +19,12 @@ export interface ProductVisualProps<K extends ProductVisualKind = ProductVisualK
   data?: ProductVisualDataMap[K]
   /** The ASCII field's position, 0 to 3 (a product page alternates by row), or false for none. */
   texture?: number | false
+  /** Fill the box it is in (its height, no 4:3, no panel of its own): the header's live card. */
+  fill?: boolean
   className?: string
 }
 
-export function ProductVisual<K extends ProductVisualKind>({ kind, data, texture = 0, className }: ProductVisualProps<K>) {
+export function ProductVisual<K extends ProductVisualKind>({ kind, data, texture = 0, fill = false, className }: ProductVisualProps<K>) {
   const ref = useRef<HTMLDivElement>(null)
   const key = JSON.stringify(data ?? null)
   useEffect(() => {
@@ -31,7 +33,7 @@ export function ProductVisual<K extends ProductVisualKind>({ kind, data, texture
     return mountProductVisual(stage, { kind, data: key === 'null' ? undefined : (JSON.parse(key) as ProductVisualDataMap[K]), texture })
   }, [kind, key, texture])
   return (
-    <div ref={ref} data-ds="product-visual" data-kind={kind} className={cn('ds-pv', className)}>
+    <div ref={ref} data-ds="product-visual" data-kind={kind} data-fill={fill || undefined} className={cn('ds-pv', className)}>
       <style href="ds-product-visual" precedence="ds">{productVisualCss}</style>
     </div>
   )

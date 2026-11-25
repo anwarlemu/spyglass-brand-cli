@@ -1,13 +1,14 @@
 'use client'
 import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react'
-import { faqSlotHeight, slideFaqRows, type FaqMove } from '@/lib/faq'
+import { faqShift, faqSlotHeight, slideFaqRows, type FaqMove } from '@/lib/faq'
 import { cn } from '@/react/lib/cn'
 
 // The site's FAQ rows (ui/FaqAccordion, V3Faq.module.css, V2Faq.module.css): questions in DM Sans 20/28 in the soft
 // gray (White when open or under the pointer) under #363636 hairlines, 20px above and below (24 from 768), a 12px plus
 // that turns to a minus. One answer is open at a time (the first, unless `defaultOpen` says otherwise); it fades in
 // over 320ms, 640px wide at most, and every open slot is as tall as the longest answer, so the rows between the one
-// closing and the one opening slide by that height (transform only). Arrows, Home and End move between questions.
+// closing and the one opening slide by that height (transform only), and the page scrolls with them when the opened
+// row would leave the view. Arrows, Home and End move between questions.
 // Reduced motion: no slide or fade.
 export interface FaqAccordionItem {
   q: string
@@ -38,7 +39,8 @@ export function FaqAccordion({ items, defaultOpen = 0, edge = 'top', narrow = fa
 
   const select = (clicked: number) => {
     const next = clicked === open ? closed : clicked
-    move.current = { from: open, to: next, distance: faqSlotHeight(listRef.current) }
+    const distance = faqSlotHeight(listRef.current)
+    move.current = { from: open, to: next, distance, shift: faqShift(listRef.current, open, next, distance, closed) }
     setOpen(next)
   }
 

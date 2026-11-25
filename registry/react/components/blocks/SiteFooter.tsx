@@ -1,9 +1,11 @@
+'use client'
 import type { ReactNode } from 'react'
 import { Badge } from '@/react/components/ui/Badge'
 import { BrandLight } from '@/react/components/visuals/BrandLight'
 import { Logo } from '@/react/components/visuals/Logo'
 import { cn } from '@/react/lib/cn'
 import { LOGOS } from '@/lib/logos'
+import { homeLinkClick } from '@/lib/home-link'
 
 // The site's footer (site/Footer): the wordmark across the page width in the footer gray (#373737), the brand light
 // running through its lower half, and a #262626 card with a #363636 hairline and the 8px corner rising over the
@@ -87,7 +89,7 @@ export function SiteFooter({ columns, legal, homeHref = '/', soon = 'Coming soon
               </div>
             </nav>
             <div className="mt-16 flex items-center justify-between gap-6 border-t border-edge pt-5 pb-6 max-md:mt-12 max-sm:flex-col max-sm:items-start">
-              <a href={homeHref} aria-label={label} className="rounded-ds-sm"><Logo height={20} label={label} /></a>
+              <a href={homeHref} aria-label={label} onClick={(e) => homeLinkClick(e.nativeEvent)} className="rounded-ds-sm"><Logo height={20} label={label} /></a>
               {legal && <p className="type-ui text-fg-muted">{legal}</p>}
             </div>
           </div>

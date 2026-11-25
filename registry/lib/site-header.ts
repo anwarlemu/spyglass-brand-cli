@@ -1,3 +1,4 @@
+import type { ProductVisualKind } from '@/lib/product-visual-data'
 // The site header's content and glyphs (site/Header, content/nav.ts, content/home.ts): the nav, the three menus and the
 // menu icons, the same in both flavors. Copy is Acme's; platforms are named in words (never their logos); pictures come
 // in through `picture` and `shots` (none by default, so no one's photo is shown unless you pass it).
@@ -28,7 +29,9 @@ export interface OfferRow {
 	icon: NavIconName
 	/** Where it is live, in words: a chip on the live card. */
 	platforms?: string[]
-	/** A picture for the live card (a product shot, never a person's photo by default). */
+	/** The product's looping scene on the live card (a `product-visual` kind), as on the site. */
+	visual?: ProductVisualKind
+	/** A picture for the live card instead (a product shot, never a person's photo by default). */
 	picture?: string
 }
 
@@ -84,11 +87,11 @@ export const headerLabels: HeaderLabels = { nav: 'Main', menu: 'Menu', close: 'C
 export const headerMenus: Required<HeaderMenus> = {
 	products: {
 		offers: [
-			{ key: 'brands-creators', name: 'Brands and creators', platforms: ['Meta', 'Instagram', 'TikTok'], line: 'Profiles, handles, reach and category', icon: 'brand', href: '#brands' },
-			{ key: 'media-archive', name: 'Media archive', platforms: ['Meta', 'Instagram', 'TikTok'], line: 'Ads, posts, performance, comments', icon: 'media', href: '#media' },
-			{ key: 'collaborations', name: 'Collaborations', platforms: ['Meta', 'Instagram'], line: 'Who works with whom, since when', icon: 'collabs', href: '#collabs' },
-			{ key: 'creative-insights', name: 'Creative insights', line: 'Hooks, angles, personas and formats', icon: 'insights', href: '#insights' },
-			{ key: 'search', name: 'Realtime search', line: 'Ask in plain words, across it all', icon: 'research', href: '#search' },
+			{ key: 'brands-creators', name: 'Brands and creators', platforms: ['Meta', 'Instagram', 'TikTok'], line: 'Profiles, handles, reach and category', visual: 'add-account', icon: 'brand', href: '#brands' },
+			{ key: 'media-archive', name: 'Media archive', platforms: ['Meta', 'Instagram', 'TikTok'], line: 'Ads, posts, performance, comments', visual: 'media-mix', icon: 'media', href: '#media' },
+			{ key: 'collaborations', name: 'Collaborations', platforms: ['Meta', 'Instagram'], line: 'Who works with whom, since when', visual: 'collabs-timeline', icon: 'collabs', href: '#collabs' },
+			{ key: 'creative-insights', name: 'Creative insights', line: 'Hooks, angles, personas and formats', visual: 'patterns-switch', icon: 'insights', href: '#insights' },
+			{ key: 'search', name: 'Realtime search', line: 'Ask in plain words, across it all', visual: 'filter-narrow', icon: 'research', href: '#search' },
 		],
 		soon: {
 			key: 'coming-soon',

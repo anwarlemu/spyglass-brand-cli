@@ -9,6 +9,7 @@ import { Button } from '@/react/components/ui/Button'
 import { Logo } from '@/react/components/visuals/Logo'
 import { headerLabels, headerMenus, headerNav, type HeaderLabels, type HeaderMenus, type NavEntry } from '@/lib/site-header'
 import { cn } from '@/react/lib/cn'
+import { homeLinkClick } from '@/lib/home-link'
 
 // The site's header (site/Header: Header, HomeLink, ScrollGround, HeaderKey, NavMenus, MenuSheet): 64px, 72px from
 // 1024, in the page's container; the lockup (20px) on the left, from 1280 the links and their menus centered (NavMenus)
@@ -118,7 +119,7 @@ export function SiteHeader({
   const { shown, instant } = useKeyShown(hideKeyUntil)
   const hidden = shown === 'hidden'
   const brand = (
-    <a href={homeHref} aria-label={label} className="-ms-2 block flex-none rounded-ds-sm px-2 py-3 text-fg md:-ms-3 md:px-3 md:py-2 lg:py-3 xl:justify-self-start">
+    <a href={homeHref} aria-label={label} data-home-link="" onClick={(e) => homeLinkClick(e.nativeEvent)} className="-ms-2 block flex-none rounded-ds-sm px-2 py-3 text-fg md:-ms-3 md:px-3 md:py-2 lg:py-3 xl:justify-self-start">
       <Logo height={20} label={label} />
     </a>
   )
