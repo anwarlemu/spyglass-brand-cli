@@ -31,7 +31,7 @@
   "split": {
    "name": "Photo light split",
    "from": "Figma page 8. Brand assets, Post, picture grid (966:4434): the first picture split into its color channels",
-   "description": "A picture split into its blue, green and red channels, shifted sideways and added, so its edges separate like the light.",
+   "description": "A picture split into its blue, green and red channels, shifted sideways by the site light's own step and added, so its edges separate exactly as the site's light does.",
    "size": [
     1080,
     1080
@@ -40,9 +40,9 @@
   }
  },
  "split": {
-  "shift": 0.04,
-  "bleed": 0.06,
-  "from": "Post, picture grid (966:4434): shift 8 and bleed 12 on a 200px picture"
+  "shift": 0.0152,
+  "bleed": 0.032,
+  "from": "The site's light: its three channels sit 0.0152 of the width apart (public/brand/textures/dispersion-light-*.svg, brand.json light.offset), so the picture separates exactly as the site's light does; the bleed covers both shifts"
  },
  "pattern": {
   "variant": "corner",
