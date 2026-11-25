@@ -15,6 +15,7 @@ bun run build        # tsc (src -> dist), then scripts/build-brand.mjs (brand ->
 bun run registry     # scripts/build-registry.ts: validate, write apps/www/public/r, value check, tsc for both flavors
 bun run ci           # build, limits, registry, tests; must pass before you commit
 bun run parity       # every example as React and as web components, compared in a browser (port 3351)
+bun run docs:build   # the docs site's production build, as Vercel runs it: after every registry change
 ```
 
 The docs site: `bun run --cwd apps/www build`, then `bun run --cwd apps/www start` (port 3700; 3000 is the owner's).
