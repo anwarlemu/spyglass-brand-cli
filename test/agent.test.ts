@@ -20,12 +20,12 @@ describe('brand system', () => {
 		const tokens = (color.json as { tokens: { name: string; light: string }[] }).tokens;
 		expect(tokens.find((token) => token.name === '--ds-color-red')?.light.toUpperCase()).toBe('#DF0000');
 		expect(tokens.find((token) => token.name === '--ds-color-blue-8')?.light.toUpperCase()).toBe('#1B1DFF');
-		expect(tokens.find((token) => token.name === '--ds-color-card-fill')?.light.toUpperCase()).toBe('#171717');
+		expect(tokens.find((token) => token.name === '--ds-color-card-fill')?.light.toUpperCase()).toBe('#262626');
 		expect(tokens.some((token) => token.name.startsWith('--ds-duration-'))).toBe(false);
 		const motion = runBrand([], { section: 'motion' });
 		expect((motion.json as { tokens: { name: string }[] }).tokens.some((token) => token.name === '--ds-easing-out')).toBe(true);
 		expect(tokenByName('--ds-radius-control').light).toBe('8px');
-		expect(tokenByName('--ds-asset-radius').light).toBe('10px');
+		expect(tokenByName('--ds-asset-radius').light).toBe('8px');
 		expect(() => tokenByName('--ds-color-nope')).toThrow(/Unknown token/);
 		expect(() => runBrand(['nope'], {})).toThrow(/Unknown section/);
 		expect(() => runBrand([], { section: '' })).toThrow(/--section needs a value/);
@@ -71,7 +71,7 @@ describe('manifest', () => {
 		expect((doc.image as { templates: { id: string }[] }).templates.map((template) => template.id)).toEqual(expect.arrayContaining(['post-offer', 'ad-creator-plan', 'ad-search-bar', 'banner-tagline', 'avatar', 'logo-background', 'og', 'story']));
 		expect((doc.deck as { slides: { id: string }[] }).slides.map((slide) => slide.id)).toEqual(['cover-row', 'cover-inline', 'cover-curved', 'section', 'statement', 'bullets', 'stat', 'quote', 'image', 'closing', 'agenda', 'timeline', 'team', 'comparison', 'image-grid', 'qa']);
 		expect((doc.merch as { items: { id: string }[] }).items.map((item) => item.id)).toEqual(['cap-front', 'tee-front', 'tee-back', 'hoodie-front', 'tote', 'mug-wrap', 'sticker', 'poster', 'socks', 'poster-11x17', 'poster-24x36', 'sticker-sheet', 'notebook-cover', 'lanyard']);
-		expect((doc.video as { templates: { id: string }[] }).templates.map((template) => template.id)).toEqual(['light-band', 'light-corner', 'light-field', 'light-strips', 'light-close-up', 'logo-reveal', 'outro']);
+		expect((doc.video as { templates: { id: string }[] }).templates.map((template) => template.id)).toEqual(['light-band', 'light-corner', 'light-field', 'light-strips', 'logo-reveal', 'outro']);
 		expect((doc.video as { sizes: { id: string; width: number; height: number }[] }).sizes.map((size) => [size.id, size.width, size.height])).toEqual([
 			['square', 1080, 1080],
 			['vertical', 1080, 1920],

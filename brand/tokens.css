@@ -183,7 +183,7 @@
   --ds-ascii-hero-core: 56%;
 
   /* Measured fills. */
-  --ds-color-card-fill: #171717; /* the Figma plan card on the 1080 canvas only; the site's cards are neutral-4 */
+  --ds-color-card-fill: #262626; /* cards and picture tiles in the assets: the site's surface (neutral-4, --surface) */
   --ds-color-wordmark-gray: #373737; /* the footer's big wordmark (site --grey-wordmark) */
   --ds-color-plan-ice: #E1EEF8; /* the lit plan tier's ice (site --plan-ice) */
   --ds-color-window-close: #FF5F57; /* the browser frame's three dots (site --window-*) */
@@ -381,23 +381,26 @@
   --ds-easing-drift: cubic-bezier(0.37, 0, 0.63, 1); /* the lights' slow bob, a loop that eases at both turns (site --ease-drift) */
   --ds-glow-radius: 80px; /* the button glow's circle (site --btn-glow-r) */
 
-  /* The 1080px canvas, exactly as measured in Figma (posts 1080x1080, ads 1080x1350, decks 1920x1080). */
-  --ds-asset-radius: 10px; /* buttons, cards, the search bar */
-  --ds-asset-button-height: 56px; /* white fill, black DM Sans Medium label */
+  /* The 1080px canvas (posts 1080x1080, ads 1080x1350; decks 1920x1080 at 4/3). The compositions are Figma's; what they
+     are drawn in is the site's, one site pixel to one canvas pixel as the site's own share card (public/og, 1200x630). */
+  --ds-asset-radius: 8px; /* buttons and controls: the site's control corner */
+  --ds-asset-radius-container: 4px; /* cards and picture tiles: the site's container corner */
+  --ds-asset-radius-prompt: 20px; /* the search bar: the site's hero prompt */
+  --ds-asset-button-height: 56px; /* the site's large button: White fill, Black DM Sans Medium label, 32px padding */
   --ds-asset-button-label: 20px;
-  --ds-asset-search-height: 88px; /* black field, white prompt, white Search button 16px in */
+  --ds-asset-search-height: 88px; /* the site's prompt: #1A1A1A, a #666666 ring, the words in #D4D4D4, a White send key 16px in */
   --ds-asset-search-inset: 16px;
-  --ds-asset-card-padding: 48px;
+  --ds-asset-card-padding: 40px;
   --ds-asset-margin-ad: 64px;
   --ds-asset-margin-post: 72px;
   --ds-asset-margin-deck: 96px;
-  --ds-asset-text-body: 24px; /* DM Sans Regular at 1.33 */
+  --ds-asset-text-body: 24px; /* DM Sans Regular 24/32 in #D4D4D4 (the site's body-l and text gray) */
   --ds-asset-text-body-leading: 1.33;
-  --ds-asset-text-caption: 20px; /* DM Sans Regular at 1.3 */
-  --ds-asset-text-caption-leading: 1.3;
-  --ds-asset-text-label: 14px; /* DM Sans Medium, capitals, 6% */
-  --ds-asset-text-card-title: 40px; /* Funnel Display at 1.0 */
-  --ds-asset-text-display-leading: 1.07; /* Funnel Display at display sizes */
+  --ds-asset-text-caption: 20px; /* DM Sans Regular 20/28 (the site's lead) */
+  --ds-asset-text-caption-leading: 1.4;
+  --ds-asset-text-label: 14px; /* DM Sans Medium 14/20, capitals, 6%, #D4D4D4 */
+  --ds-asset-text-card-title: 40px; /* Funnel Display 40/44 (the site's h3) */
+  --ds-asset-text-display-leading: 1.07; /* Funnel Display heads at 450: the size plus four pixels (56/60) */
   --ds-asset-ascii-size: 13.333px; /* Geist Mono at 1.2, opacity 0.35 */
   --ds-asset-ascii-leading: 1.2;
   --ds-asset-lockup-width: 183px; /* the lockup on posts and ads (183x28); 240 on decks */

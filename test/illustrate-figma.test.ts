@@ -101,12 +101,12 @@ describe('figma', () => {
 	});
 
 	it('checks Figma values against the tokens, naming the nearest one', () => {
-		const found = checkFigmaValues('<div className="bg-[#1B1DFF] text-[#ff7ad9] rounded-[10px] font-[Inter] text-[24px]"/>');
+		const found = checkFigmaValues('<div className="bg-[#1B1DFF] text-[#ff7ad9] rounded-[8px] font-[Inter] text-[24px]"/>');
 		expect(found.find((f) => f.value === '#1B1DFF')).toMatchObject({ ok: true, token: '--ds-color-blue' });
 		expect(found.find((f) => f.value === '#ff7ad9')).toMatchObject({ ok: false, nearest: '--ds-color-magenta-10' });
 		expect(found.find((f) => f.kind === 'font')).toMatchObject({ ok: false });
 		expect(found.find((f) => f.kind === 'radius')).toMatchObject({ ok: true });
-		const vars = checkFigmaValues(JSON.stringify({ Ground: '#000000', Card: '#171717' }));
+		const vars = checkFigmaValues(JSON.stringify({ Ground: '#000000', Card: '#262626' }));
 		expect(vars.every((f) => f.ok)).toBe(true);
 	});
 
