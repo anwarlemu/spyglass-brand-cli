@@ -15,3 +15,6 @@ files:
 examples:
   - "Creative | A creative card | center"
 ---
+When the picture it holds the place of arrives, pass it as `src` (with `alt`, `fit` and `position`): the block shows it, still,
+in the same shape and corner. Without `src` the block carries `data-ds-placeholder`, so a page can be checked for
+pictures still to fill.
