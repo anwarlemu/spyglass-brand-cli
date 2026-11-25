@@ -70,23 +70,17 @@ const ILL_SIZES = ['native', 'square', 'portrait', 'story', 'og', 'landscape', '
 function illustrationInfo(): TemplateInfo[] {
 	const d = illustrateData();
 	return Object.entries(d.styles).map(([id, s]) => {
-		const shader = id === 'shader';
 		const options: TemplateInfo['options'] = [];
 		if (id === 'pattern' || id === 'light') options.push({ id: 'variant', values: Object.keys(LIGHT_FRAMES) }, { id: 'source', values: ['brand', 'generated'] });
 		if (id === 'pattern') options.push({ id: 'texture', values: ['true', 'false'] });
 		if (id === 'pattern' || id === 'texture') options.push({ id: 'density', range: [0, 1] });
-		if (shader) {
-			options.push({ id: 'subject', values: Object.keys(d.subjects) }, { id: 'preset', values: Object.keys(d.shader.presets) }, { id: 'look', values: Object.keys(d.shader.looks) });
-			for (const [k, v] of Object.entries(d.shader.choices)) if (k !== 'ground') options.push({ id: k === 'subject' ? 'tone' : k, values: [...v], ...(k === 'subject' ? { description: 'How the subject is drawn over the light' } : {}) });
-			for (const [k, v] of Object.entries(d.shader.ranges)) options.push({ id: k, range: v as [number, number] });
-		}
 		return {
 			id,
 			kind: 'illustration' as const,
 			description: s.description,
 			sizes: ILL_SIZES,
-			themes: shader ? ['black', 'white', 'none'] : ['black'],
-			grounds: (shader ? { black: color('black'), white: color('white') } : { black: color('black') }) as Record<string, string>,
+			themes: ['black'],
+			grounds: { black: color('black') } as Record<string, string>,
 			copy: [],
 			images: s.image ? [{ id: 'picture', ...(s.image === 'required' ? { required: true } : {}) }] : [],
 			options,
@@ -120,7 +114,6 @@ const kindOf = (id: string) => allTemplates().find((t) => t.id === id)!.kind;
 function nativeSize(id: string): [number, number] {
 	const d = illustrateData();
 	if (id === 'light') return LIGHT_FRAMES.band!;
-	if (id === 'shader') return [Number(d.shader.defaults.width), Number(d.shader.defaults.height)];
 	return d.styles[id as StyleId]!.size ?? [1080, 1080];
 }
 
@@ -174,26 +167,17 @@ async function renderMerch(doc: DesignDoc, formats: Format[], scale: number) {
 
 async function renderIllustration(doc: DesignDoc, dir: string, formats: Format[], scale: number) {
 	const o = doc.options;
-	const shader = doc.template === 'shader';
 	const native = doc.size.id === 'native';
 	const photo = doc.images.picture ? await readPhoto(dir, doc.images.picture, { alpha: true }) : undefined;
-	const set: Record<string, string> = {};
-	if (shader) {
-		for (const [k, v] of Object.entries(o)) if (!['subject', 'preset'].includes(k)) set[k === 'tone' ? 'subject' : k] = String(v);
-		if (doc.theme) set.ground = doc.theme;
-	}
 	const r = await illustrate({
 		style: doc.template as StyleId,
-		subject: shader && !photo ? (o.subject as string | undefined) : undefined,
 		photo,
 		variant: o.variant as string | undefined,
 		source: o.source as 'brand' | 'generated' | undefined,
 		seed: doc.seed,
 		...(native ? {} : { width: doc.size.width, height: doc.size.height }),
 		density: o.density as number | undefined,
-		texture: shader ? undefined : yes(o.texture),
-		preset: o.preset as string | undefined,
-		...(shader ? { set } : {}),
+		texture: yes(o.texture),
 	});
 	const files: Record<string, Uint8Array> = {};
 	if (formats.includes('svg')) files.svg = Buffer.from(r.svg);
@@ -242,7 +226,7 @@ export function adapter(): Adapter {
 			const p = PLATFORMS.find((x) => x.id === size);
 			const [width, height] = p ? [p.width, p.height] : size === 'custom' ? [1600, 900] : nativeSize(template);
 			const d = illustrateData();
-			const options: DesignDoc['options'] = template === 'pattern' ? { variant: d.pattern.variant, source: 'brand' } : template === 'light' ? { variant: 'band', source: 'brand' } : template === 'shader' ? { subject: 'lockup', look: String(d.shader.defaults.look) } : {};
+			const options: DesignDoc['options'] = template === 'pattern' ? { variant: d.pattern.variant, source: 'brand' } : template === 'light' ? { variant: 'band', source: 'brand' } : {};
 			return { size: { id: size, width, height }, theme: 'black', seed: template === 'split' ? undefined : 0, options };
 		},
 		async render(doc, dir, out) {

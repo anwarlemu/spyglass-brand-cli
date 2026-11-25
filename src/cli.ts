@@ -74,7 +74,7 @@ const HELP = () => {
 		row('email <kind>', 'Emails as mail clients read them (tables, inline styles): newsletter, announcement, receipt, password-reset'),
 		row('icons', 'The favicon set, app icons, a maskable icon, avatars and the web manifest'),
 		row('recipe <name>', 'Ready layouts for what no template covers: display ads, cards, print, email, backgrounds (--list)'),
-		row('illustrate <style> [subject]', 'Brand imagery: pattern, light, texture, split (--image), shader (--list)'),
+		row('illustrate <style>', 'Brand imagery: pattern, light, texture, split (--image), --list'),
 		row('figma tokens|push|pull|check', 'Files and the ordered Figma MCP calls; the CLI never calls Figma'),
 		'',
 		'Assets (PNG and SVG from the brand assets page; --list on each shows templates, sizes and slots):',

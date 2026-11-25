@@ -51,7 +51,7 @@ behavior, in every file type the stack uses.
 | `design new compose`, `design compose add\|move\|remove\|order\|span\|grid`, `design page compose outline.json` | Your own layout from the brand's 19 blocks on a grid of any canvas (every template can be rebuilt this way), and whole pages from 11 sections as React, web components or plain HTML. |
 | `recipe <name>` | 32 ready compose layouts for what no template covers: the seven IAB display ads, a Meta feed ad, quote, stat, launch, feature, comparison, pricing, event, hiring, screenshot, before and after, chart, flow and customer story cards, business card, letterhead, one-pager, report cover, certificate, badge, email header and signature, meeting and wallpaper backgrounds. |
 | `icons` | The favicon set (svg, ico, 16, 32), app icons (180, 192, 512, maskable), avatars and the web manifest. |
-| `illustrate <style> [subject]` | The brand's own imagery as PNG and SVG: `pattern`, `light`, `texture`, `split` (`--image`) and `shader` (lockup, mark, orb, wave or `--image`; `--preset`, `--set key=value`). Rules with sources in `brand/illustration.md`. |
+| `illustrate <style>` | The brand's own imagery as PNG and SVG: `pattern`, `light`, `texture` and `split` (`--image`). Rules with sources in `brand/illustration.md`. |
 | `figma tokens\|push\|pull\|check` | Figma through its MCP tools, which the CLI never calls: variables and `use_figma` scripts, push files as editable layers or HTML, the read steps for a frame, and off-brand values with the nearest token (exit 1). |
 | `manifest` (`describe`) | Every command, template, size, component, token and rule, for an agent (`--json`). |
 

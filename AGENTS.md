@@ -67,7 +67,6 @@ spyglass-ds ascii --seed 4 --width 1080 --height 1350 --out texture.svg
 ```sh
 spyglass-ds illustrate --list
 spyglass-ds illustrate pattern --variant corner --seed 2
-spyglass-ds illustrate shader mark --preset glass-icon
 spyglass-ds illustrate split --image photo.jpg
 spyglass-ds figma tokens
 spyglass-ds figma push asset imagery/post-offer.svg

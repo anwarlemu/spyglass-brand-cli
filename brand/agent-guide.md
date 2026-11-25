@@ -114,12 +114,11 @@ Never edit the PNG or SVG by hand: change the design file through the CLI, so th
 
 ## Illustrations
 
-`{{cli}} illustrate <style> [subject]` writes the brand's own imagery as PNG and SVG: `pattern` (the light flowing in
-with the texture behind it), `light` (any variant), `texture`, `split` (a picture split into its color channels,
-`--image` required) and `shader` (the lockup, logomark, orb or wave, or `--image`, turned into spectral light; presets
-`--preset`, any setting with `--set key=value`). The rules and their sources are `brand/illustration.md`; follow them:
-the light flows in from the edges on Black, the texture is an accent and never the subject, photos keep their own
-color, the subject stays White on top. `{{cli}} illustrate --list` names every style, subject, preset, look and setting.
+`{{cli}} illustrate <style>` writes the brand's own imagery as PNG and SVG: `pattern` (the light flowing in with the
+texture behind it), `light` (any variant), `texture` and `split` (a picture split into its color channels, `--image`
+required). The rules and their sources are `brand/illustration.md`; follow them: the light flows in from the edges on
+Black, the texture is an accent and never the subject, photos keep their own color. `{{cli}} illustrate --list` names
+every style and light variant.
 
 ## Work in Figma
 

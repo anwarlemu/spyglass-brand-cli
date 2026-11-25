@@ -66,8 +66,6 @@ for (const v of Object.keys(LIGHT_FRAMES)) await small({ style: 'light', variant
 // The split needs a picture; the docs use the brand's own art (the corner light) rather than a stock photo.
 const art = await illustrate({ style: 'light', variant: 'corner', seed: 1 });
 await small({ style: 'split', photo: { mime: 'image/png', data: art.png } }, 'ill-split.png', 'Photo light split', 'split --image (here the brand light itself)');
-for (const [preset, subject] of [['wordmark-trails', 'lockup'], ['trail-one-side', 'lockup'], ['banner-trails', 'lockup'], ['glass-icon', 'mark'], ['glass-split', 'wave'], ['burst', 'orb']]) await small({ style: 'shader', subject, preset }, `ill-shader-${preset}.png`, ill.shader.presets[preset].name, `shader ${subject} --preset ${preset}`);
-for (const look of Object.keys(ill.shader.looks)) await small({ style: 'shader', subject: 'mark', set: { look, effect: 'burst' } }, `ill-look-${look}.png`, ill.shader.looks[look].name, `shader mark --set effect=burst --set look=${look}`, 480);
 // Recipes: each compose layout with its sample copy, drawn by the same compose engine as `recipe`.
 const recipeShots = [];
 for (const [id, r] of Object.entries(recipes())) {
@@ -79,6 +77,6 @@ for (const [id, r] of Object.entries(recipes())) {
 	writeFileSync(join(out, `recipe-${id}.png`), ras.png);
 	recipeShots.push({ name: id, title: id, group: r.group, description: r.description, size: r.size, src: `/assets/recipe-${id}.png`, width: ras.width, height: ras.height });
 }
-const doc = { recipes: recipeShots, coverage: COVERAGE, images, slides, merch, illustrations, illustrate: { styles: ill.styles, subjects: ill.subjects, presets: ill.shader.presets, looks: ill.shader.looks, notes: ill.shader.notes }, catalog: { image: catalogOf('image'), deck: catalogOf('deck'), merch: merchCatalog(), video: videoCatalog() } };
+const doc = { recipes: recipeShots, coverage: COVERAGE, images, slides, merch, illustrations, illustrate: { styles: ill.styles }, catalog: { image: catalogOf('image'), deck: catalogOf('deck'), merch: merchCatalog(), video: videoCatalog() } };
 writeFileSync(join(root, 'apps/www/lib/assets.generated.json'), JSON.stringify(doc, null, 1) + '\n');
 console.log(`assets docs: ${recipeShots.length} recipes, ${illustrations.length} illustrations, ${images.length} images, ${slides.length} slides, ${merch.length} print files -> apps/www/public/assets`);

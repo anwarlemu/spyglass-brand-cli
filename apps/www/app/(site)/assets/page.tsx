@@ -64,7 +64,7 @@ export default function AssetsPage() {
             <Command command={`${CLI} deck --input deck.json --out deck`} />
             <Command command={`${CLI} video --template light-band --size vertical`} />
             <Command command={`${CLI} merch --item tee-front --variant full-color`} />
-            <Command command={`${CLI} illustrate shader lockup`} />
+            <Command command={`${CLI} illustrate pattern --variant corner`} />
             <Command command={`${CLI} figma push asset imagery/post-offer.svg`} />
           </div>
         </Section>

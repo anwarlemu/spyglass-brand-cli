@@ -5,8 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { brand, tokens } from '../src/lib/brand.js';
-import { illustrate, illustrateData, LIGHT_FRAMES, shaderSettings, STYLES, subjectShape } from '../src/illustrate/build.js';
-import { subjectRect } from '../src/illustrate/shader.js';
+import { illustrate, illustrateData, LIGHT_FRAMES, STYLES } from '../src/illustrate/build.js';
 import { runIllustrate } from '../src/commands/illustrate.js';
 import { runFigma } from '../src/commands/figma.js';
 import { figmaTokens, figmaTokenScripts } from '../src/figma/tokens.js';
@@ -29,16 +28,12 @@ async function picture(): Promise<Buffer> {
 }
 
 describe('illustrate', () => {
-	it('has every style with a source, and every look color is a brand token', () => {
-		const d = illustrateData();
-		expect(STYLES()).toEqual(['pattern', 'light', 'texture', 'split', 'shader']);
+	it('has every style with a source, and no shader', () => {
+		const d = illustrateData() as unknown as Record<string, unknown> & { styles: Record<string, { from: string }> };
+		expect(STYLES()).toEqual(['pattern', 'light', 'texture', 'split']);
 		for (const s of Object.values(d.styles)) expect(s.from).toMatch(/\S/);
-		for (const s of Object.values(d.subjects)) expect(s.from).toMatch(/\S/);
-		const t = tokens();
-		for (const [id, look] of Object.entries(d.shader.looks)) for (const [, c] of [...look.trail, ...look.split]) expect(t[`--ds-color-${c}`], `${id} ${c}`).toBeDefined();
-		for (const c of [...d.shader.colors.edge, d.shader.colors.ink, ...d.shader.colors.tileDark, ...d.shader.colors.tileLight]) expect(t[`--ds-color-${c}`], c).toBeDefined();
-		// The spectrum look runs the brand spectrum in its order.
-		expect(d.shader.looks.spectrum!.trail.map(([, c]) => c)).toEqual(['magenta', 'red', 'orange', 'yellow', 'green', 'cyan', 'blue']);
+		expect(d.shader).toBeUndefined();
+		expect(d.subjects).toBeUndefined();
 	});
 
 	it('draws every style at its size, deterministic per seed (output hashes)', async () => {
@@ -46,8 +41,6 @@ describe('illustrate', () => {
 		const jobs = [
 			{ style: 'pattern' as const }, { style: 'texture' as const }, { style: 'split' as const, photo },
 			...Object.keys(LIGHT_FRAMES).map((variant) => ({ style: 'light' as const, variant })),
-			{ style: 'shader' as const, subject: 'lockup' }, { style: 'shader' as const, subject: 'wave', preset: 'glass-split' },
-			{ style: 'shader' as const, photo, set: { effect: 'burst' } },
 		];
 		for (const job of jobs) {
 			const a = await illustrate({ ...job, seed: 3 });
@@ -63,43 +56,16 @@ describe('illustrate', () => {
 		const g1 = await illustrate({ style: 'pattern', source: 'generated', seed: 1 });
 		const g2 = await illustrate({ style: 'pattern', source: 'generated', seed: 2 });
 		expect(sha(g1.png)).not.toBe(sha(g2.png));
-		const s1 = await illustrate({ style: 'shader', subject: 'mark', preset: 'burst', seed: 1 });
-		const s2 = await illustrate({ style: 'shader', subject: 'mark', preset: 'burst', seed: 2 });
-		expect(sha(s1.png)).not.toBe(sha(s2.png));
-	});
-
-	it('keeps the subject on top: the logomark stays White in the middle of a glass icon', async () => {
-		const r = await illustrate({ style: 'shader', subject: 'mark', preset: 'glass-icon', set: { grain: '0' } });
-		expect(r.vector).toBe(true);
-		expect(r.svg).toMatch(/<svg id="subject"[^>]*>[\s\S]*fill="#FFFFFF"/);
-		// The vector subject and the light picture are both in the file.
-		expect(r.svg).toMatch(/<image id="light" href="data:image\/png;base64,/);
-	});
-
-	it('draws the logo subjects above their minimum heights in every preset', () => {
-		const spec = brand().logo!;
-		const d = illustrateData();
-		for (const preset of Object.keys(d.shader.presets)) {
-			const { settings } = shaderSettings({ preset });
-			for (const [subject, lockup] of [['lockup', 'horizontal'], ['mark', 'mark']] as const) {
-				const s = subjectShape(subject);
-				const r = subjectRect(settings, s.vw / s.vh);
-				expect(r.h, `${preset} ${subject}`).toBeGreaterThanOrEqual(spec.minHeight[lockup]!);
-			}
-		}
 	});
 
 	it('refuses what a style does not take, and unknown names exit 1 with suggestions', async () => {
-		await expect(illustrate({ style: 'texture', subject: 'mark' })).rejects.toThrow(/draws no subject/);
+		await expect(illustrate({ style: 'texture', photo: { mime: 'image/png', data: await picture() } })).rejects.toThrow(/takes no --image/);
 		await expect(illustrate({ style: 'split' })).rejects.toThrow(/needs a picture/);
-		await expect(illustrate({ style: 'shader', set: { copies: '99' } })).rejects.toThrow(/3 to 32/);
-		await expect(illustrate({ style: 'shader', set: { look: 'prism' } })).rejects.toThrow(/Unknown look/);
+		await expect(illustrate({ style: 'shader' as never })).rejects.toThrow(/Unknown style/);
 		for (const [args, re] of [
 			[['illustrate', 'patern'], /Did you mean `pattern`/],
-			[['illustrate', 'shader', 'mak'], /Did you mean `mark`/],
-			[['illustrate', 'shader', '--preset', 'bust'], /Did you mean `burst`/],
+			[['illustrate', 'shader'], /Unknown style/],
 			[['illustrate', 'light', '--variant', 'strip'], /strip-left/],
-			[['illustrate', 'shader', '--set', 'glw=3'], /Unknown setting `glw`/],
 			[['illustrat'], /Did you mean `illustrate`/],
 		] as const) {
 			const r = fails([...args]);
@@ -113,11 +79,11 @@ describe('illustrate', () => {
 		const one = await runIllustrate(dir, ['light'], { variant: 'tile', out: 'tile.png' });
 		expect((one.json as { files: unknown[] }).files).toHaveLength(1);
 		expect(pngSize(readFileSync(join(dir, 'tile.png')))).toEqual({ width: 200, height: 200 });
-		await runIllustrate(dir, ['shader', 'orb'], { preset: 'burst', width: '400', height: '400' });
-		expect(existsSync(join(dir, 'illustrations', 'shader-orb-burst-0.png'))).toBe(true);
-		expect(existsSync(join(dir, 'illustrations', 'shader-orb-burst-0.svg'))).toBe(true);
+		await runIllustrate(dir, ['pattern'], { variant: 'corner', width: '400', height: '400' });
+		expect(existsSync(join(dir, 'illustrations', 'pattern-corner-0.png'))).toBe(true);
+		expect(existsSync(join(dir, 'illustrations', 'pattern-corner-0.svg'))).toBe(true);
 		const list = await runIllustrate(dir, [], { list: true });
-		expect((list.json as { presets: { id: string }[] }).presets.map((p) => p.id)).toContain('glass-icon');
+		expect((list.json as { styles: { id: string }[] }).styles.map((p) => p.id)).toEqual(['pattern', 'light', 'texture', 'split']);
 	});
 });
 
@@ -154,7 +120,7 @@ describe('figma', () => {
 		const doc = r.json as { files: string[]; steps: { tool: string }[] };
 		expect(doc.steps.map((s) => s.tool)).toEqual(['create_session', 'use_figma', 'upload_assets', 'get_screenshot']);
 		expect(readFileSync(join(dir, 'figma', 'push-a.js'), 'utf8')).toContain('loadFontAsync');
-		const ill = await runFigma(dir, ['push', 'illustration', 'shader', 'mark'], { preset: 'glass-icon', file: 'KEY' });
+		const ill = await runFigma(dir, ['push', 'illustration', 'pattern'], { variant: 'corner', file: 'KEY' });
 		expect((ill.json as { files: string[] }).files.some((f) => f.endsWith('.png'))).toBe(true);
 		expect(parseFigmaUrl('https://www.figma.com/design/Qx2i6GhXZD1V4O7RE7hYQi/x?node-id=966-4421')).toEqual({ fileKey: 'Qx2i6GhXZD1V4O7RE7hYQi', nodeId: '966:4421', kind: 'design' });
 		writeFileSync(join(dir, 'd.txt'), 'text-[#ff7ad9]');
@@ -169,9 +135,10 @@ describe('figma', () => {
 
 describe('manifest', () => {
 	it('lists illustrate and figma with their names', async () => {
-		const doc = (await manifest()) as { commands: { name: string }[]; illustrate: { styles: { id: string }[]; presets: unknown[]; subjects: unknown[] }; figma: { actions: string[]; callsFigma: boolean } };
+		const doc = (await manifest()) as { commands: { name: string }[]; illustrate: { styles: { id: string }[] } & Record<string, unknown>; figma: { actions: string[]; callsFigma: boolean } };
 		expect(doc.commands.map((c) => c.name)).toEqual(expect.arrayContaining(['illustrate', 'figma']));
 		expect(doc.illustrate.styles.map((s) => s.id)).toEqual(STYLES());
+		expect(doc.illustrate.presets).toBeUndefined();
 		expect(doc.figma.actions).toEqual(['tokens', 'push', 'pull', 'check']);
 		expect(doc.figma.callsFigma).toBe(false);
 	});

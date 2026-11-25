@@ -37,7 +37,7 @@ export function figmaHelp(): string {
 		'in order, for an agent to make.',
 		'',
 		row(`${b} figma tokens`, 'The tokens as variables: tokens.json and use_figma scripts'),
-		row(`${b} figma push illustration shader mark`, 'An illustration (style and subject, as illustrate takes)'),
+		row(`${b} figma push illustration pattern --variant corner`, 'An illustration (a style, as illustrate takes)'),
 		row(`${b} figma push asset imagery/post-offer.svg`, 'An image, slide or any SVG, PNG or JPEG'),
 		row(`${b} figma push component button --example Variants`, 'A library preview as HTML for html_to_figma'),
 		row(`${b} figma push page https://example.com/pricing`, 'A page (URL or saved HTML)'),
@@ -142,20 +142,20 @@ function fileSteps(cwd: string, dir: string, file: string, frame: string, files:
 }
 
 async function pushAction(cwd: string, dir: string, args: string[], flags: Flags): Promise<Result> {
-	const [kind, target, extra] = args;
+	const [kind, target] = args;
 	if (!kind) throw new Error(`Name what to push: ${PUSH_KINDS.join(', ')}.`);
 	if (!(PUSH_KINDS as readonly string[]).includes(kind)) throw unknown('push kind', kind, [...PUSH_KINDS]);
 	const files: string[] = [];
 	const list: Step[] = [...sessionSteps(`push ${kind}${target ? ` ${target}` : ''}`, !flags.file)];
 	const doc: Record<string, unknown> = { kind, target: target ?? null };
 	if (kind === 'illustration') {
-		if (!target) throw new Error(`Name a style: ${STYLES().join(', ')} (and a subject for the shader), as illustrate takes.`);
+		if (!target) throw new Error(`Name a style: ${STYLES().join(', ')}, as illustrate takes.`);
 		if (!STYLES().includes(target as StyleId)) throw unknown('style', target, STYLES());
 		const images = listOf(flags.image);
 		const photo = images[0] ? await readPhoto(cwd, images[0], { alpha: true }) : undefined;
 		const seed = flags.seed === undefined ? 0 : Number(flags.seed);
-		const r = await illustrate({ style: target as StyleId, subject: extra, photo, preset: str(flags.preset), variant: str(flags.variant), seed });
-		const name = [target, extra ?? (photo ? basename(images[0]!, extname(images[0]!)) : ''), str(flags.preset) ?? str(flags.variant) ?? ''].filter(Boolean).join('-');
+		const r = await illustrate({ style: target as StyleId, photo, variant: str(flags.variant), seed });
+		const name = [target, photo ? basename(images[0]!, extname(images[0]!)) : '', str(flags.variant) ?? ''].filter(Boolean).join('-');
 		const svg = join(dir, `illustration-${name}.svg`);
 		const png = join(dir, `illustration-${name}.png`);
 		write(svg, r.svg);

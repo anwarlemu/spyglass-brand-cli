@@ -5,7 +5,7 @@ export const metadata = { title: "Figma" };
 
 const ACTIONS = [
   ["tokens", `${CLI} figma tokens`, "Every token as a Figma variable in one collection with the Dark and Light modes, typed, scoped to the properties it belongs to and linked to its CSS variable. Writes tokens.json and use_figma scripts, each under the tool's size limit and safe to rerun. On a plan with one mode per collection the script makes one collection per mode."],
-  ["push", `${CLI} figma push illustration shader mark --preset glass-icon`, "An illustration, an image or slide (any SVG, PNG or JPEG the CLI wrote), a library component preview or a page. A small SVG becomes a use_figma script that imports it as editable layers, its text as text layers in the brand fonts; anything bigger goes through upload_assets; components and pages become self-contained HTML for html_to_figma."],
+  ["push", `${CLI} figma push illustration pattern --variant corner`, "An illustration, an image or slide (any SVG, PNG or JPEG the CLI wrote), a library component preview or a page. A small SVG becomes a use_figma script that imports it as editable layers, its text as text layers in the brand fonts; anything bigger goes through upload_assets; components and pages become self-contained HTML for html_to_figma."],
   ["pull", `${CLI} figma pull "https://figma.com/design/<fileKey>/<name>?node-id=1-2"`, "The read steps for a frame: create_session, get_variable_defs and get_design_context, and where to save each result."],
   ["check", `${CLI} figma check figma/variables-1-2.json figma/design-1-2.txt`, "Every color, font, text size, radius and spacing in the saved results checked against the tokens. Off-brand values are listed with the nearest token, and the command exits 1 while there are any."],
 ] as const;

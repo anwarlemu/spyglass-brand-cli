@@ -38,7 +38,7 @@ const COMMANDS = [
 	{ name: 'recipe', summary: 'Ready compose layouts for what no template covers: display ads, cards, print, email and backgrounds; writes a design file and draws it (the check runs).', flags: [...RECIPE_FLAGS, 'help'] },
 	{ name: 'email', summary: 'Emails as mail clients read them: one 600px table, inline styles, the brand colors and faces, the lockup as a PNG. Kinds: newsletter, announcement, receipt, password-reset.', flags: [...EMAIL_FLAGS, 'help'] },
 	{ name: 'icons', summary: 'The favicon set (svg, ico, 16, 32), app icons (180, 192, 512, maskable), avatars and the web manifest, from the brand favicon.', flags: [...ICONS_FLAGS, 'help'] },
-	{ name: 'illustrate', summary: "The brand's own imagery as PNG and SVG: pattern (the light with the texture behind it), light (any variant), texture, split (a picture split into its color channels) and shader (a subject or picture turned into spectral light).", flags: [...ILLUSTRATE_FLAGS, 'help'] },
+	{ name: 'illustrate', summary: "The brand's own imagery as PNG and SVG: pattern (the light with the texture behind it), light (any variant), texture, split (a picture split into its color channels).", flags: [...ILLUSTRATE_FLAGS, 'help'] },
 	{ name: 'design', summary: 'Make a design (an image, slide, print item, illustration or loop) as a small JSON file, revise it in plain words or exact edits, undo, variants, sizes, compare and check. Every write is checked against the brand; errors change nothing. design --help.', flags: ['json', 'help'] },
 	{ name: 'figma', summary: 'Figma through its MCP tools, which the CLI never calls itself: tokens (variables and use_figma scripts), push (illustration, asset, slide, component, page), pull (read steps for a frame), check (off-brand values with the nearest token; exit 1).', flags: [...FIGMA_FLAGS, 'help'] },
 	{ name: 'list', summary: 'Every library item. In JSON, group is the label and groupId is the id (the groups in this document).', flags: [] },
@@ -67,12 +67,8 @@ export async function manifest(): Promise<Record<string, unknown>> {
 	const logo = logos();
 	const ill = illustrateData();
 	const illustrate = {
-		styles: Object.entries(ill.styles).map(([id, st]) => ({ id, name: st.name, description: st.description, from: st.from, subjects: st.subjects, image: st.image })),
-		subjects: Object.entries(ill.subjects).map(([id, st]) => ({ id, name: st.name, from: st.from })),
+		styles: Object.entries(ill.styles).map(([id, st]) => ({ id, name: st.name, description: st.description, from: st.from, image: st.image })),
 		variants: Object.entries(LIGHT_FRAMES).map(([id, [width, height]]) => ({ id, width, height })),
-		presets: Object.entries(ill.shader.presets).map(([id, p]) => ({ id, name: p.name, width: p.width, height: p.height, effect: p.effect })),
-		looks: Object.entries(ill.shader.looks).map(([id, l]) => ({ id, name: l.name, from: l.from })),
-		settings: { ranges: ill.shader.ranges, choices: { ...ill.shader.choices, look: Object.keys(ill.shader.looks) } },
 		rules: 'brand/illustration.md',
 	};
 	const figma = { actions: [...FIGMA_ACTIONS], push: [...PUSH_KINDS], callsFigma: false, workflow: 'brand/agent-guide.md (Work in Figma)' };

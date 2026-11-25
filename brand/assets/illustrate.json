@@ -1,58 +1,52 @@
 {
- "$comment": "illustrate: the brand's own imagery as code. Styles, subjects, presets and looks, each with its source. brand/illustration.md holds the rules. Colors are token names (resolved from brand/tokens.css); where the playground's shader used a color outside the tokens, the note says what it was and which token replaced it.",
+ "$comment": "illustrate: the brand's own imagery as code. Styles, each with its source. brand/illustration.md holds the rules.",
  "styles": {
-  "pattern": { "name": "Brand pattern", "from": "Brand guidelines, Brand Pattern and ASCII Texture (pages 33 and 34)", "description": "The light flowing in from an edge with the ASCII texture behind it, on Black.", "size": [1920, 1080], "subjects": false, "image": false },
-  "light": { "name": "Brand light", "from": "Brand guidelines, Brand Pattern (page 33); Figma page 8. Brand assets", "description": "The light alone in any named variant: band, field, corner, strip-left, strip-right, tile, close-up, curved-strip.", "size": null, "subjects": false, "image": false },
-  "texture": { "name": "ASCII texture", "from": "Brand guidelines, ASCII Texture (page 34)", "description": "The ASCII texture alone, on Black. An accent, never the main graphic.", "size": [1080, 1080], "subjects": false, "image": false },
-  "split": { "name": "Photo light split", "from": "Figma page 8. Brand assets, Post, picture grid (966:4434): the first picture split into its color channels", "description": "A picture split into its blue, green and red channels, shifted sideways and added, so its edges separate like the light.", "size": [1080, 1080], "subjects": false, "image": "required" },
-  "shader": { "name": "Spyglass shader", "from": "agd-playground public/spyglass-shader (shader.js)", "description": "A shape turned into spectral light: trails streaming out of its ends, a glass split, or a burst. The subject stays on top in White.", "size": [1600, 900], "subjects": true, "image": "optional" }
+  "pattern": {
+   "name": "Brand pattern",
+   "from": "Brand guidelines, Brand Pattern and ASCII Texture (pages 33 and 34)",
+   "description": "The light flowing in from an edge with the ASCII texture behind it, on Black.",
+   "size": [
+    1920,
+    1080
+   ],
+   "image": false
+  },
+  "light": {
+   "name": "Brand light",
+   "from": "Brand guidelines, Brand Pattern (page 33); Figma page 8. Brand assets",
+   "description": "The light alone in any named variant: band, field, corner, strip-left, strip-right, tile, close-up, curved-strip.",
+   "size": null,
+   "image": false
+  },
+  "texture": {
+   "name": "ASCII texture",
+   "from": "Brand guidelines, ASCII Texture (page 34)",
+   "description": "The ASCII texture alone, on Black. An accent, never the main graphic.",
+   "size": [
+    1080,
+    1080
+   ],
+   "image": false
+  },
+  "split": {
+   "name": "Photo light split",
+   "from": "Figma page 8. Brand assets, Post, picture grid (966:4434): the first picture split into its color channels",
+   "description": "A picture split into its blue, green and red channels, shifted sideways and added, so its edges separate like the light.",
+   "size": [
+    1080,
+    1080
+   ],
+   "image": "required"
+  }
  },
- "split": { "shift": 0.04, "bleed": 0.06, "from": "Post, picture grid (966:4434): shift 8 and bleed 12 on a 200px picture" },
- "pattern": { "variant": "corner", "texture": 0.7, "from": "The guideline covers: the light in from the lower right, the texture low in the frame" },
- "subjects": {
-  "lockup": { "name": "Lockup", "logo": "horizontal", "from": "shader.js SAMPLES.Lockup (the horizontal lockup; drawn here from brand/logo/svg)" },
-  "mark": { "name": "Logomark", "logo": "mark", "from": "shader.js SAMPLES.Mark (the logomark; drawn here from brand/logo/svg)" },
-  "orb": { "name": "Orb", "viewBox": [700, 700], "svg": "<path fill-rule=\"evenodd\" fill=\"#FFFFFF\" d=\"M600 350A250 250 0 1 1 100 350A250 250 0 1 1 600 350ZM470 350A120 120 0 1 0 230 350A120 120 0 1 0 470 350Z\"/>", "from": "shader.js SAMPLES.Orb: a disc of radius 250 with a hole of 120, on a 700 square" },
-  "wave": { "name": "Wave", "viewBox": [900, 500], "wave": { "x0": 90, "dx": 12, "steps": 60, "y0": 250, "amp": 140, "turns": 2.4, "width": 70 }, "from": "shader.js SAMPLES.Wave: a 70px round-capped stroke through 61 points of a sine, on 900 by 500" }
+ "split": {
+  "shift": 0.04,
+  "bleed": 0.06,
+  "from": "Post, picture grid (966:4434): shift 8 and bleed 12 on a 200px picture"
  },
- "shader": {
-  "defaults": { "width": 1600, "height": 900, "pad": 60, "fit": 58, "offX": 0, "offY": 0, "shape": "auto", "keyTol": 14, "effect": "trails", "look": "spectrum", "ground": "black", "subject": "white", "copies": 18, "length": 320, "turn": 120, "shrink": 26, "rim": 3, "fill": 24, "soft": 65, "sides": "both", "angle": 0, "split": 28, "splitAngle": -35, "burst": 30, "glow": 35, "edgeSplit": 40, "grain": 8, "frame": "none" },
-  "ranges": { "pad": [0, 300], "fit": [5, 250], "offX": [-60, 60], "offY": [-60, 60], "keyTol": [2, 60], "copies": [3, 32], "length": [10, 800], "turn": [0, 180], "shrink": [0, 80], "rim": [0, 12], "fill": [0, 60], "soft": [0, 100], "angle": [-90, 90], "split": [0, 200], "splitAngle": [-180, 180], "burst": [0, 150], "glow": [0, 100], "edgeSplit": [0, 100], "grain": [0, 100] },
-  "choices": { "effect": ["trails", "split", "burst"], "sides": ["both", "left", "right"], "shape": ["auto", "alpha", "key", "light", "dark", "whole"], "subject": ["white", "ink", "original", "hidden"], "frame": ["none", "glass"], "ground": ["black", "white", "none"] },
-  "presets": {
-   "wordmark-trails": { "name": "Wordmark, trails", "width": 1600, "height": 900, "pad": 60, "fit": 56, "effect": "trails", "copies": 18, "length": 320, "turn": 120, "shrink": 26, "rim": 3, "fill": 24, "soft": 65, "sides": "both", "glow": 35, "edgeSplit": 40, "frame": "none", "look": "spectrum" },
-   "banner-trails": { "name": "Banner, trails", "width": 1500, "height": 500, "pad": 40, "fit": 52, "effect": "trails", "copies": 18, "length": 360, "turn": 120, "shrink": 28, "rim": 3, "fill": 12, "soft": 50, "sides": "both", "glow": 40, "edgeSplit": 40, "frame": "none", "look": "spectrum" },
-   "glass-icon": { "name": "Glass icon", "width": 1000, "height": 1000, "pad": 60, "fit": 56, "effect": "split", "split": 34, "splitAngle": -35, "glow": 30, "edgeSplit": 0, "frame": "glass", "look": "spectrum" },
-   "glass-split": { "name": "Glass split", "width": 1080, "height": 1350, "pad": 60, "fit": 70, "effect": "split", "split": 24, "splitAngle": -35, "glow": 35, "edgeSplit": 0, "frame": "none", "look": "spectrum" },
-   "burst": { "name": "Burst", "width": 1080, "height": 1080, "pad": 60, "fit": 50, "effect": "burst", "burst": 45, "glow": 45, "edgeSplit": 30, "frame": "none", "look": "ice" },
-   "trail-one-side": { "name": "Trail, one side", "width": 1600, "height": 900, "pad": 60, "fit": 40, "offX": -22, "effect": "trails", "copies": 20, "length": 420, "turn": 150, "shrink": 35, "rim": 3, "fill": 10, "soft": 55, "sides": "right", "glow": 35, "edgeSplit": 40, "frame": "none", "look": "spectrum" }
-  },
-  "looks": {
-   "spectrum": { "name": "Spectrum", "from": "shader.js LOOKS.prism, set in the brand spectrum: its trail runs pink, red, yellow, green, cyan, blue, violet, the spectrum's own order, so each stop takes the spectrum color in that place (Magenta, Red, Orange, Yellow, Green, Cyan, Blue); its split runs cool to warm through white, so it takes Blue, Cyan, White, Orange and Red",
-    "trail": [[0, "magenta"], [0.18, "red"], [0.32, "orange"], [0.48, "yellow"], [0.62, "green"], [0.8, "cyan"], [1, "blue"]],
-    "split": [[-1, "blue"], [-0.5, "cyan"], [0, "white"], [0.5, "orange"], [1, "red"]] },
-   "ice": { "name": "Ice", "from": "shader.js LOOKS.ice, each stop snapped to the nearest brand token (#e0ecff blue-15, #33e0ff cyan-9, #2f6bff blue-10, #6a1fe0 magenta-5; split #5a1aff blue-9, #1a80ff cyan-6, #4df2ff cyan-10, #bf66ff magenta-10)",
-    "trail": [[0, "blue-15"], [0.3, "cyan-9"], [0.6, "blue-10"], [1, "magenta-5"]],
-    "split": [[-1, "blue-9"], [-0.5, "cyan-6"], [0, "white"], [0.5, "cyan-10"], [1, "magenta-10"]] },
-   "ember": { "name": "Ember", "from": "shader.js LOOKS.ember, each stop snapped to the nearest brand token (#fff1a0 yellow-12, #ff9a2a orange-10, #ff3a4a red-10, #9a1fd6 magenta-6; split #8c1af2 magenta-6, #ff2673 red-9, #ffbf33 orange-11, #ff590f orange-8)",
-    "trail": [[0, "yellow-12"], [0.3, "orange-10"], [0.6, "red-10"], [1, "magenta-6"]],
-    "split": [[-1, "magenta-6"], [-0.5, "red-9"], [0, "white"], [0.5, "orange-11"], [1, "orange-8"]] },
-   "chrome": { "name": "Chrome", "from": "shader.js LOOKS.chrome, each stop snapped to the nearest brand token (#b8c2e0 blue-13, #4a5270 neutral-6; split #6673b3 neutral-8, #bfb3ad neutral-10)",
-    "trail": [[0, "white"], [0.5, "blue-13"], [1, "neutral-6"]],
-    "split": [[-1, "neutral-8"], [0, "white"], [1, "neutral-10"]] }
-  },
-  "colors": {
-   "edge": ["light-r", "light-b"],
-   "ink": "black",
-   "tileDark": ["card-fill", "black"],
-   "tileLight": ["neutral-12", "neutral-11"]
-  },
-  "notes": [
-   "Background: the shader's Night (#07070d) and Paper (#fafafa) grounds are not brand colors; grounds are Black (default), White or none (transparent).",
-   "Ink subject: #0a0a0a in the shader, Black here.",
-   "Edge split: the shader's #ff2a4a and #1e8cff hairlines are the light's own Light R (#DF0000) and Light B (#1B1DFF) here.",
-   "Glass tile: the shader's #131317 to #050507 gradient is card-fill (#171717) to Black; on a light ground #e9e9ec to #dadadf is neutral-12 to neutral-11.",
-   "Grain: the shader draws it from Math.random; here it comes from a seeded generator, so the same seed writes the same bytes."
-  ]
+ "pattern": {
+  "variant": "corner",
+  "texture": 0.7,
+  "from": "The guideline covers: the light in from the lower right, the texture low in the frame"
  }
 }
