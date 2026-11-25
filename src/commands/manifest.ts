@@ -141,7 +141,7 @@ export function formatManifest(doc: Record<string, unknown>): string {
 		`Video templates: ${video.templates.map((template) => template.id).join(', ')}`,
 		`Video sizes: ${video.sizes.map((size) => `${size.id} ${size.width}x${size.height}`).join(', ')}; ${video.seconds} s at ${video.fps} fps`,
 		`Merch: ${merch.items.map((i) => `${i.id} ${i.trim.width}x${i.trim.height} in`).join(', ')}`,
-		`Illustrate: styles ${(doc.illustrate as { styles: { id: string }[] }).styles.map((x) => x.id).join(', ')}; subjects ${(doc.illustrate as { subjects: { id: string }[] }).subjects.map((x) => x.id).join(', ')}; presets ${(doc.illustrate as { presets: { id: string }[] }).presets.map((x) => x.id).join(', ')}`,
+		`Illustrate: styles ${(doc.illustrate as { styles: { id: string }[] }).styles.map((x) => x.id).join(', ')}`,
 		`Figma: ${(doc.figma as { actions: string[] }).actions.join(', ')} (push ${(doc.figma as { push: string[] }).push.join(', ')})`,
 		'',
 		`Page templates: ${pages.map((page) => page.name).join(', ') || 'none'}`,
