@@ -435,7 +435,7 @@
   --ds-fan-card-scale: 0.875;
   --ds-fan-cta-top: -12px;
   /* The wordmark glow (site --footer-glow-*, --footer-dot-*): a 20px dot grid, the spectrum under the pointer. */
-  --ds-glow-radius: 260px;
+  --ds-footer-glow-radius: 260px; /* site --footer-glow-radius (not --ds-glow-radius, the button glow's 80px) */
   --ds-glow-centre: 0.375;
   --ds-glow-strength: 0.8;
   --ds-glow-dot-pitch: 20px;

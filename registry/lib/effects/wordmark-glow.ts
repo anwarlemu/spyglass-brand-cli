@@ -14,7 +14,7 @@ export function startWordmarkGlow(area: HTMLElement, root: ParentNode = area): (
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return () => {};
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return () => {};
 
-    const radius = px(area, "--ds-glow-radius", 260);
+    const radius = px(area, "--ds-footer-glow-radius", 260);
     const centre = px(area, "--ds-glow-centre", 0.375);
     const offset = getComputedStyle(area).getPropertyValue("--ds-glow-dot-offset").trim() || "4px";
     const size = `${2 * radius}px ${2 * radius}px`;

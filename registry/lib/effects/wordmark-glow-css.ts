@@ -35,7 +35,7 @@ export const GLOW_CSS = `
   mask-size: 100% 100%, 0 0;
 }
 @media (prefers-reduced-motion: reduce) {
-  .ds-glow-letters { mask-size: 100% 100%, calc(2 * var(--ds-glow-radius)) calc(2 * var(--ds-glow-radius)); transition: none; }
+  .ds-glow-letters { mask-size: 100% 100%, calc(2 * var(--ds-footer-glow-radius)) calc(2 * var(--ds-footer-glow-radius)); transition: none; }
   .ds-glow-dots { display: none; }
 }
 `

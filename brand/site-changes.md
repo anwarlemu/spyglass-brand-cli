@@ -114,7 +114,7 @@ Every token added for the site's sections, pages and effects, by group, with the
 | effects | `--ds-fan-enter-scale` | `0.85` |  |
 | effects | `--ds-fan-card-scale` | `0.875` |  |
 | effects | `--ds-fan-cta-top` | `-12px` |  |
-| effects | `--ds-glow-radius` | `260px` |  |
+| effects | `--ds-footer-glow-radius` | `260px` |  |
 | effects | `--ds-glow-centre` | `0.375` |  |
 | effects | `--ds-glow-strength` | `0.8` |  |
 | effects | `--ds-glow-dot-pitch` | `20px` |  |
