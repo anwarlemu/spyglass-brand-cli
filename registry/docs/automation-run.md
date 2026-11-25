@@ -21,3 +21,6 @@ examples:
 loop, played only while the run is on screen and the tab visible; with reduced motion it rests on its poster), `tone` (the placeholder's gradient), `facts`, `start` and `end` (YYYY-MM-DD), `post` (`channel`, `views`), `source`
 and `media`. The note counts days to `content.reportDay`. The engine (`lib/automation-run.ts`) writes transforms straight
 to the cards, runs only while the run is on screen, and holds the batch at rest with reduced motion.
+
+Each item's picture takes `src`, `fit` and `position` (its `alt` is read with the facts); a card or thumb without one
+carries `data-ds-placeholder`.

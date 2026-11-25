@@ -16,3 +16,7 @@ files:
 examples:
   - "Page | Blog post page | bleed"
 ---
+`sections` lists the sections to show, in order (`head`, `cover`, `body`, `related`, `offer`); a key left out is not
+shown. The head, cover and body stay inside the article, where the first of them falls. The cover, the figures' images
+and the related posts' images are image slots (or the placeholder's `brand`, `caption` and `tone`). `menus` passes the
+header menus (the live card's `picture`, the use cases' `shots`).

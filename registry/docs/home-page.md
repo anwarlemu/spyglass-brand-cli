@@ -16,3 +16,9 @@ files:
 examples:
   - "Page | Home | bleed"
 ---
+`sections` lists the sections to show, in order (`hero`, `proof`, `features`, `why`, `steps`, `stories`, `pricing`,
+`faq`, `close`); a key left out is not shown. `blocks` gives each block its own data, pictures included:
+`hero.session`, `features` (`ads`, `burst` with each search's `images`, `ring`, `tally`), `why` (`creatives`, `logo`),
+`steps.session`, `stories` (`cases` with each `picture`, `quotes`), `pricing.sets` and `close.creatives`. `menus`
+passes the header menus (the live card's `picture`, the use cases' `shots`). Each picture is an image slot (`src`,
+`alt`, `fit`, `position`); without `src` it keeps its placeholder, which carries `data-ds-placeholder`.

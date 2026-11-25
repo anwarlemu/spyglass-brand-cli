@@ -17,3 +17,5 @@ files:
 examples:
   - "Templates | The templates rows"
 ---
+Each card is an image slot (`src`, `alt`, `fit`, `position`); a card without `src`, or with a generated blank, carries
+`data-ds-placeholder`.

@@ -18,3 +18,6 @@ examples:
 ---
 Each card takes `title`, `line`, `meta` (who it is for), `href` and a `cover` of three creatives. The header and footer
 read lib/pages/site-chrome.ts.
+
+`sections` lists the sections to show, in order (`head`, `cards`, `close`); a key left out is not shown. The covers'
+creatives are image slots. `menus` passes the header menus (the live card's `picture`, the use cases' `shots`).

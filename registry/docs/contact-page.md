@@ -16,3 +16,5 @@ files:
 examples:
   - "Page | Contact page | bleed"
 ---
+`sections` lists the sections to show, in order (`intro`, `form`); a key left out is not shown. `menus` passes the
+header menus (the live card's `picture`, the use cases' `shots`).

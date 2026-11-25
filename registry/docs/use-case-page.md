@@ -18,3 +18,8 @@ examples:
 ---
 Every section is a library item: `use-case-hero`, `proof-block`, `scroll-story`, `stories-block`, `use-case-wheel`
 with `dispersion-field`, `faq-block` and `page-close`. `still` holds the wheel and its light for a still preview.
+
+`sections` lists the sections to show, in order (`hero`, `proof`, `story`, `stories`, `wheel`, `faq`, `close`); a key
+left out is not shown. `chat` and `build` carry the hero's pictures, `blocks.story.story` the scroll story's data in
+place of its preset and `blocks.wheel.items` the wheel's pictures. `menus` passes the header menus (the live card's
+`picture`, the use cases' `shots`).

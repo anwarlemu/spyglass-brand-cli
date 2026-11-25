@@ -16,3 +16,4 @@ files:
 examples:
   - "Page | Settings | bleed"
 ---
+`sections` lists the sections to show, in order (`profile`, `notifications`, `save`); a key left out is not shown.

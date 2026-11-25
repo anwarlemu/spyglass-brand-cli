@@ -16,3 +16,6 @@ examples:
   - "Empty | No posts yet | bleed"
   - "Articles | With entries and thumbnails | bleed"
 ---
+`sections` lists the sections to show, in order (`head`, `list`, `close`); a key left out is not shown. Each entry's
+`thumb` is an image slot or a placeholder `tone`. `menus` passes the header menus (the live card's `picture`, the use
+cases' `shots`).

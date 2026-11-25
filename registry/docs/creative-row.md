@@ -15,3 +15,5 @@ examples:
   - "Even | Even"
   - "Peak | Rising to the middle"
 ---
+Each picture is an image slot (`src`, `alt`, `fit`, `position`); without `src` it keeps its placeholder, which carries
+`data-ds-placeholder`.

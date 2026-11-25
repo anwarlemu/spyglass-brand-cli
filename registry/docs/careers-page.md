@@ -16,3 +16,5 @@ files:
 examples:
   - "Page | Careers page | bleed"
 ---
+`sections` lists the sections to show, in order (`hero`, `values`, `roles`); a key left out is not shown. `menus`
+passes the header menus (the live card's `picture`, the use cases' `shots`).

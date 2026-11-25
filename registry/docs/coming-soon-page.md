@@ -18,3 +18,6 @@ examples:
 ---
 A source is `{ name, line, apis: [{ name, href }], mark? }`; `mark` is an image URL (an SVG works best), shown through a
 mask in the faint gray. Without one, a neutral rounded square stands in.
+
+`sections` lists the sections to show, in order (`head`, `next`, `also`, `close`); a key left out is not shown.
+`menus` passes the header menus (the live card's `picture`, the use cases' `shots`).

@@ -16,3 +16,5 @@ files:
 examples:
   - "Stories | Acme placeholders | bleed"
 ---
+Each picture is an image slot (`src`, `alt`, `fit`, `position`); without `src` it keeps its placeholder, which carries
+`data-ds-placeholder`.

@@ -17,3 +17,6 @@ examples:
   - "ThreeUp | Three up"
 ---
 `items` takes the creative card's fields; `light: true` makes a cell a tile of the brand light (`seed` picks it).
+
+Each picture is an image slot (`src`, `alt`, `fit`, `position`); without `src` it keeps its placeholder, which carries
+`data-ds-placeholder`.

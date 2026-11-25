@@ -23,3 +23,6 @@ examples:
 neutral steps (`tone` 1 to 4) with the advertiser in capitals (from 112px wide) and a headline (from 192px wide), named
 for assistive tech by `alt` or by those two. The arrangements (creative grid, row, ring and corridor) take the same
 fields as a list.
+
+`fit` and `position` place the image in the card (object-fit, cover by default, and object-position). The placeholder
+carries `data-ds-placeholder`.

@@ -15,3 +15,6 @@ files:
 examples:
   - "Page | Case studies | bleed"
 ---
+`sections` lists the sections to show, in order (`head`, `stories`, `close`); a key left out is not shown. Each case's
+`picture` is an image slot (`src`, `alt`, `fit`, `position`) or a placeholder `tone`. `menus` passes the header menus
+(the live card's `picture`, the use cases' `shots`).

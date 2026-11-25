@@ -38,3 +38,6 @@ The loops follow the site's reading pace: a scene starts once it is on screen, h
 changes and holds 2.8s each time; with reduced motion it stays on its resting step. The ranked sheets and the patterns
 switch are tabs (arrow keys, Home and End move between them); pressing one stops the loop on that view. The links board
 holds its composed frame before it starts clearing and building scene after scene.
+
+Every picture in `data` (`picture`, `src`, `avatar`) takes a src or an image slot (`src`, `alt`, `fit`, `position`);
+the neutral shapes drawn in their place carry `data-ds-placeholder`.

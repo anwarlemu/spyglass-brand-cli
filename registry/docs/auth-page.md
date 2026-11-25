@@ -17,3 +17,4 @@ examples:
   - "SignUp | Sign up | bleed"
   - "SignIn | Sign in | bleed"
 ---
+`sections` lists the sections to show, in order (`form`, `proof`); a key left out is not shown.

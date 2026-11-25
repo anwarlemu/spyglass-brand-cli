@@ -18,3 +18,6 @@ examples:
 ---
 The examples are Acme placeholders: put a real customer's quote, name, `position` and headshot (`image`) in their place.
 `image={false}` (React) or `image="false"` leaves the headshot out.
+
+`image` takes a src or an image slot (`src`, `alt`, `fit`, `position`); the placeholder headshot carries
+`data-ds-placeholder`.

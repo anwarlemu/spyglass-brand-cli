@@ -26,3 +26,6 @@ arrangement used when stacked) and `pieces` (a kind, a size in frame px and keyf
 opacity, badge and mark opacity, an ease). `storyFromShape` makes the site's shape from a board, a hero and five ranked
 creatives, five chips, a focal piece (board, thread, page or profile), four creatives around it and a result card.
 Creatives without `src` draw the neutral placeholder.
+
+Each picture is an image slot (`src`, `alt`, `fit`, `position`); without `src` it keeps its placeholder, which carries
+`data-ds-placeholder`.

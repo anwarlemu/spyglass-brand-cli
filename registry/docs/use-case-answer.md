@@ -18,3 +18,6 @@ examples:
   - "Api | An API request"
 ---
 The figure column shows only when a row has a figure. In api mode the column heads take the mono face, as field names.
+
+Each picture is an image slot (`src`, `alt`, `fit`, `position`); without `src` it keeps its placeholder, which carries
+`data-ds-placeholder`.

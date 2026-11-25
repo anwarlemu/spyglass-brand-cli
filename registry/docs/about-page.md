@@ -18,3 +18,6 @@ files:
 examples:
   - "Page | About page | bleed"
 ---
+`sections` lists the sections to show, in order (`head`, `photos`, `story`, `perks`); a key left out is not shown.
+`content.photos` take your team's photos as image slots (`src`, `alt`, `fit`, `position`); an empty tile carries
+`data-ds-placeholder`. `menus` passes the header menus (the live card's `picture`, the use cases' `shots`).

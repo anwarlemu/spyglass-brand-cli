@@ -16,3 +16,6 @@ files:
 examples:
   - "Page | Changelog page | bleed"
 ---
+`sections` lists the sections to show, in order (`head`, `entries`); a key left out is not shown. Each entry's `image`
+is a creative (an image slot, or the placeholder's `brand` and `tone`). `menus` passes the header menus (the live
+card's `picture`, the use cases' `shots`).

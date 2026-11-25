@@ -16,3 +16,5 @@ files:
 examples:
   - "Page | Pricing page | bleed"
 ---
+`sections` lists the sections to show, in order (`head`, `plans`, `compare`, `faq`, `close`); a key left out is not
+shown. `menus` passes the header menus (the live card's `picture`, the use cases' `shots`).

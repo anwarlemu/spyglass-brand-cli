@@ -16,3 +16,6 @@ files:
 examples:
   - "Page | Blog page | bleed"
 ---
+`sections` lists the sections to show, in order (`head`, `featured`, `posts`); a key left out is not shown. Each
+post's `image` is a creative: an image slot, or the placeholder's `brand`, `caption` and `tone`. `menus` passes the
+header menus (the live card's `picture`, the use cases' `shots`).

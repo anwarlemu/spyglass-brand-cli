@@ -20,3 +20,6 @@ examples:
 With `autoplay` it turns on its own once half the window has reached it, and stops when the tab is hidden. A pointer
 resting on another label turns to it; a click queues a turn behind one in progress. The heading is the site's `.t-h1`
 (32, 44 at 768, 56 only from 1280: `type-section` held at 44 until then), centered on the ring's middle and at most 480px wide.
+
+Each picture is an image slot (`src`, `alt`, `fit`, `position`); without `src` it keeps its placeholder, which carries
+`data-ds-placeholder`.

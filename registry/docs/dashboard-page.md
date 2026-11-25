@@ -16,3 +16,4 @@ files:
 examples:
   - "Page | Dashboard | bleed"
 ---
+`sections` lists the sections to show, in order (`head`, `stats`, `table`); a key left out is not shown.

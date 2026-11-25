@@ -18,3 +18,8 @@ examples:
 The wall holds a still frame with reduced motion and the run holds its batch at rest. Each row is a link to its use case
 with the template's schedule for assistive tech. The row items are Acme placeholder squares; pass
 your own pictures through `content.cities.rows[].items[].src`.
+
+`sections` lists the sections to show, in order (`wall`, `run`, `cities`, `faq`, `close`); a key left out is not
+shown. `blocks.wall.pictures` fills the wall, `blocks.run.items` the run, and each city row's items take image slots
+(the generated blanks carry `data-ds-placeholder`). `menus` passes the header menus (the live card's `picture`, the
+use cases' `shots`).

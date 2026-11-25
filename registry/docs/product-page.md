@@ -22,3 +22,8 @@ examples:
 comparison), Comments (threads and themes, no comparison) and Landing pages (pages and the links board). The site's
 products, features, rates and questions are its own; the results in the hero and the receipt are Acme, shown as
 figures. `live` puts the dispersion field over the hero's still, as the site draws it.
+
+`sections` lists the sections to show, in order (`hero`, `proof`, `features`, `compare`, `pricing`, `faq`, `close`); a
+key left out is not shown. Each feature's `data` is its visual's content (product-visual's `data` for its kind,
+pictures included); the pricing rows' and the free row's `picture` (a src or an image slot) replaces the neutral
+block. `menus` passes the header menus (the live card's `picture`, the use cases' `shots`).

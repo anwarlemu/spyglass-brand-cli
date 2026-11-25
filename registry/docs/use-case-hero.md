@@ -23,3 +23,6 @@ The chat's first question shows already answered; then the next one types, sends
 while it is on screen. A chip picks a question at once; a pointer over the chat, or focus in it, holds the current
 answer. Pictures in the answer are neutral placeholders until you pass `src` (your own creatives); with them the
 thumbnails show in the rows, and on phones a strip of them sits under the table.
+
+The chat's pictures and the build's tiles are image slots (`src`, `alt`, `fit`, `position`); placeholders carry
+`data-ds-placeholder`.

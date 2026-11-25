@@ -20,3 +20,6 @@ examples:
 Cards are links; a card whose `href` starts with `http` opens in a new tab. A row without `href` is plain text (a
 resource that is not live). The use-cases hub passes each use case as a card: its creatives as the cover, the name as
 the title, the line and who it is for as the meta.
+
+Each picture is an image slot (`src`, `alt`, `fit`, `position`); without `src` it keeps its placeholder, which carries
+`data-ds-placeholder`.

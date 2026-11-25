@@ -81,6 +81,30 @@ Angular needs `schemas: [CUSTOM_ELEMENTS_SCHEMA]` for the elements; Vue and Nuxt
   texture clear of text and photos (its `clear` areas).
 - Data comes through props; components call no API and read no session.
 
+## Replacing placeholders and moving sections
+
+- Every grey tile, empty picture box, skeleton, labeled blank and placeholder thumbnail is an image slot: `src`, `alt`
+  (empty for decoration), `fit` (object-fit: `cover` by default, `contain`, `fill`, `none`, `scale-down`) and
+  `position` (object-position, `"50% 20%"`, `"top"`). Lists of pictures take arrays, one slot per entry. Without `src`
+  an item keeps its placeholder, and every placeholder carries `data-ds-placeholder`: before you ship a page, check
+  that none is left (through shadow roots for the web components).
+- Pages take `sections`, the section keys in the order to show them; a key left out is not shown (an article's own
+  sections stay inside its article). Pictures go in as the page's data: `content` (posts, photos, covers, cases),
+  `blocks` where the page is made of blocks with their own data (home, templates, use case), and `menus` for the
+  header's menus (the live card's `picture`, the use cases' `shots`). Each page's docs list its keys.
+- Use the user's own pictures, never a third party's; examples use neutral shapes or the brand's own art.
+
+```tsx
+<HomePage sections={['hero', 'stories', 'close']} blocks={{ close: { creatives: [{ src: '/ads/1.jpg', alt: 'Acme ad', position: 'top' }] } }} />
+```
+
+```html
+<{{elementPrefix}}-home-page id="home"></{{elementPrefix}}-home-page>
+<script type="module">
+  Object.assign(document.getElementById('home'), { sections: ['hero', 'stories', 'close'], blocks: { close: { creatives: [{ src: '/ads/1.jpg', alt: 'Acme ad', position: 'top' }] } } })
+</script>
+```
+
 ## Assets
 
 `{{cli}} light` and `{{cli}} ascii` write the brand light and the ASCII texture as SVG at any size (`--variant`,

@@ -16,3 +16,6 @@ files:
 examples:
   - "Page | Enterprise page | bleed"
 ---
+`sections` lists the sections to show, in order (`hero`, `proof`, `run`, `features`, `close`); a key left out is not
+shown. `cards`, `run` and `features` carry the pictures (image slots: `src`, `alt`, `fit`, `position`). `menus` passes
+the header menus (the live card's `picture`, the use cases' `shots`).

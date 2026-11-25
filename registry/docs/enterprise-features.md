@@ -22,3 +22,6 @@ Each sketch is markup built once in `lib/enterprise-features-html.ts` (both flav
 `runFeature` in `lib/enterprise-features.ts`: infinite Web Animations from a time of its own, only while a quarter of the
 card is on screen and the tab visible. `content` carries every card's copy and data; pictures take `src` (else `tone`),
 marks take `mark` (an image drawn White through a mask, else the name's first letter).
+
+The sketches' pictures (`shot`, `ads`, `shots`) are image slots (`src`, `alt`, `fit`, `position`; `crop` still works
+for position); placeholders carry `data-ds-placeholder`.

@@ -16,3 +16,7 @@ files:
 examples:
   - "Page | Case study | bleed"
 ---
+`sections` lists the sections to show, in order (`head`, `facts`, `cover`, `lead`, `body`, `more`, `close`); a key
+left out is not shown. All but the close stay inside the article, where the first of them falls. The study's `cover`
+is an image slot; without `src` the placeholder carries `data-ds-placeholder`. `menus` passes the header menus (the
+live card's `picture`, the use cases' `shots`).

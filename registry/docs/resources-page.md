@@ -17,3 +17,6 @@ files:
 examples:
   - "Page | Resources page | bleed"
 ---
+`sections` lists the sections to show, in order (`head`, `cards`, `close`); a key left out is not shown. The covers'
+creatives are image slots (or the placeholder's `brand` and `tone`). `menus` passes the header menus (the live card's
+`picture`, the use cases' `shots`).

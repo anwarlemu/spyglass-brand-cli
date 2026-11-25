@@ -22,3 +22,6 @@ examples:
 The tiles keep clear of the words: the engine measures the headline, the chip, the lead and the status and fades any
 tile whose edge comes within 32px of them, and lets none reach the section's top or bottom edge. It runs only while
 the wall is on screen and the tab is visible. `at` draws the frame at a given time and holds it, for a still.
+
+`pictures` takes srcs or image slots (`fit` becomes the tile's background size, `position` its background position).
+Without pictures each tile carries `data-ds-placeholder`.

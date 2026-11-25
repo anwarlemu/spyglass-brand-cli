@@ -30,3 +30,7 @@ examples:
 The menus open on hover, focus or click as on the site; from the keyboard they appear at once with focus on their first
 link, arrows move through them and Escape returns focus to their link. The phone sheet is a modal dialog: focus stays
 inside it and Escape returns it to the menu button.
+
+In `menus`, a products row's `picture` (a src or an image slot) takes the place of its scene on the live card, and a
+use case row's `shots` take srcs or image slots; the glyph and the empty tiles shown without them carry
+`data-ds-placeholder`.

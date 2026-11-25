@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, Images, LayoutGrid, Menu, Palette, PenTool, Search, Sparkles, X } from "lucide-react";
+import { BookOpen, Image as ImageIcon, Images, LayoutGrid, Menu, Palette, PenTool, Search, Sparkles, X } from "lucide-react";
 
 import { Input } from "@/react/components/ui/Input";
 import { Logo } from "@/react/components/visuals/Logo";
@@ -23,6 +23,7 @@ const PAGES = [
   { href: "/assets", label: "Assets", icon: Images },
   { href: "/illustrations", label: "Illustrations", icon: Sparkles },
   { href: "/figma", label: "Figma", icon: PenTool },
+  { href: "/placeholders", label: "Placeholders and sections", icon: ImageIcon },
 ];
 
 function Rows({ groups, query, onNavigate }: { groups: Group[]; query: string; onNavigate: () => void }) {

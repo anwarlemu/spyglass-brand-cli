@@ -16,3 +16,4 @@ files:
 examples:
   - "Page | Error page | bleed"
 ---
+`sections` lists the sections to show, in order (`head`); a key left out is not shown.

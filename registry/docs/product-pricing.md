@@ -22,3 +22,6 @@ The receipt counts its total from `value` (the leading number, one credit by def
 from `freeMonthly`. A row without `picture` shows a neutral block; the free row without one shows the empty frame with a
 plus. `plans` reads the leading number of each plan's `credits` to say how many records it buys, and shows `after`
 when there is none.
+
+Each row's `picture` takes a src or an image slot; the neutral block and the free row's empty frame carry
+`data-ds-placeholder`.

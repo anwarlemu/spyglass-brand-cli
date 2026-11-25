@@ -16,3 +16,4 @@ examples:
   - "Side | Headshot beside the words"
   - "Card | Stacked, on the card fill"
 ---
+`image` takes a src or an image slot (`src`, `alt`, `fit`, `position`).

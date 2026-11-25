@@ -17,3 +17,5 @@ files:
 examples:
   - "Features | Acme placeholders | bleed"
 ---
+Each picture is an image slot (`src`, `alt`, `fit`, `position`); without `src` it keeps its placeholder, which carries
+`data-ds-placeholder`. Each search in `burst` takes `images`, used in turn.

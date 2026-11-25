@@ -21,3 +21,5 @@ examples:
 middle places on phones). Each card: `brand`, `title`, `ratio` (3:4, 4:5 or 1:1), `hook`, `meta` (the tag's lines) and
 `src`; without `src` it is a neutral gradient with the brand. The tag finds room below, above or inside its card, off the
 headline and inside the hero.
+
+Each ring card takes `src`, `fit` and `position`; one without `src` carries `data-ds-placeholder`.
