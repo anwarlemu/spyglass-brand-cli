@@ -6,14 +6,16 @@
 // and with reduced motion holds the batch at rest and raises nothing. Automated browsers (navigator.webdriver) get the
 // rest pose too, so screenshots and visual checks are stable.
 
-export interface RunItem {
+import type { ImageSlot } from '@/lib/image'
+
+export interface RunItem extends Omit<ImageSlot, 'alt'> {
 	/** The advertiser. */
 	brand: string
 	/** The ad's headline or product. */
 	title: string
 	/** What the creative shows (read to screen readers with the facts). */
 	alt?: string
-	/** The poster or still image. Without one the card draws a neutral placeholder. */
+	/** The poster or still image (fit and position place it). Without one the card draws a neutral placeholder. */
 	src?: string
 	/** A short muted loop played in the card (src is its poster). */
 	video?: string

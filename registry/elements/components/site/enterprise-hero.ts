@@ -8,6 +8,7 @@ import { placeRingTag, preloadNextRingCard, ringAspect, ringCardLabel, ringCss, 
 import { enterpriseHeroContent, type EnterpriseHeroContent } from '@/lib/pages/enterprise'
 import '@/elements/components/ui/button'
 import styles from 'virtual:tw'
+import { imageFit } from '@/lib/image'
 
 // EnterpriseHero.tsx as <spyglass-enterprise-hero>: the headline, lead and two buttons centered in a hero at least the
 // window's height, with twelve creatives around them that rise in, bob while seen, come forward with a tag under the
@@ -118,7 +119,7 @@ export class EnterpriseHero extends DsElement {
 				@focus=${(e: FocusEvent) => { if ((e.currentTarget as HTMLElement).matches(':focus-visible')) this.shown = i }}
 				@blur=${() => { if (this.shown === i) this.shown = null }}
 				@click=${() => { const touch = this.#pointer === 'touch' || this.#pointer === 'pen'; this.#pointer = 'mouse'; const was = this.shown; this.shown = i; if (touch && was !== i) return; this.#next(i, sets) }}
-			><span class="ds-ring-frame" style=${`aspect-ratio: ${ringAspect(card.ratio)}`} data-tone=${ifDefined(card.src ? undefined : card.tone ?? (i % 4) + 1)} data-stepped=${ifDefined(this.stepped[i] ? '' : undefined)}>${keyed(card.src ?? `${card.brand}-${card.title}`, card.src ? html`<img src=${card.src} alt="" draggable="false">` : html`<span class="absolute inset-0 flex items-end p-2"><span class="hidden type-label text-fg md:block">${card.brand}</span></span>`)}</span></button>${this.held === i ? html`<div class="ds-ring-tag" data-ring-tag="" data-shown=${ifDefined(forward === i ? '' : undefined)} aria-hidden="true"><span>${`Hook: ${card.hook.toLowerCase()}`}</span>${card.meta.map((line) => html`<span class="text-fg-muted">${line}</span>`)}${this.stepped[i] ? html`<span class="text-fg-muted">${`${at + 1} of ${set.length} with this hook`}</span>` : nothing}</div>` : nothing}</li>`
+			><span class="ds-ring-frame" style=${`aspect-ratio: ${ringAspect(card.ratio)}`} data-tone=${ifDefined(card.src ? undefined : card.tone ?? (i % 4) + 1)} data-ds-placeholder=${ifDefined(card.src ? undefined : '')} data-stepped=${ifDefined(this.stepped[i] ? '' : undefined)}>${keyed(card.src ?? `${card.brand}-${card.title}`, card.src ? html`<img src=${card.src} alt="" draggable="false" style=${styleMap(imageFit(card) ?? {})}>` : html`<span class="absolute inset-0 flex items-end p-2"><span class="hidden type-label text-fg md:block">${card.brand}</span></span>`)}</span></button>${this.held === i ? html`<div class="ds-ring-tag" data-ring-tag="" data-shown=${ifDefined(forward === i ? '' : undefined)} aria-hidden="true"><span>${`Hook: ${card.hook.toLowerCase()}`}</span>${card.meta.map((line) => html`<span class="text-fg-muted">${line}</span>`)}${this.stepped[i] ? html`<span class="text-fg-muted">${`${at + 1} of ${set.length} with this hook`}</span>` : nothing}</div>` : nothing}</li>`
 		})}</ul><p class="sr-only" aria-live="polite">${this.said}</p></section>`
 	}
 }

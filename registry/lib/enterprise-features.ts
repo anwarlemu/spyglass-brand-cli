@@ -5,9 +5,11 @@
 // screen and the tab visible. Reduced motion leaves every sketch at rest (its finished state). Automated browsers
 // (navigator.webdriver) get the rest state too, so screenshots and visual checks are stable.
 import { LOGOS } from '@/lib/logos'
+import type { ImageSlot } from '@/lib/image'
 
 /** A picture in a sketch: your image, or a neutral gradient (tone 1, darkest, to 4). */
-export interface FeatureShot { src?: string; tone?: 1 | 2 | 3 | 4; crop?: string }
+/** A picture in a sketch: an image ({ src, alt, fit, position }; `crop` is the older name for position), or a placeholder tone. */
+export interface FeatureShot extends ImageSlot { tone?: 1 | 2 | 3 | 4; crop?: string }
 /** A mark in a tile: your image (drawn White through a mask), or the name's first letter. */
 export interface FeatureMark { name: string; mark?: string; label?: string }
 
@@ -35,7 +37,7 @@ export const enterpriseFeaturesContent = {
 			{ brand: 'Acme Trail', meta: '10.9K likes', status: 'Social post', shot: { tone: 1 } },
 			{ brand: 'Acme Outdoor', meta: 'Ran 48 days', status: 'Stopped 27 Aug', shot: { tone: 4 } },
 			{ brand: 'Acme Trail', meta: '6.9K likes', status: 'Social post', shot: { tone: 2 } },
-		] as { brand: string; meta: string; status: string; picked?: boolean; live?: boolean; shot: { src?: string; tone?: 1 | 2 | 3 | 4; crop?: string } }[],
+		] as { brand: string; meta: string; status: string; picked?: boolean; live?: boolean; shot: FeatureShot }[],
 		draft: 'Draft: lead with the shoe alone',
 		app: 'Your dashboard',
 		stat: { value: '14', label: 'rival launches' },
@@ -61,7 +63,7 @@ export const enterpriseFeaturesContent = {
 		line: 'We source the creators, influencers and creatives who fit your brand, brief them on real data, and scale your creative army, completely done-for-you. Or, you can do it yourself.',
 		dashboard: { tab: 'Growth', caption: 'Sales by hook, this month', rows: [{ label: 'Founder story', value: 38 }, { label: 'Taste test', value: 24 }, { label: 'Price per meal', value: 11 }] },
 		creators: { tab: 'Partnerships', caption: 'Added to', tool: { name: 'CRM' } as { name: string; mark?: string; label?: string }, rows: [{ name: '@acme.tess', note: '4 brand ads' }, { name: '@acme.nicole', note: '3 brand ads' }, { name: '@acme.tom', note: '2 brand ads' }] as { name: string; note: string; avatar?: string }[] },
-		hooks: { tab: 'Creative', review: '“No afternoon crash, finally.”', source: '212 reviews say it', hook: 'Hook: No afternoon crash', rivals: '31 rival ads use it', ads: [{ tone: 3 }, { tone: 4 }, { tone: 2 }] as { src?: string; tone?: 1 | 2 | 3 | 4; crop?: string }[] },
+		hooks: { tab: 'Creative', review: '“No afternoon crash, finally.”', source: '212 reviews say it', hook: 'Hook: No afternoon crash', rivals: '31 rival ads use it', ads: [{ tone: 3 }, { tone: 4 }, { tone: 2 }] as FeatureShot[] },
 		summary: 'One API, three teams, each with its own view: Growth’s sales by hook; Partnerships’ creators added to the CRM; Creative’s hooks from reviews, checked against rivals’ ads.',
 	},
 	tools: {
@@ -82,14 +84,14 @@ export const enterpriseFeaturesContent = {
 			{ text: 'Monday brief is ready', channel: '#growth', ads: [{ tone: 4, tag: 'Scene: Billboard at dusk' }, { tone: 2, tag: 'Product: Night serum' }] },
 			{ text: '3 hooks are rising', channel: '#brand', ads: [{ tone: 3, tag: 'Hook: Does it actually work?' }, { tone: 4, tag: 'Angle: Skin first' }] },
 			{ text: '5 launches to look at', channel: '#company', ads: [{ tone: 2, tag: 'Angle: Built for long runs' }, { tone: 3, tag: 'Carousel, 5 cards' }] },
-		] as { text: string; channel: string; ads: [{ src?: string; tone?: 1 | 2 | 3 | 4; crop?: string } & { tag: string }, { src?: string; tone?: 1 | 2 | 3 | 4; crop?: string } & { tag: string }] }[],
+		] as { text: string; channel: string; ads: [FeatureShot & { tag: string }, FeatureShot & { tag: string }] }[],
 		summary: 'What Acme finds, shared with every team: 14 new competitor ads, to #creative; Monday brief is ready, to #growth; 3 hooks are rising, to #brand; 5 launches to look at, to #company. Behind each message, the ads it is about.',
 	},
 	alpha: {
 		title: 'Own your alpha',
 		line: 'Zero data retention allows for you to own the alpha that keeps your company ahead.',
 		workspace: 'Your private workspace',
-		shots: [{ tone: 3 }, { tone: 4 }, { tone: 2 }] as { src?: string; tone?: 1 | 2 | 3 | 4; crop?: string }[],
+		shots: [{ tone: 3 }, { tone: 4 }, { tone: 2 }] as FeatureShot[],
 		ask: 'Which hooks drive sales?',
 		answer: 'Founder hooks drive 38% of sales',
 		product: 'Acme',

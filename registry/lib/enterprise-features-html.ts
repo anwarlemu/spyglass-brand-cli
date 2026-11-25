@@ -1,12 +1,16 @@
 // The enterprise features' sketches as markup, one builder per card, so both flavors render the same tree (React sets
 // it as inner HTML, the element through unsafeHTML). Every text is escaped; images and marks come from the content.
 import { DATA_DASHES, TOOL_AXIS, WIRES, reportBox, toolColumn, toolWinner, type EnterpriseFeaturesContent, type FeatureKey, type FeatureMark, type FeatureShot } from '@/lib/enterprise-features'
+import { imageFitText } from '@/lib/image'
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 const styleOf = (o: Record<string, string>) => Object.entries(o).map(([k, v]) => `${k}: ${v}`).join('; ')
 
 /** A picture: the image, or the neutral gradient. */
-const shot = (s: FeatureShot, i: number, extra = '') => `<span class="${['ds-ef-shade', extra].filter(Boolean).join(' ')}" data-tone="${s.src ? '' : s.tone ?? (i % 4) + 1}">${s.src ? `<img src="${esc(s.src)}" alt="" draggable="false"${s.crop ? ` style="object-position: ${esc(s.crop)}"` : ''}>` : ''}</span>`
+const shot = (s: FeatureShot, i: number, extra = '') => {
+	const fit = imageFitText({ fit: s.fit, position: s.position ?? s.crop })
+	return `<span class="${['ds-ef-shade', extra].filter(Boolean).join(' ')}" data-tone="${s.src ? '' : s.tone ?? (i % 4) + 1}"${s.src ? '' : ' data-ds-placeholder=""'}>${s.src ? `<img src="${esc(s.src)}" alt="${esc(s.alt ?? '')}" draggable="false"${fit ? ` style="${esc(fit)}"` : ''}>` : ''}</span>`
+}
 /** A mark: drawn White through a mask from its image, or its first letter. */
 const mark = (m: FeatureMark, cls: string) => (m.mark ? `<span class="${cls}" style="--mark: url(&quot;${esc(m.mark)}&quot;)"></span>` : `<span class="ds-ef-initial" aria-hidden="true">${esc(m.name.charAt(0).toUpperCase())}</span>`)
 

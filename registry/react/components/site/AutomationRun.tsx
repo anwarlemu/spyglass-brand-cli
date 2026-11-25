@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { runContent, runCss, runPlaceholders, runStats, startRun, type RunApi, type RunContent, type RunItem } from '@/lib/automation-run'
 import { cn } from '@/react/lib/cn'
+import { imageFit } from '@/lib/image'
 
 // The site's automation run (pages/Enterprise/AutomationRun): a quote in the section head (32/36, 44/48 at 768, 56/60 at
 // 1024, its opening mark hung from 768), then a stage that rises under it (96px at 768, 128 at 1280) where a batch of
@@ -64,6 +65,7 @@ export function AutomationRun({ items = runPlaceholders, content: c = runContent
 										type="button"
 										className="ds-run-face"
 										data-tone={a.src || a.video ? undefined : a.tone ?? (i % 4) + 1}
+										data-ds-placeholder={a.src || a.video ? undefined : ''}
 										aria-label={`${a.brand}, ${a.title}`}
 										aria-describedby={`${id}-facts-${i}`}
 										aria-expanded={shown === i}
@@ -74,7 +76,7 @@ export function AutomationRun({ items = runPlaceholders, content: c = runContent
 										onFocus={(e) => { if (e.currentTarget.matches(':focus-visible')) api.current?.setFocused(i) }}
 										onBlur={() => api.current?.setFocused(null)}
 									>
-										{a.video ? <video src={a.video} poster={a.src} muted loop playsInline preload="metadata" draggable={false} /> : a.src ? <img src={a.src} alt="" draggable={false} /> : null}
+										{a.video ? <video src={a.video} poster={a.src} muted loop playsInline preload="metadata" draggable={false} style={imageFit(a)} /> : a.src ? <img src={a.src} alt="" draggable={false} style={imageFit(a)} /> : null}
 									</button>
 								</div>
 							</div>
@@ -86,7 +88,7 @@ export function AutomationRun({ items = runPlaceholders, content: c = runContent
 					{ad && s ? (
 						<>
 							<div className="flex items-center gap-3">
-								<span className="ds-run-thumb size-10 flex-none rounded-ds-sm" data-tone={ad.src ? undefined : ad.tone ?? (noted! % 4) + 1}>{ad.src ? <img src={ad.src} alt="" /> : null}</span>
+								<span className="ds-run-thumb size-10 flex-none rounded-ds-sm" data-tone={ad.src ? undefined : ad.tone ?? (noted! % 4) + 1} data-ds-placeholder={ad.src ? undefined : ''}>{ad.src ? <img src={ad.src} alt="" style={imageFit(ad)} /> : null}</span>
 								<p className="m-0 grid min-w-0 flex-1">
 									<span className="type-ui-strong text-fg">{ad.brand}</span>
 									<span className="truncate type-caption text-fg-muted">{ad.title}</span>

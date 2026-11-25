@@ -3,11 +3,14 @@
 // each tile fading in where it clears the headline and out before it reaches the edge, while the chip under the
 // headline rolls through the template names and its surface stretches to each name's width.
 //
-// Tiles are elements the wall styles itself: with `pictures` each shows one (background cover, color as posted);
+// Tiles are elements the wall styles itself: with `pictures` each shows one (a src or { src, fit, position }: background
+// cover unless `fit` says otherwise, color as posted);
 // without, each takes one of four neutral tones (data-tone 1 to 4), so the wall never needs a third-party picture.
 // Every length, count and duration is a --ds-templates-* token read from the root, so the CSS decides the layout.
 // Reduced motion draws one still frame (the first name, the tunnel at rest). `at` draws the frame at that time and
 // holds it (a still for print and screenshots).
+
+import { toSlot, type ImageFit, type ImageSlot } from '@/lib/image'
 
 export interface TemplatesWallElements {
 	root: HTMLElement
@@ -24,8 +27,8 @@ export interface TemplatesWallElements {
 }
 
 export interface TemplatesWallOptions {
-	/** Pictures for the tiles, used in turn; none draws the neutral tones. */
-	pictures?: string[]
+	/** Pictures for the tiles, used in turn (a src or { src, fit, position }); none draws the neutral tones. */
+	pictures?: (string | ImageSlot)[]
 	/** Draw the frame at this time (ms) and hold it. */
 	at?: number
 }
@@ -104,10 +107,15 @@ const smooth = (n: number) => {
 	return x * x * (3 - 2 * x)
 }
 const mod = (n: number, m: number) => ((n % m) + m) % m
+/** A picture's fit as the tile's background size (the tile is a background, not an img). */
+const tileSize = (fit?: ImageFit) => (fit === 'contain' || fit === 'scale-down' ? 'contain' : fit === 'fill' ? '100% 100%' : fit === 'none' ? 'auto' : '')
+/** The pictures' sources, for re-running the wall when they change. */
+export const templatesWallKey = (pictures?: (string | ImageSlot)[]) => (pictures ?? []).map((p) => { const s = toSlot(p); return `${s.src ?? ''} ${s.fit ?? ''} ${s.position ?? ''}` }).join('|')
 const squircle = (x: number, y: number) => (x ** 4 + y ** 4) ** 0.25
 
 export function createTemplatesWall(els: TemplatesWallElements, options: TemplatesWallOptions = {}): TemplatesWall {
-	const pictures = options.pictures?.filter(Boolean) ?? []
+	const slots = (options.pictures ?? []).map(toSlot).filter((p) => p.src)
+	const pictures = slots.map((p) => p.src!)
 	const picks = Math.max(1, pictures.length || TONES * 7)
 	const names = els.names.length
 	const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -211,6 +219,9 @@ export function createTemplatesWall(els: TemplatesWallElements, options: Templat
 			if (el.dataset.src !== url) {
 				el.dataset.src = url
 				el.style.backgroundImage = `url("${url}")`
+				const slot = slots[pick % slots.length]!
+				el.style.backgroundSize = tileSize(slot.fit)
+				el.style.backgroundPosition = slot.position ?? ''
 			}
 			whole[j] = loaded(url)
 		} else {

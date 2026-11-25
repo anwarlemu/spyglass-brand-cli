@@ -1,8 +1,9 @@
 'use client'
 import { useEffect, useRef } from 'react'
-import { createTemplatesWall, TEMPLATES_WALL_TILES } from '@/lib/templates-wall'
+import { createTemplatesWall, TEMPLATES_WALL_TILES, templatesWallKey } from '@/lib/templates-wall'
 import { templatesWallContent, type TemplatesWallContent } from '@/lib/pages/templates'
 import { cn } from '@/react/lib/cn'
+import type { ImageSlot } from '@/lib/image'
 
 // The site's templates wall (v2/V2Templates): a helix of tiles drifting toward the viewer and turning slowly around
 // the words (lib/templates-wall.ts), the headline over a chip that rolls through the template names on a raised
@@ -13,8 +14,8 @@ import { cn } from '@/react/lib/cn'
 // that time (ms) and holds it.
 export interface TemplatesWallProps {
 	content?: TemplatesWallContent
-	/** Pictures for the tiles, used in turn; none draws neutral tones. */
-	pictures?: string[]
+	/** Pictures for the tiles, used in turn (a src or { src, alt, fit, position }); none draws neutral tones. */
+	pictures?: (string | ImageSlot)[]
 	/** The page's first section: an h1 and the window's height less the header. */
 	hero?: boolean
 	/** Draw the frame at this time (ms) and hold it. */
@@ -28,7 +29,7 @@ const TILES = Array.from({ length: TEMPLATES_WALL_TILES }, (_, j) => j)
 
 export function TemplatesWall({ content: c = templatesWallContent, pictures, hero = false, at, id = 'templates', className }: TemplatesWallProps) {
 	const scene = useRef<HTMLDivElement>(null)
-	const key = `${(pictures ?? []).join('|')}|${at ?? ''}|${c.names.join('|')}`
+	const key = `${templatesWallKey(pictures)}|${at ?? ''}|${c.names.join('|')}`
 	useEffect(() => {
 		const root = scene.current
 		if (!root) return
@@ -46,7 +47,7 @@ export function TemplatesWall({ content: c = templatesWallContent, pictures, her
 			<div ref={scene} className="ds-tpl-scene relative grid place-items-center">
 				<div aria-hidden="true" data-tpl="tunnel" className="pointer-events-none absolute inset-0">
 					<div data-tpl="box" className="ds-tpl-box">
-						{TILES.map((j) => <span key={j} data-tpl="tile" className="ds-tpl-tile" />)}
+						{TILES.map((j) => <span key={j} data-tpl="tile" data-ds-placeholder={pictures?.length ? undefined : ''} className="ds-tpl-tile" />)}
 					</div>
 				</div>
 				<div className="relative z-1 mx-auto flex w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] flex-col items-center px-(--ds-layout-gutter) text-center">

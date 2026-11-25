@@ -4,9 +4,11 @@
 // mouse (after 80ms), on focus or a tap it comes forward (1.1) with a tag naming its hook and how long it ran; a press
 // steps to the next creative in its set. Every 6s, while nobody is touching it, one card comes forward on its own for 2s.
 
+import type { ImageSlot } from '@/lib/image'
+
 export type RingRatio = '3:4' | '4:5' | '1:1'
 
-export interface RingCard {
+export interface RingCard extends ImageSlot {
 	/** The advertiser (the placeholder's label and the button's name). */
 	brand: string
 	/** The ad's headline. */
@@ -17,7 +19,8 @@ export interface RingCard {
 	hook: string
 	/** The tag's lines under the hook: "Ran 7 days", "Posted 9 days ago". */
 	meta: string[]
-	/** The creative. Without one the card draws a neutral placeholder. */
+	/** The creative (fit and position place it; the button is named by the brand and title). Without one the card
+	 * draws a neutral placeholder. */
 	src?: string
 	/** The placeholder's neutral gradient, 1 (darkest) to 4. */
 	tone?: 1 | 2 | 3 | 4

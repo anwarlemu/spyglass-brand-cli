@@ -5,6 +5,7 @@ import { ASCII_TEXTURE } from '@/lib/textures'
 import { placeRingTag, preloadNextRingCard, ringAspect, ringCardLabel, ringCss, ringIntent, ringPlaceStyle, ringPlaceholders, watchRing, RING_PLACES, type RingCard } from '@/lib/enterprise-ring'
 import { enterpriseHeroContent, type EnterpriseHeroContent } from '@/lib/pages/enterprise'
 import { cn } from '@/react/lib/cn'
+import { imageFit } from '@/lib/image'
 
 // The site's enterprise hero (pages/Enterprise EnterprisePage .hero and HeroRing): at least the window's height less the
 // header (640px at the least), the headline in the section head (its first line kept whole from 768), the lead and two
@@ -140,8 +141,8 @@ export function EnterpriseHero({ content: c = enterpriseHeroContent, cards = rin
 									next(i)
 								}}
 							>
-								<span className="ds-ring-frame" style={{ aspectRatio: ringAspect(card.ratio) }} data-tone={card.src ? undefined : card.tone ?? (i % 4) + 1} data-stepped={stepped[i] ? '' : undefined}>
-									{card.src ? <img key={card.src} src={card.src} alt="" draggable={false} /> : <span key={`${card.brand}-${card.title}`} className="absolute inset-0 flex items-end p-2"><span className="hidden type-label text-fg md:block">{card.brand}</span></span>}
+								<span className="ds-ring-frame" style={{ aspectRatio: ringAspect(card.ratio) }} data-tone={card.src ? undefined : card.tone ?? (i % 4) + 1} data-ds-placeholder={card.src ? undefined : ''} data-stepped={stepped[i] ? '' : undefined}>
+									{card.src ? <img key={card.src} src={card.src} alt="" draggable={false} style={imageFit(card)} /> : <span key={`${card.brand}-${card.title}`} className="absolute inset-0 flex items-end p-2"><span className="hidden type-label text-fg md:block">{card.brand}</span></span>}
 								</span>
 							</button>
 							{held === i ? (
