@@ -44,7 +44,7 @@ export function imageHelp(): string {
 		'Only what you pass is drawn (and the address); a slot you leave out closes up. Copy steps down and re-wraps to a',
 		'readable floor; past that it is an error that says how much to shorten. Words are never dropped.',
 		'--image is a PNG, JPEG or WebP; repeat it for templates with several pictures.',
-		'--seed moves the ASCII texture (and a generated light). --light brand (default) keeps the brand heat map. --texture false leaves it out.',
+		'--seed picks the crop of the site\'s ASCII texture tile. The lights are the site\'s own light images. --texture false leaves the texture out.',
 		'--format png, svg, jpg, webp, several with commas, or both (PNG and SVG, the default). --scale 1 to 4 for more pixels.',
 		'--out is a directory, or one file for one image (its extension picks the format).',
 		'carousel.json: { "size": "square", "seed": 0, "template": "post-every-market", "slides": [ { "headline": "...", "body": "..." }, { "template": "post-photo", "images": ["a.png"] } ] }.',
