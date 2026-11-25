@@ -69,8 +69,11 @@
 }
 
 /* The prompt */
-.ds-hp { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; max-width: 800px; padding: 12px 12px 0; border-radius: var(--ds-radius-lg); background: var(--ds-color-surface-subtle); outline: var(--ds-border-hairline) solid var(--ds-color-edge-strong); outline-offset: calc(-1 * var(--ds-border-hairline)); text-align: left; transition: outline-color var(--ds-duration-micro) var(--ds-easing-out), box-shadow var(--ds-duration-micro) var(--ds-easing-out); }
-.ds-hp:has(.ds-hp-input:focus, :focus-visible) { outline-color: var(--ds-color-fg-muted); box-shadow: 0 0 0 var(--ds-border-focus) var(--ds-color-edge-strong); }
+.ds-hp { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; max-width: 800px; padding: 12px 12px 0; border-radius: var(--ds-radius-lg); background: var(--ds-color-surface-subtle); outline: var(--ds-border-hairline) solid var(--ds-color-edge-strong); outline-offset: calc(-1 * var(--ds-border-hairline)); text-align: left; transition: outline-color var(--ds-duration-micro) var(--ds-easing-out); }
+.ds-hp:has(.ds-hp-input:focus, :focus-visible) { outline-color: var(--ds-color-fg-muted); }
+/* The 2px ring outside the card on focus (HeroPrompt .card:has(:focus)), drawn as a frame, not a shadow. */
+.ds-hp::after { content: ""; position: absolute; inset: calc(-1 * var(--ds-border-focus)); border: var(--ds-border-focus) solid var(--ds-color-edge-strong); border-radius: calc(var(--ds-radius-lg) + var(--ds-border-focus)); opacity: 0; pointer-events: none; transition: opacity var(--ds-duration-micro) var(--ds-easing-out); }
+.ds-hp:has(.ds-hp-input:focus, :focus-visible)::after { opacity: 1; }
 .ds-hp-row { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: flex-end; gap: 12px; padding-block: 0 12px; }
 .ds-hp-field { position: relative; flex: 1 1 100%; min-width: 0; }
 .ds-hp-input { display: block; width: 100%; height: calc(var(--ds-text-body) * var(--ds-text-body-leading) * 2 + 24px); padding: 12px 16px; border: 0; border-radius: var(--ds-radius-control); background: transparent; font-family: var(--ds-font-text); font-size: var(--ds-text-body); line-height: var(--ds-text-body-leading); color: var(--ds-color-fg); resize: none; }
@@ -109,4 +112,4 @@
   .ds-hp-field { flex: 1; }
   .ds-hp-works { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 }
-@media (prefers-reduced-motion: reduce) { .ds-hp, .ds-hp-send, .ds-hp-send::before, .ds-hp-client { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .ds-hp, .ds-hp::after, .ds-hp-send, .ds-hp-send::before, .ds-hp-client { transition: none; } }

@@ -63,7 +63,7 @@ export function TextSwap({ text, unit, tag, className }: TextSwapProps) {
         <span key={item.id} className="ds-swap-item" data-state={item.state} aria-hidden={item.state === 'out' || undefined}>
           {item.text}
           {item.unit ? <span className="ms-2 font-text text-ui/5 text-fg-muted">{item.unit}</span> : null}
-          {item.tag ? <span className="relative ms-2 inline-block rounded-ds-sm bg-white px-2 py-1 font-text text-caption/5 font-medium whitespace-nowrap text-black">{item.tag}</span> : null}
+          {item.tag ? <span className="relative ms-2 inline-block rounded-ds-sm bg-action-primary px-2 py-1 font-text text-caption/5 font-medium whitespace-nowrap text-action-primary-fg">{item.tag}</span> : null}
         </span>
       ))}
     </span>

@@ -22,7 +22,7 @@ import { FRAG, GLYPH_RAMP, MAX_BLOBS, VERT, WAVES } from "@/lib/effects/field-sh
 // and -xl (1280) tokens beside the base one, so the widest that applies and is set wins.
 const STEPS: [string, number][] = [["-xl", 1280], ["-lg", 1024], ["-md", 768]];
 function byWidth(style: CSSStyleDeclaration, name: string): string {
-  const w = typeof window === "undefined" ? 0 : window.innerWidth;
+  const w = globalThis.innerWidth ?? 0;
   for (const [suffix, min] of STEPS) {
     if (w < min) continue;
     const v = style.getPropertyValue(name + suffix).trim();
