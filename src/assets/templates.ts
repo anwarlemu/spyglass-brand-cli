@@ -248,7 +248,7 @@ export function compositionProblem(t: Template, drawn: DrawResult, width: number
 	const logo = drawn.layers.find((l) => l.kind === 'logo');
 	if (headline && aspect >= 2.5) {
 		const lines = headline.ink?.length ?? 1;
-		if (lines > 3) return `the headline breaks into ${lines} lines in a narrow column`;
+		if (lines > 3) return `the headline breaks into ${lines} lines in a narrow column: it is too long for this strip, so shorten it or use another size`;
 		if (logo && headline.text!.size / logo.box.h > 2.6) return `the headline (${Math.round(headline.text!.size)}px) dwarfs the logo (${Math.round(logo.box.h)}px tall)`;
 	}
 	return undefined;
