@@ -28,7 +28,7 @@ export function CaseStudiesPage({ content: c = caseStudiesIndexContent, classNam
       <main>
         <PageHead id={c.head.id} lines={c.head.lines} lead={c.head.lead} />
         <div aria-label={c.head.lines.join(' ')} role="region" className="-mt-(--ds-layout-section) pb-[calc(96px-var(--ds-layout-section))]">
-          <CaseStoriesBlock cases={c.cases} quotes={c.quotes} head={false} />
+          <CaseStoriesBlock cases={c.cases} quotes={c.quotes} quoteCount={c.quotes.length} head={false} />
         </div>
         <PageClose lines={c.close.lines} note={c.close.note} primary={c.close.primary} />
       </main>

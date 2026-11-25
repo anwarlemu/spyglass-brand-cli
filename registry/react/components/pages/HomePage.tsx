@@ -30,7 +30,7 @@ export function HomePage({ content: c = homeContent, className }: HomePageProps)
     <div data-ds="home-page" className={cn('bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
       <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
-      <main>
+      <main id="main">
         <PlaygroundHero />
         <ProofBlock title={c.proof.title} logos={c.proof.logos} />
         <FeaturesBlock />
