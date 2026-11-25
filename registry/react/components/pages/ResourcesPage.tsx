@@ -8,6 +8,7 @@ import { resourcesContent, type ResourcesContent, resourcesSections, type Resour
 import { cn } from '@/react/lib/cn'
 import { pageSections } from '@/lib/image'
 import { Fragment, type ReactNode } from 'react'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // The site's resources page (app/resources, pages/Resources/ResourceHub): the header, the page head with its drift,
 // the hub's cards (templates, docs, case studies) and the rows of what is coming, the closing section and the footer.
@@ -15,6 +16,8 @@ import { Fragment, type ReactNode } from 'react'
 // your images as `src`.
 export interface ResourcesPageProps {
   content?: ResourcesContent
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
   sections?: readonly ResourcesSection[]
   className?: string
@@ -22,7 +25,7 @@ export interface ResourcesPageProps {
 
 const CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
-export function ResourcesPage({ content: c = resourcesContent, sections, className }: ResourcesPageProps) {
+export function ResourcesPage({ content: c = resourcesContent, menus, sections, className }: ResourcesPageProps) {
   const parts: Record<ResourcesSection, ReactNode> = {
     head: <PageHead id={c.head.id} lines={c.head.lines} lead={c.head.lead} />,
     cards: (
@@ -37,7 +40,7 @@ export function ResourcesPage({ content: c = resourcesContent, sections, classNa
   return (
     <div data-ds="resources-page" className={cn('isolate overflow-x-clip bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
-      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
+      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main>
         {pageSections(resourcesSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>

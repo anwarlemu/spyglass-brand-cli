@@ -17,6 +17,7 @@ import '@/elements/components/site/page-close'
 import '@/elements/components/blocks/site-footer'
 import styles from 'virtual:tw'
 import { pageSections } from '@/lib/image'
+import { headerMenus, type HeaderMenus } from '@/lib/site-header'
 
 // EnterprisePage.tsx as <spyglass-enterprise-page>: the header, the hero in its ring, the logo row, the automation run,
 // the eight features, the close with two buttons and the footer. `content`, `cards`, `logos`, `run` and `features` (JSON).
@@ -27,7 +28,7 @@ import { pageSections } from '@/lib/image'
 export class EnterprisePage extends DsElement {
 	static styles = [DsElement.styles, styles]
 	protected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds="enterprise-page"]'))
-	static properties = { content: { type: Object }, cards: { type: Array }, logos: { type: Array }, run: { type: Array }, features: { type: Object }, sections: { type: Array } }
+	static properties = { content: { type: Object }, cards: { type: Array }, logos: { type: Array }, run: { type: Array }, features: { type: Object }, menus: { type: Object }, sections: { type: Array } }
 	/** The copy (lib/pages/enterprise.ts by default). */
 	content: EnterprisePageContent = enterprisePageContent
 	/** The hero ring's sets of creatives. */
@@ -38,6 +39,8 @@ export class EnterprisePage extends DsElement {
 	run: RunItem[] = runPlaceholders
 	/** The features' copy, data and pictures. */
 	features: EnterpriseFeaturesContent = enterpriseFeaturesContent
+	/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+	menus?: HeaderMenus
 	/** The sections to show, in order (a list of names); all of them in the page order by default. */
 	sections?: EnterpriseSection[]
 
@@ -51,7 +54,7 @@ export class EnterprisePage extends DsElement {
 			features: html`<spyglass-enterprise-features .content=${this.features ?? enterpriseFeaturesContent}></spyglass-enterprise-features>`,
 			close: html`<spyglass-page-close close-id="enterprise-close" .lines=${c.close.title} .note=${c.close.note} .primary=${c.close.primary} .secondary=${c.close.secondary} connect="false" texture="false"></spyglass-page-close>`,
 		}
-		return html`<div data-ds="enterprise-page" class="isolate bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .links=${c.header.links} .secondary=${c.header.secondary} variant="centered"></spyglass-site-header><main id="main">${pageSections(enterpriseSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.footer.columns} .legal=${c.footer.legal}></spyglass-site-footer></div>`
+		return html`<div data-ds="enterprise-page" class="isolate bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.header.links} .secondary=${c.header.secondary} variant="centered"></spyglass-site-header><main id="main">${pageSections(enterpriseSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.footer.columns} .legal=${c.footer.legal}></spyglass-site-footer></div>`
 	}
 }
 

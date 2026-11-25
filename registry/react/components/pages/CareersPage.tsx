@@ -7,12 +7,15 @@ import { notFoundContent } from '@/lib/pages/not-found'
 import { cn } from '@/react/lib/cn'
 import { pageSections } from '@/lib/image'
 import { Fragment, type ReactNode } from 'react'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // The careers page from library items: the header, the page head with the light, why join as three #262626 cards, and
 // the open roles as rows under #363636 hairlines (the title in Funnel Display 24/28, the team and place in #A3A3A3, a
 // small arrow that brightens with the row and never moves). No roles shows `none`. The footer row at the foot.
 export interface CareersPageProps {
   content?: CareersContent
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
   sections?: readonly CareersSection[]
   className?: string
@@ -20,7 +23,7 @@ export interface CareersPageProps {
 
 const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
-export function CareersPage({ content: c = careersContent, sections, className }: CareersPageProps) {
+export function CareersPage({ content: c = careersContent, menus, sections, className }: CareersPageProps) {
   const h = notFoundContent
   const parts: Record<CareersSection, ReactNode> = {
     hero: <HeroBlock eyebrow={c.eyebrow} headline={c.headline} body={c.body} light="field" />,
@@ -57,7 +60,7 @@ export function CareersPage({ content: c = careersContent, sections, className }
   }
   return (
     <div data-ds="careers-page" className={cn('flex min-h-dvh flex-col bg-surface text-fg', className)}>
-      <SiteHeader links={h.header.nav} secondary={h.header.secondary} cta={h.header.cta} />
+      <SiteHeader menus={menus} links={h.header.nav} secondary={h.header.secondary} cta={h.header.cta} />
       <main className="flex-1">
         {pageSections(careersSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>

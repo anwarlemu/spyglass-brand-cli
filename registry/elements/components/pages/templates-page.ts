@@ -12,6 +12,7 @@ import '@/elements/components/visuals/ascii-trail'
 import styles from 'virtual:tw'
 import { pageSections } from '@/lib/image'
 import { runPlaceholders } from '@/lib/automation-run'
+import { headerMenus, type HeaderMenus } from '@/lib/site-header'
 
 // TemplatesPage.tsx as <spyglass-templates-page>: the header, the templates wall as the hero, the automation run, what
 // each template brings back (a centered head over the row fan), the
@@ -26,9 +27,11 @@ const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-lay
 export class TemplatesPage extends DsElement {
 	static styles = [DsElement.styles, styles]
 	protected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds="templates-page"]'))
-	static properties = { content: { type: Object }, sections: { type: Array }, blocks: { type: Object } }
+	static properties = { content: { type: Object }, sections: { type: Array }, blocks: { type: Object }, menus: { type: Object } }
 	/** The page's copy (lib/pages/templates.ts by default). */
 	content: TemplatesPageContent = templatesPageContent
+	/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+	menus?: HeaderMenus
 	/** The sections to show, in order (a list of names); all of them in the page order by default. */
 	/** Each block's data, pictures included: the wall's `pictures` and the run's `items`. */
 	blocks: TemplatesBlocks = {}
@@ -46,7 +49,7 @@ export class TemplatesPage extends DsElement {
 			faq: html`<div class=${`${WRAP} py-(--ds-layout-section)`}><spyglass-faq-block head-id=${c.faq.id} heading=${c.faq.headline} body=${c.faq.lead} .action=${c.faq.docs} .items=${c.faq.items}></spyglass-faq-block></div>`,
 			close: html`<spyglass-page-close close-id="templates-close" .lines=${c.close.lines} note=${c.close.note} .primary=${c.close.primary} .secondary=${c.close.secondary} connect="false"></spyglass-page-close>`,
 		}
-		return html`<div data-ds="templates-page" class="isolate bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .links=${c.chrome.header.nav} .secondary=${c.chrome.header.secondary} .cta=${c.chrome.header.cta}></spyglass-site-header><main id="main">${pageSections(templatesSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.chrome.footer.columns} legal=${c.chrome.footer.legal}></spyglass-site-footer></div>`
+		return html`<div data-ds="templates-page" class="isolate bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.chrome.header.nav} .secondary=${c.chrome.header.secondary} .cta=${c.chrome.header.cta}></spyglass-site-header><main id="main">${pageSections(templatesSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.chrome.footer.columns} legal=${c.chrome.footer.legal}></spyglass-site-footer></div>`
 	}
 }
 

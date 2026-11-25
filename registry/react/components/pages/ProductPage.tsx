@@ -13,6 +13,7 @@ import { productContent, type ProductContent, type ProductPageContent, productSe
 import { cn } from '@/react/lib/cn'
 import { pageSections } from '@/lib/image'
 import { Fragment, type ReactNode } from 'react'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // The site's product page (app/products/[slug], pages/Products/ProductPage.tsx): one template for every product, from
 // library items. The header, the product hero (the name, the line, the composer running the product's questions over
@@ -25,6 +26,8 @@ export interface ProductPageProps {
   content?: ProductContent
   /** Draw the hero's light live in WebGL over its still, as the site does. */
   live?: boolean
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
   sections?: readonly ProductSection[]
   className?: string
@@ -32,7 +35,7 @@ export interface ProductPageProps {
 
 const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
-export function ProductPage({ product, content: c = productContent, live = false, sections, className }: ProductPageProps) {
+export function ProductPage({ product, content: c = productContent, live = false, menus, sections, className }: ProductPageProps) {
   const p = product ?? c.product
   const parts: Record<ProductSection, ReactNode> = {
     hero: (
@@ -61,7 +64,7 @@ export function ProductPage({ product, content: c = productContent, live = false
   return (
     <div data-ds="product-page" className={cn('isolate bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
-      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
+      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main id="main">
         {pageSections(productSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>

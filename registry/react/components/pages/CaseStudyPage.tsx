@@ -9,6 +9,7 @@ import { asciiDriftStyleObject, type AsciiDriftCrop, type AsciiDriftFrom } from 
 import { caseStudies, caseStudyContent, caseStudyMinutes, caseStudyNeighbors, type CaseStudy, type CaseStudyContent, caseStudyPageSections, type CaseStudyPageSection } from '@/lib/pages/case-studies'
 import { cn } from '@/react/lib/cn'
 import { pageSections, groupSections, imageFit } from '@/lib/image'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // The site's case study (app/resources/case-studies/[slug], pages/CaseStudies/CaseStudyArticle): the header, then a
 // centered head (the breadcrumb, the headline at the section head's size, the kind and the read time as badges), the
@@ -20,6 +21,8 @@ import { pageSections, groupSections, imageFit } from '@/lib/image'
 export interface CaseStudyPageProps {
   study?: CaseStudy
   content?: CaseStudyContent
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
   sections?: readonly CaseStudyPageSection[]
   className?: string
@@ -46,7 +49,7 @@ function Arrow({ back }: { back?: boolean }) {
 const ARTICLE: readonly CaseStudyPageSection[] = ['head', 'facts', 'cover', 'lead', 'body', 'more']
 const LABEL = 'type-ui text-fg-muted transition-[color] duration-160 ease-out group-hover:text-fg group-focus-visible:text-fg'
 
-export function CaseStudyPage({ study: s = caseStudies[0], content: c = caseStudyContent, sections, className }: CaseStudyPageProps) {
+export function CaseStudyPage({ study: s = caseStudies[0], content: c = caseStudyContent, menus, sections, className }: CaseStudyPageProps) {
   const { previous, next } = caseStudyNeighbors(c.studies, s.slug)
   const id = `${s.slug}-heading`
   const parts: Record<CaseStudyPageSection, ReactNode> = {
@@ -166,7 +169,7 @@ export function CaseStudyPage({ study: s = caseStudies[0], content: c = caseStud
   return (
     <div data-ds="case-study-page" className={cn('isolate overflow-x-clip bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
-      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
+      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main>
         {groupSections(pageSections(caseStudyPageSections, sections), ARTICLE).map((k) => (Array.isArray(k) ? <article key="article" aria-labelledby={id} className="relative isolate overflow-x-clip">{k.map((a) => <Fragment key={a}>{parts[a]}</Fragment>)}</article> : <Fragment key={k}>{parts[k]}</Fragment>))}
       </main>

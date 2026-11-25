@@ -8,6 +8,7 @@ import '@/elements/components/site/site-header'
 import styles from 'virtual:tw'
 import { pageSections } from '@/lib/image'
 import { ifDefined } from 'lit/directives/if-defined.js'
+import { headerMenus, type HeaderMenus } from '@/lib/site-header'
 
 // BlogPage.tsx as <spyglass-blog-page>: the title, the newest post large and the others in a grid of three. Titles
 // change color on hover; nothing moves. `content` replaces the copy and the posts.
@@ -20,9 +21,11 @@ const TITLE = 'rounded-control transition-[color] duration-160 ease-standard hov
 export class BlogPage extends DsElement {
 	static styles = [DsElement.styles, styles]
 	protected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds="blog-page"]'))
-	static properties = { content: { type: Object }, sections: { type: Array } }
+	static properties = { content: { type: Object }, menus: { type: Object }, sections: { type: Array } }
 	/** The page's copy and posts (lib/pages/blog.ts by default). */
 	content: BlogContent = blogContent
+	/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+	menus?: HeaderMenus
 	/** The sections to show, in order (a list of names); all of them in the page order by default. */
 	sections?: BlogSection[]
 
@@ -35,7 +38,7 @@ export class BlogPage extends DsElement {
 			posts: html`<section aria-label="More posts" class=${`${WRAP} grid grid-cols-3 gap-x-6 gap-y-12 pt-12 pb-24 max-md:grid-cols-2 max-sm:grid-cols-1 max-sm:pb-16`}>${rest.map((p) => html`<article class="grid content-start gap-4"><spyglass-creative-card src=${ifDefined(p.image.src)} fit=${ifDefined(p.image.fit)} position=${ifDefined(p.image.position)} brand=${ifDefined(p.image.brand)} caption=${ifDefined(p.image.caption)} tone=${ifDefined(p.image.tone)} alt=${p.image.alt ?? p.title} ratio="7/5"></spyglass-creative-card><p class="type-label text-fg-muted">${`${p.date} · ${p.category}`}</p><h3 class="type-heading-3 text-balance"><a href=${p.href} class=${TITLE}>${p.title}</a></h3><p class="type-ui text-fg-soft">${p.excerpt}</p></article>`)}</section>`,
 		}
 		return html`<div data-ds="blog-page" class="bg-surface text-fg">
-<spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header>
+<spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header>
 <main>${pageSections(blogSections, this.sections).map((k) => parts[k])}</main>
 <footer class="border-t border-edge"><div class=${`${WRAP} py-10`}><spyglass-footer-row domain=${c.footer.domain} home-href="/" .links=${c.footer.links}></spyglass-footer-row></div></footer>
 </div>`

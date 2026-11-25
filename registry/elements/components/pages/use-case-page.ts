@@ -17,6 +17,7 @@ import '@/elements/components/visuals/ascii-trail'
 import styles from 'virtual:tw'
 import { pageSections } from '@/lib/image'
 import { useCaseWheelContent } from '@/lib/use-case-wheel'
+import { headerMenus, type HeaderMenus } from '@/lib/site-header'
 
 // UseCasePage.tsx as <spyglass-use-case-page>: the header, the hero (with the connect menu), the proof line, the scroll
 // story, the stories, the wheel with the light around its ring (the field takes the wheel's ripple), the FAQ, the
@@ -30,7 +31,7 @@ const CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--d
 export class UseCasePage extends DsElement {
 	static styles = [DsElement.styles, styles]
 	protected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds="use-case-page"]'))
-	static properties = { content: { type: Object }, visual: {}, chat: { type: Object }, build: { type: Object }, still: { type: Boolean }, sections: { type: Array }, blocks: { type: Object } }
+	static properties = { content: { type: Object }, visual: {}, chat: { type: Object }, build: { type: Object }, still: { type: Boolean }, sections: { type: Array }, blocks: { type: Object }, menus: { type: Object } }
 	/** The copy as JSON (lib/pages/use-case.ts by default). */
 	content: UseCaseContent = useCaseContent
 	/** The hero's visual: chat or build. */
@@ -47,6 +48,8 @@ export class UseCasePage extends DsElement {
 		const field = this.renderRoot.querySelector<HTMLElement & { ripple?: unknown }>('spyglass-dispersion-field')
 		if (wheel && field && field.ripple !== wheel.ripple) field.ripple = wheel.ripple
 	}
+	/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+	menus?: HeaderMenus
 	/** The sections to show, in order (a list of names); all of them in the page order by default. */
 	/** Each block's data, pictures included: the story's `story` and the wheel's `items`. */
 	blocks: UseCaseBlocks = {}
@@ -64,7 +67,7 @@ export class UseCasePage extends DsElement {
 			faq: html`<div class=${`${CONTAINER} py-(--ds-layout-section)`}><spyglass-faq-block head-id=${`${c.slug}-faq`} heading=${c.faq.headline} body=${c.faq.lead} .action=${c.faq.docs} .items=${c.faq.items}></spyglass-faq-block></div>`,
 			close: html`<spyglass-page-close></spyglass-page-close>`,
 		}
-		return html`<div data-ds="use-case-page" class="isolate bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .links=${c.chrome.header.nav} .secondary=${c.chrome.header.secondary} .cta=${c.chrome.header.cta}></spyglass-site-header><main id="main">${pageSections(useCaseSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.chrome.footer.columns} legal=${c.chrome.footer.legal}></spyglass-site-footer></div>`
+		return html`<div data-ds="use-case-page" class="isolate bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.chrome.header.nav} .secondary=${c.chrome.header.secondary} .cta=${c.chrome.header.cta}></spyglass-site-header><main id="main">${pageSections(useCaseSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.chrome.footer.columns} legal=${c.chrome.footer.legal}></spyglass-site-footer></div>`
 	}
 }
 

@@ -9,6 +9,7 @@ import { contactContent, type ContactContent, contactSections, type ContactSecti
 import { cn } from '@/react/lib/cn'
 import { pageSections } from '@/lib/image'
 import { Fragment, type ReactNode } from 'react'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // The contact page from library items: the heading and a line in the first column, the form on the card fill in the
 // other (name, work email, message and one White button), one column on phones. The form posts to `content.form.action`
@@ -17,6 +18,8 @@ export interface ContactPageProps {
   content?: ContactContent
   /** Receives the form's values instead of posting it. */
   onSubmit?: (values: { name: string; email: string; message: string }) => void
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
   sections?: readonly ContactSection[]
   className?: string
@@ -24,7 +27,7 @@ export interface ContactPageProps {
 
 const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
-export function ContactPage({ content: c = contactContent, onSubmit, sections, className }: ContactPageProps) {
+export function ContactPage({ content: c = contactContent, onSubmit, menus, sections, className }: ContactPageProps) {
   const f = c.form
   const parts: Record<ContactSection, ReactNode> = {
     intro: (
@@ -60,7 +63,7 @@ export function ContactPage({ content: c = contactContent, onSubmit, sections, c
   }
   return (
     <div data-ds="contact-page" className={cn('flex min-h-dvh flex-col bg-surface text-fg', className)}>
-      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
+      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main className={cn(WRAP, 'grid flex-1 grid-cols-2 items-start gap-12 py-24 max-md:grid-cols-1 max-md:gap-8 max-sm:py-16')}>
         {pageSections(contactSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>

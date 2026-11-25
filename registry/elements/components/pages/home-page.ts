@@ -15,6 +15,7 @@ import '@/elements/components/blocks/faq-block'
 import '@/elements/components/blocks/close-block'
 import '@/elements/components/blocks/site-footer'
 import styles from 'virtual:tw'
+import { headerMenus, type HeaderMenus } from '@/lib/site-header'
 
 // HomePage.tsx as <spyglass-home-page>: the site's home in its order: the ASCII trail, the header, the playground hero, the proof row,
 // the features, the reasons, the set-up steps, the case stories, the pricing strip, the questions, the close and the
@@ -28,11 +29,13 @@ const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-lay
 export class HomePage extends DsElement {
 	static styles = [DsElement.styles, styles]
 	protected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds="home-page"]'))
-	static properties = { content: { type: Object }, blocks: { type: Object }, sections: { type: Array } }
+	static properties = { content: { type: Object }, blocks: { type: Object }, menus: { type: Object }, sections: { type: Array } }
 	/** The page's copy (lib/pages/home.ts by default). */
 	content: HomeContent = homeContent
 	/** Each block's data, pictures included: hero, features, why, steps, stories, pricing, close. */
 	blocks: HomeBlocks = {}
+	/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+	menus?: HeaderMenus
 	/** The sections to show, in order (hero, proof, features, why, steps, stories, pricing, faq, close); all by default. */
 	sections?: HomeSection[]
 
@@ -50,7 +53,7 @@ export class HomePage extends DsElement {
 			faq: html`<div class=${`${WRAP} py-(--ds-layout-section)`}><spyglass-faq-block head-id="home-faq" heading=${c.faq.title} body=${c.faq.lead} .action=${c.faq.action} .items=${c.faq.items}></spyglass-faq-block></div>`,
 			close: html`<spyglass-close-block .creatives=${b.close?.creatives}></spyglass-close-block>`,
 		}
-		return html`<div data-ds="home-page" class="bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header><main id="main">${pageSections(homeSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`
+		return html`<div data-ds="home-page" class="bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header><main id="main">${pageSections(homeSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`
 	}
 }
 

@@ -6,6 +6,7 @@ import { notFoundContent, type NotFoundContent, notFoundSections, type NotFoundS
 import { cn } from '@/react/lib/cn'
 import { pageSections } from '@/lib/image'
 import { Fragment, type ReactNode } from 'react'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // The site's 404 page (app/not-found.tsx): the header, the page head with its title, the plain sentence, the White way
 // home and the quiet way to the docs, the ASCII drift in the right columns, and the footer. As the last section on the
@@ -13,12 +14,14 @@ import { Fragment, type ReactNode } from 'react'
 // takes back what the page head keeps below. `content` replaces the copy (lib/pages/not-found.ts).
 export interface NotFoundPageProps {
   content?: NotFoundContent
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
   sections?: readonly NotFoundSection[]
   className?: string
 }
 
-export function NotFoundPage({ content: c = notFoundContent, sections, className }: NotFoundPageProps) {
+export function NotFoundPage({ content: c = notFoundContent, menus, sections, className }: NotFoundPageProps) {
   const parts: Record<NotFoundSection, ReactNode> = {
     head: (
       <div className="-mb-6 md:-mb-5 lg:-mb-3">
@@ -29,7 +32,7 @@ export function NotFoundPage({ content: c = notFoundContent, sections, className
   return (
     <div data-ds="not-found-page" className={cn('isolate bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
-      <SiteHeader links={c.shell.header.nav} secondary={c.shell.header.secondary} />
+      <SiteHeader menus={menus} links={c.shell.header.nav} secondary={c.shell.header.secondary} />
       <main id="main">
         {pageSections(notFoundSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>

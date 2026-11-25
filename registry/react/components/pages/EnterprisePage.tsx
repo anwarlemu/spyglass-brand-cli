@@ -13,6 +13,7 @@ import { enterprisePageContent, type EnterprisePageContent, enterpriseSections, 
 import { cn } from '@/react/lib/cn'
 import { pageSections } from '@/lib/image'
 import { Fragment, type ReactNode } from 'react'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // The site's enterprise page (app/enterprise, pages/Enterprise/EnterprisePage), from library items in the site's order:
 // the header, the hero inside its ring of creatives, the logo row (24px under the hero, 16 from 768, the section's
@@ -25,6 +26,8 @@ export interface EnterprisePageProps {
   logos?: ProofLogo[]
   run?: RunItem[]
   features?: EnterpriseFeaturesContent
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
   sections?: readonly EnterpriseSection[]
   className?: string
@@ -32,7 +35,7 @@ export interface EnterprisePageProps {
 
 const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
-export function EnterprisePage({ content: c = enterprisePageContent, cards, logos = proofPlaceholders, run, features, sections, className }: EnterprisePageProps) {
+export function EnterprisePage({ content: c = enterprisePageContent, cards, logos = proofPlaceholders, run, features, menus, sections, className }: EnterprisePageProps) {
   const parts: Record<EnterpriseSection, ReactNode> = {
     hero: <EnterpriseHero content={c.hero} cards={cards} />,
     proof: (
@@ -49,7 +52,7 @@ export function EnterprisePage({ content: c = enterprisePageContent, cards, logo
   return (
     <div data-ds="enterprise-page" className={cn('isolate bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
-      <SiteHeader links={c.header.links} secondary={c.header.secondary} variant="centered" />
+      <SiteHeader menus={menus} links={c.header.links} secondary={c.header.secondary} variant="centered" />
       <main id="main">
         {pageSections(enterpriseSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>

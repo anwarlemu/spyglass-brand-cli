@@ -9,6 +9,7 @@ import { formatResourceDate, resourceListContent, type ResourceList, type Resour
 import { cn } from '@/react/lib/cn'
 import { pageSections } from '@/lib/image'
 import { Fragment, type ReactNode } from 'react'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // The site's list of posts or guides (app/resources/[slug], pages/Resources/ResourceList): the header, the page head
 // with the list's title and line, then the entries newest first as hairline rows (the date in the muted gray, the
@@ -19,6 +20,8 @@ import { Fragment, type ReactNode } from 'react'
 export interface ResourceListPageProps {
   list?: ResourceList
   content?: ResourceListContent
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
   sections?: readonly ResourceListSection[]
   className?: string
@@ -34,7 +37,7 @@ const RESOURCE_THUMB = 'col-start-1 row-span-3 row-start-1'
 
 const CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
-export function ResourceListPage({ list, content: c = resourceListContent, sections, className }: ResourceListPageProps) {
+export function ResourceListPage({ list, content: c = resourceListContent, menus, sections, className }: ResourceListPageProps) {
   const l = list ?? c.list
   const entries = [...l.entries].sort((a, b) => b.date.localeCompare(a.date))
   const parts: Record<ResourceListSection, ReactNode> = {
@@ -69,7 +72,7 @@ export function ResourceListPage({ list, content: c = resourceListContent, secti
   return (
     <div data-ds="resource-list-page" className={cn('isolate overflow-x-clip bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
-      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
+      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main>
         {pageSections(resourceListSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>

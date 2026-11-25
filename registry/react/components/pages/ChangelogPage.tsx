@@ -5,6 +5,7 @@ import { changelogContent, type ChangelogContent, changelogSections, type Change
 import { cn } from '@/react/lib/cn'
 import { pageSections } from '@/lib/image'
 import { Fragment, type ReactNode } from 'react'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // The changelog from library items: the title, then every release newest first under a hairline, its date in
 // capitals on the left (it stays in view while the entry scrolls on wide screens), the change as a Funnel Display
@@ -12,6 +13,8 @@ import { Fragment, type ReactNode } from 'react'
 // (lib/pages/changelog.ts).
 export interface ChangelogPageProps {
   content?: ChangelogContent
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
   sections?: readonly ChangelogSection[]
   className?: string
@@ -19,7 +22,7 @@ export interface ChangelogPageProps {
 
 const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
-export function ChangelogPage({ content: c = changelogContent, sections, className }: ChangelogPageProps) {
+export function ChangelogPage({ content: c = changelogContent, menus, sections, className }: ChangelogPageProps) {
   const parts: Record<ChangelogSection, ReactNode> = {
     head: (
       <div className={cn(WRAP, 'grid gap-4 pt-16 pb-12 max-sm:pt-10 max-sm:pb-8')}>
@@ -45,7 +48,7 @@ export function ChangelogPage({ content: c = changelogContent, sections, classNa
   }
   return (
     <div data-ds="changelog-page" className={cn('bg-surface text-fg', className)}>
-      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
+      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main>
         {pageSections(changelogSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>

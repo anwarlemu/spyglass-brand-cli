@@ -10,6 +10,7 @@ import '@/elements/components/blocks/site-footer'
 import '@/elements/components/visuals/side-drifts'
 import styles from 'virtual:tw'
 import { pageSections } from '@/lib/image'
+import { headerMenus, type HeaderMenus } from '@/lib/site-header'
 
 // ComingSoonPage.tsx as <spyglass-coming-soon-page>: the site's coming soon page: the page head with two buttons, the
 // sources coming next as cards (a cover with the mark over clearing glyphs, the name, a line and the APIs it feeds),
@@ -28,9 +29,11 @@ const mark = (src: string | undefined, cls: string) => (src
 export class ComingSoonPage extends DsElement {
 	static styles = [DsElement.styles, styles]
 	protected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds="coming-soon-page"]'))
-	static properties = { content: { type: Object }, sections: { type: Array } }
+	static properties = { content: { type: Object }, menus: { type: Object }, sections: { type: Array } }
 	/** The page's copy (lib/pages/coming-soon.ts by default). */
 	content: ComingSoonContent = comingSoonContent
+	/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+	menus?: HeaderMenus
 	/** The sections to show, in order (a list of names); all of them in the page order by default. */
 	sections?: ComingSoonSection[]
 
@@ -46,7 +49,7 @@ export class ComingSoonPage extends DsElement {
 			also: html`<section aria-labelledby="also-heading" class="pb-(--ds-layout-section)"><div class=${WRAP}><h2 id="also-heading" class="m-0 mb-6 type-heading-4 md:type-heading-3">${c.also.title}</h2><ul role="list" class="m-0 grid list-none grid-cols-2 gap-4 p-0 md:grid-cols-4">${c.also.sources.map((s) => html`<li class="flex min-w-0 items-center gap-3 rounded-panel bg-surface-raised p-4">${mark(s.mark, 'size-6 flex-none text-fg-faint')}<span class="flex min-w-0 flex-col"><span class="type-body">${s.name}</span><span class="type-ui text-fg-muted">${c.also.note}</span></span></li>`)}</ul></div></section>`,
 			close: html`<spyglass-page-close .lines=${c.close.lines} note=${c.close.note} .primary=${c.close.primary}></spyglass-page-close>`,
 		}
-		return html`<div data-ds="coming-soon-page" class="isolate bg-surface text-fg" style=${`--ascii-alpha: url("${ASCII_TEXTURE_ALPHA}")`}><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header><main id="main">${pageSections(comingSoonSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`
+		return html`<div data-ds="coming-soon-page" class="isolate bg-surface text-fg" style=${`--ascii-alpha: url("${ASCII_TEXTURE_ALPHA}")`}><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header><main id="main">${pageSections(comingSoonSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`
 	}
 }
 

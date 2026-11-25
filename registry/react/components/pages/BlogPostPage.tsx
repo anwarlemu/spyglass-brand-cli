@@ -8,6 +8,7 @@ import { blogPostContent, type BlogPostBlock, type BlogPostContent, blogPostSect
 import { cn } from '@/react/lib/cn'
 import { pageSections, groupSections } from '@/lib/image'
 import { Fragment, type ReactNode } from 'react'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // A blog post from library items: the way back, the date and category in capitals, the title in Funnel Display, the
 // byline, a wide image, then the body in a 720px column (DM Sans paragraphs, Funnel Display subheads, a list, a quote
@@ -15,6 +16,8 @@ import { Fragment, type ReactNode } from 'react'
 // (lib/pages/blog-post.ts); its `body` is a list of blocks.
 export interface BlogPostPageProps {
   content?: BlogPostContent
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
   sections?: readonly BlogPostSection[]
   className?: string
@@ -38,7 +41,7 @@ function Block({ block: b }: { block: BlogPostBlock }) {
   return <p className="type-body-lg text-fg-soft">{b.text}</p>
 }
 
-export function BlogPostPage({ content: c = blogPostContent, sections, className }: BlogPostPageProps) {
+export function BlogPostPage({ content: c = blogPostContent, menus, sections, className }: BlogPostPageProps) {
   const parts: Record<BlogPostSection, ReactNode> = {
     head: (
       <header className={cn(COLUMN, 'flex flex-col items-start pt-16 max-sm:pt-10')}>
@@ -79,7 +82,7 @@ export function BlogPostPage({ content: c = blogPostContent, sections, className
   }
   return (
     <div data-ds="blog-post-page" className={cn('bg-surface text-fg', className)}>
-      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
+      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main>
         {groupSections(pageSections(blogPostSections, sections), ARTICLE).map((k) => (Array.isArray(k) ? <article key="article">{k.map((a) => <Fragment key={a}>{parts[a]}</Fragment>)}</article> : <Fragment key={k}>{parts[k]}</Fragment>))}
       </main>

@@ -11,6 +11,7 @@ import '@/elements/components/visuals/ascii-trail'
 import styles from 'virtual:tw'
 import { pageSections, groupSections, imageFit } from '@/lib/image'
 import { styleMap } from 'lit/directives/style-map.js'
+import { headerMenus, type HeaderMenus } from '@/lib/site-header'
 
 // CaseStudyPage.tsx as <spyglass-case-study-page>: the header, the centered head (breadcrumb, headline, kind and read
 // time), the facts, the lead picture, the opening line and figures, the pull quote, the sections and the pager, the
@@ -33,11 +34,13 @@ const arrow = (back = false) => html`<svg viewBox="0 0 16 16" width="16" height=
 export class CaseStudyPage extends DsElement {
 	static styles = [DsElement.styles, styles]
 	protected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds="case-study-page"]'))
-	static properties = { study: { type: Object }, content: { type: Object }, sections: { type: Array } }
+	static properties = { study: { type: Object }, content: { type: Object }, menus: { type: Object }, sections: { type: Array } }
 	/** The study (the first of lib/pages/case-studies.ts by default). */
 	study: CaseStudy = caseStudies[0]
 	/** The copy and the studies for the pager. */
 	content: CaseStudyContent = caseStudyContent
+	/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+	menus?: HeaderMenus
 	/** The sections to show, in order (a list of names); all of them in the page order by default. */
 	sections?: CaseStudyPageSection[]
 
@@ -61,7 +64,7 @@ export class CaseStudyPage extends DsElement {
 			more: html`${pager}`,
 			close: html`<spyglass-page-close .lines=${c.close.lines} note=${c.close.note} .primary=${c.close.primary}></spyglass-page-close>`,
 		}
-		return html`<div data-ds="case-study-page" class="isolate overflow-x-clip bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header><main>${groupSections(pageSections(caseStudyPageSections, this.sections), ARTICLE).map((k) => (Array.isArray(k) ? html`<article aria-labelledby=${id} class="relative isolate overflow-x-clip">${k.map((a) => parts[a])}</article>` : parts[k]))}</main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`
+		return html`<div data-ds="case-study-page" class="isolate overflow-x-clip bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header><main>${groupSections(pageSections(caseStudyPageSections, this.sections), ARTICLE).map((k) => (Array.isArray(k) ? html`<article aria-labelledby=${id} class="relative isolate overflow-x-clip">${k.map((a) => parts[a])}</article>` : parts[k]))}</main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`
 	}
 }
 

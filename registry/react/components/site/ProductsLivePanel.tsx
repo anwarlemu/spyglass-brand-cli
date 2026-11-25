@@ -58,7 +58,7 @@ export function ProductsLivePanel({ menu = headerMenus.products }: { menu?: Prod
               return (
                 <span key={item.key} data-on={i === active || undefined} className="ds-live-stage relative isolate grid h-full place-items-center overflow-hidden rounded-ds-sm bg-surface-raised opacity-0 [grid-area:1/1] data-on:z-1 data-on:opacity-100">
                   <span aria-hidden="true" className="pointer-events-none absolute inset-0 -z-1 select-none" style={asciiDriftStyleObject('mass', 'centre', 'faint')} />
-                  {visual ? <span className={VISUAL}><ProductVisual kind={visual} texture={false} fill /></span> : picture.src ? <img src={picture.src} alt={picture.alt ?? ''} className="absolute inset-0 size-full object-cover" style={imageFit(picture)} /> : 'groups' in item ? null : <span data-ds-placeholder="" className={cn(GLYPH, 'size-16 rounded-control [--glyph-body:var(--ds-color-neutral-7)] [--glyph-lit:var(--ds-color-fg)]')}><NavIcon name={item.icon} size={24} /></span>}
+                  {picture.src ? <img src={picture.src} alt={picture.alt ?? ''} className="absolute inset-0 size-full object-cover" style={imageFit(picture)} /> : visual ? <span className={VISUAL}><ProductVisual kind={visual} texture={false} fill /></span> : 'groups' in item ? null : <span data-ds-placeholder="" className={cn(GLYPH, 'size-16 rounded-control [--glyph-body:var(--ds-color-neutral-7)] [--glyph-lit:var(--ds-color-fg)]')}><NavIcon name={item.icon} size={24} /></span>}
                   {platforms?.length ? <span className="absolute top-3 left-3 z-2 flex rounded-ds-sm bg-surface px-2 py-1 type-caption text-fg-soft">{platforms.join(', ')}</span> : null}
                 </span>
               )

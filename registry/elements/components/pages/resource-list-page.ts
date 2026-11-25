@@ -11,6 +11,7 @@ import '@/elements/components/blocks/site-footer'
 import '@/elements/components/visuals/ascii-trail'
 import styles from 'virtual:tw'
 import { pageSections } from '@/lib/image'
+import { headerMenus, type HeaderMenus } from '@/lib/site-header'
 
 // ResourceListPage.tsx as <spyglass-resource-list-page>: the header, the page head, the entries newest first as
 // hairline rows (or the empty panel with a quiet way back), the closing section and the footer. `list` (JSON) sets the
@@ -32,11 +33,13 @@ const CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--d
 export class ResourceListPage extends DsElement {
 	static styles = [DsElement.styles, styles]
 	protected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds="resource-list-page"]'))
-	static properties = { list: { type: Object }, content: { type: Object }, sections: { type: Array } }
+	static properties = { list: { type: Object }, content: { type: Object }, menus: { type: Object }, sections: { type: Array } }
 	/** The list: { key, title, line, entries: { title, line, href, date, thumb? }[], empty }. */
 	list?: ResourceList
 	/** The copy (lib/pages/resources.ts by default). */
 	content: ResourceListContent = resourceListContent
+	/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+	menus?: HeaderMenus
 	/** The sections to show, in order (a list of names); all of them in the page order by default. */
 	sections?: ResourceListSection[]
 
@@ -52,7 +55,7 @@ export class ResourceListPage extends DsElement {
 			list: html`<section aria-label=${l.title} class="pb-(--ds-layout-section)"><div class=${CONTAINER}>${body}</div></section>`,
 			close: html`<spyglass-page-close .lines=${c.close.lines} note=${c.close.note} .primary=${c.close.primary}></spyglass-page-close>`,
 		}
-		return html`<div data-ds="resource-list-page" class="isolate overflow-x-clip bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header><main>${pageSections(resourceListSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`
+		return html`<div data-ds="resource-list-page" class="isolate overflow-x-clip bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header><main>${pageSections(resourceListSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`
 	}
 }
 

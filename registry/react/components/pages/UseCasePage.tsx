@@ -17,6 +17,7 @@ import { useCaseContent, type UseCaseContent, useCaseSections, type UseCaseSecti
 import { cn } from '@/react/lib/cn'
 import { pageSections } from '@/lib/image'
 import { Fragment, type ReactNode } from 'react'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // A use case's page as the site sets it (app/use-cases/[slug], pages/UseCasesPage/UseCaseDetail): the header, the
 // hero (the name, the line, the connect menu with a quiet button and the chat answering beside them, or the build
@@ -33,6 +34,8 @@ export interface UseCasePageProps {
   still?: boolean
   /** Each block's data, pictures included: the story's `story` and the wheel's `items`. */
   blocks?: UseCaseBlocks
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
   sections?: readonly UseCaseSection[]
   className?: string
@@ -40,7 +43,7 @@ export interface UseCasePageProps {
 
 const CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
-export function UseCasePage({ content: c = useCaseContent, visual = 'chat', chat, build, still = false, blocks = {}, sections, className }: UseCasePageProps) {
+export function UseCasePage({ content: c = useCaseContent, visual = 'chat', chat, build, still = false, blocks = {}, menus, sections, className }: UseCasePageProps) {
   const parts: Record<UseCaseSection, ReactNode> = {
     hero: <UseCaseHero content={c.hero} visual={visual} chat={chat} build={build} control={c.control === 'mcp' ? <ConnectMenu /> : undefined} />,
     proof: <ProofBlock id={`${c.slug}-proof`} title={c.proof} />,
@@ -57,7 +60,7 @@ export function UseCasePage({ content: c = useCaseContent, visual = 'chat', chat
   return (
     <div data-ds="use-case-page" className={cn('isolate bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
-      <SiteHeader links={c.chrome.header.nav} secondary={c.chrome.header.secondary} cta={c.chrome.header.cta} />
+      <SiteHeader menus={menus} links={c.chrome.header.nav} secondary={c.chrome.header.secondary} cta={c.chrome.header.cta} />
       <main id="main">
         {pageSections(useCaseSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>

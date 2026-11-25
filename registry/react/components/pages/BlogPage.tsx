@@ -6,6 +6,7 @@ import { blogContent, type BlogContent, blogSections, type BlogSection } from '@
 import { cn } from '@/react/lib/cn'
 import { pageSections } from '@/lib/image'
 import { Fragment, type ReactNode } from 'react'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // The blog index from library items: the title, the newest post large (its image beside the title, the excerpt and a
 // button), then every other post in a grid of three, each an image, the date and category in capitals, the title in
@@ -13,6 +14,8 @@ import { Fragment, type ReactNode } from 'react'
 // posts (lib/pages/blog.ts).
 export interface BlogPageProps {
   content?: BlogContent
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
   sections?: readonly BlogSection[]
   className?: string
@@ -21,7 +24,7 @@ export interface BlogPageProps {
 const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 const TITLE = 'rounded-control transition-[color] duration-160 ease-standard hover:text-fg-soft'
 
-export function BlogPage({ content: c = blogContent, sections, className }: BlogPageProps) {
+export function BlogPage({ content: c = blogContent, menus, sections, className }: BlogPageProps) {
   const [first, ...rest] = c.posts
   const parts: Record<BlogSection, ReactNode> = {
     head: (
@@ -58,7 +61,7 @@ export function BlogPage({ content: c = blogContent, sections, className }: Blog
   }
   return (
     <div data-ds="blog-page" className={cn('bg-surface text-fg', className)}>
-      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
+      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main>
         {pageSections(blogSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>

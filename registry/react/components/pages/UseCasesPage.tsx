@@ -8,6 +8,7 @@ import { useCasesContent, type UseCasesContent, useCasesSections, type UseCasesS
 import { cn } from '@/react/lib/cn'
 import { pageSections } from '@/lib/image'
 import { Fragment, type ReactNode } from 'react'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // The site's use-cases hub (app/use-cases, pages/UseCasesPage/UseCaseHub): the header, the page head (the title, the
 // lead and the ASCII drift in the right columns), the use cases as linked cards (three across from 1024, two from 768,
@@ -15,6 +16,8 @@ import { Fragment, type ReactNode } from 'react'
 // them, the closing section with the connect menu, then the footer. `content` replaces the copy (lib/pages/use-cases.ts).
 export interface UseCasesPageProps {
   content?: UseCasesContent
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
   sections?: readonly UseCasesSection[]
   className?: string
@@ -22,7 +25,7 @@ export interface UseCasesPageProps {
 
 const CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
-export function UseCasesPage({ content: c = useCasesContent, sections, className }: UseCasesPageProps) {
+export function UseCasesPage({ content: c = useCasesContent, menus, sections, className }: UseCasesPageProps) {
   const parts: Record<UseCasesSection, ReactNode> = {
     head: <PageHead id={c.id} lines={c.head.lines} lead={c.head.lead} />,
     cards: (
@@ -37,7 +40,7 @@ export function UseCasesPage({ content: c = useCasesContent, sections, className
   return (
     <div data-ds="use-cases-page" className={cn('isolate bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
-      <SiteHeader links={c.chrome.header.nav} secondary={c.chrome.header.secondary} cta={c.chrome.header.cta} />
+      <SiteHeader menus={menus} links={c.chrome.header.nav} secondary={c.chrome.header.secondary} cta={c.chrome.header.cta} />
       <main id="main">
         {pageSections(useCasesSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>

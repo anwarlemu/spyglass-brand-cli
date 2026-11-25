@@ -6,6 +6,7 @@ import { legalContent, legalPrivacyContent, type LegalContent, legalSections, ty
 import { cn } from '@/react/lib/cn'
 import { pageSections } from '@/lib/image'
 import { Fragment, type ReactNode } from 'react'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // The site's legal pages (app/terms, app/privacy): the header, the page head (the title, the lead and the ASCII drift
 // in the right columns), then the text in the head's columns: the sections in the left seven at the 640px measure (a
@@ -20,6 +21,8 @@ export interface LegalPageProps {
   content?: LegalContent
   /** Only the page head, its lead saying the text is being prepared (the site's pages until the text is ready). */
   preparing?: boolean
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
   sections?: readonly LegalSection[]
   className?: string
@@ -27,7 +30,7 @@ export interface LegalPageProps {
 
 const CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
-export function LegalPage({ page = 'terms', content, preparing = false, sections, className }: LegalPageProps) {
+export function LegalPage({ page = 'terms', content, preparing = false, menus, sections, className }: LegalPageProps) {
   const c = content ?? (page === 'privacy' ? legalPrivacyContent : legalContent)
   const parts: Record<LegalSection, ReactNode> = {
     head: <PageHead id={c.id} lines={[c.title]} lead={preparing ? c.preparing : c.lead} />,
@@ -54,7 +57,7 @@ export function LegalPage({ page = 'terms', content, preparing = false, sections
   return (
     <div data-ds="legal-page" className={cn('isolate bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
-      <SiteHeader links={c.shell.header.nav} secondary={c.shell.header.secondary} cta={c.shell.header.cta} />
+      <SiteHeader menus={menus} links={c.shell.header.nav} secondary={c.shell.header.secondary} cta={c.shell.header.cta} />
       <main id="main">
         {pageSections(legalSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>

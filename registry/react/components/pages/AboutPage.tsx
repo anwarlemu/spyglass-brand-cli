@@ -8,6 +8,7 @@ import { aboutContent, type AboutContent, type AboutPhoto, aboutSections, type A
 import { cn } from '@/react/lib/cn'
 import { pageSections, imageFit } from '@/lib/image'
 import { Fragment, type ReactNode } from 'react'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // The site's about and careers page (pages/About/AboutPage, About.module.css): the header; the head centered (the
 // title 40/44, 44/48 from 768, at 720px; the lead 32px under it; the White button 56px under that, the full width on
@@ -19,6 +20,8 @@ import { Fragment, type ReactNode } from 'react'
 // `content` replaces the copy (lib/pages/about.ts).
 export interface AboutPageProps {
   content?: AboutContent
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
   sections?: readonly AboutSection[]
   className?: string
@@ -36,7 +39,7 @@ function Tile({ photo }: { photo: AboutPhoto }) {
   )
 }
 
-export function AboutPage({ content: c = aboutContent, sections, className }: AboutPageProps) {
+export function AboutPage({ content: c = aboutContent, menus, sections, className }: AboutPageProps) {
   const parts: Record<AboutSection, ReactNode> = {
     head: (
       <section aria-labelledby={`${c.id}-heading`} className="pt-32 text-center">
@@ -90,7 +93,7 @@ export function AboutPage({ content: c = aboutContent, sections, className }: Ab
     <div data-ds="about-page" className={cn('isolate bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
       <style href="ds-about-page" precedence="ds">{css}</style>
-      <SiteHeader links={c.shell.header.nav} secondary={c.shell.header.secondary} />
+      <SiteHeader menus={menus} links={c.shell.header.nav} secondary={c.shell.header.secondary} />
       <main id="main">
         {pageSections(aboutSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>

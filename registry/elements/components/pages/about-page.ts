@@ -10,6 +10,7 @@ import '@/elements/components/visuals/ascii-trail'
 import styles from 'virtual:tw'
 import { pageSections, imageFit } from '@/lib/image'
 import { styleMap } from 'lit/directives/style-map.js'
+import { headerMenus, type HeaderMenus } from '@/lib/site-header'
 
 // AboutPage.tsx as <spyglass-about-page>: the site's about and careers page, the head centered, the strip of photos in
 // front of the drifting band of light (still with reduced motion), the story, the benefits and the footer. `content`
@@ -23,9 +24,11 @@ const LIGHT = { b: LIGHT_TILE_B, c: LIGHT_TILE_C }
 export class AboutPage extends DsElement {
 	static styles = [DsElement.styles, styles]
 	protected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds="about-page"]'))
-	static properties = { content: { type: Object }, sections: { type: Array } }
+	static properties = { content: { type: Object }, menus: { type: Object }, sections: { type: Array } }
 	/** The page's copy (lib/pages/about.ts by default). */
 	content: AboutContent = aboutContent
+	/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+	menus?: HeaderMenus
 	/** The sections to show, in order (a list of names); all of them in the page order by default. */
 	sections?: AboutSection[]
 
@@ -43,7 +46,7 @@ export class AboutPage extends DsElement {
 			story: html`<section aria-labelledby=${`${c.id}-story`} class="px-(--ds-layout-gutter) pb-24"><div class="mx-auto w-full max-w-180"><h2 id=${`${c.id}-story`} class="mb-8 type-heading-3 text-balance">${c.story.headline}</h2>${c.story.paragraphs.map((p) => html`<p class="mb-6 type-body text-pretty text-fg last:mb-0">${p}</p>`)}</div></section>`,
 			perks: html`<section id=${c.perks.id} aria-labelledby=${`${c.id}-perks`} class="px-(--ds-layout-gutter) pb-32"><div class="mx-auto w-full max-w-180"><h2 id=${`${c.id}-perks`} class="mb-2 type-heading-4 font-medium text-balance md:text-heading-3">${c.perks.headline}</h2><p class="mb-16 type-body text-fg">${c.perks.lead}</p><dl class="grid gap-10">${c.perks.groups.map((g) => html`<div class="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-[--spacing(60)_minmax(0,1fr)] sm:gap-4"><dt class="type-heading-4 font-medium text-fg">${g.title}</dt><dd><ul role="list" class="grid gap-1 type-body text-fg">${g.items.map((item) => html`<li>${item}</li>`)}</ul></dd></div>`)}</dl></div></section>`,
 		}
-		return html`<div data-ds="about-page" class="isolate bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .links=${c.shell.header.nav} .secondary=${c.shell.header.secondary}></spyglass-site-header><main id="main">${pageSections(aboutSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.shell.footer.columns} legal=${c.shell.footer.legal}></spyglass-site-footer></div>`
+		return html`<div data-ds="about-page" class="isolate bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.shell.header.nav} .secondary=${c.shell.header.secondary}></spyglass-site-header><main id="main">${pageSections(aboutSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.shell.footer.columns} legal=${c.shell.footer.legal}></spyglass-site-footer></div>`
 	}
 }
 

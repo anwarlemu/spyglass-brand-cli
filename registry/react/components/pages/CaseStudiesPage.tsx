@@ -8,6 +8,7 @@ import { caseStudiesIndexContent, type CaseStudiesIndexContent, caseStudiesSecti
 import { cn } from '@/react/lib/cn'
 import { pageSections } from '@/lib/image'
 import { Fragment, type ReactNode } from 'react'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // The site's case studies index (app/resources/case-studies, pages/CaseStudies/CaseStudyIndex): the header, the page
 // head, the home's case stories without their head (each case's picture and panel, then every quote in cards three
@@ -15,13 +16,15 @@ import { Fragment, type ReactNode } from 'react'
 // and the quotes (lib/pages/case-studies.ts; Acme placeholders).
 export interface CaseStudiesPageProps {
   content?: CaseStudiesIndexContent
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
   sections?: readonly CaseStudiesSection[]
   className?: string
 }
 
 
-export function CaseStudiesPage({ content: c = caseStudiesIndexContent, sections, className }: CaseStudiesPageProps) {
+export function CaseStudiesPage({ content: c = caseStudiesIndexContent, menus, sections, className }: CaseStudiesPageProps) {
   const parts: Record<CaseStudiesSection, ReactNode> = {
     head: <PageHead id={c.head.id} lines={c.head.lines} lead={c.head.lead} />,
     stories: (
@@ -34,7 +37,7 @@ export function CaseStudiesPage({ content: c = caseStudiesIndexContent, sections
   return (
     <div data-ds="case-studies-page" className={cn('isolate overflow-x-clip bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
-      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
+      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main>
         {pageSections(caseStudiesSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>

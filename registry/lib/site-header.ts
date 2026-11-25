@@ -32,8 +32,8 @@ export interface OfferRow {
 	platforms?: string[]
 	/** The product's looping scene on the live card (a `product-visual` kind), as on the site. */
 	visual?: ProductVisualKind
-	/** A picture for the live card instead (a src or { src, alt, fit, position }; a product shot, never a person's
-	 * photo by default). Without it (and without `visual`) the card shows the product's glyph, marked as a placeholder. */
+	/** A picture for the live card (a src or { src, alt, fit, position }; a product shot, never a person's photo by
+	 * default); it takes the place of `visual`. Without either the card shows the product's glyph, marked as a placeholder. */
 	picture?: string | ImageSlot
 }
 

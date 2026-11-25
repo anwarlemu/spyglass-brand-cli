@@ -10,6 +10,7 @@ import { SiteFooter } from '@/react/components/blocks/SiteFooter'
 import { templatesPageContent, type TemplatesPageContent, templatesSections, type TemplatesSection, type TemplatesBlocks } from '@/lib/pages/templates'
 import { cn } from '@/react/lib/cn'
 import { pageSections } from '@/lib/image'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // The site's templates page (app/templates): the header, the templates wall as the hero (an h1 filling the window under
 // the header), the automation run (a quote over the batch drifting by), what each template brings back
@@ -23,6 +24,8 @@ export interface TemplatesPageProps {
   fan?: ReactNode
   /** Each block's data, pictures included: the wall's `pictures` and the run's `items`. */
   blocks?: TemplatesBlocks
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
   sections?: readonly TemplatesSection[]
   className?: string
@@ -30,7 +33,7 @@ export interface TemplatesPageProps {
 
 const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
-export function TemplatesPage({ content: c = templatesPageContent, fan, blocks = {}, sections, className }: TemplatesPageProps) {
+export function TemplatesPage({ content: c = templatesPageContent, fan, blocks = {}, menus, sections, className }: TemplatesPageProps) {
   const t = c.cities
   const parts: Record<TemplatesSection, ReactNode> = {
     wall: <TemplatesWall hero content={c.wall} pictures={blocks.wall?.pictures} id="templates" />,
@@ -57,7 +60,7 @@ export function TemplatesPage({ content: c = templatesPageContent, fan, blocks =
     <div data-ds="templates-page" className={cn('isolate bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
       <style href="ds-templates-page" precedence="ds">{css}</style>
-      <SiteHeader links={c.chrome.header.nav} secondary={c.chrome.header.secondary} cta={c.chrome.header.cta} />
+      <SiteHeader menus={menus} links={c.chrome.header.nav} secondary={c.chrome.header.secondary} cta={c.chrome.header.cta} />
       <main id="main">
         {pageSections(templatesSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>

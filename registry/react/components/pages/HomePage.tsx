@@ -14,6 +14,7 @@ import { homeContent, homeSections, type HomeBlocks, type HomeContent, type Home
 import { pageSections } from '@/lib/image'
 import { Fragment, type ReactNode } from 'react'
 import { cn } from '@/react/lib/cn'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // The site's home (app/page.tsx, which renders app/v2/page.tsx), from library items in the site's order: the ASCII
 // trail behind the page (a mouse leaves it), the header,
@@ -26,6 +27,8 @@ export interface HomePageProps {
   content?: HomeContent
   /** Each block's data, pictures included: hero, features, why, steps, stories, pricing, close. */
   blocks?: HomeBlocks
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the site's order by default. */
   sections?: readonly HomeSection[]
   className?: string
@@ -33,7 +36,7 @@ export interface HomePageProps {
 
 const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
-export function HomePage({ content: c = homeContent, blocks: b = {}, sections, className }: HomePageProps) {
+export function HomePage({ content: c = homeContent, blocks: b = {}, menus, sections, className }: HomePageProps) {
   const parts: Record<HomeSection, ReactNode> = {
     hero: <PlaygroundHero session={b.hero?.session} />,
     proof: <ProofBlock title={c.proof.title} logos={c.proof.logos} />,
@@ -52,7 +55,7 @@ export function HomePage({ content: c = homeContent, blocks: b = {}, sections, c
   return (
     <div data-ds="home-page" className={cn('bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
-      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
+      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main id="main">
         {pageSections(homeSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>

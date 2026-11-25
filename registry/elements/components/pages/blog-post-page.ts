@@ -11,6 +11,7 @@ import '@/elements/components/site/site-header'
 import '@/elements/components/blocks/offer-block'
 import styles from 'virtual:tw'
 import { pageSections, groupSections } from '@/lib/image'
+import { headerMenus, type HeaderMenus } from '@/lib/site-header'
 
 // BlogPostPage.tsx as <spyglass-blog-post-page>: the way back, the title, a wide image, the body in a 720px column,
 // more posts and the offer. `content` replaces the post; its `body` is a list of blocks.
@@ -33,9 +34,11 @@ const block = (b: BlogPostBlock) => {
 export class BlogPostPage extends DsElement {
 	static styles = [DsElement.styles, styles]
 	protected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds="blog-post-page"]'))
-	static properties = { content: { type: Object }, sections: { type: Array } }
+	static properties = { content: { type: Object }, menus: { type: Object }, sections: { type: Array } }
 	/** The post (lib/pages/blog-post.ts by default). */
 	content: BlogPostContent = blogPostContent
+	/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+	menus?: HeaderMenus
 	/** The sections to show, in order (a list of names); all of them in the page order by default. */
 	sections?: BlogPostSection[]
 
@@ -49,7 +52,7 @@ export class BlogPostPage extends DsElement {
 			offer: html`<spyglass-offer-block headline=${c.offer.headline} note=${c.offer.note} .cta=${c.offer.cta} seed="2"></spyglass-offer-block>`,
 		}
 		return html`<div data-ds="blog-post-page" class="bg-surface text-fg">
-<spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header>
+<spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header>
 <main>${groupSections(pageSections(blogPostSections, this.sections), ARTICLE).map((k) => (Array.isArray(k) ? html`<article>${k.map((a) => parts[a])}</article>` : parts[k]))}</main>
 <footer class="border-t border-edge"><div class=${`${WRAP} py-10`}><spyglass-footer-row domain=${c.footer.domain} home-href="/" .links=${c.footer.links}></spyglass-footer-row></div></footer>
 </div>`

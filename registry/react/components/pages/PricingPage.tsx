@@ -11,6 +11,7 @@ import { pricingContent, type PricingContent, pricingSections, type PricingSecti
 import { cn } from '@/react/lib/cn'
 import { pageSections } from '@/lib/image'
 import { Fragment, type ReactNode } from 'react'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // The site's pricing page (app/pricing, pages/Pricing/PricingPage.tsx), from library items: the header, the centered
 // page head ("Start free. Pay for what you use"), the plan cards with the billing switch, the compare table (from 768;
@@ -18,6 +19,8 @@ import { Fragment, type ReactNode } from 'react'
 // `content` replaces the copy (lib/pages/pricing.ts).
 export interface PricingPageProps {
   content?: PricingContent
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
   sections?: readonly PricingSection[]
   className?: string
@@ -30,7 +33,7 @@ const FAQ_SPLIT = 'grid grid-cols-[minmax(0,1fr)] gap-12 lg:grid-cols-[minmax(0,
 const FAQ_HEAD = 'flex flex-col items-start gap-6 lg:sticky lg:top-[calc(var(--ds-size-header)+var(--ds-space-2xl))]'
 const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
-export function PricingPage({ content: c = pricingContent, sections, className }: PricingPageProps) {
+export function PricingPage({ content: c = pricingContent, menus, sections, className }: PricingPageProps) {
   const parts: Record<PricingSection, ReactNode> = {
     head: <PageHead id="pricing" lines={c.head.lines} lead={c.head.lead} align="centre" />,
     plans: (
@@ -60,7 +63,7 @@ export function PricingPage({ content: c = pricingContent, sections, className }
   return (
     <div data-ds="pricing-page" className={cn('isolate bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
-      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
+      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main id="main">
         {pageSections(pricingSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>

@@ -9,6 +9,7 @@ import { comingSoonContent, type ComingSoonContent, comingSoonSections, type Com
 import { ASCII_TEXTURE_ALPHA } from '@/lib/plan-lights'
 import { cn } from '@/react/lib/cn'
 import { pageSections } from '@/lib/image'
+import type { HeaderMenus } from '@/lib/site-header'
 
 // The site's coming soon page (app/products/coming-soon, pages/ComingSoon): the page head with a White and a quiet
 // button, then the sources coming next as #262626 cards, 8px in (two side by side from 768; from 1024 two wide over
@@ -19,6 +20,8 @@ import { pageSections } from '@/lib/image'
 // without one a neutral rounded square stands in. Nothing moves; a chip's text turns White under the pointer.
 export interface ComingSoonPageProps {
   content?: ComingSoonContent
+  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */
+  menus?: HeaderMenus
   /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
   sections?: readonly ComingSoonSection[]
   className?: string
@@ -33,7 +36,7 @@ function Mark({ src, className }: { src?: string, className: string }) {
     : <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className={className}><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.5" /></svg>
 }
 
-export function ComingSoonPage({ content: c = comingSoonContent, sections, className }: ComingSoonPageProps) {
+export function ComingSoonPage({ content: c = comingSoonContent, menus, sections, className }: ComingSoonPageProps) {
   const odd = c.next.length % 2 === 1
   const parts: Record<ComingSoonSection, ReactNode> = {
     head: <PageHead id="coming-soon" lines={c.head.lines} lead={c.head.lead} primary={c.head.primary} secondary={c.head.secondary} />,
@@ -92,7 +95,7 @@ export function ComingSoonPage({ content: c = comingSoonContent, sections, class
     <div data-ds="coming-soon-page" className={cn('isolate bg-surface text-fg', className)} style={{ '--ascii-alpha': `url("${ASCII_TEXTURE_ALPHA}")` } as CSSProperties}>
       <style href="ds-coming-soon-page" precedence="ds">{css}</style>
       <AsciiTrail mode="page" />
-      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
+      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main id="main">
         {pageSections(comingSoonSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>
