@@ -62,7 +62,7 @@ export class TextSwap extends DsElement {
 	}
 
 	render() {
-		return html`<span data-ds="text-swap" class="inline-grid overflow-clip align-top [overflow-clip-margin:var(--ds-space-xs)]">${this.items.map((item) => html`<span class="ds-swap-item" data-state=${item.state} aria-hidden=${item.state === 'out' ? 'true' : nothing}>${item.text}${item.unit ? html`<span class="ms-2 font-text text-ui/5 text-fg-muted">${item.unit}</span>` : nothing}${item.tag ? html`<span class="relative ms-2 inline-block rounded-ds-sm bg-surface px-2 font-text text-caption/5 font-medium whitespace-nowrap text-fg inset-ring inset-ring-edge-surface">${item.tag}</span>` : nothing}</span>`)}</span>`
+		return html`<span data-ds="text-swap" class="inline-grid overflow-clip align-top [overflow-clip-margin:var(--ds-space-xs)]">${this.items.map((item) => html`<span class="ds-swap-item" data-state=${item.state} aria-hidden=${item.state === 'out' ? 'true' : nothing}>${item.text}${item.unit ? html`<span class="ms-2 font-text text-ui/5 text-fg-muted">${item.unit}</span>` : nothing}${item.tag ? html`<span class="relative ms-2 inline-block rounded-ds-sm bg-white px-2 py-1 font-text text-caption/5 font-medium whitespace-nowrap text-black">${item.tag}</span>` : nothing}</span>`)}</span>`
 	}
 }
 
