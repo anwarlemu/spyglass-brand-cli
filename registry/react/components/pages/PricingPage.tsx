@@ -3,7 +3,9 @@ import { PageClose } from '@/react/components/site/PageClose'
 import { PageHead } from '@/react/components/site/PageHead'
 import { PricingTable } from '@/react/components/site/PricingTable'
 import { SiteHeader } from '@/react/components/site/SiteHeader'
-import { FaqBlock } from '@/react/components/blocks/FaqBlock'
+import { AsciiTrail } from '@/react/components/visuals/AsciiTrail'
+import { FaqAccordion } from '@/react/components/blocks/FaqAccordion'
+import { Button } from '@/react/components/ui/Button'
 import { SiteFooter } from '@/react/components/blocks/SiteFooter'
 import { pricingContent, type PricingContent } from '@/lib/pages/pricing'
 import { cn } from '@/react/lib/cn'
@@ -17,23 +19,36 @@ export interface PricingPageProps {
   className?: string
 }
 
+// The questions as the pricing page sets them (Pricing.module.css .split): the head on the left at every width (title,
+// lead and the quiet button, 24px apart and 16 more above the button, full width on phones), the questions under it,
+// and from 1024 5 parts to 7, 64px apart, the head held 32px under the header.
+const FAQ_SPLIT = 'grid grid-cols-[minmax(0,1fr)] gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start lg:gap-16'
+const FAQ_HEAD = 'flex flex-col items-start gap-6 lg:sticky lg:top-[calc(var(--ds-size-header)+var(--ds-space-2xl))]'
 const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
 export function PricingPage({ content: c = pricingContent, className }: PricingPageProps) {
   return (
-    <div data-ds="pricing-page" className={cn('bg-surface text-fg', className)}>
+    <div data-ds="pricing-page" className={cn('isolate bg-surface text-fg', className)}>
+      <AsciiTrail mode="page" />
       <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
-      <main>
+      <main id="main">
         <PageHead id="pricing" lines={c.head.lines} lead={c.head.lead} align="centre" />
         <section aria-label="Plans" className="pb-[calc(var(--ds-layout-section)-var(--ds-space-xs))] md:pb-(--ds-layout-section)">
           <div className={WRAP}><PricingTable plans={c.plans} billing={c.billing} note={c.note} /></div>
         </section>
-        <section aria-label={c.compare.label} className="py-(--ds-layout-section) max-md:hidden">
+        <section id={c.compare.id} aria-label={c.compare.label} className="py-(--ds-layout-section) max-md:hidden">
           <div className={WRAP}><CompareTable plans={c.compare.plans} groups={c.compare.groups} defaultPlan={c.compare.defaultPlan} /></div>
         </section>
-        <div className={cn(WRAP, 'py-(--ds-layout-section)')}>
-          <FaqBlock title={c.faq.title} body={c.faq.lead} action={c.faq.action} items={c.faq.items} />
-        </div>
+        <section id={c.faq.id} aria-labelledby={`${c.faq.id}-heading`} className="py-(--ds-layout-section)">
+          <div className={cn(WRAP, FAQ_SPLIT)}>
+            <div className={FAQ_HEAD}>
+              <h2 id={`${c.faq.id}-heading`} className="type-section [text-box:trim-start_cap_alphabetic]">{c.faq.title}</h2>
+              <p className="type-body-lg text-pretty text-fg-soft">{c.faq.lead}</p>
+              <Button href={c.faq.action.href} variant="secondary" className="mt-4 max-md:w-full">{c.faq.action.label}</Button>
+            </div>
+            <div className="min-w-0"><FaqAccordion items={c.faq.items} /></div>
+          </div>
+        </section>
         <PageClose lines={c.close.lines} note={c.close.note} primary={c.close.primary} />
       </main>
       <SiteFooter columns={c.footer.columns} legal={c.footer.legal} />
