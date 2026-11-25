@@ -865,7 +865,21 @@ export async function drawScene(scene: Scene, opts: { embedFonts?: boolean } = {
 				if (l.clipQuad) defs.push(`<clipPath id="${cid}"><polygon points="${l.clipQuad.map((q) => `${f(q[0])},${f(q[1])}`).join(' ')}"/></clipPath>`);
 				else if (k) defs.push(`<clipPath id="${cid}"><rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}"/></clipPath>`);
 				const op = l.opacity !== undefined ? ` opacity="${l.opacity}"` : '';
-				parts.push({ svg: `<g${clip}${op} style="mix-blend-mode:screen"><g${tf}>${image}</g></g>` });
+				// A crop never cuts the light off inside the canvas: an edge of the box that is not the canvas's fades out.
+				const fade = (vertical: boolean) => {
+					const [a0, len, end] = vertical ? [y, h, H] : [x, w, W];
+					// Within 2 percent of the canvas edge (a print file's bleed) counts as the edge.
+					const near = a0 > end * 0.02;
+					const far = a0 + len < end * 0.98;
+					if (!clipped || (!near && !far)) return '';
+					const fid = nextId('fade');
+					const k0 = 0.14;
+					defs.push(`<linearGradient id="${fid}g" gradientUnits="userSpaceOnUse" x1="${f(vertical ? 0 : x)}" y1="${f(vertical ? y : 0)}" x2="${f(vertical ? 0 : x + w)}" y2="${f(vertical ? y + h : 0)}"><stop offset="0" stop-color="#FFFFFF" stop-opacity="${near ? 0 : 1}"/><stop offset="${near ? k0 : 0}" stop-color="#FFFFFF"/><stop offset="${far ? 1 - k0 : 1}" stop-color="#FFFFFF"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="${far ? 0 : 1}"/></linearGradient><mask id="${fid}" maskUnits="userSpaceOnUse" x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}"><rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" fill="url(#${fid}g)"/></mask>`);
+					return ` mask="url(#${fid})"`;
+				};
+				const fx2 = l.clipQuad ? '' : fade(false);
+				const fy2 = l.clipQuad ? '' : fade(true);
+				parts.push({ svg: `<g${clip}${op} style="mix-blend-mode:screen"><g${fx2}><g${fy2}><g${tf}>${image}</g></g></g></g>` });
 				const sx = iw / a.width;
 				const sy = ih / a.height;
 				const ink = a.ink
