@@ -9,7 +9,7 @@ never:
   - "Third-party customers, logos or ads without permission: every default is an Acme placeholder"
   - "New colors, shadows or type sizes added to a section: use the items' props"
   - "More than one White button in a section"
-source: "Site app/page.tsx and app/v2/page.tsx (V3Playground hero, V3Proof, V2Features, V2Why, V2HowItWorks, V3CaseStories, V2Pricing, V3Faq, V3Close, the header and footer), measured at 1440 and 390; built from playground-hero, proof-strip, features-block, why-block, how-it-works-block, case-stories-block, pricing-panels-block, faq-block, close-block, site-header and site-footer"
+source: "Site app/page.tsx and app/v2/page.tsx (V3Playground hero, V3Proof, V2Features, V2Why, V2HowItWorks, V3CaseStories, V2Pricing, V3Faq, V3Close, the header and footer), measured at 1440 and 390; built from ascii-trail, playground-hero, proof-block, features-block, why-block, how-it-works-block, case-stories-block, pricing-panels-block, faq-block, close-block, site-header and site-footer"
 files:
   - react/components/pages/HomePage.tsx
   - lib/pages/home.ts
