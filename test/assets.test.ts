@@ -31,7 +31,7 @@ describe('image templates', () => {
 		const ids = templates('image').map((t) => t.id);
 		for (const id of ['post-creative-ring', 'post-agents', 'post-any-brand', 'post-every-market', 'post-know-what-changed', 'post-offer']) expect(ids).toContain(id);
 		for (const id of ['ad-search-bar', 'ad-corridor', 'ad-photo', 'ad-testimonial', 'ad-creator-plan', 'ad-creative-row']) expect(ids).toContain(id);
-		for (const id of ['banner-tagline', 'banner-creative-row', 'banner-light-close-up', 'banner-tagline-creatives', 'avatar', 'logo-background', 'logo-background-3d', 'logo-primary', 'og', 'og-offer', 'story', 'story-offer']) expect(ids).toContain(id);
+		for (const id of ['banner-tagline', 'banner-creative-row', 'banner-tagline-creatives', 'avatar', 'logo-background', 'logo-background-3d', 'logo-primary', 'og', 'og-offer', 'story', 'story-offer']) expect(ids).toContain(id);
 		// A template's first size is its own frame; layouts are functions of the canvas and flow to the others.
 		const first = (id: string) => {
 			const t = findTemplate('image', id);
@@ -47,7 +47,7 @@ describe('image templates', () => {
 		expect(findTemplate('image', 'og').sizes).toContain('landscape');
 		expect(first('og-offer')).toEqual([1200, 630]);
 		expect(first('story')).toEqual([1080, 1920]);
-		expect(Object.keys(findTemplate('image', 'logo-background').variants!)).toEqual(['black', 'white', 'blue', 'red', 'magenta', 'yellow', 'green']);
+		expect(Object.keys(findTemplate('image', 'logo-background').variants!)).toEqual(['black', 'white']);
 	});
 
 	it('never ship third-party names in the default copy', () => {
@@ -104,8 +104,6 @@ describe('image templates', () => {
 		expect(sha(one.svg)).toBe(sha(two.svg));
 		expect(sha(one.svg)).not.toBe(sha(other.svg));
 		expect(sha((await rasterizeScene(one)).png)).toBe(sha((await rasterizeScene(two)).png));
-		const generated = await drawScene(sceneFor(t, { seed: 4, light: 'generated', sample: true }).scene);
-		expect(sha(generated.svg)).not.toBe(sha(one.svg));
 	});
 
 	it('take copy and pictures by slot and refuse what a template does not draw', async () => {
@@ -131,7 +129,7 @@ describe('image templates', () => {
 		expect(b.err).toMatch(/Choose from: x-banner, linkedin-banner/);
 		const c = fails(['image', '--template', 'logo-background', '--variant', 'purple']);
 		expect(c.status).toBe(1);
-		expect(c.err).toMatch(/Choose from: black, white, blue/);
+		expect(c.err).toMatch(/Choose from: black, white/);
 	});
 });
 

@@ -32,7 +32,7 @@ export function imageHelp(): string {
 		row(`${b} image ad-search-bar --headline "..." --image a.png --image b.png`, 'Pictures fill the photo slots in order, and repeat'),
 		row(`${b} image banner-tagline --headline "..." --size linkedin-banner`, 'Banners keep clear of the profile picture'),
 		row(`${b} image og --headline "..." --size custom --width 1600 --height 900`, 'Any size (or --size 1600x900)'),
-		row(`${b} image logo-background --theme yellow`, 'Approved backgrounds only'),
+		row(`${b} image logo-background --theme white`, 'Black or White, the site\'s two grounds'),
 		row(`${b} image og --headline "..." --seed 4 --light generated`, 'A light generated from the seed, and its texture'),
 		row(`${b} image --input carousel.json --out carousel`, 'A carousel: several posts from one file, numbered'),
 		row(`${b} image post-offer --sample`, 'Sample copy, to look at a layout'),
