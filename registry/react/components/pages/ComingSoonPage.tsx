@@ -34,9 +34,7 @@ export function ComingSoonPage({ content: c = comingSoonContent, className }: Co
   return (
     <div data-ds="coming-soon-page" className={cn('bg-surface text-fg', className)} style={{ '--ascii-alpha': `url("${ASCII_TEXTURE_ALPHA}")` } as CSSProperties}>
       <style href="ds-coming-soon-page" precedence="ds">{css}</style>
-      <div className={WRAP}>
-        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
-      </div>
+      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main>
         <PageHead id="coming-soon" lines={c.head.lines} lead={c.head.lead} primary={c.head.primary} secondary={c.head.secondary} />
         <section aria-label={c.nextLabel} className="relative isolate pb-16 md:pb-20">

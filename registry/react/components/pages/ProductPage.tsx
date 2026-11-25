@@ -32,9 +32,7 @@ export function ProductPage({ product, content: c = productContent, live = false
   const p = product ?? c.product
   return (
     <div data-ds="product-page" className={cn('bg-surface text-fg', className)}>
-      <div className={WRAP}>
-        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
-      </div>
+      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main>
         <ProductHero
           id={p.slug}
