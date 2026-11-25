@@ -35,6 +35,8 @@ export const legalContent = {
 	id: 'terms',
 	title: 'Terms of service',
 	lead: 'The terms for using the service, in plain words. Questions about them go to the contact at the end.',
+	/** The lead while the text is being prepared (`preparing`): the page shows only its head. */
+	preparing: 'The updated terms of service are being prepared. They will be published on this page when they are ready.',
 	updated: 'Last updated Nov 1, 2026',
 	contents: 'On this page',
 	sections: [
@@ -57,6 +59,7 @@ export const legalPrivacyContent: LegalContent = {
 	id: 'privacy',
 	title: 'Privacy policy',
 	lead: 'What we collect, why we keep it and the choices you have about it.',
+	preparing: 'The updated privacy policy is being prepared. It will be published on this page when it is ready.',
 	sections: [
 		{ id: 'what-we-collect', title: 'What we collect', body: [privacy('the information you give us and what the service records as you use it')] },
 		{ id: 'how-we-use-it', title: 'How we use it', body: [privacy('why the information is used and the grounds for using it')] },
