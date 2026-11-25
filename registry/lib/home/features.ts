@@ -4,6 +4,7 @@
 // placeholders and plain names: the site shows other companies' ads and the platforms' marks, which never ship.
 import { type Frame, type Timeline, type Track } from '@/lib/home/demo'
 import { setData, setStyle, setText, span, type Scene, type Tokens } from '@/lib/home/scene'
+import type { ImageSlot } from '@/lib/image'
 
 export interface FeaturesContent {
 	headline: string
@@ -25,7 +26,7 @@ export const featuresContent: FeaturesContent = {
 
 // ----- The media strip (find similar) -----
 
-export interface MediaAd { h: number; ratio: number; tone: 1 | 2 | 3 | 4; src?: string; days?: number; views?: string; ago?: number }
+export interface MediaAd extends ImageSlot { h: number; ratio: number; tone: 1 | 2 | 3 | 4; days?: number; views?: string; ago?: number }
 export interface MediaContent { query: string; across: string; soon: string; live: string[]; later: string[]; days: string; views: string; ago: string; summary: string }
 
 export const mediaContent: MediaContent = {
@@ -106,7 +107,7 @@ export function mediaTimeline(cam: readonly number[]): (root: HTMLElement) => Ti
 // ----- The graph ring (save from anywhere) -----
 
 export type RingSlot = 30 | -150 | -30 | 150 | -90 | 90
-export interface RingNode { key: string; kind: string; source: string; angle: RingSlot; look: 'mark' | 'post' | 'page' | 'face'; tone?: 1 | 2 | 3 | 4; src?: string }
+export interface RingNode extends ImageSlot { key: string; kind: string; source: string; angle: RingSlot; look: 'mark' | 'post' | 'page' | 'face'; tone?: 1 | 2 | 3 | 4 }
 export interface RingContent { brand: string; nodes: RingNode[]; summary: string }
 
 export const ringContent: RingContent = {
@@ -168,7 +169,7 @@ export function ringTimeline(nodes: RingNode[]) {
 
 // ----- The patterns tally -----
 
-export interface TallyRow { name: string; total: number; tone: 1 | 2 | 3 | 4; src?: string }
+export interface TallyRow extends ImageSlot { name: string; total: number; tone: 1 | 2 | 3 | 4 }
 export interface TallyContent { brand: string; meta: string; of: number; facts: { full: string; short: string }[]; rows: TallyRow[]; perOne: string; per: string; ads: string; summary: string }
 
 export const tallyContent: TallyContent = {

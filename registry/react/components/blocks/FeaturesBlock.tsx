@@ -4,7 +4,7 @@ import { CreativeCard } from '@/react/components/site/CreativeCard'
 import { ASCII_TEXTURE } from '@/lib/textures'
 import { startDemo } from '@/lib/home/demo'
 import { startScene } from '@/lib/home/scene'
-import { addedLabel, allLabels, burstContent, castTone, LAST, LIVE_CELLS, ringOffset, SHOTS, startAccountsBurst, STILL, unitMove, visibleAt, WELL_FROM, type BurstContent } from '@/lib/home/accounts-burst'
+import { addedLabel, allLabels, burstContent, castImage, castTone, LAST, LIVE_CELLS, ringOffset, SHOTS, startAccountsBurst, STILL, unitMove, visibleAt, WELL_FROM, type BurstContent } from '@/lib/home/accounts-burst'
 import { buildTally, featuresContent, MEDIA_HOLD, mediaAds, mediaCarry, mediaContent, mediaLayout, mediaRest, mediaShown, mediaTimeline, RING_HOLD, ringContent, ringIconStyle, ringLabelStyle, ringSide, ringTimeline, TALLY_SLOTS, tallyContent, tallyRowAt, type FeaturesContent, type MediaAd, type MediaContent, type RingContent, type TallyContent } from '@/lib/home/features'
 import { cn } from '@/react/lib/cn'
 
@@ -55,7 +55,7 @@ function MediaStrip({ m, ads }: { m: MediaContent; ads: MediaAd[] }) {
             <div className="ds-ms-row" data-row="" style={{ '--at': `${mediaRest(cam)}cqw` } as CSSProperties}>
               {ads.map((ad, i) => (
                 <div key={i} className="ds-ms-ad" data-ad="" style={{ '--x': lefts[i].toFixed(2), '--w': widths[i].toFixed(2), '--h': ad.h, opacity: mediaShown(i, MEDIA_HOLD) ? undefined : 0 } as CSSProperties}>
-                  <CreativeCard ratio="fill" src={ad.src} tone={ad.tone} />
+                  <CreativeCard ratio="fill" src={ad.src} alt={ad.alt} fit={ad.fit} position={ad.position} tone={ad.tone} />
                   <span className="ds-ms-tags">{(ad.views ? [m.views.replace('{n}', ad.views), m.ago.replace('{n}', String(ad.ago ?? 0))] : [m.days.replace('{n}', String(ad.days ?? 0))]).map((l) => <span key={l} className="ds-ms-days">{l}</span>)}</span>
                 </div>
               ))}
@@ -102,7 +102,7 @@ function AccountsBurst({ c }: { c: BurstContent }) {
           const [dx, dy] = ringOffset(i, STILL)
           return (
             <span key={`${q}-${i}`} className="ds-ab-shot" data-shot={`${q}-${i}`} data-still={on ? '' : undefined} style={{ '--w': w, '--h': h, zIndex: slot + 1, transform: on ? unitMove(dx, dy) : undefined } as CSSProperties}>
-              <CreativeCard ratio="fill" tone={castTone(s, i)} />
+              <CreativeCard ratio="fill" {...castImage(s, i)} tone={castTone(s, i)} />
             </span>
           )
         }))}
@@ -110,7 +110,7 @@ function AccountsBurst({ c }: { c: BurstContent }) {
         {c.searches.map((s, q) => (
           <div key={s.query} className="ds-ab-anchor">
             <div className="ds-ab-box" data-box={q} data-still={q === 0 ? '' : undefined}>
-              <span data-k="pic" className="ds-ab-pic" style={{ opacity: 0 }}><CreativeCard ratio="fill" tone={castTone(s, LAST)} /></span>
+              <span data-k="pic" className="ds-ab-pic" style={{ opacity: 0 }}><CreativeCard ratio="fill" {...castImage(s, LAST)} tone={castTone(s, LAST)} /></span>
               <span data-k="row" className="ds-ab-row-face">
                 <span className="ds-ab-row">
                   <span className="ds-ab-head">
@@ -149,7 +149,7 @@ function GraphRing({ c }: { c: RingContent }) {
             {[...c.nodes].reverse().map((n) => (
               <span key={n.key} className="ds-gr-node" data-node={n.key} style={{ transform: ringIconStyle(n, RING_HOLD).transform as string }}>
                 {n.look === 'mark' ? <span className="ds-gr-mark">{c.brand.slice(0, 1)}</span>
-                  : n.look === 'page' ? <span className="ds-gr-page"><span className="ds-gr-bar"><span className="ds-gr-dot" data-dot="close" /><span className="ds-gr-dot" data-dot="min" /><span className="ds-gr-dot" data-dot="full" /></span><span className="ds-gr-shot"><CreativeCard ratio="fill" src={n.src} tone={n.tone ?? 2} /></span></span>
+                  : n.look === 'page' ? <span className="ds-gr-page"><span className="ds-gr-bar"><span className="ds-gr-dot" data-dot="close" /><span className="ds-gr-dot" data-dot="min" /><span className="ds-gr-dot" data-dot="full" /></span><span className="ds-gr-shot"><CreativeCard ratio="fill" src={n.src} alt={n.alt} fit={n.fit} position={n.position} tone={n.tone ?? 2} /></span></span>
                   : <span className={n.look === 'face' ? 'ds-gr-face' : 'ds-gr-post'}><CreativeCard ratio="fill" src={n.src} tone={n.tone ?? 2} /></span>}
               </span>
             ))}
@@ -180,7 +180,7 @@ function PatternsTally({ c }: { c: TallyContent }) {
           <div className="ds-tl-strip" data-strip="">
             {TALLY_SLOTS.map((k) => {
               const row = c.rows[tallyRowAt(k, c.rows.length)]
-              return <div key={k} className="ds-tl-card" data-card=""><CreativeCard ratio="fill" src={row.src} tone={row.tone} /></div>
+              return <div key={k} className="ds-tl-card" data-card=""><CreativeCard ratio="fill" src={row.src} alt={row.alt} fit={row.fit} position={row.position} tone={row.tone} /></div>
             })}
           </div>
           <div className="ds-tl-frame" data-frame="">

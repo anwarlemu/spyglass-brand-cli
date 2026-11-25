@@ -65,7 +65,7 @@ export function CaseStoriesBlock({ content: c = caseStoriesContent, cases = stor
         <ul role="list" className="ds-cs-stories">
           {cases.map((entry, i) => (
             <li key={entry.href} className="ds-cs-lead" data-side={i % 2 ? 'right' : undefined}>
-              <span className="ds-cs-picture"><CreativeCard ratio="fill" src={entry.picture?.src} tone={entry.picture?.tone ?? 2} /></span>
+              <span className="ds-cs-picture"><CreativeCard ratio="fill" src={entry.picture?.src} alt={entry.picture?.alt} fit={entry.picture?.fit} position={entry.picture?.position} tone={entry.picture?.tone ?? 2} /></span>
               <a className="ds-cs-panel" href={entry.href} aria-label={`${c.read}: ${entry.company}`}>
                 <span className="ds-cs-panel-ascii" aria-hidden="true" style={{ backgroundImage: `url("${ASCII_TEXTURE}")` }} />
                 <Words entry={entry} read={c.read} />

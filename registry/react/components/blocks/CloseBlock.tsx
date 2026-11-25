@@ -33,7 +33,7 @@ function Field({ list, name, layer, creatives, tags }: { list: Spot[]; name: 'wi
         const item = creatives[spot.creative % creatives.length] ?? {}
         return (
           <span key={spot.key} className="ds-close-spot" data-spot="" data-off={spot.off.length ? spot.off.join(' ') : undefined} data-tag={tags[spot.creative % tags.length]} style={{ '--x': spot.x, '--y': spot.y, '--s': spot.size } as CSSProperties}>
-            <span className="ds-close-picture"><CreativeCard ratio="fill" src={item.src} tone={item.tone ?? 2} /></span>
+            <span className="ds-close-picture"><CreativeCard ratio="fill" src={item.src} alt={item.alt} fit={item.fit} position={item.position} tone={item.tone ?? 2} /></span>
           </span>
         )
       })}

@@ -3,10 +3,13 @@
 // and a ring of creatives bursts out around it and gathers back into the answer, which morphs into the brand's row
 // (its numbers, then a live bar filling as the search adds accounts), holds, and morphs back into the next search's
 // chip. 60 frames a second while a quarter of it is on screen; reduced motion holds the first answer among its ring.
-// The rows are Acme placeholders and the creatives placeholder tones (pass your own images by index).
+// The rows are Acme placeholders and the creatives placeholder tones (pass your own through each search's `images`,
+// used in turn, the answer's picture last).
+
+import type { ImageSlot } from '@/lib/image'
 
 export interface BurstRow { name: string; category: string; instagram: string; tiktok: string | null; activeAds: number; logo?: string }
-export interface BurstSearch { query: string; scrub: string[]; added: number; pool: (1 | 2 | 3 | 4)[]; answer: 1 | 2 | 3 | 4; row: BurstRow }
+export interface BurstSearch { query: string; scrub: string[]; added: number; pool: (1 | 2 | 3 | 4)[]; answer: 1 | 2 | 3 | 4; row: BurstRow; /** The creatives the search finds ({ src, alt, fit, position }), used in turn; placeholder tones without them. */ images?: ImageSlot[] }
 export interface BurstContent { aiLabel: string; columns: { instagram: string; tiktok: string; meta: string }; searching: string; added: string; searches: BurstSearch[] }
 
 export const burstContent: BurstContent = {
@@ -302,6 +305,8 @@ export const visibleAt = (f: number) =>
 
 /** The tone of shot `i` in search `s`: the answer last, the pool's tones around it. */
 export const castTone = (s: BurstSearch, i: number) => (i === LAST ? s.answer : s.pool[i % s.pool.length])
+/** The image of shot `i` in search `s` (its images in turn), or none for the placeholder. */
+export const castImage = (s: BurstSearch, i: number): ImageSlot => (s.images?.length ? s.images[i % s.images.length] : {})
 /** Every label the chip can show, to size it to the longest. */
 export const allLabels = (searches: BurstSearch[]) => [...new Set(searches.flatMap((s) => s.scrub))]
 export const addedLabel = (c: BurstContent, n: number) => c.added.replace('{n}', String(n))

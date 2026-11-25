@@ -6,6 +6,7 @@ import { CreativeCard } from '@/react/components/site/CreativeCard'
 import { pieceStartStyle, runScrollStory, stillRatio, trackHeight, type ScrollStoryData, type StoryAction, type StoryImage, type StoryLogo, type StoryPiece } from '@/lib/scroll-story'
 import { scrollStories, type ScrollStoryPreset } from '@/lib/pages/scroll-stories'
 import { cn } from '@/react/lib/cn'
+import { imageFit } from '@/lib/image'
 
 // The site's scroll story (story/ScrollStory): a story in chapters told while the reader scrolls. From 1024 with motion
 // allowed the stage pins for the story's length; its pieces (creatives, a board, chips, a page, a thread of comments, a
@@ -27,7 +28,7 @@ export interface ScrollStoryProps {
 function Shot({ image }: { image: StoryImage }) {
   // The placeholder shows its headline only: the advertiser line would sit under the badge.
   return image.src
-    ? <img src={image.src} alt="" loading="lazy" decoding="async" style={image.position ? { objectPosition: image.position } : undefined} />
+    ? <img src={image.src} alt="" loading="lazy" decoding="async" style={imageFit(image)} />
     : <span className="ds-story-fill"><CreativeCard ratio="fill" caption={image.caption} tone={image.tone} /></span>
 }
 

@@ -57,7 +57,7 @@ export function PricingPanelsBlock({ content: c = pricingPanelsContent, sets = p
                     const item = set[slot] ?? {}
                     return (
                       <div key={s} className="ds-pp-picture" data-set={s} data-rank={PANEL_RANK[slot] ?? slot}>
-                        <CreativeCard ratio="fill" src={item.src} alt="" brand={item.brand} tone={item.tone} />
+                        <CreativeCard ratio="fill" src={item.src} alt="" fit={item.fit} position={item.position} brand={item.brand} tone={item.tone} />
                       </div>
                     )
                   })}

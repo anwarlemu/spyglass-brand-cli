@@ -52,7 +52,7 @@ export class CloseBlock extends DsElement {
 		const tags = this.tags ?? closeTags
 		return html`<div class="ds-close-field" data-field=${name} data-layer=${layer} aria-hidden="true">${list.map((spot) => {
 			const item = creatives[spot.creative % creatives.length] ?? {}
-			return html`<span class="ds-close-spot" data-spot="" data-off=${ifDefined(spot.off.length ? spot.off.join(' ') : undefined)} data-tag=${tags[spot.creative % tags.length]} style=${`--x: ${spot.x}; --y: ${spot.y}; --s: ${spot.size}`}><span class="ds-close-picture"><spyglass-creative-card ratio="fill" src=${ifDefined(item.src)} tone=${item.tone ?? 2}></spyglass-creative-card></span></span>`
+			return html`<span class="ds-close-spot" data-spot="" data-off=${ifDefined(spot.off.length ? spot.off.join(' ') : undefined)} data-tag=${tags[spot.creative % tags.length]} style=${`--x: ${spot.x}; --y: ${spot.y}; --s: ${spot.size}`}><span class="ds-close-picture"><spyglass-creative-card ratio="fill" src=${ifDefined(item.src)} alt=${item.alt ?? ''} fit=${ifDefined(item.fit)} position=${ifDefined(item.position)} tone=${item.tone ?? 2}></spyglass-creative-card></span></span>`
 		})}</div>`
 	}
 

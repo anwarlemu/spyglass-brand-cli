@@ -34,7 +34,7 @@ function Picture({ picture }: { picture: WheelPicture }) {
   const fit = wheelFit(picture)
   return (
     <span className="ds-wheel-frame" data-fit={fit === 'fill' ? undefined : fit} style={picture.ratio ? { aspectRatio: String(picture.ratio) } : undefined}>
-      <CreativeCard src={picture.src} alt={picture.alt} brand={picture.brand} caption={picture.caption} tone={picture.tone} ratio="fill" />
+      <CreativeCard src={picture.src} alt={picture.alt} fit={picture.fit} position={picture.position} brand={picture.brand} caption={picture.caption} tone={picture.tone} ratio="fill" />
     </span>
   )
 }

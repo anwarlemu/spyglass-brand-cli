@@ -1,5 +1,8 @@
 // The home pricing panels' copy and placeholder creatives (site content/v2/closing pricingV2). The lines are the
 // site's own; the creatives are Acme placeholders (pass your own images through `sets`). Both flavors read this file.
+
+import type { ImageSlot } from '@/lib/image'
+
 export interface PricingPanelsContent {
 	/** The headline, one line each. */
 	lines: string[]
@@ -10,9 +13,7 @@ export interface PricingPanelsContent {
 }
 
 /** One creative in a set: an image, or an Acme placeholder (advertiser and a neutral tone, 1 to 4). */
-export interface PanelCreative {
-	src?: string
-	alt?: string
+export interface PanelCreative extends ImageSlot {
 	brand?: string
 	tone?: 1 | 2 | 3 | 4
 }

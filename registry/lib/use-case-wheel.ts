@@ -7,10 +7,10 @@
 // under the pointer or keyboard focus, and a click or a hover on another label turns to it. With reduced motion the
 // pictures stand still at their slots and change by a crossfade, and nothing advances by itself.
 
+import type { ImageSlot } from '@/lib/image'
+
 /** A creative in the ring: the user's image, or an Acme placeholder (the creative card's brand, caption and tone). */
-export interface WheelPicture {
-  src?: string
-  alt?: string
+export interface WheelPicture extends ImageSlot {
   /** The image's width over its height: a narrower image fills the card's height, a wider one its width. */
   ratio?: number
   brand?: string

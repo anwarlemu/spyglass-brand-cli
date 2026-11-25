@@ -6,7 +6,9 @@
 // motion keeps every creative in color and still. The creatives are indices into `creatives` (Acme placeholders by
 // default); the tags are the brand's own example findings, written for Acme.
 
-export interface CloseCreative { src?: string; alt?: string; tone?: 1 | 2 | 3 | 4 }
+import type { ImageSlot } from '@/lib/image'
+
+export interface CloseCreative extends ImageSlot { tone?: 1 | 2 | 3 | 4 }
 export interface CloseContent { headline: string; secondary: { label: string; href: string } }
 
 export const closeContent: CloseContent = { headline: 'Give your agents the social internet', secondary: { label: 'Get a free API key', href: '/sign-up' } }

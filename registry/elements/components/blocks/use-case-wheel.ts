@@ -12,7 +12,7 @@ import styles from 'virtual:tw'
 
 const picture = (p: WheelPicture) => {
 	const fit = wheelFit(p)
-	return html`<span class="ds-wheel-frame" data-fit=${fit === 'fill' ? '' : fit} style=${p.ratio ? `aspect-ratio: ${p.ratio}` : ''}><spyglass-creative-card .src=${p.src} .alt=${p.alt ?? ''} .brand=${p.brand} .caption=${p.caption} .tone=${p.tone ?? 2} ratio="fill"></spyglass-creative-card></span>`
+	return html`<span class="ds-wheel-frame" data-fit=${fit === 'fill' ? '' : fit} style=${p.ratio ? `aspect-ratio: ${p.ratio}` : ''}><spyglass-creative-card .src=${p.src} .alt=${p.alt ?? ''} .fit=${p.fit} .position=${p.position} .brand=${p.brand} .caption=${p.caption} .tone=${p.tone ?? 2} ratio="fill"></spyglass-creative-card></span>`
 }
 
 /**

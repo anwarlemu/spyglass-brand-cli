@@ -7,6 +7,7 @@ import '@/elements/components/ui/button'
 import '@/elements/components/site/browser-frame'
 import '@/elements/components/site/creative-card'
 import styles from 'virtual:tw'
+import { imageFit } from '@/lib/image'
 
 // ScrollStory.tsx as <spyglass-scroll-story>: the site's scroll story. From 1024 with motion allowed the stage pins and
 // the pieces move on keyframes as the reader scrolls, the chapters' words rising in turn; below 1024 or with reduced
@@ -17,7 +18,7 @@ type Piece<K extends StoryPiece['kind']> = Extract<StoryPiece, { kind: K }>
 
 const shot = (image: StoryImage) =>
 	image.src
-		? html`<img src=${image.src} alt="" loading="lazy" decoding="async" style=${styleMap(image.position ? { objectPosition: image.position } : {})}>`
+		? html`<img src=${image.src} alt="" loading="lazy" decoding="async" style=${styleMap(imageFit(image) ?? {})}>`
 		: html`<span class="ds-story-fill"><spyglass-creative-card ratio="fill" caption=${image.caption ?? nothing} tone=${image.tone ?? 2}></spyglass-creative-card></span>`
 
 const logo = (l: StoryLogo) => html`<span class="ds-story-logo">${l.src ? html`<img src=${l.src} alt="">` : l.name.charAt(0).toUpperCase()}</span>`

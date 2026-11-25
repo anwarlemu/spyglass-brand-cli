@@ -5,6 +5,8 @@
 // arrangement of the pieces, no motion. Shared by both flavors: the data shapes, the timeline, `storyFromShape` (the
 // site's five-chapter story built from a few named parts) and `runScrollStory` (the pinned engine on plain DOM nodes).
 
+import type { ImageSlot } from '@/lib/image'
+
 export type StoryEase = 'linear' | 'in' | 'out' | 'inOut'
 
 /** One keyframe: `at` in chapters (1.5 is half through chapter 2), x and y in frame px, scale, opacity, badge and mark opacity. */
@@ -20,10 +22,8 @@ export interface StoryKey {
 }
 
 /** A creative: the image as posted (`src`), or the neutral placeholder named by `brand` and `caption`. */
-export interface StoryImage {
-	src?: string
+export interface StoryImage extends ImageSlot {
 	alt: string
-	position?: string
 	brand?: string
 	caption?: string
 	tone?: 1 | 2 | 3 | 4

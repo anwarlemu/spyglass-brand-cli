@@ -1,4 +1,5 @@
 import { html, type PropertyValues } from 'lit'
+import { ifDefined } from 'lit/directives/if-defined.js'
 import { DsElement, define, HostLayoutController } from '@/elements/lib/element'
 import '@/elements/components/ui/button'
 import '@/elements/components/site/creative-card'
@@ -45,7 +46,7 @@ export class PricingPanelsBlock extends DsElement {
 		const slots = sets[0]?.length ?? 0
 		return html`<section data-ds="pricing-panels-block" class="ds-pp relative isolate overflow-x-clip text-fg"><span aria-hidden="true" class="ds-pp-drift" style=${asciiDriftStyle('mass', 'right')}></span><div class=${`${CONTAINER} grid items-center gap-12 lg:grid-cols-[max-content_minmax(0,1fr)]`}><div class="flex flex-col items-center text-center md:items-start md:text-start"><h2 class="ds-pp-head type-section">${c.lines.map((line, i) => html`<span class="block">${line}${i < c.lines.length - 1 ? ' ' : ''}</span>`)}</h2><p class="mt-6 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft">${sentences(c.note).map((s, i) => html`<span>${i > 0 ? ' ' : ''}<span class="ds-pp-sentence">${s}</span></span>`)}</p><div class="mt-10 grid gap-3 self-stretch md:inline-grid md:auto-cols-fr md:grid-flow-col md:self-start"><spyglass-button href=${c.primary.href}>${c.primary.label}</spyglass-button><spyglass-button href=${c.secondary.href} variant="secondary">${c.secondary.label}</spyglass-button></div></div><div aria-hidden="true" class="ds-pp-band"><span class="ds-pp-band-light"><spyglass-light-image art="pricing" width="1320" height="700" split="12" class="absolute inset-0 size-full"></spyglass-light-image></span></div><div aria-hidden="true" class="ds-pp-stage"><span class="ds-pp-light" data-light=""><spyglass-light-image art="pricing" class="absolute inset-0 size-full"></spyglass-light-image></span><div class="ds-pp-view"><div class="ds-pp-run">${Array.from({ length: slots }, (_, slot) => html`<div class="ds-pp-card" style=${`--i: ${slot}`}>${sets.map((set, s) => {
 			const item = set[slot] ?? {}
-			return html`<div class="ds-pp-picture" data-set=${s} data-rank=${PANEL_RANK[slot] ?? slot}><spyglass-creative-card ratio="fill" src=${item.src ?? ''} alt="" brand=${item.brand ?? ''} tone=${item.tone ?? 2}></spyglass-creative-card></div>`
+			return html`<div class="ds-pp-picture" data-set=${s} data-rank=${PANEL_RANK[slot] ?? slot}><spyglass-creative-card ratio="fill" src=${item.src ?? ''} alt="" fit=${ifDefined(item.fit)} position=${ifDefined(item.position)} brand=${item.brand ?? ''} tone=${item.tone ?? 2}></spyglass-creative-card></div>`
 		})}</div>`)}</div></div></div></div></section>`
 	}
 }

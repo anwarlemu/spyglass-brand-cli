@@ -35,7 +35,7 @@ function ArchiveAxis({ c, creatives, logo }: { c: WhyContent['archive']; creativ
           <div className="ds-ax-frame">
             {VISITS.map((v, i) => (
               <div key={v} className="ds-ax-pic" style={{ opacity: i === REST_VISIT ? 1 : 0, zIndex: i === REST_VISIT ? 1 : 0 }} data-pic="">
-                <CreativeCard ratio="fill" src={creatives[i]?.src} tone={creatives[i]?.tone ?? 2} />
+                <CreativeCard ratio="fill" src={creatives[i]?.src} alt={creatives[i]?.alt} fit={creatives[i]?.fit} position={creatives[i]?.position} tone={creatives[i]?.tone ?? 2} />
               </div>
             ))}
           </div>

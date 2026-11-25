@@ -1,6 +1,9 @@
 // The home's case stories (site v3/V3CaseStories with content/pages/caseStudies and content/v3/stories), as Acme
 // placeholders: the site shows its customers' names, marks, photos and quotes, which never ship. Pass your own through
 // `cases` and `quotes`. Both flavors read this file.
+
+import type { ImageSlot } from '@/lib/image'
+
 export interface StoryMark {
 	/** The mark's file (SVG or PNG), drawn as a mask in the soft gray. */
 	src: string
@@ -26,8 +29,8 @@ export interface StoryCase extends StoryQuote {
 	stat: string
 	statLabel: string
 	href: string
-	/** The lead picture: an image, or a placeholder tone (1 to 4). */
-	picture?: { src?: string; tone?: 1 | 2 | 3 | 4 }
+	/** The lead picture: an image ({ src, alt, fit, position }), or a placeholder tone (1 to 4). */
+	picture?: ImageSlot & { tone?: 1 | 2 | 3 | 4 }
 }
 
 export interface CaseStoriesContent {

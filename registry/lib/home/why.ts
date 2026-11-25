@@ -3,6 +3,7 @@
 // advertiser is an Acme placeholder (the site shows a real brand); its creatives come through `creatives`.
 import { lerp, setData, setStyle, setText, span, type Scene, type Tokens } from '@/lib/home/scene'
 import { snap, type Motion, type Timeline, type Track } from '@/lib/home/demo'
+import type { ImageSlot } from '@/lib/image'
 
 export type WhyKey = 'memory' | 'pricing' | 'custom'
 export interface WhyReason { key: WhyKey; title: string; line: string }
@@ -73,7 +74,7 @@ export const whyContent: WhyContent = {
 }
 
 /** A creative in the archive's frame: an image, or an Acme placeholder tone (1 to 4). */
-export interface WhyCreative { src?: string; tone?: 1 | 2 | 3 | 4 }
+export interface WhyCreative extends ImageSlot { tone?: 1 | 2 | 3 | 4 }
 export const whyCreatives: WhyCreative[] = [{ tone: 3 }, { tone: 2 }, { tone: 4 }, { tone: 1 }]
 
 // ----- The archive axis -----
