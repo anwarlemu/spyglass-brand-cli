@@ -423,6 +423,10 @@
   --ds-dur-footer-wave-pass: 7800ms;
   --ds-hero-light-tilt: 0.14;
   --ds-hero-light-cross: 0.72;
+  --ds-hero-light-tilt-lg: 0.04; /* from 1024 (site tokens.css 616-617); the engine takes the widest step set */
+  --ds-hero-light-cross-lg: 0.5;
+  --ds-ent-run-depth: 0.36; /* the run composition's depth (site --ent-run-depth), read by the engine */
+  --ds-ent-run-depth-md: 0.2;
   /* The row fan (site --cities-*, pages/TemplatesPage): card 72, 96 from 768, 128 from 1024; the curves of its moves. */
   --ds-fan-card: 72px;
   --ds-fan-card-md: 96px;
