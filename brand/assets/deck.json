@@ -1,13 +1,12 @@
 {
- "$comment": "Deck slides at 1920 by 1080: the three covers from the Figma pitch deck section (frame sizes and positions from its layer tree, type measured from the reference renders) and content slides derived from the same rules. A deck is a list of slides: `deck --input deck.json` with { \"slides\": [{ \"type\": \"cover-row\", \"headline\": \"...\", \"images\": [\"a.png\"] }] }.",
+ "$comment": "Deck slides at 1920 by 1080: the three covers from the Figma pitch deck section (frame sizes and positions from its layer tree) and content slides derived from the same rules, drawn as the site draws at 4/3 of its pixels (its type steps, text gray, cards, buttons, texture and light images). A deck is a list of slides: `deck --input deck.json` with { \"slides\": [{ \"type\": \"cover-row\", \"headline\": \"...\", \"images\": [\"a.png\"] }] }.",
  "templates": [
   {
    "id": "cover-row",
    "group": "cover",
    "name": "Cover, row of creatives",
    "figma": "966:4590",
-   "note": "The covers’ \"Background light\" is a vector not among the exports; this window onto the brand heat map was chosen by fitting it against the reference render.",
-   "description": "Five pictures in a row, the tagline bottom left, the light at the right edge.",
+   "description": "Five pictures in a row, the tagline bottom left, the site’s share card light at the right edge.",
    "photos": 5,
    "slots": {
     "headline": "{tagline}",
@@ -30,17 +29,20 @@
      "unit": 1.333,
      "layers": [
       {
-       "type": "ascii"
+       "type": "ascii",
+       "from": "right"
       },
       {
-       "type": "light",
-       "b": [
-        -2068,
-        -1808,
-        5244,
-        3278
+       "type": "art",
+       "id": "light",
+       "file": "og-light",
+       "box": [
+        399,
+        0,
+        1521,
+        1080
        ],
-       "shift": 34
+       "fit": "fill"
       },
       {
        "type": "photo",
@@ -50,7 +52,8 @@
         325,
         200,
         250
-       ]
+       ],
+       "radius": 5.33
       },
       {
        "type": "photo",
@@ -60,7 +63,8 @@
         300,
         240,
         300
-       ]
+       ],
+       "radius": 5.33
       },
       {
        "type": "photo",
@@ -70,7 +74,8 @@
         260,
         304,
         380
-       ]
+       ],
+       "radius": 5.33
       },
       {
        "type": "photo",
@@ -80,7 +85,8 @@
         300,
         240,
         300
-       ]
+       ],
+       "radius": 5.33
       },
       {
        "type": "photo",
@@ -90,7 +96,8 @@
         325,
         200,
         250
-       ]
+       ],
+       "radius": 5.33
       },
       {
        "type": "logo",
@@ -110,36 +117,36 @@
        "slot": "label",
        "face": "label",
        "size": 16,
-       "leading": 16,
+       "leading": 21.33,
        "x": 1224,
        "top": 104,
        "w": 600,
        "align": "right",
        "maxLines": 1,
        "min": 14,
-       "corner": "top-right"
+       "corner": "top-right",
+       "color": "neutral-11"
       },
       {
        "type": "stack",
        "box": [
         96,
-        620,
+        672,
         1000,
-        364
+        312
        ],
        "items": [
         {
          "type": "text",
          "slot": "headline",
          "face": "display",
-         "size": 112,
-         "leading": 112,
+         "size": 128,
+         "leading": 133.33,
          "gap": 0,
          "maxLines": 2
         }
        ],
-       "prefer": 796,
-       "grow": 1600
+       "prefer": 796
       }
      ]
     }
@@ -148,8 +155,7 @@
     "top-left",
     "top",
     "top-right",
-    "bottom",
-    "bottom-right"
+    "bottom"
    ]
   },
   {
@@ -157,8 +163,7 @@
    "group": "cover",
    "name": "Cover, creatives inline with the heading",
    "figma": "966:4605",
-   "note": "The covers’ \"Background light\" is a vector not among the exports; this window onto the brand heat map was chosen by fitting it against the reference render.",
-   "description": "The tagline at 144px with two pictures set between its words.",
+   "description": "The tagline at 149px (the site’s 112) with two pictures set between its words, a corner light.",
    "photos": 2,
    "slots": {
     "headline": "{tagline}",
@@ -184,14 +189,16 @@
        "type": "ascii"
       },
       {
-       "type": "light",
-       "b": [
-        -3345,
-        -1700,
-        6409,
-        4007
+       "type": "art",
+       "id": "light",
+       "file": "corner-br",
+       "box": [
+        1280,
+        600,
+        640,
+        480
        ],
-       "shift": 34
+       "fit": "cover"
       },
       {
        "type": "logo",
@@ -211,21 +218,22 @@
        "slot": "label",
        "face": "label",
        "size": 16,
-       "leading": 16,
+       "leading": 21.33,
        "x": 1224,
        "top": 104,
        "w": 600,
        "align": "right",
        "maxLines": 1,
        "min": 14,
-       "corner": "top-right"
+       "corner": "top-right",
+       "color": "neutral-11"
       },
       {
        "type": "inline",
        "slot": "headline",
        "face": "display",
-       "size": 144,
-       "leading": 176,
+       "size": 149.33,
+       "leading": 174.67,
        "x": 96,
        "top": 430,
        "w": 1728,
@@ -258,15 +266,21 @@
       }
      ]
     }
-   }
+   },
+   "logoAnchors": [
+    "top-left",
+    "top",
+    "top-right",
+    "bottom-left",
+    "bottom"
+   ]
   },
   {
    "id": "cover-curved",
    "group": "cover",
-   "name": "Cover, curved strip",
+   "name": "Cover, curved wall",
    "figma": "966:4619",
-   "note": "The curved strip is a vector not among the exports; this window onto the brand heat map (its lit arm) keeps the composition.",
-   "description": "Nine pictures on a curved wall under the curved strip of light, the tagline top right.",
+   "description": "Nine pictures on a curved wall in front of the site’s hero band, the tagline top right.",
    "photos": 9,
    "slots": {
     "headline": "{tagline}"
@@ -288,17 +302,20 @@
      "unit": 1.333,
      "layers": [
       {
-       "type": "ascii"
+       "type": "ascii",
+       "strength": "hero"
       },
       {
-       "type": "light",
-       "b": [
-        -800,
-        -3000,
-        8000,
-        5001
+       "type": "art",
+       "id": "light",
+       "file": "hero-band",
+       "box": [
+        0,
+        540,
+        1920,
+        340
        ],
-       "shift": 50
+       "fit": "cover"
       },
       {
        "type": "panel",
@@ -533,8 +550,8 @@
          "type": "text",
          "slot": "headline",
          "face": "display",
-         "size": 112,
-         "leading": 112,
+         "size": 128,
+         "leading": 133.33,
          "gap": 0,
          "maxLines": 2
         }
@@ -555,7 +572,7 @@
    "group": "content",
    "name": "Section",
    "figma": "derived",
-   "description": "A section opener: a label and a 144px title bottom left, the light ring at the right edge.",
+   "description": "A section opener: a label and a 149px title bottom left, the site’s share card light at the right edge.",
    "slots": {
     "kicker": "Section 01",
     "headline": "The only creative search engine.",
@@ -577,17 +594,20 @@
      "unit": 1.333,
      "layers": [
       {
-       "type": "ascii"
+       "type": "ascii",
+       "from": "right"
       },
       {
-       "type": "light",
-       "b": [
-        -3345,
-        -1700,
-        6409,
-        4007
+       "type": "art",
+       "id": "light",
+       "file": "og-light",
+       "box": [
+        399,
+        0,
+        1521,
+        1080
        ],
-       "shift": 34
+       "fit": "fill"
       },
       {
        "type": "logo",
@@ -607,21 +627,22 @@
        "slot": "label",
        "face": "label",
        "size": 16,
-       "leading": 16,
+       "leading": 21.33,
        "x": 1224,
        "top": 104,
        "w": 600,
        "align": "right",
        "maxLines": 1,
        "min": 14,
-       "corner": "top-right"
+       "corner": "top-right",
+       "color": "neutral-11"
       },
       {
        "type": "stack",
        "box": [
         96,
         240,
-        1500,
+        1160,
         744
        ],
        "items": [
@@ -630,17 +651,18 @@
          "slot": "kicker",
          "face": "label",
          "size": 16,
-         "leading": 20,
+         "leading": 21.33,
          "gap": 0,
+         "color": "neutral-11",
          "maxLines": 2
         },
         {
          "type": "text",
          "slot": "headline",
          "face": "display",
-         "size": 144,
-         "leading": 144,
-         "gap": 48.4,
+         "size": 149.33,
+         "leading": 154.67,
+         "gap": 40,
          "maxLines": 2
         }
        ],
@@ -653,9 +675,7 @@
    "logoAnchors": [
     "top-left",
     "top",
-    "top-right",
-    "bottom",
-    "bottom-right"
+    "top-right"
    ]
   },
   {
@@ -663,7 +683,7 @@
    "group": "content",
    "name": "Statement",
    "figma": "derived",
-   "description": "One statement at 112px over the curved strip.",
+   "description": "One statement at 128px over a light ribbon.",
    "slots": {
     "headline": "Know what changed before your next meeting.",
     "label": "Pitch deck"
@@ -684,17 +704,20 @@
      "unit": 1.333,
      "layers": [
       {
-       "type": "ascii"
+       "type": "ascii",
+       "from": "top"
       },
       {
-       "type": "light",
-       "window": [
+       "type": "art",
+       "id": "light",
+       "file": "video-light-a",
+       "box": [
         0,
         700,
         1920,
         380
        ],
-       "variant": "curved-strip"
+       "fit": "cover"
       },
       {
        "type": "logo",
@@ -714,14 +737,15 @@
        "slot": "label",
        "face": "label",
        "size": 16,
-       "leading": 16,
+       "leading": 21.33,
        "x": 1224,
        "top": 104,
        "w": 600,
        "align": "right",
        "maxLines": 1,
        "min": 14,
-       "corner": "top-right"
+       "corner": "top-right",
+       "color": "neutral-11"
       },
       {
        "type": "stack",
@@ -736,8 +760,8 @@
          "type": "text",
          "slot": "headline",
          "face": "display",
-         "size": 112,
-         "leading": 112,
+         "size": 128,
+         "leading": 133.33,
          "gap": 0,
          "maxLines": 3
         }
@@ -759,7 +783,7 @@
    "group": "content",
    "name": "Bullets",
    "figma": "derived",
-   "description": "A title on the left, up to six points on the right, a light strip at the right edge.",
+   "description": "A title on the left, up to six points on the right, a light ribbon upright at the right edge.",
    "slots": {
     "headline": "Understand what is working in any category.",
     "items": "AI-powered research across brands, creators, ads, and campaigns | Unlimited board swipe files, alerts, and tracked brands | Unlimited team seats",
@@ -785,20 +809,18 @@
        "type": "ascii"
       },
       {
-       "type": "light",
-       "window": [
+       "type": "art",
+       "id": "light",
+       "file": "video-light-b",
+       "box": [
         1760,
         0,
         160,
         1080
        ],
-       "b": [
-        -2014,
-        -160,
-        2241,
-        1401
-       ],
-       "shift": 34
+       "fit": "cover",
+       "turn": true,
+       "flip": "x"
       },
       {
        "type": "logo",
@@ -818,14 +840,15 @@
        "slot": "label",
        "face": "label",
        "size": 16,
-       "leading": 16,
+       "leading": 21.33,
        "x": 1064,
        "top": 104,
        "w": 600,
        "align": "right",
        "maxLines": 1,
        "min": 14,
-       "corner": "top-right"
+       "corner": "top-right",
+       "color": "neutral-11"
       },
       {
        "type": "stack",
@@ -840,8 +863,8 @@
          "type": "text",
          "slot": "headline",
          "face": "display",
-         "size": 72,
-         "leading": 77,
+         "size": 74.67,
+         "leading": 80,
          "gap": 0,
          "maxLines": 4
         }
@@ -862,11 +885,12 @@
          "slot": "items",
          "face": "body",
          "size": 32,
-         "leading": 42.5,
+         "leading": 42.67,
          "w": 720,
-         "itemGap": 48,
+         "itemGap": 40,
          "maxLines": 3,
-         "min": 22
+         "min": 22,
+         "color": "neutral-11"
         }
        ],
        "prefer": 268,
@@ -878,7 +902,6 @@
    "logoAnchors": [
     "top-left",
     "top",
-    "top-right",
     "bottom-left",
     "bottom"
    ]
@@ -888,7 +911,7 @@
    "group": "content",
    "name": "Stat",
    "figma": "derived",
-   "description": "One number at 240px and what it means, over a light band.",
+   "description": "One number at 240px and what it means, over a light ribbon.",
    "slots": {
     "stat": "$10",
     "body": "for your first month, then $20/month",
@@ -910,23 +933,20 @@
      "unit": 1.333,
      "layers": [
       {
-       "type": "ascii"
+       "type": "ascii",
+       "from": "top"
       },
       {
-       "type": "light",
-       "window": [
+       "type": "art",
+       "id": "light",
+       "file": "video-light-a",
+       "box": [
         0,
         820,
         1920,
         260
        ],
-       "b": [
-        -2366,
-        -53,
-        5179,
-        3238
-       ],
-       "shift": 78.6
+       "fit": "cover"
       },
       {
        "type": "logo",
@@ -946,14 +966,15 @@
        "slot": "label",
        "face": "label",
        "size": 16,
-       "leading": 16,
+       "leading": 21.33,
        "x": 1224,
        "top": 104,
        "w": 600,
        "align": "right",
        "maxLines": 1,
        "min": 14,
-       "corner": "top-right"
+       "corner": "top-right",
+       "color": "neutral-11"
       },
       {
        "type": "stack",
@@ -969,7 +990,7 @@
          "slot": "stat",
          "face": "display",
          "size": 240,
-         "leading": 240,
+         "leading": 245,
          "gap": 0,
          "maxLines": 1,
          "min": 96
@@ -979,8 +1000,9 @@
          "slot": "body",
          "face": "body",
          "size": 32,
-         "leading": 42.5,
-         "gap": 72,
+         "leading": 42.67,
+         "gap": 48,
+         "color": "neutral-11",
          "maxLines": 2,
          "w": 1100
         }
@@ -994,7 +1016,6 @@
     "top-left",
     "top",
     "top-right",
-    "bottom",
     "bottom-right"
    ]
   },
@@ -1003,7 +1024,7 @@
    "group": "content",
    "name": "Quote",
    "figma": "derived from Ad, testimonial (966:4502)",
-   "description": "A portrait, the quote at 64px, the name and role, over a light band.",
+   "description": "A portrait, the quote at 75px, the name and role, over a light ribbon.",
    "photos": 1,
    "slots": {
     "quote": "“This is the only tool that gives me full competitive visibility across every account I manage.”",
@@ -1028,23 +1049,20 @@
      "unit": 1.333,
      "layers": [
       {
-       "type": "ascii"
+       "type": "ascii",
+       "from": "right"
       },
       {
-       "type": "light",
-       "window": [
+       "type": "art",
+       "id": "light",
+       "file": "video-light-b",
+       "box": [
         0,
         920,
         1920,
         160
        ],
-       "b": [
-        -2366,
-        -53,
-        5179,
-        3238
-       ],
-       "shift": 78.6
+       "fit": "cover"
       },
       {
        "type": "logo",
@@ -1064,14 +1082,15 @@
        "slot": "label",
        "face": "label",
        "size": 16,
-       "leading": 16,
+       "leading": 21.33,
        "x": 1224,
        "top": 104,
        "w": 600,
        "align": "right",
        "maxLines": 1,
        "min": 14,
-       "corner": "top-right"
+       "corner": "top-right",
+       "color": "neutral-11"
       },
       {
        "type": "photo",
@@ -1080,9 +1099,10 @@
         96,
         220,
         560,
-        700
+        660
        ],
-       "id": "picture"
+       "id": "picture",
+       "radius": 5.33
       },
       {
        "type": "stack",
@@ -1097,8 +1117,8 @@
          "type": "text",
          "slot": "quote",
          "face": "display",
-         "size": 64,
-         "leading": 68.5,
+         "size": 74.67,
+         "leading": 80,
          "gap": 0,
          "maxLines": 5
         },
@@ -1107,8 +1127,8 @@
          "slot": "name",
          "face": "medium",
          "size": 32,
-         "leading": 42.5,
-         "gap": 80,
+         "leading": 42.67,
+         "gap": 64,
          "maxLines": 2
         },
         {
@@ -1116,8 +1136,9 @@
          "slot": "role",
          "face": "label",
          "size": 16,
-         "leading": 20,
-         "gap": 28,
+         "leading": 21.33,
+         "gap": 16,
+         "color": "neutral-11",
          "maxLines": 2
         }
        ],
@@ -1137,8 +1158,8 @@
          "type": "text",
          "slot": "quote",
          "face": "display",
-         "size": 64,
-         "leading": 68.5,
+         "size": 74.67,
+         "leading": 80,
          "gap": 0,
          "maxLines": 5
         },
@@ -1147,8 +1168,8 @@
          "slot": "name",
          "face": "medium",
          "size": 32,
-         "leading": 42.5,
-         "gap": 80,
+         "leading": 42.67,
+         "gap": 64,
          "maxLines": 2
         },
         {
@@ -1156,8 +1177,9 @@
          "slot": "role",
          "face": "label",
          "size": 16,
-         "leading": 20,
-         "gap": 28,
+         "leading": 21.33,
+         "gap": 16,
+         "color": "neutral-11",
          "maxLines": 2
         }
        ],
@@ -1170,8 +1192,7 @@
    "logoAnchors": [
     "top-left",
     "top",
-    "top-right",
-    "bottom"
+    "top-right"
    ]
   },
   {
@@ -1179,7 +1200,7 @@
    "group": "content",
    "name": "Image",
    "figma": "derived",
-   "description": "A picture filling the right half, a title and a line on the left, a light strip at the left edge.",
+   "description": "A picture filling the right half, a title and a line on the left, a light ribbon upright at the left edge.",
    "photos": 1,
    "slots": {
     "headline": "Search millions of creators in one place.",
@@ -1202,23 +1223,21 @@
      "unit": 1.333,
      "layers": [
       {
-       "type": "ascii"
+       "type": "ascii",
+       "from": "left"
       },
       {
-       "type": "light",
-       "window": [
+       "type": "art",
+       "id": "light",
+       "file": "video-light-a",
+       "box": [
         0,
         0,
         160,
         1080
        ],
-       "b": [
-        -134,
-        -160,
-        2241,
-        1401
-       ],
-       "shift": 34
+       "fit": "cover",
+       "turn": true
       },
       {
        "type": "photo",
@@ -1258,8 +1277,8 @@
          "type": "text",
          "slot": "headline",
          "face": "display",
-         "size": 72,
-         "leading": 77,
+         "size": 74.67,
+         "leading": 80,
          "gap": 0,
          "maxLines": 4
         },
@@ -1268,8 +1287,9 @@
          "slot": "body",
          "face": "body",
          "size": 32,
-         "leading": 42.5,
-         "gap": 56,
+         "leading": 42.67,
+         "gap": 40,
+         "color": "neutral-11",
          "maxLines": 5
         }
        ],
@@ -1279,8 +1299,7 @@
     }
    },
    "logoAnchors": [
-    "top-left",
-    "bottom-left"
+    "top-left"
    ]
   },
   {
@@ -1288,7 +1307,7 @@
    "group": "content",
    "name": "Closing",
    "figma": "derived from Ad, plan offer (966:4541)",
-   "description": "The light field above a centered closing line, a button and the domain.",
+   "description": "The site’s close band above a centered closing line, a button and the domain.",
    "slots": {
     "headline": "{tagline}",
     "cta": "Start Creator for 50% off",
@@ -1310,23 +1329,24 @@
      "unit": 1.333,
      "layers": [
       {
-       "type": "ascii"
+       "type": "ascii",
+       "strength": "hero"
       },
       {
-       "type": "light",
-       "window": [
+       "type": "art",
+       "id": "light",
+       "file": "close-band",
+       "box": [
         0,
         0,
         1920,
-        420
+        400
        ],
-       "b": [
-        -1652,
-        -69,
-        4383,
-        2740
-       ],
-       "shift": 66.5
+       "fit": "cover",
+       "at": [
+        0.5,
+        0.42
+       ]
       },
       {
        "type": "logo",
@@ -1353,8 +1373,8 @@
          "type": "text",
          "slot": "headline",
          "face": "display",
-         "size": 112,
-         "leading": 112,
+         "size": 128,
+         "leading": 133.33,
          "gap": 0,
          "align": "center",
          "maxLines": 2
@@ -1362,10 +1382,11 @@
         {
          "type": "button",
          "slot": "cta",
-         "w": 360,
-         "h": 72,
-         "size": 24,
-         "gap": 60
+         "w": 240,
+         "h": 74.67,
+         "size": 26.67,
+         "radius": 10.67,
+         "gap": 48
         }
        ],
        "align": "center",
@@ -1377,13 +1398,14 @@
        "slot": "url",
        "face": "label",
        "size": 16,
-       "leading": 16,
+       "leading": 21.33,
        "x": 560,
        "top": 1000,
        "w": 800,
        "align": "center",
        "maxLines": 1,
-       "min": 14
+       "min": 14,
+       "color": "neutral-11"
       }
      ]
     }
@@ -1394,7 +1416,7 @@
    "group": "content",
    "name": "Agenda",
    "figma": "derived",
-   "description": "A title on the left, the items numbered on the right in Funnel Display, a light strip at the left edge.",
+   "description": "A title on the left, the items numbered on the right in Funnel Display, a light ribbon upright at the left edge.",
    "slots": {
     "headline": "Agenda",
     "items": "01  Where creative is going | 02  What we found | 03  What we will do next",
@@ -1417,23 +1439,21 @@
      "unit": 1.333,
      "layers": [
       {
-       "type": "ascii"
+       "type": "ascii",
+       "from": "right"
       },
       {
-       "type": "light",
-       "window": [
+       "type": "art",
+       "id": "light",
+       "file": "video-light-a",
+       "box": [
         0,
         0,
         160,
         1080
        ],
-       "b": [
-        -134,
-        -160,
-        2241,
-        1401
-       ],
-       "shift": 34
+       "fit": "cover",
+       "turn": true
       },
       {
        "type": "logo",
@@ -1453,14 +1473,15 @@
        "slot": "label",
        "face": "label",
        "size": 16,
-       "leading": 16,
+       "leading": 21.33,
        "x": 1224,
        "top": 104,
        "w": 600,
        "align": "right",
        "maxLines": 1,
        "min": 14,
-       "corner": "top-right"
+       "corner": "top-right",
+       "color": "neutral-11"
       },
       {
        "type": "stack",
@@ -1475,8 +1496,8 @@
          "type": "text",
          "slot": "headline",
          "face": "display",
-         "size": 112,
-         "leading": 112,
+         "size": 128,
+         "leading": 133.33,
          "gap": 0,
          "maxLines": 3
         }
@@ -1496,10 +1517,10 @@
          "type": "list",
          "slot": "items",
          "face": "display",
-         "size": 56,
-         "leading": 60,
+         "size": 58.67,
+         "leading": 64,
          "w": 944,
-         "itemGap": 56,
+         "itemGap": 48,
          "maxLines": 2,
          "min": 32
         }
@@ -1508,7 +1529,14 @@
       }
      ]
     }
-   }
+   },
+   "logoAnchors": [
+    "top-left",
+    "top",
+    "top-right",
+    "bottom",
+    "bottom-right"
+   ]
   },
   {
    "id": "timeline",
@@ -1545,23 +1573,20 @@
      "unit": 1.333,
      "layers": [
       {
-       "type": "ascii"
+       "type": "ascii",
+       "from": "top"
       },
       {
-       "type": "light",
-       "window": [
+       "type": "art",
+       "id": "light",
+       "file": "video-light-a",
+       "box": [
         0,
         920,
         1920,
         160
        ],
-       "b": [
-        -2366,
-        -53,
-        5179,
-        3238
-       ],
-       "shift": 78.6
+       "fit": "cover"
       },
       {
        "type": "logo",
@@ -1581,14 +1606,15 @@
        "slot": "label",
        "face": "label",
        "size": 16,
-       "leading": 16,
+       "leading": 21.33,
        "x": 1224,
        "top": 104,
        "w": 600,
        "align": "right",
        "maxLines": 1,
        "min": 14,
-       "corner": "top-right"
+       "corner": "top-right",
+       "color": "neutral-11"
       },
       {
        "type": "stack",
@@ -1603,8 +1629,8 @@
          "type": "text",
          "slot": "headline",
          "face": "display",
-         "size": 72,
-         "leading": 77,
+         "size": 74.67,
+         "leading": 80,
          "gap": 0,
          "maxLines": 2
         }
@@ -1636,8 +1662,9 @@
          "slot": "when-1",
          "face": "label",
          "size": 16,
-         "leading": 20,
+         "leading": 21.33,
          "gap": 0,
+         "color": "neutral-11",
          "maxLines": 1
         },
         {
@@ -1645,8 +1672,9 @@
          "slot": "step-1",
          "face": "body",
          "size": 32,
-         "leading": 42.5,
-         "gap": 28,
+         "leading": 42.67,
+         "gap": 24,
+         "color": "white",
          "maxLines": 4
         }
        ]
@@ -1665,8 +1693,9 @@
          "slot": "when-2",
          "face": "label",
          "size": 16,
-         "leading": 20,
+         "leading": 21.33,
          "gap": 0,
+         "color": "neutral-11",
          "maxLines": 1
         },
         {
@@ -1674,8 +1703,9 @@
          "slot": "step-2",
          "face": "body",
          "size": 32,
-         "leading": 42.5,
-         "gap": 28,
+         "leading": 42.67,
+         "gap": 24,
+         "color": "white",
          "maxLines": 4
         }
        ]
@@ -1694,8 +1724,9 @@
          "slot": "when-3",
          "face": "label",
          "size": 16,
-         "leading": 20,
+         "leading": 21.33,
          "gap": 0,
+         "color": "neutral-11",
          "maxLines": 1
         },
         {
@@ -1703,8 +1734,9 @@
          "slot": "step-3",
          "face": "body",
          "size": 32,
-         "leading": 42.5,
-         "gap": 28,
+         "leading": 42.67,
+         "gap": 24,
+         "color": "white",
          "maxLines": 4
         }
        ]
@@ -1723,8 +1755,9 @@
          "slot": "when-4",
          "face": "label",
          "size": 16,
-         "leading": 20,
+         "leading": 21.33,
          "gap": 0,
+         "color": "neutral-11",
          "maxLines": 1
         },
         {
@@ -1732,8 +1765,9 @@
          "slot": "step-4",
          "face": "body",
          "size": 32,
-         "leading": 42.5,
-         "gap": 28,
+         "leading": 42.67,
+         "gap": 24,
+         "color": "white",
          "maxLines": 4
         }
        ]
@@ -1744,8 +1778,7 @@
    "logoAnchors": [
     "top-left",
     "top",
-    "top-right",
-    "bottom"
+    "top-right"
    ]
   },
   {
@@ -1788,20 +1821,18 @@
        "type": "ascii"
       },
       {
-       "type": "light",
-       "window": [
+       "type": "art",
+       "id": "light",
+       "file": "video-light-b",
+       "box": [
         1760,
         0,
         160,
         1080
        ],
-       "b": [
-        -2014,
-        -160,
-        2241,
-        1401
-       ],
-       "shift": 34
+       "fit": "cover",
+       "turn": true,
+       "flip": "x"
       },
       {
        "type": "logo",
@@ -1821,14 +1852,15 @@
        "slot": "label",
        "face": "label",
        "size": 16,
-       "leading": 16,
+       "leading": 21.33,
        "x": 1064,
        "top": 104,
        "w": 600,
        "align": "right",
        "maxLines": 1,
        "min": 14,
-       "corner": "top-right"
+       "corner": "top-right",
+       "color": "neutral-11"
       },
       {
        "type": "stack",
@@ -1843,8 +1875,8 @@
          "type": "text",
          "slot": "headline",
          "face": "display",
-         "size": 72,
-         "leading": 77,
+         "size": 74.67,
+         "leading": 80,
          "gap": 0,
          "maxLines": 1
         }
@@ -1860,7 +1892,8 @@
         376,
         420
        ],
-       "id": "picture-1"
+       "id": "picture-1",
+       "radius": 5.33
       },
       {
        "type": "photo",
@@ -1871,7 +1904,8 @@
         376,
         420
        ],
-       "id": "picture-2"
+       "id": "picture-2",
+       "radius": 5.33
       },
       {
        "type": "photo",
@@ -1882,7 +1916,8 @@
         376,
         420
        ],
-       "id": "picture-3"
+       "id": "picture-3",
+       "radius": 5.33
       },
       {
        "type": "photo",
@@ -1893,7 +1928,8 @@
         376,
         420
        ],
-       "id": "picture-4"
+       "id": "picture-4",
+       "radius": 5.33
       },
       {
        "type": "stack",
@@ -1908,8 +1944,8 @@
          "type": "text",
          "slot": "name-1",
          "face": "display",
-         "size": 32,
-         "leading": 36,
+         "size": 42.67,
+         "leading": 48,
          "gap": 0,
          "maxLines": 1
         },
@@ -1917,10 +1953,11 @@
          "type": "text",
          "slot": "role-1",
          "face": "body",
-         "size": 24,
-         "leading": 32,
+         "size": 26.67,
+         "leading": 37.33,
          "gap": 16,
-         "maxLines": 2
+         "maxLines": 2,
+         "color": "neutral-11"
         }
        ]
       },
@@ -1937,8 +1974,8 @@
          "type": "text",
          "slot": "name-2",
          "face": "display",
-         "size": 32,
-         "leading": 36,
+         "size": 42.67,
+         "leading": 48,
          "gap": 0,
          "maxLines": 1
         },
@@ -1946,10 +1983,11 @@
          "type": "text",
          "slot": "role-2",
          "face": "body",
-         "size": 24,
-         "leading": 32,
+         "size": 26.67,
+         "leading": 37.33,
          "gap": 16,
-         "maxLines": 2
+         "maxLines": 2,
+         "color": "neutral-11"
         }
        ]
       },
@@ -1966,8 +2004,8 @@
          "type": "text",
          "slot": "name-3",
          "face": "display",
-         "size": 32,
-         "leading": 36,
+         "size": 42.67,
+         "leading": 48,
          "gap": 0,
          "maxLines": 1
         },
@@ -1975,10 +2013,11 @@
          "type": "text",
          "slot": "role-3",
          "face": "body",
-         "size": 24,
-         "leading": 32,
+         "size": 26.67,
+         "leading": 37.33,
          "gap": 16,
-         "maxLines": 2
+         "maxLines": 2,
+         "color": "neutral-11"
         }
        ]
       },
@@ -1995,8 +2034,8 @@
          "type": "text",
          "slot": "name-4",
          "face": "display",
-         "size": 32,
-         "leading": 36,
+         "size": 42.67,
+         "leading": 48,
          "gap": 0,
          "maxLines": 1
         },
@@ -2004,10 +2043,11 @@
          "type": "text",
          "slot": "role-4",
          "face": "body",
-         "size": 24,
-         "leading": 32,
+         "size": 26.67,
+         "leading": 37.33,
          "gap": 16,
-         "maxLines": 2
+         "maxLines": 2,
+         "color": "neutral-11"
         }
        ]
       }
@@ -2017,7 +2057,6 @@
    "logoAnchors": [
     "top-left",
     "top",
-    "top-right",
     "bottom-left",
     "bottom"
    ]
@@ -2052,23 +2091,20 @@
      "unit": 1.333,
      "layers": [
       {
-       "type": "ascii"
+       "type": "ascii",
+       "from": "top"
       },
       {
-       "type": "light",
-       "window": [
+       "type": "art",
+       "id": "light",
+       "file": "video-light-b",
+       "box": [
         0,
         960,
         1920,
         120
        ],
-       "b": [
-        -2366,
-        -53,
-        5179,
-        3238
-       ],
-       "shift": 78.6
+       "fit": "cover"
       },
       {
        "type": "logo",
@@ -2088,14 +2124,15 @@
        "slot": "label",
        "face": "label",
        "size": 16,
-       "leading": 16,
+       "leading": 21.33,
        "x": 1224,
        "top": 104,
        "w": 600,
        "align": "right",
        "maxLines": 1,
        "min": 14,
-       "corner": "top-right"
+       "corner": "top-right",
+       "color": "neutral-11"
       },
       {
        "type": "stack",
@@ -2110,8 +2147,8 @@
          "type": "text",
          "slot": "headline",
          "face": "display",
-         "size": 72,
-         "leading": 77,
+         "size": 74.67,
+         "leading": 80,
          "gap": 0,
          "maxLines": 2
         }
@@ -2131,16 +2168,16 @@
          "type": "card",
          "id": "left-card",
          "w": 848,
-         "pad": 48,
+         "pad": 42.67,
          "fill": "neutral-4",
-         "radius": 8,
+         "radius": 5.33,
          "items": [
           {
            "type": "text",
            "slot": "left-title",
            "face": "display",
-           "size": 48,
-           "leading": 52,
+           "size": 42.67,
+           "leading": 48,
            "gap": 0,
            "maxLines": 1
           },
@@ -2149,11 +2186,12 @@
            "slot": "left-items",
            "face": "body",
            "size": 32,
-           "leading": 42.5,
-           "itemGap": 24,
-           "gap": 40,
+           "leading": 42.67,
+           "itemGap": 16,
+           "gap": 32,
            "maxLines": 2,
-           "min": 24
+           "min": 24,
+           "color": "neutral-11"
           }
          ]
         }
@@ -2172,16 +2210,16 @@
          "type": "card",
          "id": "right-card",
          "w": 848,
-         "pad": 48,
+         "pad": 42.67,
          "fill": "neutral-4",
-         "radius": 8,
+         "radius": 5.33,
          "items": [
           {
            "type": "text",
            "slot": "right-title",
            "face": "display",
-           "size": 48,
-           "leading": 52,
+           "size": 42.67,
+           "leading": 48,
            "gap": 0,
            "maxLines": 1
           },
@@ -2190,11 +2228,12 @@
            "slot": "right-items",
            "face": "body",
            "size": 32,
-           "leading": 42.5,
-           "itemGap": 24,
-           "gap": 40,
+           "leading": 42.67,
+           "itemGap": 16,
+           "gap": 32,
            "maxLines": 2,
-           "min": 24
+           "min": 24,
+           "color": "neutral-11"
           }
          ]
         }
@@ -2257,14 +2296,15 @@
        "slot": "label",
        "face": "label",
        "size": 16,
-       "leading": 16,
+       "leading": 21.33,
        "x": 1224,
        "top": 104,
        "w": 600,
        "align": "right",
        "maxLines": 1,
        "min": 14,
-       "corner": "top-right"
+       "corner": "top-right",
+       "color": "neutral-11"
       },
       {
        "type": "stack",
@@ -2279,8 +2319,8 @@
          "type": "text",
          "slot": "headline",
          "face": "display",
-         "size": 72,
-         "leading": 77,
+         "size": 74.67,
+         "leading": 80,
          "gap": 0,
          "maxLines": 1
         }
@@ -2297,7 +2337,7 @@
         290
        ],
        "id": "picture-1",
-       "radius": 8
+       "radius": 5.33
       },
       {
        "type": "photo",
@@ -2309,7 +2349,7 @@
         290
        ],
        "id": "picture-2",
-       "radius": 8
+       "radius": 5.33
       },
       {
        "type": "photo",
@@ -2321,7 +2361,7 @@
         290
        ],
        "id": "picture-3",
-       "radius": 8
+       "radius": 5.33
       },
       {
        "type": "photo",
@@ -2333,7 +2373,7 @@
         290
        ],
        "id": "picture-4",
-       "radius": 8
+       "radius": 5.33
       },
       {
        "type": "photo",
@@ -2345,7 +2385,7 @@
         290
        ],
        "id": "picture-5",
-       "radius": 8
+       "radius": 5.33
       },
       {
        "type": "photo",
@@ -2357,7 +2397,7 @@
         290
        ],
        "id": "picture-6",
-       "radius": 8
+       "radius": 5.33
       }
      ]
     }
@@ -2373,7 +2413,7 @@
    "group": "content",
    "name": "Questions",
    "figma": "derived",
-   "description": "The questions slide: a large title, a line and the address, the light field above.",
+   "description": "The questions slide: a large title, a line and the address, the site’s close band above.",
    "slots": {
     "headline": "Questions?",
     "body": "Write to us any time.",
@@ -2395,23 +2435,24 @@
      "unit": 1.333,
      "layers": [
       {
-       "type": "ascii"
+       "type": "ascii",
+       "strength": "hero"
       },
       {
-       "type": "light",
-       "window": [
+       "type": "art",
+       "id": "light",
+       "file": "close-band",
+       "box": [
         0,
         0,
         1920,
-        420
+        400
        ],
-       "b": [
-        -1652,
-        -69,
-        4383,
-        2740
-       ],
-       "shift": 66.5
+       "fit": "cover",
+       "at": [
+        0.5,
+        0.42
+       ]
       },
       {
        "type": "logo",
@@ -2438,8 +2479,8 @@
          "type": "text",
          "slot": "headline",
          "face": "display",
-         "size": 144,
-         "leading": 144,
+         "size": 149.33,
+         "leading": 154.67,
          "gap": 0,
          "align": "center",
          "maxLines": 1
@@ -2449,8 +2490,9 @@
          "slot": "body",
          "face": "body",
          "size": 32,
-         "leading": 42.5,
-         "gap": 48,
+         "leading": 42.67,
+         "gap": 40,
+         "color": "neutral-11",
          "align": "center",
          "maxLines": 2
         }
@@ -2463,13 +2505,14 @@
        "slot": "url",
        "face": "label",
        "size": 16,
-       "leading": 16,
+       "leading": 21.33,
        "x": 560,
        "top": 1000,
        "w": 800,
        "align": "center",
        "maxLines": 1,
-       "min": 14
+       "min": 14,
+       "color": "neutral-11"
       }
      ]
     }
