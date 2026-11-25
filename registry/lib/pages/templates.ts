@@ -3,6 +3,7 @@
 // never a platform's product. Both flavors read this file; the page's header and footer come from site-chrome.ts.
 import { siteChrome } from '@/lib/pages/site-chrome'
 import type { ImageSlot } from '@/lib/image'
+import type { RunItem } from '@/lib/automation-run'
 
 export interface TemplatesWallContent {
 	/** The line over the rolling chip. */
@@ -91,3 +92,15 @@ export const templatesPageContent = {
 }
 
 export type TemplatesPageContent = typeof templatesPageContent
+
+/** The templates page's sections in order; pass `sections` to reorder them or leave some out. */
+export const templatesSections = ['wall', 'run', 'cities', 'faq', 'close'] as const
+export type TemplatesSection = (typeof templatesSections)[number]
+
+/** Each block's own data, pictures included (Acme placeholders where left out). */
+export interface TemplatesBlocks {
+	/** The wall's pictures, used in turn (a src or { src, fit, position }). */
+	wall?: { pictures?: (string | ImageSlot)[] }
+	/** The automation run's creatives (each with `src`, `alt`, `fit`, `position`). */
+	run?: { items?: RunItem[] }
+}

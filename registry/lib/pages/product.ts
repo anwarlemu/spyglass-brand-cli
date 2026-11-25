@@ -4,10 +4,18 @@
 // board). The products, features, questions and rates are the site's own; every result, person and brand in the
 // pictures is Acme, with figures in place of photos. Both flavors read this file.
 import type { HeroResult, HeroSet } from '@/lib/product-hero'
-import type { ProductVisualKind } from '@/lib/product-visual-data'
+import type { ProductVisualKind, ProductVisualDataMap } from '@/lib/product-visual-data'
 import { siteChrome } from '@/lib/pages/site-chrome'
+import type { ImageSlot } from '@/lib/image'
 
-export interface ProductPageFeature { headline: string; text: string; link?: { label: string; href: string }; visual: ProductVisualKind }
+export interface ProductPageFeature {
+	headline: string
+	text: string
+	link?: { label: string; href: string }
+	visual: ProductVisualKind
+	/** The visual's content, pictures included (product-visual's `data` for its kind); Acme placeholders without it. */
+	data?: ProductVisualDataMap[ProductVisualKind]
+}
 export interface ProductPageContent {
 	slug: string
 	name: string
@@ -16,7 +24,8 @@ export interface ProductPageContent {
 	hero: { sets: HeroSet[]; lit?: boolean }
 	features: ProductPageFeature[]
 	compare?: { label: string; cells: string[] }[]
-	pricing: { value: string; unit: string; rows: { name: string; meta: string }[]; free: { name: string; meta: string }; tally: string }
+	/** The receipt: each row's 4:5 `picture` (a src or { src, alt, fit, position }) replaces its neutral block. */
+	pricing: { value: string; unit: string; rows: { name: string; meta: string; picture?: string | ImageSlot }[]; free: { name: string; meta: string; picture?: string | ImageSlot }; tally: string }
 	faq: { q: string; a: string }[]
 }
 
@@ -163,3 +172,7 @@ export const productContent = {
 }
 
 export type ProductContent = typeof productContent
+
+/** The product page's sections in order; pass `sections` to reorder them or leave some out. */
+export const productSections = ['hero', 'proof', 'features', 'compare', 'pricing', 'faq', 'close'] as const
+export type ProductSection = (typeof productSections)[number]

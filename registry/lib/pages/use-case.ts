@@ -7,6 +7,8 @@ import type { Story } from '@/lib/stories'
 import type { StoryAction } from '@/lib/scroll-story'
 import type { ScrollStoryPreset } from '@/lib/pages/scroll-stories'
 import { siteChrome, type SiteChrome } from '@/lib/pages/site-chrome'
+import type { ScrollStoryData } from '@/lib/scroll-story'
+import type { WheelItem } from '@/lib/use-case-wheel'
 
 export interface UseCaseFaqItem {
 	q: string
@@ -60,4 +62,16 @@ export const useCaseContent: UseCaseContent = {
 		],
 	},
 	chrome: siteChrome,
+}
+
+/** The use case page's sections in order; pass `sections` to reorder them or leave some out. */
+export const useCaseSections = ['hero', 'proof', 'story', 'stories', 'wheel', 'faq', 'close'] as const
+export type UseCaseSection = (typeof useCaseSections)[number]
+
+/** Each block's own data, pictures included (Acme placeholders where left out). */
+export interface UseCaseBlocks {
+	/** The scroll story's data in place of its preset (lib/scroll-story.ts; its images take `src`, `alt`, `fit`, `position`). */
+	story?: { story?: ScrollStoryData }
+	/** The wheel's audiences, each with three pairs of pictures. */
+	wheel?: { items?: WheelItem[] }
 }

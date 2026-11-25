@@ -1,6 +1,6 @@
 import { html } from 'lit'
 import { DsElement, define, HostLayoutController } from '@/elements/lib/element'
-import { templatesPageContent, type TemplatesPageContent } from '@/lib/pages/templates'
+import { templatesPageContent, type TemplatesPageContent, templatesSections, type TemplatesSection, type TemplatesBlocks } from '@/lib/pages/templates'
 import '@/elements/components/site/site-header'
 import '@/elements/components/site/automation-run'
 import '@/elements/components/site/row-fan'
@@ -10,6 +10,8 @@ import '@/elements/components/blocks/faq-block'
 import '@/elements/components/blocks/site-footer'
 import '@/elements/components/visuals/ascii-trail'
 import styles from 'virtual:tw'
+import { pageSections } from '@/lib/image'
+import { runPlaceholders } from '@/lib/automation-run'
 
 // TemplatesPage.tsx as <spyglass-templates-page>: the header, the templates wall as the hero, the automation run, what
 // each template brings back (a centered head over the row fan), the
@@ -24,15 +26,27 @@ const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-lay
 export class TemplatesPage extends DsElement {
 	static styles = [DsElement.styles, styles]
 	protected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds="templates-page"]'))
-	static properties = { content: { type: Object } }
+	static properties = { content: { type: Object }, sections: { type: Array }, blocks: { type: Object } }
 	/** The page's copy (lib/pages/templates.ts by default). */
 	content: TemplatesPageContent = templatesPageContent
+	/** The sections to show, in order (a list of names); all of them in the page order by default. */
+	/** Each block's data, pictures included: the wall's `pictures` and the run's `items`. */
+	blocks: TemplatesBlocks = {}
+	sections?: TemplatesSection[]
 
 	render() {
 		const c = this.content ?? templatesPageContent
 		const t = c.cities
 		const rows = this.hasSlot('fan') ? html`<slot name="fan"></slot>` : html`<spyglass-row-fan .rows=${t.rows.map((r) => ({ key: r.key, name: r.name, href: r.href, cta: r.line, srLabel: `: ${t.status.toLowerCase()}. ${r.line}`, items: r.items }))}></spyglass-row-fan>`
-		return html`<div data-ds="templates-page" class="isolate bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .links=${c.chrome.header.nav} .secondary=${c.chrome.header.secondary} .cta=${c.chrome.header.cta}></spyglass-site-header><main id="main"><spyglass-templates-wall hero .content=${c.wall} section-id="templates"></spyglass-templates-wall><spyglass-automation-run section-id="templates-run"></spyglass-automation-run><section id=${t.id} aria-labelledby=${`${t.id}-heading`} class="ds-tpl-cities overflow-x-clip pt-(--ds-layout-section)"><div class=${`${WRAP} grid justify-items-center text-center`}><h2 id=${`${t.id}-heading`} class="type-section [text-box:trim-start_cap_alphabetic]">${t.headline}</h2><p class="mt-4 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft">${t.lead}</p></div><div class="ds-tpl-cities-rows relative">${rows}</div></section><div class=${`${WRAP} py-(--ds-layout-section)`}><spyglass-faq-block head-id=${c.faq.id} heading=${c.faq.headline} body=${c.faq.lead} .action=${c.faq.docs} .items=${c.faq.items}></spyglass-faq-block></div><spyglass-page-close close-id="templates-close" .lines=${c.close.lines} note=${c.close.note} .primary=${c.close.primary} .secondary=${c.close.secondary} connect="false"></spyglass-page-close></main><spyglass-site-footer .columns=${c.chrome.footer.columns} legal=${c.chrome.footer.legal}></spyglass-site-footer></div>`
+		const b = this.blocks ?? {}
+		const parts: Record<TemplatesSection, unknown> = {
+			wall: html`<spyglass-templates-wall hero .content=${c.wall} .pictures=${b.wall?.pictures} section-id="templates"></spyglass-templates-wall>`,
+			run: html`<spyglass-automation-run .items=${b.run?.items ?? runPlaceholders} section-id="templates-run"></spyglass-automation-run>`,
+			cities: html`<section id=${t.id} aria-labelledby=${`${t.id}-heading`} class="ds-tpl-cities overflow-x-clip pt-(--ds-layout-section)"><div class=${`${WRAP} grid justify-items-center text-center`}><h2 id=${`${t.id}-heading`} class="type-section [text-box:trim-start_cap_alphabetic]">${t.headline}</h2><p class="mt-4 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft">${t.lead}</p></div><div class="ds-tpl-cities-rows relative">${rows}</div></section>`,
+			faq: html`<div class=${`${WRAP} py-(--ds-layout-section)`}><spyglass-faq-block head-id=${c.faq.id} heading=${c.faq.headline} body=${c.faq.lead} .action=${c.faq.docs} .items=${c.faq.items}></spyglass-faq-block></div>`,
+			close: html`<spyglass-page-close close-id="templates-close" .lines=${c.close.lines} note=${c.close.note} .primary=${c.close.primary} .secondary=${c.close.secondary} connect="false"></spyglass-page-close>`,
+		}
+		return html`<div data-ds="templates-page" class="isolate bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .links=${c.chrome.header.nav} .secondary=${c.chrome.header.secondary} .cta=${c.chrome.header.cta}></spyglass-site-header><main id="main">${pageSections(templatesSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.chrome.footer.columns} legal=${c.chrome.footer.legal}></spyglass-site-footer></div>`
 	}
 }
 

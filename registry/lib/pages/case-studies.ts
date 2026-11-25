@@ -180,3 +180,7 @@ export type CaseStudiesIndexContent = typeof caseStudiesIndexContent
 /** The case studies index's sections in order; pass `sections` to reorder them or leave some out. */
 export const caseStudiesSections = ['head', 'stories', 'close'] as const
 export type CaseStudiesSection = (typeof caseStudiesSections)[number]
+
+/** A case study's sections in order (all but the close stay inside the article, where the first of them falls); pass `sections` to reorder them or leave some out. */
+export const caseStudyPageSections = ['head', 'facts', 'cover', 'lead', 'body', 'more', 'close'] as const
+export type CaseStudyPageSection = (typeof caseStudyPageSections)[number]

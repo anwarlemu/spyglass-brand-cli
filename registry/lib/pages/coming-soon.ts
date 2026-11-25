@@ -51,3 +51,7 @@ export const comingSoonContent = {
 }
 
 export type ComingSoonContent = typeof comingSoonContent
+
+/** The coming soon page's sections in order; pass `sections` to reorder them or leave some out. */
+export const comingSoonSections = ['head', 'next', 'also', 'close'] as const
+export type ComingSoonSection = (typeof comingSoonSections)[number]

@@ -59,3 +59,15 @@ export interface CreativeImage extends ImageSlot {
 	/** The placeholder's neutral gradient, 1 (darkest) to 4. */
 	tone?: 1 | 2 | 3 | 4
 }
+
+/**
+ * The sections in order with those that live inside one element (an article's head, cover and body) gathered into a
+ * list where the first of them falls, so a page can keep that element whole whatever the order.
+ */
+export function groupSections<K extends string>(order: readonly K[], inside: readonly K[]): (K | K[])[] {
+	const group = order.filter((k) => inside.includes(k))
+	const out: (K | K[])[] = []
+	for (const k of order) if (!inside.includes(k)) out.push(k)
+	else if (k === group[0]) out.push(group)
+	return out
+}

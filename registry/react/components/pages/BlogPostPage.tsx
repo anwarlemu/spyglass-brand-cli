@@ -4,8 +4,10 @@ import { CreativeGrid } from '@/react/components/site/CreativeGrid'
 import { FooterRow } from '@/react/components/site/FooterRow'
 import { SiteHeader } from '@/react/components/site/SiteHeader'
 import { OfferBlock } from '@/react/components/blocks/OfferBlock'
-import { blogPostContent, type BlogPostBlock, type BlogPostContent } from '@/lib/pages/blog-post'
+import { blogPostContent, type BlogPostBlock, type BlogPostContent, blogPostSections, type BlogPostSection } from '@/lib/pages/blog-post'
 import { cn } from '@/react/lib/cn'
+import { pageSections, groupSections } from '@/lib/image'
+import { Fragment, type ReactNode } from 'react'
 
 // A blog post from library items: the way back, the date and category in capitals, the title in Funnel Display, the
 // byline, a wide image, then the body in a 720px column (DM Sans paragraphs, Funnel Display subheads, a list, a quote
@@ -13,11 +15,14 @@ import { cn } from '@/react/lib/cn'
 // (lib/pages/blog-post.ts); its `body` is a list of blocks.
 export interface BlogPostPageProps {
   content?: BlogPostContent
+  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
+  sections?: readonly BlogPostSection[]
   className?: string
 }
 
 const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 const COLUMN = 'mx-auto w-full max-w-180 px-12 max-sm:px-4'
+const ARTICLE: readonly BlogPostSection[] = ['head', 'cover', 'body']
 const TITLE = 'rounded-control transition-[color] duration-160 ease-standard hover:text-fg-soft'
 
 function Block({ block: b }: { block: BlogPostBlock }) {
@@ -33,41 +38,50 @@ function Block({ block: b }: { block: BlogPostBlock }) {
   return <p className="type-body-lg text-fg-soft">{b.text}</p>
 }
 
-export function BlogPostPage({ content: c = blogPostContent, className }: BlogPostPageProps) {
+export function BlogPostPage({ content: c = blogPostContent, sections, className }: BlogPostPageProps) {
+  const parts: Record<BlogPostSection, ReactNode> = {
+    head: (
+      <header className={cn(COLUMN, 'flex flex-col items-start pt-16 max-sm:pt-10')}>
+        <a href={c.back.href} className="inline-flex items-center gap-1.5 rounded-control type-ui text-fg-muted transition-[color] duration-160 ease-standard hover:text-fg">
+          <ChevronLeft size={16} strokeWidth={1.5} aria-hidden="true" />
+          {c.back.label}
+        </a>
+        <p className="mt-8 type-label text-fg-muted">{`${c.date} · ${c.category}`}</p>
+        <h1 className="mt-4 type-hero text-balance max-sm:type-heading-1">{c.title}</h1>
+        <p className="mt-6 type-ui text-fg-muted">{c.byline}</p>
+      </header>
+    ),
+    cover: (
+      <div className={cn(WRAP, 'mt-12 max-sm:mt-8')}>
+        <CreativeCard {...c.image} alt={c.image.alt ?? c.title} ratio="16/9" className="mx-auto max-w-page" />
+      </div>
+    ),
+    body: (
+      <div className={cn(COLUMN, 'grid gap-6 py-12 max-sm:py-8')}>
+        {c.body.map((b, i) => <Block key={i} block={b} />)}
+      </div>
+    ),
+    related: (
+      <section className={cn(WRAP, 'grid gap-10 py-24 max-sm:gap-8 max-sm:py-16')}>
+        <h2 className="type-section">{c.related.title}</h2>
+        <div className="grid grid-cols-3 gap-6 max-md:grid-cols-1">
+          {c.related.posts.map((p) => (
+            <article key={p.href} className="grid content-start gap-4">
+              <CreativeCard {...p.image} alt={p.image.alt ?? p.title} ratio="7/5" />
+              <p className="type-label text-fg-muted">{p.date}</p>
+              <h3 className="type-heading-3 text-balance"><a href={p.href} className={TITLE}>{p.title}</a></h3>
+            </article>
+          ))}
+        </div>
+      </section>
+    ),
+    offer: <OfferBlock headline={c.offer.headline} note={c.offer.note} cta={c.offer.cta} seed={2} />,
+  }
   return (
     <div data-ds="blog-post-page" className={cn('bg-surface text-fg', className)}>
       <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main>
-        <article>
-          <header className={cn(COLUMN, 'flex flex-col items-start pt-16 max-sm:pt-10')}>
-            <a href={c.back.href} className="inline-flex items-center gap-1.5 rounded-control type-ui text-fg-muted transition-[color] duration-160 ease-standard hover:text-fg">
-              <ChevronLeft size={16} strokeWidth={1.5} aria-hidden="true" />
-              {c.back.label}
-            </a>
-            <p className="mt-8 type-label text-fg-muted">{`${c.date} · ${c.category}`}</p>
-            <h1 className="mt-4 type-hero text-balance max-sm:type-heading-1">{c.title}</h1>
-            <p className="mt-6 type-ui text-fg-muted">{c.byline}</p>
-          </header>
-          <div className={cn(WRAP, 'mt-12 max-sm:mt-8')}>
-            <CreativeCard {...c.image} alt={c.image.alt ?? c.title} ratio="16/9" className="mx-auto max-w-page" />
-          </div>
-          <div className={cn(COLUMN, 'grid gap-6 py-12 max-sm:py-8')}>
-            {c.body.map((b, i) => <Block key={i} block={b} />)}
-          </div>
-        </article>
-        <section className={cn(WRAP, 'grid gap-10 py-24 max-sm:gap-8 max-sm:py-16')}>
-          <h2 className="type-section">{c.related.title}</h2>
-          <div className="grid grid-cols-3 gap-6 max-md:grid-cols-1">
-            {c.related.posts.map((p) => (
-              <article key={p.href} className="grid content-start gap-4">
-                <CreativeCard {...p.image} alt={p.image.alt ?? p.title} ratio="7/5" />
-                <p className="type-label text-fg-muted">{p.date}</p>
-                <h3 className="type-heading-3 text-balance"><a href={p.href} className={TITLE}>{p.title}</a></h3>
-              </article>
-            ))}
-          </div>
-        </section>
-        <OfferBlock headline={c.offer.headline} note={c.offer.note} cta={c.offer.cta} seed={2} />
+        {groupSections(pageSections(blogPostSections, sections), ARTICLE).map((k) => (Array.isArray(k) ? <article key="article">{k.map((a) => <Fragment key={a}>{parts[a]}</Fragment>)}</article> : <Fragment key={k}>{parts[k]}</Fragment>))}
       </main>
       <footer className="border-t border-edge">
         <div className={cn(WRAP, 'py-10')}>

@@ -13,8 +13,10 @@ import { PageClose } from '@/react/components/site/PageClose'
 import { SiteFooter } from '@/react/components/blocks/SiteFooter'
 import { DispersionField } from '@/react/components/visuals/DispersionField'
 import type { ChatContent, BuildContent } from '@/lib/use-case-hero'
-import { useCaseContent, type UseCaseContent } from '@/lib/pages/use-case'
+import { useCaseContent, type UseCaseContent, useCaseSections, type UseCaseSection, type UseCaseBlocks } from '@/lib/pages/use-case'
 import { cn } from '@/react/lib/cn'
+import { pageSections } from '@/lib/image'
+import { Fragment, type ReactNode } from 'react'
 
 // A use case's page as the site sets it (app/use-cases/[slug], pages/UseCasesPage/UseCaseDetail): the header, the
 // hero (the name, the line, the connect menu with a quiet button and the chat answering beside them, or the build
@@ -29,26 +31,35 @@ export interface UseCasePageProps {
   build?: BuildContent
   /** Hold the wheel and its light still. */
   still?: boolean
+  /** Each block's data, pictures included: the story's `story` and the wheel's `items`. */
+  blocks?: UseCaseBlocks
+  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
+  sections?: readonly UseCaseSection[]
   className?: string
 }
 
 const CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
-export function UseCasePage({ content: c = useCaseContent, visual = 'chat', chat, build, still = false, className }: UseCasePageProps) {
+export function UseCasePage({ content: c = useCaseContent, visual = 'chat', chat, build, still = false, blocks = {}, sections, className }: UseCasePageProps) {
+  const parts: Record<UseCaseSection, ReactNode> = {
+    hero: <UseCaseHero content={c.hero} visual={visual} chat={chat} build={build} control={c.control === 'mcp' ? <ConnectMenu /> : undefined} />,
+    proof: <ProofBlock id={`${c.slug}-proof`} title={c.proof} />,
+    story: <ScrollStory story={blocks.story?.story} preset={c.story.preset} actions={c.story.actions} />,
+    stories: <StoriesBlock id={`${c.slug}-stories`} headline={c.stories.headline} lead={c.stories.lead} stories={c.stories.items} customers={false} />,
+    wheel: <UseCaseWheel id="v2-use-cases" items={blocks.wheel?.items} autoplay={!still} light={(ripple) => <DispersionField composition="ring" seed={5} ripple={ripple} still={still} className="relative size-full" />} />,
+    faq: (
+      <div className={cn(CONTAINER, 'py-(--ds-layout-section)')}>
+        <FaqBlock id={`${c.slug}-faq`} title={c.faq.headline} body={c.faq.lead} action={c.faq.docs} items={c.faq.items} />
+      </div>
+    ),
+    close: <PageClose />,
+  }
   return (
     <div data-ds="use-case-page" className={cn('isolate bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
       <SiteHeader links={c.chrome.header.nav} secondary={c.chrome.header.secondary} cta={c.chrome.header.cta} />
       <main id="main">
-        <UseCaseHero content={c.hero} visual={visual} chat={chat} build={build} control={c.control === 'mcp' ? <ConnectMenu /> : undefined} />
-        <ProofBlock id={`${c.slug}-proof`} title={c.proof} />
-        <ScrollStory preset={c.story.preset} actions={c.story.actions} />
-        <StoriesBlock id={`${c.slug}-stories`} headline={c.stories.headline} lead={c.stories.lead} stories={c.stories.items} customers={false} />
-        <UseCaseWheel id="v2-use-cases" autoplay={!still} light={(ripple) => <DispersionField composition="ring" seed={5} ripple={ripple} still={still} className="relative size-full" />} />
-        <div className={cn(CONTAINER, 'py-(--ds-layout-section)')}>
-          <FaqBlock id={`${c.slug}-faq`} title={c.faq.headline} body={c.faq.lead} action={c.faq.docs} items={c.faq.items} />
-        </div>
-        <PageClose />
+        {pageSections(useCaseSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>
       <SiteFooter columns={c.chrome.footer.columns} legal={c.chrome.footer.legal} />
     </div>

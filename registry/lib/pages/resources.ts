@@ -95,3 +95,7 @@ export function formatResourceDate(iso: string): string {
 /** The resources hub's sections in order; pass `sections` to reorder them or leave some out. */
 export const resourcesSections = ['head', 'cards', 'close'] as const
 export type ResourcesSection = (typeof resourcesSections)[number]
+
+/** The resource list page's sections in order; pass `sections` to reorder them or leave some out. */
+export const resourceListSections = ['head', 'list', 'close'] as const
+export type ResourceListSection = (typeof resourceListSections)[number]

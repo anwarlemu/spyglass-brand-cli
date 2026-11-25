@@ -58,3 +58,7 @@ export const blogPostContent = {
 
 export type BlogPostContent = typeof blogPostContent
 export type BlogPostBlock = (typeof body)[number]
+
+/** The blog post's sections in order (head, cover and body stay inside the article, where the first of them falls); pass `sections` to reorder them or leave some out. */
+export const blogPostSections = ['head', 'cover', 'body', 'related', 'offer'] as const
+export type BlogPostSection = (typeof blogPostSections)[number]

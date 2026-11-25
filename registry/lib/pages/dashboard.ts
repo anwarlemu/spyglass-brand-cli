@@ -25,3 +25,7 @@ export const dashboardContent = {
 	],
 }
 export type DashboardContent = typeof dashboardContent
+
+/** The dashboard's sections in order; pass `sections` to reorder them or leave some out. */
+export const dashboardSections = ['head', 'stats', 'table'] as const
+export type DashboardSection = (typeof dashboardSections)[number]

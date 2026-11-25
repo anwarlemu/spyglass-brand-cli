@@ -1,11 +1,12 @@
-import type { CSSProperties, ReactNode } from 'react'
+import { type CSSProperties, type ReactNode, Fragment } from 'react'
 import { AuthForm, type AuthMode } from '@/react/components/site/AuthForm'
 import { ProofStrip, proofPlaceholders, type ProofLogo } from '@/react/components/site/ProofStrip'
 import { Logo } from '@/react/components/visuals/Logo'
 import { asciiDriftStyleObject } from '@/lib/ascii-drift'
-import { authContent, type AuthContent } from '@/lib/pages/auth'
+import { authContent, type AuthContent, authSections, type AuthSection } from '@/lib/pages/auth'
 import { AUTH_LIGHT_LEFT, AUTH_LIGHT_RIGHT, AUTH_LIGHT_RIGHT_PHONE } from '@/lib/textures'
 import { cn } from '@/react/lib/cn'
+import { pageSections } from '@/lib/image'
 
 // The site's sign-in and sign-up pages (app/(auth), pages/Auth/AuthShell): Black with the brand light in two corners,
 // the site's own pre-made light images (the top right one alone on phones), bobbing 12px back and forth over 14s on an
@@ -24,10 +25,23 @@ export interface AuthPageProps {
   logos?: ProofLogo[]
   /** Show the proof row (the site shows it on sign-up; sign-in keeps its room empty so the form sits as high). */
   proof?: boolean
+  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
+  sections?: readonly AuthSection[]
   className?: string
 }
 
-export function AuthPage({ mode = 'sign-up', content: c = authContent, providerIcon, onProvider, onEmail, logos = proofPlaceholders, proof = mode === 'sign-up', className }: AuthPageProps) {
+export function AuthPage({ mode = 'sign-up', content: c = authContent, providerIcon, onProvider, onEmail, logos = proofPlaceholders, proof = mode === 'sign-up', sections, className }: AuthPageProps) {
+  const parts: Record<AuthSection, ReactNode> = {
+    form: <AuthForm mode={mode} content={c} providerIcon={providerIcon} onProvider={onProvider} onEmail={onEmail} />,
+    proof: (
+      proof ? (
+        <section aria-label={c.proof} className="mx-auto flex min-h-(--ds-layout-auth-proof-h) w-full max-w-[calc(var(--ds-layout-auth-proof)+2*var(--ds-layout-gutter))] flex-col items-center gap-6 px-(--ds-layout-gutter)">
+          <h2 className="type-ui text-fg-muted">{c.proof}</h2>
+          <ProofStrip logos={logos} tight />
+        </section>
+      ) : <div aria-hidden="true" className="mx-auto min-h-(--ds-layout-auth-proof-h) w-full" />
+    ),
+  }
   return (
     <div data-ds="auth-page" className={cn('relative isolate grid min-h-svh grid-cols-[minmax(0,1fr)] grid-rows-[auto_1fr] overflow-clip bg-surface text-fg', className)}>
       <style href="ds-auth-page" precedence="ds">{css}</style>
@@ -43,13 +57,7 @@ export function AuthPage({ mode = 'sign-up', content: c = authContent, providerI
         </div>
       </header>
       <main className="ds-auth-main flex min-w-0 flex-col justify-center gap-16 py-8">
-        <AuthForm mode={mode} content={c} providerIcon={providerIcon} onProvider={onProvider} onEmail={onEmail} />
-        {proof ? (
-          <section aria-label={c.proof} className="mx-auto flex min-h-(--ds-layout-auth-proof-h) w-full max-w-[calc(var(--ds-layout-auth-proof)+2*var(--ds-layout-gutter))] flex-col items-center gap-6 px-(--ds-layout-gutter)">
-            <h2 className="type-ui text-fg-muted">{c.proof}</h2>
-            <ProofStrip logos={logos} tight />
-          </section>
-        ) : <div aria-hidden="true" className="mx-auto min-h-(--ds-layout-auth-proof-h) w-full" />}
+        {pageSections(authSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>
     </div>
   )

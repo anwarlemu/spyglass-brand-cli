@@ -18,3 +18,7 @@ export const settingsContent = {
 	save: 'Save changes',
 }
 export type SettingsContent = typeof settingsContent
+
+/** The settings page's sections in order; pass `sections` to reorder them or leave some out. */
+export const settingsSections = ['profile', 'notifications', 'save'] as const
+export type SettingsSection = (typeof settingsSections)[number]

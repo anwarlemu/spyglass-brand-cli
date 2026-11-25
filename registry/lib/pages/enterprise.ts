@@ -49,3 +49,7 @@ export const enterprisePageContent = {
 	},
 }
 export type EnterprisePageContent = typeof enterprisePageContent
+
+/** The enterprise page's sections in order; pass `sections` to reorder them or leave some out. */
+export const enterpriseSections = ['hero', 'proof', 'run', 'features', 'close'] as const
+export type EnterpriseSection = (typeof enterpriseSections)[number]

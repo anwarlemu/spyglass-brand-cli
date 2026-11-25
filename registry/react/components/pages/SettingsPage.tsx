@@ -3,8 +3,10 @@ import { Field } from '@/react/components/ui/Field'
 import { Input } from '@/react/components/ui/Input'
 import { Switch } from '@/react/components/ui/Switch'
 import { Logo } from '@/react/components/visuals/Logo'
-import { settingsContent, type SettingsContent } from '@/lib/pages/settings'
+import { settingsContent, type SettingsContent, settingsSections, type SettingsSection } from '@/lib/pages/settings'
 import { cn } from '@/react/lib/cn'
+import { pageSections } from '@/lib/image'
+import { Fragment, type ReactNode } from 'react'
 
 // Settings in the site's look: the same side rail as the dashboard, then sections on #262626 cards: the profile fields
 // and the notification switches (each row a 14/20 Medium label, a #A3A3A3 line and the switch), and the one White button
@@ -12,12 +14,40 @@ import { cn } from '@/react/lib/cn'
 export interface SettingsPageProps {
   content?: SettingsContent
   action?: string
+  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
+  sections?: readonly SettingsSection[]
   className?: string
 }
 
 const LINK = 'flex h-control-xs items-center rounded-control px-3 type-ui text-fg-soft transition-[color,background-color] duration-160 ease-out hover:bg-surface-raised hover:text-fg aria-[current=page]:bg-surface-raised aria-[current=page]:text-fg'
 
-export function SettingsPage({ content: c = settingsContent, action, className }: SettingsPageProps) {
+export function SettingsPage({ content: c = settingsContent, action, sections, className }: SettingsPageProps) {
+  const parts: Record<SettingsSection, ReactNode> = {
+    profile: (
+      <section className="grid gap-5 rounded-container bg-surface-raised p-6">
+        <h2 className="type-heading-3">{c.profile.title}</h2>
+        <Field label={c.profile.name.label}>{({ id }) => <Input id={id} name="name" autoComplete="name" defaultValue={c.profile.name.value} />}</Field>
+        <Field label={c.profile.email.label}>{({ id }) => <Input id={id} name="email" type="email" autoComplete="email" defaultValue={c.profile.email.value} />}</Field>
+      </section>
+    ),
+    notifications: (
+      <section className="grid gap-5 rounded-container bg-surface-raised p-6">
+        <h2 className="type-heading-3">{c.notifications.title}</h2>
+        <ul role="list" className="m-0 grid list-none gap-5 p-0">
+          {c.notifications.items.map((n) => (
+            <li key={n.label} className="flex items-start justify-between gap-6">
+              <span className="grid gap-1">
+                <span className="type-ui-strong text-fg">{n.label}</span>
+                <span className="type-ui text-fg-muted">{n.description}</span>
+              </span>
+              <Switch label={n.label} defaultChecked={n.on} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    ),
+    save: <Button type="submit" className="justify-self-start">{c.save}</Button>,
+  }
   return (
     <div data-ds="settings-page" className={cn('grid min-h-dvh grid-cols-[minmax(0,1fr)] bg-surface text-fg lg:grid-cols-[256px_minmax(0,1fr)]', className)}>
       <aside className="flex min-w-0 flex-col gap-6 border-b border-edge bg-surface-subtle p-4 lg:border-r lg:border-b-0">
@@ -31,26 +61,7 @@ export function SettingsPage({ content: c = settingsContent, action, className }
       <main className="grid max-w-200 content-start gap-8 p-6 lg:p-10">
         <h1 className="type-heading-2">{c.title}</h1>
         <form action={action} method="post" className="grid gap-6">
-          <section className="grid gap-5 rounded-container bg-surface-raised p-6">
-            <h2 className="type-heading-3">{c.profile.title}</h2>
-            <Field label={c.profile.name.label}>{({ id }) => <Input id={id} name="name" autoComplete="name" defaultValue={c.profile.name.value} />}</Field>
-            <Field label={c.profile.email.label}>{({ id }) => <Input id={id} name="email" type="email" autoComplete="email" defaultValue={c.profile.email.value} />}</Field>
-          </section>
-          <section className="grid gap-5 rounded-container bg-surface-raised p-6">
-            <h2 className="type-heading-3">{c.notifications.title}</h2>
-            <ul role="list" className="m-0 grid list-none gap-5 p-0">
-              {c.notifications.items.map((n) => (
-                <li key={n.label} className="flex items-start justify-between gap-6">
-                  <span className="grid gap-1">
-                    <span className="type-ui-strong text-fg">{n.label}</span>
-                    <span className="type-ui text-fg-muted">{n.description}</span>
-                  </span>
-                  <Switch label={n.label} defaultChecked={n.on} />
-                </li>
-              ))}
-            </ul>
-          </section>
-          <Button type="submit" className="justify-self-start">{c.save}</Button>
+        {pageSections(settingsSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
         </form>
       </main>
     </div>

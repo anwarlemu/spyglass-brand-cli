@@ -35,3 +35,7 @@ export const contactContent = {
 }
 
 export type ContactContent = typeof contactContent
+
+/** The contact page's sections in order; pass `sections` to reorder them or leave some out. */
+export const contactSections = ['intro', 'form'] as const
+export type ContactSection = (typeof contactSections)[number]

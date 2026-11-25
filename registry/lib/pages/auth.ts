@@ -25,3 +25,7 @@ export function emailProblem(value: string, c: AuthContent = authContent): strin
 	const v = value.trim()
 	return !v ? c.empty : EMAIL.test(v) ? '' : c.invalid
 }
+
+/** The auth page's sections in order; pass `sections` to reorder them or leave some out. */
+export const authSections = ['form', 'proof'] as const
+export type AuthSection = (typeof authSections)[number]

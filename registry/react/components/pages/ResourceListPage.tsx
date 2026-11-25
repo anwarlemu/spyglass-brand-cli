@@ -5,8 +5,10 @@ import { PageHead } from '@/react/components/site/PageHead'
 import { SiteHeader } from '@/react/components/site/SiteHeader'
 import { SiteFooter } from '@/react/components/blocks/SiteFooter'
 import { CreativeCard } from '@/react/components/site/CreativeCard'
-import { formatResourceDate, resourceListContent, type ResourceList, type ResourceListContent } from '@/lib/pages/resources'
+import { formatResourceDate, resourceListContent, type ResourceList, type ResourceListContent, resourceListSections, type ResourceListSection } from '@/lib/pages/resources'
 import { cn } from '@/react/lib/cn'
+import { pageSections } from '@/lib/image'
+import { Fragment, type ReactNode } from 'react'
 
 // The site's list of posts or guides (app/resources/[slug], pages/Resources/ResourceList): the header, the page head
 // with the list's title and line, then the entries newest first as hairline rows (the date in the muted gray, the
@@ -17,6 +19,8 @@ import { cn } from '@/react/lib/cn'
 export interface ResourceListPageProps {
   list?: ResourceList
   content?: ResourceListContent
+  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
+  sections?: readonly ResourceListSection[]
   className?: string
 }
 
@@ -30,39 +34,44 @@ const RESOURCE_THUMB = 'col-start-1 row-span-3 row-start-1'
 
 const CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
-export function ResourceListPage({ list, content: c = resourceListContent, className }: ResourceListPageProps) {
+export function ResourceListPage({ list, content: c = resourceListContent, sections, className }: ResourceListPageProps) {
   const l = list ?? c.list
   const entries = [...l.entries].sort((a, b) => b.date.localeCompare(a.date))
+  const parts: Record<ResourceListSection, ReactNode> = {
+    head: <PageHead id={l.key} lines={[l.title]} lead={l.line} />,
+    list: (
+      <section aria-label={l.title} className="pb-(--ds-layout-section)">
+        <div className={CONTAINER}>
+          {entries.length ? (
+            <ul role="list" className="m-0 list-none border-t border-edge p-0">
+              {entries.map((e) => (
+                <li key={e.href}>
+                  <a href={e.href} className={resourceRowClass(!!e.thumb)}>
+                    {e.thumb ? <CreativeCard ratio="16/9" src={e.thumb.src} alt={e.thumb.alt} fit={e.thumb.fit} position={e.thumb.position} tone={e.thumb.tone} className={RESOURCE_THUMB} /> : null}
+                    <time dateTime={e.date} className={cn('type-ui text-fg-muted', e.thumb && 'col-start-2')}>{formatResourceDate(e.date)}</time>
+                    <span className={cn('type-body-lg text-fg', e.thumb && 'col-start-2')}>{e.title}</span>
+                    <span className={cn('type-body text-pretty text-fg-soft md:col-start-2', e.thumb && 'col-start-2')}>{e.line}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="flex min-h-80 flex-col items-center justify-center gap-6 rounded-panel bg-surface-subtle p-8 text-center text-fg-soft">
+              <p className="type-body-lg">{l.empty}</p>
+              <Button href={c.back.href} variant="secondary" className="max-md:w-full">{c.back.label}</Button>
+            </div>
+          )}
+        </div>
+      </section>
+    ),
+    close: <PageClose lines={c.close.lines} note={c.close.note} primary={c.close.primary} />,
+  }
   return (
     <div data-ds="resource-list-page" className={cn('isolate overflow-x-clip bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
       <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main>
-        <PageHead id={l.key} lines={[l.title]} lead={l.line} />
-        <section aria-label={l.title} className="pb-(--ds-layout-section)">
-          <div className={CONTAINER}>
-            {entries.length ? (
-              <ul role="list" className="m-0 list-none border-t border-edge p-0">
-                {entries.map((e) => (
-                  <li key={e.href}>
-                    <a href={e.href} className={resourceRowClass(!!e.thumb)}>
-                      {e.thumb ? <CreativeCard ratio="16/9" src={e.thumb.src} alt={e.thumb.alt} tone={e.thumb.tone} className={RESOURCE_THUMB} /> : null}
-                      <time dateTime={e.date} className={cn('type-ui text-fg-muted', e.thumb && 'col-start-2')}>{formatResourceDate(e.date)}</time>
-                      <span className={cn('type-body-lg text-fg', e.thumb && 'col-start-2')}>{e.title}</span>
-                      <span className={cn('type-body text-pretty text-fg-soft md:col-start-2', e.thumb && 'col-start-2')}>{e.line}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="flex min-h-80 flex-col items-center justify-center gap-6 rounded-panel bg-surface-subtle p-8 text-center text-fg-soft">
-                <p className="type-body-lg">{l.empty}</p>
-                <Button href={c.back.href} variant="secondary" className="max-md:w-full">{c.back.label}</Button>
-              </div>
-            )}
-          </div>
-        </section>
-        <PageClose lines={c.close.lines} note={c.close.note} primary={c.close.primary} />
+        {pageSections(resourceListSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>
       <SiteFooter columns={c.footer.columns} legal={c.footer.legal} />
     </div>
