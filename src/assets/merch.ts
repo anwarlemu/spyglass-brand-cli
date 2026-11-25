@@ -57,7 +57,7 @@ export function merchCatalog() {
 	}));
 }
 
-const LEN = new Set(['x', 'top', 'w', 'h', 'size', 'leading', 'gap', 'itemGap', 'shift', 'min', 'pad', 'padTop', 'padBottom', 'grow', 'bottom', 'radius', 'prefer']);
+const LEN = new Set(['x', 'top', 'w', 'h', 'size', 'tile', 'leading', 'gap', 'itemGap', 'shift', 'min', 'pad', 'padTop', 'padBottom', 'grow', 'bottom', 'radius', 'prefer']);
 /** Lengths that are places, so they move by the bleed. */
 const PLACE = new Set(['x', 'top', 'bottom', 'prefer']);
 
