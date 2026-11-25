@@ -278,7 +278,8 @@ function composeScene(doc: DesignDoc, photosIn: Photo[], floor: number, fitted: 
 				layers.push(stackAt(r, [text(id, `${id}.value`, 'display', Math.min(96 * u, r.h * 0.6), Math.min(96 * u, r.h * 0.6), { maxLines: 1, min: 24 * u }), text(`${id}-label`, `${id}.label`, 'body', fl(22 * u), fl(22 * u) * 1.36, { gap: 32 * u, maxLines: 2, color: th.soft })], align, valign));
 				break;
 			case 'quote':
-				layers.push(stackAt(r, [text(id, `${id}.text`, 'display', 44 * u, 50 * u, { maxLines: lines(44 * u, 50 * u), min: 24 * u }), text(`${id}-name`, `${id}.name`, 'medium', fl(22 * u), fl(22 * u) * 1.36, { gap: 28 * u, maxLines: 1 }), text(`${id}-role`, `${id}.role`, 'body', fl(20 * u), fl(20 * u) * 1.4, { gap: 8 * u, maxLines: 1, color: th.soft })], align, valign));
+				// Without a name, the role takes the name's place under the quote (and its gap).
+				layers.push(stackAt(r, [text(id, `${id}.text`, 'display', 44 * u, 50 * u, { maxLines: lines(44 * u, 50 * u), min: 24 * u }), text(`${id}-name`, `${id}.name`, 'medium', fl(22 * u), fl(22 * u) * 1.36, { gap: 28 * u, maxLines: 1 }), text(`${id}-role`, `${id}.role`, 'body', fl(20 * u), fl(20 * u) * 1.4, { gap: (doc.copy[`${id}.name`]?.trim() ? 8 : 28) * u, maxLines: 1, color: th.soft })], align, valign));
 				break;
 			case 'list':
 				layers.push(stackAt(r, [{ type: 'list', id, slot: `${id}.items`, face: 'body', size: fl(24 * u), leading: fl(24 * u) * 1.33, maxLines: 2, itemGap: 16 * u, color: th.fg }], align, valign));
