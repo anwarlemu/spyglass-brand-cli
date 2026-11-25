@@ -2,6 +2,7 @@
 // content/pages/templates.ts and templatesCities.ts), with Acme's material: the names are the templates' own kinds,
 // never a platform's product. Both flavors read this file; the page's header and footer come from site-chrome.ts.
 import { siteChrome } from '@/lib/pages/site-chrome'
+import type { ImageSlot } from '@/lib/image'
 
 export interface TemplatesWallContent {
 	/** The line over the rolling chip. */
@@ -23,10 +24,8 @@ export const templatesWallContent: TemplatesWallContent = {
 // ----- The templates page (site app/templates/page.tsx): the wall as the hero, the automation run, what each template
 // brings back (TemplateCities: a row per template fanning out its items), the questions and the close. -----
 
-export interface TemplateCityItem {
+export interface TemplateCityItem extends ImageSlot {
 	key: string
-	/** The item's picture (the user's own); none draws the neutral placeholder. */
-	src?: string
 	alt: string
 	title: string
 	meta?: string
@@ -42,11 +41,12 @@ export interface TemplateCityRow {
 }
 
 // Acme placeholder pictures for the rows: a square in one of four neutral steps, lighter at the top, with the
-// advertiser at the foot, so the fan never needs a third-party picture. Pass your own `src`.
+// advertiser at the foot, so the fan never needs a third-party picture (it carries data-ds-placeholder, so it counts
+// as a placeholder). Pass your own `src` (with `fit` and `position`).
 const STEPS = [['#262626', '#0F0F0F'], ['#363636', '#1A1A1A'], ['#4D4D4D', '#262626'], ['#666666', '#363636']] // the creative card's four tones (neutral 4 to 2 up to 7 to 5)
 const placeholder = (n: number, label: string) => {
 	const [top, bottom] = STEPS[n % STEPS.length]!
-	return `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${top}"/><stop offset="1" stop-color="${bottom}"/></linearGradient></defs><rect width="256" height="256" fill="url(#g)"/><text x="20" y="232" fill="#D4D4D4" font-family="sans-serif" font-size="22" letter-spacing="1">${label.toUpperCase()}</text></svg>`)}`
+	return `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" data-ds-placeholder="" width="256" height="256"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${top}"/><stop offset="1" stop-color="${bottom}"/></linearGradient></defs><rect width="256" height="256" fill="url(#g)"/><text x="20" y="232" fill="#D4D4D4" font-family="sans-serif" font-size="22" letter-spacing="1">${label.toUpperCase()}</text></svg>`)}`
 }
 const ADVERTISERS = ['Acme Skin', 'Acme Drinks', 'Acme Fit', 'Acme Studio', 'Acme Home', 'Acme Motors', 'Acme Foods', 'Acme Travel', 'Acme Pets', 'Acme Wear']
 const acme = (key: string, n: number, meta: (i: number) => string, shift = 0): TemplateCityItem[] =>

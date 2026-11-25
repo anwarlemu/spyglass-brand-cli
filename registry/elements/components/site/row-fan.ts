@@ -3,12 +3,14 @@ import { DsElement, define } from '@/elements/lib/element'
 import { mountRowFan } from '@/lib/effects/row-fan'
 import { ROW_FAN_CSS } from '@/lib/effects/row-fan-css'
 import styles from 'virtual:tw'
+import { imageFit, isPlaceholderSrc, type ImageSlot } from '@/lib/image'
+import { styleMap } from 'lit/directives/style-map.js'
 
 // RowFan.tsx as <spyglass-row-fan>: big names, each a link, whose pictures fan out beside (from 1024) or below the name
 // when it is pointed at, focused, tapped or scrolled to the middle; a card opens with its title and meta. `rows` (JSON:
 // { key, name, href, cta, srLabel?, items: [{ key, src, alt?, title, meta? }] }), `sizes`, `new-tab`.
 
-export interface FanItem { key: string, src: string, alt?: string, title: string, meta?: string }
+export interface FanItem extends ImageSlot { key: string, title: string, meta?: string }
 export interface FanRow { key: string, name: string, href: string, cta: string, srLabel?: string, items: FanItem[] }
 
 /**
@@ -49,7 +51,7 @@ export class RowFan extends DsElement {
 		const places = Array.from({ length: most }, (_, k) => ({ side: k % 2 === 0 ? 'l' : 'r', step: Math.floor(k / 2), k }))
 		return html`<div data-ds="row-fan" data-fan-root="" class="ds-fan"><ul class="ds-fan-list" role="list">${rows.map((row) => html`<li><a class="ds-fan-row" href=${row.href} data-fan-row="" data-fan-cta=${row.cta} target=${this.newTab ? '_blank' : nothing} rel=${this.newTab ? 'noreferrer' : nothing}><span class="ds-fan-anchor" data-fan-anchor=""><span class="ds-fan-name" data-fan-name="">${row.name}</span></span>${row.srLabel ? html`<span class="sr-only">${row.srLabel}</span>` : nothing}</a></li>`)}</ul><div class="ds-fan-layer" data-fan-layer="" aria-hidden="true">${places.map((p) => html`<div class="ds-fan-slot" data-fan-slot="" data-side=${p.side} data-step=${p.step}><div class="ds-fan-turn"><div class="ds-fan-chrome"></div><div class="ds-fan-pic">${rows.map((row, i) => {
 			const item = row.items[p.k]
-			return item ? html`<div class="ds-fan-img" data-fan-img="" data-row=${i} data-title=${item.title} data-meta=${item.meta ?? nothing}><img src=${item.src} alt="" sizes=${this.sizes} decoding="async" draggable="false" /></div>` : nothing
+			return item ? html`<div class="ds-fan-img" data-fan-img="" data-ds-placeholder=${isPlaceholderSrc(item.src) ? '' : nothing} data-row=${i} data-title=${item.title} data-meta=${item.meta ?? nothing}>${item.src ? html`<img src=${item.src} alt="" sizes=${this.sizes} decoding="async" draggable="false" style=${styleMap(imageFit(item) ?? {})} />` : nothing}</div>` : nothing
 		})}</div><div class="ds-fan-details" data-fan-details=""><span class="ds-fan-title" data-fan-title=""></span><span class="ds-fan-meta" data-fan-meta=""></span></div></div></div>`)}${[0, 1].map(() => html`<span class="ds-fan-cta" data-fan-cta=""><span data-fan-cta-label=""></span></span>`)}</div></div>`
 	}
 }

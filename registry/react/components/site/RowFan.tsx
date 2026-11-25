@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react'
 import { mountRowFan } from '@/lib/effects/row-fan'
 import { ROW_FAN_CSS } from '@/lib/effects/row-fan-css'
 import { cn } from '@/react/lib/cn'
+import { imageFit, isPlaceholderSrc, type ImageSlot } from '@/lib/image'
 
 // The site's row fan (ui/RowFan, as the templates page sets it): a list of big names, each a link, with a set of
 // pictures. Point at, focus or tap a name (on touch and below 1024, scroll it to the middle) and it lifts 16px while
@@ -10,7 +11,8 @@ import { cn } from '@/react/lib/cn'
 // to row on a soft spring; its line appears under the name. Point at a card and it opens with the picture's title and
 // meta. Pictures come through `rows` (your own images); the layer is hidden from assistive tech and each row's link
 // carries `srLabel`. Reduced motion: no travel or scaling, short fades.
-export interface FanItem { key: string, src: string, alt?: string, title: string, meta?: string }
+/** A card in the fan: its picture ({ src, alt, fit, position }; none, or a generated blank, is a placeholder), title and meta. */
+export interface FanItem extends ImageSlot { key: string, title: string, meta?: string }
 export interface FanRow { key: string, name: string, href: string, cta: string, srLabel?: string, items: FanItem[] }
 export interface RowFanProps {
   rows: FanRow[]
@@ -54,8 +56,8 @@ export function RowFan({ rows, sizes = '(min-width: 1024px) 128px, (min-width: 7
                   const item = row.items[p.k]
                   if (!item) return null
                   return (
-                    <div key={row.key} className="ds-fan-img" data-fan-img="" data-row={i} data-title={item.title} data-meta={item.meta}>
-                      <img src={item.src} alt="" sizes={sizes} decoding="async" draggable={false} />
+                    <div key={row.key} className="ds-fan-img" data-fan-img="" data-ds-placeholder={isPlaceholderSrc(item.src) ? '' : undefined} data-row={i} data-title={item.title} data-meta={item.meta}>
+                      {item.src ? <img src={item.src} alt="" sizes={sizes} decoding="async" draggable={false} style={imageFit(item)} /> : null}
                     </div>
                   )
                 })}

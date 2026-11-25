@@ -45,3 +45,6 @@ export function pageSections<K extends string>(all: readonly K[], given?: readon
 	for (const k of given) if ((all as readonly string[]).includes(k) && !out.includes(k as K)) out.push(k as K)
 	return out
 }
+
+/** Whether a src is a placeholder: none, or a generated blank that carries the placeholder attribute in its markup. */
+export const isPlaceholderSrc = (src?: string) => !src || src.includes(PLACEHOLDER_ATTR)

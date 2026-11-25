@@ -41,7 +41,7 @@ export function TemplatesPage({ content: c = templatesPageContent, fan, classNam
             <p className="mt-4 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft">{t.lead}</p>
           </div>
           <div className="ds-tpl-cities-rows relative">
-            {fan ?? <RowFan rows={t.rows.map((r) => ({ key: r.key, name: r.name, href: r.href, cta: r.line, srLabel: `: ${t.status.toLowerCase()}. ${r.line}`, items: r.items.map((i) => ({ ...i, src: i.src ?? '' })) }))} />}
+            {fan ?? <RowFan rows={t.rows.map((r) => ({ key: r.key, name: r.name, href: r.href, cta: r.line, srLabel: `: ${t.status.toLowerCase()}. ${r.line}`, items: r.items }))} />}
           </div>
         </section>
         <div className={cn(WRAP, 'py-(--ds-layout-section)')}>
