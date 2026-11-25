@@ -8,6 +8,7 @@ import { ringPlaceholders } from '@/lib/enterprise-ring'
 import { enterpriseFeaturesContent, type EnterpriseFeaturesContent } from '@/lib/enterprise-features'
 import { enterprisePageContent, type EnterprisePageContent } from '@/lib/pages/enterprise'
 import '@/elements/components/site/site-header'
+import '@/elements/components/visuals/ascii-trail'
 import '@/elements/components/site/enterprise-hero'
 import '@/elements/components/site/proof-strip'
 import '@/elements/components/site/automation-run'
@@ -40,7 +41,7 @@ export class EnterprisePage extends DsElement {
 	render() {
 		const c = this.content ?? enterprisePageContent
 		const wrap = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
-		return html`<div data-ds="enterprise-page" class="bg-surface text-fg"><spyglass-site-header .links=${c.header.links} .secondary=${c.header.secondary} variant="centered"></spyglass-site-header><main><spyglass-enterprise-hero .content=${c.hero} .cards=${this.cards ?? ringPlaceholders}></spyglass-enterprise-hero><section aria-label=${c.proof} class="pt-(--ds-ent-logos-above) pb-(--ds-layout-section) md:pt-(--ds-ent-logos-above-md)"><div class=${`${wrap} flex justify-center`}><spyglass-proof-strip .logos=${this.logos ?? proofPlaceholders}></spyglass-proof-strip></div></section><spyglass-automation-run .items=${this.run ?? runPlaceholders} section-id="monday-report"></spyglass-automation-run><spyglass-enterprise-features .content=${this.features ?? enterpriseFeaturesContent}></spyglass-enterprise-features><spyglass-page-close close-id="enterprise-close" .lines=${c.close.title} .note=${c.close.note} .primary=${c.close.primary} .secondary=${c.close.secondary} connect="false" texture="false"></spyglass-page-close></main><spyglass-site-footer .columns=${c.footer.columns} .legal=${c.footer.legal}></spyglass-site-footer></div>`
+		return html`<div data-ds="enterprise-page" class="isolate bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .links=${c.header.links} .secondary=${c.header.secondary} variant="centered"></spyglass-site-header><main id="main"><spyglass-enterprise-hero .content=${c.hero} .cards=${this.cards ?? ringPlaceholders}></spyglass-enterprise-hero><section aria-label=${c.proof} class="pt-(--ds-ent-logos-above) pb-(--ds-layout-section) md:pt-(--ds-ent-logos-above-md)"><div class=${`${wrap} flex justify-center`}><spyglass-proof-strip .logos=${this.logos ?? proofPlaceholders}></spyglass-proof-strip></div></section><spyglass-automation-run .items=${this.run ?? runPlaceholders} section-id="monday-report"></spyglass-automation-run><spyglass-enterprise-features .content=${this.features ?? enterpriseFeaturesContent}></spyglass-enterprise-features><spyglass-page-close close-id="enterprise-close" .lines=${c.close.title} .note=${c.close.note} .primary=${c.close.primary} .secondary=${c.close.secondary} connect="false" texture="false"></spyglass-page-close></main><spyglass-site-footer .columns=${c.footer.columns} .legal=${c.footer.legal}></spyglass-site-footer></div>`
 	}
 }
 

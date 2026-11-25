@@ -22,9 +22,7 @@ export function ResourcesPage({ content: c = resourcesContent, className }: Reso
   return (
     <div data-ds="resources-page" className={cn('isolate overflow-x-clip bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
-      <div className={CONTAINER}>
-        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
-      </div>
+      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main>
         <PageHead id={c.head.id} lines={c.head.lines} lead={c.head.lead} />
         <section aria-label={c.head.lines.join(' ')}>

@@ -1,4 +1,3 @@
-import { DispersionField } from '@/react/components/visuals/DispersionField'
 import { PageClose } from '@/react/components/site/PageClose'
 import { ProductCompare } from '@/react/components/site/ProductCompare'
 import { ProductFeatures } from '@/react/components/site/ProductFeatures'
@@ -7,6 +6,7 @@ import { ProductPricing } from '@/react/components/site/ProductPricing'
 import { ProductVisual } from '@/react/components/site/ProductVisual'
 import { ProofBlock } from '@/react/components/site/ProofBlock'
 import { SiteHeader } from '@/react/components/site/SiteHeader'
+import { AsciiTrail } from '@/react/components/visuals/AsciiTrail'
 import { FaqBlock } from '@/react/components/blocks/FaqBlock'
 import { SiteFooter } from '@/react/components/blocks/SiteFooter'
 import { productContent, type ProductContent, type ProductPageContent } from '@/lib/pages/product'
@@ -31,9 +31,10 @@ const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-lay
 export function ProductPage({ product, content: c = productContent, live = false, className }: ProductPageProps) {
   const p = product ?? c.product
   return (
-    <div data-ds="product-page" className={cn('bg-surface text-fg', className)}>
+    <div data-ds="product-page" className={cn('isolate bg-surface text-fg', className)}>
+      <AsciiTrail mode="page" />
       <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
-      <main>
+      <main id="main">
         <ProductHero
           id={p.slug}
           name={p.name}
@@ -42,10 +43,10 @@ export function ProductPage({ product, content: c = productContent, live = false
           secondary={{ label: c.docsLabel, href: p.docs }}
           sets={p.hero.sets}
           lit={p.hero.lit !== false}
-          light={live ? <DispersionField composition="works" seed={7} className="absolute inset-0 size-full" /> : undefined}
+          live={live}
         />
         <ProofBlock id={`${p.slug}-proof`} title={c.proof} />
-        <ProductFeatures id={p.slug} features={p.features.map((f, i) => ({ headline: f.headline, text: f.text, link: f.link, visual: <ProductVisual kind={f.visual} texture={i % 4} /> }))} />
+        <ProductFeatures id={p.slug} features={p.features.map((f, i) => ({ headline: f.headline, text: f.text, link: f.link, visual: <ProductVisual kind={f.visual} texture={false} /> }))} />
         {p.compare?.length ? <ProductCompare id={p.slug} rows={p.compare} /> : null}
         <ProductPricing id={p.slug} value={p.pricing.value} unit={p.pricing.unit} product={p.name} rows={p.pricing.rows} free={p.pricing.free} tally={p.pricing.tally} note={c.pricing.note} primary={c.primary} secondary={c.pricing.secondary} />
         <div className={cn(WRAP, 'py-(--ds-layout-section)')}>

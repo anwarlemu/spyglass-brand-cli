@@ -4,6 +4,7 @@ import { EnterpriseHero } from '@/react/components/site/EnterpriseHero'
 import { PageClose } from '@/react/components/site/PageClose'
 import { ProofStrip, proofPlaceholders, type ProofLogo } from '@/react/components/site/ProofStrip'
 import { SiteHeader } from '@/react/components/site/SiteHeader'
+import { AsciiTrail } from '@/react/components/visuals/AsciiTrail'
 import { SiteFooter } from '@/react/components/blocks/SiteFooter'
 import type { RunItem } from '@/lib/automation-run'
 import type { RingCard } from '@/lib/enterprise-ring'
@@ -29,9 +30,10 @@ const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-lay
 
 export function EnterprisePage({ content: c = enterprisePageContent, cards, logos = proofPlaceholders, run, features, className }: EnterprisePageProps) {
   return (
-    <div data-ds="enterprise-page" className={cn('bg-surface text-fg', className)}>
+    <div data-ds="enterprise-page" className={cn('isolate bg-surface text-fg', className)}>
+      <AsciiTrail mode="page" />
       <SiteHeader links={c.header.links} secondary={c.header.secondary} variant="centered" />
-      <main>
+      <main id="main">
         <EnterpriseHero content={c.hero} cards={cards} />
         <section aria-label={c.proof} className="pt-(--ds-ent-logos-above) pb-(--ds-layout-section) md:pt-(--ds-ent-logos-above-md)">
           <div className={cn(WRAP, 'flex justify-center')}>

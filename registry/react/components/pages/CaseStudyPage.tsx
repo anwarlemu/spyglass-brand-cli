@@ -48,9 +48,7 @@ export function CaseStudyPage({ study: s = caseStudies[0], content: c = caseStud
   return (
     <div data-ds="case-study-page" className={cn('isolate overflow-x-clip bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
-      <div className={CONTAINER}>
-        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
-      </div>
+      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main>
         <article aria-labelledby={id} className="relative isolate overflow-x-clip">
           <div className="relative">

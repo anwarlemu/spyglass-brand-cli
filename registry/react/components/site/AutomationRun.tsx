@@ -74,7 +74,7 @@ export function AutomationRun({ items = runPlaceholders, content: c = runContent
 										onFocus={(e) => { if (e.currentTarget.matches(':focus-visible')) api.current?.setFocused(i) }}
 										onBlur={() => api.current?.setFocused(null)}
 									>
-										{a.video ? <video src={a.video} poster={a.src} muted loop autoPlay playsInline preload="metadata" draggable={false} /> : a.src ? <img src={a.src} alt="" draggable={false} /> : null}
+										{a.video ? <video src={a.video} poster={a.src} muted loop playsInline preload="metadata" draggable={false} /> : a.src ? <img src={a.src} alt="" draggable={false} /> : null}
 									</button>
 								</div>
 							</div>

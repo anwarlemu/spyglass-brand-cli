@@ -32,6 +32,7 @@ export const pricingContent = {
 	note: { lead: 'Save 20%', rest: ' on a yearly subscription' },
 	plans,
 	compare: {
+		id: 'compare',
 		label: 'Compare plans',
 		plans: plans.map((p) => ({ key: p.name.toLowerCase(), name: p.name })),
 		defaultPlan: 'pro',
@@ -100,6 +101,7 @@ export const pricingContent = {
 		],
 	},
 	faq: {
+		id: 'pricing-faq',
 		title: 'Questions about pricing',
 		lead: 'Anything else, ask us.',
 		action: { label: 'Talk to us', href: '/contact' },

@@ -2,7 +2,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { Button } from '@/react/components/ui/Button'
 import { ASCII_TEXTURE } from '@/lib/textures'
-import { placeRingTag, ringAspect, ringCardLabel, ringCss, ringIntent, ringPlaceStyle, ringPlaceholders, watchRing, RING_PLACES, type RingCard } from '@/lib/enterprise-ring'
+import { placeRingTag, preloadNextRingCard, ringAspect, ringCardLabel, ringCss, ringIntent, ringPlaceStyle, ringPlaceholders, watchRing, RING_PLACES, type RingCard } from '@/lib/enterprise-ring'
 import { enterpriseHeroContent, type EnterpriseHeroContent } from '@/lib/pages/enterprise'
 import { cn } from '@/react/lib/cn'
 
@@ -59,6 +59,8 @@ export function EnterpriseHero({ content: c = enterpriseHeroContent, cards = rin
 	useEffect(() => {
 		busy.current = shown !== null
 	}, [shown])
+
+	useEffect(() => preloadNextRingCard(sets, shown, at), [shown, at, sets])
 
 	useEffect(() => {
 		const ring = ringRef.current

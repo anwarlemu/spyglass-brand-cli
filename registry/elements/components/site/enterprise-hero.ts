@@ -4,7 +4,7 @@ import { styleMap } from 'lit/directives/style-map.js'
 import { keyed } from 'lit/directives/keyed.js'
 import { DsElement, define, HostLayoutController } from '@/elements/lib/element'
 import { ASCII_TEXTURE } from '@/lib/textures'
-import { placeRingTag, ringAspect, ringCardLabel, ringCss, ringIntent, ringPlaceStyle, ringPlaceholders, watchRing, RING_PLACES, type RingCard, type RingWatch } from '@/lib/enterprise-ring'
+import { placeRingTag, preloadNextRingCard, ringAspect, ringCardLabel, ringCss, ringIntent, ringPlaceStyle, ringPlaceholders, watchRing, RING_PLACES, type RingCard, type RingWatch } from '@/lib/enterprise-ring'
 import { enterpriseHeroContent, type EnterpriseHeroContent } from '@/lib/pages/enterprise'
 import '@/elements/components/ui/button'
 import styles from 'virtual:tw'
@@ -83,6 +83,7 @@ export class EnterpriseHero extends DsElement {
 	}
 	protected updated(changed: PropertyValues) {
 		super.updated(changed)
+		if (changed.has('shown') || changed.has('at')) preloadNextRingCard((this.cards ?? ringPlaceholders).slice(0, RING_PLACES.length), this.shown, this.at)
 		if (changed.has('held') || changed.has('at') || changed.has('stepped')) {
 			const el = this.held === null ? null : this.renderRoot.querySelectorAll<HTMLElement>('[data-ring-place]')[this.held]
 			const section = this.#section

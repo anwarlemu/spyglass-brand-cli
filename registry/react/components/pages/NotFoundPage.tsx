@@ -18,9 +18,7 @@ export function NotFoundPage({ content: c = notFoundContent, className }: NotFou
   return (
     <div data-ds="not-found-page" className={cn('isolate bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
-      <div className="relative z-10 mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)">
-        <SiteHeader links={c.shell.header.nav} secondary={c.shell.header.secondary} />
-      </div>
+      <SiteHeader links={c.shell.header.nav} secondary={c.shell.header.secondary} />
       <main id="main">
         <div className="-mb-6 md:-mb-5 lg:-mb-3">
           <PageHead id="not-found" lines={c.lines} lead={c.lead} primary={c.primary} secondary={c.secondary} />

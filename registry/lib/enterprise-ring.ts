@@ -67,6 +67,17 @@ export const ringPlaceholders: RingCard[][] = [
 	[card('Acme Beauty', 'Warm bronzer', '4:5', 'New launch reveal', 'Ran 49 days', 2), card('Acme Skin', 'Peach stack', '4:5', 'New launch reveal', 'Ran 5 days', 4), card('Acme Beauty', 'The fragrance', '1:1', 'New launch reveal', 'Ran 138 days', 3)],
 ]
 
+/** Starts loading the creative a press on card `i` would show next, so a real picture never flashes blank (the site's HeroRing does the same when a card comes forward). */
+export function preloadNextRingCard(sets: RingCard[][], i: number | null, at: number[]) {
+	if (i === null || typeof Image === 'undefined') return
+	const set = sets[i]
+	const src = set?.[((at[i] ?? 0) + 1) % set.length]?.src
+	if (!src) return
+	const img = new Image()
+	img.src = src
+	img.decode().catch(() => undefined)
+}
+
 export const ringCardLabel = (c: RingCard, at: number, of: number) => `${c.brand}: ${c.title}. Hook: ${c.hook.toLowerCase()}. ${c.meta.join(', ')}. ${at + 1} of ${of} with this hook. Show the next one.`
 
 // The ring's CSS, the same for both flavors. The place's size follows the room the hero has (container units); from
@@ -94,7 +105,7 @@ export const ringCss = `
 .ds-ring-place[data-forward] .ds-ring-card { scale: var(--ds-ent-ring-forward); }
 @media (hover: hover) and (pointer: fine) { .ds-ring-card:hover { scale: var(--ds-ent-ring-forward); } }
 .ds-ring-card:active, .ds-ring-place[data-forward] .ds-ring-card:active { scale: var(--ds-ent-ring-press); transition-duration: var(--ds-duration-press); }
-.ds-ring-frame { position: relative; display: block; width: 100%; border-radius: inherit; overflow: hidden; background: var(--ds-color-surface-raised); }
+.ds-ring-frame { position: relative; display: block; width: 100%; border-radius: inherit; overflow: hidden; background: var(--ds-color-surface-raised); transition: aspect-ratio var(--ds-duration-glide) var(--ds-ent-ring-ease-hover); }
 .ds-ring-frame img { display: block; width: 100%; height: 100%; object-fit: cover; user-select: none; }
 .ds-ring-frame[data-tone="1"] { background: linear-gradient(to bottom, var(--ds-color-neutral-4), var(--ds-color-neutral-2)); }
 .ds-ring-frame[data-tone="2"] { background: linear-gradient(to bottom, var(--ds-color-neutral-5), var(--ds-color-neutral-3)); }
@@ -123,7 +134,7 @@ export const ringCss = `
 }
 @media (prefers-reduced-motion: reduce) {
   .ds-ring-place, .ds-ring-card, .ds-ring-frame[data-stepped] > *, .ds-ring-tag[data-shown] { animation: none; }
-  .ds-ring-card { transition: none; }
+  .ds-ring-card, .ds-ring-frame { transition: none; }
   .ds-ring-place[data-forward] .ds-ring-card, .ds-ring-card:hover, .ds-ring-card:active { scale: none; }
 }
 .ds-ent-hero-ascii { display: none; }

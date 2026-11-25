@@ -39,7 +39,7 @@ export function ProductFeatures({ features, id = 'product', className }: Product
             <div className={cn('flex flex-col items-start', i % 2 ? 'lg:order-2' : '')}>
               <h2 id={`${id}-feature-${i + 1}`} className="ds-pf-title">{f.headline}</h2>
               <p className="mt-4 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft">{f.text}</p>
-              {f.link && <Button href={f.link.href} variant="secondary" className="mt-8">{f.link.label}</Button>}
+              {f.link && <Button href={f.link.href} variant="secondary" className="mt-8 max-md:w-full">{f.link.label}</Button>}
             </div>
             <div className="ds-pf-stage relative isolate aspect-4/3 min-w-0 overflow-clip rounded-panel bg-surface-raised">
               <span aria-hidden="true" className="ds-pf-ascii" style={{ backgroundImage: `url("${ASCII_TEXTURE}")`, backgroundPosition: FEATURE_ASCII_AT[i % FEATURE_ASCII_AT.length] }} />

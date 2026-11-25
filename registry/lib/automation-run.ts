@@ -600,8 +600,19 @@ export function startRun({ root, stage, note, head, cards, setShown, setNoted }:
 		wake()
 	}, { rootMargin: '0px 0px 25% 0px', threshold: [0] })
 	if (deliveredAt === null) deliver.observe(stage)
+	// Card videos play only while the run is on screen, the tab is visible and motion is not reduced (a reduced-motion
+	// reader sees each video's poster).
+	const videos = () => [...stage.querySelectorAll<HTMLVideoElement>('video')]
+	const playVideos = () => {
+		const on = inView && !document.hidden && !reduce.matches
+		for (const v of videos()) {
+			if (on && v.paused) v.play().catch(() => undefined)
+			else if (!on && !v.paused) v.pause()
+		}
+	}
 	const io = new IntersectionObserver(([entry]) => {
 		inView = entry.isIntersecting
+		playVideos()
 		wake()
 	}, { rootMargin: '100px' })
 	io.observe(stage)
@@ -613,8 +624,12 @@ export function startRun({ root, stage, note, head, cards, setShown, setNoted }:
 	})
 	ro.observe(stage)
 	ro.observe(head)
-	const onVisible = () => wake()
+	const onVisible = () => {
+		playVideos()
+		wake()
+	}
 	const onReduce = () => {
+		playVideos()
 		g = readGeometry(stage)
 		hovered = null
 		tapped = null

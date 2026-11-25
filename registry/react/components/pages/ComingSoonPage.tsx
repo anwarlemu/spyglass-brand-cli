@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react'
 import { PageClose } from '@/react/components/site/PageClose'
 import { PageHead } from '@/react/components/site/PageHead'
 import { SiteHeader } from '@/react/components/site/SiteHeader'
+import { AsciiTrail } from '@/react/components/visuals/AsciiTrail'
 import { SiteFooter } from '@/react/components/blocks/SiteFooter'
 import { SideDrifts } from '@/react/components/visuals/SideDrifts'
 import { comingSoonContent, type ComingSoonContent } from '@/lib/pages/coming-soon'
@@ -32,10 +33,11 @@ function Mark({ src, className }: { src?: string, className: string }) {
 export function ComingSoonPage({ content: c = comingSoonContent, className }: ComingSoonPageProps) {
   const odd = c.next.length % 2 === 1
   return (
-    <div data-ds="coming-soon-page" className={cn('bg-surface text-fg', className)} style={{ '--ascii-alpha': `url("${ASCII_TEXTURE_ALPHA}")` } as CSSProperties}>
+    <div data-ds="coming-soon-page" className={cn('isolate bg-surface text-fg', className)} style={{ '--ascii-alpha': `url("${ASCII_TEXTURE_ALPHA}")` } as CSSProperties}>
       <style href="ds-coming-soon-page" precedence="ds">{css}</style>
+      <AsciiTrail mode="page" />
       <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
-      <main>
+      <main id="main">
         <PageHead id="coming-soon" lines={c.head.lines} lead={c.head.lead} primary={c.head.primary} secondary={c.head.secondary} />
         <section aria-label={c.nextLabel} className="relative isolate pb-16 md:pb-20">
           <SideDrifts />
@@ -68,7 +70,7 @@ export function ComingSoonPage({ content: c = comingSoonContent, className }: Co
         </section>
         <section aria-labelledby="also-heading" className="pb-(--ds-layout-section)">
           <div className={WRAP}>
-            <h2 id="also-heading" className="m-0 mb-6 type-heading-3">{c.also.title}</h2>
+            <h2 id="also-heading" className="m-0 mb-6 type-heading-4 md:type-heading-3">{c.also.title}</h2>
             <ul role="list" className="m-0 grid list-none grid-cols-2 gap-4 p-0 md:grid-cols-4">
               {c.also.sources.map((s) => (
                 <li key={s.name} className="flex min-w-0 items-center gap-3 rounded-panel bg-surface-raised p-4">
