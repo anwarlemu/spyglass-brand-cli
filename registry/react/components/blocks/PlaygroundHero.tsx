@@ -4,24 +4,32 @@ import { Button } from '@/react/components/ui/Button'
 import { ConnectMenu } from '@/react/components/site/ConnectMenu'
 import { McpSession } from '@/react/components/site/McpSession'
 import { LightImage } from '@/react/components/visuals/LightImage'
+import { AsciiTrail } from '@/react/components/visuals/AsciiTrail'
+import { ASCII_TEXTURE } from '@/lib/textures'
 import { asciiDriftStyleObject } from '@/lib/ascii-drift'
 import type { ConnectContent } from '@/lib/connect'
 import type { SessionContent } from '@/lib/home/session'
 import { heroContent, writeInto, type HeroContent, type Typing } from '@/lib/home/hero'
 import { sentences } from '@/lib/home/pricing'
 import { cn } from '@/react/lib/cn'
+import { followGlow } from '@/lib/glow'
 
 // The home hero (site v3/V3Playground as the hero, with HeroPrompt): the headline, the lead, the connect menu beside the
 // quiet button, and the prompt card, which types example questions into its field one after another (a mouse over it
 // or focus in the field holds the whole question; Enter or the White send button goes to `prompt.action`), with the
 // clients it works in under a hairline; then the note, and under it a 16/9 frame playing the MCP session with the
-// site's light band crossing behind it, sliding and bobbing slowly (still with reduced motion). On phones the prompt
-// and the menu step aside: the quiet button takes the full width, the band gives way to two ASCII drifts at the
+// site's light band crossing behind it, sliding and bobbing slowly (still with reduced motion, paused off screen), a
+// faint ASCII trail along it under a mouse, and from 1024 the texture flanking the prompt. The send button carries the
+// White button's glow; the form goes straight to `prompt.action`, and outside clients open in a new tab. `marks` puts
+// the clients' marks in the connect menu's button. On phones the prompt and the menu step aside: the key button turns
+// White (the hero's one White button) and takes the full width, the band gives way to two ASCII drifts at the
 // top. `children` replaces the frame's content (a product video).
 export interface PlaygroundHeroProps {
   content?: HeroContent
   connect?: ConnectContent
   session?: SessionContent
+  /** The clients' marks before the connect menu's label (SVG URLs; your own or licensed marks). */
+  marks?: string[]
   children?: ReactNode
   className?: string
 }
@@ -49,7 +57,7 @@ function HeroPrompt({ c }: { c: HeroContent['prompt'] }) {
     }
   }, [index, c.questions.length])
   return (
-    <form className="ds-hp" action={c.action} onPointerEnter={(e) => { if (e.pointerType !== 'mouse') return; holds.current.pointer = true; sync() }} onPointerLeave={(e) => { if (e.pointerType !== 'mouse') return; holds.current.pointer = false; sync() }}>
+    <form className="ds-hp" action={c.action} onSubmit={(e) => { e.preventDefault(); window.location.assign(e.currentTarget.action) }} onPointerEnter={(e) => { if (e.pointerType !== 'mouse') return; holds.current.pointer = true; sync() }} onPointerLeave={(e) => { if (e.pointerType !== 'mouse') return; holds.current.pointer = false; sync() }}>
       <div className="ds-hp-row">
         <div className="ds-hp-field">
           <label className="sr-only" htmlFor="ds-hero-ask">{c.label}</label>
@@ -61,7 +69,7 @@ function HeroPrompt({ c }: { c: HeroContent['prompt'] }) {
             {Array.from(current).map((ch, i) => <span key={`${index}-${i}`} className="ds-hp-ch" data-ch="">{ch}</span>)}
           </span>
         </div>
-        <button type="submit" className="ds-hp-send" aria-label={c.send} title={c.send}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19.5v-15M6 10.5l6-6 6 6" /></svg></button>
+        <button type="submit" className="ds-hp-send" aria-label={c.send} title={c.send} onPointerMove={(e) => followGlow(e.currentTarget, e)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19.5v-15M6 10.5l6-6 6 6" /></svg></button>
       </div>
       <div className="ds-hp-works">
         <p className="ds-hp-works-label">{c.worksLabel}</p>
@@ -70,7 +78,7 @@ function HeroPrompt({ c }: { c: HeroContent['prompt'] }) {
             const icon = client.src ? <span className="ds-hp-mark" style={{ '--mark': `url("${client.src}")` } as CSSProperties} aria-hidden="true" /> : <svg className="ds-hp-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d={CODE} /></svg>
             return (
               <li key={client.name}>
-                {client.href ? <a className="ds-hp-client" href={client.href}>{icon}{client.name}</a> : (
+                {client.href ? <a className="ds-hp-client" href={client.href} {...(client.href.startsWith('http') ? { target: '_blank', rel: 'noreferrer' } : null)}>{icon}{client.name}</a> : (
                   <button type="button" className="ds-hp-client" onClick={async () => {
                     if (!client.copy) return
                     try {
@@ -93,11 +101,20 @@ function HeroPrompt({ c }: { c: HeroContent['prompt'] }) {
   )
 }
 
-export function PlaygroundHero({ content: c = heroContent, connect, session, children, className }: PlaygroundHeroProps) {
+export function PlaygroundHero({ content: c = heroContent, connect, session, marks, children, className }: PlaygroundHeroProps) {
+  const light = useRef<HTMLSpanElement>(null)
+  useEffect(() => {
+    const el = light.current
+    if (!el) return
+    const view = new IntersectionObserver(([entry]) => el.toggleAttribute('data-offscreen', !entry.isIntersecting))
+    view.observe(el)
+    return () => view.disconnect()
+  }, [])
   return (
     <section data-ds="playground-hero" className={cn('ds-ph text-fg', className)}>
       <style href="ds-playground-hero" precedence="ds">{css}</style>
-      <span className="ds-ph-light" aria-hidden="true"><span className="ds-ph-slide"><span className="ds-ph-bob"><LightImage art="hero-band" grain={false} still priority className="absolute inset-0 size-full" /></span></span></span>
+      <span ref={light} className="ds-ph-light" aria-hidden="true"><span className="ds-ph-slide"><span className="ds-ph-bob"><LightImage art="hero-band" grain={false} still priority className="absolute inset-0 size-full" /></span></span></span>
+      <AsciiTrail className="ds-ph-trail" />
       <span className="ds-ph-drift" data-side="left" aria-hidden="true" style={asciiDriftStyleObject('column', 'left', 'hero')} />
       <span className="ds-ph-drift" data-side="right" aria-hidden="true" style={asciiDriftStyleObject('scatter', 'right', 'hero')} />
       <div className={cn(CONTAINER, 'ds-ph-inner')}>
@@ -105,10 +122,11 @@ export function PlaygroundHero({ content: c = heroContent, connect, session, chi
           <h1 className="type-section">{c.headline}</h1>
           <p className="max-w-(--ds-layout-measure) type-body-lg text-fg-soft">{c.lead}</p>
           <div className="ds-ph-actions">
-            <div className="ds-ph-connect"><ConnectMenu content={connect} /></div>
+            <div className="ds-ph-connect"><ConnectMenu content={connect} marks={marks} /></div>
             <Button href={c.secondary.href} variant="secondary">{c.secondary.label}</Button>
           </div>
           <div className="ds-ph-ask">
+            <span className="ds-ph-ascii" aria-hidden="true" style={{ '--tex': `url("${ASCII_TEXTURE}")` } as CSSProperties} />
             <HeroPrompt c={c.prompt} />
             <p className="ds-ph-note type-body">{sentences(c.note).map((s, i) => <span key={s}>{i > 0 ? ' ' : null}<span className="max-md:inline-block">{s}</span></span>)}</p>
           </div>
@@ -156,18 +174,48 @@ const css = `
 @keyframes ds-ph-slide { from { translate: calc(var(--ds-hero-band-slide) * var(--k) * -1) 0; } to { translate: calc(var(--ds-hero-band-slide) * var(--k)) 0; } }
 @keyframes ds-ph-bob { from { translate: 0 calc(var(--ds-hero-band-bob) * var(--k) * -1); } to { translate: 0 calc(var(--ds-hero-band-bob) * var(--k)); } }
 @media (prefers-reduced-motion: reduce) { .ds-ph-slide, .ds-ph-bob { animation: none; } }
+/* The section's own trail, along the band at the faint strength (V3Playground .trail, option a's --trail-strength). */
+.ds-ph-trail {
+  --k: max(min(100cqw / 1920, 1px), 100cqw / 2600);
+  --frame-w: min(100cqw - 2 * var(--ds-layout-gutter), 1152px);
+  --frame-top: calc(96px + var(--frame-w) * 9 / 16);
+  position: absolute; z-index: 0; inset: auto 0 calc(var(--frame-top) - (var(--ds-hero-band-h) - var(--ds-hero-band-y) - var(--ds-hero-band-cross)) * var(--k));
+  width: 100%; height: calc(var(--ds-hero-band-h) * var(--k)); opacity: var(--ds-ascii-faint);
+}
+/* The light pauses while it is off screen (LightImage [data-offscreen]). */
+.ds-ph-light[data-offscreen] .ds-ph-slide, .ds-ph-light[data-offscreen] .ds-ph-bob { animation-play-state: paused; }
+/* The texture flanking the prompt from 1024, clear of the card with a feathered edge (V3Playground .heroAscii). */
+.ds-ph-ascii { display: none; }
+@media (min-width: 1024px) {
+  .ds-ph-ascii {
+    --ask-clear: calc(min(800px, 100vw - 2 * var(--ds-layout-gutter)) / 2 + 64px);
+    --ask-feather: 96px;
+    position: absolute; z-index: -1; top: -160px; bottom: -240px; left: 50%; display: block; width: 100vw; translate: -50%;
+    background: var(--tex) left bottom / var(--ds-ascii-tile) no-repeat, var(--tex) right bottom / var(--ds-ascii-tile) no-repeat;
+    pointer-events: none;
+    mask-image:
+      linear-gradient(to right, var(--ds-color-black) calc(50% - var(--ask-clear) - var(--ask-feather)), transparent calc(50% - var(--ask-clear)), transparent calc(50% + var(--ask-clear)), var(--ds-color-black) calc(50% + var(--ask-clear) + var(--ask-feather))),
+      linear-gradient(to bottom, transparent, var(--ds-color-black) 160px, var(--ds-color-black) calc(100% - 128px), transparent);
+    mask-composite: intersect;
+  }
+}
 @media (width < 768px) {
   .ds-ph-light { display: none; }
   .ds-ph-head { min-height: calc(100svh - var(--ds-size-header)); justify-content: center; padding-block: 32px; }
   .ds-ph-ask { margin-top: 0; }
   .ds-ph-actions { flex-direction: column; align-self: stretch; }
   .ds-ph-connect, .ds-ph-ask > form { display: none; }
+  /* V3Playground .actions .apiKey: with the menu gone, the key button is the hero's one White button. */
+  .ds-ph-actions { --ds-color-action-secondary: var(--ds-color-action-primary); --ds-color-action-secondary-hover: var(--ds-color-action-primary-hover); --ds-color-action-secondary-fg: var(--ds-color-action-primary-fg); --ds-color-action-secondary-edge: var(--ds-color-action-primary); --ds-color-action-secondary-edge-hover: var(--ds-color-action-primary-hover); }
   .ds-ph-frame { border-radius: var(--ds-radius-control); }
 }
 
 /* The prompt */
-.ds-hp { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; max-width: 800px; padding: 12px 12px 0; border-radius: var(--ds-radius-lg); background: var(--ds-color-surface-subtle); outline: var(--ds-border-hairline) solid var(--ds-color-edge-strong); outline-offset: calc(-1 * var(--ds-border-hairline)); text-align: left; transition: outline-color var(--ds-duration-micro) var(--ds-easing-out); }
+.ds-hp { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; max-width: 800px; padding: 12px 12px 0; border-radius: var(--ds-radius-lg); background: var(--ds-color-surface-subtle); outline: var(--ds-border-hairline) solid var(--ds-color-edge-strong); outline-offset: calc(-1 * var(--ds-border-hairline)); text-align: left; transition: outline-color var(--ds-duration-micro) var(--ds-easing-out); }
 .ds-hp:has(.ds-hp-input:focus, :focus-visible) { outline-color: var(--ds-color-fg-muted); }
+/* The 2px ring outside the card on focus (HeroPrompt .card:has(:focus)), drawn as a frame, not a shadow. */
+.ds-hp::after { content: ""; position: absolute; inset: calc(-1 * var(--ds-border-focus)); border: var(--ds-border-focus) solid var(--ds-color-edge-strong); border-radius: calc(var(--ds-radius-lg) + var(--ds-border-focus)); opacity: 0; pointer-events: none; transition: opacity var(--ds-duration-micro) var(--ds-easing-out); }
+.ds-hp:has(.ds-hp-input:focus, :focus-visible)::after { opacity: 1; }
 .ds-hp-row { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: flex-end; gap: 12px; padding-block: 0 12px; }
 .ds-hp-field { position: relative; flex: 1 1 100%; min-width: 0; }
 .ds-hp-input { display: block; width: 100%; height: calc(var(--ds-text-body) * var(--ds-text-body-leading) * 2 + 24px); padding: 12px 16px; border: 0; border-radius: var(--ds-radius-control); background: transparent; font-family: var(--ds-font-text); font-size: var(--ds-text-body); line-height: var(--ds-text-body-leading); color: var(--ds-color-fg); resize: none; }
@@ -178,10 +226,15 @@ const css = `
 @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
   .ds-hp-ghost[data-typing] .ds-hp-ch:not([data-on]) { display: none; }
   .ds-hp-ghost[data-typing] .ds-hp-ch[data-on] { animation: ds-hp-key-in var(--ds-duration-press) linear; }
+  .ds-hp-ghost[data-typing] .ds-hp-ch[data-out] { animation: ds-hp-key-out var(--ds-duration-stagger) linear forwards; }
 }
 @keyframes ds-hp-key-in { from { opacity: 0; } }
-.ds-hp-send { flex: none; display: grid; place-items: center; width: var(--ds-size-control-md); height: var(--ds-size-control-md); padding: 0; border: 0; border-radius: var(--ds-radius-control); background: var(--ds-color-action-primary); color: var(--ds-color-action-primary-fg); cursor: pointer; transition: background-color var(--ds-duration-micro) var(--ds-easing-out); }
-@media (hover: hover) and (pointer: fine) { .ds-hp-send:hover { background: var(--ds-color-action-primary-hover); } }
+@keyframes ds-hp-key-out { to { opacity: 0; } }
+.ds-hp-send { position: relative; isolation: isolate; overflow: hidden; flex: none; display: grid; place-items: center; width: var(--ds-size-control-md); height: var(--ds-size-control-md); padding: 0; border: 0; border-radius: var(--ds-radius-control); background: var(--ds-color-action-primary); color: var(--ds-color-action-primary-fg); cursor: pointer; transition: background-color var(--ds-duration-micro) var(--ds-easing-out); }
+/* The White button's glow (the site's .btn--primary::before): a gradient at the pointer, under a mouse only. */
+.ds-hp-send::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle var(--ds-glow-radius) at var(--glow-x, 50%) var(--glow-y, 50%), var(--ds-color-action-glow), transparent); opacity: 0; pointer-events: none; transition: opacity var(--ds-duration-enter) var(--ds-easing-out); }
+@media (hover: hover) and (pointer: fine) { .ds-hp-send:hover { background: var(--ds-color-action-primary-hover); } .ds-hp-send:hover::before { opacity: 1; } }
+@media (pointer: coarse) { .ds-hp-send { overflow: visible; } .ds-hp-send::after { content: ""; position: absolute; inset: -4px; } }
 .ds-hp-send:focus-visible { outline: var(--ds-border-focus) solid var(--ds-color-fg); outline-offset: var(--ds-border-focus); }
 .ds-hp-send svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .ds-hp-works { display: grid; gap: 8px; padding: 12px 16px; border-top: var(--ds-border-hairline) solid var(--ds-color-edge); }
@@ -201,5 +254,5 @@ const css = `
   .ds-hp-field { flex: 1; }
   .ds-hp-works { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 }
-@media (prefers-reduced-motion: reduce) { .ds-hp, .ds-hp-send, .ds-hp-client { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .ds-hp, .ds-hp::after, .ds-hp-send, .ds-hp-send::before, .ds-hp-client { transition: none; } }
 `

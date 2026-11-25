@@ -1,6 +1,6 @@
 import { html, type PropertyValues } from 'lit'
 import { DsElement, define } from '@/elements/lib/element'
-import { pointerEffectsOn } from '@/lib/effects/pointer'
+import { whilePointerEffects } from '@/lib/effects/pointer'
 import styles from 'virtual:tw'
 
 // AsciiTrail.tsx as <spyglass-ascii-trail>: a mouse leaves a short trail of ASCII characters that fades in 700ms.
@@ -38,12 +38,10 @@ export class AsciiTrail extends DsElement {
 	private start() {
 		this.halt()
 		const canvas = this.renderRoot.querySelector('canvas')
-		if (!canvas || !pointerEffectsOn()) return
-		const run = this.run
+		if (!canvas) return
 		const mode = this.mode === 'page' ? 'page' : 'section'
-		void import('@/lib/effects/ascii-trail').then(({ startTrail }) => {
-			if (run === this.run) this.stop = startTrail(canvas, mode, this.parentElement)
-		})
+		const area = this.parentElement
+		this.stop = whilePointerEffects(() => import('@/lib/effects/ascii-trail').then(({ startTrail }) => startTrail(canvas, mode, area)))
 	}
 
 	protected updated(changed: PropertyValues) {

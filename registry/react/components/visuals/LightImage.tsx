@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react'
 import { startGrain } from '@/lib/effects/grain'
 import { LIGHT_ART, type LightArtName } from '@/lib/effects/light-art'
 import { LIGHT_IMAGE_CSS } from '@/lib/effects/light-image'
-import { pointerEffectsOn } from '@/lib/effects/pointer'
+import { whilePointerEffects } from '@/lib/effects/pointer'
 import { cn } from '@/react/lib/cn'
 
 // The site's light image (effect/LightImage): one of the site's pre-made light pictures (`art`, lib/effects/light-art.ts,
@@ -11,7 +11,8 @@ import { cn } from '@/react/lib/cn'
 // pointer and no reduced motion, the light is redrawn in WebGL from the mask, its Blue, Green and Red split `split` px,
 // and a lens magnifies it and widens the split around the pointer. The box keeps the picture's frame (`width`, `height`
 // in px); the classes size and place it and must position it (`absolute` behind a section, or `relative`). `still`
-// keeps the grain and drops the lens (a fixed frame). Decoration: hidden from assistive tech, never under reading text.
+// keeps the grain and drops the lens (a fixed frame); without the lens the box carries `data-offscreen` while it is off
+// screen, for a drift around it to pause on. The lens starts and stops as the pointer and motion settings change. Decoration: hidden from assistive tech, never under reading text.
 export interface LightImageProps {
   /** One of the site's own light pictures, with its mask, frame and split: hero-band or pricing. */
   art?: LightArtName
@@ -54,17 +55,21 @@ export function LightImage({ art = 'hero-band', picture: ownPicture, mask: ownMa
   useEffect(() => {
     const box = boxRef.current
     const canvas = lensRef.current
-    if (!box || !canvas || !mask || still || !pointerEffectsOn()) return
-    let stop: (() => void) | null = null
-    let gone = false
-    void import('@/lib/effects/lens-gl').then(({ startLens }) => {
-      if (!gone) stop = startLens({ box, canvas, mask, width, height, split })
-    })
-    return () => {
-      gone = true
-      stop?.()
-    }
+    if (!box || !canvas || !mask || still) return
+    return whilePointerEffects(() => import('@/lib/effects/lens-gl').then(({ startLens }) => startLens({ box, canvas, mask, width, height, split })))
   }, [mask, width, height, split, still])
+
+  // Without the lens, the box says when it is off screen (data-offscreen), so a drifting light around it can pause.
+  useEffect(() => {
+    const box = boxRef.current
+    if (!box || (mask && !still)) return
+    const view = new IntersectionObserver(([entry]) => box.toggleAttribute('data-offscreen', !entry.isIntersecting))
+    view.observe(box)
+    return () => {
+      view.disconnect()
+      box.removeAttribute('data-offscreen')
+    }
+  }, [mask, still])
 
   return (
     <span ref={boxRef} data-ds="light-image" aria-hidden="true" className={cn('ds-light-image block', className)}>

@@ -11,7 +11,7 @@ import { cn } from '@/react/lib/cn'
 // The home's set-up section (site v2/V2HowItWorks): on the left the headline, the lead, three numbered steps between
 // hairlines, the connect menu beside the quiet button and the clients' marks (under a mouse the others dim and the
 // mark's name appears under it; color and opacity only); on the right the MCP session playing (mcp-session). Five to
-// seven columns from 1024, stacked below, centered head and full-width buttons on phones; a column drift at the left
+// seven columns from 1024, stacked below, centered head and the quiet button White and full width on phones (the menu steps aside, the site's MCP pair); a column drift at the left
 // edge from 1440. `connect` and `session` go to the menu and the session; `marks` are the clients' marks.
 export interface HowItWorksBlockProps {
   content?: HowItWorksContent
@@ -41,7 +41,7 @@ export function HowItWorksBlock({ content: c = howItWorksContent, marks = howMar
             ))}
           </ol>
           <div className="ds-hw-actions">
-            <ConnectMenu content={connect} />
+            <div className="ds-hw-connect"><ConnectMenu content={connect} /></div>
             <Button href={c.secondary.href} variant="secondary">{c.secondary.label}</Button>
           </div>
           {marks.length ? (
@@ -74,6 +74,7 @@ const css = `
 .ds-hw-number { font-family: var(--ds-font-heading); font-variant-numeric: tabular-nums; color: var(--ds-color-fg-muted); }
 .ds-hw-step-text { color: var(--ds-color-fg-soft); text-wrap: pretty; }
 .ds-hw-step-title { font-weight: var(--ds-font-weight-medium); color: var(--ds-color-fg); }
+.ds-hw-connect { display: contents; }
 .ds-hw-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 40px; }
 .ds-hw-marks { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px; margin-left: -8px; }
 .ds-hw-mark-link { position: relative; display: grid; place-items: center; width: 40px; height: 40px; color: var(--ds-color-fg); transition: color var(--ds-duration-micro) var(--ds-easing-out); }
@@ -92,6 +93,10 @@ const css = `
   .ds-hw-copy { align-items: stretch; }
   .ds-hw-actions { display: grid; }
   .ds-hw-actions > * { width: 100%; }
+  /* The site's MCP pair on phones (globals.css [data-mcp-pair]): the connect menu steps aside and the quiet button turns
+     White, the row's one White button. */
+  .ds-hw-connect { display: none; }
+  .ds-hw-actions { --ds-color-action-secondary: var(--ds-color-action-primary); --ds-color-action-secondary-hover: var(--ds-color-action-primary-hover); --ds-color-action-secondary-fg: var(--ds-color-action-primary-fg); --ds-color-action-secondary-edge: var(--ds-color-action-primary); --ds-color-action-secondary-edge-hover: var(--ds-color-action-primary-hover); }
   .ds-hw-copy > h2, .ds-hw-lead { align-self: center; text-align: center; }
 }
 @media (min-width: 1024px) { .ds-hw-layout { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: stretch; gap: 64px; } }

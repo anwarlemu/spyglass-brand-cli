@@ -8,7 +8,7 @@ use_for: "Under a hero or a page head, to show who uses the product, with marks 
 never:
   - "Third-party logos without permission: the default marks are Acme wordmarks"
   - "A section head in place of the lead line"
-source: "Site v3/V3Proof (V3Proof.tsx, V3Proof.module.css): .section with no top padding, a 40px gap, .t-lead at the regular weight in --text, the ProofStrip under it"
+source: "Site v3/V3Proof (V3Proof.tsx, V3Proof.module.css): .section with no top padding, a 40px gap, .t-lead at the regular weight in --text, the ProofStrip under it with the logos twice per copy (stripLogos), .t-lead's measure and pretty wrap"
 files:
   - react/components/site/ProofBlock.tsx
 examples:

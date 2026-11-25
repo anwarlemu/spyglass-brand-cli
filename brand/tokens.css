@@ -423,6 +423,10 @@
   --ds-dur-footer-wave-pass: 7800ms;
   --ds-hero-light-tilt: 0.14;
   --ds-hero-light-cross: 0.72;
+  --ds-hero-light-tilt-lg: 0.04; /* from 1024 (site tokens.css 616-617); the engine takes the widest step set */
+  --ds-hero-light-cross-lg: 0.5;
+  --ds-ent-run-depth: 0.36; /* the run composition's depth (site --ent-run-depth), read by the engine */
+  --ds-ent-run-depth-md: 0.2;
   /* The row fan (site --cities-*, pages/TemplatesPage): card 72, 96 from 768, 128 from 1024; the curves of its moves. */
   --ds-fan-card: 72px;
   --ds-fan-card-md: 96px;
@@ -435,7 +439,7 @@
   --ds-fan-card-scale: 0.875;
   --ds-fan-cta-top: -12px;
   /* The wordmark glow (site --footer-glow-*, --footer-dot-*): a 20px dot grid, the spectrum under the pointer. */
-  --ds-glow-radius: 260px;
+  --ds-footer-glow-radius: 260px; /* site --footer-glow-radius (not --ds-glow-radius, the button glow's 80px) */
   --ds-glow-centre: 0.375;
   --ds-glow-strength: 0.8;
   --ds-glow-dot-pitch: 20px;

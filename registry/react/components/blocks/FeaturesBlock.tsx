@@ -133,7 +133,7 @@ function AccountsBurst({ c }: { c: BurstContent }) {
           </div>
         ))}
       </div>
-      <div className="sr-only">{c.searches.map((s) => <p key={s.query}>{`Searching brands for "${s.query}" returns ${s.row.name}, ${s.row.category}: ${s.row.instagram} Instagram followers, ${s.row.activeAds.toLocaleString('en-US')} active ads. The live search adds ${s.added} new accounts to the archive.`}</p>)}</div>
+      <div className="sr-only">{c.searches.map((s) => <p key={s.query}>{`Searching brands for "${s.query}" returns ${s.row.name}, ${s.row.category}: ${s.row.instagram} Instagram followers, ${s.row.tiktok ? `${s.row.tiktok} TikTok followers` : 'no TikTok account'}, ${s.row.activeAds.toLocaleString('en-US')} active Meta ads. The live search adds ${s.added} new accounts to the archive.`}</p>)}</div>
     </div>
   )
 }
@@ -286,7 +286,6 @@ const css = `
 .ds-ab-sizer { visibility: hidden; }
 .ds-ab-ai { height: 24px; padding-inline: 8px; border-radius: var(--ds-radius-control); background: var(--ds-color-surface-inset); color: var(--ds-color-fg-soft); font-size: var(--ds-text-caption); line-height: 24px; }
 .ds-ab-box { position: relative; visibility: hidden; overflow: clip; border-radius: var(--ds-radius-control); background: var(--ds-color-black); outline: var(--ds-border-hairline) solid var(--ds-color-edge-surface); outline-offset: calc(-1 * var(--ds-border-hairline)); will-change: transform; }
-.ds-ab-box[data-still] { visibility: visible; }
 .ds-ab-pic, .ds-ab-chip-face { position: absolute; left: 50%; top: 50%; }
 .ds-ab-pic { overflow: clip; border-radius: var(--ds-radius-sm); }
 .ds-ab-row-face { display: block; }
@@ -308,7 +307,7 @@ const css = `
 .ds-ab-bar { display: flex; height: 16px; font-family: var(--ds-font-ascii); font-size: calc(var(--ds-text-figure) / 3); line-height: 16px; letter-spacing: 0; white-space: pre; }
 .ds-ab-lit { color: var(--ds-color-fg-soft); }
 .ds-ab-unlit { color: var(--ds-color-fg-muted); }
-@media (prefers-reduced-motion: reduce) { .ds-ab-shot[data-still] { visibility: visible; } .ds-ab-ground { visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) { .ds-ab-shot[data-still], .ds-ab-box[data-still] { visibility: visible; } .ds-ab-ground { visibility: hidden; } }
 @container burst (width >= 480px) {
   .ds-ab-chip { gap: 12px; height: var(--ds-size-control-lg); padding-inline: 12px; font-size: var(--ds-text-body-lg); line-height: var(--ds-text-body-lg-leading); }
   .ds-ab-well { width: 32px; height: 32px; }

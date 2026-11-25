@@ -6,7 +6,7 @@ import { cn } from '@/react/lib/cn'
 // The site's animated value swap (pages/Pricing/Swap): a price, a plan name or a sort label that changes in place. The
 // old value rises 12px and fades out while the new one rises in from below, in one grid cell clipped 4px out, over
 // 480ms on the loop curve; a value that changes again mid-swap takes over from where it is. `unit` follows the value in
-// small muted type ("/month"), `tag` as a small badge ("Save 20%"). The type comes from the page (`className`). With
+// small muted type ("/month"), `tag` as a small White badge ("Save 20%", the plan badge's look). The type comes from the page (`className`). With
 // reduced motion the value changes at once. The leaving value is hidden from assistive tech.
 export interface TextSwapProps {
   text: string
@@ -63,7 +63,7 @@ export function TextSwap({ text, unit, tag, className }: TextSwapProps) {
         <span key={item.id} className="ds-swap-item" data-state={item.state} aria-hidden={item.state === 'out' || undefined}>
           {item.text}
           {item.unit ? <span className="ms-2 font-text text-ui/5 text-fg-muted">{item.unit}</span> : null}
-          {item.tag ? <span className="relative ms-2 inline-block rounded-ds-sm bg-surface px-2 font-text text-caption/5 font-medium whitespace-nowrap text-fg inset-ring inset-ring-edge-surface">{item.tag}</span> : null}
+          {item.tag ? <span className="relative ms-2 inline-block rounded-ds-sm bg-action-primary px-2 py-1 font-text text-caption/5 font-medium whitespace-nowrap text-action-primary-fg">{item.tag}</span> : null}
         </span>
       ))}
     </span>

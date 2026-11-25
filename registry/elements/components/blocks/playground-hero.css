@@ -32,18 +32,48 @@
 @keyframes ds-ph-slide { from { translate: calc(var(--ds-hero-band-slide) * var(--k) * -1) 0; } to { translate: calc(var(--ds-hero-band-slide) * var(--k)) 0; } }
 @keyframes ds-ph-bob { from { translate: 0 calc(var(--ds-hero-band-bob) * var(--k) * -1); } to { translate: 0 calc(var(--ds-hero-band-bob) * var(--k)); } }
 @media (prefers-reduced-motion: reduce) { .ds-ph-slide, .ds-ph-bob { animation: none; } }
+/* The section's own trail, along the band at the faint strength (V3Playground .trail, option a's --trail-strength). */
+.ds-ph-trail {
+  --k: max(min(100cqw / 1920, 1px), 100cqw / 2600);
+  --frame-w: min(100cqw - 2 * var(--ds-layout-gutter), 1152px);
+  --frame-top: calc(96px + var(--frame-w) * 9 / 16);
+  position: absolute; z-index: 0; inset: auto 0 calc(var(--frame-top) - (var(--ds-hero-band-h) - var(--ds-hero-band-y) - var(--ds-hero-band-cross)) * var(--k));
+  width: 100%; height: calc(var(--ds-hero-band-h) * var(--k)); opacity: var(--ds-ascii-faint);
+}
+/* The light pauses while it is off screen (LightImage [data-offscreen]). */
+.ds-ph-light[data-offscreen] .ds-ph-slide, .ds-ph-light[data-offscreen] .ds-ph-bob { animation-play-state: paused; }
+/* The texture flanking the prompt from 1024, clear of the card with a feathered edge (V3Playground .heroAscii). */
+.ds-ph-ascii { display: none; }
+@media (min-width: 1024px) {
+  .ds-ph-ascii {
+    --ask-clear: calc(min(800px, 100vw - 2 * var(--ds-layout-gutter)) / 2 + 64px);
+    --ask-feather: 96px;
+    position: absolute; z-index: -1; top: -160px; bottom: -240px; left: 50%; display: block; width: 100vw; translate: -50%;
+    background: var(--tex) left bottom / var(--ds-ascii-tile) no-repeat, var(--tex) right bottom / var(--ds-ascii-tile) no-repeat;
+    pointer-events: none;
+    mask-image:
+      linear-gradient(to right, var(--ds-color-black) calc(50% - var(--ask-clear) - var(--ask-feather)), transparent calc(50% - var(--ask-clear)), transparent calc(50% + var(--ask-clear)), var(--ds-color-black) calc(50% + var(--ask-clear) + var(--ask-feather))),
+      linear-gradient(to bottom, transparent, var(--ds-color-black) 160px, var(--ds-color-black) calc(100% - 128px), transparent);
+    mask-composite: intersect;
+  }
+}
 @media (width < 768px) {
   .ds-ph-light { display: none; }
   .ds-ph-head { min-height: calc(100svh - var(--ds-size-header)); justify-content: center; padding-block: 32px; }
   .ds-ph-ask { margin-top: 0; }
   .ds-ph-actions { flex-direction: column; align-self: stretch; }
   .ds-ph-connect, .ds-ph-ask > form { display: none; }
+  /* V3Playground .actions .apiKey: with the menu gone, the key button is the hero's one White button. */
+  .ds-ph-actions { --ds-color-action-secondary: var(--ds-color-action-primary); --ds-color-action-secondary-hover: var(--ds-color-action-primary-hover); --ds-color-action-secondary-fg: var(--ds-color-action-primary-fg); --ds-color-action-secondary-edge: var(--ds-color-action-primary); --ds-color-action-secondary-edge-hover: var(--ds-color-action-primary-hover); }
   .ds-ph-frame { border-radius: var(--ds-radius-control); }
 }
 
 /* The prompt */
-.ds-hp { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; max-width: 800px; padding: 12px 12px 0; border-radius: var(--ds-radius-lg); background: var(--ds-color-surface-subtle); outline: var(--ds-border-hairline) solid var(--ds-color-edge-strong); outline-offset: calc(-1 * var(--ds-border-hairline)); text-align: left; transition: outline-color var(--ds-duration-micro) var(--ds-easing-out); }
+.ds-hp { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; max-width: 800px; padding: 12px 12px 0; border-radius: var(--ds-radius-lg); background: var(--ds-color-surface-subtle); outline: var(--ds-border-hairline) solid var(--ds-color-edge-strong); outline-offset: calc(-1 * var(--ds-border-hairline)); text-align: left; transition: outline-color var(--ds-duration-micro) var(--ds-easing-out); }
 .ds-hp:has(.ds-hp-input:focus, :focus-visible) { outline-color: var(--ds-color-fg-muted); }
+/* The 2px ring outside the card on focus (HeroPrompt .card:has(:focus)), drawn as a frame, not a shadow. */
+.ds-hp::after { content: ""; position: absolute; inset: calc(-1 * var(--ds-border-focus)); border: var(--ds-border-focus) solid var(--ds-color-edge-strong); border-radius: calc(var(--ds-radius-lg) + var(--ds-border-focus)); opacity: 0; pointer-events: none; transition: opacity var(--ds-duration-micro) var(--ds-easing-out); }
+.ds-hp:has(.ds-hp-input:focus, :focus-visible)::after { opacity: 1; }
 .ds-hp-row { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: flex-end; gap: 12px; padding-block: 0 12px; }
 .ds-hp-field { position: relative; flex: 1 1 100%; min-width: 0; }
 .ds-hp-input { display: block; width: 100%; height: calc(var(--ds-text-body) * var(--ds-text-body-leading) * 2 + 24px); padding: 12px 16px; border: 0; border-radius: var(--ds-radius-control); background: transparent; font-family: var(--ds-font-text); font-size: var(--ds-text-body); line-height: var(--ds-text-body-leading); color: var(--ds-color-fg); resize: none; }
@@ -54,10 +84,15 @@
 @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
   .ds-hp-ghost[data-typing] .ds-hp-ch:not([data-on]) { display: none; }
   .ds-hp-ghost[data-typing] .ds-hp-ch[data-on] { animation: ds-hp-key-in var(--ds-duration-press) linear; }
+  .ds-hp-ghost[data-typing] .ds-hp-ch[data-out] { animation: ds-hp-key-out var(--ds-duration-stagger) linear forwards; }
 }
 @keyframes ds-hp-key-in { from { opacity: 0; } }
-.ds-hp-send { flex: none; display: grid; place-items: center; width: var(--ds-size-control-md); height: var(--ds-size-control-md); padding: 0; border: 0; border-radius: var(--ds-radius-control); background: var(--ds-color-action-primary); color: var(--ds-color-action-primary-fg); cursor: pointer; transition: background-color var(--ds-duration-micro) var(--ds-easing-out); }
-@media (hover: hover) and (pointer: fine) { .ds-hp-send:hover { background: var(--ds-color-action-primary-hover); } }
+@keyframes ds-hp-key-out { to { opacity: 0; } }
+.ds-hp-send { position: relative; isolation: isolate; overflow: hidden; flex: none; display: grid; place-items: center; width: var(--ds-size-control-md); height: var(--ds-size-control-md); padding: 0; border: 0; border-radius: var(--ds-radius-control); background: var(--ds-color-action-primary); color: var(--ds-color-action-primary-fg); cursor: pointer; transition: background-color var(--ds-duration-micro) var(--ds-easing-out); }
+/* The White button's glow (the site's .btn--primary::before): a gradient at the pointer, under a mouse only. */
+.ds-hp-send::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle var(--ds-glow-radius) at var(--glow-x, 50%) var(--glow-y, 50%), var(--ds-color-action-glow), transparent); opacity: 0; pointer-events: none; transition: opacity var(--ds-duration-enter) var(--ds-easing-out); }
+@media (hover: hover) and (pointer: fine) { .ds-hp-send:hover { background: var(--ds-color-action-primary-hover); } .ds-hp-send:hover::before { opacity: 1; } }
+@media (pointer: coarse) { .ds-hp-send { overflow: visible; } .ds-hp-send::after { content: ""; position: absolute; inset: -4px; } }
 .ds-hp-send:focus-visible { outline: var(--ds-border-focus) solid var(--ds-color-fg); outline-offset: var(--ds-border-focus); }
 .ds-hp-send svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .ds-hp-works { display: grid; gap: 8px; padding: 12px 16px; border-top: var(--ds-border-hairline) solid var(--ds-color-edge); }
@@ -77,4 +112,4 @@
   .ds-hp-field { flex: 1; }
   .ds-hp-works { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 }
-@media (prefers-reduced-motion: reduce) { .ds-hp, .ds-hp-send, .ds-hp-client { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .ds-hp, .ds-hp::after, .ds-hp-send, .ds-hp-send::before, .ds-hp-client { transition: none; } }

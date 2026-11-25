@@ -17,6 +17,19 @@ import {
 } from "@/lib/effects/field-layout";
 import { FRAG, GLYPH_RAMP, MAX_BLOBS, VERT, WAVES } from "@/lib/effects/field-shader";
 
+
+// The site sets some of these per width (tokens.css media blocks); the library keeps those as -md (768), -lg (1024)
+// and -xl (1280) tokens beside the base one, so the widest that applies and is set wins.
+const STEPS: [string, number][] = [["-xl", 1280], ["-lg", 1024], ["-md", 768]];
+function byWidth(style: CSSStyleDeclaration, name: string): string {
+  const w = globalThis.innerWidth ?? 0;
+  for (const [suffix, min] of STEPS) {
+    if (w < min) continue;
+    const v = style.getPropertyValue(name + suffix).trim();
+    if (v) return v;
+  }
+  return style.getPropertyValue(name).trim();
+}
 export type FieldOptions = {
   composition: Composition;
   seed: number;
@@ -414,7 +427,7 @@ export function mountField(canvas: HTMLCanvasElement, options: FieldOptions): Fi
     };
     const style = getComputedStyle(canvas);
     const token = (name: string) => {
-      const value = parseFloat(style.getPropertyValue(name));
+      const value = parseFloat(byWidth(style, name));
       return Number.isFinite(value) ? value : undefined;
     };
     return {
@@ -429,7 +442,7 @@ export function mountField(canvas: HTMLCanvasElement, options: FieldOptions): Fi
   };
 
   const tune: Tune = (name) => {
-    const raw = getComputedStyle(canvas).getPropertyValue(name.replace(/^--/, "--ds-")).trim();
+    const raw = byWidth(getComputedStyle(canvas), name.replace(/^--/, "--ds-"));
     const value = parseFloat(raw);
     if (!Number.isFinite(value)) return undefined;
     return raw.endsWith("ms") ? value / 1000 : value;

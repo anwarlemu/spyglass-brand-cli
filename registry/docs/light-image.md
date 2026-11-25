@@ -10,7 +10,7 @@ never:
   - "A photo, a screenshot or a third party's picture as the light: it is for light art"
   - "Boxed in a card: the light bleeds off an edge"
   - "The lens on touch or with reduced motion: it stays the picture"
-source: "Site effect/LightImage (LightImage.tsx, grain.ts, lens-gl.ts, LightImage.module.css) and effect/lens.ts: grain cells 8 by 16 from \" .:-=+*#\" at --ascii-trail-opacity 0.35, reach --light-grain-reach 64px, lens --light-grain-lens 192px; lens radius 240, magnify 0.12, widen 0.5, follow 14, ease 7; the art public/brand/light/hero-band.webp (2800 by 696) and pricing-light.webp with its mask (2640 by 1400, split 24)"
+source: "Site effect/LightImage (LightImage.tsx, grain.ts, lens-gl.ts, LightImage.module.css) and effect/lens.ts: grain cells 8 by 16 from \" .:-=+*#\" at --ascii-trail-opacity 0.35, reach --light-grain-reach 64px, lens --light-grain-lens 192px; lens radius 240, magnify 0.12, widen 0.5, follow 14, ease 7; the art public/brand/light/hero-band.webp (2800 by 696) and pricing-light.webp with its mask (2640 by 1400, split 24); data-offscreen on the box while it is off screen when there is no lens (LightImage.tsx's IntersectionObserver)"
 files:
   - react/components/visuals/LightImage.tsx
   - lib/effects/grain.ts

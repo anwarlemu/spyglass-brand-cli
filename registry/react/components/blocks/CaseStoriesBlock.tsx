@@ -9,13 +9,16 @@ import { cn } from '@/react/lib/cn'
 // the picture's lower corner, alternating sides, the ASCII texture fading in from its top right), then the quotes in
 // cards, three across from 1024 with their rows aligned. Under a mouse a case's panel lightens and its link turns
 // White (color only; the arrow stays). Acme placeholders by default: pass your customers through `cases` and
-// `quotes` (marks are drawn in the soft gray, photos at 40px, initials without one). `head={false}` leaves the grid.
+// `quotes` (marks are drawn in the soft gray, photos at 40px, initials without one). `head={false}` leaves the grid; `quoteCount`
+// caps the quote cards (3, one row, by default).
 export interface CaseStoriesBlockProps {
   content?: CaseStoriesContent
   cases?: StoryCase[]
   quotes?: StoryQuote[]
   /** Show the headline and lead. */
   head?: boolean
+  /** How many quote cards at most, in whole rows of three (the site's quoteCount: 3 on the home, all on the index). */
+  quoteCount?: number
   className?: string
 }
 
@@ -47,8 +50,8 @@ function Words({ entry, read }: { entry: StoryQuote & Partial<StoryCase>; read?:
   )
 }
 
-export function CaseStoriesBlock({ content: c = caseStoriesContent, cases = storyCases, quotes = storyQuotes, head = true, className }: CaseStoriesBlockProps) {
-  const shown = quotes.slice(0, Math.floor(quotes.length / 3) * 3 || quotes.length)
+export function CaseStoriesBlock({ content: c = caseStoriesContent, cases = storyCases, quotes = storyQuotes, head = true, quoteCount = 3, className }: CaseStoriesBlockProps) {
+  const shown = quotes.slice(0, Math.floor(Math.min(quoteCount, quotes.length) / 3) * 3 || Math.min(quoteCount, quotes.length))
   return (
     <section data-ds="case-stories-block" className={cn('py-(--ds-layout-section) text-fg', className)}>
       <style href="ds-case-stories-block" precedence="ds">{css}</style>

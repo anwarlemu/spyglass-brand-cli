@@ -104,6 +104,10 @@ Every token added for the site's sections, pages and effects, by group, with the
 | effects | `--ds-dur-footer-wave-pass` | `7800ms` |  |
 | effects | `--ds-hero-light-tilt` | `0.14` |  |
 | effects | `--ds-hero-light-cross` | `0.72` |  |
+| effects | `--ds-hero-light-tilt-lg` | `0.04` | --hero-light-tilt (1024) |
+| effects | `--ds-hero-light-cross-lg` | `0.5` | --hero-light-cross (1024) |
+| effects | `--ds-ent-run-depth` | `0.36` | --ent-run-depth |
+| effects | `--ds-ent-run-depth-md` | `0.2` | --ent-run-depth (768) |
 | effects | `--ds-fan-card` | `72px` |  |
 | effects | `--ds-fan-card-md` | `96px` |  |
 | effects | `--ds-fan-card-lg` | `128px` |  |
@@ -114,7 +118,7 @@ Every token added for the site's sections, pages and effects, by group, with the
 | effects | `--ds-fan-enter-scale` | `0.85` |  |
 | effects | `--ds-fan-card-scale` | `0.875` |  |
 | effects | `--ds-fan-cta-top` | `-12px` |  |
-| effects | `--ds-glow-radius` | `260px` |  |
+| effects | `--ds-footer-glow-radius` | `260px` |  |
 | effects | `--ds-glow-centre` | `0.375` |  |
 | effects | `--ds-glow-strength` | `0.8` |  |
 | effects | `--ds-glow-dot-pitch` | `20px` |  |

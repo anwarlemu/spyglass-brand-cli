@@ -9,7 +9,7 @@ never:
   - "For text people are reading: only short values that change on a choice"
   - "Swapping on a timer: it answers a choice"
   - "Moving with reduced motion: the value changes at once"
-source: "Site pages/Pricing/Swap (Pricing.module.css .swap, .swapItem, .swapUnit, .badge.save): inline-grid, clip margin 4px, 12px rise over --dur-loop-badge on --ease-loop; ui/Sentences (inline-block sentences below 768)"
+source: "Site pages/Pricing/Swap (Pricing.module.css .swap, .swapItem, .swapUnit; the tag in the plan badge's look, .badge: White, Black caption 4px by 8px, the small corner): inline-grid, clip margin 4px, 12px rise over --dur-loop-badge on --ease-loop (480ms, the brand's slow step); ui/Sentences (inline-block sentences below 768)"
 files:
   - react/components/ui/TextSwap.tsx
   - react/components/ui/Sentences.tsx

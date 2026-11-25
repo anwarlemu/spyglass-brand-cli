@@ -30,7 +30,7 @@ export function ProofStrip({ logos = proofPlaceholders, tight = false, className
   return (
     <div data-ds="proof-strip" className={cn('w-full max-w-288', className)}>
       <style href="ds-proof-strip" precedence="ds">{css}</style>
-      <ul className="sr-only">{logos.map((l) => <li key={l.name}>{l.name}</li>)}</ul>
+      <ul className="sr-only">{[...new Set(logos.map((l) => l.name))].map((name) => <li key={name}>{name}</li>)}</ul>
       <div aria-hidden="true" className="ds-proof-strip group/strip overflow-hidden">
         <ul role="list" className="ds-proof-track flex w-max items-center">
           {[0, 1, 2].flatMap((copy) => logos.map((l, i) => (

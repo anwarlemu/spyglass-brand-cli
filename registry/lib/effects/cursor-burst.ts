@@ -190,7 +190,7 @@ export function mountBurst(canvas: HTMLCanvasElement) {
     const next = Math.min(window.devicePixelRatio || 1, MAX_DPR);
     canvas.width = Math.round(root.clientWidth * next);
     canvas.height = Math.round(root.clientHeight * next);
-    headerBottom = parseFloat(getComputedStyle(root).getPropertyValue("--ds-size-header")) || 0;
+    headerBottom = parseFloat(getComputedStyle(root).getPropertyValue(window.innerWidth < 1024 ? "--ds-header-bar-phone" : "--ds-size-header")) || 0;
     if (next !== dpr) {
       dpr = next;
       chips.clear();

@@ -2,7 +2,8 @@ import { ProofStrip, proofPlaceholders, type ProofLogo } from '@/react/component
 import { cn } from '@/react/lib/cn'
 
 // The site's proof section (v3/V3Proof): a White lead line (20/28) centered over the proof marquee, 40px apart, with
-// the section's padding under it only (it follows a hero). Marks come through `logos` (Acme placeholders by default).
+// the section's padding under it only (it follows a hero). Marks come through `logos` (Acme placeholders by default);
+// the strip runs them twice per loop, as the site's V3Proof does, so each 68s pass moves two sets.
 export interface ProofBlockProps {
   /** The line over the marks. */
   title?: string
@@ -16,8 +17,8 @@ export function ProofBlock({ title = 'Trusted by teams and agents at', logos = p
   return (
     <section data-ds="proof-block" aria-labelledby={`${id}-title`} className={cn('pb-(--ds-layout-section) text-fg', className)}>
       <div className="mx-auto flex w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] flex-col items-center gap-10 px-(--ds-layout-gutter) text-center">
-        <h2 id={`${id}-title`} className="type-body-lg text-fg">{title}</h2>
-        <ProofStrip logos={logos} />
+        <h2 id={`${id}-title`} className="max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg">{title}</h2>
+        <ProofStrip logos={[...logos, ...logos]} />
       </div>
     </section>
   )

@@ -3,7 +3,7 @@ import { DsElement, define } from '@/elements/lib/element'
 import { startGrain } from '@/lib/effects/grain'
 import { LIGHT_ART, type LightArtName } from '@/lib/effects/light-art'
 import { LIGHT_IMAGE_CSS } from '@/lib/effects/light-image'
-import { pointerEffectsOn } from '@/lib/effects/pointer'
+import { whilePointerEffects } from '@/lib/effects/pointer'
 import styles from 'virtual:tw'
 
 // LightImage.tsx as <spyglass-light-image>: a light picture with the ASCII grain where its light falls off, and with a
@@ -58,7 +58,12 @@ export class LightImage extends DsElement {
 		this.stop()
 	}
 
+	private view: IntersectionObserver | null = null
+
 	private stop() {
+		this.view?.disconnect()
+		this.view = null
+		this.removeAttribute('data-offscreen')
 		this.stopGrain?.()
 		this.stopGrain = null
 		this.lensRun++
@@ -86,11 +91,14 @@ export class LightImage extends DsElement {
 		const grainCanvas = this.renderRoot.querySelector<HTMLCanvasElement>('.ds-light-grain')
 		if (this.grain && grainCanvas && picture) this.stopGrain = startGrain(this, grainCanvas, picture, width, height, this.still)
 		const lensCanvas = this.renderRoot.querySelector<HTMLCanvasElement>('.ds-light-lens')
-		if (!lensCanvas || !mask || this.still || !pointerEffectsOn()) return
-		const run = this.lensRun
-		void import('@/lib/effects/lens-gl').then(({ startLens }) => {
-			if (run === this.lensRun) this.stopLens = startLens({ box: this, canvas: lensCanvas, mask, width, height, split })
-		})
+		if (!mask || this.still) {
+			// Without the lens, the host says when it is off screen (data-offscreen), so a drifting light can pause.
+			this.view = new IntersectionObserver(([entry]) => this.toggleAttribute('data-offscreen', !entry.isIntersecting))
+			this.view.observe(this)
+			return
+		}
+		if (!lensCanvas) return
+		this.stopLens = whilePointerEffects(() => import('@/lib/effects/lens-gl').then(({ startLens }) => startLens({ box: this, canvas: lensCanvas, mask, width, height, split })))
 	}
 
 	render() {

@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useRef } from 'react'
-import { pointerEffectsOn } from '@/lib/effects/pointer'
+import { whilePointerEffects } from '@/lib/effects/pointer'
 import { cn } from '@/react/lib/cn'
 
 // The site's ASCII trail (effect/AsciiTrail): a mouse leaves a short trail of ASCII characters that fades in 700ms. In
@@ -17,16 +17,8 @@ export function AsciiTrail({ mode = 'section', className }: AsciiTrailProps) {
   const ref = useRef<HTMLCanvasElement>(null)
   useEffect(() => {
     const canvas = ref.current
-    if (!canvas || !pointerEffectsOn()) return
-    let stop: (() => void) | null = null
-    let gone = false
-    void import('@/lib/effects/ascii-trail').then(({ startTrail }) => {
-      if (!gone) stop = startTrail(canvas, mode)
-    })
-    return () => {
-      gone = true
-      stop?.()
-    }
+    if (!canvas) return
+    return whilePointerEffects(() => import('@/lib/effects/ascii-trail').then(({ startTrail }) => startTrail(canvas, mode)))
   }, [mode])
   return <canvas ref={ref} data-ds="ascii-trail" data-ascii-trail={mode} aria-hidden="true" className={cn('pointer-events-none block text-fg', mode === 'page' ? 'fixed inset-0 -z-1 size-full' : 'absolute', className)} />
 }
