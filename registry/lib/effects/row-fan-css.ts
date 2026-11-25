@@ -4,6 +4,9 @@
 export const ROW_FAN_CSS = `
 .ds-fan {
   position: relative;
+  /* The site's section clips the fan sideways (TemplateCities .section overflow-x: clip): the outer cards run past a
+     phone's edge under the name, and past 1024's beside a long one. Set the fan full-bleed so they reach the screen's. */
+  overflow-x: clip;
   --fan-layout: below; --fan-scroll: always; --fan-scroll-pick: nearest;
   --fan-card: var(--ds-fan-card); --fan-gap: var(--ds-space-sm); --fan-name-gap: var(--ds-space-2xl); --fan-below-gap: var(--ds-fan-below-gap);
   --fan-lift: var(--ds-space-lg); --fan-cta-top: var(--ds-fan-cta-top); --fan-cta-rise: var(--ds-space-sm); --fan-cta-sink: var(--ds-space-sm);
