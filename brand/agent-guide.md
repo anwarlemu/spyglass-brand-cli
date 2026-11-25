@@ -136,6 +136,42 @@ they are happy:
 Never edit the PNG or SVG by hand: change the design file through the CLI, so the brand rules keep holding. `design show
 <file> --json` lists every layer as drawn, what each can do and the phrases the design understands.
 
+## Ads from a brief
+
+When a person asks for ads ("ads for the Boards launch on LinkedIn and Instagram"), turn the request into a brief, run
+it, look at the sheet, and revise the ads they pick.
+
+1. Write the brief as a Markdown file (or JSON, or pipe it on stdin with `{{cli}} ad -`). Sections are headings
+   (`## Headline`) or `Key: value` lines:
+
+   | Section | What goes in | Required |
+   | --- | --- | --- |
+   | Goal | What the ads are for: a launch, an offer, a feature, a customer story, hiring, an event | yes |
+   | Platforms | X, LinkedIn, Instagram feed, Instagram portrait, Instagram story, Facebook, TikTok cover, Google display, all social, or size ids | yes |
+   | Headline | The headline, exactly as the person wrote or approved it | yes (a customer story may use Quote instead) |
+   | CTA | The button label | yes |
+   | Offer | The offer or price | for an offer, or a pricing card |
+   | Supporting line, Label, Plan, Features, Quote, Quote name, Quote role, Stat, Search prompt | More copy, drawn where a layout has room | no |
+   | Audience | Who sees them (read, never drawn) | no |
+   | Look | dark or light theme, minimal or bold, picture-led or type-led, brand light, ASCII texture, product UI, pricing card | no |
+   | Images | One per line: `file.png: what it shows` (screenshots, creatives and photos are told apart by what it shows) | for picture-led |
+   | Must-haves, Don'ts | One per line: "the price", "the CTA", "no brand light", "no texture", "no pictures" | no |
+
+   Use only the person's words. Never write a headline, a price, a quote or a name they did not give: ask for it. Use
+   only pictures they gave you (`--image name=file.png` adds one). Customers are Acme, never a real person or company.
+   `brand/briefs/` has three complete briefs to start from.
+2. Run `{{cli}} ad brief.md` (`--variants 2..4`, `--format png,jpg,webp`, `--out <folder>`). It maps each platform to
+   its sizes, ranks the layouts that can carry the brief there, draws each one and keeps only those that pass the brand
+   check (whole words, contrast, the logo's clear space, the platform's safe areas) and still read at that size. Each
+   size gets 2 to 4 ads that look different, as `<size>-<n>-<layout>.design.json` with its PNG, plus `sheet.png` and
+   `ads.json`. A missing field fails and names it (`The brief is missing cta (## CTA).`); `--sample` fills sample copy
+   only to look at the layouts. A size where fewer than two ads pass fails with the reasons and writes nothing.
+3. Look at `sheet.png` yourself, then show it to the person. Each label names the layout and what it leaves out
+   ("leaves out supporting"); the notes list must-haves the command cannot check, to check by eye.
+4. Revise the ads they pick with `{{cli}} design revise <ad>.design.json "bigger headline"` or `design edit`, as in
+   Revising a design. Change the brief and run `ad` again with `--force` for a new set (it replaces only the files the
+   earlier set wrote).
+
 ## Illustrations
 
 `{{cli}} illustrate <style>` writes the brand's own imagery as PNG and SVG: `pattern` (the light flowing in with the
@@ -189,6 +225,7 @@ The command for each kind of graphic, document, page or part (`{{cli}} manifest 
 | YouTube channel art, X header, LinkedIn banner and page cover, Facebook cover | template | `{{cli}} image banner-tagline --headline "..." --size youtube\|x-banner\|linkedin-banner\|linkedin-page\|facebook-cover` |
 | Profile picture for any platform | template | `{{cli}} image avatar` |
 | Open Graph card (the site's own) | template | `{{cli}} image og-site --headline "..." --page pricing --image a.png` |
+| A set of ads from a brief, for every platform size, with a contact sheet | command | `{{cli}} ad brief.md --image screenshot=shot.png` (brand/briefs/*.md) |
 | Google display ads 300x250, 336x280, 728x90, 300x600, 320x50, 160x600, 970x250 | recipe | `{{cli}} recipe ad-300x250 --set headline.text="..." --set button.text="..."` |
 | Meta feed and story ad, LinkedIn ad | recipe | `{{cli}} recipe meta-feed --size square\|story\|linkedin ...  (or image ad-search-bar, ad-photo)` |
 | Quote, stat, customer story, launch or changelog, feature, comparison, pricing, event or webinar, hiring card | recipe | `{{cli}} recipe quote-card\|stat-card\|customer-story\|launch-card\|feature-card\|comparison\|pricing-card\|event-card\|hiring-card ...` |

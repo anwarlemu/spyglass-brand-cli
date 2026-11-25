@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-import { Command, PageBody, PageHead, Section } from "@www/components/chrome";
+import { Code, Command, PageBody, PageHead, Prose, Section } from "@www/components/chrome";
 import { CLI } from "@www/lib/registry";
 
 export const metadata = { title: "Assets" };
@@ -22,6 +22,61 @@ type Doc = {
 };
 
 const file = path.join(process.cwd(), "lib/assets.generated.json");
+
+// "Ads from a brief": the brief format, one complete example (brand/briefs/offer.md) and where each platform lands.
+const BRIEF = `# Creator plan offer
+
+## Goal
+Sell the Creator plan: a price offer for solo marketers.
+
+## Platforms
+Instagram feed, Instagram portrait, Facebook, LinkedIn
+
+## Headline
+Stop screenshotting at midnight.
+
+## Supporting line
+Every ad in your market, saved for you.
+
+## CTA
+Start free
+
+## Offer
+$20 a month
+
+## Plan
+Creator
+
+## Features
+- Every network
+- Daily updates
+- Shared boards
+
+## Look
+dark, bold, pricing card
+
+## Must-haves
+- the price`;
+const BRIEF_SECTIONS: [string, string][] = [
+  ["Goal", "What the ads are for: a launch, an offer, a feature, a customer story, hiring, an event. Required."],
+  ["Platforms", "Where they run, with commas. Required."],
+  ["Headline, CTA", "The headline and the button label, drawn whole. Required (an offer also needs `Offer`, a customer story `Quote`)."],
+  ["Supporting line, Offer, Label, Plan, Features, Quote, Quote name, Quote role, Stat, Search prompt", "More copy, drawn where a layout has room; each label on the sheet says what that ad leaves out."],
+  ["Audience", "Who sees them. Read, never drawn."],
+  ["Look", "`dark` or `light theme`, `minimal` or `bold`, `picture-led` or `type-led`, and the brand elements: `brand light`, `ASCII`, `product UI`, `pricing card`."],
+  ["Images", "One per line, `file.png: what it shows`; or `--image name=file.png`. Pictures are only ever yours."],
+  ["Must-haves, Don'ts", "One per line: `the price`, `the CTA`, `no brand light`, `no texture`, `no pictures`. Lines the command cannot check are listed on the sheet to check by eye."],
+];
+const PLATFORMS: [string, string][] = [
+  ["X", "landscape 1200x675"],
+  ["LinkedIn", "linkedin 1200x627"],
+  ["Instagram feed", "square 1080x1080"],
+  ["Instagram portrait", "portrait 1080x1350"],
+  ["Instagram story, TikTok cover", "story 1080x1920"],
+  ["Facebook", "facebook 1080x1350"],
+  ["Google display", "300x250, 336x280, 728x90, 300x600, 320x50, 160x600, 970x250"],
+  ["All social", "landscape, linkedin, square, portrait, story, facebook"],
+];
 const doc: Doc | undefined = existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : undefined;
 
 const GROUPS = [
@@ -67,6 +122,54 @@ export default function AssetsPage() {
             <Command command={`${CLI} illustrate pattern --variant corner`} />
             <Command command={`${CLI} figma push asset imagery/post-offer.svg`} />
           </div>
+        </Section>
+
+        <Section id="ads" title="Ads from a brief" description="Write the brief in plain sections, run one command, look at the contact sheet, then revise the ads you pick. Each size gets 2 to 4 ads that look different, every one checked against the brand (whole words, contrast, the logo's clear space, the platform's safe areas) and skipped for another layout where it stops reading. Missing copy fails and names the field; the same brief writes the same bytes.">
+          <div className="grid gap-2">
+            <Command command={`${CLI} ad brief.md`} />
+            <Command command={`${CLI} ad brief.md --image screenshot=shot.png --variants 4 --format png,jpg,webp`} />
+            <Command command={`${CLI} design revise ads/brief/square-1-ad-creator-plan.design.json "bigger headline"`} />
+          </div>
+          <Code code={BRIEF} title="brand/briefs/offer.md" tall />
+          <div className="overflow-hidden rounded-control border border-edge">
+            <div className="overflow-x-auto fade-x">
+              <table className="w-full border-collapse type-ui">
+                <thead>
+                  <tr className="text-left text-fg-muted">
+                    {["Section", "What goes in"].map((h) => <th key={h} className="border-b border-edge px-4 py-2.5 type-label font-normal">{h}</th>)}
+                  </tr>
+                </thead>
+                <tbody>
+                  {BRIEF_SECTIONS.map(([name, what]) => (
+                    <tr key={name} className="align-top">
+                      <td className="min-w-48 border-b border-edge px-4 py-2.5 text-fg">{name}</td>
+                      <td className="min-w-80 border-b border-edge px-4 py-2.5 text-fg-soft"><Prose text={what} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div className="overflow-hidden rounded-control border border-edge">
+            <div className="overflow-x-auto fade-x">
+              <table className="w-full border-collapse type-ui">
+                <thead>
+                  <tr className="text-left text-fg-muted">
+                    {["Platform", "Sizes"].map((h) => <th key={h} className="border-b border-edge px-4 py-2.5 type-label font-normal">{h}</th>)}
+                  </tr>
+                </thead>
+                <tbody>
+                  {PLATFORMS.map(([name, sizes]) => (
+                    <tr key={name} className="align-top">
+                      <td className="min-w-48 border-b border-edge px-4 py-2.5 text-fg">{name}</td>
+                      <td className="min-w-80 border-b border-edge px-4 py-2.5 type-code text-fg-soft">{sizes}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <p className="type-ui text-fg-muted">The output folder holds each ad as a design file with its PNG, the labeled sheet.png and ads.json. Three complete briefs are in brand/briefs (launch, offer, hiring); an agent's steps are in the agent guide under Ads from a brief.</p>
         </Section>
 
         {GROUPS.map(([group, title, description]) => {

@@ -6,6 +6,7 @@ export type CoverageRow = { need: string; how: 'template' | 'recipe' | 'compose'
 
 export const COVERAGE: { rows: CoverageRow[]; missing: { need: string; why: string }[] } = {
 	rows: [
+		{ need: 'A set of ads from a brief: every platform size (X, LinkedIn, Instagram, Facebook, TikTok cover, Google display), 2 to 4 variants each, one contact sheet', how: 'command', run: 'ad brief.md --image screenshot=shot.png (brief format: brand/briefs/*.md)', sizes: 'landscape, linkedin, square, portrait, story, facebook, the seven Google display sizes' },
 		{ need: 'X post, LinkedIn post, Instagram post or portrait, Threads, Facebook post', how: 'template', run: 'image post-offer --headline "..." --size square|portrait|linkedin|facebook', sizes: 'square, portrait, linkedin, linkedin-square, facebook, og' },
 		{ need: 'Instagram or TikTok story, Reels or TikTok cover', how: 'template', run: 'image story --headline "..."', sizes: 'story' },
 		{ need: 'Instagram carousel', how: 'command', run: 'image --input carousel.json --out carousel' },

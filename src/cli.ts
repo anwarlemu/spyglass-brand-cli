@@ -23,6 +23,7 @@ import { ICONS_FLAGS, iconsHelp, runIcons } from './commands/icons.js';
 import { EMAIL_FLAGS, emailHelp, runEmail } from './commands/email.js';
 import { FIGMA_FLAGS, figmaHelp, runFigma } from './commands/figma.js';
 import { suggest } from './lib/names.js';
+import { AD_FLAGS, adHelp, runAd } from './commands/ad.js';
 
 const HELP = () => {
 	const b = brand().bin;
@@ -73,6 +74,7 @@ const HELP = () => {
 		row('ascii --seed 4', 'The ASCII texture as SVG or PNG, seeded (--density, --ground)'),
 		row('email <kind>', 'Emails as mail clients read them (tables, inline styles): newsletter, announcement, receipt, password-reset'),
 		row('icons', 'The favicon set, app icons, a maskable icon, avatars and the web manifest'),
+		row('ad brief.md', 'Static ads from a brief: 2 to 4 per size, design files and a labeled sheet (--image, --format)'),
 		row('recipe <name>', 'Ready layouts for what no template covers: display ads, cards, print, email, backgrounds (--list)'),
 		row('illustrate <style>', 'Brand imagery: pattern, light, texture, split (--image), --list'),
 		row('figma tokens|push|pull|check', 'Files and the ordered Figma MCP calls; the CLI never calls Figma'),
@@ -95,7 +97,7 @@ const HELP = () => {
 	].join('\n');
 };
 
-const VALUE_FLAGS = new Set(['theme', 'scale', 'badge', 'page', 'headline', 'body', 'label', 'cta', 'price', 'plan', 'features', 'prompt', 'quote', 'name', 'role', 'url', 'kicker', 'items', 'stat', 'light', 'input', 'slide', 'item', 'dpi', 'fps', 'seconds', 'variant', 'seed', 'source', 'width', 'height', 'density', 'cwd', 'components', 'pages', 'framework', 'title', 'text', 'subtitle', 'eyebrow', 'by', 'author', 'image', 'template', 'size', 'ground', 'out', 'format', 'section', 'token', 'surface', 'group', 'state', 'part', 'prop', 'set', 'preset', 'texture', 'example', 'browser', 'file']);
+const VALUE_FLAGS = new Set(['theme', 'scale', 'badge', 'page', 'headline', 'body', 'label', 'cta', 'price', 'plan', 'features', 'prompt', 'quote', 'name', 'role', 'url', 'kicker', 'items', 'stat', 'light', 'input', 'slide', 'item', 'dpi', 'fps', 'seconds', 'variant', 'seed', 'source', 'width', 'height', 'density', 'cwd', 'components', 'pages', 'framework', 'title', 'text', 'subtitle', 'eyebrow', 'by', 'author', 'image', 'template', 'size', 'ground', 'out', 'format', 'section', 'token', 'surface', 'group', 'state', 'part', 'prop', 'set', 'preset', 'texture', 'example', 'browser', 'file', 'variants']);
 const REPEAT_FLAGS = new Set(['prop', 'image', 'set']);
 
 export function parse(argv: string[]) {
@@ -155,6 +157,7 @@ const FLAGS: Record<string, string[]> = {
 	email: EMAIL_FLAGS,
 	figma: FIGMA_FLAGS,
 	design: [],
+	ad: AD_FLAGS,
 };
 
 async function main() {
@@ -178,7 +181,7 @@ async function main() {
 	const cwd = resolve(typeof flags.cwd === 'string' ? flags.cwd : process.cwd());
 	const json = flags.json === true;
 	const out = (value: unknown, text: string) => console.log(json ? JSON.stringify(value, null, 2) : text);
-	const ownHelp = new Set(['image', 'deck', 'merch', 'video', 'brand', 'principles', 'component', 'manifest', 'describe', 'light', 'ascii', 'illustrate', 'figma', 'recipe', 'icons', 'email']);
+	const ownHelp = new Set(['image', 'deck', 'merch', 'video', 'brand', 'principles', 'component', 'manifest', 'describe', 'light', 'ascii', 'illustrate', 'figma', 'recipe', 'icons', 'email', 'ad']);
 	if (flags.help && command && !ownHelp.has(command)) {
 		console.log(HELP());
 		return;
@@ -361,6 +364,15 @@ async function main() {
 			if (flags.help) console.log(iconsHelp());
 			else runIcons(cwd, flags);
 			break;
+		}
+		case 'ad': {
+			if (flags.help) {
+				console.log(adHelp());
+				return;
+			}
+			const r = await runAd(cwd, args, flags);
+			out(r.json, r.text);
+			return;
 		}
 		case 'recipe': {
 			process.exitCode = await runRecipe(cwd, args, { ...flags, ...(flags.help ? { list: true } : {}) });
