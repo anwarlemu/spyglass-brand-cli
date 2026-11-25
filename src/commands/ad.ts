@@ -95,7 +95,7 @@ export async function runAd(cwd: string, args: string[], flags: Flags, stdin: ()
 		}
 	}
 	const listed: string[] = ['sheet.png', 'ads.json'];
-	const files: { size: string; n: number; layout: string; theme?: string; seed?: number; design: string; files: string[]; draws: string[]; leftOut: string[]; pictures: string[]; warnings: string[] }[] = [];
+	const files: { size: string; n: number; layout: string; alternate?: string; theme?: string; seed?: number; design: string; files: string[]; draws: string[]; leftOut: string[]; pictures: string[]; warnings: string[] }[] = [];
 	for (const a of r.ads) {
 		const design = `${base(a)}.design.json`;
 		writeFileSync(design, docText(a.doc));
@@ -108,13 +108,13 @@ export async function runAd(cwd: string, args: string[], flags: Flags, stdin: ()
 			listed.push(basename(`${base(a)}.${f}`));
 			written.push(show(cwd, `${base(a)}.${f}`));
 		}
-		files.push({ size: a.size, n: a.n, layout: a.layout, theme: a.theme, seed: a.seed, design: show(cwd, design), files: written, draws: a.draws, leftOut: a.leftOut, pictures: a.pictures, warnings: a.findings.map((f) => f.message) });
+		files.push({ size: a.size, n: a.n, layout: a.layout, alternate: a.alternate, theme: a.theme, seed: a.seed, design: show(cwd, design), files: written, draws: a.draws, leftOut: a.leftOut, pictures: a.pictures, warnings: a.findings.map((f) => f.message) });
 	}
 	const sheetPath = join(outDir, 'sheet.png');
 	writeFileSync(sheetPath, sheet);
 	const json = { ok: true, brief: brief.name ?? name, goal: r.goal, sizes: r.sizes, sheet: show(cwd, sheetPath), ads: files, skipped: r.skipped, unchecked: r.unchecked, sampled: r.sampled };
 	const lines = [
-		...r.sizes.flatMap((s) => [`${s}:`, ...files.filter((f) => f.size === s).map((f) => `  ${f.design}  ${f.layout}${f.theme && f.theme !== 'black' ? `, ${f.theme}` : ''}${f.leftOut.length ? `  (leaves out ${f.leftOut.join(', ')})` : ''}${f.warnings.length ? `\n    warning: ${f.warnings.join(' ')}` : ''}`)]),
+		...r.sizes.flatMap((s) => [`${s}:`, ...files.filter((f) => f.size === s).map((f) => `  ${f.design}  ${f.layout}${f.alternate ? ` ${f.alternate}` : ''}${f.theme && f.theme !== 'black' ? `, ${f.theme}` : ''}${f.leftOut.length ? `  (leaves out ${f.leftOut.join(', ')})` : ''}${f.warnings.length ? `\n    warning: ${f.warnings.join(' ')}` : ''}`)]),
 		`Sheet: ${show(cwd, sheetPath)}`,
 		...(r.sampled.length ? [`note: sample copy (Acme) fills ${r.sampled.join(', ')}.`] : []),
 		...r.unchecked.map((u) => `check by eye: ${u}`),

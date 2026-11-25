@@ -14,7 +14,8 @@ import { COPY_FIELDS, headingOf, sizesFor, type Brief, type BriefImage, type Cop
 // size as design documents. Nothing is invented: copy is the brief's, pictures are the brief's.
 
 type PictureSpec = { kinds?: BriefImage['kind'][]; min?: number; max?: number } & Record<string, unknown>;
-export type AdLayout = { id: string; from: 'template' | 'recipe'; fields: Partial<Record<CopyField, string>>; needs?: CopyField[]; pictures?: PictureSpec; sizes?: string[]; goals: string[]; look: string[]; logo?: boolean };
+export type Alternate = { name: string; options?: Record<string, string | number | boolean>; at?: Record<string, { col: number; row: number; cols: number; rows: number }> };
+export type AdLayout = { id: string; from: 'template' | 'recipe'; alternates?: Alternate[]; fields: Partial<Record<CopyField, string>>; needs?: CopyField[]; pictures?: PictureSpec; sizes?: string[]; goals: string[]; look: string[]; logo?: boolean };
 type Rule = { words: string[]; field?: CopyField; layer?: string; kind?: string; hide?: string; no?: string };
 export type AdsData = {
 	goals: Record<string, string[]>;
@@ -206,8 +207,8 @@ export function candidates(b: Brief, goal: string, needs: Needs, size: string): 
 	return { list, refused };
 }
 
-export type Ad = { size: string; width: number; height: number; n: number; layout: string; from: 'template' | 'recipe'; theme?: string; seed?: number; doc: DesignDoc; files: Record<string, Uint8Array>; layers: DrawnLayer[]; findings: Finding[]; draws: CopyField[]; leftOut: CopyField[]; pictures: string[] };
-type Attempt = { c: Candidate; theme: string; seed?: number };
+export type Ad = { size: string; width: number; height: number; n: number; layout: string; alternate?: string; from: 'template' | 'recipe'; theme?: string; seed?: number; doc: DesignDoc; files: Record<string, Uint8Array>; layers: DrawnLayer[]; findings: Finding[]; draws: CopyField[]; leftOut: CopyField[]; pictures: string[] };
+type Attempt = { c: Candidate; theme: string; seed?: number; alt?: Alternate };
 
 const rel = (from: string, file: string) => relative(from, file).split(sep).join('/') || file;
 const isLight = (id: string) => id === 'light' || /^light-\d+$/.test(id);
@@ -248,7 +249,7 @@ function docFor(a: Attempt, b: Brief, needs: Needs, size: string, outDir: string
 	for (const [block, img] of Object.entries(a.c.pictures)) images[block] = picture(img);
 	// A block is kept when it draws: the light and texture unless a don't takes them out, words only when the brief has them.
 	const words = new Set(['headline', 'body', 'eyebrow', 'badge', 'stat', 'quote', 'list', 'button', 'search', 'code', 'chart', 'table', 'card']);
-	const blocks = r.blocks.filter((blk) => {
+	const blocks = r.blocks.map((blk) => (a.alt?.at?.[blk.id] ? { ...blk, at: a.alt.at[blk.id]! } : blk)).filter((blk) => {
 		if (blk.type === 'light') return !hideLight;
 		if (blk.type === 'ascii') return !hideTexture;
 		if (blk.type === 'picture') return Boolean(images[blk.id]);
@@ -256,7 +257,8 @@ function docFor(a: Attempt, b: Brief, needs: Needs, size: string, outDir: string
 		return true;
 	});
 	const options = Object.fromEntries(Object.entries(r.options).filter(([k]) => blocks.some((blk) => k.startsWith(`${blk.id}.`))));
-	return { ...base, blocks, grid: r.grid ?? { cols: 12, rows: 12 }, theme: a.theme, copy, images, options: { ...base.options, ...options } } as DesignDoc;
+	const alt = Object.fromEntries(Object.entries(a.alt?.options ?? {}).filter(([k]) => blocks.some((blk) => k.startsWith(`${blk.id}.`))));
+	return { ...base, blocks, grid: r.grid ?? { cols: 12, rows: 12 }, theme: a.theme, copy, images, options: { ...base.options, ...options, ...alt } } as DesignDoc;
 }
 
 /** Draws and checks one attempt: the reason it is refused, or the ad. */
@@ -305,6 +307,8 @@ function attempts(list: Candidate[]): Attempt[] {
 	const out: Attempt[] = [];
 	for (const c of withLogo) out.push({ c, theme: c.themes[0]! });
 	for (const c of withLogo) for (const t of c.themes.slice(1)) out.push({ c, theme: t });
+	// A layout's other arrangements (brand/assets/ads.json `alternates`), in each of its themes.
+	for (const c of withLogo) for (const alt of c.layout.alternates ?? []) for (const t of c.themes) out.push({ c, theme: t, alt });
 	for (const c of noLogo) out.push({ c, theme: c.themes[0]! });
 	return out;
 }
@@ -329,7 +333,7 @@ export async function makeAds(input: Brief, o: { variants: number; sample?: bool
 			if (got.length >= o.variants) break;
 			const r = await tryAttempt(a, brief, needs, size, o.outDir, o.imageDir, o.formats);
 			if (!r.ok) {
-				skipped.push({ size, layout: a.c.layout.id, theme: a.theme, reason: r.reason });
+				skipped.push({ size, layout: `${a.c.layout.id}${a.alt ? ` ${a.alt.name}` : ''}`, theme: a.theme, reason: r.reason });
 				continue;
 			}
 			// Distinct means it looks different: the same parts in the same places on the same ground is the same ad.
@@ -339,7 +343,7 @@ export async function makeAds(input: Brief, o: { variants: number; sample?: bool
 				continue;
 			}
 			const spec = SIZES.find((s) => s.id === size)!;
-			got.push({ size, width: spec.width, height: spec.height, n: got.length + 1, layout: a.c.layout.id, from: a.c.layout.from, theme: r.doc.theme, seed: r.doc.seed, doc: r.doc, files: r.files, layers: r.layers, findings: r.findings, draws: a.c.draws, leftOut: a.c.leftOut, pictures: Object.values(a.c.pictures).map((p) => p.name) });
+			got.push({ size, width: spec.width, height: spec.height, n: got.length + 1, layout: a.c.layout.id, alternate: a.alt?.name, from: a.c.layout.from, theme: r.doc.theme, seed: r.doc.seed, doc: r.doc, files: r.files, layers: r.layers, findings: r.findings, draws: a.c.draws, leftOut: a.c.leftOut, pictures: Object.values(a.c.pictures).map((p) => p.name) });
 		}
 		if (got.length < 2) {
 			// What was drawn and refused says more than what was never tried, so it comes first.
@@ -362,7 +366,7 @@ export function adSheet(ads: Ad[], notes: string[], from: Record<string, string>
 	const sizes = [...new Set(ads.map((a) => a.size))];
 	for (const size of sizes) {
 		const row = ads.filter((a) => a.size === size);
-		const items: SheetItem[] = row.map((a) => ({ png: a.files.png!, label: `${a.n}. ${a.layout}${a.theme && a.theme !== 'black' ? `, ${a.theme}` : ''}${a.leftOut.length ? ` (leaves out ${a.leftOut.join(', ')})` : ''}` }));
+		const items: SheetItem[] = row.map((a) => ({ png: a.files.png!, label: `${a.n}. ${a.layout}${a.alternate ? ` ${a.alternate}` : ''}${a.theme && a.theme !== 'black' ? `, ${a.theme}` : ''}${a.leftOut.length ? ` (leaves out ${a.leftOut.join(', ')})` : ''}` }));
 		const spec = contactSheet(items, { columns: Math.max(row.length, row[0]!.width / row[0]!.height > 2.2 ? 2 : 3), width: WIDTH });
 		const a = row[0]!;
 		out.labels.push({ text: `${from[size] && from[size] !== size ? `${from[size]}: ` : ''}${size} ${a.width}x${a.height}`, x: 32, y: y + TITLE - 8, size: 26, color: '#1a1a1a' });
