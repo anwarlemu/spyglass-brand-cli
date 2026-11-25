@@ -22,9 +22,7 @@ export function UseCasesPage({ content: c = useCasesContent, className }: UseCas
   return (
     <div data-ds="use-cases-page" className={cn('isolate bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
-      <div className={cn(CONTAINER, 'relative z-10')}>
-        <SiteHeader links={c.chrome.header.nav} secondary={c.chrome.header.secondary} cta={c.chrome.header.cta} />
-      </div>
+      <SiteHeader links={c.chrome.header.nav} secondary={c.chrome.header.secondary} cta={c.chrome.header.cta} />
       <main id="main">
         <PageHead id={c.id} lines={c.head.lines} lead={c.head.lead} />
         <section aria-label={c.head.lines.join(' ')}>

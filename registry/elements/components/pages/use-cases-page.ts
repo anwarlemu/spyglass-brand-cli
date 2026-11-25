@@ -25,7 +25,7 @@ export class UseCasesPage extends DsElement {
 
 	render() {
 		const c = this.content ?? useCasesContent
-		return html`<div data-ds="use-cases-page" class="isolate bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><div class=${`${CONTAINER} relative z-10`}><spyglass-site-header .links=${c.chrome.header.nav} .secondary=${c.chrome.header.secondary} .cta=${c.chrome.header.cta}></spyglass-site-header></div><main id="main"><spyglass-page-head head-id=${c.id} .lines=${c.head.lines} .lead=${c.head.lead}></spyglass-page-head><section aria-label=${c.head.lines.join(' ')}><div class=${`${CONTAINER} pb-(--ds-layout-section)`}><spyglass-resource-cards .cards=${c.cards} columns="3"></spyglass-resource-cards></div></section><spyglass-page-close></spyglass-page-close></main><spyglass-site-footer .columns=${c.chrome.footer.columns} legal=${c.chrome.footer.legal}></spyglass-site-footer></div>`
+		return html`<div data-ds="use-cases-page" class="isolate bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .links=${c.chrome.header.nav} .secondary=${c.chrome.header.secondary} .cta=${c.chrome.header.cta}></spyglass-site-header><main id="main"><spyglass-page-head head-id=${c.id} .lines=${c.head.lines} .lead=${c.head.lead}></spyglass-page-head><section aria-label=${c.head.lines.join(' ')}><div class=${`${CONTAINER} pb-(--ds-layout-section)`}><spyglass-resource-cards .cards=${c.cards} columns="3"></spyglass-resource-cards></div></section><spyglass-page-close></spyglass-page-close></main><spyglass-site-footer .columns=${c.chrome.footer.columns} legal=${c.chrome.footer.legal}></spyglass-site-footer></div>`
 	}
 }
 

@@ -13,6 +13,8 @@ export interface ResourceEntry {
 	href: string
 	/** ISO date, 2026-11-01. */
 	date: string
+	/** A 16:9 picture on the left of the row (the post's cover): your image as `src`, or a neutral tone (1 to 4). */
+	thumb?: { src?: string; alt?: string; tone?: 1 | 2 | 3 | 4 }
 }
 
 export interface ResourceList {
@@ -70,9 +72,9 @@ export const articlesList: ResourceList = {
 	line: 'Guides to creative research with agents.',
 	empty: 'No articles yet. The first ones are on the way.',
 	entries: [
-		{ title: 'Reading a category from its longest-running ads', line: 'Why the ads a brand keeps paying for say more than the ones it launches.', href: '/resources/articles/longest-running-ads', date: '2026-11-12' },
-		{ title: 'Briefing an agent on a competitor', line: 'The three questions that turn an ad library into a brief.', href: '/resources/articles/briefing-an-agent', date: '2026-10-28' },
-		{ title: 'Hooks, angles and formats', line: 'A shared vocabulary for creative research, with examples from one category.', href: '/resources/articles/hooks-angles-formats', date: '2026-10-09' },
+		{ title: 'Reading a category from its longest-running ads', line: 'Why the ads a brand keeps paying for say more than the ones it launches.', href: '/resources/articles/longest-running-ads', date: '2026-11-12', thumb: { tone: 2 } },
+		{ title: 'Briefing an agent on a competitor', line: 'The three questions that turn an ad library into a brief.', href: '/resources/articles/briefing-an-agent', date: '2026-10-28', thumb: { tone: 3 } },
+		{ title: 'Hooks, angles and formats', line: 'A shared vocabulary for creative research, with examples from one category.', href: '/resources/articles/hooks-angles-formats', date: '2026-10-09', thumb: { tone: 1 } },
 	],
 }
 

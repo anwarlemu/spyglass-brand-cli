@@ -31,9 +31,7 @@ export function TemplatesPage({ content: c = templatesPageContent, fan, classNam
     <div data-ds="templates-page" className={cn('isolate bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
       <style href="ds-templates-page" precedence="ds">{css}</style>
-      <div className={cn(WRAP, 'relative z-10')}>
-        <SiteHeader links={c.chrome.header.nav} secondary={c.chrome.header.secondary} cta={c.chrome.header.cta} />
-      </div>
+      <SiteHeader links={c.chrome.header.nav} secondary={c.chrome.header.secondary} cta={c.chrome.header.cta} />
       <main id="main">
         <TemplatesWall hero content={c.wall} id="templates" />
         <AutomationRun id="templates-run" />

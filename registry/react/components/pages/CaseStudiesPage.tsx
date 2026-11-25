@@ -22,9 +22,7 @@ export function CaseStudiesPage({ content: c = caseStudiesIndexContent, classNam
   return (
     <div data-ds="case-studies-page" className={cn('isolate overflow-x-clip bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
-      <div className={CONTAINER}>
-        <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
-      </div>
+      <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main>
         <PageHead id={c.head.id} lines={c.head.lines} lead={c.head.lead} />
         <div aria-label={c.head.lines.join(' ')} role="region" className="-mt-(--ds-layout-section) pb-[calc(96px-var(--ds-layout-section))]">

@@ -37,9 +37,7 @@ export function AboutPage({ content: c = aboutContent, className }: AboutPagePro
     <div data-ds="about-page" className={cn('isolate bg-surface text-fg', className)}>
       <AsciiTrail mode="page" />
       <style href="ds-about-page" precedence="ds">{css}</style>
-      <div className={cn(CONTAINER, 'relative z-10')}>
-        <SiteHeader links={c.shell.header.nav} secondary={c.shell.header.secondary} />
-      </div>
+      <SiteHeader links={c.shell.header.nav} secondary={c.shell.header.secondary} />
       <main id="main">
         <section aria-labelledby={`${c.id}-heading`} className="pt-32 text-center">
           <div className={CONTAINER}>
