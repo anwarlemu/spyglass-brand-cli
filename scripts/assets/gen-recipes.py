@@ -9,10 +9,13 @@ def rec(name,group,desc,size,blocks,sample,opts=None,theme='black',grid=None,siz
 for s in ['ad-300x250','ad-336x280']:
     rec(s,'ad',f'Display ad at {s[3:]}: the lockup, a headline and the button.',s,[B('logo','logo',at(0,0,7,2)),B('headline','headline',at(0,3,12,5)),B('button','button',at(0,9,8,3))],{"headline.text":"Every creative in one place.","button.text":"Start free"})
 rec('ad-320x50','ad','Mobile banner at 320x50: the logomark, a headline and the button in one row.','ad-320x50',[B('logo','logo',at(0,1,2,10)),B('headline','headline',at(3,0,6,12)),B('button','button',at(9,1,3,10))],{"headline.text":"Every creative.","button.text":"Start"},{"logo.lockup":"mark"})
-for s,g in [('ad-728x90',None),('ad-970x250',None)]:
-    rec(s,'ad',f'Display ad at {s[3:]}: the lockup, a headline and the button in one row.',s,[B('logo','logo',at(0,3,2,6)),B('headline','headline',at(3,1,6,10)),B('button','button',at(9,3,3,6))],{"headline.text":"Every creative in one place.","button.text":"Start free"})
-for s in ['ad-300x600','ad-160x600']:
-    rec(s,'ad',f'Display ad at {s[3:]}: the lockup on top, the headline, the light and the button.',s,[B('light','light',at(0,6,12,3)),B('logo','logo',at(0,0,12,1)),B('headline','headline',at(0,2,12,4)),B('button','button',at(0,10,12,2))],{"headline.text":"Every creative in one place.","button.text":"Start free"},{"light.variant":"band"})
+# Wide strips: the headline sized to the strip, so it sits with the lockup (about one and a half times its height) instead
+# of dwarfing it; the lockup, the words and the button share one centered row with the same margins.
+for s,size in [('ad-728x90',20),('ad-970x250',30)]:
+    rec(s,'ad',f'Display ad at {s[3:]}: the lockup, a headline and the button in one row.',s,[B('logo','logo',at(0,4,2,4)),B('headline','headline',at(3,2,6,8)),B('button','button',at(9,4,3,4))],{"headline.text":"Every creative in one place.","button.text":"Start free"},{"headline.size":size,"headline.valign":"center","button.align":"right","button.valign":"center"})
+# Tall skyscrapers: a lockup sized to the column (not its full width) over a headline that leads.
+for s,cols,size in [('ad-300x600',7,30),('ad-160x600',10,20)]:
+    rec(s,'ad',f'Display ad at {s[3:]}: the lockup on top, the headline, the light and the button.',s,[B('light','light',at(0,6,12,3)),B('logo','logo',at(0,0,cols,1)),B('headline','headline',at(0,2,12,4)),B('button','button',at(0,10,12,2))],{"headline.text":"Every creative in one place.","button.text":"Start free"},{"light.variant":"band","headline.size":size})
 rec('meta-feed','ad','Meta feed ad: the light across the top, the headline, a line and the button.','square',[B('light','light',at(0,0,12,4)),B('logo','logo',at(0,5,4,1)),B('headline','headline',at(0,6,12,3)),B('body','body',at(0,9,10,1)),B('button','button',at(0,11,4,1))],{"headline.text":"Every creative in one place.","body.text":"Search the ads every brand runs.","button.text":"Start free"},{"light.variant":"band"},sizes=['square','portrait','story','facebook','linkedin'])
 # Product and marketing
 rec('quote-card','card','A quote in Funnel Display with the name and role, the light at the foot.','square',[B('light','light',at(0,9,12,3)),B('logo','logo',at(0,0,4,1)),B('quote','quote',at(0,2,12,6))],{"quote.text":"We see every launch the day it ships.","quote.name":"Alex Kim","quote.role":"Head of growth, Acme"},{"light.variant":"band"})

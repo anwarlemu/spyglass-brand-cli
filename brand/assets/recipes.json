@@ -143,9 +143,9 @@
      "type": "logo",
      "at": {
       "col": 0,
-      "row": 3,
+      "row": 4,
       "cols": 2,
-      "rows": 6
+      "rows": 4
      }
     },
     {
@@ -153,9 +153,9 @@
      "type": "headline",
      "at": {
       "col": 3,
-      "row": 1,
+      "row": 2,
       "cols": 6,
-      "rows": 10
+      "rows": 8
      }
     },
     {
@@ -163,9 +163,9 @@
      "type": "button",
      "at": {
       "col": 9,
-      "row": 3,
+      "row": 4,
       "cols": 3,
-      "rows": 6
+      "rows": 4
      }
     }
    ],
@@ -173,7 +173,12 @@
     "headline.text": "Every creative in one place.",
     "button.text": "Start free"
    },
-   "options": {}
+   "options": {
+    "headline.size": 20,
+    "headline.valign": "center",
+    "button.align": "right",
+    "button.valign": "center"
+   }
   },
   "ad-970x250": {
    "group": "ad",
@@ -186,9 +191,9 @@
      "type": "logo",
      "at": {
       "col": 0,
-      "row": 3,
+      "row": 4,
       "cols": 2,
-      "rows": 6
+      "rows": 4
      }
     },
     {
@@ -196,9 +201,9 @@
      "type": "headline",
      "at": {
       "col": 3,
-      "row": 1,
+      "row": 2,
       "cols": 6,
-      "rows": 10
+      "rows": 8
      }
     },
     {
@@ -206,9 +211,9 @@
      "type": "button",
      "at": {
       "col": 9,
-      "row": 3,
+      "row": 4,
       "cols": 3,
-      "rows": 6
+      "rows": 4
      }
     }
    ],
@@ -216,7 +221,12 @@
     "headline.text": "Every creative in one place.",
     "button.text": "Start free"
    },
-   "options": {}
+   "options": {
+    "headline.size": 30,
+    "headline.valign": "center",
+    "button.align": "right",
+    "button.valign": "center"
+   }
   },
   "ad-300x600": {
    "group": "ad",
@@ -240,7 +250,7 @@
      "at": {
       "col": 0,
       "row": 0,
-      "cols": 12,
+      "cols": 7,
       "rows": 1
      }
     },
@@ -270,7 +280,8 @@
     "button.text": "Start free"
    },
    "options": {
-    "light.variant": "band"
+    "light.variant": "band",
+    "headline.size": 30
    }
   },
   "ad-160x600": {
@@ -295,7 +306,7 @@
      "at": {
       "col": 0,
       "row": 0,
-      "cols": 12,
+      "cols": 10,
       "rows": 1
      }
     },
@@ -325,7 +336,8 @@
     "button.text": "Start free"
    },
    "options": {
-    "light.variant": "band"
+    "light.variant": "band",
+    "headline.size": 20
    }
   },
   "meta-feed": {

@@ -36,6 +36,8 @@ export type Template = {
 	layouts?: Record<string, SizeLayout>;
 	/** The corners the logo may go to here and keep its clear space at every size (scripts/assets/logo-anchors.mjs). */
 	logoAnchors?: Anchor[];
+	/** The widest frame (width over height) its composition reads at; wider strips are refused. */
+	maxAspect?: number;
 };
 
 type LayoutInput = { W: number; H: number; size: string; has: (slot: string) => boolean; pictures: number; /** Pictures that were passed (pictures counts placeholders too). */ real?: number; safe?: Rect; avoid: Rect[]; floor: number };
@@ -221,7 +223,35 @@ export async function drawTemplate(t: Template, req: SceneRequest): Promise<{ dr
 		throw err;
 	}
 	checkDrawn(t.id + (t.layouts ? '' : ` at ${r.size}`), r.scene, r.given, drawn);
+	const problem = compositionProblem(t, drawn, r.width, r.height);
+	if (problem) {
+		const others = templates('image').filter((x) => x.sizes.includes(r.size)).map((x) => x.id);
+		throw new FitError(`${t.id} does not flow to ${r.size === 'custom' ? `${r.width}x${r.height}` : `${r.size} (${r.width}x${r.height})`}: ${problem}. It takes ${sizesOf(t).join(', ')}.${others.length && r.size !== 'custom' ? ` At ${r.size}: ${others.filter((x) => x !== t.id).join(', ')}.` : ''}`, 'size');
+	}
 	return { drawn, size: r.size, variant: r.variant, repeats: r.repeats, scene: r.scene };
+}
+
+/** Whether the composition still reads at this frame, from what was drawn: a template is refused at a size where its
+ * pictures shrink below a usable size, its headline breaks into a narrow column on a wide strip, its headline dwarfs
+ * the logo on a strip, or the frame is wider than the composition is made for. */
+export function compositionProblem(t: Template, drawn: DrawResult, width: number, height: number): string | undefined {
+	const aspect = width / height;
+	const short = Math.min(width, height);
+	if (t.maxAspect && aspect > t.maxAspect + 1e-6) return `a strip this wide (${aspect.toFixed(1)} to 1) has no room for its composition (it reads up to ${t.maxAspect} to 1)`;
+	const pictures = drawn.layers.filter((l) => l.kind === 'picture').flatMap((l) => (l.ink?.length ? l.ink : [l.box]));
+	if (pictures.length) {
+		const largest = Math.max(...pictures.map((r) => Math.min(r.w, r.h)));
+		const usable = Math.max(40, 0.06 * short);
+		if (largest < usable) return `its pictures shrink to ${Math.max(0, Math.round(largest))}px, below a usable ${Math.round(usable)}px`;
+	}
+	const headline = drawn.layers.find((l) => l.id === 'headline' && l.text);
+	const logo = drawn.layers.find((l) => l.kind === 'logo');
+	if (headline && aspect >= 2.5) {
+		const lines = headline.ink?.length ?? 1;
+		if (lines > 3) return `the headline breaks into ${lines} lines in a narrow column`;
+		if (logo && headline.text!.size / logo.box.h > 2.6) return `the headline (${Math.round(headline.text!.size)}px) dwarfs the logo (${Math.round(logo.box.h)}px tall)`;
+	}
+	return undefined;
 }
 
 /** Every slot that was passed is in the drawing, whole. */

@@ -7,7 +7,7 @@ import { inflateSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
 import { drawScene, fitText, allFaces, rasterizeScene, logoRatio } from '../src/assets/scene.js';
 import { brand } from '../src/lib/brand.js';
-import { findTemplate, resolveSize, sceneFor, templates } from '../src/assets/templates.js';
+import { drawTemplate, findTemplate, resolveSize, sceneFor, templates } from '../src/assets/templates.js';
 import type { StackItem } from '../src/assets/scene.js';
 import { merchItems, merchScene, PX_PER_IN } from '../src/assets/merch.js';
 import { videoDoc, videoFrame } from '../src/commands/video.js';
@@ -75,6 +75,13 @@ describe('image templates', () => {
 		expect(fitText(faces.display, 'Stop screenshotting at midnight.', headline('post-offer', 'square') as never).lines).toEqual(['Stop screenshotting', 'at midnight.']);
 	});
 
+	it('refuses a size where the composition no longer reads, and names the sizes that do', async () => {
+		for (const [id, size] of [['post-agents', '1940x500'], ['ad-creative-row', '1940x500'], ['post-agents', '2000x400']] as const) {
+			const t = findTemplate('image', id);
+			await expect(drawTemplate(t, { size, sample: true, slots: {} })).rejects.toThrow(/does not flow to .*It takes /);
+		}
+		for (const id of ['post-agents', 'ad-creative-row', 'ad-photo']) expect(findTemplate('image', id).sizes).not.toContain('ad-970x250');
+	});
 	it('draw every template at every size and variant at the right pixel size', async () => {
 		for (const t of templates('image')) {
 			for (const size of t.sizes) {

@@ -43,7 +43,7 @@ export const BLOCKS: BlockInfo[] = [
 	{ type: 'stat', names: ['number', 'figure', 'metric'], kind: 'text', description: 'A figure in Funnel Display over a line of DM Sans.', copy: [{ id: 'value', required: true }, { id: 'label' }], options: [{ id: 'align', values: ALIGN }], span: { cols: 4, rows: 3 }, place: 'center', sample: { value: '42%', label: 'more ads tracked' } },
 	{ type: 'quote', names: ['testimonial', 'review'], kind: 'text', description: 'A quote in Funnel Display, the name and role under it (Acme, never a real person).', copy: [{ id: 'text', required: true }, { id: 'name' }, { id: 'role' }], options: [{ id: 'align', values: ALIGN }], span: { cols: 10, rows: 5 }, place: 'center', sample: { text: 'We see every launch the day it ships.', name: 'Alex Kim', role: 'Head of growth, Acme' } },
 	{ type: 'list', names: ['bullets', 'points', 'features'], kind: 'text', description: 'Lines of DM Sans, one per item (separate them with |).', copy: [{ id: 'items', required: true }], options: [{ id: 'align', values: ALIGN }], span: { cols: 6, rows: 4 }, place: 'left', sample: { items: 'Every network|Daily updates|Shared boards' } },
-	{ type: 'button', names: ['cta', 'action'], kind: 'key', description: 'The one White button with a DM Sans Medium label.', copy: [{ id: 'text', required: true }], options: [{ id: 'align', values: ALIGN }], span: { cols: 4, rows: 1 }, place: 'bottom-left', sample: { text: 'Start free' } },
+	{ type: 'button', names: ['cta', 'action'], kind: 'key', description: 'The one White button with a DM Sans Medium label.', copy: [{ id: 'text', required: true }], options: [{ id: 'align', values: ALIGN }, { id: 'valign', values: VALIGN }], span: { cols: 4, rows: 1 }, place: 'bottom-left', sample: { text: 'Start free' } },
 	{ type: 'search', names: ['search-bar', 'prompt', 'field'], kind: 'panel', description: 'The search bar: a Black field with the prompt and a White Search button.', copy: [{ id: 'text', required: true }], span: { cols: 12, rows: 1 }, place: 'center', sample: { text: 'Longest-running ads in running shoes' } },
 	{ type: 'code', names: ['snippet', 'terminal'], kind: 'panel', description: 'Code in the system mono on the code fill.', copy: [{ id: 'text', required: true }], span: { cols: 8, rows: 3 }, place: 'center', sample: { text: 'npx acme search "running shoes"' } },
 	{ type: 'chart', names: ['graph', 'bars', 'donut'], kind: 'art', description: 'Bars, a line or a donut from your numbers ("Mon 12, Tue 18"), in White and the neutral steps.', copy: [{ id: 'data', required: true }], options: [{ id: 'type', values: ['bar', 'line', 'donut'] }], span: { cols: 6, rows: 4 }, place: 'right', sample: { data: 'Mon 12, Tue 18, Wed 30, Thu 26' } },
@@ -284,7 +284,15 @@ function composeScene(doc: DesignDoc, photosIn: Photo[], floor: number, fitted: 
 				layers.push(stackAt(r, [{ type: 'list', id, slot: `${id}.items`, face: 'body', size: fl(24 * u), leading: fl(24 * u) * 1.33, maxLines: 2, itemGap: 16 * u, color: th.fg }], align, valign));
 				break;
 			case 'button':
-				layers.push({ type: 'button', id, slot: `${id}.text`, box: [r.x, r.y, Math.min(r.w, 258 * u), Math.max(Math.min(r.h, 56 * u), fl(20 * u) * 2.4)], size: fl(20 * u), radius: 10 * u, align: align as 'left', ...(th.fg === 'black' ? { fill: 'black', color: 'white' } : {}) });
+			{
+				// The button keeps its size and sits in its cells as `align` and `valign` say (a strip ad's button lines up
+				// with the right margin and the middle of the row).
+				const bw = Math.min(r.w, 258 * u);
+				const bh = Math.max(Math.min(r.h, 56 * u), fl(20 * u) * 2.4);
+				const bx = align === 'right' ? r.x + r.w - bw : align === 'center' ? r.x + (r.w - bw) / 2 : r.x;
+				const by = valign === 'center' ? r.y + (r.h - bh) / 2 : valign === 'bottom' ? r.y + r.h - bh : r.y;
+				layers.push({ type: 'button', id, slot: `${id}.text`, box: [bx, by, bw, bh], size: fl(20 * u), radius: 10 * u, align: align as 'left', ...(th.fg === 'black' ? { fill: 'black', color: 'white' } : {}) });
+			}
 				break;
 			case 'search':
 				layers.push({ type: 'search', id, slot: `${id}.text`, box: [r.x, r.y + Math.max(0, (r.h - 88 * u) / 2), r.w, Math.min(r.h, 88 * u)], size: fl(24 * u) });
