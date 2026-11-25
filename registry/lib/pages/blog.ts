@@ -42,3 +42,7 @@ export const blogContent = {
 
 export type BlogContent = typeof blogContent
 export type BlogPost = (typeof blogPosts)[number]
+
+/** The blog index's sections in order; pass `sections` to reorder them or leave some out. */
+export const blogSections = ['head', 'featured', 'posts'] as const
+export type BlogSection = (typeof blogSections)[number]

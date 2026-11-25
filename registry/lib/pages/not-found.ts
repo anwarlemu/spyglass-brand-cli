@@ -60,3 +60,7 @@ export const notFoundContent = {
 }
 
 export type NotFoundContent = typeof notFoundContent
+
+/** The not found page's sections in order; pass `sections` to reorder them or leave some out. */
+export const notFoundSections = ['head'] as const
+export type NotFoundSection = (typeof notFoundSections)[number]

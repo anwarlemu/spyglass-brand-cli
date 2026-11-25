@@ -91,3 +91,7 @@ export type ResourceListContent = typeof resourceListContent
 export function formatResourceDate(iso: string): string {
 	return new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
 }
+
+/** The resources hub's sections in order; pass `sections` to reorder them or leave some out. */
+export const resourcesSections = ['head', 'cards', 'close'] as const
+export type ResourcesSection = (typeof resourcesSections)[number]

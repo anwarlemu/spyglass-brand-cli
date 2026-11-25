@@ -17,3 +17,7 @@ export const careersContent = {
 	none: 'No open roles right now.',
 }
 export type CareersContent = typeof careersContent
+
+/** The careers page's sections in order; pass `sections` to reorder them or leave some out. */
+export const careersSections = ['hero', 'values', 'roles'] as const
+export type CareersSection = (typeof careersSections)[number]

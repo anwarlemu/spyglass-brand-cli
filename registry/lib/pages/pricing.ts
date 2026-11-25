@@ -130,3 +130,7 @@ export const pricingContent = {
 }
 
 export type PricingContent = typeof pricingContent
+
+/** The pricing page's sections in order; pass `sections` to reorder them or leave some out. */
+export const pricingSections = ['head', 'plans', 'compare', 'faq', 'close'] as const
+export type PricingSection = (typeof pricingSections)[number]

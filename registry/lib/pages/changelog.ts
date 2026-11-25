@@ -36,3 +36,7 @@ export const changelogContent = {
 }
 
 export type ChangelogContent = typeof changelogContent
+
+/** The changelog's sections in order; pass `sections` to reorder them or leave some out. */
+export const changelogSections = ['head', 'entries'] as const
+export type ChangelogSection = (typeof changelogSections)[number]

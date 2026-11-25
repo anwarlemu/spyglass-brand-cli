@@ -39,3 +39,7 @@ export const useCasesContent: UseCasesContent = {
 	],
 	chrome: siteChrome,
 }
+
+/** The use cases index's sections in order; pass `sections` to reorder them or leave some out. */
+export const useCasesSections = ['head', 'cards', 'close'] as const
+export type UseCasesSection = (typeof useCasesSections)[number]

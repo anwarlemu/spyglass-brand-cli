@@ -1,6 +1,6 @@
 import { html } from 'lit'
 import { DsElement, define, HostLayoutController } from '@/elements/lib/element'
-import { useCasesContent, type UseCasesContent } from '@/lib/pages/use-cases'
+import { useCasesContent, type UseCasesContent, useCasesSections, type UseCasesSection } from '@/lib/pages/use-cases'
 import '@/elements/components/site/site-header'
 import '@/elements/components/site/page-head'
 import '@/elements/components/site/resource-cards'
@@ -8,6 +8,7 @@ import '@/elements/components/site/page-close'
 import '@/elements/components/blocks/site-footer'
 import '@/elements/components/visuals/ascii-trail'
 import styles from 'virtual:tw'
+import { pageSections } from '@/lib/image'
 
 // UseCasesPage.tsx as <spyglass-use-cases-page>: the header, the page head, the use cases as linked cards (three across
 // from 1024), the closing section with the connect menu, then the footer. `content` replaces the copy.
@@ -19,13 +20,20 @@ const CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--d
 export class UseCasesPage extends DsElement {
 	static styles = [DsElement.styles, styles]
 	protected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds="use-cases-page"]'))
-	static properties = { content: { type: Object } }
+	static properties = { content: { type: Object }, sections: { type: Array } }
 	/** The copy as JSON (lib/pages/use-cases.ts by default). */
 	content: UseCasesContent = useCasesContent
+	/** The sections to show, in order (a list of names); all of them in the page order by default. */
+	sections?: UseCasesSection[]
 
 	render() {
 		const c = this.content ?? useCasesContent
-		return html`<div data-ds="use-cases-page" class="isolate bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .links=${c.chrome.header.nav} .secondary=${c.chrome.header.secondary} .cta=${c.chrome.header.cta}></spyglass-site-header><main id="main"><spyglass-page-head head-id=${c.id} .lines=${c.head.lines} .lead=${c.head.lead}></spyglass-page-head><section aria-label=${c.head.lines.join(' ')}><div class=${`${CONTAINER} pb-(--ds-layout-section)`}><spyglass-resource-cards .cards=${c.cards} columns="3"></spyglass-resource-cards></div></section><spyglass-page-close></spyglass-page-close></main><spyglass-site-footer .columns=${c.chrome.footer.columns} legal=${c.chrome.footer.legal}></spyglass-site-footer></div>`
+		const parts: Record<UseCasesSection, unknown> = {
+			head: html`<spyglass-page-head head-id=${c.id} .lines=${c.head.lines} .lead=${c.head.lead}></spyglass-page-head>`,
+			cards: html`<section aria-label=${c.head.lines.join(' ')}><div class=${`${CONTAINER} pb-(--ds-layout-section)`}><spyglass-resource-cards .cards=${c.cards} columns="3"></spyglass-resource-cards></div></section>`,
+			close: html`<spyglass-page-close></spyglass-page-close>`,
+		}
+		return html`<div data-ds="use-cases-page" class="isolate bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .links=${c.chrome.header.nav} .secondary=${c.chrome.header.secondary} .cta=${c.chrome.header.cta}></spyglass-site-header><main id="main">${pageSections(useCasesSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.chrome.footer.columns} legal=${c.chrome.footer.legal}></spyglass-site-footer></div>`
 	}
 }
 

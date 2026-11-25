@@ -7,3 +7,7 @@ export const errorContent = {
 	home: { label: 'Go to the homepage', href: '/' },
 }
 export type ErrorContent = typeof errorContent
+
+/** The error page's sections in order; pass `sections` to reorder them or leave some out. */
+export const errorSections = ['head'] as const
+export type ErrorSection = (typeof errorSections)[number]

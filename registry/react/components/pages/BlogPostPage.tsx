@@ -49,7 +49,7 @@ export function BlogPostPage({ content: c = blogPostContent, className }: BlogPo
             <p className="mt-6 type-ui text-fg-muted">{c.byline}</p>
           </header>
           <div className={cn(WRAP, 'mt-12 max-sm:mt-8')}>
-            <CreativeCard {...c.image} alt={c.title} ratio="16/9" className="mx-auto max-w-page" />
+            <CreativeCard {...c.image} alt={c.image.alt ?? c.title} ratio="16/9" className="mx-auto max-w-page" />
           </div>
           <div className={cn(COLUMN, 'grid gap-6 py-12 max-sm:py-8')}>
             {c.body.map((b, i) => <Block key={i} block={b} />)}
@@ -60,7 +60,7 @@ export function BlogPostPage({ content: c = blogPostContent, className }: BlogPo
           <div className="grid grid-cols-3 gap-6 max-md:grid-cols-1">
             {c.related.posts.map((p) => (
               <article key={p.href} className="grid content-start gap-4">
-                <CreativeCard {...p.image} alt={p.title} ratio="7/5" />
+                <CreativeCard {...p.image} alt={p.image.alt ?? p.title} ratio="7/5" />
                 <p className="type-label text-fg-muted">{p.date}</p>
                 <h3 className="type-heading-3 text-balance"><a href={p.href} className={TITLE}>{p.title}</a></h3>
               </article>

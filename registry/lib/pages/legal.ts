@@ -69,3 +69,7 @@ export const legalPrivacyContent: LegalContent = {
 		{ id: 'contact', title: 'Contact', body: [privacy('where to send questions about this policy')] },
 	],
 }
+
+/** The legal page's sections in order; pass `sections` to reorder them or leave some out. */
+export const legalSections = ['head', 'body'] as const
+export type LegalSection = (typeof legalSections)[number]

@@ -1,6 +1,6 @@
 import { html } from 'lit'
 import { DsElement, define, HostLayoutController } from '@/elements/lib/element'
-import { pricingContent, type PricingContent } from '@/lib/pages/pricing'
+import { pricingContent, type PricingContent, pricingSections, type PricingSection } from '@/lib/pages/pricing'
 import '@/elements/components/site/page-head'
 import '@/elements/components/site/page-close'
 import '@/elements/components/blocks/faq-accordion'
@@ -11,6 +11,7 @@ import '@/elements/components/site/site-header'
 import '@/elements/components/visuals/ascii-trail'
 import '@/elements/components/blocks/site-footer'
 import styles from 'virtual:tw'
+import { pageSections } from '@/lib/image'
 
 // PricingPage.tsx as <spyglass-pricing-page>: the site's pricing page: the header, the centered page head, the plan
 // cards with the billing switch, the compare table (from 768), the questions, the closing section and the footer. `content`
@@ -25,13 +26,22 @@ const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-lay
 export class PricingPage extends DsElement {
 	static styles = [DsElement.styles, styles]
 	protected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds="pricing-page"]'))
-	static properties = { content: { type: Object } }
+	static properties = { content: { type: Object }, sections: { type: Array } }
 	/** The page's copy (lib/pages/pricing.ts by default). */
 	content: PricingContent = pricingContent
+	/** The sections to show, in order (a list of names); all of them in the page order by default. */
+	sections?: PricingSection[]
 
 	render() {
 		const c = this.content ?? pricingContent
-		return html`<div data-ds="pricing-page" class="isolate bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header><main id="main"><spyglass-page-head head-id="pricing" .lines=${c.head.lines} lead=${c.head.lead} align="centre"></spyglass-page-head><section aria-label="Plans" class="pb-[calc(var(--ds-layout-section)-var(--ds-space-xs))] md:pb-(--ds-layout-section)"><div class=${WRAP}><spyglass-pricing-table .plans=${c.plans} .billing=${c.billing} .note=${c.note}></spyglass-pricing-table></div></section><section id=${c.compare.id} aria-label=${c.compare.label} class="py-(--ds-layout-section) max-md:hidden"><div class=${WRAP}><spyglass-compare-table .plans=${c.compare.plans} .groups=${c.compare.groups} default-plan=${c.compare.defaultPlan}></spyglass-compare-table></div></section><section id=${c.faq.id} aria-labelledby=${`${c.faq.id}-heading`} class="py-(--ds-layout-section)"><div class=${`${WRAP} ${FAQ_SPLIT}`}><div class=${FAQ_HEAD}><h2 id=${`${c.faq.id}-heading`} class="type-section [text-box:trim-start_cap_alphabetic]">${c.faq.title}</h2><p class="type-body-lg text-pretty text-fg-soft">${c.faq.lead}</p><spyglass-button href=${c.faq.action.href} variant="secondary" class="mt-4 max-md:w-full">${c.faq.action.label}</spyglass-button></div><div class="min-w-0"><spyglass-faq-accordion .items=${c.faq.items}></spyglass-faq-accordion></div></div></section><spyglass-page-close .lines=${c.close.lines} note=${c.close.note} .primary=${c.close.primary}></spyglass-page-close></main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`
+		const parts: Record<PricingSection, unknown> = {
+			head: html`<spyglass-page-head head-id="pricing" .lines=${c.head.lines} lead=${c.head.lead} align="centre"></spyglass-page-head>`,
+			plans: html`<section aria-label="Plans" class="pb-[calc(var(--ds-layout-section)-var(--ds-space-xs))] md:pb-(--ds-layout-section)"><div class=${WRAP}><spyglass-pricing-table .plans=${c.plans} .billing=${c.billing} .note=${c.note}></spyglass-pricing-table></div></section>`,
+			compare: html`<section id=${c.compare.id} aria-label=${c.compare.label} class="py-(--ds-layout-section) max-md:hidden"><div class=${WRAP}><spyglass-compare-table .plans=${c.compare.plans} .groups=${c.compare.groups} default-plan=${c.compare.defaultPlan}></spyglass-compare-table></div></section>`,
+			faq: html`<section id=${c.faq.id} aria-labelledby=${`${c.faq.id}-heading`} class="py-(--ds-layout-section)"><div class=${`${WRAP} ${FAQ_SPLIT}`}><div class=${FAQ_HEAD}><h2 id=${`${c.faq.id}-heading`} class="type-section [text-box:trim-start_cap_alphabetic]">${c.faq.title}</h2><p class="type-body-lg text-pretty text-fg-soft">${c.faq.lead}</p><spyglass-button href=${c.faq.action.href} variant="secondary" class="mt-4 max-md:w-full">${c.faq.action.label}</spyglass-button></div><div class="min-w-0"><spyglass-faq-accordion .items=${c.faq.items}></spyglass-faq-accordion></div></div></section>`,
+			close: html`<spyglass-page-close .lines=${c.close.lines} note=${c.close.note} .primary=${c.close.primary}></spyglass-page-close>`,
+		}
+		return html`<div data-ds="pricing-page" class="isolate bg-surface text-fg"><spyglass-ascii-trail mode="page"></spyglass-ascii-trail><spyglass-site-header .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header><main id="main">${pageSections(pricingSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`
 	}
 }
 

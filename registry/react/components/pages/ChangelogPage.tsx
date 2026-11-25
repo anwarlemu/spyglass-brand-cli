@@ -1,8 +1,10 @@
 import { CreativeCard } from '@/react/components/site/CreativeCard'
 import { FooterRow } from '@/react/components/site/FooterRow'
 import { SiteHeader } from '@/react/components/site/SiteHeader'
-import { changelogContent, type ChangelogContent } from '@/lib/pages/changelog'
+import { changelogContent, type ChangelogContent, changelogSections, type ChangelogSection } from '@/lib/pages/changelog'
 import { cn } from '@/react/lib/cn'
+import { pageSections } from '@/lib/image'
+import { Fragment, type ReactNode } from 'react'
 
 // The changelog from library items: the title, then every release newest first under a hairline, its date in
 // capitals on the left (it stays in view while the entry scrolls on wide screens), the change as a Funnel Display
@@ -10,33 +12,42 @@ import { cn } from '@/react/lib/cn'
 // (lib/pages/changelog.ts).
 export interface ChangelogPageProps {
   content?: ChangelogContent
+  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */
+  sections?: readonly ChangelogSection[]
   className?: string
 }
 
 const WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'
 
-export function ChangelogPage({ content: c = changelogContent, className }: ChangelogPageProps) {
+export function ChangelogPage({ content: c = changelogContent, sections, className }: ChangelogPageProps) {
+  const parts: Record<ChangelogSection, ReactNode> = {
+    head: (
+      <div className={cn(WRAP, 'grid gap-4 pt-16 pb-12 max-sm:pt-10 max-sm:pb-8')}>
+        <h1 className="type-section">{c.title}</h1>
+        <p className="max-w-140 type-body-lg text-fg-soft">{c.body}</p>
+      </div>
+    ),
+    entries: (
+      <ol className={cn(WRAP, 'grid pb-24 max-sm:pb-16')}>
+        {c.entries.map((e) => (
+          <li key={e.title} className="grid grid-cols-4 gap-12 border-t border-edge py-12 max-md:grid-cols-1 max-md:gap-4 max-sm:py-8">
+            <p className="self-start type-label text-fg-muted md:sticky md:top-8"><time>{e.date}</time></p>
+            <div className="col-span-3 grid max-w-180 gap-4 max-md:col-span-1">
+              <h2 className="type-heading-2 text-balance">{e.title}</h2>
+              <p className="type-body text-fg-soft">{e.body}</p>
+              {e.items.length > 0 && <ul className="grid list-disc gap-2 pl-5 type-body text-fg-soft marker:text-fg-faint">{e.items.map((i) => <li key={i}>{i}</li>)}</ul>}
+              {e.image && <CreativeCard {...e.image} alt={e.image.alt ?? e.title} ratio="16/9" className="mt-2" />}
+            </div>
+          </li>
+        ))}
+      </ol>
+    ),
+  }
   return (
     <div data-ds="changelog-page" className={cn('bg-surface text-fg', className)}>
       <SiteHeader links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />
       <main>
-        <div className={cn(WRAP, 'grid gap-4 pt-16 pb-12 max-sm:pt-10 max-sm:pb-8')}>
-          <h1 className="type-section">{c.title}</h1>
-          <p className="max-w-140 type-body-lg text-fg-soft">{c.body}</p>
-        </div>
-        <ol className={cn(WRAP, 'grid pb-24 max-sm:pb-16')}>
-          {c.entries.map((e) => (
-            <li key={e.title} className="grid grid-cols-4 gap-12 border-t border-edge py-12 max-md:grid-cols-1 max-md:gap-4 max-sm:py-8">
-              <p className="self-start type-label text-fg-muted md:sticky md:top-8"><time>{e.date}</time></p>
-              <div className="col-span-3 grid max-w-180 gap-4 max-md:col-span-1">
-                <h2 className="type-heading-2 text-balance">{e.title}</h2>
-                <p className="type-body text-fg-soft">{e.body}</p>
-                {e.items.length > 0 && <ul className="grid list-disc gap-2 pl-5 type-body text-fg-soft marker:text-fg-faint">{e.items.map((i) => <li key={i}>{i}</li>)}</ul>}
-                {e.image && <CreativeCard {...e.image} alt={e.title} ratio="16/9" className="mt-2" />}
-              </div>
-            </li>
-          ))}
-        </ol>
+        {pageSections(changelogSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}
       </main>
       <footer className="border-t border-edge">
         <div className={cn(WRAP, 'py-10')}>
