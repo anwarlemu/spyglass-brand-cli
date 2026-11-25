@@ -18,6 +18,6 @@ examples:
   - "Run | Monday's batch | bleed"
 ---
 `items` takes each ad or post: `brand`, `title`, `alt`, `src` (a still, or the poster of `video`), `video` (a short muted
-loop), `tone` (the placeholder's gradient), `facts`, `start` and `end` (YYYY-MM-DD), `post` (`channel`, `views`), `source`
+loop, played only while the run is on screen and the tab visible; with reduced motion it rests on its poster), `tone` (the placeholder's gradient), `facts`, `start` and `end` (YYYY-MM-DD), `post` (`channel`, `views`), `source`
 and `media`. The note counts days to `content.reportDay`. The engine (`lib/automation-run.ts`) writes transforms straight
 to the cards, runs only while the run is on screen, and holds the batch at rest with reduced motion.
