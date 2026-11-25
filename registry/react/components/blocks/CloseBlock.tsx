@@ -14,7 +14,7 @@ import { cn } from '@/react/lib/cn'
 // sweeps across once, waking each creative to its colors as it passes; under a mouse the creatives near the pointer
 // light up and lean toward it a few pixels, and a tag names the one under it (it fades and unblurs in beside it, clear
 // of the words). Reduced motion shows every creative in color and still. On phones the field and drifts give way to a
-// plain centered close. `creatives` are cycled through the field (Acme placeholders by default) with `tags`.
+// plain centered close, the menu steps aside and the quiet button turns White (the site's MCP pair). `creatives` are cycled through the field (Acme placeholders by default) with `tags`.
 export interface CloseBlockProps {
   content?: CloseContent
   creatives?: CloseCreative[]
@@ -64,7 +64,7 @@ export function CloseBlock({ content: c = closeContent, creatives = closeCreativ
       <div className="ds-close-content">
         <h2 className="ds-close-line type-section">{c.headline}</h2>
         <div className="ds-close-actions">
-          <ConnectMenu content={connect} up />
+          <div className="ds-close-connect"><ConnectMenu content={connect} /></div>
           <Button href={c.secondary.href} variant="secondary">{c.secondary.label}</Button>
         </div>
       </div>
@@ -106,10 +106,15 @@ const css = `
 }
 .ds-close-content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; max-width: 100%; text-align: center; translate: 0 round(nearest, calc(-1 * var(--lift)), 4px); }
 .ds-close-line { max-width: 12em; color: var(--ds-color-white); }
+.ds-close-connect { display: contents; }
 .ds-close-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 32px; }
 @media (width < 768px) {
   .ds-close-content { width: 100%; }
   .ds-close-actions { flex-direction: column; align-self: stretch; }
+  /* The site's MCP pair on phones (globals.css [data-mcp-pair]): the connect menu steps aside and the quiet button turns
+     White, the row's one White button. */
+  .ds-close-connect { display: none; }
+  .ds-close-actions { --ds-color-action-secondary: var(--ds-color-action-primary); --ds-color-action-secondary-hover: var(--ds-color-action-primary-hover); --ds-color-action-secondary-fg: var(--ds-color-action-primary-fg); --ds-color-action-secondary-edge: var(--ds-color-action-primary); --ds-color-action-secondary-edge-hover: var(--ds-color-action-primary-hover); }
 }
 @media (min-width: 768px) {
   .ds-close { --u: calc(var(--h) / var(--ds-close-field)); --lift: max(0px, var(--ds-close-lift-tablet-a) - var(--ds-close-lift-tablet-b) * var(--u)); --clear: 0; --top-clear: 56px; --foot-clear: 0px; }
@@ -126,7 +131,7 @@ const css = `
 .ds-close-tag {
   position: absolute; z-index: 1; top: 0; left: 0; display: none; height: 24px; padding-inline: 8px; border-radius: var(--ds-radius-sm); background: var(--ds-color-surface-raised); color: var(--ds-color-fg);
   font-size: var(--ds-text-caption); line-height: 24px; white-space: nowrap; pointer-events: none; opacity: 0; filter: blur(var(--ds-close-tag-blur)); translate: var(--tag-from-x, 0px) var(--tag-from-y, 0px);
-  transition: opacity var(--ds-duration-exit) var(--ds-easing-out), filter var(--ds-duration-exit) var(--ds-easing-out);
+  transition: opacity var(--ds-duration-press) var(--ds-easing-out), filter var(--ds-duration-press) var(--ds-easing-out);
 }
 .ds-close-tag[data-shown] { opacity: 1; filter: blur(0); translate: 0 0; transition: opacity var(--ds-duration-micro) var(--ds-easing-out), filter var(--ds-duration-micro) var(--ds-easing-out), translate var(--ds-duration-micro) var(--ds-easing-out); }
 @media (hover: hover) and (pointer: fine) { .ds-close-tag { display: block; } }

@@ -580,7 +580,7 @@ export function startCloseTags(section: HTMLElement, tag: HTMLElement): () => vo
 		const n = parseFloat(css.getPropertyValue(name))
 		return Number.isFinite(n) ? n : d
 	}
-	const t = { out: msOf('--ds-duration-exit', 160), intent: msOf('--ds-close-tag-intent', 80), gap: pxOf('--ds-space-sm', 8), clear: pxOf('--ds-space-lg', 16), travel: pxOf('--ds-close-tag-travel', 4) }
+	const t = { out: msOf('--ds-duration-press', 120), intent: msOf('--ds-close-tag-intent', 80), gap: pxOf('--ds-space-sm', 8), clear: pxOf('--ds-space-lg', 16), travel: pxOf('--ds-close-tag-travel', 4) }
 	let spots: TagSpot[] = []
 	let pointer: { x: number; y: number } | null = null
 	let target: TagSpot | null = null
