@@ -3,6 +3,7 @@
 // images as `src`. Both flavors read this file.
 import { siteChrome } from '@/lib/pages/site-chrome'
 import type { ResourceCard, ResourceRow } from '@/lib/resource-cards'
+import type { ImageSlot } from '@/lib/image'
 
 /** An Acme placeholder creative for a cover. */
 const tile = (brand: string, tone: 1 | 2 | 3 | 4) => ({ brand, tone })
@@ -13,8 +14,8 @@ export interface ResourceEntry {
 	href: string
 	/** ISO date, 2026-11-01. */
 	date: string
-	/** A 16:9 picture on the left of the row (the post's cover): your image as `src`, or a neutral tone (1 to 4). */
-	thumb?: { src?: string; alt?: string; tone?: 1 | 2 | 3 | 4 }
+	/** A 16:9 picture on the left of the row (the post's cover): your image as `src` (with `alt`, `fit`, `position`), or a neutral tone (1 to 4). */
+	thumb?: ImageSlot & { tone?: 1 | 2 | 3 | 4 }
 }
 
 export interface ResourceList {

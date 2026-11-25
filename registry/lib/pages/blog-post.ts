@@ -1,6 +1,7 @@
 // The blog post template's copy: a neutral example post by the team, with Acme placeholders. Both flavors read this file.
+import type { CreativeImage } from '@/lib/image'
 /** An Acme placeholder creative: the advertiser, a neutral tone (1 to 4) and a headline. */
-const creative = (brand: string, tone: 1 | 2 | 3 | 4, caption?: string) => (caption ? { brand, tone, caption } : { brand, tone })
+const creative = (brand: string, tone: 1 | 2 | 3 | 4, caption?: string): CreativeImage => (caption ? { brand, tone, caption } : { brand, tone })
 
 const nav = [
 	{ label: 'Product', href: '/product' },
@@ -22,7 +23,7 @@ const footer = {
 const header = { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get 50% off', href: '/pricing' } }
 
 // A block of the post's body. Written out in place (no type alias), so the web component's generated types stand alone.
-const body: ({ kind: 'p' | 'h2' | 'quote'; text: string } | { kind: 'list'; items: string[] } | { kind: 'figure'; caption: string; images: { brand: string; tone: 1 | 2 | 3 | 4; caption?: string }[] })[] = [
+const body: ({ kind: 'p' | 'h2' | 'quote'; text: string } | { kind: 'list'; items: string[] } | { kind: 'figure'; caption: string; images: CreativeImage[] })[] = [
 	{ kind: 'p', text: 'A brand’s best ad tells you what worked once. A week of its ads tells you what it believes. Start with the week.' },
 	{ kind: 'h2', text: 'Count formats first.' },
 	{ kind: 'p', text: 'Sort the week by format before you look at a single hook. UGC, studio, static, carousel. The split is the strategy.' },

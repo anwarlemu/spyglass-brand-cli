@@ -48,3 +48,14 @@ export function pageSections<K extends string>(all: readonly K[], given?: readon
 
 /** Whether a src is a placeholder: none, or a generated blank that carries the placeholder attribute in its markup. */
 export const isPlaceholderSrc = (src?: string) => !src || src.includes(PLACEHOLDER_ATTR)
+
+/** A creative in a page's data: an image slot, or (without `src`) the creative card's placeholder: its advertiser, a
+ * headline and a neutral tone (1 to 4). */
+export interface CreativeImage extends ImageSlot {
+	/** The placeholder's advertiser. */
+	brand?: string
+	/** The placeholder's headline. */
+	caption?: string
+	/** The placeholder's neutral gradient, 1 (darkest) to 4. */
+	tone?: 1 | 2 | 3 | 4
+}

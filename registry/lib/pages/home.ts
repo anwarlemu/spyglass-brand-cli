@@ -2,6 +2,14 @@
 // own copy lives with its block in lib/home/). The questions are the site's own; the marks, customers and links are
 // Acme placeholders. Both flavors read this file.
 
+import type { BurstContent } from '@/lib/home/accounts-burst'
+import type { CloseCreative } from '@/lib/home/close'
+import type { MediaAd, RingContent, TallyContent } from '@/lib/home/features'
+import type { PanelCreative } from '@/lib/home/pricing'
+import type { SessionContent } from '@/lib/home/session'
+import type { StoryCase, StoryQuote } from '@/lib/home/stories'
+import type { WhyCreative } from '@/lib/home/why'
+
 const nav = [
 	{ label: 'Products', href: '/products' },
 	{ label: 'Use cases', href: '/use-cases' },
@@ -41,3 +49,25 @@ export const homeContent = {
 }
 
 export type HomeContent = typeof homeContent
+
+/** The home's sections in the site's order; pass `sections` to reorder them or leave some out. */
+export const homeSections = ['hero', 'proof', 'features', 'why', 'steps', 'stories', 'pricing', 'faq', 'close'] as const
+export type HomeSection = (typeof homeSections)[number]
+
+/** Each block's own data, pictures included (Acme placeholders where left out). */
+export interface HomeBlocks {
+	/** The hero's MCP session (its creatives as images). */
+	hero?: { session?: SessionContent }
+	/** The features: the media strip's ads, the searches (each with `images`), the graph ring and the tally. */
+	features?: { ads?: MediaAd[]; burst?: BurstContent; ring?: RingContent; tally?: TallyContent }
+	/** The reasons: the archive's four creatives and the advertiser's mark. */
+	why?: { creatives?: WhyCreative[]; logo?: string }
+	/** The set-up steps' MCP session. */
+	steps?: { session?: SessionContent }
+	/** The case stories: each case's picture, and the quotes. */
+	stories?: { cases?: StoryCase[]; quotes?: StoryQuote[] }
+	/** The pricing strip's sets of five creatives. */
+	pricing?: { sets?: PanelCreative[][] }
+	/** The creatives the close cycles through. */
+	close?: { creatives?: CloseCreative[] }
+}

@@ -3,6 +3,7 @@
 // page draws a neutral placeholder. Both flavors read this file.
 import { siteChrome } from '@/lib/pages/site-chrome'
 import { storyCases, storyQuotes, type StoryCase, type StoryQuote } from '@/lib/home/stories'
+import type { ImageSlot } from '@/lib/image'
 
 export interface CaseStudyFigure {
 	value: string
@@ -31,7 +32,7 @@ export interface CaseStudy {
 	aside?: { text: string; name: string }
 	sections: CaseStudySection[]
 	/** The lead picture (16:9, 4:5 on phones); a neutral placeholder without it. */
-	cover?: { src?: string; alt?: string; brand?: string }
+	cover?: ImageSlot & { brand?: string }
 }
 
 export const caseStudies: CaseStudy[] = [

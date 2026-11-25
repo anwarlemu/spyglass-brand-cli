@@ -1,6 +1,8 @@
 // The about page's copy (site content/pages/about.ts): the head, the strip of photos (the site's light tiles at both
 // ends and Acme placeholders where a team's own photos go), the story and the benefits. Both flavors read this file.
 
+import type { ImageSlot } from '@/lib/image'
+
 // The header's five pages and the sign-in, the footer's six columns and Acme's legal line.
 const shell = {
 	header: {
@@ -26,10 +28,8 @@ const shell = {
 	},
 }
 
-/** One tile in the strip: your photo (`src`, with `alt`), one of the site's light tiles (`light`), or an empty tile. */
-export interface AboutPhoto {
-	src?: string
-	alt?: string
+/** One tile in the strip: your photo (`src`, with `alt`, `fit` and `position`), one of the site's light tiles (`light`), or an empty tile. */
+export interface AboutPhoto extends ImageSlot {
 	/** The site's light tile b or c instead of a photo. */
 	light?: 'b' | 'c'
 	/** Two columns wide. */
@@ -68,3 +68,7 @@ export const aboutContent = {
 }
 
 export type AboutContent = typeof aboutContent
+
+/** The about page's sections in order; pass `sections` to reorder them or leave some out. */
+export const aboutSections = ['head', 'photos', 'story', 'perks'] as const
+export type AboutSection = (typeof aboutSections)[number]

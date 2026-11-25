@@ -1,6 +1,7 @@
 // The blog index template's copy: neutral example posts by the team, with Acme placeholders. Replace them with real posts. Both flavors read this file.
+import type { CreativeImage } from '@/lib/image'
 /** An Acme placeholder creative: the advertiser, a neutral tone (1 to 4) and a headline. */
-const creative = (brand: string, tone: 1 | 2 | 3 | 4, caption?: string) => (caption ? { brand, tone, caption } : { brand, tone })
+const creative = (brand: string, tone: 1 | 2 | 3 | 4, caption?: string): CreativeImage => (caption ? { brand, tone, caption } : { brand, tone })
 
 const nav = [
 	{ label: 'Product', href: '/product' },
