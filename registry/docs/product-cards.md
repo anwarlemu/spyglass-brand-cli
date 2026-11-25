@@ -9,7 +9,7 @@ never:
   - "Pictures or icons in the cards"
   - "Cards that grow or move on hover: the fill changes, nothing moves"
   - "Uneven columns: three or four"
-source: "Site pages/Products/ProductCards (Products.module.css .cards, .card, .cardEndpoint): gap --hairline on --line, cards on --bg 24px in (0 at the sides under 768), .t-sub names, .text lines (body 16/24 --text-2), the endpoint in --font-mono small --text-3 at the foot; --surface on hover (fine pointers) and on press, --dur-fast"
+source: "Site pages/Products/ProductCards (Products.module.css .cards, .card, .cardEndpoint): gap --hairline on --line, cards on --bg 24px in (0 at the sides under 768, 32px from 768), one column, two from 768, three or four from 1024 (data-columns), .t-sub names, .text lines (body 16/24 --text-2), the endpoint in --font-mono small --text-3 at the foot; --surface on hover (fine pointers) and on press, --dur-fast"
 files:
   - react/components/site/ProductCards.tsx
 examples:
