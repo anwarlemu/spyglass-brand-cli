@@ -715,7 +715,7 @@ export function createWheelRipple(engine: { readonly current: WheelEngine | null
 // tag, the element adopts it). The ring's measures step up at 768, 1024 and 1280; under 768 the ring is hidden and the
 // heading sits over the drum alone.
 export const useCaseWheelCss = `
-.ds-wheel-section { overflow-x: clip; padding-block: var(--ds-layout-section); }
+.ds-wheel-section { position: relative; isolation: isolate; overflow-x: clip; padding-block: var(--ds-layout-section); }
 .ds-wheel {
   --rx: var(--ds-wheel-rx); --ry: var(--ds-wheel-ry); --card-w: var(--ds-wheel-card-w); --card-h: var(--ds-wheel-card-h);
   --slots: var(--ds-wheel-slots); --head-w: var(--ds-wheel-head-w);
@@ -768,6 +768,8 @@ export const useCaseWheelCss = `
   .ds-wheel { --rx: var(--ds-wheel-rx-lg); --ry: var(--ds-wheel-ry-lg); --card-w: var(--ds-wheel-card-w-lg); --card-h: var(--ds-wheel-card-h-lg); --slots: var(--ds-wheel-slots-lg); --head-w: var(--ds-wheel-head-w-lg); }
   .ds-wheel-section[data-light] { padding-top: calc(var(--ds-layout-section) - var(--ds-space-sm)); padding-bottom: calc(var(--ds-layout-section) + var(--ds-space-3xl) - var(--ds-space-xs)); }
 }
+/* The site's .t-h1: the section head's 44/48 holds until 1280 here (type-section steps to 56 at 1024). */
+@media (min-width: 1024px) and (max-width: 1279.98px) { .ds-wheel-head { font-size: var(--ds-text-heading-1); line-height: var(--ds-text-heading-1-leading); } }
 @media (min-width: 1280px) { .ds-wheel { --rx: var(--ds-wheel-rx-xl); --ry: var(--ds-wheel-ry-xl); --card-w: var(--ds-wheel-card-w-xl); --card-h: var(--ds-wheel-card-h-xl); --head-w: var(--ds-wheel-head-w-xl); } }
 @media (min-width: 1600px) { .ds-wheel-section[data-light] { padding-top: calc(var(--ds-layout-section) + var(--ds-space-xs)); padding-bottom: calc(var(--ds-layout-section) + var(--ds-space-4xl) + var(--ds-space-md)); } }
 @media (prefers-reduced-motion: reduce) { .ds-wheel-label { transition: none; } }
