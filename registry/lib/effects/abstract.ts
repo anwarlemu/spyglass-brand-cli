@@ -88,6 +88,7 @@ const NAMES: Record<string, string> = {
   "--radius-m": "--ds-radius-panel",
   "--space-8": "--ds-space-sm",
   "--space-16": "--ds-space-lg",
+  "--space-24": "--ds-space-xl",
   "--space-64": "--ds-space-4xl",
   "--search-drift": "--ds-abstract-drift",
   "--dur-abstract-line": "--ds-abstract-line",
