@@ -1,3 +1,5 @@
+'use client'
+
 import { SiteHeader } from '@/react/components/site/SiteHeader'
 import { AsciiTrail } from '@/react/components/visuals/AsciiTrail'
 import { UseCaseHero } from '@/react/components/site/UseCaseHero'
