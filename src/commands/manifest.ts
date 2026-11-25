@@ -18,6 +18,9 @@ import { ICONS_FLAGS } from './icons.js';
 import { EMAIL_FLAGS, EMAILS } from './email.js';
 import { COVERAGE } from './coverage.js';
 import { adapter } from '../design/adapter.js';
+import { AD_FLAGS } from './ad.js';
+import { PLATFORM_SIZES, SECTIONS } from '../assets/brief.js';
+import { adsData } from '../assets/ads.js';
 import { SIZES } from '../assets/sizes.js';
 
 // The one document an agent reads first. It names every command, template, size, component, token and rule.
@@ -35,6 +38,7 @@ const COMMANDS = [
 	{ name: 'merch', summary: 'Merch print files: SVG at physical size and PNG at 300 dpi with bleed and safe area.', flags: [...MERCH_FLAGS, 'help'] },
 	{ name: 'light', summary: 'The brand light as SVG or PNG, seeded: windows onto the brand heat map or a generated one.', flags: ['variant', 'seed', 'source', 'width', 'height', 'out', 'format', 'ground', 'list', 'help'] },
 	{ name: 'ascii', summary: 'The ASCII texture as SVG or PNG, seeded.', flags: ['seed', 'width', 'height', 'density', 'out', 'format', 'ground', 'help'] },
+	{ name: 'ad', summary: 'Static ads from a brief (Markdown, JSON or stdin): picks the layouts for each platform size, draws 2 to 4 distinct variants per size that pass the brand check, writes each as a design file with its PNG (JPG and WebP with --format) and one labeled contact sheet. Missing copy fails with the fields named; --sample fills sample copy.', flags: [...AD_FLAGS, 'help'] },
 	{ name: 'recipe', summary: 'Ready compose layouts for what no template covers: display ads, cards, print, email and backgrounds; writes a design file and draws it (the check runs).', flags: [...RECIPE_FLAGS, 'help'] },
 	{ name: 'email', summary: 'Emails as mail clients read them: one 600px table, inline styles, the brand colors and faces, the lockup as a PNG. Kinds: newsletter, announcement, receipt, password-reset.', flags: [...EMAIL_FLAGS, 'help'] },
 	{ name: 'icons', summary: 'The favicon set (svg, ico, 16, 32), app icons (180, 192, 512, maskable), avatars and the web manifest, from the brand favicon.', flags: [...ICONS_FLAGS, 'help'] },
@@ -108,6 +112,15 @@ export async function manifest(): Promise<Record<string, unknown>> {
 		figma,
 		design: designManifest(adapter(), brand().bin),
 		recipes: Object.entries(recipes()).map(([id, r]) => ({ id, group: r.group, description: r.description, size: r.size, blocks: r.blocks.map((b) => ({ id: b.id, type: b.type })), make: `${brand().bin} recipe ${id} --set <block>.<slot>=...` })),
+		// `ad`: the brief's sections, the platforms it names and the size ids each maps to, and the layouts it chooses from.
+		ads: {
+			brief: Object.values(SECTIONS).map((s) => ({ heading: s.heading, names: s.names, about: s.about })),
+			platforms: PLATFORM_SIZES.map((p) => ({ label: p.label, names: p.names, sizes: p.sizes })),
+			layouts: adsData().layouts.map((l) => ({ id: l.id, from: l.from, fields: Object.keys(l.fields), goals: l.goals })),
+			goals: Object.keys(adsData().goals),
+			examples: 'brand/briefs/*.md',
+			make: `${brand().bin} ad brief.md`,
+		},
 		emails: Object.entries(EMAILS).map(([id, k]) => ({ id, description: k.description, slots: k.slots })),
 		// What to run for each kind of graphic, page or part: the agent guide's decision table as data.
 		coverage: COVERAGE,
