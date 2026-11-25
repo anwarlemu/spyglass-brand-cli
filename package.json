@@ -33,6 +33,7 @@
     "registry:release": "bun scripts/build-registry.ts --require-all-flavors",
     "elements": "node scripts/build-elements.mjs",
     "parity": "node scripts/check-parity.mjs",
+    "docs:build": "bun run --cwd apps/www build",
     "port-order": "node scripts/port-order.mjs"
   },
   "devDependencies": {
