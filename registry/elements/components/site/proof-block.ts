@@ -19,7 +19,7 @@ export class ProofBlock extends DsElement {
 	headId = 'proof'
 
 	render() {
-		return html`<section data-ds="proof-block" aria-labelledby=${`${this.headId}-title`} class="pb-(--ds-layout-section) text-fg"><div class="mx-auto flex w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] flex-col items-center gap-10 px-(--ds-layout-gutter) text-center"><h2 id=${`${this.headId}-title`} class="type-body-lg text-fg">${this.heading}</h2><spyglass-proof-strip .logos=${this.logos ?? proofPlaceholders}></spyglass-proof-strip></div></section>`
+		return html`<section data-ds="proof-block" aria-labelledby=${`${this.headId}-title`} class="pb-(--ds-layout-section) text-fg"><div class="mx-auto flex w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] flex-col items-center gap-10 px-(--ds-layout-gutter) text-center"><h2 id=${`${this.headId}-title`} class="max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg">${this.heading}</h2><spyglass-proof-strip .logos=${[...(this.logos ?? proofPlaceholders), ...(this.logos ?? proofPlaceholders)]}></spyglass-proof-strip></div></section>`
 	}
 }
 
