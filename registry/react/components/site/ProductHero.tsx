@@ -1,8 +1,9 @@
 'use client'
-import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { Button } from '@/react/components/ui/Button'
 import { Logo } from '@/react/components/visuals/Logo'
-import { PRODUCT_HERO_CSS, startResultsRun, type HeroResult, type HeroSet } from '@/lib/product-hero'
+import { DispersionField } from '@/react/components/visuals/DispersionField'
+import { PRODUCT_HERO_CSS, createHeroLight, startResultsRun, watchHeroLight, type HeroResult, type HeroSet } from '@/lib/product-hero'
 import { ASCII_TEXTURE } from '@/lib/textures'
 import { WORKS_STILLS } from '@/lib/works-light'
 import { cn } from '@/react/lib/cn'
@@ -14,8 +15,9 @@ import { cn } from '@/react/lib/cn'
 // up to five from 768 to 1279). The run types each question at a human pace and flicks its row in, lets it drift while
 // it is read and flicks it out as the question is erased (lib/product-hero.ts). A card under a mouse, or focused, turns
 // to face you and comes forward, and its detail rises in over a dark scrim, one fact after another; the run eases to a
-// stop meanwhile. Lit (the default): the site's works light behind it, fading out at the foot (its pre-drawn still, with
-// a live `light` over it once that draws, such as the dispersion field); unlit: the ASCII texture in the margins from 1024. Reduced motion:
+// stop meanwhile. Lit (the default): the site's works light behind it, fading out at the foot (its pre-drawn still; with
+// `live`, the dispersion field over it, which the cards push and stir as they flick and drift, and the still fades out
+// once it draws); unlit: the ASCII texture in the margins from 1024. Reduced motion:
 // the first question and row stay still and the cards do not turn.
 export type { HeroResult, HeroSet } from '@/lib/product-hero'
 
@@ -32,7 +34,10 @@ export interface ProductHeroProps {
   sets: HeroSet[]
   /** The works light behind the hero (true) or the texture in its margins (false). */
   lit?: boolean
-  /** A live light over the still (the dispersion field, composition works), which covers it once it draws. */
+  /** The site's live light over the still: the dispersion field (composition works), which the result cards push and
+   * stir as they move; the still fades out once it draws. */
+  live?: boolean
+  /** Your own live light over the still instead (it does not follow the cards). */
   light?: ReactNode
   /** The composer's hint while it is empty. */
   placeholder?: string
@@ -94,6 +99,7 @@ export function ProductHero({
   secondary = { label: 'Read the docs', href: '#' },
   sets,
   lit = true,
+  live = false,
   light,
   placeholder = 'Ask about any brand’s ads',
   tool = 'MCP',
@@ -101,16 +107,25 @@ export function ProductHero({
   className,
 }: ProductHeroProps) {
   const runRef = useRef<HTMLDivElement>(null)
+  const heroRef = useRef<HTMLElement>(null)
+  const liveRef = useRef<HTMLSpanElement>(null)
+  const [bridge] = useState(() => createHeroLight(() => liveRef.current?.querySelector('canvas') ?? null))
+  const glows = lit && (live || !!light)
   const questions = sets.map((s) => s.question)
   const key = questions.join('\n')
   useEffect(() => {
     const run = runRef.current
     if (!run) return
-    return startResultsRun(run, key.split('\n'))
-  }, [key])
+    return startResultsRun(run, key.split('\n'), lit && live ? bridge : undefined)
+  }, [key, lit, live, bridge])
+  useEffect(() => {
+    const hero = heroRef.current
+    if (!hero || !glows) return
+    return watchHeroLight(hero, () => liveRef.current?.querySelector('canvas') ?? null)
+  }, [glows])
 
   return (
-    <section data-ds="product-hero" aria-labelledby={`${id}-heading`} className={cn('ds-ph relative isolate overflow-x-clip pb-(--ds-layout-section) text-fg', className)}>
+    <section ref={heroRef} data-ds="product-hero" aria-labelledby={`${id}-heading`} className={cn('ds-ph relative isolate overflow-x-clip pb-(--ds-layout-section) text-fg', className)}>
       <style href="ds-product-hero" precedence="ds">{PRODUCT_HERO_CSS(ASCII_TEXTURE)}</style>
       {!lit && <span aria-hidden="true" className="ds-ph-ascii" />}
       <div className="mx-auto flex max-w-(--ds-ph-head-w) flex-col items-center gap-6 px-(--ds-layout-gutter) pt-30 text-center">
@@ -151,12 +166,16 @@ export function ProductHero({
         </div>
       </div>
       {lit && (
-        <picture aria-hidden="true" className="ds-ph-light">
+        <picture aria-hidden="true" className="ds-ph-light ds-ph-still">
           {WORKS_STILLS.slice(0, -1).map((s) => <source key={s.width} media={s.media} srcSet={s.picture} />)}
           <img src={WORKS_STILLS[WORKS_STILLS.length - 1].picture} alt="" draggable={false} />
         </picture>
       )}
-      {lit && light ? <span aria-hidden="true" className="ds-ph-light">{light}</span> : null}
+      {glows ? (
+        <span ref={liveRef} aria-hidden="true" className="ds-ph-light">
+          {live ? <DispersionField composition="works" seed={7} drag={bridge.source} className="absolute inset-0 size-full" /> : light}
+        </span>
+      ) : null}
     </section>
   )
 }

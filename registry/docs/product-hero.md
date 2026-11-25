@@ -21,6 +21,7 @@ examples:
 ---
 Each set is a question and its results; a result shows a `picture` (4:5), a `pair` of pictures or a `stat` figure,
 optional `notes` chips, a `mark` beside its `label`, and the `detail` that rises in on hover or focus (facts that do
-not fit are dropped from the end). The light is the site's pre-drawn still of its works light; pass the dispersion
-field (composition `works`) through `light` (React) or the `light` slot (web component) to make it live: it lies
-over the still and covers it once it has drawn.
+not fit are dropped from the end). The light is the site's pre-drawn still of its works light; `live` lays the dispersion
+field (composition `works`) over it as the site does: the result cards push and stir the light as they flick in, drift
+and flick out, and the still fades out once the field has drawn. Your own live light goes through `light` (React) or the
+`light` slot (web component) instead; it covers the still the same way but does not follow the cards.

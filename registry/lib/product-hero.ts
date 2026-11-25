@@ -10,7 +10,61 @@
 // hint [data-ph-hint] and send button [data-ph-send], and the stage [data-stage] with one [data-row] per question, each
 // with [data-card] items whose [data-face] holds a [data-detail] (a title, then [data-fact] items).
 
+import type { DragSource } from '@/lib/effects/field-drag'
+
 export interface HeroPicture { src: string; alt: string }
+
+/** Cards per row the live light follows (the site's SLOTS). */
+const SLOTS = 8
+
+/**
+ * The bridge between the run and a live light (the site's lightBridge): `source` goes to the dispersion field's `drag`
+ * at once, and the run plugs its card boxes in while it runs, so the cards push and stir the light as they flick and
+ * drift. `origin` returns the field's canvas, the box the cards are measured against.
+ */
+export interface HeroLight {
+	source: DragSource
+	plug: (next: DragSource | null) => void
+	origin: () => Element | null
+}
+
+export function createHeroLight(origin: () => Element | null): HeroLight {
+	let live: DragSource | null = null
+	const source: DragSource = {
+		now: () => live?.now() ?? 0,
+		rects: (ms, out) => live?.rects(ms, out) ?? 0,
+		pace: () => live?.pace?.() ?? 1,
+	}
+	return { source, plug: (next) => (live = next), origin }
+}
+
+/**
+ * Marks the hero `data-live` once the live light's canvas has drawn (data-ready), so the pre-drawn still under it
+ * fades out (the site's .hero:has(> canvas.field[data-ready]) > .still). `find` returns the canvas, which a web
+ * component's light renders a moment later; it is looked for on each frame for up to two seconds.
+ */
+export function watchHeroLight(hero: HTMLElement, find: () => HTMLCanvasElement | null): () => void {
+	let mo: MutationObserver | null = null
+	let raf = 0
+	let tries = 0
+	const look = () => {
+		const canvas = find()
+		if (!canvas) {
+			if (tries++ < 120) raf = requestAnimationFrame(look)
+			return
+		}
+		const sync = () => hero.toggleAttribute('data-live', canvas.dataset.ready === 'true')
+		sync()
+		mo = new MutationObserver(sync)
+		mo.observe(canvas, { attributes: true, attributeFilter: ['data-ready'] })
+	}
+	look()
+	return () => {
+		cancelAnimationFrame(raf)
+		mo?.disconnect()
+		hero.removeAttribute('data-live')
+	}
+}
 
 export interface HeroResult {
 	id: string
@@ -118,8 +172,11 @@ function fitDetails(root: ParentNode) {
 
 interface Cycle { typeAt: number[]; arrive: number; landed: number; leave: number; len: number }
 
-/** Starts the run inside `run` for these questions (one per row, in order); returns the function that stops it. */
-export function startResultsRun(run: HTMLElement, questions: string[]): () => void {
+/**
+ * Starts the run inside `run` for these questions (one per row, in order); returns the function that stops it. With
+ * `light` (createHeroLight), the cards' boxes feed the live light's drag.
+ */
+export function startResultsRun(run: HTMLElement, questions: string[], light?: HeroLight): () => void {
 	const stage = run.querySelector<HTMLElement>('[data-stage]')
 	const textEl = run.querySelector<HTMLElement>('[data-ph-text]')
 	const hint = run.querySelector<HTMLElement>('[data-ph-hint]')
@@ -145,9 +202,13 @@ export function startResultsRun(run: HTMLElement, questions: string[]): () => vo
 	let span = 0
 	const bias = rows.map(() => 0)
 	const placed = rows.map(() => 0)
+	const boxes: number[][][] = rows.map(() => [])
+	let boxed = false
 	const measure = () => {
 		let widest = 0
 		const middle = stage.getBoundingClientRect().left + stage.clientWidth / 2
+		const origin = light?.origin()?.getBoundingClientRect()
+		boxed = !!origin
 		rows.forEach((row, i) => {
 			const faces = [...row.querySelectorAll<HTMLElement>('[data-face]')].map((c) => c.getBoundingClientRect()).filter((b) => b.width > 0)
 			if (faces.length === 0) return
@@ -155,6 +216,7 @@ export function startResultsRun(run: HTMLElement, questions: string[]): () => vo
 			const right = Math.max(...faces.map((b) => b.right))
 			widest = Math.max(widest, right - left)
 			bias[i] = (left + right) / 2 - middle - placed[i]
+			boxes[i] = origin ? faces.slice(0, SLOTS).map((b) => [b.left - origin.left - placed[i], b.top - origin.top, b.width, b.height]) : []
 		})
 		span = stage.clientWidth / 2 + widest / 2
 		fitDetails(stage)
@@ -218,6 +280,26 @@ export function startResultsRun(run: HTMLElement, questions: string[]): () => vo
 	let hovered = 0
 	let focused = false
 	let pace = 1
+	light?.plug({
+		now: () => clock,
+		rects: (at, out) => {
+			if (!boxed && light?.origin()) measure()
+			out.fill(Number.NaN)
+			const r = frameAt(at).run
+			if (r) {
+				const offset = r.x - bias[r.index]
+				boxes[r.index].forEach((b, j) => {
+					const k = (r.index * SLOTS + j) * 4
+					out[k] = b[0] + offset
+					out[k + 1] = b[1]
+					out[k + 2] = b[2]
+					out[k + 3] = b[3]
+				})
+			}
+			return rows.length * SLOTS
+		},
+		pace: () => pace,
+	})
 	let raf = 0
 	let last = 0
 	let running = false
@@ -276,6 +358,7 @@ export function startResultsRun(run: HTMLElement, questions: string[]): () => vo
 	reduced.addEventListener('change', onReduced)
 
 	return () => {
+		light?.plug(null)
 		cancelAnimationFrame(raf)
 		ro.disconnect()
 		io.disconnect()
@@ -307,6 +390,8 @@ export const PRODUCT_HERO_CSS = (ascii: string) => `
 .ds-ph { min-height: max(var(--ds-ph-min-h), 100svh - var(--ds-size-header)); }
 .ds-ph-light { position: absolute; z-index: -1; inset: 0; display: block; width: 100%; height: 100%; pointer-events: none; mask-image: linear-gradient(to bottom, var(--ds-color-black) calc(100% - var(--ds-ph-light-foot)), transparent); }
 .ds-ph-light > img, .ds-ph-light > picture, .ds-ph-light > picture > img { display: block; width: 100%; height: 100%; max-width: none; }
+.ds-ph-still { transition: opacity var(--ds-duration-micro) var(--ds-easing-out); }
+.ds-ph[data-live] .ds-ph-still { opacity: 0; }
 .ds-ph-composer { width: min(100% - 2 * var(--ds-layout-gutter), var(--ds-layout-measure)); }
 .ds-ph-caret { display: inline-block; width: 1px; height: var(--ds-size-icon-md); margin-left: 1px; vertical-align: top; background: var(--ds-color-fg); translate: 0 2px; }
 [data-running]:not([data-typing]) .ds-ph-caret { animation: ds-ph-blink var(--ds-ph-caret-blink) linear infinite; }
@@ -345,6 +430,6 @@ export const PRODUCT_HERO_CSS = (ascii: string) => `
   .ds-ph-face, .ds-ph-card:hover .ds-ph-face, .ds-ph-card:focus-visible .ds-ph-face { transform: none; transition: none; }
   .ds-ph-reveal, .ds-ph-card:hover .ds-ph-reveal, .ds-ph-card:focus-visible .ds-ph-reveal { translate: none; }
   [data-running] .ds-ph-caret { animation: none; }
-  .ds-ph-send { transition: none; }
+  .ds-ph-send, .ds-ph-still { transition: none; }
 }
 `
