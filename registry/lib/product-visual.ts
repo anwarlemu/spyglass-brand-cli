@@ -20,6 +20,7 @@ import {
 	type AddData, type BoardData, type FiltersData, type NarrowData, type PatternsData, type ProductVisualDataMap,
 	type ProductVisualKind, type RecordData, type SheetData, type ThemesData, type ThreadData, type TimelineData,
 } from '@/lib/product-visual-data'
+import { toSlot, type ImageSlot } from '@/lib/image'
 
 export * from '@/lib/product-visual-data'
 export { productVisualCss } from '@/lib/product-visual-css'
@@ -70,14 +71,17 @@ const searchIcon = () => svg(['m10.5 10.5 3 3'], true)
 const filterIcon = () => svg(['M2.5 4.5h11M4.5 8h7M6.5 11.5h3'])
 
 const ANGLES = [160, 200, 135, 225, 180, 150, 210, 120, 170]
-/** A picture: the image when there is one, else a neutral shape (its angle varies by slot). */
-function pic(src: string | undefined, i: number, attrs: Attrs = {}, at: { x?: number; y?: number; zoom?: number } = {}) {
+/** A picture: the image when there is one (a src or { src, alt, fit, position }), else a neutral shape (its angle
+ * varies by slot), marked as a placeholder. */
+function pic(image: string | ImageSlot | undefined, i: number, attrs: Attrs = {}, at: { x?: number; y?: number; zoom?: number } = {}) {
 	const style = `--pv-ph-a: ${ANGLES[i % ANGLES.length]}deg`
+	const slot = toSlot(image)
 	const x = at.x ?? 50
 	const y = at.y ?? 50
-	const img = src
-		? el('img', { class: 'ds-pv-img', src, alt: '', loading: 'lazy', decoding: 'async', style: `object-position: ${x}% ${y}%; transform-origin: ${x}% ${y}%${at.zoom ? `; scale: ${at.zoom}` : ''}` })
-		: el('span', { class: 'ds-pv-ph' })
+	const where = slot.position ?? `${x}% ${y}%`
+	const img = slot.src
+		? el('img', { class: 'ds-pv-img', src: slot.src, alt: slot.alt ?? '', loading: 'lazy', decoding: 'async', style: `object-position: ${where}; transform-origin: ${where}${slot.fit ? `; object-fit: ${slot.fit}` : ''}${at.zoom ? `; scale: ${at.zoom}` : ''}` })
+		: el('span', { class: 'ds-pv-ph', 'data-ds-placeholder': '' })
 	return el('span', { class: 'ds-pv-pic', style, ...attrs }, img)
 }
 /** A round mark: the image, or the initial. */
@@ -301,7 +305,7 @@ function narrow(d: NarrowData): Built {
 	const n = d.counts.length
 	const counts = d.counts.map((c) => el('span', {}, c))
 	const pills = d.filters.map((f) => el('span', { class: 'ds-pv-pill' }, f))
-	const tiles = d.tiles.map((t, i) => pic(t.src, i))
+	const tiles = d.tiles.map((t, i) => pic(t, i))
 	const node = el('div', { class: 'ds-pv-root ds-pv-center' },
 		el('div', { class: 'ds-pv-narrow', 'aria-hidden': 'true' },
 			el('div', { class: 'ds-pv-search' }, searchIcon(), el('span', { class: 'ds-pv-ellipsis' }, d.query), el('span', { class: 'ds-pv-counts' }, counts)),
@@ -457,7 +461,7 @@ function patterns(d: PatternsData): Built {
 	}))
 	const summary = el('p', { class: 'ds-pv-sr' })
 	const panel = el('div', { role: 'tabpanel', id: `${id}-panel` }, set, summary)
-	const ads = d.ads.map((a, i) => el('div', { class: 'ds-pv-ad' }, pic(a.src, i + 3, {}, { x: a.x }), el('span', { class: 'ds-pv-badge' }, '1')))
+	const ads = d.ads.map((a, i) => el('div', { class: 'ds-pv-ad' }, pic(a, i + 3, {}, { x: a.x }), el('span', { class: 'ds-pv-badge' }, '1')))
 	const node = el('div', { class: 'ds-pv-root ds-pv-clip ds-pv-fade ds-pv-patterns' },
 		el('div', { class: 'ds-pv-sheet' },
 			el('div', { class: 'ds-pv-head' }, mark(d.logo, d.brand[0], undefined, 'ds-pv-logo'), el('span', { class: 'ds-pv-strong' }, d.brand), el('span', { class: 'ds-pv-sub' }, d.window)),
@@ -497,13 +501,13 @@ function board(d: BoardData): Built {
 		const t0 = BOARD_TILES[0]
 		const tileStyle = (t: { x: number; y: number; w: number; h: number }) => `--x: ${t.x}; --y: ${t.y}; --w: ${t.w}; --h: ${t.h}`
 		const page = el('div', { class: 'ds-pv-tile', style: tileStyle(t0) },
-			pic(s.page.src, n, {}, { y: s.page.y }),
+			pic(s.page, n, {}, { y: s.page.y }),
 			el('div', { class: 'ds-pv-page-ui' },
 				el('span', { class: 'ds-pv-ads-count' }, s.page.ads),
 				el('span', { class: 'ds-pv-url-bar' }, mark(s.logo, s.brand[0], undefined, 'ds-pv-logo'), el('span', { class: 'ds-pv-ellipsis' }, el('span', { class: 'ds-pv-sub' }, s.page.domain), s.page.path)),
 			),
 		)
-		const tiles = BOARD_TILES.slice(1).map((t, i) => el('div', { class: 'ds-pv-tile', style: tileStyle(t) }, pic(s.tiles[i]?.src, n + i + 1, {}, s.tiles[i] ?? {})))
+		const tiles = BOARD_TILES.slice(1).map((t, i) => el('div', { class: 'ds-pv-tile', style: tileStyle(t) }, pic(s.tiles[i], n + i + 1, {}, s.tiles[i] ?? {})))
 		const avatars = [0, 1].map((i) => el('div', { class: 'ds-pv-avatar', style: `--cx: ${BOARD_AVATAR.x[i]}; --cy: ${BOARD_AVATAR.y}; --d: ${BOARD_AVATAR.d}` }, pic(s.creators[i]?.avatar, n + i + 4)))
 		const chips = [0, 1].map((i) => el('span', { class: 'ds-pv-handle-chip', style: `--cx: ${BOARD_AVATAR.x[i]}; --edge: ${BOARD_AVATAR.y + BOARD_AVATAR.d / 2}` }, s.creators[i]?.handle ?? ''))
 		const scene = el('div', { class: 'ds-pv-scene', style: `visibility: ${n === 0 ? 'visible' : 'hidden'}` }, page, tiles, avatars.map((a, i) => [a, chips[i]]))

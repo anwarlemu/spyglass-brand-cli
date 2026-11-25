@@ -4,6 +4,7 @@ import { NavIcon } from '@/react/components/site/NavIcon'
 import { BrandLight } from '@/react/components/visuals/BrandLight'
 import { headerMenus, type OfferRow, type ResourcesMenu, type SoonRow, type UseCasesMenu } from '@/lib/site-header'
 import { cn } from '@/react/lib/cn'
+import { imageFit, toSlot } from '@/lib/image'
 
 // The site header's menu panels (site/Header MenuPanels): the use cases (two columns of rows with a 40px glyph, the name
 // over a muted line, and a card on the right that crossfades to the row under the pointer or focus: up to three
@@ -53,11 +54,14 @@ export function UseCasesPanel({ menu = headerMenus.useCases }: { menu?: UseCases
             {rows.map((item, i) => (
               <span key={item.key} data-on={i === active || undefined} className="flex min-h-0 flex-col opacity-0 transition-opacity duration-160 ease-out [grid-area:1/1] data-on:opacity-100">
                 <span className="grid min-h-0 flex-none grid-cols-3 gap-1">
-                  {[0, 1, 2].map((n) => (
-                    <span key={n} className="relative aspect-4/5 overflow-hidden rounded-ds-sm bg-surface-subtle">
-                      {item.shots?.[n] ? <img src={item.shots[n]} alt="" loading="eager" className="absolute inset-0 size-full object-cover" /> : null}
-                    </span>
-                  ))}
+                  {[0, 1, 2].map((n) => {
+                    const shot = toSlot(item.shots?.[n])
+                    return (
+                      <span key={n} data-ds-placeholder={shot.src ? undefined : ''} className="relative aspect-4/5 overflow-hidden rounded-ds-sm bg-surface-subtle">
+                        {shot.src ? <img src={shot.src} alt={shot.alt ?? ''} loading="eager" className="absolute inset-0 size-full object-cover" style={imageFit(shot)} /> : null}
+                      </span>
+                    )
+                  })}
                 </span>
                 <span className="flex min-w-0 flex-none flex-col px-1 pt-2 pb-1">
                   <span className="type-ui-strong text-fg">{item.name}</span>

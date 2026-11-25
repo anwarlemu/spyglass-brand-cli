@@ -13,9 +13,10 @@
 // changes (longest running, most impressions), the tiles glide to their new places and the sort label, the badges and
 // the request's sortBy swap (the old text rises out, the new rises in). Still with reduced motion.
 
-/** A picture in the chat: the user's own image (`src`), or a neutral placeholder in a tone from 1 to 4. */
-export interface ChatPicture {
-	src?: string
+import type { ImageSlot } from '@/lib/image'
+
+/** A picture in the chat: the user's own image (`src`, with `fit` and `position`), or a neutral placeholder in a tone from 1 to 4. */
+export interface ChatPicture extends ImageSlot {
 	alt: string
 	/** Width over height (the strip on phones keeps it). */
 	ratio?: number
@@ -57,9 +58,8 @@ export interface ChatContent {
 	turns: readonly ChatTurn[]
 }
 
-export interface BuildTile {
+export interface BuildTile extends ImageSlot {
 	id: string
-	src?: string
 	alt: string
 	tone?: 1 | 2 | 3 | 4
 	/** The badge for each sort key. */

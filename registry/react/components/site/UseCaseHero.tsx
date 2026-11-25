@@ -6,6 +6,7 @@ import { asciiDriftStyleObject } from '@/lib/ascii-drift'
 import { ASCII_TEXTURE } from '@/lib/textures'
 import { runBuild, runChat, typedText, turnPictures, tileSlot, useCaseBuildContent, useCaseChatContent, useCaseHeroContent, type BuildContent, type ChatContent, type ChatPicture, type ChatTurn, type UseCaseHeroContent } from '@/lib/use-case-hero'
 import { cn } from '@/react/lib/cn'
+import { imageFit } from '@/lib/image'
 
 // The site's use case hero (pages/UseCasesPage/UseCaseHero): the page's name as the head, the line in the soft gray,
 // the actions (a White button and a quiet one, or a `control` such as the connect menu in the White button's place,
@@ -66,8 +67,8 @@ export default UseCaseHero
 
 function Picture({ picture, className, style, ...rest }: { picture: ChatPicture; className: string; style?: CSSProperties; [data: `data-${string}`]: string | number }) {
   return (
-    <span className={cn(className, !picture.src && `ds-uch-tone-${picture.tone ?? 2}`)} style={style} {...rest}>
-      {picture.src ? <img className="ds-uch-pic" src={picture.src} alt="" loading="lazy" decoding="async" /> : null}
+    <span className={cn(className, !picture.src && `ds-uch-tone-${picture.tone ?? 2}`)} data-ds-placeholder={picture.src ? undefined : ''} style={style} {...rest}>
+      {picture.src ? <img className="ds-uch-pic" src={picture.src} alt="" loading="lazy" decoding="async" style={imageFit(picture)} /> : null}
     </span>
   )
 }
@@ -200,8 +201,8 @@ function BuildVisual({ content: b }: { content: BuildContent }) {
             {b.tiles.map((t) => {
               const { col, row } = tileSlot(sort, t.id)
               return (
-                <span key={t.id} className={cn('ds-uch-tile', !t.src && `ds-uch-tone-${t.tone ?? 2}`)} data-tile={t.id} style={{ '--col': col, '--row': row } as CSSProperties}>
-                  {t.src ? <img className="ds-uch-pic" src={t.src} alt="" decoding="async" /> : null}
+                <span key={t.id} className={cn('ds-uch-tile', !t.src && `ds-uch-tone-${t.tone ?? 2}`)} data-ds-placeholder={t.src ? undefined : ''} data-tile={t.id} style={{ '--col': col, '--row': row } as CSSProperties}>
+                  {t.src ? <img className="ds-uch-pic" src={t.src} alt="" decoding="async" style={imageFit(t)} /> : null}
                   <span className="ds-uch-badge"><span className="ds-uch-swap" data-swap={`figure:${t.id}`} dangerouslySetInnerHTML={swapHtml(t.figure[sort.key] ?? '')} /></span>
                 </span>
               )

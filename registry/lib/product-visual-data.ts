@@ -3,6 +3,8 @@
 // their pictures; these defaults keep the copy's shape with Acme and invented people, and leave every picture out, so
 // each slot draws a neutral shape. Pass your own pictures (`picture`, `avatar`, `logo`, `src`) where you may show them.
 
+import type { ImageSlot } from '@/lib/image'
+
 export type ProductVisualKind =
 	| 'brand-record'
 	| 'creative-record'
@@ -28,8 +30,8 @@ export const productVisualKinds: ProductVisualKind[] = ['brand-record', 'creativ
 
 /** A record panel beside a picture, cycling through its sets (brand, creative, page, creator and tagged records). */
 export interface RecordSet {
-	/** The picture beside the panel (4:5). A neutral shape when left out. */
-	picture?: string
+	/** The picture beside the panel (4:5): a src or { src, alt, fit, position }. A neutral shape when left out. */
+	picture?: string | ImageSlot
 	/** The panel's first line: a brand, a page or a person. */
 	name: string
 	/** The line under it: a handle, a domain or what the picture is. */
@@ -56,7 +58,7 @@ export interface ThreadComment {
 export interface ThreadData {
 	/** The account the posts are from. */
 	handle: string
-	sets: { picture?: string; meta: string; comments: ThreadComment[] }[]
+	sets: { picture?: string | ImageSlot; meta: string; comments: ThreadComment[] }[]
 	summary?: string
 }
 
@@ -96,7 +98,7 @@ export interface NarrowData {
 	filters: string[]
 	/** The result count at each step: before any filter, then after each. */
 	counts: string[]
-	tiles: { src?: string; out: number }[]
+	tiles: (ImageSlot & { out: number })[]
 	summary?: string
 }
 
@@ -110,7 +112,7 @@ export interface TimelineData {
 	axis: { from: string; to: string; labels: string[] }
 	/** The windows; `from` null for all time. The loop rests on the second. */
 	windows: { label: string; from: string | null }[]
-	rows: { name: string; picture?: string; first: string; latest: string; posts: string }[]
+	rows: { name: string; picture?: string | ImageSlot; first: string; latest: string; posts: string }[]
 	summary?: string
 }
 
@@ -121,7 +123,7 @@ export interface SheetData {
 	views: string[]
 	/** The switch's accessible name. */
 	switchLabel: string
-	rows: { key: string; picture?: string; name: string; tag?: string; values: string[]; fill?: number[]; at: (number | null)[]; muted?: boolean }[]
+	rows: { key: string; picture?: string | ImageSlot; name: string; tag?: string; values: string[]; fill?: number[]; at: (number | null)[]; muted?: boolean }[]
 	/** One per view, read by screen readers. */
 	summary?: string[]
 }
@@ -131,9 +133,9 @@ export interface SheetData {
 export interface BoardScene {
 	brand: string
 	logo?: string
-	page: { src?: string; y?: number; domain: string; path: string; ads: string }
-	tiles: { src?: string; x?: number; y?: number; zoom?: number }[]
-	creators: { handle: string; avatar?: string }[]
+	page: ImageSlot & { y?: number; domain: string; path: string; ads: string }
+	tiles: (ImageSlot & { x?: number; y?: number; zoom?: number })[]
+	creators: { handle: string; avatar?: string | ImageSlot }[]
 }
 export interface BoardData {
 	scenes: BoardScene[]
@@ -145,7 +147,7 @@ export interface PatternsData {
 	brand: string
 	logo?: string
 	window: string
-	ads: { src?: string; x?: number }[]
+	ads: (ImageSlot & { x?: number })[]
 	views: { label: string; rows: { name: string; share: number }[]; top: number[] }[]
 }
 

@@ -8,6 +8,8 @@ import { ASCII_TEXTURE } from '@/lib/textures'
 import { runBuild, runChat, typedText, turnPictures, tileSlot, useCaseBuildContent, useCaseChatContent, useCaseHeroContent, type BuildContent, type ChatContent, type ChatPicture, type ChatTurn, type UseCaseHeroContent } from '@/lib/use-case-hero'
 import '@/elements/components/ui/button'
 import styles from 'virtual:tw'
+import { imageFit } from '@/lib/image'
+import { styleMap } from 'lit/directives/style-map.js'
 
 // UseCaseHero.tsx as <spyglass-use-case-hero>: the use case page's hero, the head, line, actions (or the `control`
 // slot in the White button's place, stepping aside on phones as the site's MCP pair does) and who it is for, beside the
@@ -71,7 +73,7 @@ export class UseCaseHero extends DsElement {
 	}
 
 	private picture(p: ChatPicture, cls: string, extra: { pic?: number; style?: string } = {}) {
-		return html`<span class=${p.src ? cls : `${cls} ds-uch-tone-${p.tone ?? 2}`} data-pic=${extra.pic ?? nothing} style=${extra.style ?? nothing}>${p.src ? html`<img class="ds-uch-pic" src=${p.src} alt="" loading="lazy" decoding="async">` : nothing}</span>`
+		return html`<span class=${p.src ? cls : `${cls} ds-uch-tone-${p.tone ?? 2}`} data-ds-placeholder=${p.src ? nothing : ''} data-pic=${extra.pic ?? nothing} style=${extra.style ?? nothing}>${p.src ? html`<img class="ds-uch-pic" src=${p.src} alt="" loading="lazy" decoding="async" style=${styleMap(imageFit(p) ?? {})}>` : nothing}</span>`
 	}
 
 	private renderChat(content: ChatContent) {
@@ -91,7 +93,7 @@ export class UseCaseHero extends DsElement {
 		const swap = (text: string) => unsafeHTML(`<span class="ds-uch-swap-item" data-state="in">${text.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</span>`)
 		return html`<div data-uch-build="" class="ds-uch-build"><p class="sr-only">${b.description}</p><div class="ds-uch-bwin" aria-hidden="true"><div class="ds-uch-bar"><span class="ds-uch-dots"><span class="ds-uch-dot bg-(--ds-color-window-close)"></span><span class="ds-uch-dot bg-(--ds-color-window-min)"></span><span class="ds-uch-dot bg-(--ds-color-window-full)"></span></span><span class="ds-uch-url">${b.url}</span><span class="ds-uch-built-on">${b.builtOn}</span></div><div class="ds-uch-body"><div class="ds-uch-head"><span class="ds-uch-titles"><span class="ds-uch-title">${b.title}</span><span class="ds-uch-meta">${b.meta}</span></span><span class="ds-uch-sort"><span class="ds-uch-swap" data-swap="sort">${swap(sort.label)}</span></span></div><div class="ds-uch-grid">${b.tiles.map(() => html`<span class="ds-uch-cell"></span>`)}${b.tiles.map((t) => {
 			const { col, row } = tileSlot(sort, t.id)
-			return html`<span class=${t.src ? 'ds-uch-tile' : `ds-uch-tile ds-uch-tone-${t.tone ?? 2}`} data-tile=${t.id} style=${`--col: ${col}; --row: ${row};`}>${t.src ? html`<img class="ds-uch-pic" src=${t.src} alt="" decoding="async">` : nothing}<span class="ds-uch-badge"><span class="ds-uch-swap" data-swap=${`figure:${t.id}`}>${swap(t.figure[sort.key] ?? '')}</span></span></span>`
+			return html`<span class=${t.src ? 'ds-uch-tile' : `ds-uch-tile ds-uch-tone-${t.tone ?? 2}`} data-ds-placeholder=${t.src ? nothing : ''} data-tile=${t.id} style=${`--col: ${col}; --row: ${row};`}>${t.src ? html`<img class="ds-uch-pic" src=${t.src} alt="" decoding="async" style=${styleMap(imageFit(t) ?? {})}>` : nothing}<span class="ds-uch-badge"><span class="ds-uch-swap" data-swap=${`figure:${t.id}`}>${swap(t.figure[sort.key] ?? '')}</span></span></span>`
 		})}</div><div class="ds-uch-code"><span class="ds-uch-line"><span class="ds-uch-c-fg">${b.call.method}</span> <span class="ds-uch-c-muted">${b.call.path}</span></span>${b.call.lines.map((line) => html`<span class="ds-uch-line"><span class="ds-uch-c-soft">"${line.key}"</span><span class="ds-uch-c-muted">: </span>${line.value === null ? html`<span class="ds-uch-swap ds-uch-c-fg" data-swap="sortBy">${swap(sort.sortBy)}</span>` : html`<span class="ds-uch-c-fg">${line.value}</span>`}</span>`)}</div></div></div></div>`
 	}
 }

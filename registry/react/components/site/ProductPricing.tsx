@@ -1,5 +1,6 @@
 import { Button } from '@/react/components/ui/Button'
 import { cn } from '@/react/lib/cn'
+import { imageFit, toSlot, type ImageSlot } from '@/lib/image'
 
 // The site's product pricing section (pages/Products/ProductPricing and its variants). The site shows `receipt`: the
 // section head, a lead, the free note in 14/20 #A3A3A3 and two buttons beside a receipt on #1A1A1A with the 8px corner
@@ -13,8 +14,8 @@ export type ProductPricingVariant = 'receipt' | 'open' | 'plans' | 'rate'
 export interface ReceiptRow {
   name: string
   meta: string
-  /** A 4:5 picture; a neutral block when left out. */
-  picture?: string
+  /** A 4:5 picture (a src or { src, alt, fit, position }); a neutral block when left out. */
+  picture?: string | ImageSlot
 }
 
 export interface PricingPlanLine {
@@ -83,10 +84,11 @@ function Actions({ primary, secondary, className }: { primary?: ProductPricingAc
   )
 }
 
-function Picture({ src }: { src?: string }) {
-  return src
-    ? <img src={src} alt="" width={64} height={80} className="block aspect-4/5 h-auto w-12 rounded-ds-sm object-cover md:w-16" />
-    : <span aria-hidden="true" className="block aspect-4/5 w-12 rounded-ds-sm bg-surface-inset md:w-16" />
+function Picture({ image }: { image?: string | ImageSlot }) {
+  const p = toSlot(image)
+  return p.src
+    ? <img src={p.src} alt={p.alt ?? ''} width={64} height={80} className="block aspect-4/5 h-auto w-12 rounded-ds-sm object-cover md:w-16" style={imageFit(p)} />
+    : <span aria-hidden="true" data-ds-placeholder="" className="block aspect-4/5 w-12 rounded-ds-sm bg-surface-inset md:w-16" />
 }
 
 export function ProductPricing({
@@ -217,9 +219,9 @@ export function ProductPricing({
           <ul role="list" className="mt-3">
             {[...rows.map((r) => ({ ...r, cost: credits(per), zero: false })), { ...free, cost: 'Free', zero: true }].map((r) => (
               <li key={`${r.name}, ${r.meta}`} className="grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-x-4 border-t border-edge py-3 md:grid-cols-[64px_minmax(0,1fr)_auto] md:py-4">
-                {r.zero && !r.picture
-                  ? <span aria-hidden="true" className="relative grid aspect-4/5 w-12 place-items-center border border-edge-strong text-fg-soft md:w-16"><svg viewBox="0 0 16 16" width="16" height="16" fill="none"><path d="M8 0v16M0 8h16" stroke="currentColor" strokeWidth="2" /></svg></span>
-                  : <Picture src={r.picture} />}
+                {r.zero && !toSlot(r.picture).src
+                  ? <span aria-hidden="true" data-ds-placeholder="" className="relative grid aspect-4/5 w-12 place-items-center border border-edge-strong text-fg-soft md:w-16"><svg viewBox="0 0 16 16" width="16" height="16" fill="none"><path d="M8 0v16M0 8h16" stroke="currentColor" strokeWidth="2" /></svg></span>
+                  : <Picture image={r.picture} />}
                 <span className="flex min-w-0 flex-col">
                   <span className="truncate type-body">{r.name}</span>
                   <span className="truncate type-ui text-fg-muted">{r.meta}</span>

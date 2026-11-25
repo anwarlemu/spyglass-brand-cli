@@ -6,6 +6,7 @@ import { ProductVisual } from '@/react/components/site/ProductVisual'
 import { asciiDriftStyleObject } from '@/lib/ascii-drift'
 import { headerMenus, LIVE_CROSSFADE_MS, type ProductsMenu } from '@/lib/site-header'
 import { cn } from '@/react/lib/cn'
+import { imageFit, toSlot } from '@/lib/image'
 
 // The site header's products menu (site/Header ProductsLivePanel, LiveVisual, ui/WarmPictures): a 320px list of the
 // offers (a 40px glyph, the name over a muted line) and the "live soon" row, beside a 540px
@@ -51,13 +52,13 @@ export function ProductsLivePanel({ menu = headerMenus.products }: { menu?: Prod
             {[leaving, active].map((i) => {
               if (i === null || !rows[i]) return null
               const item = rows[i]
-              const picture = 'picture' in item ? item.picture : undefined
+              const picture = toSlot('picture' in item ? item.picture : undefined)
               const visual = 'visual' in item ? item.visual : undefined
               const platforms = 'platforms' in item ? item.platforms : undefined
               return (
                 <span key={item.key} data-on={i === active || undefined} className="ds-live-stage relative isolate grid h-full place-items-center overflow-hidden rounded-ds-sm bg-surface-raised opacity-0 [grid-area:1/1] data-on:z-1 data-on:opacity-100">
                   <span aria-hidden="true" className="pointer-events-none absolute inset-0 -z-1 select-none" style={asciiDriftStyleObject('mass', 'centre', 'faint')} />
-                  {visual ? <span className={VISUAL}><ProductVisual kind={visual} texture={false} fill /></span> : picture ? <img src={picture} alt="" className="absolute inset-0 size-full object-cover" /> : 'groups' in item ? null : <span className={cn(GLYPH, 'size-16 rounded-control [--glyph-body:var(--ds-color-neutral-7)] [--glyph-lit:var(--ds-color-fg)]')}><NavIcon name={item.icon} size={24} /></span>}
+                  {visual ? <span className={VISUAL}><ProductVisual kind={visual} texture={false} fill /></span> : picture.src ? <img src={picture.src} alt={picture.alt ?? ''} className="absolute inset-0 size-full object-cover" style={imageFit(picture)} /> : 'groups' in item ? null : <span data-ds-placeholder="" className={cn(GLYPH, 'size-16 rounded-control [--glyph-body:var(--ds-color-neutral-7)] [--glyph-lit:var(--ds-color-fg)]')}><NavIcon name={item.icon} size={24} /></span>}
                   {platforms?.length ? <span className="absolute top-3 left-3 z-2 flex rounded-ds-sm bg-surface px-2 py-1 type-caption text-fg-soft">{platforms.join(', ')}</span> : null}
                 </span>
               )
@@ -75,7 +76,7 @@ export function ProductsLivePanel({ menu = headerMenus.products }: { menu?: Prod
           </a>
         ) : null}
         <div hidden aria-hidden="true" inert>
-          {rows.map((item) => ('picture' in item && item.picture ? <img key={item.key} src={item.picture} alt="" loading="eager" /> : null))}
+          {rows.map((item) => ('picture' in item && toSlot(item.picture).src ? <img key={item.key} src={toSlot(item.picture).src} alt="" loading="eager" /> : null))}
         </div>
       </div>
       <div className={STRIP}>

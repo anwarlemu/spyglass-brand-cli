@@ -1,4 +1,5 @@
 import type { ProductVisualKind } from '@/lib/product-visual-data'
+import type { ImageSlot } from '@/lib/image'
 // The site header's content and glyphs (site/Header, content/nav.ts, content/home.ts): the nav, the three menus and the
 // menu icons, the same in both flavors. Copy is Acme's; platforms are named in words (never their logos); pictures come
 // in through `picture` and `shots` (none by default, so no one's photo is shown unless you pass it).
@@ -31,8 +32,9 @@ export interface OfferRow {
 	platforms?: string[]
 	/** The product's looping scene on the live card (a `product-visual` kind), as on the site. */
 	visual?: ProductVisualKind
-	/** A picture for the live card instead (a product shot, never a person's photo by default). */
-	picture?: string
+	/** A picture for the live card instead (a src or { src, alt, fit, position }; a product shot, never a person's
+	 * photo by default). Without it (and without `visual`) the card shows the product's glyph, marked as a placeholder. */
+	picture?: string | ImageSlot
 }
 
 export interface SoonRow {
@@ -55,8 +57,8 @@ export interface CaseRow {
 	icon: NavIconName
 	/** The card's longer line. */
 	card?: string
-	/** Up to three pictures for the card (4:5); empty tiles when left out. */
-	shots?: string[]
+	/** Up to three pictures for the card (4:5), each a src or { src, alt, fit, position }; empty tiles when left out. */
+	shots?: (string | ImageSlot)[]
 }
 
 export interface UseCasesMenu { rows: CaseRow[]; all: MenuLink; more: MenuLink[] }
