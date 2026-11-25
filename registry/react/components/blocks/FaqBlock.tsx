@@ -33,7 +33,7 @@ export function FaqBlock({ items, title = 'Questions.', body, action, id = 'faq'
       <header className={cn('flex flex-col', stack ? 'items-center text-center' : 'items-start max-md:items-center max-md:text-center lg:sticky lg:top-[calc(var(--ds-size-header)+var(--ds-space-2xl))]')}>
         <h2 id={`${id}-heading`} className="type-section max-lg:[text-box:trim-start_cap_alphabetic]">{title}</h2>
         {body ? <p className="mt-6 max-w-measure type-body-lg text-pretty text-fg-soft">{body}</p> : null}
-        {action ? <Button href={action.href} variant="secondary" className="mt-8">{action.label}</Button> : null}
+        {action ? <Button href={action.href} variant="secondary" className="mt-8 max-md:w-full">{action.label}</Button> : null}
       </header>
       <div className="min-w-0">
         <FaqAccordion items={items} defaultOpen={defaultOpen} edge={stack ? 'bottom' : 'top'} narrow={stack} />

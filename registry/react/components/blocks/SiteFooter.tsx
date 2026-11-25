@@ -6,6 +6,7 @@ import { Logo } from '@/react/components/visuals/Logo'
 import { cn } from '@/react/lib/cn'
 import { LOGOS } from '@/lib/logos'
 import { homeLinkClick } from '@/lib/home-link'
+import { asciiDriftStyleObject } from '@/lib/ascii-drift'
 
 // The site's footer (site/Footer): the wordmark across the page width in the footer gray (#373737), the brand light
 // running through its lower half, and a #262626 card with a #363636 hairline and the 8px corner rising over the
@@ -57,6 +58,9 @@ export function SiteFooter({ columns, legal, homeHref = '/', soon = 'Coming soon
   const mask = wordmarkMask()
   return (
     <footer data-ds="site-footer" className={cn('relative isolate bg-surface pt-(--ds-layout-section) text-fg', className)}>
+      <span aria-hidden="true" className="pointer-events-none absolute top-[40%] bottom-0 left-0 -z-1 hidden w-[max(var(--ds-space-5xl),calc((100%-var(--ds-layout-content))/2))] select-none lg:block" style={asciiDriftStyleObject('column', 'left', 'hero')} />
+      <span aria-hidden="true" className="pointer-events-none absolute top-[40%] right-0 bottom-0 -z-1 hidden w-[max(var(--ds-space-5xl),calc((100%-var(--ds-layout-content))/2))] select-none lg:block" style={asciiDriftStyleObject('scatter', 'right', 'hero')} />
+      <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 -z-1 hidden h-40 select-none lg:block" style={asciiDriftStyleObject('mass', 'bottom', 'hero')} />
       <div className="mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)">
         {wordmark && (
           <div aria-hidden="true" className="relative w-full" style={{ aspectRatio: `${w.width} / ${w.height}` }}>

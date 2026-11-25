@@ -11,7 +11,7 @@ const nav = [
 ]
 
 export const homeContent = {
-	header: { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get a free API key', href: '/sign-up' } },
+	header: { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get a free API key', href: '/sign-up', short: 'Get API key' } },
 	proof: { title: 'Trusted by teams and agents at', logos: [{ name: 'Acme' }, { name: 'Acme Labs' }, { name: 'Acme Studio' }, { name: 'Acme Goods' }, { name: 'Acme Air' }, { name: 'Acme & Co' }] as { name: string; src?: string; ratio?: number; height?: number }[] },
 	faq: {
 		title: 'Frequently asked questions',

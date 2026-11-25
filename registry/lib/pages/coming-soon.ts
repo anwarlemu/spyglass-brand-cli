@@ -16,7 +16,7 @@ const nav = [
 ]
 
 export const comingSoonContent = {
-	header: { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get a free API key', href: '/sign-up' } },
+	header: { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get a free API key', href: '/sign-up', short: 'Get API key' } },
 	head: {
 		lines: ['More of the social internet,', 'soon'],
 		lead: 'Ads, posts and short videos are live today. Each source here comes to every plan as it lands, the free one too.',

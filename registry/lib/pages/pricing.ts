@@ -26,7 +26,7 @@ const nav = [
 ]
 
 export const pricingContent = {
-	header: { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get a free API key', href: '/sign-up' } },
+	header: { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get a free API key', href: '/sign-up', short: 'Get API key' } },
 	head: { lines: ['Start free.', 'Pay for what you use'], lead: '500 free credits every month. No card required.' },
 	billing: { label: 'Billing', monthly: 'Monthly', yearly: 'Yearly' },
 	note: { lead: 'Save 20%', rest: ' on a yearly subscription' },

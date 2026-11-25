@@ -10,7 +10,7 @@ export const siteChrome = {
 			{ label: 'Pricing', href: '/pricing' },
 		],
 		secondary: { label: 'Sign in', href: '/sign-in' },
-		cta: { label: 'Get a free API key', href: '/sign-up' },
+		cta: { label: 'Get a free API key', href: '/sign-up', short: 'Get API key' },
 	},
 	footer: {
 		columns: [

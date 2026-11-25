@@ -13,7 +13,7 @@ const shell = {
 		],
 		secondary: { label: 'Sign in', href: '/sign-in' },
 		// The site shows the header's White button on pages whose head has no button of its own.
-		cta: { label: 'Get a free API key', href: '/sign-up' },
+		cta: { label: 'Get a free API key', href: '/sign-up', short: 'Get API key' },
 	},
 	footer: {
 		columns: [
