@@ -1,6 +1,7 @@
 import { html, nothing } from 'lit'
 import { DsElement, define, HostLayoutController } from '@/elements/lib/element'
 import '@/elements/components/site/testimonial'
+import type { ImageSlot } from '@/lib/image'
 import styles from 'virtual:tw'
 
 // TestimonialBlock.tsx as <spyglass-testimonial-block>: a `label` in capitals over the testimonial, the headshot
@@ -19,7 +20,7 @@ export class TestimonialBlock extends DsElement {
 	/** Role and company, shown in capitals. */
 	position?: string
 	/** The headshot's src, or "false" for none. */
-	image?: string
+	image?: string | ImageSlot
 	/** A line in capitals above it. */
 	label?: string
 	/** side or stacked (the layout attribute). */

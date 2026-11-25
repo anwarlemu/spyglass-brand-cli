@@ -1,3 +1,4 @@
+import type { ImageFit } from '@/lib/image'
 import { html } from 'lit'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { styleMap } from 'lit/directives/style-map.js'
@@ -9,7 +10,7 @@ import styles from 'virtual:tw'
 
 // CreativeCorridor.tsx as <spyglass-creative-corridor>: twelve creatives as walls receding to a small light, in the
 // ad's places, nearest first and alternating left and right (`items`); `seed` draws the light.
-export interface CreativeItem { src?: string; alt?: string; brand?: string; caption?: string; tone?: 1 | 2 | 3 | 4; href?: string; light?: boolean; seed?: number }
+export interface CreativeItem { src?: string; alt?: string; fit?: ImageFit; position?: string; brand?: string; caption?: string; tone?: 1 | 2 | 3 | 4; href?: string; light?: boolean; seed?: number }
 
 /**
  * @summary The corridor: creatives as walls receding to the light.
@@ -28,7 +29,7 @@ export class CreativeCorridor extends DsElement {
 		const items = this.items ?? []
 		return html`<div data-ds="creative-corridor" class="relative w-full overflow-hidden" style="aspect-ratio: ${width} / ${height};"><div class="absolute" style=${styleMap(placeAt(CORRIDOR_LIGHT, width, height))}><spyglass-brand-light variant="close-up" seed=${this.seed} cover class="size-full"></spyglass-brand-light></div>${corridorWalls().map((wall, i) => {
 			const it: CreativeItem = items.length ? items[i % items.length] : {}
-			return html`<div class="absolute" style=${styleMap({ ...placeAt(wall, width, height), clipPath: wall.clip })}><spyglass-creative-card ratio="fill" src=${ifDefined(it.src)} alt=${ifDefined(it.alt)} brand=${ifDefined(it.brand)} caption=${ifDefined(it.caption)} tone=${ifDefined(it.tone)} href=${ifDefined(it.href)}></spyglass-creative-card></div>`
+			return html`<div class="absolute" style=${styleMap({ ...placeAt(wall, width, height), clipPath: wall.clip })}><spyglass-creative-card ratio="fill" src=${ifDefined(it.src)} fit=${ifDefined(it.fit)} position=${ifDefined(it.position)} alt=${ifDefined(it.alt)} brand=${ifDefined(it.brand)} caption=${ifDefined(it.caption)} tone=${ifDefined(it.tone)} href=${ifDefined(it.href)}></spyglass-creative-card></div>`
 		})}</div>`
 	}
 }

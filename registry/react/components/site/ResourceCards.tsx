@@ -37,7 +37,7 @@ function Cover({ cover, columns }: { cover: ResourceCover; columns: 2 | 3 }) {
     <span className="flex w-full justify-center gap-3">
       {cover.items.map((c, i) => (
         <span key={i} className={cn('block aspect-4/5 min-w-0', columns === 3 ? 'shrink-0 basis-20 lg:basis-16 xl:basis-20 min-[1440px]:basis-24' : 'shrink grow-0 basis-30')}>
-          <CreativeCard ratio="fill" src={c.src} alt={c.alt} brand={c.brand} caption={c.caption} tone={c.tone} />
+          <CreativeCard ratio="fill" src={c.src} alt={c.alt} fit={c.fit} position={c.position} brand={c.brand} caption={c.caption} tone={c.tone} />
         </span>
       ))}
     </span>

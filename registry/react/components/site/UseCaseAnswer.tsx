@@ -44,7 +44,7 @@ export function UseCaseAnswer({ example: e = useCaseAnswerChat, callsLabel = use
               return (
                 <tr key={row.title}>
                   <td className={cn(cell, 'w-16 pr-4')}>
-                    {row.creative ? <CreativeCard src={row.creative.src} alt={row.creative.alt ?? ''} brand={row.creative.brand} tone={row.creative.tone} ratio="4/5" className="w-12" /> : null}
+                    {row.creative ? <CreativeCard src={row.creative.src} alt={row.creative.alt ?? ''} fit={row.creative.fit} position={row.creative.position} brand={row.creative.brand} tone={row.creative.tone} ratio="4/5" className="w-12" /> : null}
                   </td>
                   <td className={cell}>
                     <span className="block font-medium">{row.title}</span>

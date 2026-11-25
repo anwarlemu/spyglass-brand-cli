@@ -35,7 +35,7 @@ export class ResourceCards extends DsElement {
 	#cover(cover: ResourceCover, columns: 2 | 3) {
 		if (cover.kind === 'code') return html`<span class="max-w-full overflow-hidden"><spyglass-code source=${cover.source} language=${cover.language ?? 'shell'}></spyglass-code></span>`
 		const size = columns === 3 ? 'shrink-0 basis-20 lg:basis-16 xl:basis-20 min-[1440px]:basis-24' : 'shrink grow-0 basis-30'
-		return html`<span class="flex w-full justify-center gap-3">${cover.items.map((c) => html`<span class=${['block aspect-4/5 min-w-0', size].join(' ')}><spyglass-creative-card ratio="fill" src=${ifDefined(c.src)} alt=${ifDefined(c.alt)} brand=${ifDefined(c.brand)} caption=${ifDefined(c.caption)} tone=${ifDefined(c.tone)}></spyglass-creative-card></span>`)}</span>`
+		return html`<span class="flex w-full justify-center gap-3">${cover.items.map((c) => html`<span class=${['block aspect-4/5 min-w-0', size].join(' ')}><spyglass-creative-card ratio="fill" src=${ifDefined(c.src)} fit=${ifDefined(c.fit)} position=${ifDefined(c.position)} alt=${ifDefined(c.alt)} brand=${ifDefined(c.brand)} caption=${ifDefined(c.caption)} tone=${ifDefined(c.tone)}></spyglass-creative-card></span>`)}</span>`
 	}
 
 	render() {

@@ -24,7 +24,7 @@ function Turn({ q, first }: { q: SessionQuestion; first: boolean }) {
         <p className="ds-ss-call" data-call=""><span className="ds-ss-glyph" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 4.5h10M3 8h10M3 11.5h6" /></svg></span><span className="ds-ss-call-name">{q.tool}</span><span className="ds-ss-call-args">{q.args}</span></p>
         <p className="ds-ss-reply" data-line="">{q.reply}</p>
         <div className="ds-ss-thumbs" data-thumbs="">
-          {q.images.map((img) => <span key={img.alt} className="ds-ss-thumb" data-thumb=""><CreativeCard ratio="fill" src={img.src} alt={img.alt} tone={img.tone ?? 2} /></span>)}
+          {q.images.map((img) => <span key={img.alt} className="ds-ss-thumb" data-thumb=""><CreativeCard ratio="fill" src={img.src} alt={img.alt} fit={img.fit} position={img.position} tone={img.tone ?? 2} /></span>)}
         </div>
         <table className="ds-ss-table">
           <thead><tr data-line="">{q.columns.map((col) => <th key={col} scope="col">{col}</th>)}</tr></thead>

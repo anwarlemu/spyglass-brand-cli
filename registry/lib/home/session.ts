@@ -3,6 +3,7 @@
 // the creatives arrive one by one, the table's rows rise into place, then everything settles out and the next question
 // starts. Frames run at 60 per second while a quarter of the session is on screen; reduced motion rests on the first
 // answer. The questions and rows are Acme placeholders (the site asks about real brands); pass your own.
+import type { ImageSlot } from '@/lib/image'
 
 export interface SessionQuestion {
 	/** An @mention set in Medium before the question. */
@@ -14,7 +15,7 @@ export interface SessionQuestion {
 	columns: readonly [string, string]
 	rows: { label: string; value: string }[]
 	/** The four creatives in the answer: images, or placeholder tones (1 to 4). */
-	images: { src?: string; alt: string; tone?: 1 | 2 | 3 | 4 }[]
+	images: (ImageSlot & { alt: string; tone?: 1 | 2 | 3 | 4 })[]
 }
 
 export interface SessionContent {

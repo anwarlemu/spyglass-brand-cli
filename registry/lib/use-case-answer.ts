@@ -1,5 +1,6 @@
 // The use case answer (site pages/UseCasesPage/UseCaseAnswer): one question (or one API request) and the answer that
 // came back, as a raised panel. Both flavors read this file for its types and the Acme examples.
+import type { ImageSlot } from '@/lib/image'
 
 export interface AnswerRow {
 	title: string
@@ -7,7 +8,7 @@ export interface AnswerRow {
 	/** The figure on the right ("71", "84 days"). */
 	figure?: string
 	/** A creative beside the row: the user's own image (`src`), or a neutral placeholder. */
-	creative?: { src?: string; alt?: string; brand?: string; tone?: 1 | 2 | 3 | 4 }
+	creative?: ImageSlot & { brand?: string; tone?: 1 | 2 | 3 | 4 }
 }
 
 export interface AnswerExample {

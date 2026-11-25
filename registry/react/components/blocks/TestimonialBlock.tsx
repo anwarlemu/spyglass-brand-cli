@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Testimonial } from '@/react/components/site/Testimonial'
+import type { ImageSlot } from '@/lib/image'
 import { cn } from '@/react/lib/cn'
 
 // One customer, as a section: an optional label in capitals, then the testimonial with the headshot beside the words
@@ -11,8 +12,8 @@ export interface TestimonialBlockProps {
   name: string
   /** Role and company, shown in capitals. */
   position?: string
-  /** The headshot (src), the placeholder (undefined) or none (false). */
-  image?: string | false
+  /** The headshot (a src, or { src, alt, fit, position }), the placeholder (undefined) or none (false). */
+  image?: string | ImageSlot | false
   /** A line in capitals above it. */
   label?: ReactNode
   /** side or stacked. */

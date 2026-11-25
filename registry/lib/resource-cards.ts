@@ -1,10 +1,9 @@
 // The resource cards' data, shared by both flavors (the site's ResourceHub; the code cover is the code-block item's
 // Code).
+import type { ImageSlot } from '@/lib/image'
 
 /** A creative in a card's cover: the user's image as `src`, or an Acme placeholder (advertiser and tone). */
-export interface ResourceCreative {
-	src?: string
-	alt?: string
+export interface ResourceCreative extends ImageSlot {
 	brand?: string
 	caption?: string
 	tone?: 1 | 2 | 3 | 4

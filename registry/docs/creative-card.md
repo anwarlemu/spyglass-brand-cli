@@ -14,6 +14,7 @@ source: "Brand guidelines page 36 (Brand imagery: real creative, color as posted
 files:
   - react/components/site/CreativeCard.tsx
   - lib/creative-layouts.ts
+  - lib/image.ts
 examples:
   - "Placeholder | Placeholders"
   - "Shapes | Shapes"
