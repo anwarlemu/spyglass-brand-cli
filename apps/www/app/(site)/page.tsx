@@ -12,8 +12,8 @@ export default function HomePage() {
       {/* The hero, as the brand's slides set one: the texture behind, the light flowing in along the foot. */}
       <header className="relative overflow-hidden border-b border-edge">
         <AsciiTexture seed={3} density={0.7} width={1440} height={560} cover clear={[{ x: 0, y: 140, w: 900, h: 260 }]} className="absolute inset-0 size-full" />
-        <BrandLight variant="band" seed={1} width={1440} height={200} cover ground={false} className="absolute inset-x-0 bottom-0 h-[26%]" />
-        <div className="relative px-6 pt-20 pb-[16%] max-sm:px-4 max-sm:pt-12 max-sm:pb-[34%]">
+        <BrandLight variant="band" seed={1} width={1440} height={200} cover ground={false} className="absolute inset-x-0 bottom-0 h-56 max-sm:h-36 [mask-image:linear-gradient(to_bottom,transparent,black_70%)]" />
+        <div className="relative px-6 pt-20 pb-64 max-sm:px-4 max-sm:pt-12 max-sm:pb-44">
           <p className="mb-5 type-label text-fg-muted">{registryName} design system</p>
           <h1 className="max-w-210 type-display max-md:type-hero max-sm:type-heading-1">The brand, the library and the rules in one CLI.</h1>
           <p className="mt-6 max-w-160 type-body-lg text-fg-soft">Tokens, logos, fonts, the brand light and the ASCII texture, and {items.length} components in React and as web components. Every value traces to the brand guidelines.</p>
