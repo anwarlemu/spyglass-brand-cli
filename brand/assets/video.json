@@ -1,15 +1,199 @@
 {
- "$comment": "Light loops: one brand light drifting slowly on Black behind the lockup and the texture. Each template is a scene at 1080 by 1080 (windows onto the brand heat map from the posts on the brand assets page) that other sizes cover by scaling it from the center. Motion follows the animation rules: it only exists to make the light flow, it never eases in, the drift is constant motion (a linear phase around a closed figure eight, so the last frame meets the first), slow (one loop in `seconds`), and nothing else moves. Stings (logo-reveal, outro) are not loops: the light sweeps once on the ease-out curve and only the lockup fades in or out. --still writes the first frame alone for reduced motion.",
+ "$comment": "Light loops: the site's own light images (brand/assets/art) drifting slowly on Black behind the lockup and the site's ASCII texture tile. Each template is a scene at 1080 by 1080 that other sizes cover by scaling it from the center. Motion follows the animation rules: it only exists to make the light flow, as the site's hero band drifts; it never eases in, the drift is constant motion (a linear phase around a closed figure eight, so the last frame meets the first; the sine path slows at its turns as the site's drift curve does), slow (one loop in `seconds`), and nothing else moves. Stings (logo-reveal, outro) are not loops: the light sweeps once on the ease-out curve and only the lockup fades in or out. --still writes the first frame alone for reduced motion.",
  "fps": 30,
  "seconds": 6,
- "sizes": { "square": [1080, 1080], "vertical": [1080, 1920], "landscape": [1920, 1080] },
+ "sizes": {
+  "square": [
+   1080,
+   1080
+  ],
+  "vertical": [
+   1080,
+   1920
+  ],
+  "landscape": [
+   1920,
+   1080
+  ]
+ },
  "templates": [
-  { "id": "light-band", "name": "Light band", "from": "Post, headline over a band (966:4489)", "description": "A light band across the middle drifts sideways.", "light": { "window": [0, 440, 1080, 200], "b": [-1331, -30, 2913.3, 1821.3], "shift": 44.2 }, "drift": [0.05, 0.012], "logo": true, "url": true },
-  { "id": "light-corner", "name": "Corner light", "from": "Post, offer (966:4421)", "description": "The corner light flows in from the edges around an empty middle.", "light": { "b": [-533, -33, 1725.57, 1112.77], "shift": 26.18 }, "drift": [0.035, 0.03], "logo": true, "logoAt": "center", "url": true },
-  { "id": "light-field", "name": "Light field", "from": "Ad, plan offer (966:4541)", "description": "The light field fills the top and drifts.", "light": { "window": [0, 0, 1080, 612], "b": [-929, -39, 2465.1, 1541.1], "shift": 37.4 }, "drift": [0.04, 0.02], "logo": true, "logoAt": "bottom-left", "url": true },
-  { "id": "light-strips", "name": "Light strips", "from": "Post, light strips (966:4471)", "description": "Two light strips at the edges drift up and down.", "lights": [ { "window": [0, 0, 160, 1080], "b": [-134, -160, 2241, 1401], "shift": 34 }, { "window": [920, 0, 160, 1080], "b": [-2014, -160, 2241, 1401], "shift": 34 } ], "drift": [0.02, 0.05], "logo": true, "url": true },
-  { "id": "light-close-up", "name": "Light close-up", "from": "Banner, light close-up (966:4702)", "description": "A close-up of the light, full frame, no copy.", "light": { "b": [-1109, -304, 3873, 2421], "shift": 58.8 }, "drift": [0.03, 0.02], "logo": false, "url": true },
-  { "id": "logo-reveal", "name": "Logo reveal", "from": "derived from Post, headline over a band (966:4489)", "description": "A sting, not a loop: the light band sweeps across once and the lockup comes in at the center, then holds.", "light": { "window": [0, 600, 1080, 200], "b": [-1331, -30, 2913.3, 1821.3], "shift": 44.2 }, "drift": [0.08, 0], "logo": true, "logoAt": "center", "url": false, "sting": "reveal" },
-  { "id": "outro", "name": "Outro", "from": "derived from Post, offer (966:4421)", "description": "A closing sting: the corner light sweeps once around the lockup and the address, and the lockup leaves at the end.", "light": { "b": [-533, -33, 1725.57, 1112.77], "shift": 26.18 }, "drift": [0.05, 0], "logo": true, "logoAt": "center", "url": true, "sting": "outro" }
+  {
+   "id": "light-band",
+   "name": "Light band",
+   "from": "the site's light ribbon (public/brand/light/video-light-a)",
+   "description": "A light ribbon across the middle drifts sideways.",
+   "art": [
+    {
+     "file": "video-light-a",
+     "box": [
+      -108,
+      400,
+      1296,
+      360
+     ]
+    }
+   ],
+   "drift": [
+    0.05,
+    0.03
+   ],
+   "logo": true,
+   "url": true
+  },
+  {
+   "id": "light-corner",
+   "name": "Corner lights",
+   "from": "the site's corner lights (public/brand/light/corner-*)",
+   "description": "Two corner lights flow in from the edges around an empty middle.",
+   "art": [
+    {
+     "file": "corner-tl",
+     "box": [
+      -40,
+      -30,
+      700,
+      525
+     ]
+    },
+    {
+     "file": "corner-br",
+     "box": [
+      420,
+      585,
+      700,
+      525
+     ]
+    }
+   ],
+   "drift": [
+    0.04,
+    0.04
+   ],
+   "logo": true,
+   "logoAt": "center",
+   "url": true
+  },
+  {
+   "id": "light-field",
+   "name": "Close band",
+   "from": "the site's close band (public/brand/light/close-band)",
+   "description": "The close band runs across the top on the diagonal and drifts.",
+   "art": [
+    {
+     "file": "close-band",
+     "box": [
+      -120,
+      -40,
+      1320,
+      354
+     ],
+     "at": [
+      0.5,
+      0.5
+     ]
+    }
+   ],
+   "drift": [
+    0.05,
+    0.06
+   ],
+   "logo": true,
+   "logoAt": "bottom-left",
+   "url": true
+  },
+  {
+   "id": "light-strips",
+   "name": "Upright ribbons",
+   "from": "the site's light ribbons, upright (public/brand/light/video-light-*)",
+   "description": "Two light ribbons upright at the edges drift up and down.",
+   "art": [
+    {
+     "file": "video-light-a",
+     "box": [
+      0,
+      -120,
+      300,
+      1320
+     ],
+     "turn": true
+    },
+    {
+     "file": "video-light-b",
+     "box": [
+      780,
+      -120,
+      300,
+      1320
+     ],
+     "turn": true,
+     "flip": "x"
+    }
+   ],
+   "drift": [
+    0.01,
+    0.05
+   ],
+   "logo": true,
+   "url": true
+  },
+  {
+   "id": "logo-reveal",
+   "name": "Logo reveal",
+   "from": "the site's light ribbon (public/brand/light/video-light-b)",
+   "description": "A sting, not a loop: the light ribbon sweeps across once and the lockup comes in at the center, then holds.",
+   "art": [
+    {
+     "file": "video-light-b",
+     "box": [
+      -216,
+      620,
+      1512,
+      300
+     ]
+    }
+   ],
+   "drift": [
+    0.08,
+    0
+   ],
+   "logo": true,
+   "logoAt": "center",
+   "url": false,
+   "sting": "reveal"
+  },
+  {
+   "id": "outro",
+   "name": "Outro",
+   "from": "the site's corner lights (public/brand/light/corner-*)",
+   "description": "A closing sting: the corner lights sweep once around the lockup and the address, and the lockup leaves at the end.",
+   "art": [
+    {
+     "file": "corner-tl",
+     "box": [
+      -40,
+      -30,
+      700,
+      525
+     ]
+    },
+    {
+     "file": "corner-br",
+     "box": [
+      420,
+      585,
+      700,
+      525
+     ]
+    }
+   ],
+   "drift": [
+    0.06,
+    0
+   ],
+   "logo": true,
+   "logoAt": "center",
+   "url": true,
+   "sting": "outro"
+  }
  ]
 }
