@@ -65,6 +65,13 @@ Line numbers are the site's files. "Old" is `brand/` before this change.
    plan card, FAQ, segmented controls, search bar) are restyled to the site's recipes; the site's sections and page
    layouts the library lacks are added.
 3. Assets: the renderers draw headings at 450 and body at opsz 14 (static instances), cards in #262626 with 4px corners.
+   The asset engine (images, recipes and compose blocks, deck slides, merch, video, icons, the photo split) draws in
+   the site's materials: heads on its steps with four pixels of leading, text and labels in #D4D4D4, the large button
+   (56px, 20px label, 32px padding, 8px corner), the hero prompt (#1A1A1A, #666666 ring, 20px corner, White send key),
+   the ASCII texture tile with the drift's radial fade (public/brand/textures/ascii-texture-alpha@2x), and the site's own
+   light images (public/brand/light/*, public/og/pitch-light.png, re-encoded in brand/assets/art) where a light runs.
+   Removed because the site has nothing like them: the light close-up banner and video loop, and the colored grounds
+   (Blue, Red, Magenta, Yellow, Green) of the logo background and compose themes.
 4. Docs site: fonts, theme, type.
 
 ## The newer site (sign-up and sign-in, received 2026-11-24)

@@ -31,8 +31,8 @@ Sources: **guidelines** = the brand guidelines (Figma file Qx2i6GhXZD1V4O7RE7hYQ
 7. **Imagery is real creative, color as posted: no grading, filters or neon.** Photos sit on Black with the pattern
    behind or between them. (guidelines, Brand Imagery)
 8. **The photo light split: the picture itself split into its blue, green and red channels, shifted sideways and
-   added,** as the light separates. Shift 4% and bleed 6% of the picture's width, as the assets set it (8 and 12 on a
-   200px picture). (assets, Post, picture grid 966:4434)
+   added,** as the light separates. Shift 1.52% of the picture's width, the site light's own channel step, and bleed
+   3.2% to cover both shifts. (assets, Post, picture grid 966:4434; the site's dispersion-light-*.svg)
 9. **Never third-party photos or real people in examples:** pictures come from `--image`. (guidelines; SPEC)
 
 ## Motion

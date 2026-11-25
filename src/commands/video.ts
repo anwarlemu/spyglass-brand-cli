@@ -18,8 +18,8 @@ const jpeg = require('jpeg-js') as { encode: (img: { data: Buffer; width: number
 
 export const VIDEO_FLAGS = ['template', 'size', 'seed', 'light', 'seconds', 'fps', 'format', 'out', 'still', 'list'];
 
-type LightSpec = { window?: Box; b: Box; shift: number };
-type VideoTemplate = { id: string; name: string; from: string; description: string; light?: LightSpec; lights?: LightSpec[]; drift: [number, number]; logo: boolean; url: boolean; logoAt?: 'top-left' | 'bottom-left' | 'center'; /** A sting, not a loop: the light sweeps across once and the lockup comes in (`reveal`) or leaves (`outro`). */ sting?: 'reveal' | 'outro' };
+type ArtSpec = { file: string; box: Box; at?: [number, number]; flip?: 'x' | 'y' | 'xy'; turn?: boolean };
+type VideoTemplate = { id: string; name: string; from: string; description: string; art: ArtSpec[]; drift: [number, number]; logo: boolean; url: boolean; logoAt?: 'top-left' | 'bottom-left' | 'center'; /** A sting, not a loop: the light sweeps across once and the lockup comes in (`reveal`) or leaves (`outro`). */ sting?: 'reveal' | 'outro' };
 type VideoDoc = { fps: number; seconds: number; sizes: Record<string, [number, number]>; templates: VideoTemplate[] };
 
 let doc: VideoDoc | undefined;
@@ -49,25 +49,38 @@ export function videoCatalog() {
 /** One frame of a loop as a scene: the template scaled from the center to the size, the light moved along its path. */
 export function videoFrame(t: VideoTemplate, size: [number, number], phase: number, seed: number, light: 'brand' | 'generated'): Scene {
 	const [W, H] = size;
-	const s = Math.max(W, H) / 1080;
-	const ox = (W - 1080 * s) / 2;
-	const oy = (H - 1080 * s) / 2;
-	const tx = (b: Box): Box => [b[0] * s + ox, b[1] * s + oy, b[2] * s, b[3] * s];
+	// A piece keeps to the edges it was drawn at: one that spans the 1080 frame spans this one, one nearer an edge keeps its
+	// distance from that edge, at the frame's short side over 1080.
+	const s = Math.min(W, H) / 1080;
+	const axis = (p0: number, len: number, full: number): [number, number] => {
+		const c = p0 + len / 2;
+		if (len >= 1000) return [(p0 * full) / 1080, (len * full) / 1080];
+		if (Math.abs(c - 540) < 120) return [full / 2 + (p0 - 540) * s, len * s];
+		return c < 540 ? [p0 * s, len * s] : [full - (1080 - p0) * s, len * s];
+	};
+	const tx = (b: Box): Box => {
+		const [x, w] = axis(b[0], b[2], W);
+		const [y, h] = axis(b[1], b[3], H);
+		return [x, y, w, h];
+	};
 	const a = 2 * Math.PI * phase;
 	const layers: Layer[] = [{ type: 'ascii' }];
-	for (const l of t.lights ?? (t.light ? [t.light] : [])) {
-		// The path: a figure eight, sideways drift[0] and up and down drift[1] of the heat map's size, at a constant rate.
-		// A sting sweeps once, eased on the site's out curve; a loop follows its figure eight.
+	t.art.forEach((l, i) => {
+		// The path: a figure eight, sideways drift[0] and up and down drift[1] of the art's box, at a constant rate.
+		// A sting sweeps once, eased on the site's out curve; a loop follows its figure eight. The two pieces of a pair move
+		// against each other.
 		const sweep = t.sting ? 1 - (1 - phase) ** 3 : 0;
-		const dx = t.sting ? t.drift[0] * l.b[2] * (2 * sweep - 1) : t.drift[0] * l.b[2] * Math.sin(a);
-		const dy = t.sting ? 0 : t.drift[1] * l.b[3] * Math.sin(2 * a);
-		const win = tx(l.window ?? [0, 0, 1080, 1080]);
-		// Fixed: a loop's light follows its path and nothing else, so the last frame meets the first.
-		layers.push({ type: 'light', window: win, b: [(l.b[0] + dx) * s, (l.b[1] + dy) * s, l.b[2] * s, l.b[3] * s], shift: l.shift * s, fixed: true });
-	}
+		const dir = i % 2 ? -1 : 1;
+		const dx = dir * (t.sting ? t.drift[0] * l.box[2] * (2 * sweep - 1) : t.drift[0] * l.box[2] * Math.sin(a));
+		const dy = dir * (t.sting ? 0 : t.drift[1] * l.box[3] * Math.sin(2 * a));
+		const raw: Box = [l.box[0] + dx, l.box[1] + dy, l.box[2], l.box[3]];
+		// An upright ribbon keeps its own size, centered on a taller frame (it fades out where it ends), never widened.
+		const box: Box = l.turn ? [tx(raw)[0], H / 2 + (raw[1] - 540) * s, raw[2] * s, raw[3] * s] : tx(raw);
+		layers.push({ type: 'art', id: i ? 'light-2' : 'light', file: l.file, box, fit: 'cover', at: l.at, flip: l.flip, turn: l.turn });
+	});
 	const m = 72 * Math.min(W, H) / 1080;
 	// The lockup and the address stand clear of a light strip at the left edge, and under a light that fills the top.
-	const lx = Math.max(m, ...layers.flatMap((l) => (l.type === 'light' && l.window && l.window[0] <= 0 && l.window[2] < W / 2 ? [l.window[0] + l.window[2] + m] : [])));
+	const lx = Math.max(m, ...layers.flatMap((l) => (l.type === 'art' && l.box[0] <= 0 && l.box[2] < W / 2 ? [l.box[0] + l.box[2] + m] : [])));
 	const k = Math.min(W, H) / 1080;
 	const mid = t.logoAt === 'center';
 	// A vertical loop is a story: its bars cover 250px at the top and 340px at the foot.
@@ -79,7 +92,7 @@ export function videoFrame(t: VideoTemplate, size: [number, number], phase: numb
 	const ease = (x: number) => 1 - (1 - Math.min(1, Math.max(0, x))) ** 3;
 	const opacity = t.sting === 'reveal' ? ease(phase / 0.4) : t.sting === 'outro' ? 1 - ease((phase - 0.7) / 0.3) : undefined;
 	if (t.logo) layers.push({ type: 'logo', lockup: 'horizontal', color: 'white', box: [mid ? W / 2 - 91.5 * k : lx, ly, 183 * k, 28 * k], align: mid ? 'center' : 'left', ...(opacity !== undefined ? { opacity } : {}) });
-	if (t.url) layers.push({ type: 'text', slot: 'url', face: 'label', size: Math.max(14 * k, (8 * W) / 540), leading: 14, x: mid ? W / 2 - 300 : lx, top: foot - 10 * k, w: 600, align: mid ? 'center' : 'left', maxLines: 1 });
+	if (t.url) layers.push({ type: 'text', slot: 'url', face: 'label', size: Math.max(14 * k, (8 * W) / 540), leading: 20 * k, color: 'neutral-11', x: mid ? W / 2 - 300 : lx, top: foot - 10 * k, w: 600, align: mid ? 'center' : 'left', maxLines: 1 });
 	const b = brand() as ReturnType<typeof brand> & { domain?: string };
 	return { width: W, height: H, ground: 'black', layers, slots: { url: b.domain ?? new URL(b.site).host }, seed, light };
 }
@@ -88,11 +101,11 @@ export function videoHelp(): string {
 	const b = brand().bin;
 	const d = videoDoc();
 	return [
-		`Short loops of the brand light: ${d.seconds} s at ${d.fps} fps, seamless. MP4 and WebM through ffmpeg when it is installed;`,
+		`Short loops of the site's light images: ${d.seconds} s at ${d.fps} fps, seamless. MP4 and WebM through ffmpeg when it is installed;`,
 		'otherwise PNG frames and a Motion JPEG MP4. Frames are deterministic per --seed.',
 		'',
 		`  ${b} video light-band --size square`,
-		`  ${b} video --template light-corner --size vertical --seed 3 --light generated`,
+		`  ${b} video --template light-corner --size vertical`,
 		`  ${b} video --template light-field --still          (one frame, for reduced motion)`,
 		`  ${b} video --list`,
 		'',

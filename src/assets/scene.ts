@@ -6,7 +6,7 @@ import { brand, packageRoot, tokens } from '../lib/brand.js';
 import type { Face } from '../image/fonts.js';
 import { capHeight, descent, measure } from '../image/text.js';
 import { allFaces, checkGlyphs, clean, faceFor, fitText, FitError, longestPrefix, tooLong, wrapLines, type Faces4 } from './type.js';
-import { keyOf, layoutStack, textOf, type Placed, type PlacedText, type StackContext } from './stack.js';
+import { keyOf, layoutStack, padOf, textOf, type Placed, type PlacedText, type StackContext } from './stack.js';
 import { lit, litRuns, lightOf, range, touches, type LightModule, type LitMap, type PlacedLight } from './lit.js';
 import type { Anchor, DrawnLayer, LayerEdit, Rect } from '../design/types.js';
 import { cropStraight, encodePng } from './png.js';
@@ -84,13 +84,17 @@ export type StackLayer = Named & {
 
 export type Layer =
 	| (Named & { type: 'rect'; box: Box; fill: string; radius?: number; stroke?: string; opacity?: number })
-	/** The brand's own pre-made art (brand/assets/art/<file>.png with its ink map <file>.json), drawn as is over `box`. */
-	| (Named & { type: 'art'; file: string; box: Box })
+	/** The brand's own pre-made art (brand/assets/art/<file>.jpg or .png with its ink map <file>.json), drawn over `box`:
+	 * stretched to it (`fit: 'fill'`, the default) or cropped to cover it, mirrored with `flip`, and laid over what is under
+	 * it in screen (the lights are lit on Black, so their Black drops out over the texture). */
+	| (Named & { type: 'art'; file: string; box: Box; fit?: 'fill' | 'cover'; /** Where a cover crop centers, as fractions of the art (default the middle). */ at?: Pt; flip?: 'x' | 'y' | 'xy'; /** A quarter turn clockwise (cover only): a band laid upright. */ turn?: boolean; opacity?: number; clipQuad?: [Pt, Pt, Pt, Pt] })
 	| TextLayer
 	| StackLayer
 	| (Named & { type: 'logo'; lockup: string; color: string; box: Box; align?: 'left' | 'center' | 'right'; /** `auto`: Black where the light under it is pale. */ tone?: 'auto'; /** For stings that bring the lockup in: 0 to 1. */ opacity?: number })
 	| (Named & { type: 'light'; window?: Box; b?: Box; shift?: number; variant?: string; seed?: number; source?: 'brand' | 'generated'; clipQuad?: [Pt, Pt, Pt, Pt]; /** Stays where it is: it is not moved to keep copy clear. */ fixed?: boolean })
-	| (Named & { type: 'ascii'; box?: Box; seed?: number; density?: number; size?: number })
+	/** The site's ASCII texture tile (brand/assets/art/ascii.png), repeated at `tile` pixels (default 1080 times the unit)
+	 * and fading out radially from `from` as the site's drift does. `strength`: quiet (0.5), faint (0.32) or hero (1). */
+	| (Named & { type: 'ascii'; box?: Box; seed?: number; density?: number; size?: number; tile?: number; from?: 'centre' | 'left' | 'right' | 'top' | 'bottom'; strength?: 'quiet' | 'faint' | 'hero'; core?: number })
 	| InlineLayer
 	| (Named & { type: 'photo'; box: Box; index: number; radius?: number; clip?: Box })
 	| (Named & { type: 'panel'; quad: [Pt, Pt, Pt, Pt]; index: number })
@@ -419,13 +423,23 @@ export function named(layers: Layer[]): Layer[] {
 }
 
 const arts = new Map<string, { data: string; width: number; height: number; ink: [number, number, number, number][] }>();
+let asciiTile: string | undefined;
+/** The site's ASCII tile: White characters on transparent, as the site ships it (ascii-texture-alpha@2x). */
+function asciiArt(): string {
+	asciiTile ??= `data:image/png;base64,${readFileSync(join(packageRoot, 'brand', 'assets', 'art', 'ascii.png')).toString('base64')}`;
+	return asciiTile;
+}
+/** The site's four drift crops (ui/AsciiDrift: mass, column, cluster, scatter), as fractions of the 1080 tile. */
+const ASCII_CROPS: Pt[] = [[-120, -592], [0, -16], [-336, -248], [-808, -560]].map(([x, y]) => [x / 1080, y / 1080] as Pt);
+const ASCII_AT: Record<string, [number, number]> = { centre: [0.5, 0.5], left: [0, 0.5], right: [1, 0.5], top: [0.5, 0], bottom: [0.5, 1] };
 /** The brand's pre-made art: the PNG as base64 and where it is lit, in its own pixels. */
 function artOf(file: string) {
 	let a = arts.get(file);
 	if (!a) {
 		const dir = join(packageRoot, 'brand', 'assets', 'art');
 		const map = JSON.parse(readFileSync(join(dir, `${file}.json`), 'utf8')) as { width: number; height: number; ink: [number, number, number, number][] };
-		a = { data: readFileSync(join(dir, `${file}.png`)).toString('base64'), ...map };
+		const jpg = existsSync(join(dir, `${file}.jpg`));
+		a = { data: `data:image/${jpg ? 'jpeg' : 'png'};base64,${readFileSync(join(dir, `${file}.${jpg ? 'jpg' : 'png'}`)).toString('base64')}`, ...map };
 		arts.set(file, a);
 	}
 	return a;
@@ -452,6 +466,19 @@ const hit = (a: Box, b: Box) => a[0] < b[0] + b[2] && b[0] < a[0] + a[2] && a[1]
 const grow = (b: Box, p: number): Box => [b[0] - p, b[1] - p, b[2] + 2 * p, b[3] + 2 * p];
 const rect = (b: Box): Rect => ({ x: round(b[0]), y: round(b[1]), w: round(b[2]), h: round(b[3]) });
 const round = (n: number) => Math.round(n * 10) / 10;
+/** The part of a rectangle inside a box, or nothing. */
+function clipRect(r: Rect, [x, y, w, h]: Box): Rect | undefined {
+	const x0 = Math.max(r.x, x);
+	const y0 = Math.max(r.y, y);
+	const x1 = Math.min(r.x + r.w, x + w);
+	const y1 = Math.min(r.y + r.h, y + h);
+	return x1 > x0 && y1 > y0 ? { x: x0, y: y0, w: x1 - x0, h: y1 - y0 } : undefined;
+}
+/** Relative luminance of a hex color, 0 to 1. */
+function luma(hex: string): number {
+	const n = parseInt(hex.slice(1, 7), 16);
+	return (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
+}
 
 /** Moves and scales a box about a point. */
 function moved(b: Box, about: Pt, k: number, dx: number, dy: number): Box {
@@ -497,7 +524,7 @@ async function applyEdits(scene: Scene, all: Faces4): Promise<Layer[]> {
 		}
 		if (l.type === 'button') {
 			const face = all.medium;
-			return [Math.max(l.box[2], measure(face, value(l), l.size, 0) + 2 * Math.max(20, l.box[3] * 0.4)), l.box[3]];
+			return [Math.max(l.box[2], measure(face, value(l), l.size, 0) + 2 * padOf(l.box[3])), l.box[3]];
 		}
 		if (l.type === 'text') {
 			const face = faceFor(all, l.face);
@@ -631,7 +658,6 @@ export async function drawScene(scene: Scene, opts: { embedFonts?: boolean } = {
 	uid = 0;
 	const all = await allFaces();
 	const light = await generator<LightModule>('light');
-	const ascii = await generator<AsciiModule>('ascii');
 	const slots = scene.slots ?? {};
 	const photos = scene.photos ?? [];
 	const seed = Math.trunc(scene.seed ?? 0);
@@ -672,9 +698,9 @@ export async function drawScene(scene: Scene, opts: { embedFonts?: boolean } = {
 			if (!v) continue;
 			checkGlyphs(all.medium, v, l.slot);
 			// The button is as wide as its label needs, away from the side it stands on.
-			const bw = Math.max(l.box[2], measure(all.medium, v, l.size, 0) + 2 * Math.max(20, l.box[3] * 0.4));
+			const bw = Math.max(l.box[2], measure(all.medium, v, l.size, 0) + 2 * padOf(l.box[3]));
 			const room = (scene.frame ?? [0, 0, W, H])[2];
-			if (bw > room) throw tooLong(l.slot, v, longestPrefix(v, (t) => measure(all.medium, t, l.size, 0) + 2 * Math.max(20, l.box[3] * 0.4) <= room), 'one line inside the button');
+			if (bw > room) throw tooLong(l.slot, v, longestPrefix(v, (t) => measure(all.medium, t, l.size, 0) + 2 * padOf(l.box[3]) <= room), 'one line inside the button');
 			const bx = l.align === 'right' ? l.box[0] + l.box[2] - bw : l.align === 'center' ? l.box[0] + (l.box[2] - bw) / 2 : l.box[0];
 			placed.set(l, [keyOf(ctx, { id: layerId(l), slot: l.slot, value: v, size: l.size, box: [bx, l.box[1], bw, l.box[3]], fill: l.fill, color: l.color, radius: l.radius, over: l.over ?? [], required: l.required })]);
 		} else if (l.type === 'search') {
@@ -682,12 +708,11 @@ export async function drawScene(scene: Scene, opts: { embedFonts?: boolean } = {
 			if (!v) continue;
 			const [x, y, w, h] = l.box;
 			const u = h / 88;
-			const label = l.button ?? 'Search';
-			const ls = 20 * u;
-			const bw = Math.round(measure(all.medium, label, ls, 0) + 70 * u);
+			// The site's prompt: the words from 32 in, the send key a square at the right.
+			const bw = h - 32 * u;
 			const set = fitText(all.body, v, { size: l.size, leading: l.size * 1.25, w: w - 32 * u - bw - 16 * u - 24 * u, maxLines: 2, min: Math.max(l.size * 0.75, 16 * unit), slot: l.slot });
 			const bh = capHeight(all.body, set.size) + (set.lines.length - 1) * set.leading;
-			placed.set(l, [textOf({ id: layerId(l), slot: l.slot, asked: v, face: all.body, size: set.size, leading: set.leading, min: l.size * 0.75, tracking: 0, caps: false, lines: set.lines, x: x + 32 * u, w: w - 32 * u - bw - 40 * u, top: y + (h - bh) / 2, align: 'left', color: 'white', over: [layerId(l)] })]);
+			placed.set(l, [textOf({ id: layerId(l), slot: l.slot, asked: v, face: all.body, size: set.size, leading: set.leading, min: l.size * 0.75, tracking: 0, caps: false, lines: set.lines, x: x + 32 * u, w: w - 32 * u - bw - 40 * u, top: y + (h - bh) / 2, align: 'left', color: 'neutral-11', over: [layerId(l)] })]);
 		}
 	}
 
@@ -798,7 +823,10 @@ export async function drawScene(scene: Scene, opts: { embedFonts?: boolean } = {
 				note(p.id, 'panel', p.box, { over: ['texture', 'light', 'light-2', ...p.over], can: { move: true, hide: false } });
 			} else {
 				const [x, y, w, h] = p.box;
-				parts.push({ svg: `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" rx="${f(p.radius ?? 10)}" fill="${color(p.fill ?? 'white')}"/>` });
+				// The site's buttons: White primary; any darker fill is its quiet button, a 1px hairline ring inside.
+				const fill = color(p.fill ?? 'white');
+				const quiet = luma(fill) < 0.5;
+				parts.push({ svg: `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" rx="${f(p.radius ?? 8 * unit)}" fill="${fill}"/>${quiet ? `<rect x="${f(x + 0.5)}" y="${f(y + 0.5)}" width="${f(w - 1)}" height="${f(h - 1)}" rx="${f(Math.max(0, (p.radius ?? 8 * unit) - 0.5))}" fill="none" stroke="${color('neutral-5')}" stroke-width="1"/>` : ''}` });
 				const t = p.label;
 				if (t) parts.push({ svg: textMarkup(t, t.color), under: '' });
 				note(p.id, 'key', p.box, { over: [...p.over, ...underneath(p.box)], ...(t ? { text: { asked: t.asked, drawn: t.lines.map((l) => l.text).join(' '), size: round(t.size), color: color(t.color, '#000000'), ground: [color(p.fill ?? 'white')], ...marks(t.slot) } } : {}), can: { move: true, scale: [0.8, 1.5], align: true, hide: !p.required, ...(anchors ? { anchors } : {}) } });
@@ -810,12 +838,54 @@ export async function drawScene(scene: Scene, opts: { embedFonts?: boolean } = {
 		const id = layerId(l);
 		switch (l.type) {
 			case 'art': {
-				const a = artOf(l.file);
+				const a0 = artOf(l.file);
+				// A turned piece is the art a quarter turn clockwise: its own width becomes its height, and its ink turns with it.
+				const turn = l.turn === true;
+				const a = turn ? { ...a0, width: a0.height, height: a0.width, ink: a0.ink.map(([px, py, pw, ph]) => [a0.height - py - ph, px, ph, pw] as [number, number, number, number]) } : a0;
 				const [x, y, w, h] = l.box;
-				parts.push({ svg: `<image href="data:image/png;base64,${a.data}" x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" preserveAspectRatio="none"/>` });
-				const sx = w / a.width;
-				const sy = h / a.height;
-				const ink = a.ink.map(([ix, iy, iw, ih]) => ({ x: x + ix * sx, y: y + iy * sy, w: iw * sx, h: ih * sy })).filter((r) => r.x < W && r.y < H && r.x + r.w > 0 && r.y + r.h > 0);
+				// Cover: the art keeps its proportions and is cropped to the box.
+				const k = l.fit === 'cover' || turn ? Math.max(w / a.width, h / a.height) : 0;
+				const iw = k ? a.width * k : w;
+				const ih = k ? a.height * k : h;
+				const [fx0, fy0] = l.at ?? [0.5, 0.5];
+				// The crop centers on `at` (flipped with the art), kept inside the art.
+				const ax = l.flip?.includes('x') ? 1 - fx0 : fx0;
+				const ay = l.flip?.includes('y') ? 1 - fy0 : fy0;
+				const ix = k ? Math.min(x, Math.max(x + w - iw, x + w / 2 - ax * iw)) : x;
+				const iy = k ? Math.min(y, Math.max(y + h - ih, y + h / 2 - ay * ih)) : y;
+				const fx = l.flip?.includes('x') ?? false;
+				const fy = l.flip?.includes('y') ?? false;
+				const tf = fx || fy ? ` transform="translate(${f(fx ? 2 * ix + iw : 0)} ${f(fy ? 2 * iy + ih : 0)}) scale(${fx ? -1 : 1} ${fy ? -1 : 1})"` : '';
+				const image = turn
+					? `<image href="${a.data}" width="${a0.width}" height="${a0.height}" preserveAspectRatio="none" transform="translate(${f(ix + a0.height * k)} ${f(iy)}) rotate(90) scale(${f(k)})"/>`
+					: `<image href="${a.data}" x="${f(ix)}" y="${f(iy)}" width="${f(iw)}" height="${f(ih)}" preserveAspectRatio="none"/>`;
+				const cid = nextId('art');
+				const clipped = k || l.clipQuad;
+				const clip = clipped ? ` clip-path="url(#${cid})"` : '';
+				if (l.clipQuad) defs.push(`<clipPath id="${cid}"><polygon points="${l.clipQuad.map((q) => `${f(q[0])},${f(q[1])}`).join(' ')}"/></clipPath>`);
+				else if (k) defs.push(`<clipPath id="${cid}"><rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}"/></clipPath>`);
+				const op = l.opacity !== undefined ? ` opacity="${l.opacity}"` : '';
+				// A crop never cuts the light off inside the canvas: an edge of the box that is not the canvas's fades out.
+				const fade = (vertical: boolean) => {
+					const [a0, len, end] = vertical ? [y, h, H] : [x, w, W];
+					// Within 2 percent of the canvas edge (a print file's bleed) counts as the edge.
+					const near = a0 > end * 0.02;
+					const far = a0 + len < end * 0.98;
+					if (!clipped || (!near && !far)) return '';
+					const fid = nextId('fade');
+					const k0 = 0.14;
+					defs.push(`<linearGradient id="${fid}g" gradientUnits="userSpaceOnUse" x1="${f(vertical ? 0 : x)}" y1="${f(vertical ? y : 0)}" x2="${f(vertical ? 0 : x + w)}" y2="${f(vertical ? y + h : 0)}"><stop offset="0" stop-color="#FFFFFF" stop-opacity="${near ? 0 : 1}"/><stop offset="${near ? k0 : 0}" stop-color="#FFFFFF"/><stop offset="${far ? 1 - k0 : 1}" stop-color="#FFFFFF"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="${far ? 0 : 1}"/></linearGradient><mask id="${fid}" maskUnits="userSpaceOnUse" x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}"><rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" fill="url(#${fid}g)"/></mask>`);
+					return ` mask="url(#${fid})"`;
+				};
+				const fx2 = l.clipQuad ? '' : fade(false);
+				const fy2 = l.clipQuad ? '' : fade(true);
+				parts.push({ svg: `<g${clip}${op} style="mix-blend-mode:screen"><g${fx2}><g${fy2}><g${tf}>${image}</g></g></g></g>` });
+				const sx = iw / a.width;
+				const sy = ih / a.height;
+				const ink = a.ink
+					.map(([px, py, pw, ph]) => ({ x: fx ? ix + iw - (px + pw) * sx : ix + px * sx, y: fy ? iy + ih - (py + ph) * sy : iy + py * sy, w: pw * sx, h: ph * sy }))
+					.map((r) => (clipped ? clipRect(r, [x, y, w, h]) : r))
+					.filter((r): r is Rect => Boolean(r) && r!.x < W && r!.y < H && r!.x + r!.w > 0 && r!.y + r!.h > 0);
 				note(id, 'art', l.box, { ink, bleeds: true, over: ['texture', ...(l.over ?? [])], can: { hide: true } });
 				break;
 			}
@@ -896,9 +966,22 @@ export async function drawScene(scene: Scene, opts: { embedFonts?: boolean } = {
 			}
 			case 'ascii': {
 				const [x, y, w, h] = l.box ?? [0, 0, W, H];
-				const local = clear.map((c) => ({ x: c.x - x, y: c.y - y, w: c.w, h: c.h }));
-				const svg = ascii.asciiSvg({ width: w, height: h, seed: seed + (l.seed ?? 0), density: l.density ?? 0.7, ground: false, font: all.code.family, clearPx: local, size: l.size });
-				parts.push({ svg: `<g transform="translate(${f(x)} ${f(y)})">${svg.replace(/font-family="[^"]*"/, `font-family="'${all.code.family}'"`)}</g>` });
+				const tile = l.tile ?? 1080 * unit;
+				const [cx, cy] = ASCII_CROPS[Math.abs(seed + (l.seed ?? 0)) % ASCII_CROPS.length]!;
+				const [ax, ay] = ASCII_AT[l.from ?? 'centre']!;
+				const strength = l.strength === 'hero' ? 1 : l.strength === 'faint' ? Number(tokens()['--ds-ascii-faint']?.light ?? 0.32) : Number(tokens()['--ds-ascii-quiet']?.light ?? 0.5);
+				const core = l.core ?? (l.strength === 'hero' ? 0.56 : 0.24);
+				const pid = nextId('ascii');
+				// The fade is the site's: radial, farthest side, opaque to `core`, gone at the edge.
+				const rx = Math.max(ax, 1 - ax) * w;
+				const ry = Math.max(ay, 1 - ay) * h;
+				const dark = ground !== 'none' && luma(ground) > 0.5;
+				defs.push(`<pattern id="${pid}p" patternUnits="userSpaceOnUse" x="${f(x + cx * tile)}" y="${f(y + cy * tile)}" width="${f(tile)}" height="${f(tile)}"><image href="${asciiArt()}" width="${f(tile)}" height="${f(tile)}"/></pattern>`);
+				defs.push(`<radialGradient id="${pid}g" gradientUnits="userSpaceOnUse" cx="${f(x + ax * w)}" cy="${f(y + ay * h)}" r="${f(Math.max(rx, ry))}" gradientTransform="translate(${f(x + ax * w)} ${f(y + ay * h)}) scale(${f(rx / Math.max(rx, ry))} ${f(ry / Math.max(rx, ry))}) translate(${f(-(x + ax * w))} ${f(-(y + ay * h))})"><stop offset="${core}" stop-color="#FFFFFF"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>`);
+				defs.push(`<mask id="${pid}m" maskUnits="userSpaceOnUse" x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}"><rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" fill="url(#${pid}g)"/></mask>`);
+				// On a White ground the characters are Black.
+				if (dark) defs.push(`<filter id="${pid}f" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"/></filter>`);
+				parts.push({ svg: `<g mask="url(#${pid}m)" opacity="${strength}"${dark ? ` filter="url(#${pid}f)"` : ''}><rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" fill="url(#${pid}p)"/></g>` });
 				note(id, 'art', [x, y, w, h], { ink: [], bleeds: true, can: { hide: true } });
 				break;
 			}
@@ -917,15 +1000,17 @@ export async function drawScene(scene: Scene, opts: { embedFonts?: boolean } = {
 				const [x, y, w, h] = l.box;
 				const u = h / 88;
 				const inset = 16 * u;
-				const label = l.button ?? 'Search';
-				const ls = 20 * u;
-				const bw = Math.round(measure(all.medium, label, ls, 0) + 70 * u);
-				parts.push({ svg: `<rect x="${f(x + 0.5)}" y="${f(y + 0.5)}" width="${f(w - 1)}" height="${f(h - 1)}" rx="10" fill="${color('black')}" stroke="${color('neutral-4')}" stroke-width="1"/><rect x="${f(x + w - inset - bw)}" y="${f(y + inset)}" width="${f(bw)}" height="${f(h - inset * 2)}" rx="10" fill="${color('white')}"/>` });
-				const cap = capHeight(all.medium, ls);
-				const key = textOf({ id: 'search', asked: label, face: all.medium, size: ls, leading: ls * 1.3, min: ls, tracking: 0, caps: false, lines: [label], x: x + w - inset - bw, w: bw, top: y + (h - cap) / 2, align: 'center', color: 'black', over: [] });
+				const bw = h - inset * 2;
+				const bx = x + w - inset - bw;
+				const by = y + inset;
+				// The site's hero prompt (Hero.module.css): the raised fill, a strong hairline ring inside, a 20px corner, and
+				// the White send key with its arrow (Lucide arrow-up at the brand's stroke).
+				const k = (bw * 0.5) / 24;
+				const arrow = `<path d="M5 12l7-7 7 7M12 19V5" transform="translate(${f(bx + bw * 0.25)} ${f(by + bw * 0.25)}) scale(${f(k)})" fill="none" stroke="${color('black')}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+				parts.push({ svg: `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" rx="${f(20 * u)}" fill="${color('neutral-3')}"/><rect x="${f(x + 0.5)}" y="${f(y + 0.5)}" width="${f(w - 1)}" height="${f(h - 1)}" rx="${f(20 * u - 0.5)}" fill="none" stroke="${color('neutral-7')}" stroke-width="1"/><rect x="${f(bx)}" y="${f(by)}" width="${f(bw)}" height="${f(bw)}" rx="${f(8 * u)}" fill="${color('white')}"/>${arrow}` });
 				const prompt = t[0] as PlacedText;
-				parts.push({ svg: textMarkup(key, 'black') + textMarkup(prompt), under: '' });
-				note(id, 'panel', l.box, { over: ['texture', 'light', 'light-2'], text: { asked: prompt.asked, drawn: prompt.lines.map((r) => r.text).join(' '), size: round(prompt.size), color: '#FFFFFF', ground: [color('black')], ...marks(l.slot) }, can: { move: true, scale: [0.8, 1.2], hide: true } });
+				parts.push({ svg: textMarkup(prompt), under: '' });
+				note(id, 'panel', l.box, { over: ['texture', 'light', 'light-2'], text: { asked: prompt.asked, drawn: prompt.lines.map((r) => r.text).join(' '), size: round(prompt.size), color: color('neutral-11'), ground: [color('neutral-3')], ...marks(l.slot) }, can: { move: true, scale: [0.8, 1.2], hide: true } });
 				break;
 			}
 			case 'path': {

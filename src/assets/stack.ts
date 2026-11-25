@@ -77,7 +77,7 @@ function measureItems(ctx: StackContext, items: StackItem[], w: number, t: Try):
 			checkGlyphs(face, label, item.slot);
 			const scale = t.pins.get(itemId(item)) ?? 1;
 			const lw = measure(face, label, size * scale, 0);
-			const bw = Math.max(Math.min(item.w * scale, w), lw + 2 * Math.max(20, item.h * 0.4) * scale);
+			const bw = Math.max(Math.min(item.w * scale, w), lw + 2 * padOf(item.h) * scale);
 			if (bw > w + 0.5) return undefined;
 			list.push({ item, id: itemId(item), top, h: item.h * scale, w: bw });
 			y = top + item.h * scale;
@@ -230,6 +230,11 @@ export function textOf(o: { id: string; slot?: string; asked: string; face: Face
 	return { kind: 'text', id: o.id, slot: o.slot, asked: o.asked, face: o.face, size: o.size, leading: o.leading, min: o.min, tracking: o.tracking, caps: o.caps, lines, box: [left, o.top, right - left, h], color: o.color, opacity: o.opacity, over: o.over, pinned: o.pinned ?? false, required: o.required, listStart: o.listStart };
 }
 
+/** A button's side padding: the site's large button (56px) has 32, its others 40 percent of their height. */
+export function padOf(h: number): number {
+	return h >= 48 ? (h * 4) / 7 : Math.max(12, h * 0.4);
+}
+
 export function keyOf(ctx: StackContext, o: { id: string; slot?: string; value: string; size: number; box: Box; fill?: string; color?: string; radius?: number; over: string[]; required?: boolean }): PlacedKey {
 	const face = ctx.all.medium;
 	const cap = capHeight(face, o.size);
@@ -254,8 +259,8 @@ function stackError(ctx: StackContext, items: StackItem[], flat: StackItem[], w:
 	}
 	for (const i of flat) {
 		if (i.type !== 'button') continue;
-		const bw = measure(ctx.all.medium, value(i), i.size, 0) + 2 * Math.max(20, i.h * 0.4);
-		if (bw > w) return tooLong(i.slot, value(i), longestPrefix(value(i), (t) => measure(ctx.all.medium, t, i.size, 0) + 2 * Math.max(20, i.h * 0.4) <= w), 'one line inside the button');
+		const bw = measure(ctx.all.medium, value(i), i.size, 0) + 2 * padOf(i.h);
+		if (bw > w) return tooLong(i.slot, value(i), longestPrefix(value(i), (t) => measure(ctx.all.medium, t, i.size, 0) + 2 * padOf(i.h) <= w), 'one line inside the button');
 	}
 	const worst = texts.reduce((a, b) => (value(b).length * b.size > value(a).length * a.size ? b : a), texts[0]!);
 	if (!worst) return new FitError('The copy does not fit this layout.');

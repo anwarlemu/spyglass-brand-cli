@@ -1,5 +1,5 @@
 {
- "$comment": "Compose recipes: ready layouts of the brand's blocks for the graphics no template covers (display ads, cards, documents, print, email, backgrounds). `recipe <name>` writes a compose design file from one and draws it; the words are yours (--set block.slot=..., or --sample for the sample copy below, Acme only). Every recipe draws clean at its size with its sample copy (test/recipes.test.ts).",
+ "$comment": "Compose recipes: ready layouts of the brand's blocks, drawn in the site's materials (its text gray, cards, buttons, ASCII tile and light images), for the graphics no template covers (display ads, cards, documents, print, email, backgrounds). `recipe <name>` writes a compose design file from one and draws it; the words are yours (--set block.slot=..., or --sample for the sample copy below, Acme only). Every recipe draws clean at its size with its sample copy (test/recipes.test.ts).",
  "recipes": {
   "ad-300x250": {
    "group": "ad",
@@ -280,7 +280,7 @@
     "button.text": "Start free"
    },
    "options": {
-    "light.variant": "band",
+    "light.variant": "ribbon",
     "headline.size": 30
    }
   },
@@ -336,7 +336,7 @@
     "button.text": "Start free"
    },
    "options": {
-    "light.variant": "band",
+    "light.variant": "ribbon",
     "headline.size": 20
    }
   },
@@ -353,6 +353,16 @@
    ],
    "theme": "black",
    "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
     {
      "id": "light",
      "type": "light",
@@ -410,7 +420,7 @@
     "button.text": "Start free"
    },
    "options": {
-    "light.variant": "band"
+    "light.variant": "ribbon"
    }
   },
   "quote-card": {
@@ -419,6 +429,16 @@
    "size": "square",
    "theme": "black",
    "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
     {
      "id": "light",
      "type": "light",
@@ -456,7 +476,7 @@
     "quote.role": "Head of growth, Acme"
    },
    "options": {
-    "light.variant": "band"
+    "light.variant": "ribbon"
    }
   },
   "stat-card": {
@@ -465,6 +485,16 @@
    "size": "square",
    "theme": "black",
    "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
     {
      "id": "logo",
      "type": "logo",
@@ -501,7 +531,7 @@
     "stat.label": "more launches tracked each week"
    },
    "options": {
-    "light.variant": "band"
+    "light.variant": "ribbon"
    }
   },
   "launch-card": {
@@ -510,6 +540,16 @@
    "size": "square",
    "theme": "black",
    "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
     {
      "id": "light",
      "type": "light",
@@ -568,7 +608,7 @@
     "button.text": "See what changed"
    },
    "options": {
-    "light.variant": "band"
+    "light.variant": "ribbon"
    }
   },
   "feature-card": {
@@ -577,6 +617,16 @@
    "size": "square",
    "theme": "black",
    "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
     {
      "id": "logo",
      "type": "logo",
@@ -633,6 +683,16 @@
    "theme": "black",
    "blocks": [
     {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
+    {
      "id": "logo",
      "type": "logo",
      "at": {
@@ -676,6 +736,16 @@
    "theme": "black",
    "blocks": [
     {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
+    {
      "id": "logo",
      "type": "logo",
      "at": {
@@ -710,6 +780,16 @@
    "size": "square",
    "theme": "black",
    "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
     {
      "id": "light",
      "type": "light",
@@ -768,7 +848,7 @@
     "button.text": "Save a seat"
    },
    "options": {
-    "light.variant": "band"
+    "light.variant": "ribbon"
    }
   },
   "hiring-card": {
@@ -777,6 +857,16 @@
    "size": "square",
    "theme": "black",
    "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
     {
      "id": "light",
      "type": "light",
@@ -834,7 +924,7 @@
     "button.text": "See the role"
    },
    "options": {
-    "light.variant": "band"
+    "light.variant": "ribbon"
    }
   },
   "screenshot-card": {
@@ -843,6 +933,16 @@
    "size": "landscape",
    "theme": "black",
    "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
     {
      "id": "logo",
      "type": "logo",
@@ -944,6 +1044,16 @@
    "theme": "black",
    "blocks": [
     {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
+    {
      "id": "logo",
      "type": "logo",
      "at": {
@@ -986,6 +1096,16 @@
    "size": "landscape",
    "theme": "black",
    "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
     {
      "id": "headline",
      "type": "headline",
@@ -1044,6 +1164,16 @@
    "size": "landscape",
    "theme": "black",
    "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
     {
      "id": "logo",
      "type": "logo",
@@ -1363,10 +1493,20 @@
   },
   "email-header": {
    "group": "email",
-   "description": "An email header: the lockup, a headline and the light.",
+   "description": "An email header: the lockup, a headline and the site's share card light at the right.",
    "size": "email",
    "theme": "black",
    "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
     {
      "id": "light",
      "type": "light",
@@ -1402,7 +1542,7 @@
     "headline.text": "What changed this week."
    },
    "options": {
-    "light.variant": "band"
+    "light.variant": "share"
    }
   },
   "email-signature": {
@@ -1500,7 +1640,7 @@
     "role.text": "Head of growth, Acme"
    },
    "options": {
-    "light.variant": "band"
+    "light.variant": "ribbon"
    }
   },
   "meeting-background": {
@@ -1537,7 +1677,7 @@
   },
   "desktop-wallpaper": {
    "group": "background",
-   "description": "A desktop wallpaper: the light and the texture with the lockup small.",
+   "description": "A desktop wallpaper: a light ribbon and the texture with the lockup small.",
    "size": "desktop",
    "theme": "black",
    "blocks": [
@@ -1574,7 +1714,7 @@
    ],
    "sample": {},
    "options": {
-    "light.variant": "band"
+    "light.variant": "ribbon"
    }
   },
   "phone-wallpaper": {
