@@ -1,7 +1,7 @@
 import { html, unsafeCSS, type PropertyValues } from 'lit'
 import { DsElement, define } from '@/elements/lib/element'
 import { CURSOR_CSS, startCursor, type CursorMode } from '@/lib/effects/cursor'
-import { pointerEffectsOn } from '@/lib/effects/pointer'
+import { whilePointerEffects } from '@/lib/effects/pointer'
 import styles from 'virtual:tw'
 
 // CursorEffects.tsx as <spyglass-cursor-effects>: one cursor effect for the page on a fixed canvas behind it, `mode`
@@ -38,12 +38,9 @@ export class CursorEffects extends DsElement {
 	private start() {
 		this.halt()
 		const canvas = this.renderRoot.querySelector('canvas')
-		if (!canvas || this.mode === 'off' || !pointerEffectsOn()) return
-		const run = this.run
-		void startCursor(this.mode, canvas).then((s) => {
-			if (run === this.run) this.stop = s
-			else s()
-		})
+		if (!canvas || this.mode === 'off') return
+		const mode = this.mode
+		this.stop = whilePointerEffects(() => startCursor(mode, canvas))
 	}
 
 	protected updated(changed: PropertyValues) {

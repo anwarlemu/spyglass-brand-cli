@@ -6,9 +6,10 @@ import { LENS } from "@/lib/effects/lens";
 import { ASCII_TEXTURE } from "@/lib/textures";
 
 const SRC = ASCII_TEXTURE;
-// A background that draws the texture tile: the tile's data URI (its first characters are enough to know it).
+// A background that draws the texture tile: the tile's data URI (its first characters are enough to know it), or a
+// self-hosted copy whose URL names it (the site's /ascii-texture/ match).
 const MARK = ASCII_TEXTURE.slice(22, 86);
-const TEXTURE_IMAGE = { test: (v: string) => v.includes(MARK) };
+const TEXTURE_IMAGE = { test: (v: string) => v.includes(MARK) || /ascii-texture/.test(v) };
 const NO_REPEAT = /no-repeat/;
 const TILE = 1080;
 const COLS = 135;

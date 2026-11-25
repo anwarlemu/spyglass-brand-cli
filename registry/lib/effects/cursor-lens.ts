@@ -220,7 +220,7 @@ export function mountLens(canvas: HTMLCanvasElement) {
     const next = Math.min(window.devicePixelRatio || 1, MAX_DPR);
     canvas.width = Math.round(document.documentElement.clientWidth * next);
     canvas.height = Math.round(document.documentElement.clientHeight * next);
-    headerBottom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--ds-size-header")) || 0;
+    headerBottom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue(window.innerWidth < 1024 ? "--ds-header-bar-phone" : "--ds-size-header")) || 0;
     if (next !== dpr) {
       dpr = next;
       glyphs = glyphSprites(font, dpr);

@@ -1,6 +1,6 @@
 import { html, type PropertyValues } from 'lit'
 import { DsElement, define } from '@/elements/lib/element'
-import { pointerEffectsOn } from '@/lib/effects/pointer'
+import { whilePointerEffects } from '@/lib/effects/pointer'
 import styles from 'virtual:tw'
 
 // AsciiLens.tsx as <spyglass-ascii-lens>: one per page; every ASCII drift and texture answers a mouse with a lens of
@@ -35,11 +35,8 @@ export class AsciiLens extends DsElement {
 
 	private start() {
 		this.halt()
-		if (this.disabled || !pointerEffectsOn()) return
-		const run = this.run
-		void import('@/lib/effects/ascii-lens').then(({ startAsciiLens }) => {
-			if (run === this.run) this.stop = startAsciiLens()
-		})
+		if (this.disabled) return
+		this.stop = whilePointerEffects(() => import('@/lib/effects/ascii-lens').then(({ startAsciiLens }) => startAsciiLens()))
 	}
 
 	protected updated(changed: PropertyValues) {
