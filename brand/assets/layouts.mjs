@@ -543,7 +543,7 @@ function row(c) {
 		logo(v, 'top-left'),
 		wide
 			? stack([v.x, v.y + 68 * u, v.w * 0.33, v.b - v.y - 68 * u], [head(v, 44, 0, { maxLines: 5 }), key(v, 0, 0, 40)], { valign: 'top' })
-			: stack([v.x, oy + 840.5 * k + 24 * u, 440 * u, v.b - oy - 840.5 * k - 24 * u], [head(v, 48, 0, { maxLines: 2 })], { valign: 'bottom', prefer: v.b - 0.2 * u, grow: c.has('cta') ? 560 * u : v.w }),
+			: stack([v.x, oy + 840.5 * k + 24 * u, 440 * u, v.b - oy - 840.5 * k - 24 * u], [head(v, 48, 0, { maxLines: 2 })], { valign: 'bottom', prefer: v.b - 0.2 * u, grow: c.has('cta') ? (v.shape === 'portrait' ? 480 : 440) * u : v.w }),
 		!wide && button(v, [v.r - 241 * u, foot, 241 * u, 56 * u], 'bottom-right'),
 	]);
 }

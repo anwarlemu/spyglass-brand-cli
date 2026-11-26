@@ -304,7 +304,11 @@ export function layersOf(t: Template): { id: string; can: DrawnLayer['can'] }[] 
 				// The pictures set between its words are a layer of their own (they follow the words).
 				if (l.lines.some((line) => line.some((x) => 'photo' in x))) add('pictures', { hide: !t.minPhotos });
 			}
-			else if (l.type === 'search') add(id, { move: true, scale: [0.8, 1.2], hide: true });
+			else if (l.type === 'search') {
+				add(id, { move: true, scale: [0.8, 1.2], hide: true });
+				// A labeled key is drawn as its own layer; it stays on the bar.
+				if (l.button) add(`${id}-key`, {});
+			}
 			else if (l.type === 'photo' || l.type === 'panel' || l.type === 'split') add(id, { move: true, scale: [0.6, 1.4], hide: !t.minPhotos });
 			else if (l.type === 'light' && id !== 'pictures') add(id, l.b ? { move: true, scale: [0.6, 1.8], hide: true } : { hide: true });
 			else if (l.type === 'ascii' || l.type === 'art') add(id, { hide: true });

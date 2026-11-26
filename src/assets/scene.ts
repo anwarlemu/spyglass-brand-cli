@@ -713,7 +713,7 @@ export async function drawScene(scene: Scene, opts: { embedFonts?: boolean } = {
 			const label = l.button;
 			if (label) checkGlyphs(all.medium, label, l.slot);
 			const kh = h - 32 * u;
-			const ks = 20 * u;
+			const ks = Math.max(floor, 20 * u);
 			const bw = label ? Math.max(136 * u, measure(all.medium, label, ks, 0) + 2 * padOf(kh)) : kh;
 			const set = fitText(all.body, v, { size: l.size, leading: l.size * 1.25, w: w - 32 * u - bw - 16 * u - 24 * u, maxLines: 2, min: Math.max(l.size * 0.75, 16 * unit), slot: l.slot });
 			const bh = capHeight(all.body, set.size) + (set.lines.length - 1) * set.leading;
