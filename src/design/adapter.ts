@@ -239,6 +239,8 @@ export function adapter(): Adapter {
 			return { files: await filesOf(drawn, out.formats, out.scale), layers: await groundsOf(drawn) };
 		},
 		compose: {
+			// A layout made from scratch stands on the brand's ASCII texture at full strength, as its feed ads do.
+			ground: ({ grid }) => ({ blocks: [{ id: 'texture', type: 'ascii', at: { col: 0, row: 0, cols: grid.cols, rows: grid.rows } }], options: { 'texture.density': 1 } }),
 			blocks: () => BLOCKS,
 			themes: Object.keys(COMPOSE_THEMES),
 			grounds: Object.fromEntries(Object.entries(COMPOSE_THEMES).map(([k, v]) => [k, color(v.ground)])),
