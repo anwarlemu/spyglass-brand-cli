@@ -1,0 +1,159 @@
+{
+  "name": "aspect-ratio",
+  "title": "Aspect ratio",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A box that keeps its shape as it grows: a 1:1 post, a 4:5 ad, a 16:9 slide. It draws nothing itself; the brand corner and a #262626 ground are classes on it.",
+  "use_for": "Creatives in a grid, previews of posts and ads, a video or a slide that must not reflow while it loads.",
+  "never": [
+    "Stretching or cropping a logo to fit the box",
+    "Grading or filtering the creative inside: show it as posted"
+  ],
+  "source": "Derived from the brand assets' canvases (posts 1080x1080, ads 1080x1350, decks 1920x1080). shadcn's aspect ratio for anatomy.",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/AspectRatio.tsx",
+      "content": "import type { HTMLAttributes } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// shadcn's aspect ratio: a box that keeps its shape as it grows (CSS aspect-ratio), for a creative or a frame that\n// must not reflow: a 1:1 post, a 4:5 ad, a 16:9 deck slide. `ratio` is width over height; the content fills it. It\n// draws nothing itself: add rounded-container for the brand corner, and bg-surface-raised for a ground while a picture\n// loads.\nexport interface AspectRatioProps extends HTMLAttributes<HTMLDivElement> {\n  /** Width over height (1 for a post, 4 / 5 for an ad, 16 / 9 for a slide). */\n  ratio?: number\n}\n\nexport function AspectRatio({ ratio = 1, className, style, children, ...rest }: AspectRatioProps) {\n  return (\n    <div data-ds=\"aspect-ratio\" className={cn('relative w-full overflow-hidden', className)} style={{ ...style, aspectRatio: String(ratio) }} {...rest}>\n      {children}\n    </div>\n  )\n}\n\nexport default AspectRatio\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Formats",
+      "label": "The brand's canvases",
+      "center": true,
+      "half": false,
+      "path": "react/examples/aspect-ratio/Formats.tsx",
+      "content": "import { AspectRatio } from '@/react/components/ui/AspectRatio'\nimport { BrandLight } from '@/react/components/visuals/BrandLight'\n// The brand's three canvases holding their shape at any width: a 1:1 post, a 4:5 ad and a 16:9 slide, each with the\n// light behind its label.\nconst formats = [\n  { label: 'Post 1:1', ratio: 1, variant: 'corner' as const },\n  { label: 'Ad 4:5', ratio: 4 / 5, variant: 'strip-left' as const },\n  { label: 'Slide 16:9', ratio: 16 / 9, variant: 'field' as const },\n]\n\nexport default function Formats() {\n  return (\n    <div className=\"grid w-200 max-w-full grid-cols-3 items-end gap-4 max-sm:grid-cols-1\">\n      {formats.map((f) => (\n        <AspectRatio key={f.label} ratio={f.ratio} className=\"rounded-container bg-surface-raised\">\n          <BrandLight variant={f.variant} seed={1} cover className=\"absolute inset-0\" />\n          <span className=\"absolute bottom-3 left-3 type-label text-fg\">{f.label}</span>\n        </AspectRatio>\n      ))}\n    </div>\n  )\n}\n",
+      "requires": [
+        "brand-light"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/AspectRatio.tsx",
+          "content": "import type { HTMLAttributes } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// shadcn's aspect ratio: a box that keeps its shape as it grows (CSS aspect-ratio), for a creative or a frame that\n// must not reflow: a 1:1 post, a 4:5 ad, a 16:9 deck slide. `ratio` is width over height; the content fills it. It\n// draws nothing itself: add rounded-container for the brand corner, and bg-surface-raised for a ground while a picture\n// loads.\nexport interface AspectRatioProps extends HTMLAttributes<HTMLDivElement> {\n  /** Width over height (1 for a post, 4 / 5 for an ad, 16 / 9 for a slide). */\n  ratio?: number\n}\n\nexport function AspectRatio({ ratio = 1, className, style, children, ...rest }: AspectRatioProps) {\n  return (\n    <div data-ds=\"aspect-ratio\" className={cn('relative w-full overflow-hidden', className)} style={{ ...style, aspectRatio: String(ratio) }} {...rest}>\n      {children}\n    </div>\n  )\n}\n\nexport default AspectRatio\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "AspectRatio",
+            "file": "react/components/ui/AspectRatio.tsx",
+            "props": [
+              {
+                "name": "ratio",
+                "type": "number",
+                "required": false,
+                "default": "1",
+                "description": "Width over height (1 for a post, 4 / 5 for an ad, 16 / 9 for a slide)."
+              }
+            ],
+            "extends": [
+              "HTMLAttributes<HTMLDivElement>"
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Formats",
+          "label": "The brand's canvases",
+          "center": true,
+          "half": false,
+          "path": "react/examples/aspect-ratio/Formats.tsx",
+          "content": "import { AspectRatio } from '@/react/components/ui/AspectRatio'\nimport { BrandLight } from '@/react/components/visuals/BrandLight'\n// The brand's three canvases holding their shape at any width: a 1:1 post, a 4:5 ad and a 16:9 slide, each with the\n// light behind its label.\nconst formats = [\n  { label: 'Post 1:1', ratio: 1, variant: 'corner' as const },\n  { label: 'Ad 4:5', ratio: 4 / 5, variant: 'strip-left' as const },\n  { label: 'Slide 16:9', ratio: 16 / 9, variant: 'field' as const },\n]\n\nexport default function Formats() {\n  return (\n    <div className=\"grid w-200 max-w-full grid-cols-3 items-end gap-4 max-sm:grid-cols-1\">\n      {formats.map((f) => (\n        <AspectRatio key={f.label} ratio={f.ratio} className=\"rounded-container bg-surface-raised\">\n          <BrandLight variant={f.variant} seed={1} cover className=\"absolute inset-0\" />\n          <span className=\"absolute bottom-3 left-3 type-label text-fg\">{f.label}</span>\n        </AspectRatio>\n      ))}\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "brand-light"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/aspect-ratio.ts",
+          "content": "import { html, type PropertyValues } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// AspectRatio.tsx as <spyglass-aspect-ratio>: a box that keeps its shape as it grows (CSS aspect-ratio), for a creative\n// or a frame that must not reflow: a 1:1 post, a 4:5 ad, a 16:9 deck slide. `ratio` is width over height; the content\n// fills it. The host is the box (aspect-ratio.css), so a class on it (the corner, a ground, a width) lands as a class\n// on <AspectRatio> does.\n\n/**\n * @summary A box that keeps its shape as it grows.\n * @slot - What fills it (position it absolutely to fill the box).\n */\nexport class AspectRatio extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { ratio: { type: Number } }\n\n\t/** Width over height. */\n\tratio = 1\n\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\t// As React's style on the root: the host is the root.\n\t\tif (changed.has('ratio')) this.style.aspectRatio = String(this.ratio)\n\t}\n\n\trender() {\n\t\treturn html`<slot></slot>`\n\t}\n}\n\ndefine('aspect-ratio', AspectRatio)\n"
+        },
+        {
+          "path": "elements/components/ui/aspect-ratio.css",
+          "content": "/* The host is the box (AspectRatio.tsx's root div), so a class on <spyglass-aspect-ratio> lands on it as a class on\n   <AspectRatio> does. */\n:host { @apply relative block w-full overflow-hidden; }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/aspect-ratio.js",
+        "elements/brand-light.js"
+      ],
+      "tag": "spyglass-aspect-ratio",
+      "tags": [
+        "spyglass-aspect-ratio"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-aspect-ratio",
+            "name": "AspectRatio",
+            "module": "elements/aspect-ratio.js",
+            "description": "A box that keeps its shape as it grows.",
+            "attributes": [
+              {
+                "name": "ratio",
+                "field": "ratio",
+                "type": "number",
+                "default": "1",
+                "description": "Width over height."
+              }
+            ],
+            "properties": [
+              {
+                "name": "ratio",
+                "type": "number",
+                "default": "1",
+                "description": "Width over height.",
+                "attribute": "ratio"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "What fills it (position it absolutely to fill the box)."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Formats",
+          "label": "The brand's canvases",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/aspect-ratio/Formats.html",
+          "content": "<!-- The brand's three canvases holding their shape at any width: a 1:1 post, a 4:5 ad and a 16:9 slide, each with the\n     light behind its label. -->\n<div class=\"grid w-200 max-w-full grid-cols-3 items-end gap-4 max-sm:grid-cols-1\">\n  <spyglass-aspect-ratio ratio=\"1\" class=\"rounded-container bg-surface-raised\">\n    <spyglass-brand-light variant=\"corner\" seed=\"1\" cover class=\"absolute inset-0\"></spyglass-brand-light>\n    <span class=\"absolute bottom-3 left-3 type-label text-fg\">Post 1:1</span>\n  </spyglass-aspect-ratio>\n  <spyglass-aspect-ratio ratio=\"0.8\" class=\"rounded-container bg-surface-raised\">\n    <spyglass-brand-light variant=\"strip-left\" seed=\"1\" cover class=\"absolute inset-0\"></spyglass-brand-light>\n    <span class=\"absolute bottom-3 left-3 type-label text-fg\">Ad 4:5</span>\n  </spyglass-aspect-ratio>\n  <spyglass-aspect-ratio ratio=\"1.7777777777777777\" class=\"rounded-container bg-surface-raised\">\n    <spyglass-brand-light variant=\"field\" seed=\"1\" cover class=\"absolute inset-0\"></spyglass-brand-light>\n    <span class=\"absolute bottom-3 left-3 type-label text-fg\">Slide 16:9</span>\n  </spyglass-aspect-ratio>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

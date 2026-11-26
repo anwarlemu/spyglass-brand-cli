@@ -1,0 +1,338 @@
+{
+  "name": "resizable",
+  "title": "Resizable",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "Two panes and the #363636 hairline between them. The hairline is the handle: it turns White under the pointer, while dragged and when focused, and can carry a small grip. Arrow keys move it too. A pane that overflows scrolls with fading edges.",
+  "use_for": "A list beside the thing that is open (boards and a creative), or results over notes, where people want to choose how much room each gets.",
+  "never": [
+    "A thick or colored divider: the hairline is the handle",
+    "Panes that can close to nothing: set a minimum",
+    "Easing on the drag: the split follows the hand"
+  ],
+  "source": "Derived from the brand guidelines (no split view in the brand assets): the neutral steps for the hairline, White for the active state, the plan card's fill for the grip",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Resizable.tsx",
+      "content": "'use client'\nimport { useId, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react'\nimport { useControllable } from '@/react/hooks/useControllable'\nimport { cn } from '@/react/lib/cn'\n\n// Two panes and the #363636 hairline between them. The hairline is the handle, with a 12px reach either side (20px\n// on touch); it turns White under the pointer, while dragged and when focused (160ms). `withHandle` adds a small grip\n// on it in the card's fill. Drag it, or focus it and use the arrow keys (Shift for bigger steps, Home and End for the\n// limits). The split follows the hand with no easing. The value is the first pane's share in percent, held between\n// `min` and `max` (`value` with `onValueChange`, or `defaultValue` alone). The panes go in `first` and `second`.\nexport interface ResizableProps {\n  /** horizontal (side by side) or vertical (one over the other). */\n  direction?: 'horizontal' | 'vertical'\n  /** The first pane's smallest share, in percent. */\n  min?: number\n  /** The first pane's largest share, in percent. */\n  max?: number\n  /** The handle's name for assistive tech. */\n  label?: string\n  /** The first pane's share, in percent. */\n  value?: number\n  defaultValue?: number\n  onValueChange?: (size: number) => void\n  /** A small grip on the hairline. */\n  withHandle?: boolean\n  /** The first pane (left, or top when vertical). */\n  first?: ReactNode\n  /** The second pane. */\n  second?: ReactNode\n  className?: string\n}\n\nexport function Resizable({ direction = 'horizontal', min = 20, max = 80, label = 'Resize panes', value, defaultValue = 50, onValueChange, withHandle, first, second, className }: ResizableProps) {\n  const [size, setSize] = useControllable(value, defaultValue, onValueChange)\n  const root = useRef<HTMLDivElement | null>(null)\n  const [dragging, setDragging] = useState(false)\n  const firstId = `pane-${useId().replace(/:/g, '')}`\n  const across = direction !== 'vertical'\n  const clamp = (n: number) => Math.min(max, Math.max(min, Math.round(n * 10) / 10))\n\n  function onDown(e: PointerEvent<HTMLDivElement>) {\n    if (e.button !== 0) return\n    e.currentTarget.setPointerCapture(e.pointerId)\n    setDragging(true)\n  }\n  function onMove(e: PointerEvent<HTMLDivElement>) {\n    if (!dragging || !root.current) return\n    const box = root.current.getBoundingClientRect()\n    setSize(clamp(across ? ((e.clientX - box.left) / box.width) * 100 : ((e.clientY - box.top) / box.height) * 100))\n  }\n  function onUp(e: PointerEvent<HTMLDivElement>) {\n    setDragging(false)\n    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId)\n  }\n  function onKey(e: KeyboardEvent<HTMLDivElement>) {\n    const step = e.shiftKey ? 10 : 2\n    const back = across ? 'ArrowLeft' : 'ArrowUp'\n    const fwd = across ? 'ArrowRight' : 'ArrowDown'\n    if (e.key === back) setSize(clamp(size - step))\n    else if (e.key === fwd) setSize(clamp(size + step))\n    else if (e.key === 'Home') setSize(min)\n    else if (e.key === 'End') setSize(max)\n    else return\n    e.preventDefault()\n  }\n\n  return (\n    <>\n      <style href=\"ds-resizable\" precedence=\"ds\">{css}</style>\n      <div data-ds=\"resizable\" ref={root} className={cn('flex min-h-0 min-w-0', across ? 'flex-row' : 'flex-col', dragging && 'select-none', className)}>\n        <div id={firstId} className=\"min-h-0 min-w-0 overflow-auto fade-xy\" style={{ flexBasis: `${size}%` }}>{first}</div>\n        <div\n          className=\"ds-resize-handle\"\n          data-direction={across ? 'horizontal' : 'vertical'}\n          data-dragging={dragging || undefined}\n          role=\"separator\"\n          tabIndex={0}\n          aria-label={label}\n          aria-orientation={across ? 'vertical' : 'horizontal'}\n          aria-controls={firstId}\n          aria-valuenow={size}\n          aria-valuemin={min}\n          aria-valuemax={max}\n          onPointerDown={onDown}\n          onPointerMove={onMove}\n          onPointerUp={onUp}\n          onPointerCancel={onUp}\n          onKeyDown={onKey}\n        >\n          {withHandle && <span className=\"ds-resize-grip\" aria-hidden=\"true\" />}\n        </div>\n        <div className=\"min-h-0 min-w-0 flex-1 overflow-auto fade-xy\">{second}</div>\n      </div>\n    </>\n  )\n}\n\nexport default Resizable\n\nconst css = `\n.ds-resize-handle { position: relative; display: flex; flex-shrink: 0; align-items: center; justify-content: center; background: var(--ds-color-edge); touch-action: none; transition: background-color var(--ds-duration-micro) var(--ds-easing-standard); }\n.ds-resize-handle[data-direction=\"horizontal\"] { width: var(--ds-border-hairline); cursor: col-resize; }\n.ds-resize-handle[data-direction=\"vertical\"] { height: var(--ds-border-hairline); cursor: row-resize; }\n/* The reach: 12px either side of the hairline, 20px on touch. */\n.ds-resize-handle::before { position: absolute; content: \"\"; }\n.ds-resize-handle[data-direction=\"horizontal\"]::before { inset: 0 calc(var(--ds-space-md) * -1); }\n.ds-resize-handle[data-direction=\"vertical\"]::before { inset: calc(var(--ds-space-md) * -1) 0; }\n@media (pointer: coarse) {\n  .ds-resize-handle[data-direction=\"horizontal\"]::before { inset: 0 -20px; }\n  .ds-resize-handle[data-direction=\"vertical\"]::before { inset: -20px 0; }\n}\n.ds-resize-handle[data-dragging], .ds-resize-handle:focus-visible { background: var(--ds-color-edge-focus); }\n.ds-resize-handle:focus-visible { outline: none; }\n@media (hover: hover) and (pointer: fine) { .ds-resize-handle:hover { background: var(--ds-color-edge-focus); } }\n/* The grip: a small box on the hairline, the card's fill in a #666666 hairline that turns White with it. */\n.ds-resize-grip { position: relative; z-index: 1; flex-shrink: 0; border: var(--ds-border-hairline) solid var(--ds-color-edge-strong); border-radius: var(--ds-radius-sm); background: var(--ds-color-surface-raised); transition: border-color var(--ds-duration-micro) var(--ds-easing-standard); }\n.ds-resize-handle[data-direction=\"horizontal\"] .ds-resize-grip { width: var(--ds-space-md); height: var(--ds-space-xl); }\n.ds-resize-handle[data-direction=\"vertical\"] .ds-resize-grip { width: var(--ds-space-xl); height: var(--ds-space-md); }\n.ds-resize-handle[data-dragging] .ds-resize-grip, .ds-resize-handle:focus-visible .ds-resize-grip { border-color: var(--ds-color-edge-focus); }\n@media (hover: hover) and (pointer: fine) { .ds-resize-handle:hover .ds-resize-grip { border-color: var(--ds-color-edge-focus); } }\n`\n"
+    },
+    {
+      "path": "react/hooks/useControllable.ts",
+      "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Panes",
+      "label": "Side by side, with a grip",
+      "center": true,
+      "half": false,
+      "path": "react/examples/resizable/Panes.tsx",
+      "content": "import { Resizable } from '@/react/components/ui/Resizable'\n// Boards beside the creative that is open, with a grip on the line between them.\n\nexport default function Panes() {\n  return (\n    <Resizable\n      className=\"h-64 w-full max-w-xl rounded-container border border-edge\"\n      label=\"Resize boards and creative\"\n      defaultValue={40}\n      withHandle\n      first={\n        <div className=\"flex h-full flex-col gap-2 p-4\">\n          <p className=\"type-label text-fg-soft\">Boards</p>\n          <p className=\"type-ui text-fg\">Acme hooks</p>\n          <p className=\"type-ui text-fg-muted\">Acme summer launch</p>\n          <p className=\"type-ui text-fg-muted\">UGC openers</p>\n        </div>\n      }\n      second={\n        <div className=\"flex h-full flex-col gap-3 p-4\">\n          <p className=\"type-label text-fg-soft\">Creative</p>\n          <div className=\"flex-1 rounded-control bg-surface-raised\" />\n          <p className=\"type-caption text-fg-muted\">Acme ad, live for 42 days.</p>\n        </div>\n      }\n    />\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    },
+    {
+      "name": "Vertical",
+      "label": "One over the other",
+      "center": true,
+      "half": false,
+      "path": "react/examples/resizable/Vertical.tsx",
+      "content": "import { Resizable } from '@/react/components/ui/Resizable'\n// A search over its notes, one above the other; the bare hairline is the handle.\n\nexport default function Vertical() {\n  return (\n    <Resizable\n      direction=\"vertical\"\n      className=\"h-72 w-full max-w-md rounded-container border border-edge\"\n      label=\"Resize results and notes\"\n      defaultValue={60}\n      first={<div className=\"p-4\"><p className=\"type-label text-fg-soft\">Results</p><p className=\"mt-2 type-ui text-fg\">36 creatives match Acme hooks.</p></div>}\n      second={<div className=\"p-4\"><p className=\"type-label text-fg-soft\">Notes</p><p className=\"mt-2 type-ui text-fg-muted\">Open on the product, in use.</p></div>}\n    />\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Resizable.tsx",
+          "content": "'use client'\nimport { useId, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react'\nimport { useControllable } from '@/react/hooks/useControllable'\nimport { cn } from '@/react/lib/cn'\n\n// Two panes and the #363636 hairline between them. The hairline is the handle, with a 12px reach either side (20px\n// on touch); it turns White under the pointer, while dragged and when focused (160ms). `withHandle` adds a small grip\n// on it in the card's fill. Drag it, or focus it and use the arrow keys (Shift for bigger steps, Home and End for the\n// limits). The split follows the hand with no easing. The value is the first pane's share in percent, held between\n// `min` and `max` (`value` with `onValueChange`, or `defaultValue` alone). The panes go in `first` and `second`.\nexport interface ResizableProps {\n  /** horizontal (side by side) or vertical (one over the other). */\n  direction?: 'horizontal' | 'vertical'\n  /** The first pane's smallest share, in percent. */\n  min?: number\n  /** The first pane's largest share, in percent. */\n  max?: number\n  /** The handle's name for assistive tech. */\n  label?: string\n  /** The first pane's share, in percent. */\n  value?: number\n  defaultValue?: number\n  onValueChange?: (size: number) => void\n  /** A small grip on the hairline. */\n  withHandle?: boolean\n  /** The first pane (left, or top when vertical). */\n  first?: ReactNode\n  /** The second pane. */\n  second?: ReactNode\n  className?: string\n}\n\nexport function Resizable({ direction = 'horizontal', min = 20, max = 80, label = 'Resize panes', value, defaultValue = 50, onValueChange, withHandle, first, second, className }: ResizableProps) {\n  const [size, setSize] = useControllable(value, defaultValue, onValueChange)\n  const root = useRef<HTMLDivElement | null>(null)\n  const [dragging, setDragging] = useState(false)\n  const firstId = `pane-${useId().replace(/:/g, '')}`\n  const across = direction !== 'vertical'\n  const clamp = (n: number) => Math.min(max, Math.max(min, Math.round(n * 10) / 10))\n\n  function onDown(e: PointerEvent<HTMLDivElement>) {\n    if (e.button !== 0) return\n    e.currentTarget.setPointerCapture(e.pointerId)\n    setDragging(true)\n  }\n  function onMove(e: PointerEvent<HTMLDivElement>) {\n    if (!dragging || !root.current) return\n    const box = root.current.getBoundingClientRect()\n    setSize(clamp(across ? ((e.clientX - box.left) / box.width) * 100 : ((e.clientY - box.top) / box.height) * 100))\n  }\n  function onUp(e: PointerEvent<HTMLDivElement>) {\n    setDragging(false)\n    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId)\n  }\n  function onKey(e: KeyboardEvent<HTMLDivElement>) {\n    const step = e.shiftKey ? 10 : 2\n    const back = across ? 'ArrowLeft' : 'ArrowUp'\n    const fwd = across ? 'ArrowRight' : 'ArrowDown'\n    if (e.key === back) setSize(clamp(size - step))\n    else if (e.key === fwd) setSize(clamp(size + step))\n    else if (e.key === 'Home') setSize(min)\n    else if (e.key === 'End') setSize(max)\n    else return\n    e.preventDefault()\n  }\n\n  return (\n    <>\n      <style href=\"ds-resizable\" precedence=\"ds\">{css}</style>\n      <div data-ds=\"resizable\" ref={root} className={cn('flex min-h-0 min-w-0', across ? 'flex-row' : 'flex-col', dragging && 'select-none', className)}>\n        <div id={firstId} className=\"min-h-0 min-w-0 overflow-auto fade-xy\" style={{ flexBasis: `${size}%` }}>{first}</div>\n        <div\n          className=\"ds-resize-handle\"\n          data-direction={across ? 'horizontal' : 'vertical'}\n          data-dragging={dragging || undefined}\n          role=\"separator\"\n          tabIndex={0}\n          aria-label={label}\n          aria-orientation={across ? 'vertical' : 'horizontal'}\n          aria-controls={firstId}\n          aria-valuenow={size}\n          aria-valuemin={min}\n          aria-valuemax={max}\n          onPointerDown={onDown}\n          onPointerMove={onMove}\n          onPointerUp={onUp}\n          onPointerCancel={onUp}\n          onKeyDown={onKey}\n        >\n          {withHandle && <span className=\"ds-resize-grip\" aria-hidden=\"true\" />}\n        </div>\n        <div className=\"min-h-0 min-w-0 flex-1 overflow-auto fade-xy\">{second}</div>\n      </div>\n    </>\n  )\n}\n\nexport default Resizable\n\nconst css = `\n.ds-resize-handle { position: relative; display: flex; flex-shrink: 0; align-items: center; justify-content: center; background: var(--ds-color-edge); touch-action: none; transition: background-color var(--ds-duration-micro) var(--ds-easing-standard); }\n.ds-resize-handle[data-direction=\"horizontal\"] { width: var(--ds-border-hairline); cursor: col-resize; }\n.ds-resize-handle[data-direction=\"vertical\"] { height: var(--ds-border-hairline); cursor: row-resize; }\n/* The reach: 12px either side of the hairline, 20px on touch. */\n.ds-resize-handle::before { position: absolute; content: \"\"; }\n.ds-resize-handle[data-direction=\"horizontal\"]::before { inset: 0 calc(var(--ds-space-md) * -1); }\n.ds-resize-handle[data-direction=\"vertical\"]::before { inset: calc(var(--ds-space-md) * -1) 0; }\n@media (pointer: coarse) {\n  .ds-resize-handle[data-direction=\"horizontal\"]::before { inset: 0 -20px; }\n  .ds-resize-handle[data-direction=\"vertical\"]::before { inset: -20px 0; }\n}\n.ds-resize-handle[data-dragging], .ds-resize-handle:focus-visible { background: var(--ds-color-edge-focus); }\n.ds-resize-handle:focus-visible { outline: none; }\n@media (hover: hover) and (pointer: fine) { .ds-resize-handle:hover { background: var(--ds-color-edge-focus); } }\n/* The grip: a small box on the hairline, the card's fill in a #666666 hairline that turns White with it. */\n.ds-resize-grip { position: relative; z-index: 1; flex-shrink: 0; border: var(--ds-border-hairline) solid var(--ds-color-edge-strong); border-radius: var(--ds-radius-sm); background: var(--ds-color-surface-raised); transition: border-color var(--ds-duration-micro) var(--ds-easing-standard); }\n.ds-resize-handle[data-direction=\"horizontal\"] .ds-resize-grip { width: var(--ds-space-md); height: var(--ds-space-xl); }\n.ds-resize-handle[data-direction=\"vertical\"] .ds-resize-grip { width: var(--ds-space-xl); height: var(--ds-space-md); }\n.ds-resize-handle[data-dragging] .ds-resize-grip, .ds-resize-handle:focus-visible .ds-resize-grip { border-color: var(--ds-color-edge-focus); }\n@media (hover: hover) and (pointer: fine) { .ds-resize-handle:hover .ds-resize-grip { border-color: var(--ds-color-edge-focus); } }\n`\n"
+        },
+        {
+          "path": "react/hooks/useControllable.ts",
+          "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Resizable",
+            "file": "react/components/ui/Resizable.tsx",
+            "props": [
+              {
+                "name": "direction",
+                "type": "'horizontal' | 'vertical'",
+                "required": false,
+                "default": "'horizontal'",
+                "description": "horizontal (side by side) or vertical (one over the other)."
+              },
+              {
+                "name": "min",
+                "type": "number",
+                "required": false,
+                "default": "20",
+                "description": "The first pane's smallest share, in percent."
+              },
+              {
+                "name": "max",
+                "type": "number",
+                "required": false,
+                "default": "80",
+                "description": "The first pane's largest share, in percent."
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "default": "'Resize panes'",
+                "description": "The handle's name for assistive tech."
+              },
+              {
+                "name": "value",
+                "type": "number",
+                "required": false,
+                "description": "The first pane's share, in percent."
+              },
+              {
+                "name": "defaultValue",
+                "type": "number",
+                "required": false,
+                "default": "50"
+              },
+              {
+                "name": "onValueChange",
+                "type": "(size: number) => void",
+                "required": false
+              },
+              {
+                "name": "withHandle",
+                "type": "boolean",
+                "required": false,
+                "description": "A small grip on the hairline."
+              },
+              {
+                "name": "first",
+                "type": "ReactNode",
+                "required": false,
+                "description": "The first pane (left, or top when vertical)."
+              },
+              {
+                "name": "second",
+                "type": "ReactNode",
+                "required": false,
+                "description": "The second pane."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Panes",
+          "label": "Side by side, with a grip",
+          "center": true,
+          "half": false,
+          "path": "react/examples/resizable/Panes.tsx",
+          "content": "import { Resizable } from '@/react/components/ui/Resizable'\n// Boards beside the creative that is open, with a grip on the line between them.\n\nexport default function Panes() {\n  return (\n    <Resizable\n      className=\"h-64 w-full max-w-xl rounded-container border border-edge\"\n      label=\"Resize boards and creative\"\n      defaultValue={40}\n      withHandle\n      first={\n        <div className=\"flex h-full flex-col gap-2 p-4\">\n          <p className=\"type-label text-fg-soft\">Boards</p>\n          <p className=\"type-ui text-fg\">Acme hooks</p>\n          <p className=\"type-ui text-fg-muted\">Acme summer launch</p>\n          <p className=\"type-ui text-fg-muted\">UGC openers</p>\n        </div>\n      }\n      second={\n        <div className=\"flex h-full flex-col gap-3 p-4\">\n          <p className=\"type-label text-fg-soft\">Creative</p>\n          <div className=\"flex-1 rounded-control bg-surface-raised\" />\n          <p className=\"type-caption text-fg-muted\">Acme ad, live for 42 days.</p>\n        </div>\n      }\n    />\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        },
+        {
+          "name": "Vertical",
+          "label": "One over the other",
+          "center": true,
+          "half": false,
+          "path": "react/examples/resizable/Vertical.tsx",
+          "content": "import { Resizable } from '@/react/components/ui/Resizable'\n// A search over its notes, one above the other; the bare hairline is the handle.\n\nexport default function Vertical() {\n  return (\n    <Resizable\n      direction=\"vertical\"\n      className=\"h-72 w-full max-w-md rounded-container border border-edge\"\n      label=\"Resize results and notes\"\n      defaultValue={60}\n      first={<div className=\"p-4\"><p className=\"type-label text-fg-soft\">Results</p><p className=\"mt-2 type-ui text-fg\">36 creatives match Acme hooks.</p></div>}\n      second={<div className=\"p-4\"><p className=\"type-label text-fg-soft\">Notes</p><p className=\"mt-2 type-ui text-fg-muted\">Open on the product, in use.</p></div>}\n    />\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/resizable.ts",
+          "content": "import { html, nothing, type PropertyValues } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { styleMap } from 'lit/directives/style-map.js'\nimport { DsElement, define, uid } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Resizable.tsx as <spyglass-resizable>: two panes and the hairline between them. The hairline is the handle (a 12px\n// reach either side), White under the pointer, while dragged and when focused; `with-handle` adds a small grip.\n// Drag it, or use the arrow keys (Shift for bigger steps, Home and End). The host is the split, so a class on the\n// element lands on it. `value` (the first pane's share in percent) with the native `input` and `change` events.\n\n/**\n * @summary Two panes and the hairline between them.\n * @slot first - The first pane (left, or top when vertical).\n * @slot second - The second pane.\n * @fires input - The split moved (read `value`).\n * @fires change - The split moved (read `value`).\n */\nexport class Resizable extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { value: { type: Number }, direction: { reflect: true }, min: { type: Number }, max: { type: Number }, label: {}, withHandle: { type: Boolean, attribute: 'with-handle' }, dragging: { state: true } }\n\n\t/** The first pane's share, in percent. */\n\tvalue = 50\n\t/** horizontal (side by side) or vertical. */\n\tdirection: 'horizontal' | 'vertical' = 'horizontal'\n\t/** The first pane's smallest share, in percent. */\n\tmin = 20\n\t/** The first pane's largest share, in percent. */\n\tmax = 80\n\t/** The handle's name for assistive tech. */\n\tlabel = 'Resize panes'\n\t/** A small grip on the hairline. */\n\twithHandle = false\n\tprivate dragging = false\n\tprivate firstId = uid('pane')\n\n\tprivate get across() {\n\t\treturn this.direction !== 'vertical'\n\t}\n\tprivate clamp(n: number) {\n\t\treturn Math.min(this.max, Math.max(this.min, Math.round(n * 10) / 10))\n\t}\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\tif (changed.has('dragging')) this.toggleAttribute('data-dragging', this.dragging)\n\t}\n\n\tprivate onDown(e: PointerEvent) {\n\t\tif (e.button !== 0) return\n\t\t;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)\n\t\tthis.dragging = true\n\t}\n\tprivate onMove(e: PointerEvent) {\n\t\tif (!this.dragging) return\n\t\tconst box = this.getBoundingClientRect()\n\t\tthis.commit(this.clamp(this.across ? ((e.clientX - box.left) / box.width) * 100 : ((e.clientY - box.top) / box.height) * 100))\n\t}\n\tprivate onUp(e: PointerEvent) {\n\t\tthis.dragging = false\n\t\tconst el = e.currentTarget as HTMLElement\n\t\tif (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId)\n\t}\n\tprivate onKey(e: KeyboardEvent) {\n\t\tconst step = e.shiftKey ? 10 : 2\n\t\tconst back = this.across ? 'ArrowLeft' : 'ArrowUp'\n\t\tconst fwd = this.across ? 'ArrowRight' : 'ArrowDown'\n\t\tif (e.key === back) this.commit(this.clamp(this.value - step))\n\t\telse if (e.key === fwd) this.commit(this.clamp(this.value + step))\n\t\telse if (e.key === 'Home') this.commit(this.min)\n\t\telse if (e.key === 'End') this.commit(this.max)\n\t\telse return\n\t\te.preventDefault()\n\t}\n\n\trender() {\n\t\treturn html`<div id=${this.firstId} class=\"min-h-0 min-w-0 overflow-auto fade-xy\" style=${styleMap({ flexBasis: `${this.value}%` })}><slot name=\"first\"></slot></div>\n\t\t\t<div\n\t\t\t\tclass=\"ds-resize-handle\"\n\t\t\t\tdata-direction=${this.across ? 'horizontal' : 'vertical'}\n\t\t\t\tdata-dragging=${ifDefined(this.dragging ? 'true' : undefined)}\n\t\t\t\trole=\"separator\"\n\t\t\t\ttabindex=\"0\"\n\t\t\t\taria-label=${this.label}\n\t\t\t\taria-orientation=${this.across ? 'vertical' : 'horizontal'}\n\t\t\t\taria-controls=${this.firstId}\n\t\t\t\taria-valuenow=${this.value}\n\t\t\t\taria-valuemin=${this.min}\n\t\t\t\taria-valuemax=${this.max}\n\t\t\t\t@pointerdown=${this.onDown}\n\t\t\t\t@pointermove=${this.onMove}\n\t\t\t\t@pointerup=${this.onUp}\n\t\t\t\t@pointercancel=${this.onUp}\n\t\t\t\t@keydown=${this.onKey}\n\t\t\t>${this.withHandle ? html`<span class=\"ds-resize-grip\" aria-hidden=\"true\"></span>` : nothing}</div>\n\t\t\t<div class=\"min-h-0 min-w-0 flex-1 overflow-auto fade-xy\"><slot name=\"second\"></slot></div>`\n\t}\n}\n\ndefine('resizable', Resizable)\n"
+        },
+        {
+          "path": "elements/components/ui/resizable.css",
+          "content": "/* The host is the split (Resizable.tsx's root div and its classes), so a class on the element lands on it. */\n:host { @apply flex min-h-0 min-w-0 flex-row; }\n:host([direction=\"vertical\"]) { @apply flex-col; }\n:host([data-dragging]) { @apply select-none; }\n/* Resizable.tsx's styles, as they are. */\n.ds-resize-handle { position: relative; display: flex; flex-shrink: 0; align-items: center; justify-content: center; background: var(--ds-color-edge); touch-action: none; transition: background-color var(--ds-duration-micro) var(--ds-easing-standard); }\n.ds-resize-handle[data-direction=\"horizontal\"] { width: var(--ds-border-hairline); cursor: col-resize; }\n.ds-resize-handle[data-direction=\"vertical\"] { height: var(--ds-border-hairline); cursor: row-resize; }\n/* The reach: 12px either side of the hairline, 20px on touch. */\n.ds-resize-handle::before { position: absolute; content: \"\"; }\n.ds-resize-handle[data-direction=\"horizontal\"]::before { inset: 0 calc(var(--ds-space-md) * -1); }\n.ds-resize-handle[data-direction=\"vertical\"]::before { inset: calc(var(--ds-space-md) * -1) 0; }\n@media (pointer: coarse) {\n  .ds-resize-handle[data-direction=\"horizontal\"]::before { inset: 0 -20px; }\n  .ds-resize-handle[data-direction=\"vertical\"]::before { inset: -20px 0; }\n}\n.ds-resize-handle[data-dragging], .ds-resize-handle:focus-visible { background: var(--ds-color-edge-focus); }\n.ds-resize-handle:focus-visible { outline: none; }\n@media (hover: hover) and (pointer: fine) { .ds-resize-handle:hover { background: var(--ds-color-edge-focus); } }\n/* The grip: a small box on the hairline, the card's fill in a #666666 hairline that turns White with it. */\n.ds-resize-grip { position: relative; z-index: 1; flex-shrink: 0; border: var(--ds-border-hairline) solid var(--ds-color-edge-strong); border-radius: var(--ds-radius-sm); background: var(--ds-color-surface-raised); transition: border-color var(--ds-duration-micro) var(--ds-easing-standard); }\n.ds-resize-handle[data-direction=\"horizontal\"] .ds-resize-grip { width: var(--ds-space-md); height: var(--ds-space-xl); }\n.ds-resize-handle[data-direction=\"vertical\"] .ds-resize-grip { width: var(--ds-space-xl); height: var(--ds-space-md); }\n.ds-resize-handle[data-dragging] .ds-resize-grip, .ds-resize-handle:focus-visible .ds-resize-grip { border-color: var(--ds-color-edge-focus); }\n@media (hover: hover) and (pointer: fine) { .ds-resize-handle:hover .ds-resize-grip { border-color: var(--ds-color-edge-focus); } }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/resizable.js"
+      ],
+      "tag": "spyglass-resizable",
+      "tags": [
+        "spyglass-resizable"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-resizable",
+            "name": "Resizable",
+            "module": "elements/resizable.js",
+            "description": "Two panes and the hairline between them.",
+            "attributes": [
+              {
+                "name": "value",
+                "field": "value",
+                "type": "number",
+                "default": "50",
+                "description": "The first pane's share, in percent."
+              },
+              {
+                "name": "direction",
+                "field": "direction",
+                "type": "\"horizontal\" | \"vertical\"",
+                "default": "'horizontal'",
+                "description": "horizontal (side by side) or vertical."
+              },
+              {
+                "name": "min",
+                "field": "min",
+                "type": "number",
+                "default": "20",
+                "description": "The first pane's smallest share, in percent."
+              },
+              {
+                "name": "max",
+                "field": "max",
+                "type": "number",
+                "default": "80",
+                "description": "The first pane's largest share, in percent."
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "'Resize panes'",
+                "description": "The handle's name for assistive tech."
+              },
+              {
+                "name": "with-handle",
+                "field": "withHandle",
+                "type": "boolean",
+                "default": "false",
+                "description": "A small grip on the hairline."
+              },
+              {
+                "name": "dragging",
+                "field": "dragging",
+                "type": "boolean",
+                "default": "false"
+              }
+            ],
+            "properties": [
+              {
+                "name": "value",
+                "type": "number",
+                "default": "50",
+                "description": "The first pane's share, in percent.",
+                "attribute": "value"
+              },
+              {
+                "name": "direction",
+                "type": "\"horizontal\" | \"vertical\"",
+                "default": "'horizontal'",
+                "description": "horizontal (side by side) or vertical.",
+                "attribute": "direction"
+              },
+              {
+                "name": "min",
+                "type": "number",
+                "default": "20",
+                "description": "The first pane's smallest share, in percent.",
+                "attribute": "min"
+              },
+              {
+                "name": "max",
+                "type": "number",
+                "default": "80",
+                "description": "The first pane's largest share, in percent.",
+                "attribute": "max"
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "default": "'Resize panes'",
+                "description": "The handle's name for assistive tech.",
+                "attribute": "label"
+              },
+              {
+                "name": "withHandle",
+                "type": "boolean",
+                "default": "false",
+                "description": "A small grip on the hairline.",
+                "attribute": "with-handle"
+              }
+            ],
+            "events": [
+              {
+                "name": "input",
+                "description": "The split moved (read `value`)."
+              },
+              {
+                "name": "change",
+                "description": "The split moved (read `value`)."
+              }
+            ],
+            "slots": [
+              {
+                "name": "first",
+                "description": "The first pane (left, or top when vertical)."
+              },
+              {
+                "name": "second",
+                "description": "The second pane."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Panes",
+          "label": "Side by side, with a grip",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/resizable/Panes.html",
+          "content": "<!-- Boards beside the creative that is open, with a grip on the line between them. -->\n<spyglass-resizable class=\"h-64 w-full max-w-xl rounded-container border border-edge\" label=\"Resize boards and creative\" value=\"40\" with-handle>\n  <div slot=\"first\" class=\"flex h-full flex-col gap-2 p-4\">\n    <p class=\"type-label text-fg-soft\">Boards</p>\n    <p class=\"type-ui text-fg\">Acme hooks</p>\n    <p class=\"type-ui text-fg-muted\">Acme summer launch</p>\n    <p class=\"type-ui text-fg-muted\">UGC openers</p>\n  </div>\n  <div slot=\"second\" class=\"flex h-full flex-col gap-3 p-4\">\n    <p class=\"type-label text-fg-soft\">Creative</p>\n    <div class=\"flex-1 rounded-control bg-surface-raised\"></div>\n    <p class=\"type-caption text-fg-muted\">Acme ad, live for 42 days.</p>\n  </div>\n</spyglass-resizable>\n"
+        },
+        {
+          "name": "Vertical",
+          "label": "One over the other",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/resizable/Vertical.html",
+          "content": "<!-- A search over its notes, one above the other; the bare hairline is the handle. -->\n<spyglass-resizable direction=\"vertical\" class=\"h-72 w-full max-w-md rounded-container border border-edge\" label=\"Resize results and notes\" value=\"60\">\n  <div slot=\"first\" class=\"p-4\"><p class=\"type-label text-fg-soft\">Results</p><p class=\"mt-2 type-ui text-fg\">36 creatives match Acme hooks.</p></div>\n  <div slot=\"second\" class=\"p-4\"><p class=\"type-label text-fg-soft\">Notes</p><p class=\"mt-2 type-ui text-fg-muted\">Open on the product, in use.</p></div>\n</spyglass-resizable>\n"
+        }
+      ]
+    }
+  }
+}

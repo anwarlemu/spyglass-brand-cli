@@ -1,0 +1,177 @@
+{
+  "name": "logo-strip-block",
+  "title": "Logo strip block",
+  "type": "registry:block",
+  "group": "blocks",
+  "description": "A row of customer names under a label in capitals, each set as a Funnel Display wordmark in the muted gray, so no third-party logo is drawn; their own marks go in the slot when you have permission.",
+  "use_for": "Showing who uses the product, on a home or pricing page, with names you are allowed to show.",
+  "never": [
+    "Third-party logos without permission, or recolored marks",
+    "Names of customers who have not agreed to be named",
+    "Motion or color on hover"
+  ],
+  "source": "Derived from the guidelines (Funnel Display, neutrals for muted text, labels in capitals with 6% tracking); no customer logos are in the brand assets, so the names are Acme placeholders",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/blocks/LogoStripBlock.tsx",
+      "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// A row of customer names under a label in capitals: each name set as a wordmark in Funnel Display, in the muted\n// gray, so no third-party logo is ever drawn. Pass your customers' names (placeholders say Acme); with permission to\n// show real marks, put their SVGs in `children` instead, in White. The row wraps on phones. Nothing moves on hover.\nexport interface LogoStripBlockProps {\n  /** The names, each set as a wordmark. */\n  names?: string[]\n  /** A line in capitals above the row. */\n  label?: ReactNode\n  /** Instead of the names: the marks themselves. */\n  children?: ReactNode\n  className?: string\n}\n\nexport function LogoStripBlock({ names = [], label, children, className }: LogoStripBlockProps) {\n  return (\n    <section data-ds=\"logo-strip-block\" className={cn('grid gap-8 text-fg max-sm:gap-6', className)}>\n      {label && <p className=\"type-label text-fg-muted\">{label}</p>}\n      {children ? (\n        <div className=\"flex flex-wrap items-center justify-between gap-x-12 gap-y-6\">{children}</div>\n      ) : (\n        <ul className=\"flex flex-wrap items-center justify-between gap-x-12 gap-y-6\">\n          {names.map((n) => <li key={n} className=\"type-heading-3 text-fg-muted\">{n}</li>)}\n        </ul>\n      )}\n    </section>\n  )\n}\n\nexport default LogoStripBlock\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Names",
+      "label": "Acme placeholders under a label",
+      "center": false,
+      "half": false,
+      "path": "react/examples/logo-strip-block/Names.tsx",
+      "content": "import { LogoStripBlock } from '@/react/components/blocks/LogoStripBlock'\n// Placeholder customers, set as wordmarks: replace them with names you may show.\n\nconst names = ['Acme Skin', 'Acme Studio', 'Acme Fit', 'Acme Drinks', 'Acme Motors']\n\nexport default function Names() {\n  return <LogoStripBlock label=\"Teams at these brands search with us\" names={names} />\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/blocks/LogoStripBlock.tsx",
+          "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// A row of customer names under a label in capitals: each name set as a wordmark in Funnel Display, in the muted\n// gray, so no third-party logo is ever drawn. Pass your customers' names (placeholders say Acme); with permission to\n// show real marks, put their SVGs in `children` instead, in White. The row wraps on phones. Nothing moves on hover.\nexport interface LogoStripBlockProps {\n  /** The names, each set as a wordmark. */\n  names?: string[]\n  /** A line in capitals above the row. */\n  label?: ReactNode\n  /** Instead of the names: the marks themselves. */\n  children?: ReactNode\n  className?: string\n}\n\nexport function LogoStripBlock({ names = [], label, children, className }: LogoStripBlockProps) {\n  return (\n    <section data-ds=\"logo-strip-block\" className={cn('grid gap-8 text-fg max-sm:gap-6', className)}>\n      {label && <p className=\"type-label text-fg-muted\">{label}</p>}\n      {children ? (\n        <div className=\"flex flex-wrap items-center justify-between gap-x-12 gap-y-6\">{children}</div>\n      ) : (\n        <ul className=\"flex flex-wrap items-center justify-between gap-x-12 gap-y-6\">\n          {names.map((n) => <li key={n} className=\"type-heading-3 text-fg-muted\">{n}</li>)}\n        </ul>\n      )}\n    </section>\n  )\n}\n\nexport default LogoStripBlock\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "LogoStripBlock",
+            "file": "react/components/blocks/LogoStripBlock.tsx",
+            "props": [
+              {
+                "name": "names",
+                "type": "string[]",
+                "required": false,
+                "default": "[]",
+                "description": "The names, each set as a wordmark."
+              },
+              {
+                "name": "label",
+                "type": "ReactNode",
+                "required": false,
+                "description": "A line in capitals above the row."
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false,
+                "description": "Instead of the names: the marks themselves."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Names",
+          "label": "Acme placeholders under a label",
+          "center": false,
+          "half": false,
+          "path": "react/examples/logo-strip-block/Names.tsx",
+          "content": "import { LogoStripBlock } from '@/react/components/blocks/LogoStripBlock'\n// Placeholder customers, set as wordmarks: replace them with names you may show.\n\nconst names = ['Acme Skin', 'Acme Studio', 'Acme Fit', 'Acme Drinks', 'Acme Motors']\n\nexport default function Names() {\n  return <LogoStripBlock label=\"Teams at these brands search with us\" names={names} />\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/blocks/logo-strip-block.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// LogoStripBlock.tsx as <spyglass-logo-strip-block>: a `label` in capitals over a row of `names`, each set as a\n// Funnel Display wordmark in the muted gray; the default slot (the marks themselves) replaces the names.\n\n/**\n * @summary A row of customer names as wordmarks.\n * @slot - The marks themselves, instead of the names.\n */\nexport class LogoStripBlock extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"logo-strip-block\"]'))\n\tstatic properties = { names: { type: Array }, label: {} }\n\t/** The names, each set as a wordmark. */\n\tnames: string[] = []\n\t/** A line in capitals above the row. */\n\tlabel?: string\n\n\trender() {\n\t\treturn html`<section data-ds=\"logo-strip-block\" class=\"grid gap-8 text-fg max-sm:gap-6\">${this.label ? html`<p class=\"type-label text-fg-muted\">${this.label}</p>` : nothing}${this.hasSlot() ? html`<div class=\"flex flex-wrap items-center justify-between gap-x-12 gap-y-6\"><slot></slot></div>` : html`<ul class=\"flex flex-wrap items-center justify-between gap-x-12 gap-y-6\">${(this.names ?? []).map((n) => html`<li class=\"type-heading-3 text-fg-muted\">${n}</li>`)}</ul>`}</section>`\n\t}\n}\n\ndefine('logo-strip-block', LogoStripBlock)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/logo-strip-block.js"
+      ],
+      "tag": "spyglass-logo-strip-block",
+      "tags": [
+        "spyglass-logo-strip-block"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-logo-strip-block",
+            "name": "LogoStripBlock",
+            "module": "elements/logo-strip-block.js",
+            "description": "A row of customer names as wordmarks.",
+            "attributes": [
+              {
+                "name": "names",
+                "field": "names",
+                "type": "string[]",
+                "default": "[]",
+                "description": "The names, each set as a wordmark."
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string | undefined",
+                "description": "A line in capitals above the row."
+              }
+            ],
+            "properties": [
+              {
+                "name": "names",
+                "type": "string[]",
+                "default": "[]",
+                "description": "The names, each set as a wordmark.",
+                "attribute": "names"
+              },
+              {
+                "name": "label",
+                "type": "string | undefined",
+                "description": "A line in capitals above the row.",
+                "attribute": "label"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The marks themselves, instead of the names."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Names",
+          "label": "Acme placeholders under a label",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/logo-strip-block/Names.html",
+          "content": "<!-- Placeholder customers, set as wordmarks: replace them with names you may show. -->\n<spyglass-logo-strip-block label=\"Teams at these brands search with us\" names='[\"Acme Skin\",\"Acme Studio\",\"Acme Fit\",\"Acme Drinks\",\"Acme Motors\"]'></spyglass-logo-strip-block>\n"
+        }
+      ]
+    }
+  }
+}

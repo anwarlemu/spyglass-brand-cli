@@ -1,0 +1,168 @@
+{
+  "name": "ascii-trail",
+  "title": "ASCII trail",
+  "type": "registry:ui",
+  "group": "visuals",
+  "description": "A mouse leaves a short trail of ASCII characters that fades in 700ms, over one section or, fixed behind it, the whole page. Only for a fine pointer; off on touch and with reduced motion.",
+  "use_for": "A quiet response to the pointer on a page head, a 404 or a coming-soon page, behind the content.",
+  "never": [
+    "Over text people read: it sits behind the content",
+    "On touch, or with reduced motion",
+    "Two on one page (a page trail and a section trail)"
+  ],
+  "source": "Site effect/AsciiTrail (AsciiTrail.tsx, trail.ts, AsciiTrail.module.css): 8 by 16 cells from \" .:-=+*#\", radius --ascii-trail-radius 72px, fade --ascii-trail-fade 700ms, opacity --ascii-trail-opacity 0.35; page mode fixed at z -1",
+  "body": "",
+  "requires": [
+    "light-image"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/visuals/AsciiTrail.tsx",
+      "content": "'use client'\nimport { useEffect, useRef } from 'react'\nimport { whilePointerEffects } from '@/lib/effects/pointer'\nimport { cn } from '@/react/lib/cn'\n\n// The site's ASCII trail (effect/AsciiTrail): a mouse leaves a short trail of ASCII characters that fades in 700ms. In\n// `section` mode the canvas is absolute in its section (the classes size it, `inset-0`) and follows the pointer over the\n// section; in `page` mode it is fixed behind the whole page. Only for a fine pointer on a screen 768 wide or more, and\n// off with reduced motion; on touch it draws nothing. Decoration: hidden from assistive tech.\nexport interface AsciiTrailProps {\n  /** section (absolute in its section) or page (fixed behind the page). */\n  mode?: 'section' | 'page'\n  className?: string\n}\n\nexport function AsciiTrail({ mode = 'section', className }: AsciiTrailProps) {\n  const ref = useRef<HTMLCanvasElement>(null)\n  useEffect(() => {\n    const canvas = ref.current\n    if (!canvas) return\n    return whilePointerEffects(() => import('@/lib/effects/ascii-trail').then(({ startTrail }) => startTrail(canvas, mode)))\n  }, [mode])\n  return <canvas ref={ref} data-ds=\"ascii-trail\" data-ascii-trail={mode} aria-hidden=\"true\" className={cn('pointer-events-none block text-fg', mode === 'page' ? 'fixed inset-0 -z-1 size-full' : 'absolute', className)} />\n}\n\nexport default AsciiTrail\n"
+    },
+    {
+      "path": "lib/effects/ascii-trail.ts",
+      "content": "// The site's ASCII trail (effect/AsciiTrail/trail): a mouse leaves a short trail of ASCII characters (\" .:-=+*#\",\n// 8 by 16 cells) within --ds-ascii-trail-radius (72px) of the pointer, fading over --ds-ascii-trail-fade (700ms), at\n// the texture's 0.35 in the canvas's text colour. Section mode listens on the section; page mode on the window, drawn\n// fixed behind the page. Started only for a fine pointer without reduced motion (the components check).\nconst CELL_W = 8;\nconst CELL_H = 16;\nconst RAMP = \" .:-=+*#\";\n\nconst token = (el: Element, name: string) => parseFloat(getComputedStyle(el).getPropertyValue(name)) || 0;\nconst ms = (el: Element, name: string) => {\n  const raw = getComputedStyle(el).getPropertyValue(name).trim();\n  const n = parseFloat(raw) || 0;\n  return raw.endsWith(\"ms\") ? n : raw.endsWith(\"s\") ? n * 1000 : n;\n};\n\nexport function startTrail(canvas: HTMLCanvasElement, mode: \"section\" | \"page\", section?: HTMLElement | null): () => void {\n  const page = mode === \"page\";\n  const host = page ? document.documentElement : (section ?? canvas.parentElement);\n  const ctx = canvas.getContext(\"2d\");\n  if (!host || !ctx) return () => {};\n\n  const radius = token(canvas, \"--ds-ascii-trail-radius\") || 72;\n  const fade = ms(canvas, \"--ds-ascii-trail-fade\") || 700;\n  const strength = token(canvas, \"--ds-ascii-opacity\") || 0.35;\n  const family = getComputedStyle(canvas).getPropertyValue(\"--ds-font-ascii\").trim() || \"monospace\";\n\n  const ink = getComputedStyle(canvas).color;\n  let cols = 0;\n  let rows = 0;\n  let heat = new Float32Array(0);\n  let seed = new Float32Array(0);\n  let raf = 0;\n  let last = 0;\n\n  const size = () => {\n    const dpr = Math.min(window.devicePixelRatio || 1, 2);\n    const w = page ? window.innerWidth : host.clientWidth;\n    const h = page ? window.innerHeight : canvas.clientHeight;\n    canvas.width = Math.round(w * dpr);\n    canvas.height = Math.round(h * dpr);\n    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);\n    ctx.font = `13.333px ${family}`;\n    ctx.textBaseline = \"top\";\n    cols = Math.ceil(w / CELL_W);\n    rows = Math.ceil(h / CELL_H);\n    heat = new Float32Array(cols * rows);\n    seed = new Float32Array(cols * rows).map((_, i) => (((Math.sin(i * 12.9898) * 43758.5453) % 1) + 1) % 1);\n  };\n\n  const frame = (now: number) => {\n    const dt = last ? now - last : 16;\n    last = now;\n    const keep = Math.exp(-dt / fade);\n    ctx.clearRect(0, 0, cols * CELL_W, rows * CELL_H);\n    let warm = false;\n    for (let i = 0; i < heat.length; i++) {\n      const v = heat[i] * keep;\n      heat[i] = v < 0.01 ? 0 : v;\n      if (!heat[i]) continue;\n      warm = true;\n      const level = Math.min(RAMP.length - 1, Math.floor((heat[i] * 0.85 + seed[i] * 0.3) * RAMP.length));\n      const ch = RAMP[level];\n      if (ch === \" \") continue;\n      ctx.fillStyle = ink;\n      ctx.globalAlpha = heat[i] * strength;\n      ctx.fillText(ch, (i % cols) * CELL_W, Math.floor(i / cols) * CELL_H);\n    }\n    ctx.globalAlpha = 1;\n    raf = warm ? requestAnimationFrame(frame) : 0;\n    if (!warm) last = 0;\n  };\n\n  const move = (event: PointerEvent) => {\n    if (event.pointerType !== \"mouse\") return;\n    const box = canvas.getBoundingClientRect();\n    const x = event.clientX - box.left;\n    const y = event.clientY - box.top;\n    if (x < -radius || y < -radius || x > box.width + radius || y > box.height + radius) return;\n    const c0 = Math.max(0, Math.floor((x - radius) / CELL_W));\n    const c1 = Math.min(cols - 1, Math.ceil((x + radius) / CELL_W));\n    const r0 = Math.max(0, Math.floor((y - radius) / CELL_H));\n    const r1 = Math.min(rows - 1, Math.ceil((y + radius) / CELL_H));\n    for (let r = r0; r <= r1; r++) {\n      for (let c = c0; c <= c1; c++) {\n        const d = Math.hypot(c * CELL_W + CELL_W / 2 - x, r * CELL_H + CELL_H / 2 - y) / radius;\n        if (d >= 1) continue;\n        const i = r * cols + c;\n        heat[i] = Math.max(heat[i], (1 - d) * (1 - d));\n      }\n    }\n    if (!raf) raf = requestAnimationFrame(frame);\n  };\n\n  size();\n  const resize = new ResizeObserver(size);\n  if (page) window.addEventListener(\"resize\", size);\n  else resize.observe(host);\n  const target: EventTarget = page ? window : host;\n  target.addEventListener(\"pointermove\", move as EventListener);\n  return () => {\n    cancelAnimationFrame(raf);\n    resize.disconnect();\n    window.removeEventListener(\"resize\", size);\n    target.removeEventListener(\"pointermove\", move as EventListener);\n  };\n}\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Section",
+      "label": "Over a section",
+      "center": false,
+      "half": false,
+      "path": "react/examples/ascii-trail/Section.tsx",
+      "content": "import { AsciiTrail } from '@/react/components/visuals/AsciiTrail'\n// A section with the trail: move a mouse across it (768 wide and up) and characters follow the pointer, then fade.\n\nexport default function Section() {\n  return (\n    <section className=\"relative isolate flex h-96 flex-col items-center justify-center gap-4 overflow-clip rounded-container bg-surface px-6 text-center inset-ring inset-ring-edge\">\n      <AsciiTrail className=\"inset-0 -z-1 size-full\" />\n      <h2 className=\"type-heading-2 text-fg\">Move the pointer here.</h2>\n      <p className=\"type-body text-fg-muted\">The trail fades in 700ms and stays off on touch and with reduced motion.</p>\n    </section>\n  )\n}\n",
+      "requires": [
+        "light-image"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/visuals/AsciiTrail.tsx",
+          "content": "'use client'\nimport { useEffect, useRef } from 'react'\nimport { whilePointerEffects } from '@/lib/effects/pointer'\nimport { cn } from '@/react/lib/cn'\n\n// The site's ASCII trail (effect/AsciiTrail): a mouse leaves a short trail of ASCII characters that fades in 700ms. In\n// `section` mode the canvas is absolute in its section (the classes size it, `inset-0`) and follows the pointer over the\n// section; in `page` mode it is fixed behind the whole page. Only for a fine pointer on a screen 768 wide or more, and\n// off with reduced motion; on touch it draws nothing. Decoration: hidden from assistive tech.\nexport interface AsciiTrailProps {\n  /** section (absolute in its section) or page (fixed behind the page). */\n  mode?: 'section' | 'page'\n  className?: string\n}\n\nexport function AsciiTrail({ mode = 'section', className }: AsciiTrailProps) {\n  const ref = useRef<HTMLCanvasElement>(null)\n  useEffect(() => {\n    const canvas = ref.current\n    if (!canvas) return\n    return whilePointerEffects(() => import('@/lib/effects/ascii-trail').then(({ startTrail }) => startTrail(canvas, mode)))\n  }, [mode])\n  return <canvas ref={ref} data-ds=\"ascii-trail\" data-ascii-trail={mode} aria-hidden=\"true\" className={cn('pointer-events-none block text-fg', mode === 'page' ? 'fixed inset-0 -z-1 size-full' : 'absolute', className)} />\n}\n\nexport default AsciiTrail\n"
+        },
+        {
+          "path": "lib/effects/ascii-trail.ts",
+          "content": "// The site's ASCII trail (effect/AsciiTrail/trail): a mouse leaves a short trail of ASCII characters (\" .:-=+*#\",\n// 8 by 16 cells) within --ds-ascii-trail-radius (72px) of the pointer, fading over --ds-ascii-trail-fade (700ms), at\n// the texture's 0.35 in the canvas's text colour. Section mode listens on the section; page mode on the window, drawn\n// fixed behind the page. Started only for a fine pointer without reduced motion (the components check).\nconst CELL_W = 8;\nconst CELL_H = 16;\nconst RAMP = \" .:-=+*#\";\n\nconst token = (el: Element, name: string) => parseFloat(getComputedStyle(el).getPropertyValue(name)) || 0;\nconst ms = (el: Element, name: string) => {\n  const raw = getComputedStyle(el).getPropertyValue(name).trim();\n  const n = parseFloat(raw) || 0;\n  return raw.endsWith(\"ms\") ? n : raw.endsWith(\"s\") ? n * 1000 : n;\n};\n\nexport function startTrail(canvas: HTMLCanvasElement, mode: \"section\" | \"page\", section?: HTMLElement | null): () => void {\n  const page = mode === \"page\";\n  const host = page ? document.documentElement : (section ?? canvas.parentElement);\n  const ctx = canvas.getContext(\"2d\");\n  if (!host || !ctx) return () => {};\n\n  const radius = token(canvas, \"--ds-ascii-trail-radius\") || 72;\n  const fade = ms(canvas, \"--ds-ascii-trail-fade\") || 700;\n  const strength = token(canvas, \"--ds-ascii-opacity\") || 0.35;\n  const family = getComputedStyle(canvas).getPropertyValue(\"--ds-font-ascii\").trim() || \"monospace\";\n\n  const ink = getComputedStyle(canvas).color;\n  let cols = 0;\n  let rows = 0;\n  let heat = new Float32Array(0);\n  let seed = new Float32Array(0);\n  let raf = 0;\n  let last = 0;\n\n  const size = () => {\n    const dpr = Math.min(window.devicePixelRatio || 1, 2);\n    const w = page ? window.innerWidth : host.clientWidth;\n    const h = page ? window.innerHeight : canvas.clientHeight;\n    canvas.width = Math.round(w * dpr);\n    canvas.height = Math.round(h * dpr);\n    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);\n    ctx.font = `13.333px ${family}`;\n    ctx.textBaseline = \"top\";\n    cols = Math.ceil(w / CELL_W);\n    rows = Math.ceil(h / CELL_H);\n    heat = new Float32Array(cols * rows);\n    seed = new Float32Array(cols * rows).map((_, i) => (((Math.sin(i * 12.9898) * 43758.5453) % 1) + 1) % 1);\n  };\n\n  const frame = (now: number) => {\n    const dt = last ? now - last : 16;\n    last = now;\n    const keep = Math.exp(-dt / fade);\n    ctx.clearRect(0, 0, cols * CELL_W, rows * CELL_H);\n    let warm = false;\n    for (let i = 0; i < heat.length; i++) {\n      const v = heat[i] * keep;\n      heat[i] = v < 0.01 ? 0 : v;\n      if (!heat[i]) continue;\n      warm = true;\n      const level = Math.min(RAMP.length - 1, Math.floor((heat[i] * 0.85 + seed[i] * 0.3) * RAMP.length));\n      const ch = RAMP[level];\n      if (ch === \" \") continue;\n      ctx.fillStyle = ink;\n      ctx.globalAlpha = heat[i] * strength;\n      ctx.fillText(ch, (i % cols) * CELL_W, Math.floor(i / cols) * CELL_H);\n    }\n    ctx.globalAlpha = 1;\n    raf = warm ? requestAnimationFrame(frame) : 0;\n    if (!warm) last = 0;\n  };\n\n  const move = (event: PointerEvent) => {\n    if (event.pointerType !== \"mouse\") return;\n    const box = canvas.getBoundingClientRect();\n    const x = event.clientX - box.left;\n    const y = event.clientY - box.top;\n    if (x < -radius || y < -radius || x > box.width + radius || y > box.height + radius) return;\n    const c0 = Math.max(0, Math.floor((x - radius) / CELL_W));\n    const c1 = Math.min(cols - 1, Math.ceil((x + radius) / CELL_W));\n    const r0 = Math.max(0, Math.floor((y - radius) / CELL_H));\n    const r1 = Math.min(rows - 1, Math.ceil((y + radius) / CELL_H));\n    for (let r = r0; r <= r1; r++) {\n      for (let c = c0; c <= c1; c++) {\n        const d = Math.hypot(c * CELL_W + CELL_W / 2 - x, r * CELL_H + CELL_H / 2 - y) / radius;\n        if (d >= 1) continue;\n        const i = r * cols + c;\n        heat[i] = Math.max(heat[i], (1 - d) * (1 - d));\n      }\n    }\n    if (!raf) raf = requestAnimationFrame(frame);\n  };\n\n  size();\n  const resize = new ResizeObserver(size);\n  if (page) window.addEventListener(\"resize\", size);\n  else resize.observe(host);\n  const target: EventTarget = page ? window : host;\n  target.addEventListener(\"pointermove\", move as EventListener);\n  return () => {\n    cancelAnimationFrame(raf);\n    resize.disconnect();\n    window.removeEventListener(\"resize\", size);\n    target.removeEventListener(\"pointermove\", move as EventListener);\n  };\n}\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "light-image"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "AsciiTrail",
+            "file": "react/components/visuals/AsciiTrail.tsx",
+            "props": [
+              {
+                "name": "mode",
+                "type": "'section' | 'page'",
+                "required": false,
+                "default": "'section'",
+                "description": "section (absolute in its section) or page (fixed behind the page)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Section",
+          "label": "Over a section",
+          "center": false,
+          "half": false,
+          "path": "react/examples/ascii-trail/Section.tsx",
+          "content": "import { AsciiTrail } from '@/react/components/visuals/AsciiTrail'\n// A section with the trail: move a mouse across it (768 wide and up) and characters follow the pointer, then fade.\n\nexport default function Section() {\n  return (\n    <section className=\"relative isolate flex h-96 flex-col items-center justify-center gap-4 overflow-clip rounded-container bg-surface px-6 text-center inset-ring inset-ring-edge\">\n      <AsciiTrail className=\"inset-0 -z-1 size-full\" />\n      <h2 className=\"type-heading-2 text-fg\">Move the pointer here.</h2>\n      <p className=\"type-body text-fg-muted\">The trail fades in 700ms and stays off on touch and with reduced motion.</p>\n    </section>\n  )\n}\n",
+          "registryDependencies": [
+            "light-image"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/visuals/ascii-trail.ts",
+          "content": "import { html, type PropertyValues } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport { whilePointerEffects } from '@/lib/effects/pointer'\nimport styles from 'virtual:tw'\n\n// AsciiTrail.tsx as <spyglass-ascii-trail>: a mouse leaves a short trail of ASCII characters that fades in 700ms.\n// `mode` section (absolute in the section around it; the page's classes size it) or page (fixed behind the page). Only\n// for a fine pointer, 768 wide and up, without reduced motion. The host is the box. Decoration: aria-hidden.\n\n/**\n * @summary A fading ASCII trail behind the pointer.\n */\nexport class AsciiTrail extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { mode: { reflect: true } }\n\t/** section or page. */\n\tmode: 'section' | 'page' = 'section'\n\tprivate stop: (() => void) | null = null\n\tprivate run = 0\n\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\tthis.setAttribute('aria-hidden', 'true')\n\t\tif (this.hasUpdated) this.start()\n\t}\n\n\tdisconnectedCallback() {\n\t\tsuper.disconnectedCallback()\n\t\tthis.halt()\n\t}\n\n\tprivate halt() {\n\t\tthis.run++\n\t\tthis.stop?.()\n\t\tthis.stop = null\n\t}\n\n\tprivate start() {\n\t\tthis.halt()\n\t\tconst canvas = this.renderRoot.querySelector('canvas')\n\t\tif (!canvas) return\n\t\tconst mode = this.mode === 'page' ? 'page' : 'section'\n\t\tconst area = this.parentElement\n\t\tthis.stop = whilePointerEffects(() => import('@/lib/effects/ascii-trail').then(({ startTrail }) => startTrail(canvas, mode, area)))\n\t}\n\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\tif (changed.has('mode')) this.start()\n\t}\n\n\trender() {\n\t\treturn html`<canvas data-ascii-trail=${this.mode} class=\"block size-full text-fg\"></canvas>`\n\t}\n}\n\ndefine('ascii-trail', AsciiTrail)\n"
+        },
+        {
+          "path": "elements/components/visuals/ascii-trail.css",
+          "content": "/* The host is the box, as AsciiTrail.tsx's canvas: absolute in its section (the page's classes size it), or fixed\n   behind the page in page mode. */\n:host {\n  position: absolute;\n  display: block;\n  overflow: clip;\n  pointer-events: none;\n}\n:host([mode=\"page\"]) {\n  position: fixed;\n  inset: 0;\n  z-index: -1;\n  width: 100%;\n  height: 100%;\n}\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/ascii-trail.js"
+      ],
+      "tag": "spyglass-ascii-trail",
+      "tags": [
+        "spyglass-ascii-trail"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-ascii-trail",
+            "name": "AsciiTrail",
+            "module": "elements/ascii-trail.js",
+            "description": "A fading ASCII trail behind the pointer.",
+            "attributes": [
+              {
+                "name": "mode",
+                "field": "mode",
+                "type": "\"section\" | \"page\"",
+                "default": "'section'",
+                "description": "section or page."
+              }
+            ],
+            "properties": [
+              {
+                "name": "mode",
+                "type": "\"section\" | \"page\"",
+                "default": "'section'",
+                "description": "section or page.",
+                "attribute": "mode"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Section",
+          "label": "Over a section",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/ascii-trail/Section.html",
+          "content": "<!-- A section with the trail: move a mouse across it (768 wide and up) and characters follow the pointer, then fade. -->\n<section class=\"relative isolate flex h-96 flex-col items-center justify-center gap-4 overflow-clip rounded-container bg-surface px-6 text-center inset-ring inset-ring-edge\">\n  <spyglass-ascii-trail class=\"inset-0 -z-1 size-full\"></spyglass-ascii-trail>\n  <h2 class=\"type-heading-2 text-fg\">Move the pointer here.</h2>\n  <p class=\"type-body text-fg-muted\">The trail fades in 700ms and stays off on touch and with reduced motion.</p>\n</section>\n"
+        }
+      ]
+    }
+  }
+}

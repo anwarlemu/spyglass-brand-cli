@@ -1,0 +1,25 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "offer-block",
+  "type": "registry:block",
+  "title": "Offer block",
+  "description": "The offer as the posts and the Creator plan ad close: a centered Funnel Display headline, the terms in capitals with concrete numbers and one White button, with the light flowing in around them or from the top over a plan card.",
+  "dependencies": [],
+  "registryDependencies": [
+    "https://spyglass-ds.vercel.app/r/react/ascii-texture.json",
+    "https://spyglass-ds.vercel.app/r/react/brand-light.json",
+    "https://spyglass-ds.vercel.app/r/react/button.json"
+  ],
+  "files": [
+    {
+      "path": "components/blocks/OfferBlock.tsx",
+      "type": "registry:ui",
+      "content": "import type { ReactNode } from 'react'\nimport { Button } from '@/components/ui/Button'\nimport { BrandLight } from '@/components/visuals/BrandLight'\nimport { AsciiTexture } from '@/components/visuals/AsciiTexture'\nimport { cn } from '@/lib/cn'\n\n// The offer, as the posts and the Creator plan ad close: a centered Funnel Display headline, the terms in capitals\n// with concrete numbers, and one White button, with the light flowing in around them (`corner`) or from the top\n// (`field`, as the ad sets it over a plan card); on phones, where the corners are too close to the\n// headline, the corner light becomes the field above it. The children replace the terms and the button (a plan card). The\n// offer post's spacing times 2/3: the terms 24px under the headline, the button 24px under the terms.\nexport interface OfferBlockProps {\n  headline: ReactNode\n  /** The terms, set in capitals: \"$10 for your first month, then $20/month\". */\n  note?: ReactNode\n  /** The White button. */\n  cta?: { label: string; href?: string }\n  /** corner (the offer post) or field (the plan ad). */\n  light?: 'corner' | 'field'\n  seed?: number\n  /** The ASCII texture behind the light. */\n  texture?: boolean\n  /** Instead of the terms and the button: a plan card. */\n  children?: ReactNode\n  className?: string\n}\n\n// Where the texture keeps clear, in its 1440x900 frame: the headline and the terms, or the column of the plan card.\nconst CLEAR = { corner: [{ x: 200, y: 140, w: 1040, h: 620 }], field: [{ x: 280, y: 0, w: 880, h: 900 }] }\n\nexport function OfferBlock({ headline, note, cta, light = 'corner', seed = 0, texture = true, children, className }: OfferBlockProps) {\n  return (\n    <section data-ds=\"offer-block\" className={cn('relative isolate overflow-hidden bg-surface text-fg', className)}>\n      {texture && <AsciiTexture seed={seed + 3} width={1440} height={900} density={0.35} clear={CLEAR[light] ?? CLEAR.corner} cover className=\"absolute inset-0 -z-10 size-full\" />}\n      {light === 'corner' ? (\n        <>\n          <BrandLight variant=\"corner\" seed={seed} ground={false} cover className=\"absolute inset-0 -z-10 size-full max-sm:hidden\" />\n          <BrandLight variant=\"field\" seed={seed} ground={false} cover className=\"absolute inset-x-0 top-0 -z-10 h-48 mask-b-from-40% sm:hidden\" />\n        </>\n      ) : (\n        <BrandLight variant=\"field\" seed={seed} ground={false} cover className=\"absolute inset-x-0 top-0 -z-10 h-80 mask-b-from-40% max-sm:h-48\" />\n      )}\n      <div className={cn('mx-auto flex w-full max-w-page flex-col items-center px-12 text-center max-sm:px-4', light === 'field' ? 'pt-72 pb-24 max-sm:pt-44 max-sm:pb-16' : 'py-32 max-sm:pt-44 max-sm:pb-20')}>\n        <h2 className=\"max-w-3xl type-section\">{headline}</h2>\n        {children ? (\n          <div className=\"mt-12 flex w-full justify-center max-sm:mt-8\">{children}</div>\n        ) : (\n          <>\n            {note && <p className=\"mt-6 type-label text-fg\">{note}</p>}\n            {cta && <Button href={cta.href} size=\"lg\" className=\"mt-6\">{cta.label}</Button>}\n          </>\n        )}\n      </div>\n    </section>\n  )\n}\n\nexport default OfferBlock\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

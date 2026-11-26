@@ -1,0 +1,284 @@
+{
+  "name": "product-compare",
+  "title": "Product compare",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "The site's product comparison: the section head over a table of what the product does against two other ways of doing it, a check, a cross or a few words in each cell, the last column yours with the logomark and White checks; on phones each row is its label over its cells.",
+  "use_for": "A product page's case against the alternatives, three to six rows of things a buyer checks.",
+  "never": [
+    "Naming a competitor: the columns are kinds of tools (ad libraries, scrapers)",
+    "More than three columns",
+    "Claims the product does not make good on"
+  ],
+  "source": "Site pages/Products/ProductCompare (ProductCompare.module.css): .t-head with a .t-lead 24px under it, 48px (64 at 1024) to the table; rows ruled by --line, labels body 16/24 with 20px above and below, 160px columns (88 on phones) of 20px marks in --text-3 (yes --text-2, ours --text) or words in small 14/20 (caption on phones); the last head Medium White with the logomark; a stacked table under 768",
+  "body": "`rows` takes one cell per column: `\"yes\"`, `\"no\"` or a few words. `mark` (React) or the `mark` slot (web component)\nreplaces the logomark beside the last column's name.",
+  "requires": [
+    "logo"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/ProductCompare.tsx",
+      "content": "import type { ReactNode } from 'react'\nimport { Logo } from '@/react/components/visuals/Logo'\nimport { cn } from '@/react/lib/cn'\n\n// The site's product comparison (pages/Products/ProductCompare): the section head (the page head type, a lead 24px\n// under it; centered on phones), then a table of what the product does against two other ways of doing it. Rows ruled by\n// #363636 hairlines, the label in 16/24 White, three columns of 160px (88 on phones) with a check or a cross in #A3A3A3\n// (the last column, ours, in White with the logomark beside its name and its checks White) or a few words in 14/20\n// #A3A3A3. On phones each row is the label over its three cells. Nothing moves.\nexport type CompareCell = 'yes' | 'no' | (string & {})\n\nexport interface CompareRow {\n  label: string\n  /** One cell per column: \"yes\", \"no\" or a few words. */\n  cells: CompareCell[]\n}\n\nexport interface ProductCompareProps {\n  headline?: string\n  lead?: string\n  /** The column names; the last is yours and gets the mark. */\n  columns?: string[]\n  rows: CompareRow[]\n  /** The mark beside the last column's name (the logomark by default). */\n  mark?: ReactNode\n  /** Read for the check and the cross. */\n  yes?: string\n  no?: string\n  /** Prefix for the heading id. */\n  id?: string\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nfunction Mark({ value, ours, yes, no }: { value: string; ours: boolean; yes: string; no: string }) {\n  if (value === 'yes' || value === 'no') {\n    const on = value === 'yes'\n    return (\n      <span className={cn('inline-grid size-6 place-items-center', on ? (ours ? 'text-fg' : 'text-fg-soft') : 'text-fg-muted')}>\n        <svg viewBox=\"0 0 16 16\" width=\"20\" height=\"20\" aria-hidden=\"true\" focusable=\"false\">\n          <path d={on ? 'M3.5 8.5 6.5 11.5 12.5 4.5' : 'M4.5 4.5l7 7M11.5 4.5l-7 7'} fill=\"none\" stroke=\"currentColor\" strokeWidth=\"1.5\" />\n        </svg>\n        <span className=\"sr-only\">{on ? yes : no}</span>\n      </span>\n    )\n  }\n  return <span className=\"type-caption text-balance text-fg-muted md:type-ui\">{value}</span>\n}\n\nexport function ProductCompare({\n  headline = 'See the difference',\n  lead = 'Ad libraries show what is live. Scrapers hand you raw pages. Spyglass keeps the whole record, ready to ask.',\n  columns = ['Ad libraries', 'Scrapers', 'Spyglass'],\n  rows,\n  mark,\n  yes = 'Yes',\n  no = 'No',\n  id = 'product',\n  className,\n}: ProductCompareProps) {\n  const last = columns.length - 1\n  const heads = columns.map((c, i) => (\n    <th key={c} scope=\"col\" className={cn('w-22 pb-4 text-center align-top type-caption md:w-40 md:align-bottom md:type-ui', i === last ? 'font-medium text-fg' : 'font-normal text-fg-muted')}>\n      {i === last ? <span className=\"inline-flex items-center gap-2\">{mark ?? <Logo variant=\"mark\" height={12} label=\"\" className=\"flex-none\" />}{c}</span> : c}\n    </th>\n  ))\n  const cells = (row: CompareRow, phone: boolean) => row.cells.map((cell, i) => (\n    <td key={columns[i] ?? i} className={cn('text-center', phone ? 'pt-3 pb-4 align-top' : 'py-4 align-middle')}>\n      <Mark value={cell} ours={i === last} yes={yes} no={no} />\n    </td>\n  ))\n  return (\n    <section data-ds=\"product-compare\" aria-labelledby={`${id}-compare-heading`} className={cn('py-(--ds-layout-section) text-fg', className)}>\n      <div className={WRAP}>\n        <header className=\"mb-12 flex flex-col items-center text-center md:items-start md:text-left lg:mb-16\">\n          <h2 id={`${id}-compare-heading`} className=\"type-section\">{headline}</h2>\n          {lead && <p className=\"mt-6 max-w-(--ds-layout-measure) type-body-lg text-fg-soft\">{lead}</p>}\n        </header>\n        <table className=\"hidden w-full table-fixed border-collapse md:table\">\n          <thead><tr><td />{heads}</tr></thead>\n          <tbody>\n            {rows.map((row) => (\n              <tr key={row.label} className=\"border-t border-edge last:border-b\">\n                <th scope=\"row\" className=\"py-5 pr-4 text-left type-body font-normal text-pretty text-fg\">{row.label}</th>\n                {cells(row, false)}\n              </tr>\n            ))}\n          </tbody>\n        </table>\n        <table className=\"w-full table-fixed border-collapse md:hidden\">\n          <thead><tr>{heads}</tr></thead>\n          {rows.map((row) => (\n            <tbody key={row.label} className=\"border-t border-edge last:border-b\">\n              <tr><th scope=\"rowgroup\" colSpan={columns.length} className=\"pt-4 text-left type-ui font-normal text-pretty text-fg\">{row.label}</th></tr>\n              <tr>{cells(row, true)}</tr>\n            </tbody>\n          ))}\n        </table>\n      </div>\n    </section>\n  )\n}\n\nexport default ProductCompare\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Creators",
+      "label": "Creator search",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/product-compare/Creators.tsx",
+      "content": "import { ProductCompare } from '@/react/components/site/ProductCompare'\n// Creator search against ad libraries and scrapers.\n\nexport default function Creators() {\n  return (\n    <ProductCompare\n      id=\"creator-search\"\n      rows={[\n        { label: 'Find creators by niche, place and followers', cells: ['no', 'no', 'yes'] },\n        { label: 'One record across Instagram and TikTok', cells: ['no', 'You match them', 'yes'] },\n        { label: 'The brands they have worked with', cells: ['no', 'no', 'yes'] },\n        { label: 'Ready for your agents over MCP', cells: ['no', 'You build it', 'yes'] },\n      ]}\n    />\n  )\n}\n",
+      "requires": [
+        "logo"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/ProductCompare.tsx",
+          "content": "import type { ReactNode } from 'react'\nimport { Logo } from '@/react/components/visuals/Logo'\nimport { cn } from '@/react/lib/cn'\n\n// The site's product comparison (pages/Products/ProductCompare): the section head (the page head type, a lead 24px\n// under it; centered on phones), then a table of what the product does against two other ways of doing it. Rows ruled by\n// #363636 hairlines, the label in 16/24 White, three columns of 160px (88 on phones) with a check or a cross in #A3A3A3\n// (the last column, ours, in White with the logomark beside its name and its checks White) or a few words in 14/20\n// #A3A3A3. On phones each row is the label over its three cells. Nothing moves.\nexport type CompareCell = 'yes' | 'no' | (string & {})\n\nexport interface CompareRow {\n  label: string\n  /** One cell per column: \"yes\", \"no\" or a few words. */\n  cells: CompareCell[]\n}\n\nexport interface ProductCompareProps {\n  headline?: string\n  lead?: string\n  /** The column names; the last is yours and gets the mark. */\n  columns?: string[]\n  rows: CompareRow[]\n  /** The mark beside the last column's name (the logomark by default). */\n  mark?: ReactNode\n  /** Read for the check and the cross. */\n  yes?: string\n  no?: string\n  /** Prefix for the heading id. */\n  id?: string\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nfunction Mark({ value, ours, yes, no }: { value: string; ours: boolean; yes: string; no: string }) {\n  if (value === 'yes' || value === 'no') {\n    const on = value === 'yes'\n    return (\n      <span className={cn('inline-grid size-6 place-items-center', on ? (ours ? 'text-fg' : 'text-fg-soft') : 'text-fg-muted')}>\n        <svg viewBox=\"0 0 16 16\" width=\"20\" height=\"20\" aria-hidden=\"true\" focusable=\"false\">\n          <path d={on ? 'M3.5 8.5 6.5 11.5 12.5 4.5' : 'M4.5 4.5l7 7M11.5 4.5l-7 7'} fill=\"none\" stroke=\"currentColor\" strokeWidth=\"1.5\" />\n        </svg>\n        <span className=\"sr-only\">{on ? yes : no}</span>\n      </span>\n    )\n  }\n  return <span className=\"type-caption text-balance text-fg-muted md:type-ui\">{value}</span>\n}\n\nexport function ProductCompare({\n  headline = 'See the difference',\n  lead = 'Ad libraries show what is live. Scrapers hand you raw pages. Spyglass keeps the whole record, ready to ask.',\n  columns = ['Ad libraries', 'Scrapers', 'Spyglass'],\n  rows,\n  mark,\n  yes = 'Yes',\n  no = 'No',\n  id = 'product',\n  className,\n}: ProductCompareProps) {\n  const last = columns.length - 1\n  const heads = columns.map((c, i) => (\n    <th key={c} scope=\"col\" className={cn('w-22 pb-4 text-center align-top type-caption md:w-40 md:align-bottom md:type-ui', i === last ? 'font-medium text-fg' : 'font-normal text-fg-muted')}>\n      {i === last ? <span className=\"inline-flex items-center gap-2\">{mark ?? <Logo variant=\"mark\" height={12} label=\"\" className=\"flex-none\" />}{c}</span> : c}\n    </th>\n  ))\n  const cells = (row: CompareRow, phone: boolean) => row.cells.map((cell, i) => (\n    <td key={columns[i] ?? i} className={cn('text-center', phone ? 'pt-3 pb-4 align-top' : 'py-4 align-middle')}>\n      <Mark value={cell} ours={i === last} yes={yes} no={no} />\n    </td>\n  ))\n  return (\n    <section data-ds=\"product-compare\" aria-labelledby={`${id}-compare-heading`} className={cn('py-(--ds-layout-section) text-fg', className)}>\n      <div className={WRAP}>\n        <header className=\"mb-12 flex flex-col items-center text-center md:items-start md:text-left lg:mb-16\">\n          <h2 id={`${id}-compare-heading`} className=\"type-section\">{headline}</h2>\n          {lead && <p className=\"mt-6 max-w-(--ds-layout-measure) type-body-lg text-fg-soft\">{lead}</p>}\n        </header>\n        <table className=\"hidden w-full table-fixed border-collapse md:table\">\n          <thead><tr><td />{heads}</tr></thead>\n          <tbody>\n            {rows.map((row) => (\n              <tr key={row.label} className=\"border-t border-edge last:border-b\">\n                <th scope=\"row\" className=\"py-5 pr-4 text-left type-body font-normal text-pretty text-fg\">{row.label}</th>\n                {cells(row, false)}\n              </tr>\n            ))}\n          </tbody>\n        </table>\n        <table className=\"w-full table-fixed border-collapse md:hidden\">\n          <thead><tr>{heads}</tr></thead>\n          {rows.map((row) => (\n            <tbody key={row.label} className=\"border-t border-edge last:border-b\">\n              <tr><th scope=\"rowgroup\" colSpan={columns.length} className=\"pt-4 text-left type-ui font-normal text-pretty text-fg\">{row.label}</th></tr>\n              <tr>{cells(row, true)}</tr>\n            </tbody>\n          ))}\n        </table>\n      </div>\n    </section>\n  )\n}\n\nexport default ProductCompare\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "logo"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "ProductCompare",
+            "file": "react/components/site/ProductCompare.tsx",
+            "props": [
+              {
+                "name": "headline",
+                "type": "string",
+                "required": false,
+                "default": "'See the difference'"
+              },
+              {
+                "name": "lead",
+                "type": "string",
+                "required": false,
+                "default": "'Ad libraries show what is live. Scrapers hand you raw pages. Spyglass keeps the whole record, ready to ask.'"
+              },
+              {
+                "name": "columns",
+                "type": "string[]",
+                "required": false,
+                "default": "['Ad libraries', 'Scrapers', 'Spyglass']",
+                "description": "The column names; the last is yours and gets the mark."
+              },
+              {
+                "name": "rows",
+                "type": "CompareRow[]",
+                "required": true
+              },
+              {
+                "name": "mark",
+                "type": "ReactNode",
+                "required": false,
+                "description": "The mark beside the last column's name (the logomark by default)."
+              },
+              {
+                "name": "yes",
+                "type": "string",
+                "required": false,
+                "default": "'Yes'",
+                "description": "Read for the check and the cross."
+              },
+              {
+                "name": "no",
+                "type": "string",
+                "required": false,
+                "default": "'No'"
+              },
+              {
+                "name": "id",
+                "type": "string",
+                "required": false,
+                "default": "'product'",
+                "description": "Prefix for the heading id."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Creators",
+          "label": "Creator search",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/product-compare/Creators.tsx",
+          "content": "import { ProductCompare } from '@/react/components/site/ProductCompare'\n// Creator search against ad libraries and scrapers.\n\nexport default function Creators() {\n  return (\n    <ProductCompare\n      id=\"creator-search\"\n      rows={[\n        { label: 'Find creators by niche, place and followers', cells: ['no', 'no', 'yes'] },\n        { label: 'One record across Instagram and TikTok', cells: ['no', 'You match them', 'yes'] },\n        { label: 'The brands they have worked with', cells: ['no', 'no', 'yes'] },\n        { label: 'Ready for your agents over MCP', cells: ['no', 'You build it', 'yes'] },\n      ]}\n    />\n  )\n}\n",
+          "registryDependencies": [
+            "logo"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/product-compare.ts",
+          "content": "import { html, svg, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport '@/elements/components/visuals/logo'\nimport styles from 'virtual:tw'\n\n// ProductCompare.tsx as <spyglass-product-compare>: the site's product comparison, the head over a table of what the\n// product does against two other ways (checks, crosses or a few words), the last column yours with the logomark; on\n// phones each row is the label over its cells. `rows` as JSON: [{ label, cells: [\"yes\" | \"no\" | words] }].\n\nexport type CompareCell = string\nexport interface CompareRow { label: string; cells: CompareCell[] }\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\n/**\n * @summary The product comparison table: checks and words against two other ways, the last column yours.\n * @slot mark - Replaces the logomark beside the last column's name.\n */\nexport class ProductCompare extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"product-compare\"]'))\n\tstatic properties = { headline: {}, lead: {}, columns: { type: Array }, rows: { type: Array }, yes: {}, no: {}, prefix: {} }\n\theadline = 'See the difference'\n\tlead = 'Ad libraries show what is live. Scrapers hand you raw pages. Spyglass keeps the whole record, ready to ask.'\n\t/** The column names; the last is yours and gets the mark. */\n\tcolumns: string[] = ['Ad libraries', 'Scrapers', 'Spyglass']\n\trows: CompareRow[] = []\n\tyes = 'Yes'\n\tno = 'No'\n\t/** Prefix for the heading id (React's `id`). */\n\tprefix = 'product'\n\n\tprivate mark(value: string, ours: boolean) {\n\t\tif (value === 'yes' || value === 'no') {\n\t\t\tconst on = value === 'yes'\n\t\t\treturn html`<span class=${`inline-grid size-6 place-items-center ${on ? (ours ? 'text-fg' : 'text-fg-soft') : 'text-fg-muted'}`}><svg viewBox=\"0 0 16 16\" width=\"20\" height=\"20\" aria-hidden=\"true\" focusable=\"false\">${svg`<path d=${on ? 'M3.5 8.5 6.5 11.5 12.5 4.5' : 'M4.5 4.5l7 7M11.5 4.5l-7 7'} fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"></path>`}</svg><span class=\"sr-only\">${on ? this.yes : this.no}</span></span>`\n\t\t}\n\t\treturn html`<span class=\"type-caption text-balance text-fg-muted md:type-ui\">${value}</span>`\n\t}\n\n\trender() {\n\t\tconst columns = this.columns ?? []\n\t\tconst rows = this.rows ?? []\n\t\tconst last = columns.length - 1\n\t\tconst heads = columns.map((c, i) => html`<th scope=\"col\" class=${`w-22 pb-4 text-center align-top type-caption md:w-40 md:align-bottom md:type-ui ${i === last ? 'font-medium text-fg' : 'font-normal text-fg-muted'}`}>${i === last ? html`<span class=\"inline-flex items-center gap-2\"><slot name=\"mark\"><spyglass-logo variant=\"mark\" height=\"12\" aria-label=\"\" class=\"flex-none\"></spyglass-logo></slot>${c}</span>` : c}</th>`)\n\t\tconst cells = (row: CompareRow, phone: boolean) => (row.cells ?? []).map((cell, i) => html`<td class=${`text-center ${phone ? 'pt-3 pb-4 align-top' : 'py-4 align-middle'}`}>${this.mark(cell, i === last)}</td>`)\n\t\treturn html`<section data-ds=\"product-compare\" aria-labelledby=${`${this.prefix}-compare-heading`} class=\"py-(--ds-layout-section) text-fg\"><div class=${WRAP}><header class=\"mb-12 flex flex-col items-center text-center md:items-start md:text-left lg:mb-16\"><h2 id=${`${this.prefix}-compare-heading`} class=\"type-section\">${this.headline}</h2>${this.lead ? html`<p class=\"mt-6 max-w-(--ds-layout-measure) type-body-lg text-fg-soft\">${this.lead}</p>` : nothing}</header><table class=\"hidden w-full table-fixed border-collapse md:table\"><thead><tr><td></td>${heads}</tr></thead><tbody>${rows.map((row) => html`<tr class=\"border-t border-edge last:border-b\"><th scope=\"row\" class=\"py-5 pr-4 text-left type-body font-normal text-pretty text-fg\">${row.label}</th>${cells(row, false)}</tr>`)}</tbody></table><table class=\"w-full table-fixed border-collapse md:hidden\"><thead><tr>${heads}</tr></thead>${rows.map((row) => html`<tbody class=\"border-t border-edge last:border-b\"><tr><th scope=\"rowgroup\" colspan=${columns.length} class=\"pt-4 text-left type-ui font-normal text-pretty text-fg\">${row.label}</th></tr><tr>${cells(row, true)}</tr></tbody>`)}</table></div></section>`\n\t}\n}\n\ndefine('product-compare', ProductCompare)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/product-compare.js",
+        "elements/logo.js"
+      ],
+      "tag": "spyglass-product-compare",
+      "tags": [
+        "spyglass-product-compare"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "logo"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-product-compare",
+            "name": "ProductCompare",
+            "module": "elements/product-compare.js",
+            "description": "The product comparison table: checks and words against two other ways, the last column yours.",
+            "attributes": [
+              {
+                "name": "headline",
+                "field": "headline",
+                "type": "string",
+                "default": "'See the difference'"
+              },
+              {
+                "name": "lead",
+                "field": "lead",
+                "type": "string",
+                "default": "'Ad libraries show what is live. Scrapers hand you raw pages. Spyglass keeps the whole record, ready to ask.'"
+              },
+              {
+                "name": "columns",
+                "field": "columns",
+                "type": "string[]",
+                "default": "['Ad libraries', 'Scrapers', 'Spyglass']",
+                "description": "The column names; the last is yours and gets the mark."
+              },
+              {
+                "name": "rows",
+                "field": "rows",
+                "type": "CompareRow[]",
+                "default": "[]"
+              },
+              {
+                "name": "yes",
+                "field": "yes",
+                "type": "string",
+                "default": "'Yes'"
+              },
+              {
+                "name": "no",
+                "field": "no",
+                "type": "string",
+                "default": "'No'"
+              },
+              {
+                "name": "prefix",
+                "field": "prefix",
+                "type": "string",
+                "default": "'product'",
+                "description": "Prefix for the heading id (React's `id`)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "headline",
+                "type": "string",
+                "default": "'See the difference'",
+                "attribute": "headline"
+              },
+              {
+                "name": "lead",
+                "type": "string",
+                "default": "'Ad libraries show what is live. Scrapers hand you raw pages. Spyglass keeps the whole record, ready to ask.'",
+                "attribute": "lead"
+              },
+              {
+                "name": "columns",
+                "type": "string[]",
+                "default": "['Ad libraries', 'Scrapers', 'Spyglass']",
+                "description": "The column names; the last is yours and gets the mark.",
+                "attribute": "columns"
+              },
+              {
+                "name": "rows",
+                "type": "CompareRow[]",
+                "default": "[]",
+                "attribute": "rows"
+              },
+              {
+                "name": "yes",
+                "type": "string",
+                "default": "'Yes'",
+                "attribute": "yes"
+              },
+              {
+                "name": "no",
+                "type": "string",
+                "default": "'No'",
+                "attribute": "no"
+              },
+              {
+                "name": "prefix",
+                "type": "string",
+                "default": "'product'",
+                "description": "Prefix for the heading id (React's `id`).",
+                "attribute": "prefix"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "mark",
+                "description": "Replaces the logomark beside the last column's name."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Creators",
+          "label": "Creator search",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/product-compare/Creators.html",
+          "content": "<!-- Creator search against ad libraries and scrapers. -->\n<spyglass-product-compare prefix=\"creator-search\" rows='[{\"label\":\"Find creators by niche, place and followers\",\"cells\":[\"no\",\"no\",\"yes\"]},{\"label\":\"One record across Instagram and TikTok\",\"cells\":[\"no\",\"You match them\",\"yes\"]},{\"label\":\"The brands they have worked with\",\"cells\":[\"no\",\"no\",\"yes\"]},{\"label\":\"Ready for your agents over MCP\",\"cells\":[\"no\",\"You build it\",\"yes\"]}]'></spyglass-product-compare>\n"
+        }
+      ]
+    }
+  }
+}

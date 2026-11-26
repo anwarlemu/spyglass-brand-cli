@@ -1,0 +1,1753 @@
+{
+ "$comment": "Compose recipes: ready layouts of the brand's blocks, drawn in the site's materials (its text gray, cards, buttons, ASCII tile and light images), for the graphics no template covers (display ads, cards, documents, print, email, backgrounds). `recipe <name>` writes a compose design file from one and draws it; the words are yours (--set block.slot=..., or --sample for the sample copy below, Acme only). Every recipe draws clean at its size with its sample copy (test/recipes.test.ts).",
+ "recipes": {
+  "ad-300x250": {
+   "group": "ad",
+   "description": "Display ad at 300x250: the lockup, a headline and the button.",
+   "size": "ad-300x250",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 7,
+      "rows": 2
+     }
+    },
+    {
+     "id": "headline",
+     "type": "headline",
+     "at": {
+      "col": 0,
+      "row": 3,
+      "cols": 12,
+      "rows": 5
+     }
+    },
+    {
+     "id": "button",
+     "type": "button",
+     "at": {
+      "col": 0,
+      "row": 9,
+      "cols": 8,
+      "rows": 3
+     }
+    }
+   ],
+   "sample": {
+    "headline.text": "Every creative in one place.",
+    "button.text": "Start free"
+   },
+   "options": {}
+  },
+  "ad-336x280": {
+   "group": "ad",
+   "description": "Display ad at 336x280: the lockup, a headline and the button.",
+   "size": "ad-336x280",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 7,
+      "rows": 2
+     }
+    },
+    {
+     "id": "headline",
+     "type": "headline",
+     "at": {
+      "col": 0,
+      "row": 3,
+      "cols": 12,
+      "rows": 5
+     }
+    },
+    {
+     "id": "button",
+     "type": "button",
+     "at": {
+      "col": 0,
+      "row": 9,
+      "cols": 8,
+      "rows": 3
+     }
+    }
+   ],
+   "sample": {
+    "headline.text": "Every creative in one place.",
+    "button.text": "Start free"
+   },
+   "options": {}
+  },
+  "ad-320x50": {
+   "group": "ad",
+   "description": "Mobile banner at 320x50: the logomark, a headline and the button in one row.",
+   "size": "ad-320x50",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 1,
+      "cols": 2,
+      "rows": 10
+     }
+    },
+    {
+     "id": "headline",
+     "type": "headline",
+     "at": {
+      "col": 3,
+      "row": 0,
+      "cols": 6,
+      "rows": 12
+     }
+    },
+    {
+     "id": "button",
+     "type": "button",
+     "at": {
+      "col": 9,
+      "row": 1,
+      "cols": 3,
+      "rows": 10
+     }
+    }
+   ],
+   "sample": {
+    "headline.text": "Every creative.",
+    "button.text": "Start"
+   },
+   "options": {
+    "logo.lockup": "mark"
+   }
+  },
+  "ad-728x90": {
+   "group": "ad",
+   "description": "Display ad at 728x90: the lockup, a headline and the button in one row.",
+   "size": "ad-728x90",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 4,
+      "cols": 2,
+      "rows": 4
+     }
+    },
+    {
+     "id": "headline",
+     "type": "headline",
+     "at": {
+      "col": 3,
+      "row": 2,
+      "cols": 6,
+      "rows": 8
+     }
+    },
+    {
+     "id": "button",
+     "type": "button",
+     "at": {
+      "col": 9,
+      "row": 4,
+      "cols": 3,
+      "rows": 4
+     }
+    }
+   ],
+   "sample": {
+    "headline.text": "Every creative in one place.",
+    "button.text": "Start free"
+   },
+   "options": {
+    "headline.size": 20,
+    "headline.valign": "center",
+    "button.align": "right",
+    "button.valign": "center"
+   }
+  },
+  "ad-970x250": {
+   "group": "ad",
+   "description": "Display ad at 970x250: the lockup, a headline and the button in one row.",
+   "size": "ad-970x250",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 4,
+      "cols": 2,
+      "rows": 4
+     }
+    },
+    {
+     "id": "headline",
+     "type": "headline",
+     "at": {
+      "col": 3,
+      "row": 2,
+      "cols": 6,
+      "rows": 8
+     }
+    },
+    {
+     "id": "button",
+     "type": "button",
+     "at": {
+      "col": 9,
+      "row": 4,
+      "cols": 3,
+      "rows": 4
+     }
+    }
+   ],
+   "sample": {
+    "headline.text": "Every creative in one place.",
+    "button.text": "Start free"
+   },
+   "options": {
+    "headline.size": 30,
+    "headline.valign": "center",
+    "button.align": "right",
+    "button.valign": "center"
+   }
+  },
+  "ad-300x600": {
+   "group": "ad",
+   "description": "Display ad at 300x600: the lockup on top, the headline, the light and the button.",
+   "size": "ad-300x600",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "light",
+     "type": "light",
+     "at": {
+      "col": 0,
+      "row": 6,
+      "cols": 12,
+      "rows": 3
+     }
+    },
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 7,
+      "rows": 1
+     }
+    },
+    {
+     "id": "headline",
+     "type": "headline",
+     "at": {
+      "col": 0,
+      "row": 2,
+      "cols": 12,
+      "rows": 4
+     }
+    },
+    {
+     "id": "button",
+     "type": "button",
+     "at": {
+      "col": 0,
+      "row": 10,
+      "cols": 12,
+      "rows": 2
+     }
+    }
+   ],
+   "sample": {
+    "headline.text": "Every creative in one place.",
+    "button.text": "Start free"
+   },
+   "options": {
+    "light.variant": "ribbon",
+    "headline.size": 30
+   }
+  },
+  "ad-160x600": {
+   "group": "ad",
+   "description": "Display ad at 160x600: the lockup on top, the headline, the light and the button.",
+   "size": "ad-160x600",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "light",
+     "type": "light",
+     "at": {
+      "col": 0,
+      "row": 6,
+      "cols": 12,
+      "rows": 3
+     }
+    },
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 10,
+      "rows": 1
+     }
+    },
+    {
+     "id": "headline",
+     "type": "headline",
+     "at": {
+      "col": 0,
+      "row": 2,
+      "cols": 12,
+      "rows": 4
+     }
+    },
+    {
+     "id": "button",
+     "type": "button",
+     "at": {
+      "col": 0,
+      "row": 10,
+      "cols": 12,
+      "rows": 2
+     }
+    }
+   ],
+   "sample": {
+    "headline.text": "Every creative in one place.",
+    "button.text": "Start free"
+   },
+   "options": {
+    "light.variant": "ribbon",
+    "headline.size": 20
+   }
+  },
+  "meta-feed": {
+   "group": "ad",
+   "description": "Meta feed ad: the light across the top, the headline, a line and the button.",
+   "size": "square",
+   "sizes": [
+    "square",
+    "portrait",
+    "story",
+    "facebook",
+    "linkedin"
+   ],
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
+    {
+     "id": "light",
+     "type": "light",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 4
+     }
+    },
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 5,
+      "cols": 4,
+      "rows": 1
+     }
+    },
+    {
+     "id": "headline",
+     "type": "headline",
+     "at": {
+      "col": 0,
+      "row": 6,
+      "cols": 12,
+      "rows": 3
+     }
+    },
+    {
+     "id": "body",
+     "type": "body",
+     "at": {
+      "col": 0,
+      "row": 9,
+      "cols": 10,
+      "rows": 1
+     }
+    },
+    {
+     "id": "button",
+     "type": "button",
+     "at": {
+      "col": 0,
+      "row": 11,
+      "cols": 4,
+      "rows": 1
+     }
+    }
+   ],
+   "sample": {
+    "headline.text": "Every creative in one place.",
+    "body.text": "Search the ads every brand runs.",
+    "button.text": "Start free"
+   },
+   "options": {
+    "light.variant": "ribbon"
+   }
+  },
+  "quote-card": {
+   "group": "card",
+   "description": "A quote in Funnel Display with the name and role, the light at the foot.",
+   "size": "square",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
+    {
+     "id": "light",
+     "type": "light",
+     "at": {
+      "col": 0,
+      "row": 9,
+      "cols": 12,
+      "rows": 3
+     }
+    },
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 4,
+      "rows": 1
+     }
+    },
+    {
+     "id": "quote",
+     "type": "quote",
+     "at": {
+      "col": 0,
+      "row": 2,
+      "cols": 12,
+      "rows": 6
+     }
+    }
+   ],
+   "sample": {
+    "quote.text": "We see every launch the day it ships.",
+    "quote.name": "Alex Kim",
+    "quote.role": "Head of growth, Acme"
+   },
+   "options": {
+    "light.variant": "ribbon"
+   }
+  },
+  "stat-card": {
+   "group": "card",
+   "description": "A figure, what it counts and the lockup.",
+   "size": "square",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 4,
+      "rows": 1
+     }
+    },
+    {
+     "id": "stat",
+     "type": "stat",
+     "at": {
+      "col": 0,
+      "row": 3,
+      "cols": 12,
+      "rows": 5
+     }
+    },
+    {
+     "id": "light",
+     "type": "light",
+     "at": {
+      "col": 0,
+      "row": 9,
+      "cols": 12,
+      "rows": 3
+     }
+    }
+   ],
+   "sample": {
+    "stat.value": "42%",
+    "stat.label": "more launches tracked each week"
+   },
+   "options": {
+    "light.variant": "ribbon"
+   }
+  },
+  "launch-card": {
+   "group": "card",
+   "description": "A launch or changelog card: a badge, the headline, a line and the button.",
+   "size": "square",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
+    {
+     "id": "light",
+     "type": "light",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 3
+     }
+    },
+    {
+     "id": "badge",
+     "type": "badge",
+     "at": {
+      "col": 0,
+      "row": 4,
+      "cols": 4,
+      "rows": 1
+     }
+    },
+    {
+     "id": "headline",
+     "type": "headline",
+     "at": {
+      "col": 0,
+      "row": 5,
+      "cols": 12,
+      "rows": 3
+     }
+    },
+    {
+     "id": "body",
+     "type": "body",
+     "at": {
+      "col": 0,
+      "row": 8,
+      "cols": 10,
+      "rows": 2
+     }
+    },
+    {
+     "id": "button",
+     "type": "button",
+     "at": {
+      "col": 0,
+      "row": 11,
+      "cols": 4,
+      "rows": 1
+     }
+    }
+   ],
+   "sample": {
+    "badge.text": "New",
+    "headline.text": "Alerts for every launch.",
+    "body.text": "Know the day a brand ships a new ad.",
+    "button.text": "See what changed"
+   },
+   "options": {
+    "light.variant": "ribbon"
+   }
+  },
+  "feature-card": {
+   "group": "card",
+   "description": "A feature: an icon, a headline and a line on a card.",
+   "size": "square",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 4,
+      "rows": 1
+     }
+    },
+    {
+     "id": "icon",
+     "type": "icon",
+     "at": {
+      "col": 0,
+      "row": 3,
+      "cols": 2,
+      "rows": 2
+     }
+    },
+    {
+     "id": "headline",
+     "type": "headline",
+     "at": {
+      "col": 0,
+      "row": 6,
+      "cols": 12,
+      "rows": 3
+     }
+    },
+    {
+     "id": "body",
+     "type": "body",
+     "at": {
+      "col": 0,
+      "row": 9,
+      "cols": 10,
+      "rows": 2
+     }
+    }
+   ],
+   "sample": {
+    "headline.text": "Search every network.",
+    "body.text": "Meta, TikTok, Instagram and YouTube in one place."
+   },
+   "options": {
+    "icon.name": "search"
+   }
+  },
+  "comparison": {
+   "group": "card",
+   "description": "A comparison table under a headline.",
+   "size": "landscape",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 3,
+      "rows": 1
+     }
+    },
+    {
+     "id": "headline",
+     "type": "headline",
+     "at": {
+      "col": 0,
+      "row": 2,
+      "cols": 12,
+      "rows": 2
+     }
+    },
+    {
+     "id": "table",
+     "type": "table",
+     "at": {
+      "col": 0,
+      "row": 5,
+      "cols": 12,
+      "rows": 6
+     }
+    }
+   ],
+   "sample": {
+    "headline.text": "Plans side by side.",
+    "table.rows": "Plan|Searches|Seats\nFree|500|1\nCreator|Unlimited|3"
+   },
+   "options": {}
+  },
+  "pricing-card": {
+   "group": "card",
+   "description": "A plan on a card: the name, the price, what it includes and the button.",
+   "size": "square",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 4,
+      "rows": 1
+     }
+    },
+    {
+     "id": "card",
+     "type": "card",
+     "at": {
+      "col": 2,
+      "row": 2,
+      "cols": 8,
+      "rows": 9
+     }
+    }
+   ],
+   "sample": {
+    "card.title": "Creator",
+    "card.text": "$20 a month.",
+    "card.items": "Every network|Unlimited boards",
+    "card.cta": "Start free"
+   },
+   "options": {}
+  },
+  "event-card": {
+   "group": "card",
+   "description": "An event or webinar: the date as a label, the title, the speaker slot and the button.",
+   "size": "square",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
+    {
+     "id": "light",
+     "type": "light",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 3
+     }
+    },
+    {
+     "id": "eyebrow",
+     "type": "eyebrow",
+     "at": {
+      "col": 0,
+      "row": 4,
+      "cols": 8,
+      "rows": 1
+     }
+    },
+    {
+     "id": "headline",
+     "type": "headline",
+     "at": {
+      "col": 0,
+      "row": 5,
+      "cols": 12,
+      "rows": 3
+     }
+    },
+    {
+     "id": "body",
+     "type": "body",
+     "at": {
+      "col": 0,
+      "row": 8,
+      "cols": 10,
+      "rows": 2
+     }
+    },
+    {
+     "id": "button",
+     "type": "button",
+     "at": {
+      "col": 0,
+      "row": 11,
+      "cols": 4,
+      "rows": 1
+     }
+    }
+   ],
+   "sample": {
+    "eyebrow.text": "June 12, 10am PT",
+    "headline.text": "Reading a competitor's ads.",
+    "body.text": "With Alex Kim, Head of growth, Acme",
+    "button.text": "Save a seat"
+   },
+   "options": {
+    "light.variant": "ribbon"
+   }
+  },
+  "hiring-card": {
+   "group": "card",
+   "description": "A hiring card: the label, the role and the button.",
+   "size": "square",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
+    {
+     "id": "light",
+     "type": "light",
+     "at": {
+      "col": 0,
+      "row": 10,
+      "cols": 12,
+      "rows": 2
+     }
+    },
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 4,
+      "rows": 1
+     }
+    },
+    {
+     "id": "eyebrow",
+     "type": "eyebrow",
+     "at": {
+      "col": 0,
+      "row": 3,
+      "cols": 8,
+      "rows": 1
+     }
+    },
+    {
+     "id": "headline",
+     "type": "headline",
+     "at": {
+      "col": 0,
+      "row": 4,
+      "cols": 12,
+      "rows": 3
+     }
+    },
+    {
+     "id": "button",
+     "type": "button",
+     "at": {
+      "col": 0,
+      "row": 8,
+      "cols": 4,
+      "rows": 1
+     }
+    }
+   ],
+   "sample": {
+    "eyebrow.text": "We are hiring",
+    "headline.text": "Founding designer.",
+    "button.text": "See the role"
+   },
+   "options": {
+    "light.variant": "ribbon"
+   }
+  },
+  "screenshot-card": {
+   "group": "card",
+   "description": "A screenshot in the site's browser frame under a headline.",
+   "size": "landscape",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 3,
+      "rows": 1
+     }
+    },
+    {
+     "id": "headline",
+     "type": "headline",
+     "at": {
+      "col": 0,
+      "row": 2,
+      "cols": 5,
+      "rows": 4
+     }
+    },
+    {
+     "id": "picture",
+     "type": "picture",
+     "at": {
+      "col": 6,
+      "row": 1,
+      "cols": 6,
+      "rows": 10
+     }
+    }
+   ],
+   "sample": {
+    "headline.text": "Every creative in one place."
+   },
+   "options": {
+    "picture.treatment": "frame"
+   }
+  },
+  "before-after": {
+   "group": "card",
+   "description": "Two pictures side by side with a label over each.",
+   "size": "landscape",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "before",
+     "type": "eyebrow",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 6,
+      "rows": 1
+     }
+    },
+    {
+     "id": "after",
+     "type": "eyebrow",
+     "at": {
+      "col": 6,
+      "row": 0,
+      "cols": 6,
+      "rows": 1
+     }
+    },
+    {
+     "id": "picture-1",
+     "type": "picture",
+     "at": {
+      "col": 0,
+      "row": 1,
+      "cols": 6,
+      "rows": 11
+     }
+    },
+    {
+     "id": "picture-2",
+     "type": "picture",
+     "at": {
+      "col": 6,
+      "row": 1,
+      "cols": 6,
+      "rows": 11
+     }
+    }
+   ],
+   "sample": {
+    "before.text": "Before",
+    "after.text": "After"
+   },
+   "options": {
+    "picture-1.treatment": "rounded",
+    "picture-2.treatment": "rounded"
+   }
+  },
+  "chart-card": {
+   "group": "card",
+   "description": "A chart from your numbers under a headline.",
+   "size": "square",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 4,
+      "rows": 1
+     }
+    },
+    {
+     "id": "headline",
+     "type": "headline",
+     "at": {
+      "col": 0,
+      "row": 2,
+      "cols": 12,
+      "rows": 2
+     }
+    },
+    {
+     "id": "chart",
+     "type": "chart",
+     "at": {
+      "col": 0,
+      "row": 5,
+      "cols": 12,
+      "rows": 6
+     }
+    }
+   ],
+   "sample": {
+    "headline.text": "Launches this week.",
+    "chart.data": "Mon 12, Tue 18, Wed 30, Thu 26, Fri 34"
+   },
+   "options": {}
+  },
+  "flow-diagram": {
+   "group": "card",
+   "description": "Three steps as cards in a row (a flow or architecture boxes).",
+   "size": "landscape",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
+    {
+     "id": "headline",
+     "type": "headline",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 2
+     }
+    },
+    {
+     "id": "step-1",
+     "type": "card",
+     "at": {
+      "col": 0,
+      "row": 4,
+      "cols": 4,
+      "rows": 6
+     }
+    },
+    {
+     "id": "step-2",
+     "type": "card",
+     "at": {
+      "col": 4,
+      "row": 4,
+      "cols": 4,
+      "rows": 6
+     }
+    },
+    {
+     "id": "step-3",
+     "type": "card",
+     "at": {
+      "col": 8,
+      "row": 4,
+      "cols": 4,
+      "rows": 6
+     }
+    }
+   ],
+   "sample": {
+    "headline.text": "From question to answer.",
+    "step-1.title": "Ask",
+    "step-1.text": "Type a question.",
+    "step-2.title": "Search",
+    "step-2.text": "Every network at once.",
+    "step-3.title": "Act",
+    "step-3.text": "Share the board."
+   },
+   "options": {}
+  },
+  "customer-story": {
+   "group": "card",
+   "description": "A customer story: the quote, a figure and the lockup (Acme, never a real customer).",
+   "size": "landscape",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 3,
+      "rows": 1
+     }
+    },
+    {
+     "id": "quote",
+     "type": "quote",
+     "at": {
+      "col": 0,
+      "row": 2,
+      "cols": 7,
+      "rows": 9
+     }
+    },
+    {
+     "id": "stat",
+     "type": "stat",
+     "at": {
+      "col": 8,
+      "row": 4,
+      "cols": 4,
+      "rows": 4
+     }
+    }
+   ],
+   "sample": {
+    "quote.text": "We found our next campaign in a week.",
+    "quote.name": "Alex Kim",
+    "quote.role": "Head of growth, Acme",
+    "stat.value": "3x",
+    "stat.label": "faster research"
+   },
+   "options": {}
+  },
+  "business-card": {
+   "group": "print",
+   "description": "A business card at print size, bleed and safe margin kept clear.",
+   "size": "business-card",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 6,
+      "rows": 2
+     }
+    },
+    {
+     "id": "name",
+     "type": "headline",
+     "at": {
+      "col": 0,
+      "row": 6,
+      "cols": 12,
+      "rows": 2
+     }
+    },
+    {
+     "id": "details",
+     "type": "body",
+     "at": {
+      "col": 0,
+      "row": 9,
+      "cols": 12,
+      "rows": 3
+     }
+    }
+   ],
+   "sample": {
+    "name.text": "Alex Kim",
+    "details.text": "Head of growth, Acme. alex@acme.com"
+   },
+   "options": {}
+  },
+  "letterhead": {
+   "group": "print",
+   "description": "A letterhead on A4: the lockup on top and the letter under it.",
+   "size": "a4",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 3,
+      "rows": 1
+     }
+    },
+    {
+     "id": "body",
+     "type": "body",
+     "at": {
+      "col": 0,
+      "row": 2,
+      "cols": 10,
+      "rows": 9
+     }
+    },
+    {
+     "id": "footer",
+     "type": "eyebrow",
+     "at": {
+      "col": 0,
+      "row": 11,
+      "cols": 8,
+      "rows": 1
+     }
+    }
+   ],
+   "sample": {
+    "body.text": "Dear Alex, thank you for meeting with us last week.",
+    "footer.text": "Acme Inc. acme.com"
+   },
+   "options": {}
+  },
+  "one-pager": {
+   "group": "print",
+   "description": "A one-pager on A4: headline, a line, a figure, a list and a picture.",
+   "size": "a4",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 3,
+      "rows": 1
+     }
+    },
+    {
+     "id": "headline",
+     "type": "headline",
+     "at": {
+      "col": 0,
+      "row": 1,
+      "cols": 12,
+      "rows": 2
+     }
+    },
+    {
+     "id": "body",
+     "type": "body",
+     "at": {
+      "col": 0,
+      "row": 3,
+      "cols": 10,
+      "rows": 1
+     }
+    },
+    {
+     "id": "picture",
+     "type": "picture",
+     "at": {
+      "col": 0,
+      "row": 5,
+      "cols": 7,
+      "rows": 5
+     }
+    },
+    {
+     "id": "stat",
+     "type": "stat",
+     "at": {
+      "col": 8,
+      "row": 5,
+      "cols": 4,
+      "rows": 2
+     }
+    },
+    {
+     "id": "list",
+     "type": "list",
+     "at": {
+      "col": 8,
+      "row": 7,
+      "cols": 4,
+      "rows": 3
+     }
+    }
+   ],
+   "sample": {
+    "headline.text": "Every creative in one place.",
+    "body.text": "Search the ads every brand runs, across every network.",
+    "stat.value": "42%",
+    "stat.label": "more launches tracked",
+    "list.items": "Every network|Daily updates|Shared boards"
+   },
+   "options": {
+    "picture.treatment": "rounded"
+   }
+  },
+  "report-cover": {
+   "group": "print",
+   "description": "A report cover on A4: the light and the title.",
+   "size": "a4",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "light",
+     "type": "light",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 6
+     }
+    },
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 11,
+      "cols": 3,
+      "rows": 1
+     }
+    },
+    {
+     "id": "headline",
+     "type": "headline",
+     "at": {
+      "col": 0,
+      "row": 7,
+      "cols": 12,
+      "rows": 3
+     }
+    },
+    {
+     "id": "eyebrow",
+     "type": "eyebrow",
+     "at": {
+      "col": 0,
+      "row": 10,
+      "cols": 8,
+      "rows": 1
+     }
+    }
+   ],
+   "sample": {
+    "headline.text": "The state of creative, 2026.",
+    "eyebrow.text": "Annual report"
+   },
+   "options": {
+    "light.variant": "field"
+   }
+  },
+  "certificate": {
+   "group": "print",
+   "description": "A certificate on A4: the label, the name and a line.",
+   "size": "a4",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 4,
+      "row": 0,
+      "cols": 4,
+      "rows": 1
+     }
+    },
+    {
+     "id": "eyebrow",
+     "type": "eyebrow",
+     "at": {
+      "col": 3,
+      "row": 3,
+      "cols": 6,
+      "rows": 1
+     }
+    },
+    {
+     "id": "name",
+     "type": "headline",
+     "at": {
+      "col": 1,
+      "row": 4,
+      "cols": 10,
+      "rows": 2
+     }
+    },
+    {
+     "id": "body",
+     "type": "body",
+     "at": {
+      "col": 2,
+      "row": 7,
+      "cols": 8,
+      "rows": 2
+     }
+    }
+   ],
+   "sample": {
+    "eyebrow.text": "Certificate of completion",
+    "name.text": "Alex Kim",
+    "body.text": "Creative research, level one."
+   },
+   "options": {
+    "eyebrow.align": "center",
+    "name.align": "center",
+    "body.align": "center"
+   }
+  },
+  "email-header": {
+   "group": "email",
+   "description": "An email header: the lockup, a headline and the site's share card light at the right.",
+   "size": "email",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
+    {
+     "id": "light",
+     "type": "light",
+     "at": {
+      "col": 6,
+      "row": 0,
+      "cols": 6,
+      "rows": 12
+     }
+    },
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 3,
+      "rows": 2
+     }
+    },
+    {
+     "id": "headline",
+     "type": "headline",
+     "at": {
+      "col": 0,
+      "row": 4,
+      "cols": 6,
+      "rows": 6
+     }
+    }
+   ],
+   "sample": {
+    "headline.text": "What changed this week."
+   },
+   "options": {
+    "light.variant": "share"
+   }
+  },
+  "email-signature": {
+   "group": "email",
+   "description": "An email signature: the lockup, the name and the details.",
+   "size": "email-signature",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 2,
+      "cols": 3,
+      "rows": 8
+     }
+    },
+    {
+     "id": "name",
+     "type": "body",
+     "at": {
+      "col": 4,
+      "row": 1,
+      "cols": 8,
+      "rows": 5
+     }
+    },
+    {
+     "id": "details",
+     "type": "body",
+     "at": {
+      "col": 4,
+      "row": 6,
+      "cols": 8,
+      "rows": 5
+     }
+    }
+   ],
+   "sample": {
+    "name.text": "Alex Kim",
+    "details.text": "Head of growth, Acme"
+   },
+   "options": {}
+  },
+  "event-badge": {
+   "group": "print",
+   "description": "An event badge: the lockup, the name and the role.",
+   "size": "portrait",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "light",
+     "type": "light",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 3
+     }
+    },
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 4,
+      "cols": 5,
+      "rows": 1
+     }
+    },
+    {
+     "id": "name",
+     "type": "headline",
+     "at": {
+      "col": 0,
+      "row": 6,
+      "cols": 12,
+      "rows": 3
+     }
+    },
+    {
+     "id": "role",
+     "type": "body",
+     "at": {
+      "col": 0,
+      "row": 9,
+      "cols": 12,
+      "rows": 2
+     }
+    }
+   ],
+   "sample": {
+    "name.text": "Alex Kim",
+    "role.text": "Head of growth, Acme"
+   },
+   "options": {
+    "light.variant": "ribbon"
+   }
+  },
+  "meeting-background": {
+   "group": "background",
+   "description": "A video-call background: the lockup and the light at the sides, the middle clear for the person.",
+   "size": "meeting",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "light",
+     "type": "light",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 3,
+      "rows": 12
+     }
+    },
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 9,
+      "row": 0,
+      "cols": 3,
+      "rows": 1
+     }
+    }
+   ],
+   "sample": {},
+   "options": {
+    "light.variant": "strip-left"
+   }
+  },
+  "desktop-wallpaper": {
+   "group": "background",
+   "description": "A desktop wallpaper: a light ribbon and the texture with the lockup small.",
+   "size": "desktop",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "texture",
+     "type": "ascii",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 12,
+      "rows": 12
+     }
+    },
+    {
+     "id": "light",
+     "type": "light",
+     "at": {
+      "col": 0,
+      "row": 6,
+      "cols": 12,
+      "rows": 6
+     }
+    },
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 0,
+      "row": 0,
+      "cols": 2,
+      "rows": 1
+     }
+    }
+   ],
+   "sample": {},
+   "options": {
+    "light.variant": "ribbon"
+   }
+  },
+  "phone-wallpaper": {
+   "group": "background",
+   "description": "A phone wallpaper: the light across the lower half, the lockup small.",
+   "size": "phone-wallpaper",
+   "theme": "black",
+   "blocks": [
+    {
+     "id": "light",
+     "type": "light",
+     "at": {
+      "col": 0,
+      "row": 6,
+      "cols": 12,
+      "rows": 6
+     }
+    },
+    {
+     "id": "logo",
+     "type": "logo",
+     "at": {
+      "col": 4,
+      "row": 2,
+      "cols": 4,
+      "rows": 1
+     }
+    }
+   ],
+   "sample": {},
+   "options": {
+    "light.variant": "field"
+   }
+  }
+ }
+}

@@ -1,0 +1,199 @@
+{
+  "name": "scroll-area",
+  "title": "Scroll Area",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A region that scrolls on its own with thin scrollbars: a #363636 thumb on a clear track. Native scrolling, so wheel, touch and keyboard all work; overscroll stays inside. An edge with more past it fades (fade-y, fade-x, fade-xy) instead of cutting rows off.",
+  "use_for": "A long list in a short box (boards in a side panel) or a row of creatives that scrolls across. Give it a label so a keyboard can reach it.",
+  "never": [
+    "Custom drawn scrollbars that break native scrolling",
+    "A scroll box a keyboard can't reach: give it a label",
+    "Hiding the scrollbar on content people need to find",
+    "A scroll box inside a scroll box going the same way"
+  ],
+  "source": "Derived from the brand guidelines (no scrolling region in the brand assets): the base layer's thin scrollbar in the neutral steps",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/ScrollArea.tsx",
+      "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// A region that scrolls on its own, with the page's thin scrollbars: a #363636 thumb on a clear track. Native\n// scrolling, so wheel, touch and keyboard all work and nothing is redrawn by script; overscroll stays inside it. With a\n// `label` it is a named region a keyboard can reach. `maxHeight` caps it (or size it with classes); `axis` picks the\n// direction.\nexport interface ScrollAreaProps {\n  /** Names the region and lets a keyboard reach it. */\n  label?: string\n  /** A cap on its height, such as 288px. */\n  maxHeight?: string\n  /** y (down), x (across) or both. */\n  axis?: 'y' | 'x' | 'both'\n  className?: string\n  children?: ReactNode\n}\n\n// Each edge with more past it fades (the brand's fade-y, fade-x and fade-xy), so nothing is cut off by a hard edge.\nconst AXIS = { y: 'overflow-x-hidden overflow-y-auto fade-y', x: 'overflow-x-auto overflow-y-hidden fade-x', both: 'overflow-auto fade-xy' } as const\n\nexport function ScrollArea({ label, maxHeight, axis = 'y', className, children }: ScrollAreaProps) {\n  return (\n    <>\n      <style href=\"ds-scroll-area\" precedence=\"ds\">{css}</style>\n      <div\n        data-ds=\"scroll-area\"\n        className={cn('ds-scroll relative overscroll-contain', AXIS[axis] ?? AXIS.y, className)}\n        style={maxHeight ? { maxHeight } : undefined}\n        role={label ? 'region' : undefined}\n        aria-label={label}\n        tabIndex={label ? 0 : undefined}\n      >\n        {children}\n      </div>\n    </>\n  )\n}\n\nexport default ScrollArea\n\nconst css = `\n.ds-scroll { scrollbar-width: thin; scrollbar-color: var(--ds-color-neutral-5) transparent; }\n.ds-scroll:focus-visible { outline-offset: calc(var(--ds-border-focus) * -1); }\n`\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Lists",
+      "label": "Down and across",
+      "center": true,
+      "half": false,
+      "path": "react/examples/scroll-area/Lists.tsx",
+      "content": "import { ScrollArea } from '@/react/components/ui/ScrollArea'\n// A long list of boards in a short box, and a row of creatives that scrolls across.\n\nconst BOARDS = [\n  'Acme hooks',\n  'Acme summer launch',\n  'UGC openers',\n  'Price in the first line',\n  'Product in hand',\n  'Before and after',\n  'Unboxing',\n  'Founder story',\n  'Testimonials',\n  'Bundles',\n  'Free shipping',\n  'Launch week',\n  'Holiday gifting',\n  'Back to school',\n  'New flavor',\n  'Restock',\n  'Behind the scenes',\n  'Comparisons',\n  'Tutorials',\n  'Reviews',\n]\n\nconst CREATIVES = ['Acme ad 1', 'Acme ad 2', 'Acme ad 3', 'Acme ad 4', 'Acme ad 5', 'Acme ad 6']\n\nexport default function Lists() {\n  return (\n    <div className=\"flex w-full max-w-sm flex-col gap-8\">\n      <ScrollArea label=\"Boards\" className=\"h-72 rounded-container border border-edge\">\n        <div className=\"p-4\">\n          <p className=\"type-label text-fg-soft\">Boards</p>\n          <ul className=\"mt-3\">\n            {BOARDS.map((b) => <li key={b} className=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">{b}</li>)}\n          </ul>\n        </div>\n      </ScrollArea>\n      <ScrollArea label=\"Creatives\" axis=\"x\" className=\"rounded-container border border-edge\">\n        <ul className=\"flex w-max gap-4 p-4\">\n          {CREATIVES.map((c) => (\n            <li key={c} className=\"flex w-36 shrink-0 flex-col gap-2\">\n              <div className=\"aspect-square w-full rounded-control bg-surface-raised\" />\n              <p className=\"type-caption text-fg-muted\">{c}</p>\n            </li>\n          ))}\n        </ul>\n      </ScrollArea>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/ScrollArea.tsx",
+          "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// A region that scrolls on its own, with the page's thin scrollbars: a #363636 thumb on a clear track. Native\n// scrolling, so wheel, touch and keyboard all work and nothing is redrawn by script; overscroll stays inside it. With a\n// `label` it is a named region a keyboard can reach. `maxHeight` caps it (or size it with classes); `axis` picks the\n// direction.\nexport interface ScrollAreaProps {\n  /** Names the region and lets a keyboard reach it. */\n  label?: string\n  /** A cap on its height, such as 288px. */\n  maxHeight?: string\n  /** y (down), x (across) or both. */\n  axis?: 'y' | 'x' | 'both'\n  className?: string\n  children?: ReactNode\n}\n\n// Each edge with more past it fades (the brand's fade-y, fade-x and fade-xy), so nothing is cut off by a hard edge.\nconst AXIS = { y: 'overflow-x-hidden overflow-y-auto fade-y', x: 'overflow-x-auto overflow-y-hidden fade-x', both: 'overflow-auto fade-xy' } as const\n\nexport function ScrollArea({ label, maxHeight, axis = 'y', className, children }: ScrollAreaProps) {\n  return (\n    <>\n      <style href=\"ds-scroll-area\" precedence=\"ds\">{css}</style>\n      <div\n        data-ds=\"scroll-area\"\n        className={cn('ds-scroll relative overscroll-contain', AXIS[axis] ?? AXIS.y, className)}\n        style={maxHeight ? { maxHeight } : undefined}\n        role={label ? 'region' : undefined}\n        aria-label={label}\n        tabIndex={label ? 0 : undefined}\n      >\n        {children}\n      </div>\n    </>\n  )\n}\n\nexport default ScrollArea\n\nconst css = `\n.ds-scroll { scrollbar-width: thin; scrollbar-color: var(--ds-color-neutral-5) transparent; }\n.ds-scroll:focus-visible { outline-offset: calc(var(--ds-border-focus) * -1); }\n`\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "ScrollArea",
+            "file": "react/components/ui/ScrollArea.tsx",
+            "props": [
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "description": "Names the region and lets a keyboard reach it."
+              },
+              {
+                "name": "maxHeight",
+                "type": "string",
+                "required": false,
+                "description": "A cap on its height, such as 288px."
+              },
+              {
+                "name": "axis",
+                "type": "'y' | 'x' | 'both'",
+                "required": false,
+                "default": "'y'",
+                "description": "y (down), x (across) or both."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Lists",
+          "label": "Down and across",
+          "center": true,
+          "half": false,
+          "path": "react/examples/scroll-area/Lists.tsx",
+          "content": "import { ScrollArea } from '@/react/components/ui/ScrollArea'\n// A long list of boards in a short box, and a row of creatives that scrolls across.\n\nconst BOARDS = [\n  'Acme hooks',\n  'Acme summer launch',\n  'UGC openers',\n  'Price in the first line',\n  'Product in hand',\n  'Before and after',\n  'Unboxing',\n  'Founder story',\n  'Testimonials',\n  'Bundles',\n  'Free shipping',\n  'Launch week',\n  'Holiday gifting',\n  'Back to school',\n  'New flavor',\n  'Restock',\n  'Behind the scenes',\n  'Comparisons',\n  'Tutorials',\n  'Reviews',\n]\n\nconst CREATIVES = ['Acme ad 1', 'Acme ad 2', 'Acme ad 3', 'Acme ad 4', 'Acme ad 5', 'Acme ad 6']\n\nexport default function Lists() {\n  return (\n    <div className=\"flex w-full max-w-sm flex-col gap-8\">\n      <ScrollArea label=\"Boards\" className=\"h-72 rounded-container border border-edge\">\n        <div className=\"p-4\">\n          <p className=\"type-label text-fg-soft\">Boards</p>\n          <ul className=\"mt-3\">\n            {BOARDS.map((b) => <li key={b} className=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">{b}</li>)}\n          </ul>\n        </div>\n      </ScrollArea>\n      <ScrollArea label=\"Creatives\" axis=\"x\" className=\"rounded-container border border-edge\">\n        <ul className=\"flex w-max gap-4 p-4\">\n          {CREATIVES.map((c) => (\n            <li key={c} className=\"flex w-36 shrink-0 flex-col gap-2\">\n              <div className=\"aspect-square w-full rounded-control bg-surface-raised\" />\n              <p className=\"type-caption text-fg-muted\">{c}</p>\n            </li>\n          ))}\n        </ul>\n      </ScrollArea>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/scroll-area.ts",
+          "content": "import { html, type PropertyValues } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// ScrollArea.tsx as <spyglass-scroll-area>: a region that scrolls on its own with thin scrollbars (a #363636 thumb on a\n// clear track), native scrolling, overscroll kept inside. The host is the scrolling box, so size classes on the\n// element land on it. With a `label` it is a named region a keyboard can reach.\n\n/**\n * @summary A region that scrolls on its own, with thin scrollbars.\n * @slot - The content.\n */\nexport class ScrollArea extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { label: {}, maxHeight: { attribute: 'max-height' }, axis: { reflect: true } }\n\n\t/** Names the region and lets a keyboard reach it. */\n\tlabel?: string\n\t/** A cap on its height, such as 288px. */\n\tmaxHeight?: string\n\t/** y (down), x (across) or both. */\n\taxis: 'y' | 'x' | 'both' = 'y'\n\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\tif (changed.has('maxHeight')) this.style.maxHeight = this.maxHeight ?? ''\n\t\t// The host is the scroll box, so it takes the scroll fade by attribute (fade-y, fade-x or fade-xy in React).\n\t\tif (changed.has('axis')) this.dataset.fade = this.axis === 'both' ? 'xy' : this.axis === 'x' ? 'x' : 'y'\n\t\tif (changed.has('label')) {\n\t\t\tif (this.label) {\n\t\t\t\tthis.setAttribute('role', 'region')\n\t\t\t\tthis.setAttribute('aria-label', this.label)\n\t\t\t\tthis.tabIndex = 0\n\t\t\t} else {\n\t\t\t\tfor (const a of ['role', 'aria-label', 'tabindex']) this.removeAttribute(a)\n\t\t\t}\n\t\t}\n\t}\n\n\trender() {\n\t\treturn html`<slot></slot>`\n\t}\n}\n\ndefine('scroll-area', ScrollArea)\n"
+        },
+        {
+          "path": "elements/components/ui/scroll-area.css",
+          "content": "/* The host is the scrolling box (ScrollArea.tsx's root div), so a class on the element lands on it. */\n:host { @apply relative block overscroll-contain overflow-x-hidden overflow-y-auto; }\n:host([axis=\"x\"]) { @apply overflow-x-auto overflow-y-hidden; }\n:host([axis=\"both\"]) { @apply overflow-auto; }\n:host { scrollbar-width: thin; scrollbar-color: var(--ds-color-neutral-5) transparent; }\n/* !important: the page's focus ring (outline-offset 2px) wins over a plain :host rule. */\n:host(:focus-visible) { outline-offset: calc(var(--ds-border-focus) * -1) !important; }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/scroll-area.js"
+      ],
+      "tag": "spyglass-scroll-area",
+      "tags": [
+        "spyglass-scroll-area"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-scroll-area",
+            "name": "ScrollArea",
+            "module": "elements/scroll-area.js",
+            "description": "A region that scrolls on its own, with thin scrollbars.",
+            "attributes": [
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string | undefined",
+                "description": "Names the region and lets a keyboard reach it."
+              },
+              {
+                "name": "max-height",
+                "field": "maxHeight",
+                "type": "string | undefined",
+                "description": "A cap on its height, such as 288px."
+              },
+              {
+                "name": "axis",
+                "field": "axis",
+                "type": "\"y\" | \"x\" | \"both\"",
+                "default": "'y'",
+                "description": "y (down), x (across) or both."
+              }
+            ],
+            "properties": [
+              {
+                "name": "label",
+                "type": "string | undefined",
+                "description": "Names the region and lets a keyboard reach it.",
+                "attribute": "label"
+              },
+              {
+                "name": "maxHeight",
+                "type": "string | undefined",
+                "description": "A cap on its height, such as 288px.",
+                "attribute": "max-height"
+              },
+              {
+                "name": "axis",
+                "type": "\"y\" | \"x\" | \"both\"",
+                "default": "'y'",
+                "description": "y (down), x (across) or both.",
+                "attribute": "axis"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The content."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Lists",
+          "label": "Down and across",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/scroll-area/Lists.html",
+          "content": "<!-- A long list of boards in a short box, and a row of creatives that scrolls across. -->\n<div class=\"flex w-full max-w-sm flex-col gap-8\">\n  <spyglass-scroll-area label=\"Boards\" class=\"h-72 rounded-container border border-edge\">\n    <div class=\"p-4\">\n      <p class=\"type-label text-fg-soft\">Boards</p>\n      <ul class=\"mt-3\">\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">Acme hooks</li>\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">Acme summer launch</li>\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">UGC openers</li>\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">Price in the first line</li>\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">Product in hand</li>\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">Before and after</li>\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">Unboxing</li>\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">Founder story</li>\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">Testimonials</li>\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">Bundles</li>\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">Free shipping</li>\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">Launch week</li>\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">Holiday gifting</li>\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">Back to school</li>\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">New flavor</li>\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">Restock</li>\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">Behind the scenes</li>\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">Comparisons</li>\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">Tutorials</li>\n        <li class=\"border-t border-edge py-2 type-ui text-fg first:border-t-0\">Reviews</li>\n      </ul>\n    </div>\n  </spyglass-scroll-area>\n  <spyglass-scroll-area label=\"Creatives\" axis=\"x\" class=\"rounded-container border border-edge\">\n    <ul class=\"flex w-max gap-4 p-4\">\n      <li class=\"flex w-36 shrink-0 flex-col gap-2\"><div class=\"aspect-square w-full rounded-control bg-surface-raised\"></div><p class=\"type-caption text-fg-muted\">Acme ad 1</p></li>\n      <li class=\"flex w-36 shrink-0 flex-col gap-2\"><div class=\"aspect-square w-full rounded-control bg-surface-raised\"></div><p class=\"type-caption text-fg-muted\">Acme ad 2</p></li>\n      <li class=\"flex w-36 shrink-0 flex-col gap-2\"><div class=\"aspect-square w-full rounded-control bg-surface-raised\"></div><p class=\"type-caption text-fg-muted\">Acme ad 3</p></li>\n      <li class=\"flex w-36 shrink-0 flex-col gap-2\"><div class=\"aspect-square w-full rounded-control bg-surface-raised\"></div><p class=\"type-caption text-fg-muted\">Acme ad 4</p></li>\n      <li class=\"flex w-36 shrink-0 flex-col gap-2\"><div class=\"aspect-square w-full rounded-control bg-surface-raised\"></div><p class=\"type-caption text-fg-muted\">Acme ad 5</p></li>\n      <li class=\"flex w-36 shrink-0 flex-col gap-2\"><div class=\"aspect-square w-full rounded-control bg-surface-raised\"></div><p class=\"type-caption text-fg-muted\">Acme ad 6</p></li>\n    </ul>\n  </spyglass-scroll-area>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

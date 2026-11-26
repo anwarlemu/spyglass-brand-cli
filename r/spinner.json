@@ -1,0 +1,177 @@
+{
+  "name": "spinner",
+  "title": "Spinner",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "Work with no known end: a quarter arc in the color around it, White on Black, turning on a #363636 ring at a constant speed. With reduced motion it breathes instead of turning.",
+  "use_for": "A search, a save or a load that takes more than a moment, beside the words that say what is happening or inside the busy button.",
+  "never": [
+    "A spinner where the shape of the content is known: use Skeleton",
+    "Progress that can be counted: use Progress",
+    "A colored, glowing or spectrum spinner",
+    "A blank screen with only a spinner"
+  ],
+  "source": "Derived from the brand guidelines (no loading state in the brand assets): White on Black, the neutral steps for the ring",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Spinner.tsx",
+      "content": "import type { SVGAttributes } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// Work in progress with no known end: a quarter arc in the color around it (White on Black) turning on a #363636\n// ring, one turn every 750ms at a constant speed (linear, as constant motion is). With reduced motion it stops turning\n// and breathes instead. sm is 16px (beside UI text, in a button), md 20px. It announces itself as a status with\n// `label`.\nexport type SpinnerSize = 'sm' | 'md'\n\nconst SIZES: Record<SpinnerSize, string> = { sm: 'size-icon-sm', md: 'size-icon-md' }\n\nexport interface SpinnerProps extends Omit<SVGAttributes<SVGSVGElement>, 'role'> {\n  /** sm (16px) or md (20px). */\n  size?: SpinnerSize\n  /** What is loading, for assistive tech. */\n  label?: string\n}\n\nexport function Spinner({ size = 'sm', label = 'Loading', className, ...rest }: SpinnerProps) {\n  return (\n    <>\n      <style href=\"ds-spinner\" precedence=\"ds\">{css}</style>\n      <svg data-ds=\"spinner\" role=\"status\" aria-label={label} viewBox=\"0 0 24 24\" fill=\"none\" className={cn('ds-spinner shrink-0', SIZES[size] ?? SIZES.sm, className)} {...rest}>\n        <circle cx=\"12\" cy=\"12\" r=\"9\" strokeWidth=\"2.5\" className=\"stroke-edge-strong\" />\n        <path d=\"M12 3a9 9 0 0 1 9 9\" stroke=\"currentColor\" strokeWidth=\"2.5\" strokeLinecap=\"round\" />\n      </svg>\n    </>\n  )\n}\n\nexport default Spinner\n\nconst css = `\n.ds-spinner { animation: ds-spinner-turn 750ms linear infinite; }\n@keyframes ds-spinner-turn { to { transform: rotate(360deg); } }\n@keyframes ds-spinner-breathe { 50% { opacity: 0.5; } }\n@media (prefers-reduced-motion: reduce) { .ds-spinner { animation: ds-spinner-breathe 2s var(--ds-easing-in-out) infinite; } }\n`\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "States",
+      "label": "Where it goes",
+      "center": true,
+      "half": false,
+      "path": "react/examples/spinner/States.tsx",
+      "content": "import { Button } from '@/react/components/ui/Button'\nimport { Spinner } from '@/react/components/ui/Spinner'\n// A search running: the spinner beside its line, in a busy button, and at the larger size on its own.\n\nexport default function States() {\n  return (\n    <div className=\"flex flex-col items-start gap-6\">\n      <div className=\"flex items-center gap-3 type-ui text-fg-soft\">\n        <Spinner label=\"Searching\" />\n        <span>Searching for Acme hooks.</span>\n      </div>\n      <Button variant=\"secondary\" disabled><Spinner label=\"Saving\" />Saving</Button>\n      <Spinner size=\"md\" label=\"Loading boards\" />\n    </div>\n  )\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Spinner.tsx",
+          "content": "import type { SVGAttributes } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// Work in progress with no known end: a quarter arc in the color around it (White on Black) turning on a #363636\n// ring, one turn every 750ms at a constant speed (linear, as constant motion is). With reduced motion it stops turning\n// and breathes instead. sm is 16px (beside UI text, in a button), md 20px. It announces itself as a status with\n// `label`.\nexport type SpinnerSize = 'sm' | 'md'\n\nconst SIZES: Record<SpinnerSize, string> = { sm: 'size-icon-sm', md: 'size-icon-md' }\n\nexport interface SpinnerProps extends Omit<SVGAttributes<SVGSVGElement>, 'role'> {\n  /** sm (16px) or md (20px). */\n  size?: SpinnerSize\n  /** What is loading, for assistive tech. */\n  label?: string\n}\n\nexport function Spinner({ size = 'sm', label = 'Loading', className, ...rest }: SpinnerProps) {\n  return (\n    <>\n      <style href=\"ds-spinner\" precedence=\"ds\">{css}</style>\n      <svg data-ds=\"spinner\" role=\"status\" aria-label={label} viewBox=\"0 0 24 24\" fill=\"none\" className={cn('ds-spinner shrink-0', SIZES[size] ?? SIZES.sm, className)} {...rest}>\n        <circle cx=\"12\" cy=\"12\" r=\"9\" strokeWidth=\"2.5\" className=\"stroke-edge-strong\" />\n        <path d=\"M12 3a9 9 0 0 1 9 9\" stroke=\"currentColor\" strokeWidth=\"2.5\" strokeLinecap=\"round\" />\n      </svg>\n    </>\n  )\n}\n\nexport default Spinner\n\nconst css = `\n.ds-spinner { animation: ds-spinner-turn 750ms linear infinite; }\n@keyframes ds-spinner-turn { to { transform: rotate(360deg); } }\n@keyframes ds-spinner-breathe { 50% { opacity: 0.5; } }\n@media (prefers-reduced-motion: reduce) { .ds-spinner { animation: ds-spinner-breathe 2s var(--ds-easing-in-out) infinite; } }\n`\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Spinner",
+            "file": "react/components/ui/Spinner.tsx",
+            "props": [
+              {
+                "name": "size",
+                "type": "SpinnerSize",
+                "required": false,
+                "default": "'sm'",
+                "description": "sm (16px) or md (20px)."
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "default": "'Loading'",
+                "description": "What is loading, for assistive tech."
+              }
+            ],
+            "extends": [
+              "Omit<SVGAttributes<SVGSVGElement>, 'role'>"
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "States",
+          "label": "Where it goes",
+          "center": true,
+          "half": false,
+          "path": "react/examples/spinner/States.tsx",
+          "content": "import { Button } from '@/react/components/ui/Button'\nimport { Spinner } from '@/react/components/ui/Spinner'\n// A search running: the spinner beside its line, in a busy button, and at the larger size on its own.\n\nexport default function States() {\n  return (\n    <div className=\"flex flex-col items-start gap-6\">\n      <div className=\"flex items-center gap-3 type-ui text-fg-soft\">\n        <Spinner label=\"Searching\" />\n        <span>Searching for Acme hooks.</span>\n      </div>\n      <Button variant=\"secondary\" disabled><Spinner label=\"Saving\" />Saving</Button>\n      <Spinner size=\"md\" label=\"Loading boards\" />\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/spinner.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Spinner.tsx as <spyglass-spinner>: a quarter arc in the color around it turning on a #363636 ring, one turn every\n// 750ms at a constant speed; with reduced motion it breathes instead. sm 16px, md 20px. A status with `label`.\n\nconst SIZES = { sm: 'size-icon-sm', md: 'size-icon-md' } as const\n\n/** @summary Work in progress with no known end. */\nexport class Spinner extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('svg') as unknown as HTMLElement)\n\tstatic properties = { size: { reflect: true }, label: {} }\n\n\t/** sm (16px) or md (20px). */\n\tsize: keyof typeof SIZES = 'sm'\n\t/** What is loading, for assistive tech. */\n\tlabel = 'Loading'\n\n\trender() {\n\t\treturn html`<svg data-ds=\"spinner\" role=\"status\" aria-label=${this.label} viewBox=\"0 0 24 24\" fill=\"none\" class=${`ds-spinner shrink-0 ${SIZES[this.size] ?? SIZES.sm}`}><circle cx=\"12\" cy=\"12\" r=\"9\" stroke-width=\"2.5\" class=\"stroke-edge-strong\"></circle><path d=\"M12 3a9 9 0 0 1 9 9\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\"></path></svg>`\n\t}\n}\n\ndefine('spinner', Spinner)\n"
+        },
+        {
+          "path": "elements/components/ui/spinner.css",
+          "content": "/* Spinner.tsx's styles, as they are. */\n.ds-spinner { animation: ds-spinner-turn 750ms linear infinite; }\n@keyframes ds-spinner-turn { to { transform: rotate(360deg); } }\n@keyframes ds-spinner-breathe { 50% { opacity: 0.5; } }\n@media (prefers-reduced-motion: reduce) { .ds-spinner { animation: ds-spinner-breathe 2s var(--ds-easing-in-out) infinite; } }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/spinner.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-spinner",
+      "tags": [
+        "spyglass-spinner"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-spinner",
+            "name": "Spinner",
+            "module": "elements/spinner.js",
+            "description": "Work in progress with no known end.",
+            "attributes": [
+              {
+                "name": "size",
+                "field": "size",
+                "type": "\"sm\" | \"md\"",
+                "default": "'sm'",
+                "description": "sm (16px) or md (20px)."
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "'Loading'",
+                "description": "What is loading, for assistive tech."
+              }
+            ],
+            "properties": [
+              {
+                "name": "size",
+                "type": "\"sm\" | \"md\"",
+                "default": "'sm'",
+                "description": "sm (16px) or md (20px).",
+                "attribute": "size"
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "default": "'Loading'",
+                "description": "What is loading, for assistive tech.",
+                "attribute": "label"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "States",
+          "label": "Where it goes",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/spinner/States.html",
+          "content": "<!-- A search running: the spinner beside its line, in a busy button, and at the larger size on its own. -->\n<div class=\"flex flex-col items-start gap-6\">\n  <div class=\"flex items-center gap-3 type-ui text-fg-soft\">\n    <spyglass-spinner label=\"Searching\"></spyglass-spinner>\n    <span>Searching for Acme hooks.</span>\n  </div>\n  <spyglass-button variant=\"secondary\" disabled><spyglass-spinner label=\"Saving\"></spyglass-spinner>Saving</spyglass-button>\n  <spyglass-spinner size=\"md\" label=\"Loading boards\"></spyglass-spinner>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

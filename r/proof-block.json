@@ -1,0 +1,197 @@
+{
+  "name": "proof-block",
+  "title": "Proof block",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "The site's proof section: a White lead line centered over the proof marquee of marks, 40px apart, with the section's padding under it; it follows a hero or a page head.",
+  "use_for": "Under a hero or a page head, to show who uses the product, with marks you are allowed to show.",
+  "never": [
+    "Third-party logos without permission: the default marks are Acme wordmarks",
+    "A section head in place of the lead line"
+  ],
+  "source": "Site v3/V3Proof (V3Proof.tsx, V3Proof.module.css): .section with no top padding, a 40px gap, .t-lead at the regular weight in --text, the ProofStrip under it with the logos twice per copy (stripLogos), .t-lead's measure and pretty wrap",
+  "body": "",
+  "requires": [
+    "proof-strip"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/ProofBlock.tsx",
+      "content": "import { ProofStrip, proofPlaceholders, type ProofLogo } from '@/react/components/site/ProofStrip'\nimport { cn } from '@/react/lib/cn'\n\n// The site's proof section (v3/V3Proof): a White lead line (20/28) centered over the proof marquee, 40px apart, with\n// the section's padding under it only (it follows a hero). Marks come through `logos` (Acme placeholders by default);\n// the strip runs them twice per loop, as the site's V3Proof does, so each 68s pass moves two sets.\nexport interface ProofBlockProps {\n  /** The line over the marks. */\n  title?: string\n  logos?: ProofLogo[]\n  /** Names the heading (`<id>-title`). */\n  id?: string\n  className?: string\n}\n\nexport function ProofBlock({ title = 'Trusted by teams and agents at', logos = proofPlaceholders, id = 'proof', className }: ProofBlockProps) {\n  return (\n    <section data-ds=\"proof-block\" aria-labelledby={`${id}-title`} className={cn('pb-(--ds-layout-section) text-fg', className)}>\n      <div className=\"mx-auto flex w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] flex-col items-center gap-10 px-(--ds-layout-gutter) text-center\">\n        <h2 id={`${id}-title`} className=\"max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg\">{title}</h2>\n        <ProofStrip logos={[...logos, ...logos]} />\n      </div>\n    </section>\n  )\n}\n\nexport default ProofBlock\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Default",
+      "label": "Acme placeholders",
+      "center": true,
+      "half": false,
+      "path": "react/examples/proof-block/Default.tsx",
+      "content": "import { ProofBlock } from '@/react/components/site/ProofBlock'\n// The proof section with Acme placeholder marks.\n\nexport default function Default() {\n  return <ProofBlock className=\"w-full\" />\n}\n",
+      "requires": [
+        "proof-strip"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/ProofBlock.tsx",
+          "content": "import { ProofStrip, proofPlaceholders, type ProofLogo } from '@/react/components/site/ProofStrip'\nimport { cn } from '@/react/lib/cn'\n\n// The site's proof section (v3/V3Proof): a White lead line (20/28) centered over the proof marquee, 40px apart, with\n// the section's padding under it only (it follows a hero). Marks come through `logos` (Acme placeholders by default);\n// the strip runs them twice per loop, as the site's V3Proof does, so each 68s pass moves two sets.\nexport interface ProofBlockProps {\n  /** The line over the marks. */\n  title?: string\n  logos?: ProofLogo[]\n  /** Names the heading (`<id>-title`). */\n  id?: string\n  className?: string\n}\n\nexport function ProofBlock({ title = 'Trusted by teams and agents at', logos = proofPlaceholders, id = 'proof', className }: ProofBlockProps) {\n  return (\n    <section data-ds=\"proof-block\" aria-labelledby={`${id}-title`} className={cn('pb-(--ds-layout-section) text-fg', className)}>\n      <div className=\"mx-auto flex w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] flex-col items-center gap-10 px-(--ds-layout-gutter) text-center\">\n        <h2 id={`${id}-title`} className=\"max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg\">{title}</h2>\n        <ProofStrip logos={[...logos, ...logos]} />\n      </div>\n    </section>\n  )\n}\n\nexport default ProofBlock\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "proof-strip"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "ProofBlock",
+            "file": "react/components/site/ProofBlock.tsx",
+            "props": [
+              {
+                "name": "title",
+                "type": "string",
+                "required": false,
+                "default": "'Trusted by teams and agents at'",
+                "description": "The line over the marks."
+              },
+              {
+                "name": "logos",
+                "type": "ProofLogo[]",
+                "required": false,
+                "default": "proofPlaceholders"
+              },
+              {
+                "name": "id",
+                "type": "string",
+                "required": false,
+                "default": "'proof'",
+                "description": "Names the heading (`<id>-title`)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Default",
+          "label": "Acme placeholders",
+          "center": true,
+          "half": false,
+          "path": "react/examples/proof-block/Default.tsx",
+          "content": "import { ProofBlock } from '@/react/components/site/ProofBlock'\n// The proof section with Acme placeholder marks.\n\nexport default function Default() {\n  return <ProofBlock className=\"w-full\" />\n}\n",
+          "registryDependencies": [
+            "proof-strip"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/proof-block.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { proofPlaceholders, type ProofLogo } from '@/elements/components/site/proof-strip'\nimport '@/elements/components/site/proof-strip'\nimport styles from 'virtual:tw'\n\n// ProofBlock.tsx as <spyglass-proof-block>: the White lead line centered over the proof marquee, the section's padding\n// under it only. `heading` (React's `title`), `logos` (JSON: { name, src?, ratio?, height? }), `head-id`.\n\n/** @summary The proof section: a lead line over the marquee of marks. */\nexport class ProofBlock extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"proof-block\"]'))\n\tstatic properties = { heading: {}, logos: { type: Array }, headId: { attribute: 'head-id' } }\n\t/** The line over the marks (React's `title`). */\n\theading = 'Trusted by teams and agents at'\n\tlogos: ProofLogo[] = proofPlaceholders\n\t/** Names the heading (React's `id`). */\n\theadId = 'proof'\n\n\trender() {\n\t\treturn html`<section data-ds=\"proof-block\" aria-labelledby=${`${this.headId}-title`} class=\"pb-(--ds-layout-section) text-fg\"><div class=\"mx-auto flex w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] flex-col items-center gap-10 px-(--ds-layout-gutter) text-center\"><h2 id=${`${this.headId}-title`} class=\"max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg\">${this.heading}</h2><spyglass-proof-strip .logos=${[...(this.logos ?? proofPlaceholders), ...(this.logos ?? proofPlaceholders)]}></spyglass-proof-strip></div></section>`\n\t}\n}\n\ndefine('proof-block', ProofBlock)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/proof-block.js",
+        "elements/proof-strip.js"
+      ],
+      "tag": "spyglass-proof-block",
+      "tags": [
+        "spyglass-proof-block"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "proof-strip"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-proof-block",
+            "name": "ProofBlock",
+            "module": "elements/proof-block.js",
+            "description": "The proof section: a lead line over the marquee of marks.",
+            "attributes": [
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string",
+                "default": "'Trusted by teams and agents at'",
+                "description": "The line over the marks (React's `title`)."
+              },
+              {
+                "name": "logos",
+                "field": "logos",
+                "type": "ProofLogo[]",
+                "default": "proofPlaceholders"
+              },
+              {
+                "name": "head-id",
+                "field": "headId",
+                "type": "string",
+                "default": "'proof'",
+                "description": "Names the heading (React's `id`)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "heading",
+                "type": "string",
+                "default": "'Trusted by teams and agents at'",
+                "description": "The line over the marks (React's `title`).",
+                "attribute": "heading"
+              },
+              {
+                "name": "logos",
+                "type": "ProofLogo[]",
+                "default": "proofPlaceholders",
+                "attribute": "logos"
+              },
+              {
+                "name": "headId",
+                "type": "string",
+                "default": "'proof'",
+                "description": "Names the heading (React's `id`).",
+                "attribute": "head-id"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Default",
+          "label": "Acme placeholders",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/proof-block/Default.html",
+          "content": "<!-- The proof section with Acme placeholder marks. -->\n<spyglass-proof-block class=\"w-full\"></spyglass-proof-block>\n"
+        }
+      ]
+    }
+  }
+}

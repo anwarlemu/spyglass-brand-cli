@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "empty",
+  "type": "registry:ui",
+  "title": "Empty",
+  "description": "What shows where a list has nothing in it yet: a dashed hairline with the brand corner, a Lucide icon in a #262626 tile, a Funnel Display title, one muted line and the actions that fill it.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/ui/Empty.tsx",
+      "type": "registry:ui",
+      "content": "import type { HTMLAttributes, ReactNode } from 'react'\nimport { cn } from '@/lib/cn'\n\n// shadcn's empty in the brand: what shows where a list has nothing in it yet. A dashed #666666 hairline with the brand\n// corner on Black, a 20px Lucide icon in a #262626 tile, a Funnel Display title, one muted line on what is missing and\n// the actions that fill it. No illustrations, and never without a way forward.\nexport interface EmptyProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {\n  /** What is missing, in Funnel Display. */\n  title: string\n  /** One muted line on how to fill it. */\n  description?: string\n  /** A 20px Lucide icon. */\n  icon?: ReactNode\n}\n\nexport function Empty({ title, description, icon, className, children, ...rest }: EmptyProps) {\n  return (\n    <div data-ds=\"empty\" className={cn('flex w-full flex-col items-center gap-2 rounded-container border border-dashed border-edge-strong px-6 py-12 text-center', className)} {...rest}>\n      {icon && <span className=\"mb-2 flex size-10 items-center justify-center rounded-control bg-surface-raised text-fg\" aria-hidden=\"true\">{icon}</span>}\n      <p className=\"type-heading-4 text-fg\">{title}</p>\n      {description && <p className=\"max-w-sm type-ui text-fg-muted\">{description}</p>}\n      {children && <div className=\"mt-4 flex flex-wrap justify-center gap-3\">{children}</div>}\n    </div>\n  )\n}\n\nexport default Empty\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

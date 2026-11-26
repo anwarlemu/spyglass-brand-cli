@@ -1,0 +1,167 @@
+{
+  "name": "product-cards",
+  "title": "Product cards",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "The site's product cards: products in a grid ruled apart by hairlines, each a link with the name in Funnel Display, one line on what it does and the endpoint in the code face; the #262626 fill under a mouse.",
+  "use_for": "Related products under a product page, or every product on an index, three or four across.",
+  "never": [
+    "Pictures or icons in the cards",
+    "Cards that grow or move on hover: the fill changes, nothing moves",
+    "Uneven columns: three or four"
+  ],
+  "source": "Site pages/Products/ProductCards (Products.module.css .cards, .card, .cardEndpoint): gap --hairline on --line, cards on --bg 24px in (0 at the sides under 768, 32px from 768), one column, two from 768, three or four from 1024 (data-columns), .t-sub names, .text lines (body 16/24 --text-2), the endpoint in --font-mono small --text-3 at the foot; --surface on hover (fine pointers) and on press, --dur-fast",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/ProductCards.tsx",
+      "content": "import { cn } from '@/react/lib/cn'\n\n// The site's product cards (pages/Products/ProductCards): products in a grid ruled apart by #363636 hairlines, one\n// column on phones, two from 768 and three or four from 1024. Each card is a link on Black, 24px in (flush at the sides on\n// phones, 32px from 768): the\n// name in Funnel Display (20/24, 24/28 from 768), the line in 16/24 #D4D4D4 8px under it and the endpoint in the code\n// face, 14/20 #A3A3A3, at the foot. Under a mouse (and while pressed) the card takes the #262626 fill, a color change\n// only.\nexport interface ProductCardItem {\n  name: string\n  /** One line on what it does. */\n  line: string\n  /** \"POST /creators\". */\n  endpoint?: string\n  href: string\n}\n\nexport interface ProductCardsProps {\n  products: ProductCardItem[]\n  columns?: 3 | 4\n  className?: string\n}\n\nexport function ProductCards({ products, columns = 3, className }: ProductCardsProps) {\n  return (\n    <ul data-ds=\"product-cards\" role=\"list\" className={cn('m-0 grid list-none grid-cols-[minmax(0,1fr)] gap-px bg-edge p-0 text-fg', columns === 4 ? 'md:grid-cols-2 lg:grid-cols-4' : 'md:grid-cols-2 lg:grid-cols-3', className)}>\n      {products.map((p) => (\n        <li key={p.href} className=\"flex bg-surface\">\n          <a href={p.href} className=\"flex flex-1 flex-col gap-2 bg-surface py-6 outline-offset-[-4px] transition-[background-color] duration-160 ease-out active:bg-surface-raised pointer-fine:hover:bg-surface-raised md:p-8\">\n            <span className=\"type-heading-4 md:type-heading-3\">{p.name}</span>\n            <span className=\"type-body text-pretty text-fg-soft\">{p.line}</span>\n            {p.endpoint && <span className=\"mt-auto pt-2 type-code wrap-anywhere text-fg-muted\">{p.endpoint}</span>}\n          </a>\n        </li>\n      ))}\n    </ul>\n  )\n}\n\nexport default ProductCards\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Related",
+      "label": "Three related products",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/product-cards/Related.tsx",
+      "content": "import { ProductCards } from '@/react/components/site/ProductCards'\n// Three related products, as the site lists them under a product.\n\nexport default function Related() {\n  return (\n    <div className=\"w-full max-w-320 px-4 md:px-12\">\n      <ProductCards\n        products={[\n          { name: 'Creator search', line: 'Find creators by name, handle or description. Filter by location, language, gender, age and followers.', endpoint: 'POST /creators', href: '/products/creator-search' },\n          { name: 'Media search', line: 'Search ads and organic posts by what is in them, across Meta, Instagram and TikTok.', endpoint: 'POST /media', href: '/products/media-search' },\n          { name: 'Creator collabs', line: 'See which creators a brand has posted with, how often and since when.', endpoint: 'GET /collabs', href: '/products/creator-collabs' },\n        ]}\n      />\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/ProductCards.tsx",
+          "content": "import { cn } from '@/react/lib/cn'\n\n// The site's product cards (pages/Products/ProductCards): products in a grid ruled apart by #363636 hairlines, one\n// column on phones, two from 768 and three or four from 1024. Each card is a link on Black, 24px in (flush at the sides on\n// phones, 32px from 768): the\n// name in Funnel Display (20/24, 24/28 from 768), the line in 16/24 #D4D4D4 8px under it and the endpoint in the code\n// face, 14/20 #A3A3A3, at the foot. Under a mouse (and while pressed) the card takes the #262626 fill, a color change\n// only.\nexport interface ProductCardItem {\n  name: string\n  /** One line on what it does. */\n  line: string\n  /** \"POST /creators\". */\n  endpoint?: string\n  href: string\n}\n\nexport interface ProductCardsProps {\n  products: ProductCardItem[]\n  columns?: 3 | 4\n  className?: string\n}\n\nexport function ProductCards({ products, columns = 3, className }: ProductCardsProps) {\n  return (\n    <ul data-ds=\"product-cards\" role=\"list\" className={cn('m-0 grid list-none grid-cols-[minmax(0,1fr)] gap-px bg-edge p-0 text-fg', columns === 4 ? 'md:grid-cols-2 lg:grid-cols-4' : 'md:grid-cols-2 lg:grid-cols-3', className)}>\n      {products.map((p) => (\n        <li key={p.href} className=\"flex bg-surface\">\n          <a href={p.href} className=\"flex flex-1 flex-col gap-2 bg-surface py-6 outline-offset-[-4px] transition-[background-color] duration-160 ease-out active:bg-surface-raised pointer-fine:hover:bg-surface-raised md:p-8\">\n            <span className=\"type-heading-4 md:type-heading-3\">{p.name}</span>\n            <span className=\"type-body text-pretty text-fg-soft\">{p.line}</span>\n            {p.endpoint && <span className=\"mt-auto pt-2 type-code wrap-anywhere text-fg-muted\">{p.endpoint}</span>}\n          </a>\n        </li>\n      ))}\n    </ul>\n  )\n}\n\nexport default ProductCards\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "ProductCards",
+            "file": "react/components/site/ProductCards.tsx",
+            "props": [
+              {
+                "name": "products",
+                "type": "ProductCardItem[]",
+                "required": true
+              },
+              {
+                "name": "columns",
+                "type": "3 | 4",
+                "required": false,
+                "default": "3"
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Related",
+          "label": "Three related products",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/product-cards/Related.tsx",
+          "content": "import { ProductCards } from '@/react/components/site/ProductCards'\n// Three related products, as the site lists them under a product.\n\nexport default function Related() {\n  return (\n    <div className=\"w-full max-w-320 px-4 md:px-12\">\n      <ProductCards\n        products={[\n          { name: 'Creator search', line: 'Find creators by name, handle or description. Filter by location, language, gender, age and followers.', endpoint: 'POST /creators', href: '/products/creator-search' },\n          { name: 'Media search', line: 'Search ads and organic posts by what is in them, across Meta, Instagram and TikTok.', endpoint: 'POST /media', href: '/products/media-search' },\n          { name: 'Creator collabs', line: 'See which creators a brand has posted with, how often and since when.', endpoint: 'GET /collabs', href: '/products/creator-collabs' },\n        ]}\n      />\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/product-cards.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// ProductCards.tsx as <spyglass-product-cards>: products in a hairline-ruled grid of links, the name, the line and the\n// endpoint in the code face; the #262626 fill under a mouse. `products` as JSON: [{ name, line, endpoint?, href }].\n\nexport interface ProductCardItem { name: string; line: string; endpoint?: string; href: string }\n\n/**\n * @summary Product cards: links in a ruled grid with the name, a line and the endpoint.\n */\nexport class ProductCards extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"product-cards\"]'))\n\tstatic properties = { products: { type: Array }, columns: { type: Number } }\n\tproducts: ProductCardItem[] = []\n\t/** 3 or 4 columns from 1024 (two from 768). */\n\tcolumns: 3 | 4 = 3\n\n\trender() {\n\t\treturn html`<ul data-ds=\"product-cards\" role=\"list\" class=${`m-0 grid list-none grid-cols-[minmax(0,1fr)] gap-px bg-edge p-0 text-fg ${this.columns === 4 ? 'md:grid-cols-2 lg:grid-cols-4' : 'md:grid-cols-2 lg:grid-cols-3'}`}>${(this.products ?? []).map((p) => html`<li class=\"flex bg-surface\"><a href=${p.href} class=\"flex flex-1 flex-col gap-2 bg-surface py-6 outline-offset-[-4px] transition-[background-color] duration-160 ease-out active:bg-surface-raised pointer-fine:hover:bg-surface-raised md:p-8\"><span class=\"type-heading-4 md:type-heading-3\">${p.name}</span><span class=\"type-body text-pretty text-fg-soft\">${p.line}</span>${p.endpoint ? html`<span class=\"mt-auto pt-2 type-code wrap-anywhere text-fg-muted\">${p.endpoint}</span>` : nothing}</a></li>`)}</ul>`\n\t}\n}\n\ndefine('product-cards', ProductCards)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/product-cards.js"
+      ],
+      "tag": "spyglass-product-cards",
+      "tags": [
+        "spyglass-product-cards"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-product-cards",
+            "name": "ProductCards",
+            "module": "elements/product-cards.js",
+            "description": "Product cards: links in a ruled grid with the name, a line and the endpoint.",
+            "attributes": [
+              {
+                "name": "products",
+                "field": "products",
+                "type": "ProductCardItem[]",
+                "default": "[]"
+              },
+              {
+                "name": "columns",
+                "field": "columns",
+                "type": "4 | 3",
+                "default": "3",
+                "description": "3 or 4 columns from 1024 (two from 768)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "products",
+                "type": "ProductCardItem[]",
+                "default": "[]",
+                "attribute": "products"
+              },
+              {
+                "name": "columns",
+                "type": "4 | 3",
+                "default": "3",
+                "description": "3 or 4 columns from 1024 (two from 768).",
+                "attribute": "columns"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Related",
+          "label": "Three related products",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/product-cards/Related.html",
+          "content": "<!-- Three related products, as the site lists them under a product. -->\n<div class=\"w-full max-w-320 px-4 md:px-12\">\n  <spyglass-product-cards products='[{\"name\":\"Creator search\",\"line\":\"Find creators by name, handle or description. Filter by location, language, gender, age and followers.\",\"endpoint\":\"POST /creators\",\"href\":\"/products/creator-search\"},{\"name\":\"Media search\",\"line\":\"Search ads and organic posts by what is in them, across Meta, Instagram and TikTok.\",\"endpoint\":\"POST /media\",\"href\":\"/products/media-search\"},{\"name\":\"Creator collabs\",\"line\":\"See which creators a brand has posted with, how often and since when.\",\"endpoint\":\"GET /collabs\",\"href\":\"/products/creator-collabs\"}]'></spyglass-product-cards>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

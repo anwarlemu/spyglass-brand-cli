@@ -1,0 +1,24 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "newsletter-block",
+  "type": "registry:block",
+  "title": "Newsletter block",
+  "description": "A newsletter sign-up on a #262626 card: the title, a line, an email field and the White button, small print under them.",
+  "dependencies": [],
+  "registryDependencies": [
+    "https://spyglass-ds.vercel.app/r/react/button.json",
+    "https://spyglass-ds.vercel.app/r/react/input.json"
+  ],
+  "files": [
+    {
+      "path": "components/blocks/NewsletterBlock.tsx",
+      "type": "registry:ui",
+      "content": "'use client'\nimport { useState, type FormEvent, type ReactNode } from 'react'\nimport { Button } from '@/components/ui/Button'\nimport { Input } from '@/components/ui/Input'\nimport { cn } from '@/lib/cn'\n\n// A newsletter sign-up on a #262626 card with the 4px corner: the title, a #D4D4D4 line, an email field and the White\n// button side by side from 640 (stacked on phones), and a line of small print under them. onSubscribe gets the address;\n// after it the card says `done` in its place. Nothing moves.\nexport interface NewsletterBlockProps {\n  title: ReactNode\n  body?: ReactNode\n  placeholder?: string\n  /** The button's label. */\n  cta?: string\n  /** Small print under the field. */\n  note?: ReactNode\n  /** Said in the field's place once subscribed. */\n  done?: string\n  onSubscribe?: (email: string) => void\n  className?: string\n}\n\nexport function NewsletterBlock({ title, body, placeholder = 'you@company.com', cta = 'Subscribe', note, done = 'You are on the list.', onSubscribe, className }: NewsletterBlockProps) {\n  const [sent, setSent] = useState(false)\n  const submit = (e: FormEvent<HTMLFormElement>) => {\n    e.preventDefault()\n    const email = String(new FormData(e.currentTarget).get('email') ?? '').trim()\n    if (!email) return\n    onSubscribe?.(email)\n    setSent(true)\n  }\n  return (\n    <section data-ds=\"newsletter-block\" className={cn('grid gap-6 rounded-container bg-surface-raised p-8 text-fg max-sm:p-6 lg:grid-cols-2 lg:items-end lg:gap-12', className)}>\n      <div className=\"grid gap-3\">\n        <h2 className=\"type-heading-1\">{title}</h2>\n        {body && <p className=\"max-w-measure type-body text-fg-soft\">{body}</p>}\n      </div>\n      <div className=\"grid gap-3\">\n        {sent ? (\n          <p role=\"status\" className=\"type-body text-fg\">{done}</p>\n        ) : (\n          <form onSubmit={submit} className=\"flex gap-3 max-sm:flex-col\">\n            <Input name=\"email\" type=\"email\" autoComplete=\"email\" required placeholder={placeholder} aria-label=\"Email\" className=\"min-w-0 flex-1\" />\n            <Button type=\"submit\">{cta}</Button>\n          </form>\n        )}\n        {note && <p className=\"type-caption text-fg-muted\">{note}</p>}\n      </div>\n    </section>\n  )\n}\n\nexport default NewsletterBlock\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,364 @@
+{
+  "name": "button",
+  "title": "Button",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "The site's button: a White fill with a Black DM Sans Medium label for the one main action, the quiet secondary (#1A1A1A in a #363636 ring) for the rest, and a ghost for tools in rows; a White glow follows a mouse inside it. Three sizes and a square icon button.",
+  "use_for": "Any action: search, start a plan, explore the product, save. One primary button per view or asset; the rest secondary or ghost. 40px tall by default, 56px large (and 56px on the 1080 canvas).",
+  "never": [
+    "Two primary buttons in one view",
+    "A spectrum color as a button fill",
+    "A faded button for \"not yet\": disabled is a #1A1A1A fill with a #666666 label",
+    "A press that scales the button: the site's buttons hold still",
+    "An icon that moves on hover, or a size change on hover"
+  ],
+  "source": "Site globals.css .btn and controls.css (40px, 8px corner, quiet ring, glow); brand assets (Figma page 8): Button, Get 50% off (258x56, radius 10, White fill, Black DM Sans Medium 20px label); Button, Search (136x56); Button, Start Creator for 50% off (504x56)",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Button.tsx",
+      "content": "'use client'\nimport type { AnchorHTMLAttributes, ButtonHTMLAttributes, PointerEvent, Ref } from 'react'\nimport { cn } from '@/react/lib/cn'\nimport { followGlow } from '@/lib/glow'\n\n// The site's button (globals.css .btn): a White fill with a Black DM Sans Medium 14/20 label and an 8px corner, 40px\n// tall with 16px in (md). One primary per view; secondary is the site's quiet button, a #1A1A1A fill inside a #363636\n// hairline ring that turns #262626 under the pointer; ghost has no fill until hovered, for tools in rows. Sizes sm\n// (32px), md (40px) and lg (56px, 32px in, a 20/28 label); `icon` makes it square. Under a mouse a White glow follows\n// the pointer inside it and the fill changes (160ms on the site's ease-out); like the site, it does not scale on press.\n// Disabled is a #1A1A1A fill with a #666666 label, never faded. `href` renders a link that looks the same.\nexport type ButtonVariant = 'primary' | 'secondary' | 'ghost'\nexport type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'form'\n\nconst VARIANTS: Record<ButtonVariant, string> = {\n  primary: 'bg-action-primary text-action-primary-fg hover:not-disabled:bg-action-primary-hover',\n  secondary: 'bg-action-secondary text-action-secondary-fg shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-action-secondary-edge)] hover:not-disabled:bg-action-secondary-hover',\n  ghost: 'bg-transparent text-fg hover:not-disabled:bg-action-ghost-hover',\n}\n\nconst SIZES: Record<ButtonSize, string> = {\n  xs: 'h-control-xs gap-1.5 type-ui-strong',\n  sm: 'h-control-sm gap-1.5 type-ui-strong',\n  md: 'h-control-md gap-2 type-ui-strong',\n  lg: 'h-control-lg gap-2 type-body-lg font-medium',\n  form: 'h-control-form gap-3 type-body font-medium',\n}\n\n// The site's glow (globals.css .btn::before): a gradient layer under the label at the pointer, shown on hover only.\nconst GLOW =\n  'relative isolate overflow-hidden before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:bg-[radial-gradient(circle_var(--ds-glow-radius)_at_var(--glow-x,50%)_var(--glow-y,50%),var(--ds-color-action-glow),transparent)] before:opacity-0 before:transition-opacity before:duration-240 before:ease-out hover:not-disabled:before:opacity-100'\n// One padding class per button, so a square button's 0 never competes with a label's padding in the stylesheet.\nconst PADDING: Record<ButtonSize, string> = { xs: 'px-4', sm: 'px-3', md: 'px-4', lg: 'px-8', form: 'px-4' }\nconst SQUARE: Record<ButtonSize, string> = { xs: 'w-control-xs px-0', sm: 'w-control-sm px-0', md: 'w-control-md px-0', lg: 'w-control-lg px-0', form: 'w-control-form px-0' }\n\nexport interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {\n  /** primary (White), secondary or ghost. */\n  variant?: ButtonVariant\n  /** xs (36px, the site header's), sm (32px), md (40px), lg (56px) or form (48px, a short form's buttons, full width). */\n  size?: ButtonSize\n  /** A square icon button: put its name in aria-label. */\n  icon?: boolean\n  /** Renders a link. */\n  href?: string\n  type?: 'button' | 'submit' | 'reset'\n  ref?: Ref<HTMLButtonElement & HTMLAnchorElement>\n}\n\nexport function buttonClasses({ variant = 'primary', size = 'md', icon }: Pick<ButtonProps, 'variant' | 'size' | 'icon'> = {}) {\n  return cn(\n    'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-control whitespace-nowrap select-none',\n    'transition-[background-color,color] duration-160 ease-out',\n    GLOW,\n    'disabled:cursor-not-allowed disabled:bg-action-disabled disabled:text-action-disabled-fg',\n    SIZES[size],\n    icon ? SQUARE[size] : PADDING[size],\n    VARIANTS[variant],\n  )\n}\n\nexport function Button({ variant = 'primary', size = 'md', icon, href, type = 'button', disabled, className, children, ref, onPointerMove, ...rest }: ButtonProps) {\n  const classes = cn(buttonClasses({ variant, size, icon }), className)\n  const move = (event: PointerEvent<HTMLButtonElement & HTMLAnchorElement>) => {\n    followGlow(event.currentTarget, event)\n    onPointerMove?.(event)\n  }\n  if (href) return <a data-ds=\"button\" ref={ref} href={href} className={classes} onPointerMove={move} {...(rest as AnchorHTMLAttributes<HTMLAnchorElement>)}>{children}</a>\n  return <button data-ds=\"button\" ref={ref} type={type} disabled={disabled} className={classes} onPointerMove={move} {...rest}>{children}</button>\n}\n\nexport default Button\n"
+    },
+    {
+      "path": "lib/glow.ts",
+      "content": "// The site's button glow (ButtonGlow.tsx): under a mouse, a White glow follows the pointer inside a button. The button\n// draws it (a radial gradient at --glow-x, --glow-y, faded in on hover over the brand's enter step); this only keeps\n// the position current, once a frame, for a fine pointer. Touch and pens never set it.\nconst frames = new WeakMap<HTMLElement, number>()\n\nexport function followGlow(el: HTMLElement | null, event: { clientX: number; clientY: number; pointerType: string }) {\n\tif (!el || event.pointerType !== 'mouse') return\n\tif (frames.has(el)) cancelAnimationFrame(frames.get(el)!)\n\tconst { clientX, clientY } = event\n\tframes.set(el, requestAnimationFrame(() => {\n\t\tframes.delete(el)\n\t\tconst box = el.getBoundingClientRect()\n\t\tel.style.setProperty('--glow-x', `${clientX - box.left}px`)\n\t\tel.style.setProperty('--glow-y', `${clientY - box.top}px`)\n\t}))\n}\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Variants",
+      "label": "Variants",
+      "center": true,
+      "half": false,
+      "path": "react/examples/button/Variants.tsx",
+      "content": "import { Button } from '@/react/components/ui/Button'\n// The three variants: the White primary for the one main action, secondary for the rest, ghost for tools.\n\nexport default function Variants() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-3\">\n      <Button>Get 50% off</Button>\n      <Button variant=\"secondary\">Explore the product</Button>\n      <Button variant=\"ghost\">Compare plans</Button>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    },
+    {
+      "name": "Sizes",
+      "label": "Sizes",
+      "center": true,
+      "half": false,
+      "path": "react/examples/button/Sizes.tsx",
+      "content": "import { Search } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\n// sm, md and lg, and the square icon button (named with aria-label).\n\nexport default function Sizes() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-3\">\n      <Button size=\"sm\">Search</Button>\n      <Button size=\"md\">Search</Button>\n      <Button size=\"lg\">Search</Button>\n      <Button icon variant=\"secondary\" aria-label=\"Search\"><Search size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": [
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "States",
+      "label": "States and links",
+      "center": true,
+      "half": false,
+      "path": "react/examples/button/States.tsx",
+      "content": "import { ArrowUpRight } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\n// Disabled is a dark fill with a gray label, never faded; a link looks like the button it stands for.\n\nexport default function States() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-3\">\n      <Button disabled>Start Creator for 50% off</Button>\n      <Button variant=\"secondary\" disabled>Explore the product</Button>\n      <Button href=\"#pricing\" variant=\"secondary\">See pricing <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Button.tsx",
+          "content": "'use client'\nimport type { AnchorHTMLAttributes, ButtonHTMLAttributes, PointerEvent, Ref } from 'react'\nimport { cn } from '@/react/lib/cn'\nimport { followGlow } from '@/lib/glow'\n\n// The site's button (globals.css .btn): a White fill with a Black DM Sans Medium 14/20 label and an 8px corner, 40px\n// tall with 16px in (md). One primary per view; secondary is the site's quiet button, a #1A1A1A fill inside a #363636\n// hairline ring that turns #262626 under the pointer; ghost has no fill until hovered, for tools in rows. Sizes sm\n// (32px), md (40px) and lg (56px, 32px in, a 20/28 label); `icon` makes it square. Under a mouse a White glow follows\n// the pointer inside it and the fill changes (160ms on the site's ease-out); like the site, it does not scale on press.\n// Disabled is a #1A1A1A fill with a #666666 label, never faded. `href` renders a link that looks the same.\nexport type ButtonVariant = 'primary' | 'secondary' | 'ghost'\nexport type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'form'\n\nconst VARIANTS: Record<ButtonVariant, string> = {\n  primary: 'bg-action-primary text-action-primary-fg hover:not-disabled:bg-action-primary-hover',\n  secondary: 'bg-action-secondary text-action-secondary-fg shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-action-secondary-edge)] hover:not-disabled:bg-action-secondary-hover',\n  ghost: 'bg-transparent text-fg hover:not-disabled:bg-action-ghost-hover',\n}\n\nconst SIZES: Record<ButtonSize, string> = {\n  xs: 'h-control-xs gap-1.5 type-ui-strong',\n  sm: 'h-control-sm gap-1.5 type-ui-strong',\n  md: 'h-control-md gap-2 type-ui-strong',\n  lg: 'h-control-lg gap-2 type-body-lg font-medium',\n  form: 'h-control-form gap-3 type-body font-medium',\n}\n\n// The site's glow (globals.css .btn::before): a gradient layer under the label at the pointer, shown on hover only.\nconst GLOW =\n  'relative isolate overflow-hidden before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:bg-[radial-gradient(circle_var(--ds-glow-radius)_at_var(--glow-x,50%)_var(--glow-y,50%),var(--ds-color-action-glow),transparent)] before:opacity-0 before:transition-opacity before:duration-240 before:ease-out hover:not-disabled:before:opacity-100'\n// One padding class per button, so a square button's 0 never competes with a label's padding in the stylesheet.\nconst PADDING: Record<ButtonSize, string> = { xs: 'px-4', sm: 'px-3', md: 'px-4', lg: 'px-8', form: 'px-4' }\nconst SQUARE: Record<ButtonSize, string> = { xs: 'w-control-xs px-0', sm: 'w-control-sm px-0', md: 'w-control-md px-0', lg: 'w-control-lg px-0', form: 'w-control-form px-0' }\n\nexport interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {\n  /** primary (White), secondary or ghost. */\n  variant?: ButtonVariant\n  /** xs (36px, the site header's), sm (32px), md (40px), lg (56px) or form (48px, a short form's buttons, full width). */\n  size?: ButtonSize\n  /** A square icon button: put its name in aria-label. */\n  icon?: boolean\n  /** Renders a link. */\n  href?: string\n  type?: 'button' | 'submit' | 'reset'\n  ref?: Ref<HTMLButtonElement & HTMLAnchorElement>\n}\n\nexport function buttonClasses({ variant = 'primary', size = 'md', icon }: Pick<ButtonProps, 'variant' | 'size' | 'icon'> = {}) {\n  return cn(\n    'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-control whitespace-nowrap select-none',\n    'transition-[background-color,color] duration-160 ease-out',\n    GLOW,\n    'disabled:cursor-not-allowed disabled:bg-action-disabled disabled:text-action-disabled-fg',\n    SIZES[size],\n    icon ? SQUARE[size] : PADDING[size],\n    VARIANTS[variant],\n  )\n}\n\nexport function Button({ variant = 'primary', size = 'md', icon, href, type = 'button', disabled, className, children, ref, onPointerMove, ...rest }: ButtonProps) {\n  const classes = cn(buttonClasses({ variant, size, icon }), className)\n  const move = (event: PointerEvent<HTMLButtonElement & HTMLAnchorElement>) => {\n    followGlow(event.currentTarget, event)\n    onPointerMove?.(event)\n  }\n  if (href) return <a data-ds=\"button\" ref={ref} href={href} className={classes} onPointerMove={move} {...(rest as AnchorHTMLAttributes<HTMLAnchorElement>)}>{children}</a>\n  return <button data-ds=\"button\" ref={ref} type={type} disabled={disabled} className={classes} onPointerMove={move} {...rest}>{children}</button>\n}\n\nexport default Button\n"
+        },
+        {
+          "path": "lib/glow.ts",
+          "content": "// The site's button glow (ButtonGlow.tsx): under a mouse, a White glow follows the pointer inside a button. The button\n// draws it (a radial gradient at --glow-x, --glow-y, faded in on hover over the brand's enter step); this only keeps\n// the position current, once a frame, for a fine pointer. Touch and pens never set it.\nconst frames = new WeakMap<HTMLElement, number>()\n\nexport function followGlow(el: HTMLElement | null, event: { clientX: number; clientY: number; pointerType: string }) {\n\tif (!el || event.pointerType !== 'mouse') return\n\tif (frames.has(el)) cancelAnimationFrame(frames.get(el)!)\n\tconst { clientX, clientY } = event\n\tframes.set(el, requestAnimationFrame(() => {\n\t\tframes.delete(el)\n\t\tconst box = el.getBoundingClientRect()\n\t\tel.style.setProperty('--glow-x', `${clientX - box.left}px`)\n\t\tel.style.setProperty('--glow-y', `${clientY - box.top}px`)\n\t}))\n}\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Button",
+            "file": "react/components/ui/Button.tsx",
+            "props": [
+              {
+                "name": "variant",
+                "type": "ButtonVariant",
+                "required": false,
+                "default": "'primary'",
+                "description": "primary (White), secondary or ghost."
+              },
+              {
+                "name": "size",
+                "type": "ButtonSize",
+                "required": false,
+                "default": "'md'",
+                "description": "xs (36px, the site header's), sm (32px), md (40px), lg (56px) or form (48px, a short form's buttons, full width)."
+              },
+              {
+                "name": "icon",
+                "type": "boolean",
+                "required": false,
+                "description": "A square icon button: put its name in aria-label."
+              },
+              {
+                "name": "href",
+                "type": "string",
+                "required": false,
+                "description": "Renders a link."
+              },
+              {
+                "name": "type",
+                "type": "'button' | 'submit' | 'reset'",
+                "required": false,
+                "default": "'button'"
+              }
+            ],
+            "extends": [
+              "Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'>"
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Variants",
+          "label": "Variants",
+          "center": true,
+          "half": false,
+          "path": "react/examples/button/Variants.tsx",
+          "content": "import { Button } from '@/react/components/ui/Button'\n// The three variants: the White primary for the one main action, secondary for the rest, ghost for tools.\n\nexport default function Variants() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-3\">\n      <Button>Get 50% off</Button>\n      <Button variant=\"secondary\">Explore the product</Button>\n      <Button variant=\"ghost\">Compare plans</Button>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        },
+        {
+          "name": "Sizes",
+          "label": "Sizes",
+          "center": true,
+          "half": false,
+          "path": "react/examples/button/Sizes.tsx",
+          "content": "import { Search } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\n// sm, md and lg, and the square icon button (named with aria-label).\n\nexport default function Sizes() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-3\">\n      <Button size=\"sm\">Search</Button>\n      <Button size=\"md\">Search</Button>\n      <Button size=\"lg\">Search</Button>\n      <Button icon variant=\"secondary\" aria-label=\"Search\"><Search size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        },
+        {
+          "name": "States",
+          "label": "States and links",
+          "center": true,
+          "half": false,
+          "path": "react/examples/button/States.tsx",
+          "content": "import { ArrowUpRight } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\n// Disabled is a dark fill with a gray label, never faded; a link looks like the button it stands for.\n\nexport default function States() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-3\">\n      <Button disabled>Start Creator for 50% off</Button>\n      <Button variant=\"secondary\" disabled>Explore the product</Button>\n      <Button href=\"#pricing\" variant=\"secondary\">See pricing <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/button.ts",
+          "content": "import { html } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsFormElement, define, HostLayoutController } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\nimport { followGlow } from '@/lib/glow'\n\n// Button.tsx as a web component, <spyglass-button>: a White fill with a Black DM Sans Medium label for the one main\n// action, secondary (the site's quiet button: #1A1A1A in a #363636 ring) for the rest, ghost for tools in rows. Sizes\n// sm (32px), md (40px) and lg (56px); `icon` makes it square. Under a mouse a White glow follows the pointer and the\n// fill changes; it does not scale on press (the site's buttons do not). `href` renders a link. It is form-associated: type=\"submit\" submits its form, type=\"reset\" resets it. aria-label,\n// aria-description, aria-expanded, aria-haspopup and aria-controls on it pass to the inner button.\nexport type ButtonVariant = 'primary' | 'secondary' | 'ghost'\nexport type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'form'\n\n// The attributes that move from the element to its inner button, by property.\nconst MOVED = ['aria-expanded', 'aria-haspopup', 'aria-controls']\nconst FIELD: Record<string, 'expanded' | 'haspopup' | 'controls'> = { 'aria-expanded': 'expanded', 'aria-haspopup': 'haspopup', 'aria-controls': 'controls' }\n\nconst VARIANTS: Record<ButtonVariant, string> = {\n\tprimary: 'bg-action-primary text-action-primary-fg hover:not-disabled:bg-action-primary-hover',\n\tsecondary: 'bg-action-secondary text-action-secondary-fg shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-action-secondary-edge)] hover:not-disabled:bg-action-secondary-hover',\n\tghost: 'bg-transparent text-fg hover:not-disabled:bg-action-ghost-hover',\n}\nconst SIZES: Record<ButtonSize, string> = {\n\txs: 'h-control-xs gap-1.5 type-ui-strong',\n\tsm: 'h-control-sm gap-1.5 type-ui-strong',\n\tmd: 'h-control-md gap-2 type-ui-strong',\n\tlg: 'h-control-lg gap-2 type-body-lg font-medium',\n\tform: 'h-control-form gap-3 type-body font-medium',\n}\n// The site's glow (globals.css .btn::before): a gradient layer under the label at the pointer, shown on hover only.\nconst GLOW =\n  'relative isolate overflow-hidden before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:bg-[radial-gradient(circle_var(--ds-glow-radius)_at_var(--glow-x,50%)_var(--glow-y,50%),var(--ds-color-action-glow),transparent)] before:opacity-0 before:transition-opacity before:duration-240 before:ease-out hover:not-disabled:before:opacity-100'\n// One padding class per button, so a square button's 0 never competes with a label's padding in the stylesheet.\nconst PADDING: Record<ButtonSize, string> = { xs: 'px-4', sm: 'px-3', md: 'px-4', lg: 'px-8', form: 'px-4' }\nconst SQUARE: Record<ButtonSize, string> = { xs: 'w-control-xs px-0', sm: 'w-control-sm px-0', md: 'w-control-md px-0', lg: 'w-control-lg px-0', form: 'w-control-form px-0' }\n\n/**\n * @summary An action: primary (White) by default, secondary or ghost; three sizes; `icon` for a square icon button.\n * @slot - The label, with a Lucide icon beside it if any.\n * @fires click - When pressed (the native click, from the inner button).\n * @csspart control - The inner button or link.\n */\nexport class Button extends DsFormElement {\n\tstatic styles = [DsFormElement.styles, styles]\n\t// Layout classes on the element (w-full, ml-auto) land on the box it draws, as on the React root.\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[part~=\"control\"]'))\n\tstatic properties = {\n\t\tvariant: { reflect: true },\n\t\tsize: { reflect: true },\n\t\ticon: { type: Boolean },\n\t\thref: {},\n\t\ttype: {},\n\t\tdisabled: { type: Boolean, reflect: true },\n\t\tlabel: { attribute: 'aria-label' },\n\t\tdescription: { attribute: 'aria-description' },\n\t\texpanded: { attribute: false },\n\t\thaspopup: { attribute: false },\n\t\tcontrols: { attribute: false },\n\t\trootName: { attribute: false },\n\t}\n\tstatic get observedAttributes() {\n\t\treturn [...super.observedAttributes, ...MOVED]\n\t}\n\n\t/** primary (White), secondary or ghost. */\n\tvariant: ButtonVariant = 'primary'\n\t/** xs (36px, the site header's), sm (32px), md (40px), lg (56px) or form (48px, a short form's buttons, full width). */\n\tsize: ButtonSize = 'md'\n\t/** A square icon button (put the name in aria-label). */\n\ticon = false\n\t/** Renders a link. */\n\thref?: string\n\ttype: 'button' | 'submit' | 'reset' = 'button'\n\tdisabled = false\n\t/** The name for assistive tech, passed to the inner button (aria-label on the element). */\n\tlabel?: string\n\t/** A description for assistive tech, passed to the inner button (aria-description on the element). */\n\tdescription?: string\n\t/** Whether what it opens is open (the aria-expanded attribute). */\n\texpanded?: string\n\t/** What it opens: dialog, menu, listbox (the aria-haspopup attribute). */\n\thaspopup?: string\n\t/** The id of what it opens (the aria-controls attribute). */\n\tcontrols?: string\n\t/** The data-ds its box says: button, or the name of an item drawn as a button. */\n\trootName = 'button'\n\n\tattributeChangedCallback(name: string, old: string | null, value: string | null) {\n\t\tconst field = FIELD[name]\n\t\tif (!field) return super.attributeChangedCallback(name, old, value)\n\t\tif (value === null) return\n\t\tthis[field] = value\n\t\tthis.removeAttribute(name)\n\t}\n\tprotected updated(changed: Map<PropertyKey, unknown>) {\n\t\tsuper.updated(changed)\n\t\tconst inner = this.renderRoot.querySelector('button, a') as (HTMLElement & { ariaControlsElements?: Element[] | null }) | null\n\t\tif (inner && changed.has('controls') && 'ariaControlsElements' in inner) {\n\t\t\tconst target = this.controls ? (this.getRootNode() as Document | ShadowRoot).getElementById?.(this.controls) : null\n\t\t\tinner.ariaControlsElements = target ? [target] : null\n\t\t}\n\t}\n\n\tprivate onMove(event: PointerEvent) {\n\t\tfollowGlow(event.currentTarget as HTMLElement, event)\n\t}\n\n\tprivate onClick() {\n\t\tif (this.inactive || this.href) return\n\t\tif (this.type === 'submit') this.form?.requestSubmit()\n\t\telse if (this.type === 'reset') this.form?.reset()\n\t}\n\n\trender() {\n\t\tconst size = SIZES[this.size] ? this.size : 'md'\n\t\tconst classes = [\n\t\t\t'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-control whitespace-nowrap select-none',\n\t\t\t'transition-[background-color,color] duration-160 ease-out',\n\t\t\tGLOW,\n\t\t\t'disabled:cursor-not-allowed disabled:bg-action-disabled disabled:text-action-disabled-fg',\n\t\t\tSIZES[size],\n\t\t\tthis.icon ? SQUARE[size] : PADDING[size],\n\t\t\tVARIANTS[this.variant] ?? VARIANTS.primary,\n\t\t].join(' ')\n\t\treturn this.href\n\t\t\t? html`<a data-ds=\"${this.rootName}\" part=\"control\" href=${this.href} class=${classes} aria-label=${ifDefined(this.label)} aria-description=${ifDefined(this.description)} aria-expanded=${ifDefined(this.expanded)} aria-haspopup=${ifDefined(this.haspopup as never)} @pointermove=${this.onMove}><slot></slot></a>`\n\t\t\t: html`<button data-ds=\"${this.rootName}\" part=\"control\" type=\"button\" ?disabled=${this.inactive} class=${classes} aria-label=${ifDefined(this.label)} aria-description=${ifDefined(this.description)} aria-expanded=${ifDefined(this.expanded)} aria-haspopup=${ifDefined(this.haspopup as never)} @click=${this.onClick} @pointermove=${this.onMove}><slot></slot></button>`\n\t}\n}\n\ndefine('button', Button)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-button",
+      "tags": [
+        "spyglass-button"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-button",
+            "name": "Button",
+            "module": "elements/button.js",
+            "description": "An action: primary (White) by default, secondary or ghost; three sizes; `icon` for a square icon button.",
+            "attributes": [
+              {
+                "name": "variant",
+                "field": "variant",
+                "type": "ButtonVariant",
+                "default": "'primary'",
+                "description": "primary (White), secondary or ghost."
+              },
+              {
+                "name": "size",
+                "field": "size",
+                "type": "ButtonSize",
+                "default": "'md'",
+                "description": "xs (36px, the site header's), sm (32px), md (40px), lg (56px) or form (48px, a short form's buttons, full width)."
+              },
+              {
+                "name": "icon",
+                "field": "icon",
+                "type": "boolean",
+                "default": "false",
+                "description": "A square icon button (put the name in aria-label)."
+              },
+              {
+                "name": "href",
+                "field": "href",
+                "type": "string | undefined",
+                "description": "Renders a link."
+              },
+              {
+                "name": "type",
+                "field": "type",
+                "type": "\"button\" | \"submit\" | \"reset\"",
+                "default": "'button'"
+              },
+              {
+                "name": "disabled",
+                "field": "disabled",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "aria-label",
+                "field": "label",
+                "type": "string | undefined",
+                "description": "The name for assistive tech, passed to the inner button (aria-label on the element)."
+              },
+              {
+                "name": "aria-description",
+                "field": "description",
+                "type": "string | undefined",
+                "description": "A description for assistive tech, passed to the inner button (aria-description on the element)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "variant",
+                "type": "ButtonVariant",
+                "default": "'primary'",
+                "description": "primary (White), secondary or ghost.",
+                "attribute": "variant"
+              },
+              {
+                "name": "size",
+                "type": "ButtonSize",
+                "default": "'md'",
+                "description": "xs (36px, the site header's), sm (32px), md (40px), lg (56px) or form (48px, a short form's buttons, full width).",
+                "attribute": "size"
+              },
+              {
+                "name": "icon",
+                "type": "boolean",
+                "default": "false",
+                "description": "A square icon button (put the name in aria-label).",
+                "attribute": "icon"
+              },
+              {
+                "name": "href",
+                "type": "string | undefined",
+                "description": "Renders a link.",
+                "attribute": "href"
+              },
+              {
+                "name": "type",
+                "type": "\"button\" | \"submit\" | \"reset\"",
+                "default": "'button'",
+                "attribute": "type"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "disabled"
+              },
+              {
+                "name": "label",
+                "type": "string | undefined",
+                "description": "The name for assistive tech, passed to the inner button (aria-label on the element).",
+                "attribute": "aria-label"
+              },
+              {
+                "name": "description",
+                "type": "string | undefined",
+                "description": "A description for assistive tech, passed to the inner button (aria-description on the element).",
+                "attribute": "aria-description"
+              },
+              {
+                "name": "expanded",
+                "type": "string | undefined",
+                "description": "Whether what it opens is open (the aria-expanded attribute)."
+              },
+              {
+                "name": "haspopup",
+                "type": "string | undefined",
+                "description": "What it opens: dialog, menu, listbox (the aria-haspopup attribute)."
+              },
+              {
+                "name": "controls",
+                "type": "string | undefined",
+                "description": "The id of what it opens (the aria-controls attribute)."
+              },
+              {
+                "name": "rootName",
+                "type": "string",
+                "default": "'button'",
+                "description": "The data-ds its box says: button, or the name of an item drawn as a button."
+              }
+            ],
+            "events": [
+              {
+                "name": "click",
+                "description": "When pressed (the native click, from the inner button)."
+              }
+            ],
+            "slots": [
+              {
+                "name": "",
+                "description": "The label, with a Lucide icon beside it if any."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Variants",
+          "label": "Variants",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/button/Variants.html",
+          "content": "<!-- The three variants: the White primary for the one main action, secondary for the rest, ghost for tools. -->\n<div class=\"flex flex-wrap items-center gap-3\">\n  <spyglass-button>Get 50% off</spyglass-button>\n  <spyglass-button variant=\"secondary\">Explore the product</spyglass-button>\n  <spyglass-button variant=\"ghost\">Compare plans</spyglass-button>\n</div>\n"
+        },
+        {
+          "name": "Sizes",
+          "label": "Sizes",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/button/Sizes.html",
+          "content": "<!-- sm, md and lg, and the square icon button (named with aria-label). -->\n<div class=\"flex flex-wrap items-center gap-3\">\n  <spyglass-button size=\"sm\">Search</spyglass-button>\n  <spyglass-button size=\"md\">Search</spyglass-button>\n  <spyglass-button size=\"lg\">Search</spyglass-button>\n  <spyglass-button icon variant=\"secondary\" aria-label=\"Search\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-search\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"></circle><path d=\"m21 21-4.3-4.3\"></path></svg></spyglass-button>\n</div>\n"
+        },
+        {
+          "name": "States",
+          "label": "States and links",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/button/States.html",
+          "content": "<!-- Disabled is a dark fill with a gray label, never faded; a link looks like the button it stands for. -->\n<div class=\"flex flex-wrap items-center gap-3\">\n  <spyglass-button disabled>Start Creator for 50% off</spyglass-button>\n  <spyglass-button variant=\"secondary\" disabled>Explore the product</spyglass-button>\n  <spyglass-button href=\"#pricing\" variant=\"secondary\">See pricing <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-arrow-up-right\" aria-hidden=\"true\"><path d=\"M7 7h10v10\"></path><path d=\"M7 17 17 7\"></path></svg></spyglass-button>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

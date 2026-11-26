@@ -1,0 +1,23 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "proof-block",
+  "type": "registry:ui",
+  "title": "Proof block",
+  "description": "The site's proof section: a White lead line centered over the proof marquee of marks, 40px apart, with the section's padding under it; it follows a hero or a page head.",
+  "dependencies": [],
+  "registryDependencies": [
+    "https://spyglass-ds.vercel.app/r/react/proof-strip.json"
+  ],
+  "files": [
+    {
+      "path": "components/site/ProofBlock.tsx",
+      "type": "registry:ui",
+      "content": "import { ProofStrip, proofPlaceholders, type ProofLogo } from '@/components/site/ProofStrip'\nimport { cn } from '@/lib/cn'\n\n// The site's proof section (v3/V3Proof): a White lead line (20/28) centered over the proof marquee, 40px apart, with\n// the section's padding under it only (it follows a hero). Marks come through `logos` (Acme placeholders by default);\n// the strip runs them twice per loop, as the site's V3Proof does, so each 68s pass moves two sets.\nexport interface ProofBlockProps {\n  /** The line over the marks. */\n  title?: string\n  logos?: ProofLogo[]\n  /** Names the heading (`<id>-title`). */\n  id?: string\n  className?: string\n}\n\nexport function ProofBlock({ title = 'Trusted by teams and agents at', logos = proofPlaceholders, id = 'proof', className }: ProofBlockProps) {\n  return (\n    <section data-ds=\"proof-block\" aria-labelledby={`${id}-title`} className={cn('pb-(--ds-layout-section) text-fg', className)}>\n      <div className=\"mx-auto flex w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] flex-col items-center gap-10 px-(--ds-layout-gutter) text-center\">\n        <h2 id={`${id}-title`} className=\"max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg\">{title}</h2>\n        <ProofStrip logos={[...logos, ...logos]} />\n      </div>\n    </section>\n  )\n}\n\nexport default ProofBlock\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

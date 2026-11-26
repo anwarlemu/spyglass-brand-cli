@@ -1,0 +1,230 @@
+{
+  "name": "changelog-page",
+  "title": "Changelog page",
+  "type": "registry:block",
+  "group": "pages",
+  "description": "The changelog template, built only from library items: every release newest first under a hairline, its date in capitals on the left, the change as a Funnel Display sentence, its details and a picture when there is one.",
+  "use_for": "A website's changelog. The entries are examples drawn from what the assets say the product does, and their dates are placeholders: replace them in lib/pages/changelog.ts.",
+  "never": [
+    "New colors, shadows or type sizes added to a section: use the items' props",
+    "More than one White button in a section",
+    "A release date that is not real"
+  ],
+  "source": "Built from the library (site header, creative card, footer row); the entries' sentences are the posts' own lines",
+  "body": "`sections` lists the sections to show, in order (`head`, `entries`); a key left out is not shown. Each entry's `image`\nis a creative (an image slot, or the placeholder's `brand` and `tone`). `menus` passes the header menus (the live\ncard's `picture`, the use cases' `shots`).",
+  "requires": [
+    "creative-card",
+    "footer-row",
+    "site-header"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/pages/ChangelogPage.tsx",
+      "content": "import { CreativeCard } from '@/react/components/site/CreativeCard'\nimport { FooterRow } from '@/react/components/site/FooterRow'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { changelogContent, type ChangelogContent, changelogSections, type ChangelogSection } from '@/lib/pages/changelog'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// The changelog from library items: the title, then every release newest first under a hairline, its date in\n// capitals on the left (it stays in view while the entry scrolls on wide screens), the change as a Funnel Display\n// sentence, a line, the details and a picture when there is one. `content` replaces the entries\n// (lib/pages/changelog.ts).\nexport interface ChangelogPageProps {\n  content?: ChangelogContent\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly ChangelogSection[]\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function ChangelogPage({ content: c = changelogContent, menus, sections, className }: ChangelogPageProps) {\n  const parts: Record<ChangelogSection, ReactNode> = {\n    head: (\n      <div className={cn(WRAP, 'grid gap-4 pt-16 pb-12 max-sm:pt-10 max-sm:pb-8')}>\n        <h1 className=\"type-section\">{c.title}</h1>\n        <p className=\"max-w-140 type-body-lg text-fg-soft\">{c.body}</p>\n      </div>\n    ),\n    entries: (\n      <ol className={cn(WRAP, 'grid pb-24 max-sm:pb-16')}>\n        {c.entries.map((e) => (\n          <li key={e.title} className=\"grid grid-cols-4 gap-12 border-t border-edge py-12 max-md:grid-cols-1 max-md:gap-4 max-sm:py-8\">\n            <p className=\"self-start type-label text-fg-muted md:sticky md:top-8\"><time>{e.date}</time></p>\n            <div className=\"col-span-3 grid max-w-180 gap-4 max-md:col-span-1\">\n              <h2 className=\"type-heading-2 text-balance\">{e.title}</h2>\n              <p className=\"type-body text-fg-soft\">{e.body}</p>\n              {e.items.length > 0 && <ul className=\"grid list-disc gap-2 pl-5 type-body text-fg-soft marker:text-fg-faint\">{e.items.map((i) => <li key={i}>{i}</li>)}</ul>}\n              {e.image && <CreativeCard {...e.image} alt={e.image.alt ?? e.title} ratio=\"16/9\" className=\"mt-2\" />}\n            </div>\n          </li>\n        ))}\n      </ol>\n    ),\n  }\n  return (\n    <div data-ds=\"changelog-page\" className={cn('bg-surface text-fg', className)}>\n      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      <main>\n        {pageSections(changelogSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <footer className=\"border-t border-edge\">\n        <div className={cn(WRAP, 'py-10')}>\n          <FooterRow domain={c.footer.domain} homeHref=\"/\" links={c.footer.links} />\n        </div>\n      </footer>\n    </div>\n  )\n}\n\nexport default ChangelogPage\n"
+    },
+    {
+      "path": "lib/pages/changelog.ts",
+      "content": "// The changelog template's copy: example entries built from what the assets say the product does. The dates are placeholders: replace them with real releases. Both flavors read this file.\nimport type { CreativeImage } from '@/lib/image'\n/** An Acme placeholder creative: the advertiser, a neutral tone (1 to 4) and a headline. */\nconst creative = (brand: string, tone: 1 | 2 | 3 | 4, caption?: string): CreativeImage => (caption ? { brand, tone, caption } : { brand, tone })\n\nconst nav = [\n\t{ label: 'Product', href: '/product' },\n\t{ label: 'Pricing', href: '/pricing' },\n\t{ label: 'Changelog', href: '/changelog' },\n\t{ label: 'Blog', href: '/blog' },\n]\nconst footer = {\n\tdomain: 'spyglass.so',\n\tlinks: [\n\t\t{ label: 'Product', href: '/product' },\n\t\t{ label: 'Pricing', href: '/pricing' },\n\t\t{ label: 'About', href: '/about' },\n\t\t{ label: 'Changelog', href: '/changelog' },\n\t\t{ label: 'Blog', href: '/blog' },\n\t\t{ label: 'Terms', href: '/legal' },\n\t],\n}\nconst header = { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get 50% off', href: '/pricing' } }\n\nexport const changelogContent = {\n\theader: { ...header, nav: nav.map((l) => (l.href === '/changelog' ? { ...l, current: true } : l)) },\n\ttitle: 'Changelog.',\n\tbody: 'New in Spyglass, newest first.',\n\tentries: [\n\t\t{ date: 'Nov 10, 2026', title: 'Give your agents access to Instagram and TikTok.', body: 'Agents can search creatives on Instagram and TikTok with the same questions you ask.', items: [] as string[], image: creative('Acme Studio', 3) },\n\t\t{ date: 'Oct 27, 2026', title: 'Add any brand or creator in under a minute.', body: 'Paste a handle or a page. Spyglass starts tracking it right away.', items: [] as string[], image: null as CreativeImage | null },\n\t\t{ date: 'Oct 13, 2026', title: 'Briefs on what changed.', body: 'Spyglass follows the brands, creators, and niches that matter to you then turns the changes into a brief you actually want to read.', items: ['New ads and formats, by brand.', 'Hooks that came back.', 'Creators added or dropped.'], image: null as CreativeImage | null },\n\t\t{ date: 'Sep 29, 2026', title: 'YouTube joins the index.', body: 'Meta, TikTok, Instagram, and YouTube creatives in one index.', items: [] as string[], image: creative('Acme Fit', 2) },\n\t],\n\tfooter,\n}\n\nexport type ChangelogContent = typeof changelogContent\n\n/** The changelog's sections in order; pass `sections` to reorder them or leave some out. */\nexport const changelogSections = ['head', 'entries'] as const\nexport type ChangelogSection = (typeof changelogSections)[number]\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Page",
+      "label": "Changelog page",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/changelog-page/Page.tsx",
+      "content": "import { ChangelogPage } from '@/react/components/pages/ChangelogPage'\n// The changelog page template with its own copy.\n\nexport default function Page() {\n  return <ChangelogPage />\n}\n",
+      "requires": [
+        "creative-card",
+        "footer-row",
+        "site-header"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/pages/ChangelogPage.tsx",
+          "content": "import { CreativeCard } from '@/react/components/site/CreativeCard'\nimport { FooterRow } from '@/react/components/site/FooterRow'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { changelogContent, type ChangelogContent, changelogSections, type ChangelogSection } from '@/lib/pages/changelog'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// The changelog from library items: the title, then every release newest first under a hairline, its date in\n// capitals on the left (it stays in view while the entry scrolls on wide screens), the change as a Funnel Display\n// sentence, a line, the details and a picture when there is one. `content` replaces the entries\n// (lib/pages/changelog.ts).\nexport interface ChangelogPageProps {\n  content?: ChangelogContent\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly ChangelogSection[]\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function ChangelogPage({ content: c = changelogContent, menus, sections, className }: ChangelogPageProps) {\n  const parts: Record<ChangelogSection, ReactNode> = {\n    head: (\n      <div className={cn(WRAP, 'grid gap-4 pt-16 pb-12 max-sm:pt-10 max-sm:pb-8')}>\n        <h1 className=\"type-section\">{c.title}</h1>\n        <p className=\"max-w-140 type-body-lg text-fg-soft\">{c.body}</p>\n      </div>\n    ),\n    entries: (\n      <ol className={cn(WRAP, 'grid pb-24 max-sm:pb-16')}>\n        {c.entries.map((e) => (\n          <li key={e.title} className=\"grid grid-cols-4 gap-12 border-t border-edge py-12 max-md:grid-cols-1 max-md:gap-4 max-sm:py-8\">\n            <p className=\"self-start type-label text-fg-muted md:sticky md:top-8\"><time>{e.date}</time></p>\n            <div className=\"col-span-3 grid max-w-180 gap-4 max-md:col-span-1\">\n              <h2 className=\"type-heading-2 text-balance\">{e.title}</h2>\n              <p className=\"type-body text-fg-soft\">{e.body}</p>\n              {e.items.length > 0 && <ul className=\"grid list-disc gap-2 pl-5 type-body text-fg-soft marker:text-fg-faint\">{e.items.map((i) => <li key={i}>{i}</li>)}</ul>}\n              {e.image && <CreativeCard {...e.image} alt={e.image.alt ?? e.title} ratio=\"16/9\" className=\"mt-2\" />}\n            </div>\n          </li>\n        ))}\n      </ol>\n    ),\n  }\n  return (\n    <div data-ds=\"changelog-page\" className={cn('bg-surface text-fg', className)}>\n      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      <main>\n        {pageSections(changelogSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <footer className=\"border-t border-edge\">\n        <div className={cn(WRAP, 'py-10')}>\n          <FooterRow domain={c.footer.domain} homeHref=\"/\" links={c.footer.links} />\n        </div>\n      </footer>\n    </div>\n  )\n}\n\nexport default ChangelogPage\n"
+        },
+        {
+          "path": "lib/pages/changelog.ts",
+          "content": "// The changelog template's copy: example entries built from what the assets say the product does. The dates are placeholders: replace them with real releases. Both flavors read this file.\nimport type { CreativeImage } from '@/lib/image'\n/** An Acme placeholder creative: the advertiser, a neutral tone (1 to 4) and a headline. */\nconst creative = (brand: string, tone: 1 | 2 | 3 | 4, caption?: string): CreativeImage => (caption ? { brand, tone, caption } : { brand, tone })\n\nconst nav = [\n\t{ label: 'Product', href: '/product' },\n\t{ label: 'Pricing', href: '/pricing' },\n\t{ label: 'Changelog', href: '/changelog' },\n\t{ label: 'Blog', href: '/blog' },\n]\nconst footer = {\n\tdomain: 'spyglass.so',\n\tlinks: [\n\t\t{ label: 'Product', href: '/product' },\n\t\t{ label: 'Pricing', href: '/pricing' },\n\t\t{ label: 'About', href: '/about' },\n\t\t{ label: 'Changelog', href: '/changelog' },\n\t\t{ label: 'Blog', href: '/blog' },\n\t\t{ label: 'Terms', href: '/legal' },\n\t],\n}\nconst header = { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get 50% off', href: '/pricing' } }\n\nexport const changelogContent = {\n\theader: { ...header, nav: nav.map((l) => (l.href === '/changelog' ? { ...l, current: true } : l)) },\n\ttitle: 'Changelog.',\n\tbody: 'New in Spyglass, newest first.',\n\tentries: [\n\t\t{ date: 'Nov 10, 2026', title: 'Give your agents access to Instagram and TikTok.', body: 'Agents can search creatives on Instagram and TikTok with the same questions you ask.', items: [] as string[], image: creative('Acme Studio', 3) },\n\t\t{ date: 'Oct 27, 2026', title: 'Add any brand or creator in under a minute.', body: 'Paste a handle or a page. Spyglass starts tracking it right away.', items: [] as string[], image: null as CreativeImage | null },\n\t\t{ date: 'Oct 13, 2026', title: 'Briefs on what changed.', body: 'Spyglass follows the brands, creators, and niches that matter to you then turns the changes into a brief you actually want to read.', items: ['New ads and formats, by brand.', 'Hooks that came back.', 'Creators added or dropped.'], image: null as CreativeImage | null },\n\t\t{ date: 'Sep 29, 2026', title: 'YouTube joins the index.', body: 'Meta, TikTok, Instagram, and YouTube creatives in one index.', items: [] as string[], image: creative('Acme Fit', 2) },\n\t],\n\tfooter,\n}\n\nexport type ChangelogContent = typeof changelogContent\n\n/** The changelog's sections in order; pass `sections` to reorder them or leave some out. */\nexport const changelogSections = ['head', 'entries'] as const\nexport type ChangelogSection = (typeof changelogSections)[number]\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "creative-card",
+        "footer-row",
+        "site-header"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "ChangelogPage",
+            "file": "react/components/pages/ChangelogPage.tsx",
+            "props": [
+              {
+                "name": "content",
+                "type": "ChangelogContent",
+                "required": false
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus",
+                "required": false,
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "type": "readonly ChangelogSection[]",
+                "required": false,
+                "description": "The sections to show, in order; all of them in the page order by default (leave one out to omit it)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Changelog page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/changelog-page/Page.tsx",
+          "content": "import { ChangelogPage } from '@/react/components/pages/ChangelogPage'\n// The changelog page template with its own copy.\n\nexport default function Page() {\n  return <ChangelogPage />\n}\n",
+          "registryDependencies": [
+            "creative-card",
+            "footer-row",
+            "site-header"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/pages/changelog-page.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { changelogContent, type ChangelogContent, changelogSections, type ChangelogSection } from '@/lib/pages/changelog'\nimport '@/elements/components/site/creative-card'\nimport '@/elements/components/site/footer-row'\nimport '@/elements/components/site/site-header'\nimport styles from 'virtual:tw'\nimport { pageSections } from '@/lib/image'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { headerMenus, type HeaderMenus } from '@/lib/site-header'\n\n// ChangelogPage.tsx as <spyglass-changelog-page>: every release newest first, its date on the left, the change, its\n// details and a picture when there is one. `content` replaces the entries.\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\n/**\n * @summary The changelog template.\n */\nexport class ChangelogPage extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"changelog-page\"]'))\n\tstatic properties = { content: { type: Object }, menus: { type: Object }, sections: { type: Array } }\n\t/** The entries (lib/pages/changelog.ts by default). */\n\tcontent: ChangelogContent = changelogContent\n\t/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n\tmenus?: HeaderMenus\n\t/** The sections to show, in order (a list of names); all of them in the page order by default. */\n\tsections?: ChangelogSection[]\n\n\trender() {\n\t\tconst c = this.content ?? changelogContent\n\t\tconst parts: Record<ChangelogSection, unknown> = {\n\t\t\thead: html`<div class=${`${WRAP} grid gap-4 pt-16 pb-12 max-sm:pt-10 max-sm:pb-8`}><h1 class=\"type-section\">${c.title}</h1><p class=\"max-w-140 type-body-lg text-fg-soft\">${c.body}</p></div>`,\n\t\t\tentries: html`<ol class=${`${WRAP} grid pb-24 max-sm:pb-16`}>${c.entries.map((e) => html`<li class=\"grid grid-cols-4 gap-12 border-t border-edge py-12 max-md:grid-cols-1 max-md:gap-4 max-sm:py-8\"><p class=\"self-start type-label text-fg-muted md:sticky md:top-8\"><time>${e.date}</time></p><div class=\"col-span-3 grid max-w-180 gap-4 max-md:col-span-1\"><h2 class=\"type-heading-2 text-balance\">${e.title}</h2><p class=\"type-body text-fg-soft\">${e.body}</p>${e.items.length ? html`<ul class=\"grid list-disc gap-2 pl-5 type-body text-fg-soft marker:text-fg-faint\">${e.items.map((i) => html`<li>${i}</li>`)}</ul>` : nothing}${e.image ? html`<spyglass-creative-card src=${ifDefined(e.image.src)} fit=${ifDefined(e.image.fit)} position=${ifDefined(e.image.position)} brand=${ifDefined(e.image.brand)} caption=${ifDefined(e.image.caption)} tone=${ifDefined(e.image.tone)} alt=${e.image.alt ?? e.title} ratio=\"16/9\" class=\"mt-2\"></spyglass-creative-card>` : nothing}</div></li>`)}</ol>`,\n\t\t}\n\t\treturn html`<div data-ds=\"changelog-page\" class=\"bg-surface text-fg\">\n<spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header>\n<main>${pageSections(changelogSections, this.sections).map((k) => parts[k])}</main>\n<footer class=\"border-t border-edge\"><div class=${`${WRAP} py-10`}><spyglass-footer-row domain=${c.footer.domain} home-href=\"/\" .links=${c.footer.links}></spyglass-footer-row></div></footer>\n</div>`\n\t}\n}\n\ndefine('changelog-page', ChangelogPage)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/changelog-page.js",
+        "elements/creative-card.js",
+        "elements/footer-row.js",
+        "elements/site-header.js",
+        "elements/logo.js",
+        "elements/menu-sheet.js",
+        "elements/menu-panels.js",
+        "elements/nav-menus.js",
+        "elements/nav-icon.js",
+        "elements/sheet-disclosure.js",
+        "elements/button.js",
+        "elements/brand-light.js",
+        "elements/products-live-panel.js",
+        "elements/product-visual.js"
+      ],
+      "tag": "spyglass-changelog-page",
+      "tags": [
+        "spyglass-changelog-page"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "brand-light",
+        "button",
+        "creative-card",
+        "footer-row",
+        "logo",
+        "product-visual",
+        "site-header"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-changelog-page",
+            "name": "ChangelogPage",
+            "module": "elements/changelog-page.js",
+            "description": "The changelog template.",
+            "attributes": [
+              {
+                "name": "content",
+                "field": "content",
+                "type": "{ header: { nav: ({ label: string; href: string; } | { current: boolean; label: string; href: string; })[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; }; }; title: string; body: string; entries: { date: string; title: string; body: string; items: string[]; image: CreativeImage | null; }[]; footer: { domain: string; links: { label: string; href: string; }[]; }; }",
+                "default": "changelogContent",
+                "description": "The entries (lib/pages/changelog.ts by default)."
+              },
+              {
+                "name": "menus",
+                "field": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "field": "sections",
+                "type": "(\"head\" | \"entries\")[] | undefined",
+                "description": "The sections to show, in order (a list of names); all of them in the page order by default."
+              }
+            ],
+            "properties": [
+              {
+                "name": "content",
+                "type": "{ header: { nav: ({ label: string; href: string; } | { current: boolean; label: string; href: string; })[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; }; }; title: string; body: string; entries: { date: string; title: string; body: string; items: string[]; image: CreativeImage | null; }[]; footer: { domain: string; links: { label: string; href: string; }[]; }; }",
+                "default": "changelogContent",
+                "description": "The entries (lib/pages/changelog.ts by default).",
+                "attribute": "content"
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default.",
+                "attribute": "menus"
+              },
+              {
+                "name": "sections",
+                "type": "(\"head\" | \"entries\")[] | undefined",
+                "description": "The sections to show, in order (a list of names); all of them in the page order by default.",
+                "attribute": "sections"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Changelog page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/changelog-page/Page.html",
+          "content": "<!-- The changelog page template with its own copy. -->\n<spyglass-changelog-page></spyglass-changelog-page>\n"
+        }
+      ]
+    }
+  }
+}

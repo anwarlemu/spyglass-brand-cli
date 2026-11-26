@@ -1,0 +1,218 @@
+{
+  "name": "use-case-answer",
+  "title": "Use case answer",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "One question and the answer that came back, as the site shows it on a use case page: the question in a bubble (or the API request as code), the status, the lead, rows with a creative, a title and detail and a figure, a note and the tools called, on the raised panel.",
+  "use_for": "Showing what one question or one call returns, on a use case or product page. `example` takes the question, the rows and the calls; `mode: \"api\"` shows the request instead of a bubble.",
+  "never": [
+    "Another brand's ads in the rows: pass your own creatives, or keep the neutral placeholders",
+    "Made-up figures presented as real: say they are illustrative in the source line under it",
+    "More than one answer per panel"
+  ],
+  "source": "Site pages/UseCasesPage/UseCaseAnswer (UseCaseAnswer.module.css): --surface panel 16px in (32 from 768) with 24px between parts (32 from 768); the question 12/16px in on --surface-inset, the 20px corner, at most 88%; the request 16px in (24 from 768) on Black, 14/20 mono in --text-2; the rows 16/24 with 12px above and below and a hairline on the surface, the 48px creative 16px from the text, the figure 20/28 with tabular numbers; the note above a hairline; the calls as 14/20 mono chips on --surface-inset",
+  "body": "The figure column shows only when a row has a figure. In api mode the column heads take the mono face, as field names.\n\nEach picture is an image slot (`src`, `alt`, `fit`, `position`); without `src` it keeps its placeholder, which carries\n`data-ds-placeholder`.",
+  "requires": [
+    "creative-card"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/UseCaseAnswer.tsx",
+      "content": "import { CreativeCard } from '@/react/components/site/CreativeCard'\nimport { useCaseAnswerCallsLabel, useCaseAnswerChat, type AnswerExample } from '@/lib/use-case-answer'\nimport { cn } from '@/react/lib/cn'\n\n// The site's use case answer (pages/UseCasesPage/UseCaseAnswer): one question and the answer that came back, on the\n// raised panel. In chat mode the question sits in a bubble at the right; in api mode the request shows as code (it\n// scrolls sideways, fading at its edges). Then the status, the lead, a table of rows (a creative, a title with its\n// detail, a figure), a note and the tools called. Nothing moves.\nexport interface UseCaseAnswerProps {\n  example?: AnswerExample\n  /** The label before the calls (\"Called\"). */\n  callsLabel?: string\n  className?: string\n}\n\nexport function UseCaseAnswer({ example: e = useCaseAnswerChat, callsLabel = useCaseAnswerCallsLabel, className }: UseCaseAnswerProps) {\n  const api = e.mode === 'api'\n  const [itemLabel, figureLabel] = e.columns\n  const hasFigure = e.rows.some((r) => r.figure)\n  const last = e.rows.length - 1\n  return (\n    <div data-ds=\"use-case-answer\" data-mode={e.mode} className={cn('flex flex-col gap-6 rounded-panel bg-surface-raised p-4 text-fg md:gap-8 md:p-8', className)}>\n      {api && e.request ? (\n        <pre tabIndex={0} className=\"fade-x m-0 overflow-x-auto rounded-ds-sm bg-surface p-4 font-code type-ui text-fg-soft md:p-6\"><code>{e.request}</code></pre>\n      ) : (\n        <p className=\"max-w-[88%] self-end rounded-ds-lg bg-surface-inset px-4 py-3 type-body text-pretty\">\n          {e.mention ? <><span className=\"font-medium\">{e.mention}</span> </> : null}\n          {e.question}\n        </p>\n      )}\n      <div className=\"flex flex-col gap-4\">\n        <p className=\"type-ui text-fg-muted\">{e.status}</p>\n        {e.lead ? <p className=\"type-body font-medium text-pretty\">{e.lead}</p> : null}\n        <table className=\"w-full border-collapse type-body\">\n          <thead>\n            <tr>\n              <th scope=\"col\" colSpan={2} className={cn('border-b border-edge-surface pb-2 text-left type-ui font-regular text-fg-muted', api && 'font-code')}>{itemLabel}</th>\n              {hasFigure ? <th scope=\"col\" className={cn('border-b border-edge-surface pb-2 pl-4 text-right type-ui font-regular whitespace-nowrap text-fg-muted', api && 'font-code')}>{figureLabel}</th> : null}\n            </tr>\n          </thead>\n          <tbody>\n            {e.rows.map((row, i) => {\n              const cell = i === last ? 'pt-3 align-top' : 'border-b border-edge-surface py-3 align-top'\n              return (\n                <tr key={row.title}>\n                  <td className={cn(cell, 'w-16 pr-4')}>\n                    {row.creative ? <CreativeCard src={row.creative.src} alt={row.creative.alt ?? ''} fit={row.creative.fit} position={row.creative.position} brand={row.creative.brand} tone={row.creative.tone} ratio=\"4/5\" className=\"w-12\" /> : null}\n                  </td>\n                  <td className={cell}>\n                    <span className=\"block font-medium\">{row.title}</span>\n                    <span className=\"mt-1 block type-ui text-pretty text-fg-soft\">{row.detail}</span>\n                  </td>\n                  {hasFigure ? <td className={cn(cell, 'pl-4 text-right type-body-lg whitespace-nowrap tabular-nums')}>{row.figure}</td> : null}\n                </tr>\n              )\n            })}\n          </tbody>\n        </table>\n        {e.note ? <p className=\"border-t border-edge-surface pt-4 type-ui text-pretty text-fg-soft\">{e.note}</p> : null}\n        <p className=\"flex flex-wrap items-center gap-2 type-ui\">\n          <span className=\"text-fg-muted\">{callsLabel}</span>\n          {e.calls.map((call) => <code key={call} className=\"rounded-ds-sm bg-surface-inset px-2 py-1 font-code text-fg\">{call}</code>)}\n        </p>\n      </div>\n    </div>\n  )\n}\n\nexport default UseCaseAnswer\n"
+    },
+    {
+      "path": "lib/use-case-answer.ts",
+      "content": "// The use case answer (site pages/UseCasesPage/UseCaseAnswer): one question (or one API request) and the answer that\n// came back, as a raised panel. Both flavors read this file for its types and the Acme examples.\nimport type { ImageSlot } from '@/lib/image'\n\nexport interface AnswerRow {\n\ttitle: string\n\tdetail: string\n\t/** The figure on the right (\"71\", \"84 days\"). */\n\tfigure?: string\n\t/** A creative beside the row: the user's own image (`src`), or a neutral placeholder. */\n\tcreative?: ImageSlot & { brand?: string; tone?: 1 | 2 | 3 | 4 }\n}\n\nexport interface AnswerExample {\n\t/** chat (a question in a bubble) or api (the request as code). */\n\tmode: 'chat' | 'api'\n\tmention?: string\n\tquestion: string\n\t/** The request, shown in api mode. */\n\trequest?: string\n\t/** \"Worked for 5s\", \"200 OK in 412ms\". */\n\tstatus: string\n\tlead?: string\n\t/** The item column and, when the rows have figures, the figure column. */\n\tcolumns: [string, string?]\n\trows: AnswerRow[]\n\tnote?: string\n\t/** The tools or endpoints called. */\n\tcalls: string[]\n}\n\nexport const useCaseAnswerChat: AnswerExample = {\n\tmode: 'chat',\n\tquestion: 'What hooks has Acme leaned on in its Meta ads in the last 30 days?',\n\tstatus: 'Worked for 5s',\n\tlead: 'Acme’s Meta ads from Oct 17 to Nov 16 leaned on a handful of repeatable hooks:',\n\tcolumns: ['Hook', 'Ads'],\n\trows: [\n\t\t{ title: 'Mornings without the rush', detail: 'A full breakfast in about a minute.', figure: '71', creative: { brand: 'Acme', tone: 1 } },\n\t\t{ title: 'Healthy eating takes effort', detail: 'Skip the meal prep, keep the nutrition.', figure: '64', creative: { brand: 'Acme', tone: 2 } },\n\t\t{ title: 'Better value than the usual', detail: '“My breakfast costs less than your coffee.”', figure: '47', creative: { brand: 'Acme', tone: 3 } },\n\t\t{ title: 'Try before committing', detail: 'A sampler box takes the risk out of a flavor.', figure: '33', creative: { brand: 'Acme', tone: 4 } },\n\t],\n\tnote: 'Lead with a familiar friction, then answer it with the nutrition numbers, speed and price. These are the themes that come up again and again, in no ranked order.',\n\tcalls: ['getBrandMediaInsights'],\n}\n\nexport const useCaseAnswerApi: AnswerExample = {\n\tmode: 'api',\n\tquestion: 'The longest running Meta ads for running shoes',\n\trequest: 'POST /v2/media\\n{\\n  \"accountIds\": [\"acme-run\", \"strider\", \"fleetfoot\"],\\n  \"channel\": \"META_AD\",\\n  \"sortBy\": \"LONGEST_RUN\",\\n  \"limit\": 3\\n}',\n\tstatus: '200 OK in 412ms',\n\tcolumns: ['media', 'daysActive'],\n\trows: [\n\t\t{ title: 'Acme Run: the gold racer', detail: 'Video, 15s. Running since Aug 23.', figure: '84 days', creative: { brand: 'Acme Run', tone: 3 } },\n\t\t{ title: 'Strider: trail, labelled', detail: 'Image. Running since Sep 15.', figure: '61 days', creative: { brand: 'Strider', tone: 2 } },\n\t\t{ title: 'Fleetfoot: on orange', detail: 'Carousel, 4 cards. Running since Sep 29.', figure: '47 days', creative: { brand: 'Fleetfoot', tone: 4 } },\n\t],\n\tcalls: ['POST /v2/media'],\n}\n\nexport const useCaseAnswerCallsLabel = 'Called'\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Chat",
+      "label": "A question in chat",
+      "center": false,
+      "half": false,
+      "path": "react/examples/use-case-answer/Chat.tsx",
+      "content": "import { UseCaseAnswer } from '@/react/components/site/UseCaseAnswer'\n// A question asked in chat and the answer that came back: Acme's hooks with neutral placeholder creatives.\n\nexport default function Chat() {\n  return <div className=\"mx-auto max-w-200 p-4 md:p-8\"><UseCaseAnswer /></div>\n}\n",
+      "requires": [
+        "creative-card"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Api",
+      "label": "An API request",
+      "center": false,
+      "half": false,
+      "path": "react/examples/use-case-answer/Api.tsx",
+      "content": "import { UseCaseAnswer } from '@/react/components/site/UseCaseAnswer'\nimport { useCaseAnswerApi } from '@/lib/use-case-answer'\n// One API request and its answer: the request as code, the rows with their figures in the mono face's column heads.\n\nexport default function Api() {\n  return <div className=\"mx-auto max-w-200 p-4 md:p-8\"><UseCaseAnswer example={useCaseAnswerApi} /></div>\n}\n",
+      "requires": [
+        "creative-card"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/UseCaseAnswer.tsx",
+          "content": "import { CreativeCard } from '@/react/components/site/CreativeCard'\nimport { useCaseAnswerCallsLabel, useCaseAnswerChat, type AnswerExample } from '@/lib/use-case-answer'\nimport { cn } from '@/react/lib/cn'\n\n// The site's use case answer (pages/UseCasesPage/UseCaseAnswer): one question and the answer that came back, on the\n// raised panel. In chat mode the question sits in a bubble at the right; in api mode the request shows as code (it\n// scrolls sideways, fading at its edges). Then the status, the lead, a table of rows (a creative, a title with its\n// detail, a figure), a note and the tools called. Nothing moves.\nexport interface UseCaseAnswerProps {\n  example?: AnswerExample\n  /** The label before the calls (\"Called\"). */\n  callsLabel?: string\n  className?: string\n}\n\nexport function UseCaseAnswer({ example: e = useCaseAnswerChat, callsLabel = useCaseAnswerCallsLabel, className }: UseCaseAnswerProps) {\n  const api = e.mode === 'api'\n  const [itemLabel, figureLabel] = e.columns\n  const hasFigure = e.rows.some((r) => r.figure)\n  const last = e.rows.length - 1\n  return (\n    <div data-ds=\"use-case-answer\" data-mode={e.mode} className={cn('flex flex-col gap-6 rounded-panel bg-surface-raised p-4 text-fg md:gap-8 md:p-8', className)}>\n      {api && e.request ? (\n        <pre tabIndex={0} className=\"fade-x m-0 overflow-x-auto rounded-ds-sm bg-surface p-4 font-code type-ui text-fg-soft md:p-6\"><code>{e.request}</code></pre>\n      ) : (\n        <p className=\"max-w-[88%] self-end rounded-ds-lg bg-surface-inset px-4 py-3 type-body text-pretty\">\n          {e.mention ? <><span className=\"font-medium\">{e.mention}</span> </> : null}\n          {e.question}\n        </p>\n      )}\n      <div className=\"flex flex-col gap-4\">\n        <p className=\"type-ui text-fg-muted\">{e.status}</p>\n        {e.lead ? <p className=\"type-body font-medium text-pretty\">{e.lead}</p> : null}\n        <table className=\"w-full border-collapse type-body\">\n          <thead>\n            <tr>\n              <th scope=\"col\" colSpan={2} className={cn('border-b border-edge-surface pb-2 text-left type-ui font-regular text-fg-muted', api && 'font-code')}>{itemLabel}</th>\n              {hasFigure ? <th scope=\"col\" className={cn('border-b border-edge-surface pb-2 pl-4 text-right type-ui font-regular whitespace-nowrap text-fg-muted', api && 'font-code')}>{figureLabel}</th> : null}\n            </tr>\n          </thead>\n          <tbody>\n            {e.rows.map((row, i) => {\n              const cell = i === last ? 'pt-3 align-top' : 'border-b border-edge-surface py-3 align-top'\n              return (\n                <tr key={row.title}>\n                  <td className={cn(cell, 'w-16 pr-4')}>\n                    {row.creative ? <CreativeCard src={row.creative.src} alt={row.creative.alt ?? ''} fit={row.creative.fit} position={row.creative.position} brand={row.creative.brand} tone={row.creative.tone} ratio=\"4/5\" className=\"w-12\" /> : null}\n                  </td>\n                  <td className={cell}>\n                    <span className=\"block font-medium\">{row.title}</span>\n                    <span className=\"mt-1 block type-ui text-pretty text-fg-soft\">{row.detail}</span>\n                  </td>\n                  {hasFigure ? <td className={cn(cell, 'pl-4 text-right type-body-lg whitespace-nowrap tabular-nums')}>{row.figure}</td> : null}\n                </tr>\n              )\n            })}\n          </tbody>\n        </table>\n        {e.note ? <p className=\"border-t border-edge-surface pt-4 type-ui text-pretty text-fg-soft\">{e.note}</p> : null}\n        <p className=\"flex flex-wrap items-center gap-2 type-ui\">\n          <span className=\"text-fg-muted\">{callsLabel}</span>\n          {e.calls.map((call) => <code key={call} className=\"rounded-ds-sm bg-surface-inset px-2 py-1 font-code text-fg\">{call}</code>)}\n        </p>\n      </div>\n    </div>\n  )\n}\n\nexport default UseCaseAnswer\n"
+        },
+        {
+          "path": "lib/use-case-answer.ts",
+          "content": "// The use case answer (site pages/UseCasesPage/UseCaseAnswer): one question (or one API request) and the answer that\n// came back, as a raised panel. Both flavors read this file for its types and the Acme examples.\nimport type { ImageSlot } from '@/lib/image'\n\nexport interface AnswerRow {\n\ttitle: string\n\tdetail: string\n\t/** The figure on the right (\"71\", \"84 days\"). */\n\tfigure?: string\n\t/** A creative beside the row: the user's own image (`src`), or a neutral placeholder. */\n\tcreative?: ImageSlot & { brand?: string; tone?: 1 | 2 | 3 | 4 }\n}\n\nexport interface AnswerExample {\n\t/** chat (a question in a bubble) or api (the request as code). */\n\tmode: 'chat' | 'api'\n\tmention?: string\n\tquestion: string\n\t/** The request, shown in api mode. */\n\trequest?: string\n\t/** \"Worked for 5s\", \"200 OK in 412ms\". */\n\tstatus: string\n\tlead?: string\n\t/** The item column and, when the rows have figures, the figure column. */\n\tcolumns: [string, string?]\n\trows: AnswerRow[]\n\tnote?: string\n\t/** The tools or endpoints called. */\n\tcalls: string[]\n}\n\nexport const useCaseAnswerChat: AnswerExample = {\n\tmode: 'chat',\n\tquestion: 'What hooks has Acme leaned on in its Meta ads in the last 30 days?',\n\tstatus: 'Worked for 5s',\n\tlead: 'Acme’s Meta ads from Oct 17 to Nov 16 leaned on a handful of repeatable hooks:',\n\tcolumns: ['Hook', 'Ads'],\n\trows: [\n\t\t{ title: 'Mornings without the rush', detail: 'A full breakfast in about a minute.', figure: '71', creative: { brand: 'Acme', tone: 1 } },\n\t\t{ title: 'Healthy eating takes effort', detail: 'Skip the meal prep, keep the nutrition.', figure: '64', creative: { brand: 'Acme', tone: 2 } },\n\t\t{ title: 'Better value than the usual', detail: '“My breakfast costs less than your coffee.”', figure: '47', creative: { brand: 'Acme', tone: 3 } },\n\t\t{ title: 'Try before committing', detail: 'A sampler box takes the risk out of a flavor.', figure: '33', creative: { brand: 'Acme', tone: 4 } },\n\t],\n\tnote: 'Lead with a familiar friction, then answer it with the nutrition numbers, speed and price. These are the themes that come up again and again, in no ranked order.',\n\tcalls: ['getBrandMediaInsights'],\n}\n\nexport const useCaseAnswerApi: AnswerExample = {\n\tmode: 'api',\n\tquestion: 'The longest running Meta ads for running shoes',\n\trequest: 'POST /v2/media\\n{\\n  \"accountIds\": [\"acme-run\", \"strider\", \"fleetfoot\"],\\n  \"channel\": \"META_AD\",\\n  \"sortBy\": \"LONGEST_RUN\",\\n  \"limit\": 3\\n}',\n\tstatus: '200 OK in 412ms',\n\tcolumns: ['media', 'daysActive'],\n\trows: [\n\t\t{ title: 'Acme Run: the gold racer', detail: 'Video, 15s. Running since Aug 23.', figure: '84 days', creative: { brand: 'Acme Run', tone: 3 } },\n\t\t{ title: 'Strider: trail, labelled', detail: 'Image. Running since Sep 15.', figure: '61 days', creative: { brand: 'Strider', tone: 2 } },\n\t\t{ title: 'Fleetfoot: on orange', detail: 'Carousel, 4 cards. Running since Sep 29.', figure: '47 days', creative: { brand: 'Fleetfoot', tone: 4 } },\n\t],\n\tcalls: ['POST /v2/media'],\n}\n\nexport const useCaseAnswerCallsLabel = 'Called'\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "creative-card"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "UseCaseAnswer",
+            "file": "react/components/site/UseCaseAnswer.tsx",
+            "props": [
+              {
+                "name": "example",
+                "type": "AnswerExample",
+                "required": false
+              },
+              {
+                "name": "callsLabel",
+                "type": "string",
+                "required": false,
+                "default": "useCaseAnswerCallsLabel",
+                "description": "The label before the calls (\"Called\")."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Chat",
+          "label": "A question in chat",
+          "center": false,
+          "half": false,
+          "path": "react/examples/use-case-answer/Chat.tsx",
+          "content": "import { UseCaseAnswer } from '@/react/components/site/UseCaseAnswer'\n// A question asked in chat and the answer that came back: Acme's hooks with neutral placeholder creatives.\n\nexport default function Chat() {\n  return <div className=\"mx-auto max-w-200 p-4 md:p-8\"><UseCaseAnswer /></div>\n}\n",
+          "registryDependencies": [
+            "creative-card"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Api",
+          "label": "An API request",
+          "center": false,
+          "half": false,
+          "path": "react/examples/use-case-answer/Api.tsx",
+          "content": "import { UseCaseAnswer } from '@/react/components/site/UseCaseAnswer'\nimport { useCaseAnswerApi } from '@/lib/use-case-answer'\n// One API request and its answer: the request as code, the rows with their figures in the mono face's column heads.\n\nexport default function Api() {\n  return <div className=\"mx-auto max-w-200 p-4 md:p-8\"><UseCaseAnswer example={useCaseAnswerApi} /></div>\n}\n",
+          "registryDependencies": [
+            "creative-card"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/use-case-answer.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { useCaseAnswerCallsLabel, useCaseAnswerChat, type AnswerExample } from '@/lib/use-case-answer'\nimport '@/elements/components/site/creative-card'\nimport styles from 'virtual:tw'\n\n// UseCaseAnswer.tsx as <spyglass-use-case-answer>: one question (or, in api mode, the request as code) and the answer\n// that came back on the raised panel: the status, the lead, the rows (a creative, a title and detail, a figure), a note\n// and the tools called. `example` takes JSON; `calls-label` names the calls. Nothing moves.\n\n/**\n * @summary A question and its answer, as a panel.\n */\nexport class UseCaseAnswer extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"use-case-answer\"]'))\n\tstatic properties = { example: { type: Object }, callsLabel: { attribute: 'calls-label' } }\n\t/** The question and answer (lib/use-case-answer.ts). */\n\texample: AnswerExample = useCaseAnswerChat\n\t/** The label before the calls. */\n\tcallsLabel = useCaseAnswerCallsLabel\n\n\trender() {\n\t\tconst e = this.example ?? useCaseAnswerChat\n\t\tconst api = e.mode === 'api'\n\t\tconst [itemLabel, figureLabel] = e.columns\n\t\tconst hasFigure = e.rows.some((r) => r.figure)\n\t\tconst last = e.rows.length - 1\n\t\treturn html`<div data-ds=\"use-case-answer\" data-mode=${e.mode} class=\"flex flex-col gap-6 rounded-panel bg-surface-raised p-4 text-fg md:gap-8 md:p-8\">${api && e.request ? html`<pre tabindex=\"0\" class=\"fade-x m-0 overflow-x-auto rounded-ds-sm bg-surface p-4 font-code type-ui text-fg-soft md:p-6\"><code>${e.request}</code></pre>` : html`<p class=\"max-w-[88%] self-end rounded-ds-lg bg-surface-inset px-4 py-3 type-body text-pretty\">${e.mention ? html`<span class=\"font-medium\">${e.mention}</span> ` : nothing}${e.question}</p>`}<div class=\"flex flex-col gap-4\"><p class=\"type-ui text-fg-muted\">${e.status}</p>${e.lead ? html`<p class=\"type-body font-medium text-pretty\">${e.lead}</p>` : nothing}<table class=\"w-full border-collapse type-body\"><thead><tr><th scope=\"col\" colspan=\"2\" class=${['border-b border-edge-surface pb-2 text-left type-ui font-regular text-fg-muted', api ? 'font-code' : ''].join(' ').trim()}>${itemLabel}</th>${hasFigure ? html`<th scope=\"col\" class=${['border-b border-edge-surface pb-2 pl-4 text-right type-ui font-regular whitespace-nowrap text-fg-muted', api ? 'font-code' : ''].join(' ').trim()}>${figureLabel}</th>` : nothing}</tr></thead><tbody>${e.rows.map((row, i) => {\n\t\t\tconst cell = i === last ? 'pt-3 align-top' : 'border-b border-edge-surface py-3 align-top'\n\t\t\treturn html`<tr><td class=${`${cell} w-16 pr-4`}>${row.creative ? html`<spyglass-creative-card .src=${row.creative.src} .alt=${row.creative.alt ?? ''} .fit=${row.creative.fit} .position=${row.creative.position} .brand=${row.creative.brand} .tone=${row.creative.tone ?? 2} ratio=\"4/5\" class=\"w-12\"></spyglass-creative-card>` : nothing}</td><td class=${cell}><span class=\"block font-medium\">${row.title}</span><span class=\"mt-1 block type-ui text-pretty text-fg-soft\">${row.detail}</span></td>${hasFigure ? html`<td class=${`${cell} pl-4 text-right type-body-lg whitespace-nowrap tabular-nums`}>${row.figure}</td>` : nothing}</tr>`\n\t\t})}</tbody></table>${e.note ? html`<p class=\"border-t border-edge-surface pt-4 type-ui text-pretty text-fg-soft\">${e.note}</p>` : nothing}<p class=\"flex flex-wrap items-center gap-2 type-ui\"><span class=\"text-fg-muted\">${this.callsLabel ?? useCaseAnswerCallsLabel}</span>${e.calls.map((call) => html`<code class=\"rounded-ds-sm bg-surface-inset px-2 py-1 font-code text-fg\">${call}</code>`)}</p></div></div>`\n\t}\n}\n\ndefine('use-case-answer', UseCaseAnswer)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/use-case-answer.js",
+        "elements/creative-card.js"
+      ],
+      "tag": "spyglass-use-case-answer",
+      "tags": [
+        "spyglass-use-case-answer"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "creative-card"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-use-case-answer",
+            "name": "UseCaseAnswer",
+            "module": "elements/use-case-answer.js",
+            "description": "A question and its answer, as a panel.",
+            "attributes": [
+              {
+                "name": "example",
+                "field": "example",
+                "type": "AnswerExample",
+                "default": "useCaseAnswerChat",
+                "description": "The question and answer (lib/use-case-answer.ts)."
+              },
+              {
+                "name": "calls-label",
+                "field": "callsLabel",
+                "type": "string",
+                "default": "useCaseAnswerCallsLabel",
+                "description": "The label before the calls."
+              }
+            ],
+            "properties": [
+              {
+                "name": "example",
+                "type": "AnswerExample",
+                "default": "useCaseAnswerChat",
+                "description": "The question and answer (lib/use-case-answer.ts).",
+                "attribute": "example"
+              },
+              {
+                "name": "callsLabel",
+                "type": "string",
+                "default": "useCaseAnswerCallsLabel",
+                "description": "The label before the calls.",
+                "attribute": "calls-label"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Chat",
+          "label": "A question in chat",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/use-case-answer/Chat.html",
+          "content": "<!-- A question asked in chat and the answer that came back: Acme's hooks with neutral placeholder creatives. -->\n<div class=\"mx-auto max-w-200 p-4 md:p-8\"><spyglass-use-case-answer></spyglass-use-case-answer></div>\n"
+        },
+        {
+          "name": "Api",
+          "label": "An API request",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/use-case-answer/Api.html",
+          "content": "<!-- One API request and its answer: the request as code, the rows with their figures in the mono face's column heads. -->\n<div class=\"mx-auto max-w-200 p-4 md:p-8\"><spyglass-use-case-answer example='{\"mode\": \"api\", \"question\": \"The longest running Meta ads for running shoes\", \"request\": \"POST /v2/media\\n{\\n  \\\"accountIds\\\": [\\\"acme-run\\\", \\\"strider\\\", \\\"fleetfoot\\\"],\\n  \\\"channel\\\": \\\"META_AD\\\",\\n  \\\"sortBy\\\": \\\"LONGEST_RUN\\\",\\n  \\\"limit\\\": 3\\n}\", \"status\": \"200 OK in 412ms\", \"columns\": [\"media\", \"daysActive\"], \"rows\": [{\"title\": \"Acme Run: the gold racer\", \"detail\": \"Video, 15s. Running since Aug 23.\", \"figure\": \"84 days\", \"creative\": {\"brand\": \"Acme Run\", \"tone\": 3}}, {\"title\": \"Strider: trail, labelled\", \"detail\": \"Image. Running since Sep 15.\", \"figure\": \"61 days\", \"creative\": {\"brand\": \"Strider\", \"tone\": 2}}, {\"title\": \"Fleetfoot: on orange\", \"detail\": \"Carousel, 4 cards. Running since Sep 29.\", \"figure\": \"47 days\", \"creative\": {\"brand\": \"Fleetfoot\", \"tone\": 4}}], \"calls\": [\"POST /v2/media\"]}'></spyglass-use-case-answer></div>\n"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "pricing-table-block",
+  "type": "registry:block",
+  "title": "Pricing table block",
+  "description": "Plans side by side: an optional centered heading and line over plan cards on the #262626 fill, each the same width, centered as a row; one plan sits alone in the middle.",
+  "dependencies": [],
+  "registryDependencies": [
+    "https://spyglass-ds.vercel.app/r/react/plan-card.json"
+  ],
+  "files": [
+    {
+      "path": "components/blocks/PricingTableBlock.tsx",
+      "type": "registry:ui",
+      "content": "import type { ReactNode } from 'react'\nimport { PlanCard } from '@/components/site/PlanCard'\nimport { cn } from '@/lib/cn'\n\n// Plans side by side: an optional centered Funnel Display heading and line over plan cards (the Creator plan card from\n// the ad), each the same width and height, centered as a row; one plan sits alone in the middle. Up to three across,\n// one on phones. Every price and feature is what the plan states.\nexport interface Plan {\n  title: string\n  price?: string\n  features?: string[]\n  cta?: string\n  href?: string\n}\n\nexport interface PricingTableBlockProps {\n  plans: Plan[]\n  /** A heading above the plans. */\n  title?: ReactNode\n  /** A line under the heading. */\n  body?: ReactNode\n  className?: string\n}\n\nexport function PricingTableBlock({ plans, title, body, className }: PricingTableBlockProps) {\n  return (\n    <section data-ds=\"pricing-table-block\" className={cn('flex flex-col gap-12 text-fg max-sm:gap-8', className)}>\n      {(title || body) && (\n        <div className=\"mx-auto grid max-w-3xl gap-4 text-center\">\n          {title && <h2 className=\"type-section\">{title}</h2>}\n          {body && <p className=\"type-body-lg text-fg-soft\">{body}</p>}\n        </div>\n      )}\n      <div className=\"flex flex-wrap items-stretch justify-center gap-4\">\n        {plans.map((p) => <PlanCard key={p.title} title={p.title} price={p.price} features={p.features} cta={p.cta} href={p.href} className=\"w-100 max-w-full\" />)}\n      </div>\n    </section>\n  )\n}\n\nexport default PricingTableBlock\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

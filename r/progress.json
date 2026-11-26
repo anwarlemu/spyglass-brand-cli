@@ -1,0 +1,193 @@
+{
+  "name": "progress",
+  "title": "Progress",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "How far a task has got: a White bar on a 6px #262626 track with round ends, sliding to each new value on transform. Without a value, a short bar sweeps across at a steady pace.",
+  "use_for": "An import, an upload or a scan that can be counted, with the number in text beside it; a long search with no known end.",
+  "never": [
+    "Percentages with no label or number beside the bar",
+    "A striped, glowing or spectrum-colored bar",
+    "Work that ends in under a second: show nothing"
+  ],
+  "source": "Derived from the brand guidelines (no progress bar in the brand assets): White on Black, the neutral steps for the track",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Progress.tsx",
+      "content": "import { cn } from '@/react/lib/cn'\n\n// How far a task has got: a White bar on a 6px #262626 track with round ends. The fill slides to a new value over\n// 320ms on the strong ease-out, on transform only. Leave out `value` when the end is not known: a short White bar\n// sweeps across the track at a steady pace, and with reduced motion it rests and breathes instead. `label` names it\n// for assistive tech (a progressbar); say the number in text beside it too.\nexport interface ProgressProps {\n  /** How far, from 0 to max; leave it out for work with no known end. */\n  value?: number | null\n  /** The value that means done. */\n  max?: number\n  /** What is in progress, for assistive tech. */\n  label?: string\n  className?: string\n}\n\nexport function Progress({ value, max = 100, label, className }: ProgressProps) {\n  const known = typeof value === 'number'\n  const share = known ? Math.max(0, Math.min(1, value / (max || 1))) : 0\n  return (\n    <>\n      <style href=\"ds-progress\" precedence=\"ds\">{css}</style>\n      <div\n        data-ds=\"progress\"\n        role=\"progressbar\"\n        aria-label={label}\n        aria-valuemin={0}\n        aria-valuemax={max}\n        aria-valuenow={known ? value : undefined}\n        className={cn('relative h-1.5 w-full overflow-hidden rounded-full bg-action-secondary', className)}\n      >\n        {known\n          ? <div className=\"h-full w-full rounded-full bg-action-primary transition-transform duration-320 ease-out motion-reduce:transition-none\" style={{ transform: `translateX(-${(1 - share) * 100}%)` }} />\n          : <div className=\"ds-progress-sweep h-full w-2/5 rounded-full bg-action-primary\" />}\n      </div>\n    </>\n  )\n}\n\nexport default Progress\n\nconst css = `\n.ds-progress-sweep { animation: ds-progress-sweep 1.5s var(--ds-easing-in-out) infinite; }\n@keyframes ds-progress-sweep { from { transform: translateX(-100%); } to { transform: translateX(250%); } }\n@keyframes ds-progress-breathe { 50% { opacity: 0.5; } }\n@media (prefers-reduced-motion: reduce) { .ds-progress-sweep { width: 100%; animation: ds-progress-breathe 2s var(--ds-easing-in-out) infinite; } }\n`\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Import",
+      "label": "Counted and open-ended",
+      "center": true,
+      "half": false,
+      "path": "react/examples/progress/Import.tsx",
+      "content": "'use client'\nimport { useState } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { Progress } from '@/react/components/ui/Progress'\n// An import with a count, a step that moves it on, and a search with no known end.\n\nexport default function Import() {\n  const [value, setValue] = useState(40)\n  return (\n    <div className=\"flex w-80 max-w-full flex-col gap-8\">\n      <div className=\"flex flex-col gap-3\">\n        <div className=\"flex items-baseline justify-between gap-4\">\n          <p className=\"type-ui text-fg\">Importing Acme ads</p>\n          <p className=\"type-caption text-fg-muted tabular-nums\">{value}%</p>\n        </div>\n        <Progress value={value} label=\"Importing Acme ads\" />\n        <Button variant=\"secondary\" size=\"sm\" className=\"self-start\" onClick={() => setValue((v) => Math.min(100, v + 20))}>Import more</Button>\n      </div>\n      <div className=\"flex flex-col gap-3\">\n        <p className=\"type-ui text-fg\">Finding new creatives</p>\n        <Progress label=\"Finding new creatives\" />\n      </div>\n    </div>\n  )\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Progress.tsx",
+          "content": "import { cn } from '@/react/lib/cn'\n\n// How far a task has got: a White bar on a 6px #262626 track with round ends. The fill slides to a new value over\n// 320ms on the strong ease-out, on transform only. Leave out `value` when the end is not known: a short White bar\n// sweeps across the track at a steady pace, and with reduced motion it rests and breathes instead. `label` names it\n// for assistive tech (a progressbar); say the number in text beside it too.\nexport interface ProgressProps {\n  /** How far, from 0 to max; leave it out for work with no known end. */\n  value?: number | null\n  /** The value that means done. */\n  max?: number\n  /** What is in progress, for assistive tech. */\n  label?: string\n  className?: string\n}\n\nexport function Progress({ value, max = 100, label, className }: ProgressProps) {\n  const known = typeof value === 'number'\n  const share = known ? Math.max(0, Math.min(1, value / (max || 1))) : 0\n  return (\n    <>\n      <style href=\"ds-progress\" precedence=\"ds\">{css}</style>\n      <div\n        data-ds=\"progress\"\n        role=\"progressbar\"\n        aria-label={label}\n        aria-valuemin={0}\n        aria-valuemax={max}\n        aria-valuenow={known ? value : undefined}\n        className={cn('relative h-1.5 w-full overflow-hidden rounded-full bg-action-secondary', className)}\n      >\n        {known\n          ? <div className=\"h-full w-full rounded-full bg-action-primary transition-transform duration-320 ease-out motion-reduce:transition-none\" style={{ transform: `translateX(-${(1 - share) * 100}%)` }} />\n          : <div className=\"ds-progress-sweep h-full w-2/5 rounded-full bg-action-primary\" />}\n      </div>\n    </>\n  )\n}\n\nexport default Progress\n\nconst css = `\n.ds-progress-sweep { animation: ds-progress-sweep 1.5s var(--ds-easing-in-out) infinite; }\n@keyframes ds-progress-sweep { from { transform: translateX(-100%); } to { transform: translateX(250%); } }\n@keyframes ds-progress-breathe { 50% { opacity: 0.5; } }\n@media (prefers-reduced-motion: reduce) { .ds-progress-sweep { width: 100%; animation: ds-progress-breathe 2s var(--ds-easing-in-out) infinite; } }\n`\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Progress",
+            "file": "react/components/ui/Progress.tsx",
+            "props": [
+              {
+                "name": "value",
+                "type": "number | null",
+                "required": false,
+                "description": "How far, from 0 to max; leave it out for work with no known end."
+              },
+              {
+                "name": "max",
+                "type": "number",
+                "required": false,
+                "default": "100",
+                "description": "The value that means done."
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "description": "What is in progress, for assistive tech."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Import",
+          "label": "Counted and open-ended",
+          "center": true,
+          "half": false,
+          "path": "react/examples/progress/Import.tsx",
+          "content": "'use client'\nimport { useState } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { Progress } from '@/react/components/ui/Progress'\n// An import with a count, a step that moves it on, and a search with no known end.\n\nexport default function Import() {\n  const [value, setValue] = useState(40)\n  return (\n    <div className=\"flex w-80 max-w-full flex-col gap-8\">\n      <div className=\"flex flex-col gap-3\">\n        <div className=\"flex items-baseline justify-between gap-4\">\n          <p className=\"type-ui text-fg\">Importing Acme ads</p>\n          <p className=\"type-caption text-fg-muted tabular-nums\">{value}%</p>\n        </div>\n        <Progress value={value} label=\"Importing Acme ads\" />\n        <Button variant=\"secondary\" size=\"sm\" className=\"self-start\" onClick={() => setValue((v) => Math.min(100, v + 20))}>Import more</Button>\n      </div>\n      <div className=\"flex flex-col gap-3\">\n        <p className=\"type-ui text-fg\">Finding new creatives</p>\n        <Progress label=\"Finding new creatives\" />\n      </div>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/progress.ts",
+          "content": "import { html } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { styleMap } from 'lit/directives/style-map.js'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Progress.tsx as <spyglass-progress>: a White bar on a 6px #262626 track with round ends, sliding to a new value over\n// 320ms on transform only. Without `value` a short White bar sweeps across at a steady pace (breathing in place with\n// reduced motion). `label` names it for assistive tech.\n\n/** @summary How far a task has got, as a bar. */\nexport class Progress extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"progress\"]'))\n\tstatic properties = { value: { type: Number }, max: { type: Number }, label: {} }\n\n\t/** How far, from 0 to max; leave it out for work with no known end. */\n\tvalue?: number | null\n\t/** The value that means done. */\n\tmax = 100\n\t/** What is in progress, for assistive tech. */\n\tlabel?: string\n\n\trender() {\n\t\tconst known = typeof this.value === 'number' && !Number.isNaN(this.value)\n\t\tconst share = known ? Math.max(0, Math.min(1, (this.value as number) / (this.max || 1))) : 0\n\t\treturn html`<div data-ds=\"progress\" role=\"progressbar\" aria-label=${ifDefined(this.label)} aria-valuemin=\"0\" aria-valuemax=${this.max} aria-valuenow=${ifDefined(known ? String(this.value) : undefined)} class=\"relative h-1.5 w-full overflow-hidden rounded-full bg-action-secondary\">${known\n\t\t\t? html`<div class=\"h-full w-full rounded-full bg-action-primary transition-transform duration-320 ease-out motion-reduce:transition-none\" style=${styleMap({ transform: `translateX(-${(1 - share) * 100}%)` })}></div>`\n\t\t\t: html`<div class=\"ds-progress-sweep h-full w-2/5 rounded-full bg-action-primary\"></div>`}</div>`\n\t}\n}\n\ndefine('progress', Progress)\n"
+        },
+        {
+          "path": "elements/components/ui/progress.css",
+          "content": "/* Progress.tsx's styles, as they are. */\n.ds-progress-sweep { animation: ds-progress-sweep 1.5s var(--ds-easing-in-out) infinite; }\n@keyframes ds-progress-sweep { from { transform: translateX(-100%); } to { transform: translateX(250%); } }\n@keyframes ds-progress-breathe { 50% { opacity: 0.5; } }\n@media (prefers-reduced-motion: reduce) { .ds-progress-sweep { width: 100%; animation: ds-progress-breathe 2s var(--ds-easing-in-out) infinite; } }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/progress.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-progress",
+      "tags": [
+        "spyglass-progress"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-progress",
+            "name": "Progress",
+            "module": "elements/progress.js",
+            "description": "How far a task has got, as a bar.",
+            "attributes": [
+              {
+                "name": "value",
+                "field": "value",
+                "type": "number | null | undefined",
+                "description": "How far, from 0 to max; leave it out for work with no known end."
+              },
+              {
+                "name": "max",
+                "field": "max",
+                "type": "number",
+                "default": "100",
+                "description": "The value that means done."
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string | undefined",
+                "description": "What is in progress, for assistive tech."
+              }
+            ],
+            "properties": [
+              {
+                "name": "value",
+                "type": "number | null | undefined",
+                "description": "How far, from 0 to max; leave it out for work with no known end.",
+                "attribute": "value"
+              },
+              {
+                "name": "max",
+                "type": "number",
+                "default": "100",
+                "description": "The value that means done.",
+                "attribute": "max"
+              },
+              {
+                "name": "label",
+                "type": "string | undefined",
+                "description": "What is in progress, for assistive tech.",
+                "attribute": "label"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Import",
+          "label": "Counted and open-ended",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/progress/Import.html",
+          "content": "<!-- An import with a count, a step that moves it on, and a search with no known end. -->\n<div class=\"flex w-80 max-w-full flex-col gap-8\">\n  <div class=\"flex flex-col gap-3\">\n    <div class=\"flex items-baseline justify-between gap-4\">\n      <p class=\"type-ui text-fg\">Importing Acme ads</p>\n      <p id=\"import-count\" class=\"type-caption text-fg-muted tabular-nums\">40%</p>\n    </div>\n    <spyglass-progress id=\"import-progress\" value=\"40\" label=\"Importing Acme ads\"></spyglass-progress>\n    <spyglass-button id=\"import-more\" variant=\"secondary\" size=\"sm\" class=\"self-start\">Import more</spyglass-button>\n  </div>\n  <div class=\"flex flex-col gap-3\">\n    <p class=\"type-ui text-fg\">Finding new creatives</p>\n    <spyglass-progress label=\"Finding new creatives\"></spyglass-progress>\n  </div>\n</div>\n<script type=\"module\">\n  const bar = document.getElementById('import-progress')\n  document.getElementById('import-more').addEventListener('click', () => {\n    bar.value = Math.min(100, bar.value + 20)\n    document.getElementById('import-count').textContent = `${bar.value}%`\n  })\n</script>\n"
+        }
+      ]
+    }
+  }
+}

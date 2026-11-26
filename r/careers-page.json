@@ -1,0 +1,248 @@
+{
+  "name": "careers-page",
+  "title": "Careers page",
+  "type": "registry:block",
+  "group": "pages",
+  "description": "The careers page: the page head with the light, why join as three cards and the open roles as rows under hairlines.",
+  "use_for": "A careers page; roles come through `content`.",
+  "never": [
+    "New colors, shadows or type sizes added to a section: use the items' props",
+    "More than one White button in a view",
+    "Real people or customers in the copy: Acme only"
+  ],
+  "source": "Built from the library and the site's surfaces (cards on --surface, the rail on --raised, hairlines, the 36px links of the header)",
+  "body": "`sections` lists the sections to show, in order (`hero`, `values`, `roles`); a key left out is not shown. `menus`\npasses the header menus (the live card's `picture`, the use cases' `shots`).",
+  "requires": [
+    "creative-card",
+    "footer-row",
+    "hero-block",
+    "not-found-page",
+    "site-header"
+  ],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/pages/CareersPage.tsx",
+      "content": "import { ArrowUpRight } from 'lucide-react'\nimport { FooterRow } from '@/react/components/site/FooterRow'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { HeroBlock } from '@/react/components/blocks/HeroBlock'\nimport { careersContent, type CareersContent, careersSections, type CareersSection } from '@/lib/pages/careers'\nimport { notFoundContent } from '@/lib/pages/not-found'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// The careers page from library items: the header, the page head with the light, why join as three #262626 cards, and\n// the open roles as rows under #363636 hairlines (the title in Funnel Display 24/28, the team and place in #A3A3A3, a\n// small arrow that brightens with the row and never moves). No roles shows `none`. The footer row at the foot.\nexport interface CareersPageProps {\n  content?: CareersContent\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly CareersSection[]\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function CareersPage({ content: c = careersContent, menus, sections, className }: CareersPageProps) {\n  const h = notFoundContent\n  const parts: Record<CareersSection, ReactNode> = {\n    hero: <HeroBlock eyebrow={c.eyebrow} headline={c.headline} body={c.body} light=\"field\" />,\n    values: (\n      <section className={cn(WRAP, 'grid gap-4 pb-16 md:grid-cols-3')}>\n        {c.values.map((v) => (\n          <div key={v.title} className=\"grid content-start gap-2 rounded-container bg-surface-raised p-6\">\n            <h2 className=\"type-heading-3\">{v.title}</h2>\n            <p className=\"type-body text-fg-soft\">{v.body}</p>\n          </div>\n        ))}\n      </section>\n    ),\n    roles: (\n      <section className={cn(WRAP, 'grid gap-8 pb-24')}>\n        <h2 className=\"type-section\">{c.rolesTitle}</h2>\n        {c.roles.length ? (\n          <ul role=\"list\" className=\"m-0 list-none border-b border-edge p-0\">\n            {c.roles.map((r) => (\n              <li key={r.title} className=\"border-t border-edge\">\n                <a href={r.href} className=\"group flex items-center gap-6 rounded-ds-sm py-6 transition-[color] duration-160 ease-out\">\n                  <span className=\"grid flex-1 gap-1 sm:flex sm:items-baseline sm:justify-between sm:gap-6\">\n                    <span className=\"type-heading-3 text-fg\">{r.title}</span>\n                    <span className=\"type-ui text-fg-muted\">{r.team} · {r.location}</span>\n                  </span>\n                  <ArrowUpRight size={20} strokeWidth={1.5} aria-hidden=\"true\" className=\"shrink-0 text-fg-muted transition-[color] duration-160 ease-out group-hover:text-fg\" />\n                </a>\n              </li>\n            ))}\n          </ul>\n        ) : <p className=\"type-body text-fg-soft\">{c.none}</p>}\n      </section>\n    ),\n  }\n  return (\n    <div data-ds=\"careers-page\" className={cn('flex min-h-dvh flex-col bg-surface text-fg', className)}>\n      <SiteHeader menus={menus} links={h.header.nav} secondary={h.header.secondary} cta={h.header.cta} />\n      <main className=\"flex-1\">\n        {pageSections(careersSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <footer className=\"border-t border-edge\"><div className={cn(WRAP, 'py-10')}><FooterRow domain={h.footer.domain} homeHref=\"/\" links={h.footer.links} /></div></footer>\n    </div>\n  )\n}\n\nexport default CareersPage\n"
+    },
+    {
+      "path": "lib/pages/careers.ts",
+      "content": "// The careers page's copy: a head, why join in three lines, and the open roles. Both flavors read this file.\nexport const careersContent = {\n\teyebrow: 'Careers',\n\theadline: 'Build the record of creative.',\n\tbody: 'A small team, working in the open, shipping every week.',\n\tvalues: [\n\t\t{ title: 'Small team', body: 'Every person owns a part of the product.' },\n\t\t{ title: 'Remote first', body: 'Work from anywhere in two time zones of each other.' },\n\t\t{ title: 'Ship weekly', body: 'Something reaches customers every week.' },\n\t],\n\trolesTitle: 'Open roles',\n\troles: [\n\t\t{ title: 'Founding designer', team: 'Design', location: 'Remote', href: '#designer' },\n\t\t{ title: 'Senior engineer, search', team: 'Engineering', location: 'Remote', href: '#search' },\n\t\t{ title: 'Growth lead', team: 'Marketing', location: 'New York', href: '#growth' },\n\t],\n\tnone: 'No open roles right now.',\n}\nexport type CareersContent = typeof careersContent\n\n/** The careers page's sections in order; pass `sections` to reorder them or leave some out. */\nexport const careersSections = ['hero', 'values', 'roles'] as const\nexport type CareersSection = (typeof careersSections)[number]\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Page",
+      "label": "Careers page",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/careers-page/Page.tsx",
+      "content": "import { CareersPage } from '@/react/components/pages/CareersPage'\n// The careers page with its own copy (Acme).\n\nexport default function Page() {\n  return <CareersPage />\n}\n",
+      "requires": [
+        "creative-card",
+        "footer-row",
+        "hero-block",
+        "not-found-page",
+        "site-header"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/pages/CareersPage.tsx",
+          "content": "import { ArrowUpRight } from 'lucide-react'\nimport { FooterRow } from '@/react/components/site/FooterRow'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { HeroBlock } from '@/react/components/blocks/HeroBlock'\nimport { careersContent, type CareersContent, careersSections, type CareersSection } from '@/lib/pages/careers'\nimport { notFoundContent } from '@/lib/pages/not-found'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// The careers page from library items: the header, the page head with the light, why join as three #262626 cards, and\n// the open roles as rows under #363636 hairlines (the title in Funnel Display 24/28, the team and place in #A3A3A3, a\n// small arrow that brightens with the row and never moves). No roles shows `none`. The footer row at the foot.\nexport interface CareersPageProps {\n  content?: CareersContent\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly CareersSection[]\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function CareersPage({ content: c = careersContent, menus, sections, className }: CareersPageProps) {\n  const h = notFoundContent\n  const parts: Record<CareersSection, ReactNode> = {\n    hero: <HeroBlock eyebrow={c.eyebrow} headline={c.headline} body={c.body} light=\"field\" />,\n    values: (\n      <section className={cn(WRAP, 'grid gap-4 pb-16 md:grid-cols-3')}>\n        {c.values.map((v) => (\n          <div key={v.title} className=\"grid content-start gap-2 rounded-container bg-surface-raised p-6\">\n            <h2 className=\"type-heading-3\">{v.title}</h2>\n            <p className=\"type-body text-fg-soft\">{v.body}</p>\n          </div>\n        ))}\n      </section>\n    ),\n    roles: (\n      <section className={cn(WRAP, 'grid gap-8 pb-24')}>\n        <h2 className=\"type-section\">{c.rolesTitle}</h2>\n        {c.roles.length ? (\n          <ul role=\"list\" className=\"m-0 list-none border-b border-edge p-0\">\n            {c.roles.map((r) => (\n              <li key={r.title} className=\"border-t border-edge\">\n                <a href={r.href} className=\"group flex items-center gap-6 rounded-ds-sm py-6 transition-[color] duration-160 ease-out\">\n                  <span className=\"grid flex-1 gap-1 sm:flex sm:items-baseline sm:justify-between sm:gap-6\">\n                    <span className=\"type-heading-3 text-fg\">{r.title}</span>\n                    <span className=\"type-ui text-fg-muted\">{r.team} · {r.location}</span>\n                  </span>\n                  <ArrowUpRight size={20} strokeWidth={1.5} aria-hidden=\"true\" className=\"shrink-0 text-fg-muted transition-[color] duration-160 ease-out group-hover:text-fg\" />\n                </a>\n              </li>\n            ))}\n          </ul>\n        ) : <p className=\"type-body text-fg-soft\">{c.none}</p>}\n      </section>\n    ),\n  }\n  return (\n    <div data-ds=\"careers-page\" className={cn('flex min-h-dvh flex-col bg-surface text-fg', className)}>\n      <SiteHeader menus={menus} links={h.header.nav} secondary={h.header.secondary} cta={h.header.cta} />\n      <main className=\"flex-1\">\n        {pageSections(careersSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <footer className=\"border-t border-edge\"><div className={cn(WRAP, 'py-10')}><FooterRow domain={h.footer.domain} homeHref=\"/\" links={h.footer.links} /></div></footer>\n    </div>\n  )\n}\n\nexport default CareersPage\n"
+        },
+        {
+          "path": "lib/pages/careers.ts",
+          "content": "// The careers page's copy: a head, why join in three lines, and the open roles. Both flavors read this file.\nexport const careersContent = {\n\teyebrow: 'Careers',\n\theadline: 'Build the record of creative.',\n\tbody: 'A small team, working in the open, shipping every week.',\n\tvalues: [\n\t\t{ title: 'Small team', body: 'Every person owns a part of the product.' },\n\t\t{ title: 'Remote first', body: 'Work from anywhere in two time zones of each other.' },\n\t\t{ title: 'Ship weekly', body: 'Something reaches customers every week.' },\n\t],\n\trolesTitle: 'Open roles',\n\troles: [\n\t\t{ title: 'Founding designer', team: 'Design', location: 'Remote', href: '#designer' },\n\t\t{ title: 'Senior engineer, search', team: 'Engineering', location: 'Remote', href: '#search' },\n\t\t{ title: 'Growth lead', team: 'Marketing', location: 'New York', href: '#growth' },\n\t],\n\tnone: 'No open roles right now.',\n}\nexport type CareersContent = typeof careersContent\n\n/** The careers page's sections in order; pass `sections` to reorder them or leave some out. */\nexport const careersSections = ['hero', 'values', 'roles'] as const\nexport type CareersSection = (typeof careersSections)[number]\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "creative-card",
+        "footer-row",
+        "hero-block",
+        "not-found-page",
+        "site-header"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "CareersPage",
+            "file": "react/components/pages/CareersPage.tsx",
+            "props": [
+              {
+                "name": "content",
+                "type": "CareersContent",
+                "required": false
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus",
+                "required": false,
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "type": "readonly CareersSection[]",
+                "required": false,
+                "description": "The sections to show, in order; all of them in the page order by default (leave one out to omit it)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Careers page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/careers-page/Page.tsx",
+          "content": "import { CareersPage } from '@/react/components/pages/CareersPage'\n// The careers page with its own copy (Acme).\n\nexport default function Page() {\n  return <CareersPage />\n}\n",
+          "registryDependencies": [
+            "creative-card",
+            "footer-row",
+            "hero-block",
+            "not-found-page",
+            "site-header"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/pages/careers-page.ts",
+          "content": "import { html } from 'lit'\nimport { ArrowUpRight } from 'lucide'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport { careersContent, type CareersContent, careersSections, type CareersSection } from '@/lib/pages/careers'\nimport { notFoundContent } from '@/lib/pages/not-found'\nimport '@/elements/components/blocks/hero-block'\nimport '@/elements/components/site/footer-row'\nimport '@/elements/components/site/site-header'\nimport styles from 'virtual:tw'\nimport { pageSections } from '@/lib/image'\nimport { headerMenus, type HeaderMenus } from '@/lib/site-header'\n\n// CareersPage.tsx as <spyglass-careers-page>: the head, why join as three cards, the open roles as rows. `content`\n// replaces the copy.\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\n/**\n * @summary The careers page template.\n */\nexport class CareersPage extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"careers-page\"]'))\n\tstatic properties = { content: { type: Object }, menus: { type: Object }, sections: { type: Array } }\n\t/** The page's copy (lib/pages/careers.ts by default). */\n\tcontent: CareersContent = careersContent\n\t/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n\tmenus?: HeaderMenus\n\t/** The sections to show, in order (a list of names); all of them in the page order by default. */\n\tsections?: CareersSection[]\n\n\trender() {\n\t\tconst c = this.content ?? careersContent\n\t\tconst h = notFoundContent\n\t\tconst parts: Record<CareersSection, unknown> = {\n\t\t\thero: html`<spyglass-hero-block eyebrow=${c.eyebrow} headline=${c.headline} body=${c.body} light=\"field\"></spyglass-hero-block>`,\n\t\t\tvalues: html`<section class=${`${WRAP} grid gap-4 pb-16 md:grid-cols-3`}>${c.values.map((v) => html`<div class=\"grid content-start gap-2 rounded-container bg-surface-raised p-6\"><h2 class=\"type-heading-3\">${v.title}</h2><p class=\"type-body text-fg-soft\">${v.body}</p></div>`)}</section>`,\n\t\t\troles: html`<section class=${`${WRAP} grid gap-8 pb-24`}><h2 class=\"type-section\">${c.rolesTitle}</h2>${c.roles.length ? html`<ul role=\"list\" class=\"m-0 list-none border-b border-edge p-0\">${c.roles.map((r) => html`<li class=\"border-t border-edge\"><a href=${r.href} class=\"group flex items-center gap-6 rounded-ds-sm py-6 transition-[color] duration-160 ease-out\"><span class=\"grid flex-1 gap-1 sm:flex sm:items-baseline sm:justify-between sm:gap-6\"><span class=\"type-heading-3 text-fg\">${r.title}</span><span class=\"type-ui text-fg-muted\">${r.team} · ${r.location}</span></span>${icon(ArrowUpRight, 'arrow-up-right', { size: 20, strokeWidth: 1.5, class: 'shrink-0 text-fg-muted transition-[color] duration-160 ease-out group-hover:text-fg', attrs: { 'aria-hidden': 'true' } })}</a></li>`)}</ul>` : html`<p class=\"type-body text-fg-soft\">${c.none}</p>`}</section>`,\n\t\t}\n\t\treturn html`<div data-ds=\"careers-page\" class=\"flex min-h-dvh flex-col bg-surface text-fg\"><spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${h.header.nav} .secondary=${h.header.secondary} .cta=${h.header.cta}></spyglass-site-header><main class=\"flex-1\">${pageSections(careersSections, this.sections).map((k) => parts[k])}</main><footer class=\"border-t border-edge\"><div class=${`${WRAP} py-10`}><spyglass-footer-row domain=${h.footer.domain} home-href=\"/\" .links=${h.footer.links}></spyglass-footer-row></div></footer></div>`\n\t}\n}\n\ndefine('careers-page', CareersPage)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/careers-page.js",
+        "elements/hero-block.js",
+        "elements/footer-row.js",
+        "elements/site-header.js",
+        "elements/ascii-texture.js",
+        "elements/brand-light.js",
+        "elements/logo.js",
+        "elements/menu-sheet.js",
+        "elements/menu-panels.js",
+        "elements/nav-menus.js",
+        "elements/nav-icon.js",
+        "elements/sheet-disclosure.js",
+        "elements/button.js",
+        "elements/products-live-panel.js",
+        "elements/product-visual.js"
+      ],
+      "tag": "spyglass-careers-page",
+      "tags": [
+        "spyglass-careers-page"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-texture",
+        "brand-light",
+        "button",
+        "footer-row",
+        "hero-block",
+        "logo",
+        "product-visual",
+        "site-header"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-careers-page",
+            "name": "CareersPage",
+            "module": "elements/careers-page.js",
+            "description": "The careers page template.",
+            "attributes": [
+              {
+                "name": "content",
+                "field": "content",
+                "type": "{ eyebrow: string; headline: string; body: string; values: { title: string; body: string; }[]; rolesTitle: string; roles: { title: string; team: string; location: string; href: string; }[]; none: string; }",
+                "default": "careersContent",
+                "description": "The page's copy (lib/pages/careers.ts by default)."
+              },
+              {
+                "name": "menus",
+                "field": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "field": "sections",
+                "type": "(\"values\" | \"hero\" | \"roles\")[] | undefined",
+                "description": "The sections to show, in order (a list of names); all of them in the page order by default."
+              }
+            ],
+            "properties": [
+              {
+                "name": "content",
+                "type": "{ eyebrow: string; headline: string; body: string; values: { title: string; body: string; }[]; rolesTitle: string; roles: { title: string; team: string; location: string; href: string; }[]; none: string; }",
+                "default": "careersContent",
+                "description": "The page's copy (lib/pages/careers.ts by default).",
+                "attribute": "content"
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default.",
+                "attribute": "menus"
+              },
+              {
+                "name": "sections",
+                "type": "(\"values\" | \"hero\" | \"roles\")[] | undefined",
+                "description": "The sections to show, in order (a list of names); all of them in the page order by default.",
+                "attribute": "sections"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Careers page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/careers-page/Page.html",
+          "content": "<!-- The careers page with its own copy (Acme). -->\n<spyglass-careers-page></spyglass-careers-page>\n"
+        }
+      ]
+    }
+  }
+}

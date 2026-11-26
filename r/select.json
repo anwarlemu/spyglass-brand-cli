@@ -1,0 +1,332 @@
+{
+  "name": "select",
+  "title": "Select",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "One choice from a short list, drawn as the field is: a Black field, a hairline that turns White while open, a chevron. The list opens in the card's #262626 panel, the chosen row checked. A long list scrolls with fading edges.",
+  "use_for": "Picking one of a few known values in a form or a filter: a platform, an order, a plan. Label it as any field.",
+  "never": [
+    "A list that needs a filter: use Combobox",
+    "Options that do something at once: use Dropdown Menu",
+    "A colored or glowing focus ring: the hairline turns White"
+  ],
+  "source": "Derived from the brand guidelines (no select in the brand assets): the Input's Black field and hairline, the plan card's #262626 fill for the list",
+  "body": "",
+  "requires": [
+    "popover"
+  ],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/ui/Select.tsx",
+      "content": "'use client'\nimport { useId, useRef, type KeyboardEvent, type MouseEvent } from 'react'\nimport { Check, ChevronDown } from 'lucide-react'\nimport { PopoverPanel } from '@/react/components/ui/PopoverPanel'\nimport { useControllable } from '@/react/hooks/useControllable'\nimport { onMenuRows, usePopover } from '@/react/hooks/usePopover'\nimport { cn } from '@/react/lib/cn'\n\n// One choice from a short list, drawn as the field is (shadcn's select): a Black field with a #666666 hairline that\n// turns White while open, the chosen label (or a muted placeholder) and a chevron. The list opens in the card's #262626\n// panel, as wide as the field, focus on the chosen row; the chosen row has a check. Arrow keys, Home, End and the first\n// letter move through it, Enter or Space picks, Escape closes and returns focus. Opened from the keyboard it shows at\n// once; from a click it grows from the field. `value` with `onValueChange`; `name` sends the value with a form.\nexport type SelectSize = 'sm' | 'md' | 'lg'\n\nexport interface SelectOption {\n  value: string\n  label: string\n  disabled?: boolean\n}\n\nexport interface SelectProps {\n  /** The choices. */\n  options: SelectOption[]\n  /** The chosen value (with onValueChange). */\n  value?: string\n  defaultValue?: string\n  onValueChange?: (value: string) => void\n  /** Shown, muted, until something is chosen. */\n  placeholder?: string\n  /** sm (32px), md (40px) or lg (48px), as Input. */\n  size?: SelectSize\n  /** The field's name for assistive tech, when no <label> names it. */\n  label?: string\n  /** The id a <label for> points at. */\n  id?: string\n  /** Sends the value with a form. */\n  name?: string\n  disabled?: boolean\n  /** A red hairline (with the message beside it). */\n  invalid?: boolean\n  className?: string\n}\n\nconst SIZES: Record<SelectSize, string> = { sm: 'h-control-sm pr-2 pl-2.5', md: 'h-control-md pr-3 pl-3', lg: 'h-control-lg pr-4 pl-4' }\n\nexport function Select({ options, value: given, defaultValue = '', onValueChange, placeholder = 'Select', size = 'md', label, id, name, disabled, invalid, className }: SelectProps) {\n  const [value, setValue] = useControllable(given, defaultValue, onValueChange)\n  const pop = usePopover({ side: 'bottom', align: 'start', matchWidth: true, gap: 4 })\n  const listId = `select-${useId()}`\n  const typed = useRef({ text: '', at: 0 })\n  const chosen = options.find((o) => o.value === value)\n  const rows = () => [...(pop.panel.current?.querySelectorAll<HTMLElement>('[role=\"option\"]:not([aria-disabled=\"true\"])') ?? [])]\n\n  async function open(keyboard: boolean, at: 'chosen' | 'first' | 'last' = 'chosen') {\n    await pop.show({ keyboard })\n    const all = rows()\n    const target = at === 'first' ? all[0] : at === 'last' ? all.at(-1) : all.find((r) => r.dataset.value === value) ?? all[0]\n    ;(target ?? pop.panel.current)?.focus({ preventScroll: true })\n  }\n  function pick(v: string, keyboard: boolean) {\n    setValue(v)\n    pop.hide(true, keyboard)\n  }\n  // A click from the keyboard has no pointer detail: the list opens and closes at once.\n  function onClick(event: MouseEvent) {\n    const keyboard = event.detail === 0\n    if (pop.open) pop.hide(keyboard, keyboard)\n    else void open(keyboard)\n  }\n  function onTriggerKey(event: KeyboardEvent) {\n    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {\n      event.preventDefault()\n      if (!pop.open) void open(true, value ? 'chosen' : event.key === 'ArrowDown' ? 'first' : 'last')\n    }\n  }\n  // The first letters typed in a moment find the next row that starts with them.\n  function typeahead(key: string) {\n    const now = Date.now()\n    typed.current = { text: now - typed.current.at < 500 ? typed.current.text + key.toLowerCase() : key.toLowerCase(), at: now }\n    const all = rows()\n    const from = all.indexOf(document.activeElement as HTMLElement)\n    const order = [...all.slice(from + 1), ...all.slice(0, from + 1)]\n    order.find((r) => r.textContent?.trim().toLowerCase().startsWith(typed.current.text))?.focus()\n  }\n  function onListKey(event: KeyboardEvent) {\n    const row = (event.target as HTMLElement).closest<HTMLElement>('[role=\"option\"]')\n    if ((event.key === 'Enter' || event.key === ' ') && row) {\n      event.preventDefault()\n      if (row.getAttribute('aria-disabled') !== 'true') pick(row.dataset.value ?? '', true)\n    }\n    else if (event.key.length === 1 && /\\S/.test(event.key)) typeahead(event.key)\n    else onMenuRows(event, pop.panel.current, (refocus) => pop.hide(refocus))\n  }\n\n  return (\n    <>\n      <button\n        data-ds=\"select\"\n        ref={(el) => { pop.anchor.current = el }}\n        id={id}\n        type=\"button\"\n        role=\"combobox\"\n        aria-haspopup=\"listbox\"\n        aria-expanded={pop.open}\n        aria-controls={pop.open ? listId : undefined}\n        aria-label={label}\n        aria-invalid={invalid || undefined}\n        disabled={disabled}\n        className={cn('flex w-full min-w-0 cursor-pointer items-center justify-between gap-2 rounded-control border border-edge-strong bg-surface-subtle type-ui text-fg outline-none transition-[border-color] duration-160 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-expanded:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', SIZES[size], className)}\n        onClick={onClick}\n        onKeyDown={onTriggerKey}\n      >\n        <span className={cn('min-w-0 truncate text-left', chosen ? 'text-fg' : 'text-fg-muted')}>{chosen ? chosen.label : placeholder}</span>\n        <ChevronDown size={16} strokeWidth={1.5} aria-hidden=\"true\" className=\"shrink-0 text-fg-muted\" />\n      </button>\n      {name && <input type=\"hidden\" name={name} value={value} />}\n      <PopoverPanel data-ds=\"select\" id={listId} pop={pop} role=\"listbox\" aria-label={label} tabIndex={-1} className=\"p-1\" onKeyDown={onListKey}>\n        {options.map((o) => (\n          <div\n            key={o.value}\n            role=\"option\"\n            tabIndex={-1}\n            data-value={o.value}\n            aria-selected={o.value === value}\n            aria-disabled={o.disabled || undefined}\n            className=\"flex h-control-sm cursor-pointer items-center justify-between gap-3 rounded-ds-sm px-2 type-ui text-fg-soft outline-none transition-[background-color,color] duration-160 ease-standard focus:bg-action-secondary focus:text-fg aria-disabled:cursor-not-allowed aria-disabled:text-fg-faint aria-selected:text-fg max-md:h-control-touch\"\n            onPointerMove={(event) => { if (!o.disabled && document.activeElement !== event.currentTarget) event.currentTarget.focus({ preventScroll: true }) }}\n            onClick={(event) => { if (!o.disabled) pick(o.value, event.detail === 0) }}\n          >\n            <span className=\"min-w-0 truncate\">{o.label}</span>\n            {o.value === value && <Check size={16} strokeWidth={1.5} aria-hidden=\"true\" className=\"shrink-0\" />}\n          </div>\n        ))}\n      </PopoverPanel>\n    </>\n  )\n}\n\nexport default Select\n"
+    },
+    {
+      "path": "react/hooks/useControllable.ts",
+      "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Filters",
+      "label": "Two filters",
+      "center": false,
+      "half": false,
+      "path": "react/examples/select/Filters.tsx",
+      "content": "import { Select } from '@/react/components/ui/Select'\n// Two filters for a search: a platform to pick (a placeholder until then) and the order, already chosen.\nconst platforms = [\n  { value: 'meta', label: 'Meta' },\n  { value: 'tiktok', label: 'TikTok' },\n  { value: 'youtube', label: 'YouTube' },\n  { value: 'linkedin', label: 'LinkedIn', disabled: true },\n]\nconst orders = [\n  { value: 'newest', label: 'Newest first' },\n  { value: 'longest', label: 'Longest running' },\n  { value: 'saved', label: 'Most saved' },\n]\n\nexport default function Filters() {\n  return (\n    <div className=\"flex min-h-72 w-72 max-w-full flex-col gap-6\">\n      <div className=\"flex flex-col gap-2\">\n        <label htmlFor=\"select-platform\" className=\"type-label text-fg-soft\">Platform</label>\n        <Select id=\"select-platform\" label=\"Platform\" name=\"platform\" options={platforms} placeholder=\"Any platform\" />\n      </div>\n      <div className=\"flex flex-col gap-2\">\n        <label htmlFor=\"select-order\" className=\"type-label text-fg-soft\">Sort by</label>\n        <Select id=\"select-order\" label=\"Sort by\" name=\"order\" options={orders} defaultValue=\"longest\" />\n        <p className=\"type-caption text-fg-muted\">Ads that run longer are the ones that work.</p>\n      </div>\n    </div>\n  )\n}\n",
+      "requires": [
+        "popover"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Select.tsx",
+          "content": "'use client'\nimport { useId, useRef, type KeyboardEvent, type MouseEvent } from 'react'\nimport { Check, ChevronDown } from 'lucide-react'\nimport { PopoverPanel } from '@/react/components/ui/PopoverPanel'\nimport { useControllable } from '@/react/hooks/useControllable'\nimport { onMenuRows, usePopover } from '@/react/hooks/usePopover'\nimport { cn } from '@/react/lib/cn'\n\n// One choice from a short list, drawn as the field is (shadcn's select): a Black field with a #666666 hairline that\n// turns White while open, the chosen label (or a muted placeholder) and a chevron. The list opens in the card's #262626\n// panel, as wide as the field, focus on the chosen row; the chosen row has a check. Arrow keys, Home, End and the first\n// letter move through it, Enter or Space picks, Escape closes and returns focus. Opened from the keyboard it shows at\n// once; from a click it grows from the field. `value` with `onValueChange`; `name` sends the value with a form.\nexport type SelectSize = 'sm' | 'md' | 'lg'\n\nexport interface SelectOption {\n  value: string\n  label: string\n  disabled?: boolean\n}\n\nexport interface SelectProps {\n  /** The choices. */\n  options: SelectOption[]\n  /** The chosen value (with onValueChange). */\n  value?: string\n  defaultValue?: string\n  onValueChange?: (value: string) => void\n  /** Shown, muted, until something is chosen. */\n  placeholder?: string\n  /** sm (32px), md (40px) or lg (48px), as Input. */\n  size?: SelectSize\n  /** The field's name for assistive tech, when no <label> names it. */\n  label?: string\n  /** The id a <label for> points at. */\n  id?: string\n  /** Sends the value with a form. */\n  name?: string\n  disabled?: boolean\n  /** A red hairline (with the message beside it). */\n  invalid?: boolean\n  className?: string\n}\n\nconst SIZES: Record<SelectSize, string> = { sm: 'h-control-sm pr-2 pl-2.5', md: 'h-control-md pr-3 pl-3', lg: 'h-control-lg pr-4 pl-4' }\n\nexport function Select({ options, value: given, defaultValue = '', onValueChange, placeholder = 'Select', size = 'md', label, id, name, disabled, invalid, className }: SelectProps) {\n  const [value, setValue] = useControllable(given, defaultValue, onValueChange)\n  const pop = usePopover({ side: 'bottom', align: 'start', matchWidth: true, gap: 4 })\n  const listId = `select-${useId()}`\n  const typed = useRef({ text: '', at: 0 })\n  const chosen = options.find((o) => o.value === value)\n  const rows = () => [...(pop.panel.current?.querySelectorAll<HTMLElement>('[role=\"option\"]:not([aria-disabled=\"true\"])') ?? [])]\n\n  async function open(keyboard: boolean, at: 'chosen' | 'first' | 'last' = 'chosen') {\n    await pop.show({ keyboard })\n    const all = rows()\n    const target = at === 'first' ? all[0] : at === 'last' ? all.at(-1) : all.find((r) => r.dataset.value === value) ?? all[0]\n    ;(target ?? pop.panel.current)?.focus({ preventScroll: true })\n  }\n  function pick(v: string, keyboard: boolean) {\n    setValue(v)\n    pop.hide(true, keyboard)\n  }\n  // A click from the keyboard has no pointer detail: the list opens and closes at once.\n  function onClick(event: MouseEvent) {\n    const keyboard = event.detail === 0\n    if (pop.open) pop.hide(keyboard, keyboard)\n    else void open(keyboard)\n  }\n  function onTriggerKey(event: KeyboardEvent) {\n    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {\n      event.preventDefault()\n      if (!pop.open) void open(true, value ? 'chosen' : event.key === 'ArrowDown' ? 'first' : 'last')\n    }\n  }\n  // The first letters typed in a moment find the next row that starts with them.\n  function typeahead(key: string) {\n    const now = Date.now()\n    typed.current = { text: now - typed.current.at < 500 ? typed.current.text + key.toLowerCase() : key.toLowerCase(), at: now }\n    const all = rows()\n    const from = all.indexOf(document.activeElement as HTMLElement)\n    const order = [...all.slice(from + 1), ...all.slice(0, from + 1)]\n    order.find((r) => r.textContent?.trim().toLowerCase().startsWith(typed.current.text))?.focus()\n  }\n  function onListKey(event: KeyboardEvent) {\n    const row = (event.target as HTMLElement).closest<HTMLElement>('[role=\"option\"]')\n    if ((event.key === 'Enter' || event.key === ' ') && row) {\n      event.preventDefault()\n      if (row.getAttribute('aria-disabled') !== 'true') pick(row.dataset.value ?? '', true)\n    }\n    else if (event.key.length === 1 && /\\S/.test(event.key)) typeahead(event.key)\n    else onMenuRows(event, pop.panel.current, (refocus) => pop.hide(refocus))\n  }\n\n  return (\n    <>\n      <button\n        data-ds=\"select\"\n        ref={(el) => { pop.anchor.current = el }}\n        id={id}\n        type=\"button\"\n        role=\"combobox\"\n        aria-haspopup=\"listbox\"\n        aria-expanded={pop.open}\n        aria-controls={pop.open ? listId : undefined}\n        aria-label={label}\n        aria-invalid={invalid || undefined}\n        disabled={disabled}\n        className={cn('flex w-full min-w-0 cursor-pointer items-center justify-between gap-2 rounded-control border border-edge-strong bg-surface-subtle type-ui text-fg outline-none transition-[border-color] duration-160 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-expanded:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', SIZES[size], className)}\n        onClick={onClick}\n        onKeyDown={onTriggerKey}\n      >\n        <span className={cn('min-w-0 truncate text-left', chosen ? 'text-fg' : 'text-fg-muted')}>{chosen ? chosen.label : placeholder}</span>\n        <ChevronDown size={16} strokeWidth={1.5} aria-hidden=\"true\" className=\"shrink-0 text-fg-muted\" />\n      </button>\n      {name && <input type=\"hidden\" name={name} value={value} />}\n      <PopoverPanel data-ds=\"select\" id={listId} pop={pop} role=\"listbox\" aria-label={label} tabIndex={-1} className=\"p-1\" onKeyDown={onListKey}>\n        {options.map((o) => (\n          <div\n            key={o.value}\n            role=\"option\"\n            tabIndex={-1}\n            data-value={o.value}\n            aria-selected={o.value === value}\n            aria-disabled={o.disabled || undefined}\n            className=\"flex h-control-sm cursor-pointer items-center justify-between gap-3 rounded-ds-sm px-2 type-ui text-fg-soft outline-none transition-[background-color,color] duration-160 ease-standard focus:bg-action-secondary focus:text-fg aria-disabled:cursor-not-allowed aria-disabled:text-fg-faint aria-selected:text-fg max-md:h-control-touch\"\n            onPointerMove={(event) => { if (!o.disabled && document.activeElement !== event.currentTarget) event.currentTarget.focus({ preventScroll: true }) }}\n            onClick={(event) => { if (!o.disabled) pick(o.value, event.detail === 0) }}\n          >\n            <span className=\"min-w-0 truncate\">{o.label}</span>\n            {o.value === value && <Check size={16} strokeWidth={1.5} aria-hidden=\"true\" className=\"shrink-0\" />}\n          </div>\n        ))}\n      </PopoverPanel>\n    </>\n  )\n}\n\nexport default Select\n"
+        },
+        {
+          "path": "react/hooks/useControllable.ts",
+          "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "popover"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "Select",
+            "file": "react/components/ui/Select.tsx",
+            "props": [
+              {
+                "name": "options",
+                "type": "SelectOption[]",
+                "required": true,
+                "description": "The choices."
+              },
+              {
+                "name": "value",
+                "type": "string",
+                "required": false,
+                "description": "The chosen value (with onValueChange)."
+              },
+              {
+                "name": "defaultValue",
+                "type": "string",
+                "required": false,
+                "default": "''"
+              },
+              {
+                "name": "onValueChange",
+                "type": "(value: string) => void",
+                "required": false
+              },
+              {
+                "name": "placeholder",
+                "type": "string",
+                "required": false,
+                "default": "'Select'",
+                "description": "Shown, muted, until something is chosen."
+              },
+              {
+                "name": "size",
+                "type": "SelectSize",
+                "required": false,
+                "default": "'md'",
+                "description": "sm (32px), md (40px) or lg (48px), as Input."
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "description": "The field's name for assistive tech, when no <label> names it."
+              },
+              {
+                "name": "id",
+                "type": "string",
+                "required": false,
+                "description": "The id a <label for> points at."
+              },
+              {
+                "name": "name",
+                "type": "string",
+                "required": false,
+                "description": "Sends the value with a form."
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "required": false
+              },
+              {
+                "name": "invalid",
+                "type": "boolean",
+                "required": false,
+                "description": "A red hairline (with the message beside it)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Filters",
+          "label": "Two filters",
+          "center": false,
+          "half": false,
+          "path": "react/examples/select/Filters.tsx",
+          "content": "import { Select } from '@/react/components/ui/Select'\n// Two filters for a search: a platform to pick (a placeholder until then) and the order, already chosen.\nconst platforms = [\n  { value: 'meta', label: 'Meta' },\n  { value: 'tiktok', label: 'TikTok' },\n  { value: 'youtube', label: 'YouTube' },\n  { value: 'linkedin', label: 'LinkedIn', disabled: true },\n]\nconst orders = [\n  { value: 'newest', label: 'Newest first' },\n  { value: 'longest', label: 'Longest running' },\n  { value: 'saved', label: 'Most saved' },\n]\n\nexport default function Filters() {\n  return (\n    <div className=\"flex min-h-72 w-72 max-w-full flex-col gap-6\">\n      <div className=\"flex flex-col gap-2\">\n        <label htmlFor=\"select-platform\" className=\"type-label text-fg-soft\">Platform</label>\n        <Select id=\"select-platform\" label=\"Platform\" name=\"platform\" options={platforms} placeholder=\"Any platform\" />\n      </div>\n      <div className=\"flex flex-col gap-2\">\n        <label htmlFor=\"select-order\" className=\"type-label text-fg-soft\">Sort by</label>\n        <Select id=\"select-order\" label=\"Sort by\" name=\"order\" options={orders} defaultValue=\"longest\" />\n        <p className=\"type-caption text-fg-muted\">Ads that run longer are the ones that work.</p>\n      </div>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "popover"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/select.ts",
+          "content": "import { html, LitElement, nothing, type PropertyValues } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { repeat } from 'lit/directives/repeat.js'\nimport { Check, ChevronDown } from 'lucide'\nimport { DsFormElement, define, HostLayoutController, uid } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport { onMenuRows } from '@/elements/lib/menu'\nimport { PopoverController, popoverStyles } from '@/elements/lib/popover'\nimport styles from 'virtual:tw'\n\n// Select.tsx as <spyglass-select>: one choice from a short list, drawn as the field is: a Black field with a hairline\n// that turns White while open, the chosen label (or a muted placeholder) and a chevron. The list opens in the card's\n// #262626 panel, as wide as the field, focus on the chosen row, which has a check. Arrow keys, Home, End and the first\n// letter move through it, Enter or Space picks, Escape closes. Opened from the keyboard it shows at once. `options` is\n// a JSON list of { value, label, disabled }; `value` with `input` and `change`; form-associated under `name`.\nexport type SelectSize = 'sm' | 'md' | 'lg'\nexport interface SelectOption { value: string, label: string, disabled?: boolean }\n\nconst SIZES: Record<SelectSize, string> = { sm: 'h-control-sm pr-2 pl-2.5', md: 'h-control-md pr-3 pl-3', lg: 'h-control-lg pr-4 pl-4' }\n\n/**\n * @summary One choice from a short list, drawn as a field.\n * @fires input - A row was picked (read `value`).\n * @fires change - A row was picked (read `value`).\n */\nexport class Select extends DsFormElement {\n\tstatic styles = [DsFormElement.styles, popoverStyles, styles]\n\tstatic shadowRootOptions = { ...LitElement.shadowRootOptions, delegatesFocus: true }\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('button[role=\"combobox\"]'))\n\tstatic properties = {\n\t\toptions: { type: Array },\n\t\tvalue: {},\n\t\tplaceholder: {},\n\t\tsize: { reflect: true },\n\t\tlabel: { attribute: 'aria-label' },\n\t\tname: {},\n\t\tdisabled: { type: Boolean, reflect: true },\n\t\tinvalid: { type: Boolean, reflect: true },\n\t}\n\n\t/** The choices. */\n\toptions: SelectOption[] = []\n\tvalue = ''\n\t/** Shown, muted, until something is chosen. */\n\tplaceholder = 'Select'\n\t/** sm (32px), md (40px) or lg (48px), as Input. */\n\tsize: SelectSize = 'md'\n\t/** The field's name for assistive tech. */\n\tlabel?: string\n\tname?: string\n\tdisabled = false\n\t/** A red hairline (with the message beside it). */\n\tinvalid = false\n\tprivate listId = uid('select')\n\tprivate typed = { text: '', at: 0 }\n\tprivate pop = new PopoverController(this, {\n\t\tside: 'bottom',\n\t\talign: 'start',\n\t\tmatchWidth: true,\n\t\tgap: 4,\n\t\tanchor: () => this.renderRoot.querySelector<HTMLElement>('button[role=\"combobox\"]'),\n\t\tpanel: () => this.renderRoot.querySelector<HTMLElement>('.ds-pop'),\n\t})\n\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\tif (!this.value && this.getAttribute('value')) this.value = this.getAttribute('value')!\n\t}\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\tif (changed.has('value')) this.internals.setFormValue(this.value)\n\t}\n\tformResetCallback() {\n\t\tthis.value = this.getAttribute('value') ?? ''\n\t}\n\n\tprivate rows() {\n\t\treturn [...this.renderRoot.querySelectorAll<HTMLElement>('[role=\"option\"]:not([aria-disabled=\"true\"])')]\n\t}\n\tprivate async open(keyboard: boolean, at: 'chosen' | 'first' | 'last' = 'chosen') {\n\t\tawait this.pop.show({ keyboard })\n\t\tconst all = this.rows()\n\t\tconst target = at === 'first' ? all[0] : at === 'last' ? all.at(-1) : all.find((r) => r.dataset.value === this.value) ?? all[0]\n\t\t;(target ?? this.renderRoot.querySelector<HTMLElement>('.ds-pop'))?.focus({ preventScroll: true })\n\t}\n\tprivate pick(v: string, keyboard: boolean) {\n\t\tthis.commit(v)\n\t\tthis.pop.hide(true, keyboard)\n\t}\n\t// A click from the keyboard has no pointer detail: the list opens and closes at once.\n\tprivate onClick = (event: MouseEvent) => {\n\t\tconst keyboard = event.detail === 0\n\t\tif (this.pop.open) this.pop.hide(keyboard, keyboard)\n\t\telse void this.open(keyboard)\n\t}\n\tprivate onTriggerKey = (event: KeyboardEvent) => {\n\t\tif (event.key === 'ArrowDown' || event.key === 'ArrowUp') {\n\t\t\tevent.preventDefault()\n\t\t\tif (!this.pop.open) void this.open(true, this.value ? 'chosen' : event.key === 'ArrowDown' ? 'first' : 'last')\n\t\t}\n\t}\n\t// The first letters typed in a moment find the next row that starts with them.\n\tprivate typeahead(key: string) {\n\t\tconst now = Date.now()\n\t\tthis.typed = { text: now - this.typed.at < 500 ? this.typed.text + key.toLowerCase() : key.toLowerCase(), at: now }\n\t\tconst all = this.rows()\n\t\tconst from = all.indexOf((this.renderRoot as ShadowRoot).activeElement as HTMLElement)\n\t\tconst order = [...all.slice(from + 1), ...all.slice(0, from + 1)]\n\t\torder.find((r) => r.textContent?.trim().toLowerCase().startsWith(this.typed.text))?.focus()\n\t}\n\tprivate onListKey = (event: KeyboardEvent) => {\n\t\tconst row = (event.composedPath()[0] as HTMLElement).closest?.<HTMLElement>('[role=\"option\"]')\n\t\tif ((event.key === 'Enter' || event.key === ' ') && row) {\n\t\t\tevent.preventDefault()\n\t\t\tif (row.getAttribute('aria-disabled') !== 'true') this.pick(row.dataset.value ?? '', true)\n\t\t} else if (event.key.length === 1 && /\\S/.test(event.key)) this.typeahead(event.key)\n\t\telse onMenuRows(event, this.rows(), (refocus) => this.pop.hide(refocus))\n\t}\n\n\trender() {\n\t\tconst options = Array.isArray(this.options) ? this.options : []\n\t\tconst chosen = options.find((o) => o.value === this.value)\n\t\tconst size = SIZES[this.size] ? this.size : 'md'\n\t\tconst classes = ['flex w-full min-w-0 cursor-pointer items-center justify-between gap-2 rounded-control border border-edge-strong bg-surface-subtle type-ui text-fg outline-none transition-[border-color] duration-160 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-expanded:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', SIZES[size]].join(' ')\n\t\tconst panel = this.pop.rendered\n\t\t\t? html`<div data-ds=\"select\" id=${this.listId} popover=\"manual\" class=\"ds-pop p-1 fade-y\" role=\"listbox\" aria-label=${ifDefined(this.label)} tabindex=\"-1\" data-side=${this.pop.pos.side} ?data-instant=${this.pop.instant} ?data-placed=${this.pop.pos.placed} style=${this.pop.style()} @focusout=${this.pop.onFocusOut} @keydown=${this.onListKey}>${repeat(\n\t\t\t\toptions,\n\t\t\t\t(o) => o.value,\n\t\t\t\t(o) => html`<div role=\"option\" tabindex=\"-1\" data-value=${o.value} aria-selected=${String(o.value === this.value)} aria-disabled=${ifDefined(o.disabled ? 'true' : undefined)} class=\"flex h-control-sm cursor-pointer items-center justify-between gap-3 rounded-ds-sm px-2 type-ui text-fg-soft outline-none transition-[background-color,color] duration-160 ease-standard focus:bg-action-secondary focus:text-fg aria-disabled:cursor-not-allowed aria-disabled:text-fg-faint aria-selected:text-fg max-md:h-control-touch\" @pointermove=${(event: PointerEvent) => { const el = event.currentTarget as HTMLElement; if (!o.disabled && (this.renderRoot as ShadowRoot).activeElement !== el) el.focus({ preventScroll: true }) }} @click=${(event: MouseEvent) => { if (!o.disabled) this.pick(o.value, event.detail === 0) }}><span class=\"min-w-0 truncate\">${o.label}</span>${o.value === this.value ? icon(Check, 'check', { size: 16, strokeWidth: 1.5, class: 'shrink-0', attrs: { 'aria-hidden': 'true' } }) : nothing}</div>`,\n\t\t\t)}</div>`\n\t\t\t: nothing\n\t\treturn html`<button data-ds=\"select\" type=\"button\" role=\"combobox\" aria-haspopup=\"listbox\" aria-expanded=${String(this.pop.open)} aria-controls=${ifDefined(this.pop.open ? this.listId : undefined)} aria-label=${ifDefined(this.label)} aria-invalid=${ifDefined(this.invalid ? 'true' : undefined)} ?disabled=${this.inactive} class=${classes} @click=${this.onClick} @keydown=${this.onTriggerKey}><span class=${`min-w-0 truncate text-left ${chosen ? 'text-fg' : 'text-fg-muted'}`}>${chosen ? chosen.label : this.placeholder}</span>${icon(ChevronDown, 'chevron-down', { size: 16, strokeWidth: 1.5, class: 'shrink-0 text-fg-muted', attrs: { 'aria-hidden': 'true' } })}</button>${panel}`\n\t}\n}\n\ndefine('select', Select)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/select.js"
+      ],
+      "tag": "spyglass-select",
+      "tags": [
+        "spyglass-select"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-select",
+            "name": "Select",
+            "module": "elements/select.js",
+            "description": "One choice from a short list, drawn as a field.",
+            "attributes": [
+              {
+                "name": "options",
+                "field": "options",
+                "type": "SelectOption[]",
+                "default": "[]",
+                "description": "The choices."
+              },
+              {
+                "name": "value",
+                "field": "value",
+                "type": "string",
+                "default": "''"
+              },
+              {
+                "name": "placeholder",
+                "field": "placeholder",
+                "type": "string",
+                "default": "'Select'",
+                "description": "Shown, muted, until something is chosen."
+              },
+              {
+                "name": "size",
+                "field": "size",
+                "type": "SelectSize",
+                "default": "'md'",
+                "description": "sm (32px), md (40px) or lg (48px), as Input."
+              },
+              {
+                "name": "aria-label",
+                "field": "label",
+                "type": "string | undefined",
+                "description": "The field's name for assistive tech."
+              },
+              {
+                "name": "name",
+                "field": "name",
+                "type": "string | undefined"
+              },
+              {
+                "name": "disabled",
+                "field": "disabled",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "invalid",
+                "field": "invalid",
+                "type": "boolean",
+                "default": "false",
+                "description": "A red hairline (with the message beside it)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "options",
+                "type": "SelectOption[]",
+                "default": "[]",
+                "description": "The choices.",
+                "attribute": "options"
+              },
+              {
+                "name": "value",
+                "type": "string",
+                "default": "''",
+                "attribute": "value"
+              },
+              {
+                "name": "placeholder",
+                "type": "string",
+                "default": "'Select'",
+                "description": "Shown, muted, until something is chosen.",
+                "attribute": "placeholder"
+              },
+              {
+                "name": "size",
+                "type": "SelectSize",
+                "default": "'md'",
+                "description": "sm (32px), md (40px) or lg (48px), as Input.",
+                "attribute": "size"
+              },
+              {
+                "name": "label",
+                "type": "string | undefined",
+                "description": "The field's name for assistive tech.",
+                "attribute": "aria-label"
+              },
+              {
+                "name": "name",
+                "type": "string | undefined",
+                "attribute": "name"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "disabled"
+              },
+              {
+                "name": "invalid",
+                "type": "boolean",
+                "default": "false",
+                "description": "A red hairline (with the message beside it).",
+                "attribute": "invalid"
+              }
+            ],
+            "events": [
+              {
+                "name": "input",
+                "description": "A row was picked (read `value`)."
+              },
+              {
+                "name": "change",
+                "description": "A row was picked (read `value`)."
+              }
+            ],
+            "slots": [],
+            "methods": [
+              {
+                "name": "formResetCallback"
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Filters",
+          "label": "Two filters",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/select/Filters.html",
+          "content": "<!-- Two filters for a search: a platform to pick (a placeholder until then) and the order, already chosen. -->\n<div class=\"flex min-h-72 w-72 max-w-full flex-col gap-6\">\n  <div class=\"flex flex-col gap-2\">\n    <label for=\"select-platform\" class=\"type-label text-fg-soft\">Platform</label>\n    <spyglass-select id=\"select-platform\" aria-label=\"Platform\" name=\"platform\" placeholder=\"Any platform\" options='[{\"value\":\"meta\",\"label\":\"Meta\"},{\"value\":\"tiktok\",\"label\":\"TikTok\"},{\"value\":\"youtube\",\"label\":\"YouTube\"},{\"value\":\"linkedin\",\"label\":\"LinkedIn\",\"disabled\":true}]'></spyglass-select>\n  </div>\n  <div class=\"flex flex-col gap-2\">\n    <label for=\"select-order\" class=\"type-label text-fg-soft\">Sort by</label>\n    <spyglass-select id=\"select-order\" aria-label=\"Sort by\" name=\"order\" value=\"longest\" options='[{\"value\":\"newest\",\"label\":\"Newest first\"},{\"value\":\"longest\",\"label\":\"Longest running\"},{\"value\":\"saved\",\"label\":\"Most saved\"}]'></spyglass-select>\n    <p class=\"type-caption text-fg-muted\">Ads that run longer are the ones that work.</p>\n  </div>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,4041 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "spyglass-react",
+  "homepage": "https://spyglass-ds.vercel.app",
+  "items": [
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "about-page",
+      "type": "registry:block",
+      "title": "About page",
+      "description": "The site's about and careers page: the head centered with one White button, a strip of photos in front of the band of light drifting slowly, the story at 720px, the benefits (each group's title beside its list) and the footer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-trail.json",
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/light-image.json",
+        "https://spyglass-ds.vercel.app/r/react/site-footer.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/AboutPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/about.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/light-tiles.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "abstract-canvas",
+      "type": "registry:ui",
+      "title": "Abstract canvas",
+      "description": "An ASCII drawing in a 14:13 panel on the raised surface: archive rows of a brand's records packing toward the foot, a field of characters resolving into tags, or a brand graph linking clusters of records. It loops while on screen; settled with reduced motion.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/visuals/AbstractCanvas.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/effects/abstract.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/abstract-kinds.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/abstract-archive.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/abstract-tags.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/abstract-graph.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/abstract-motion.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "accordion",
+      "type": "registry:ui",
+      "title": "Accordion",
+      "description": "A stack of disclosures on Black: neutral hairlines between the rows, a DM Sans question, a muted answer that opens in place and a chevron that turns. One open at a time, or several.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Accordion.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/AccordionItem.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useAccordion.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "alert-dialog",
+      "type": "registry:ui",
+      "title": "Alert dialog",
+      "description": "A question that needs an answer before anything else, on the #262626 overlay surface over a Black scrim: a Funnel Display title, one line saying what happens, Cancel and the action (red for what removes something).",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json"
+      ],
+      "files": [
+        {
+          "path": "components/ui/AlertDialog.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "alert",
+      "type": "registry:ui",
+      "title": "Alert",
+      "description": "A note or a problem in a #262626 box on Black: a Lucide icon, the subject in DM Sans Medium, a muted line under it and the button that goes with it. Red for what broke.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Alert.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "ascii-drift",
+      "type": "registry:ui",
+      "title": "ASCII drift",
+      "description": "A crop of the site's ASCII texture tile behind a section, fading out radially from one side: quiet at 0.5, faint at 0.32, or the hero's full strength with a wider core.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/visuals/AsciiDrift.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/ascii-drift.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/textures.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "ascii-lens",
+      "type": "registry:ui",
+      "title": "ASCII lens",
+      "description": "A mouse lens over the page's ASCII drifts and textures: near the pointer, the texture's empty cells fill with more characters, denser where the texture is. One per page; it finds the drifts itself.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/light-image.json"
+      ],
+      "files": [
+        {
+          "path": "components/visuals/AsciiLens.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/effects/ascii-lens.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "ascii-texture",
+      "type": "registry:ui",
+      "title": "ASCII texture",
+      "description": "The brand's ASCII texture, generated: Geist Mono characters from \" .:-=+*#\" read off a soft heat map, White at 0.35 opacity on Black. Seeded, with areas kept clear.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/brand-light.json"
+      ],
+      "files": [
+        {
+          "path": "components/visuals/AsciiTexture.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/ascii.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "ascii-trail",
+      "type": "registry:ui",
+      "title": "ASCII trail",
+      "description": "A mouse leaves a short trail of ASCII characters that fades in 700ms, over one section or, fixed behind it, the whole page. Only for a fine pointer; off on touch and with reduced motion.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/light-image.json"
+      ],
+      "files": [
+        {
+          "path": "components/visuals/AsciiTrail.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/effects/ascii-trail.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "aspect-ratio",
+      "type": "registry:ui",
+      "title": "Aspect ratio",
+      "description": "A box that keeps its shape as it grows: a 1:1 post, a 4:5 ad, a 16:9 slide. It draws nothing itself; the brand corner and a #262626 ground are classes on it.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/AspectRatio.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "auth-form",
+      "type": "registry:block",
+      "title": "Auth form",
+      "description": "The site's sign-in and sign-up form in a 400px column: the title and lead, a quiet provider button, the or rule, the email field with its message beside the label, the one White button, the legal line and the way to the other mode; a pressed button shows a spinner until the app takes over.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/AuthForm.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/auth.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "auth-page",
+      "type": "registry:block",
+      "title": "Sign-in page",
+      "description": "The site's sign-in and sign-up page: Black with the site's own light images in two corners bobbing slowly, two ASCII crops from 1024, the lockup bar, the form centered in the height left, and the proof row of marks under it.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/auth-form.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/logo.json",
+        "https://spyglass-ds.vercel.app/r/react/proof-strip.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/AuthPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "automation-run",
+      "type": "registry:ui",
+      "title": "Automation run",
+      "description": "The site's automation run: a quote in the section head over a batch of skewed ad cards that rush in along a rising conveyor and keep drifting; a card under the pointer, focus or a tap rises and turns, the cards ahead give way and a note opens with its numbers.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/AutomationRun.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/automation-run.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "avatar",
+      "type": "registry:ui",
+      "title": "Avatar",
+      "description": "Who or what something belongs to, in a circle: a picture cropped round, or the name's initials in White DM Sans Medium on #262626. Three sizes.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Avatar.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "badge",
+      "type": "registry:ui",
+      "title": "Badge",
+      "description": "A short label for a state or a kind, in DM Sans Medium capitals with 6% tracking: White, #262626, a hairline, or a red wash. A small spectrum dot can lead it.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Badge.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "bento-block",
+      "type": "registry:block",
+      "title": "Bento block",
+      "description": "Features as a bento grid: #262626 cards with the 4px corner, a title and a line, some wide or tall, an optional picture.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/blocks/BentoBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "blog-page",
+      "type": "registry:block",
+      "title": "Blog page",
+      "description": "The blog index template, built only from library items: the title, the newest post large and every other post in a grid of three, each with an image, the date and category in capitals and a Funnel Display title.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/footer-row.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/BlogPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/blog.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "blog-post-page",
+      "type": "registry:block",
+      "title": "Blog post page",
+      "description": "A blog post template, built only from library items: the way back, the title in Funnel Display, a wide image, the body in a 720px column (paragraphs, subheads, a list, a quote, a figure of creatives), more posts and the offer.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-grid.json",
+        "https://spyglass-ds.vercel.app/r/react/footer-row.json",
+        "https://spyglass-ds.vercel.app/r/react/offer-block.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/BlogPostPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/blog-post.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "brand-light",
+      "type": "registry:ui",
+      "title": "Brand light",
+      "description": "The brand pattern, generated: one shape drawn three times in Red #DF0000 (0.85), Green #00FF29 (0.782) and Blue #1B1DFF (0.782), each shifted sideways, blurred and blended plus-lighter on Black. Seeded, in every variant the brand assets use.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/visuals/BrandLight.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/light.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/light-master.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "breadcrumb",
+      "type": "registry:ui",
+      "title": "Breadcrumb",
+      "description": "Where you are, in DM Sans: each step back a muted link that turns White under the pointer, a small chevron between, the page itself in White.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Breadcrumb.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "browser-frame",
+      "type": "registry:ui",
+      "title": "Browser frame",
+      "description": "The site's browser window around a screenshot or a live part of a page: a #262626 window with a #4D4D4D hairline, three gray dots, the address in a small pill, and an optional footer row.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/site/BrowserFrame.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "button-group",
+      "type": "registry:ui",
+      "title": "Button group",
+      "description": "Buttons that belong together, joined into one block: the brand corner on the outer corners only and a 1px Black seam between them. A field with its button, a button with its menu arrow, or a vertical stack.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/ButtonGroup.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "button",
+      "type": "registry:ui",
+      "title": "Button",
+      "description": "The site's button: a White fill with a Black DM Sans Medium label for the one main action, the quiet secondary (#1A1A1A in a #363636 ring) for the rest, and a ghost for tools in rows; a White glow follows a mouse inside it. Three sizes and a square icon button.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Button.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/glow.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "calendar",
+      "type": "registry:ui",
+      "title": "Calendar",
+      "description": "A month to pick a day from: 40px day cells with the 4px corner, the picked day a White fill with a Black figure, today in a neutral hairline ring, the months either side faint. Arrows, Home, End and Page Up and Down move; Enter picks.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json"
+      ],
+      "files": [
+        {
+          "path": "components/ui/Calendar.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "card",
+      "type": "registry:ui",
+      "title": "Card",
+      "description": "The brand's card: a #262626 fill on Black with the brand corner, a Funnel Display title, a line of DM Sans and the body, with actions at the foot. No border, no shadow.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Card.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "careers-page",
+      "type": "registry:block",
+      "title": "Careers page",
+      "description": "The careers page: the page head with the light, why join as three cards and the open roles as rows under hairlines.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/footer-row.json",
+        "https://spyglass-ds.vercel.app/r/react/hero-block.json",
+        "https://spyglass-ds.vercel.app/r/react/not-found-page.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/CareersPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/careers.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "carousel",
+      "type": "registry:ui",
+      "title": "Carousel",
+      "description": "Slides in a row on the Black ground, 16px apart, one to three in view, with ghost arrow buttons and the place in tabular figures. Native scroll snap: a swipe, a trackpad, the arrows and the arrow keys all move it. It never plays on its own. The track's edges fade while there are slides past them.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json"
+      ],
+      "files": [
+        {
+          "path": "components/ui/Carousel.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "case-stories-block",
+      "type": "registry:block",
+      "title": "Case stories block",
+      "description": "The home's case stories: a centered head, each case as a wide picture with its panel (company, headline figure, quote, person and the link to the story), the panel floating over the picture's corner from 1024 on alternating sides, then quotes in cards three across.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/CaseStoriesBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/home/stories.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "case-studies-page",
+      "type": "registry:block",
+      "title": "Case studies page",
+      "description": "The site's case studies index: the header, the page head, the home's case stories without their head (each case as a wide picture with its panel, then every quote in cards three across), the closing section and the footer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-trail.json",
+        "https://spyglass-ds.vercel.app/r/react/case-stories-block.json",
+        "https://spyglass-ds.vercel.app/r/react/case-study-page.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/page-close.json",
+        "https://spyglass-ds.vercel.app/r/react/page-head.json",
+        "https://spyglass-ds.vercel.app/r/react/site-footer.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/CaseStudiesPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "case-study-page",
+      "type": "registry:block",
+      "title": "Case study page",
+      "description": "The site's case study: a centered head (breadcrumb, headline, kind and read time), the facts with the products it uses, the lead picture, the opening line over three figures, a pull quote, the sections with a second quote, and the pager to the other studies, with ASCII crops in the margins from 1024.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/ascii-trail.json",
+        "https://spyglass-ds.vercel.app/r/react/badge.json",
+        "https://spyglass-ds.vercel.app/r/react/case-stories-block.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/page-close.json",
+        "https://spyglass-ds.vercel.app/r/react/resources-page.json",
+        "https://spyglass-ds.vercel.app/r/react/site-footer.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/CaseStudyPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/case-studies.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "changelog-page",
+      "type": "registry:block",
+      "title": "Changelog page",
+      "description": "The changelog template, built only from library items: every release newest first under a hairline, its date in capitals on the left, the change as a Funnel Display sentence, its details and a picture when there is one.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/footer-row.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/ChangelogPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/changelog.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "chart",
+      "type": "registry:ui",
+      "title": "Chart",
+      "description": "How a number is drawn: White bars per day under a total, and lines over time in the brand's series order (White, #A3A3A3, #4D4D4D, then the spectrum from Magenta to Blue). Axes from 0 on #363636 hairlines; pointing reads a value.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/BarChart.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/LineChart.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/chart.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "checkbox",
+      "type": "registry:ui",
+      "title": "Checkbox",
+      "description": "A yes or no that is part of a form: a 16px box in a #666666 hairline on Black that fills White with a Black check, a bar for a group partly on, and a DM Sans label beside it. Form-associated.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Checkbox.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "close-block",
+      "type": "registry:block",
+      "title": "Close block",
+      "description": "The home's close: a screen-tall section with the headline, the connect menu and the quiet button in its middle, square creatives scattered around them that the light wakes from grey once, lit and leaning toward the pointer under a mouse, with a tag naming the one under it.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/connect-menu.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/CloseBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/home/close.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "code-block",
+      "type": "registry:ui",
+      "title": "Code block",
+      "description": "The site's tabs of code: a #262626 panel with a 56px head of tabs (a White line sliding under the chosen one) and a copy button whose label turns to Copied, over code in White with its punctuation and comments muted, scrolling across. Code and the copy button also stand alone.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/site/CodeBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/site/Code.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/site/CopyButton.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/code.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "collapsible",
+      "type": "registry:ui",
+      "title": "Collapsible",
+      "description": "A part that opens in place and pushes what follows: a quiet DM Sans Medium trigger with a muted chevron that turns, and content that grows to its height and settles in.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Collapsible.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "combobox",
+      "type": "registry:ui",
+      "title": "Combobox",
+      "description": "A field-like trigger that opens a list to pick one option from, with a filter over it, on the #262626 overlay panel: the menus' rows, a #262626 fill on the row the arrows or the pointer are on, the pick checked at the end. The list scrolls with fading edges, so no row is cut off.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/popover.json"
+      ],
+      "files": [
+        {
+          "path": "components/ui/Combobox.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "coming-soon-page",
+      "type": "registry:block",
+      "title": "Coming soon page",
+      "description": "The site's coming soon page, built from library items: the page head with two buttons, the sources coming next as cards (a Black cover with the source's mark over clearing ASCII glyphs, the name, a line and the APIs it feeds as chips), the side drifts from 1440, the smaller cards also on the list, the closing section and the footer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-trail.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/page-close.json",
+        "https://spyglass-ds.vercel.app/r/react/page-head.json",
+        "https://spyglass-ds.vercel.app/r/react/pricing-table.json",
+        "https://spyglass-ds.vercel.app/r/react/side-drifts.json",
+        "https://spyglass-ds.vercel.app/r/react/site-footer.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/ComingSoonPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/coming-soon.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "command",
+      "type": "registry:ui",
+      "title": "Command",
+      "description": "A box to type in over a list of actions and places, on the #262626 overlay surface: the field on top over a hairline, groups with a capital label, the menus' rows with an icon and a shortcut. On the page, or in a window opened with Cmd+K. The list scrolls with fading edges, so no row is cut off.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Command.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/CommandDialog.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "compare-table",
+      "type": "registry:ui",
+      "title": "Compare table",
+      "description": "The site's plan comparison: a table per group, its head (the group's title and the plans' names) sticking under the page header while the group scrolls, then a row per line with a value in #A3A3A3, a White check or nothing for each plan. Names can carry a tip and a link, lines the Soon tag; on phones one plan at a time.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/pricing-table.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/CompareTable.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "connect-menu",
+      "type": "registry:ui",
+      "title": "Connect menu",
+      "description": "The site's connect menu: a White button that opens a panel of the agents your MCP server can be added to, each row with its mark or first letter, a muted line and Open, plus a row that copies a setup prompt for any other agent; a pill slides to the row under the pointer or focus.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/ConnectMenu.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/connect.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "contact-page",
+      "type": "registry:block",
+      "title": "Contact page",
+      "description": "The contact page template, built only from library items: the heading and a line beside a form on the #262626 fill (name, work email, message, one White button), the header and the footer row.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/field.json",
+        "https://spyglass-ds.vercel.app/r/react/footer-row.json",
+        "https://spyglass-ds.vercel.app/r/react/input.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json",
+        "https://spyglass-ds.vercel.app/r/react/textarea.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/ContactPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/contact.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "context-menu",
+      "type": "registry:ui",
+      "title": "Context menu",
+      "description": "The dropdown menu's rows on the #262626 overlay panel, opened where the pointer right-clicks, or under the focused row with Shift+F10 or the menu key. Arrows, Home, End and Escape are handled; focus returns to what was clicked.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/dropdown-menu.json",
+        "https://spyglass-ds.vercel.app/r/react/popover.json"
+      ],
+      "files": [
+        {
+          "path": "components/ui/ContextMenu.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "creative-card",
+      "type": "registry:ui",
+      "title": "Creative card",
+      "description": "A creative as the brand shows it: an ad, a product shot or a UGC frame in the brand corner, its color exactly as posted. Without an image it draws a neutral placeholder, so no layout needs a third-party photo.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/site/CreativeCard.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/creative-layouts.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/image.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "creative-corridor",
+      "type": "registry:ui",
+      "title": "Creative corridor",
+      "description": "Creatives as walls on both sides, receding in perspective to a small light at the vanishing point, in the ad's exact places.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/brand-light.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/CreativeCorridor.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "creative-grid",
+      "type": "registry:ui",
+      "title": "Creative grid",
+      "description": "Creatives in a grid, every cell the same shape: the post's three by three of squares 8px apart with a light tile among them, or the ad's three up in 3/4.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/brand-light.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/CreativeGrid.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "creative-ring",
+      "type": "registry:ui",
+      "title": "Creative ring",
+      "description": "Twelve tiles around the middle of a square in the post's exact places: eight creatives, four tiles of the brand light, and the lockup inside.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/brand-light.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/CreativeRing.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "creative-row",
+      "type": "registry:ui",
+      "title": "Creative row",
+      "description": "A row of 4/5 creatives: even, as the banners line them up 16px apart, or peak, rising to the middle and centered on one line, as the deck cover sets them.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/brand-light.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/CreativeRow.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "cursor-effects",
+      "type": "registry:ui",
+      "title": "Cursor effects",
+      "description": "One cursor effect for the whole page on a fixed canvas behind it: a dashed trail of the brand light when the mouse flicks (the site's default), a soft circle of ASCII characters over empty page, or a burst of light chips where a thrown mouse stops. Clear of text, controls and pictures.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/light-image.json"
+      ],
+      "files": [
+        {
+          "path": "components/visuals/CursorEffects.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/effects/cursor.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/cursor-trail.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/cursor-lens.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/cursor-burst.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/ink.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "dashboard-page",
+      "type": "registry:block",
+      "title": "Dashboard page",
+      "description": "A product dashboard: a side rail, the title and one White button, four figures on cards and the latest rows in a hairline table.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/logo.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/DashboardPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/dashboard.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "data-table",
+      "type": "registry:ui",
+      "title": "Data table",
+      "description": "A table people filter, sort and page through: a dropdown per filter, heads in capitals that sort, 40px rows on neutral hairlines that take the #262626 fill under the pointer, numbers in tabular figures, Previous and Next under it. It scrolls sideways with fading edges inside the frame.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/dropdown-menu.json"
+      ],
+      "files": [
+        {
+          "path": "components/ui/DataTable.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "date-picker",
+      "type": "registry:ui",
+      "title": "Date picker",
+      "description": "A date in a field: a button drawn as the text field that opens the calendar on the #262626 overlay panel under it. Opening puts focus on the picked day, picking closes it and returns focus, Escape closes it unchanged.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/calendar.json",
+        "https://spyglass-ds.vercel.app/r/react/popover.json"
+      ],
+      "files": [
+        {
+          "path": "components/ui/DatePicker.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "dialog",
+      "type": "registry:ui",
+      "title": "Dialog",
+      "description": "A modal window on the #262626 overlay surface over a Black scrim: a Funnel Display title, a line under it, a ghost close button, a short form or an offer, and buttons at the foot.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json"
+      ],
+      "files": [
+        {
+          "path": "components/ui/Dialog.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "direction",
+      "type": "registry:ui",
+      "title": "Direction",
+      "description": "Sets the reading direction for what is inside it, so logical spacing and the components follow right-to-left text. Code stays left to right.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Direction.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useDirection.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "dispersion-field",
+      "type": "registry:ui",
+      "title": "Dispersion field",
+      "description": "The brand light drawn live in WebGL: soft blobs of light bent by slow waves, split into Blue, Green and Red, with the ASCII ghost of the light around them, in one of the site's compositions. It drifts while on screen and brings a lens under a mouse; with reduced motion it is one still frame.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/visuals/DispersionField.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/effects/field.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/field-engine.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/field-layout.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/field-shader.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/field-drag.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/field-stills.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "drawer",
+      "type": "registry:ui",
+      "title": "Drawer",
+      "description": "A panel that slides in from an edge over a Black scrim, on the #262626 overlay surface: from the bottom with the brand corner on its top edge and a grab handle, or from the left or right at full height. The body's edges fade while there is more to scroll.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/popover.json"
+      ],
+      "files": [
+        {
+          "path": "components/ui/Drawer.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "hooks/useSheet.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "dropdown-menu",
+      "type": "registry:ui",
+      "title": "Dropdown menu",
+      "description": "A button that opens a short list of actions or choices on the #262626 overlay surface: a neutral hairline, the brand corner, rows that take a #262626 fill under the pointer. Arrows, Home, End, Escape and Tab are handled.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/DropdownMenu.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/MenuItem.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/MenuLabel.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/MenuSeparator.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useMenu.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "empty",
+      "type": "registry:ui",
+      "title": "Empty",
+      "description": "What shows where a list has nothing in it yet: a dashed hairline with the brand corner, a Lucide icon in a #262626 tile, a Funnel Display title, one muted line and the actions that fill it.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Empty.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "enterprise-features",
+      "type": "registry:block",
+      "title": "Enterprise features",
+      "description": "The site's enterprise features: a section head over eight cards, each a looping product sketch over a crop of the ASCII texture with its title and line (data layer, archive, agents, engineers, three teams, a built tool, shared reports, private answers).",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/logo.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/EnterpriseFeatures.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/enterprise-features.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/enterprise-features-css.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/enterprise-features-html.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "enterprise-hero",
+      "type": "registry:block",
+      "title": "Enterprise hero",
+      "description": "The site's enterprise hero: the headline, lead and two buttons centered in a hero at least the window's height, inside a ring of twelve creatives that rise in, bob while seen, come forward with a tag naming the hook, and step through their set on a press.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/enterprise-page.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/EnterpriseHero.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/enterprise-ring.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "enterprise-page",
+      "type": "registry:block",
+      "title": "Enterprise page",
+      "description": "The site's enterprise page from library items: the header, the hero inside its ring of creatives, the logo row, the automation run under its quote, the eight features and the close with two buttons, then the footer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-trail.json",
+        "https://spyglass-ds.vercel.app/r/react/automation-run.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/enterprise-features.json",
+        "https://spyglass-ds.vercel.app/r/react/enterprise-hero.json",
+        "https://spyglass-ds.vercel.app/r/react/page-close.json",
+        "https://spyglass-ds.vercel.app/r/react/proof-strip.json",
+        "https://spyglass-ds.vercel.app/r/react/site-footer.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/EnterprisePage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/enterprise.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "error-page",
+      "type": "registry:block",
+      "title": "Error page",
+      "description": "The site's error page: what shows when a page fails to render, the error head alone on Black (the title in one line, what happened in a plain sentence, the White Try again and the quiet way home), with no header or footer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/page-head.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/ErrorPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/error.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "faq-block",
+      "type": "registry:block",
+      "title": "FAQ block",
+      "description": "The site's FAQ: the section head, a lead and a quiet button on the left, held under the header while the questions scroll by on the right; one answer open at a time, the rows sliding to make room and the plus turning to a minus. `layout=\"stack\"` puts the head over a narrow list. The rows also stand alone as FaqAccordion.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/FaqBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/blocks/FaqAccordion.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/faq.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "feature-grid-block",
+      "type": "registry:block",
+      "title": "Feature grid block",
+      "description": "What the product does, as cards: an optional Funnel Display heading and line over a grid of cards on the #262626 fill, each a title and a sentence, three or two across.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/card.json"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/FeatureGridBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "features-block",
+      "type": "registry:block",
+      "title": "Features block",
+      "description": "The home's features: a centered head and four cards in two columns, each a stage that shows the product working over its title and line: the media strip, the accounts burst, the graph ring and the patterns tally.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/why-block.json"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/FeaturesBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/home/features.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/home/accounts-burst.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "field",
+      "type": "registry:ui",
+      "title": "Field",
+      "description": "A label over one control, with a description or an error under it. The label speaks in capitals; the help is muted; an error takes the help's place in red.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Field.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "footer-block",
+      "type": "registry:block",
+      "title": "Footer block",
+      "description": "A website's footer band: a hairline above, the footer row (the lockup, links and the domain) inside the page width, and an optional legal line in the muted gray.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/footer-row.json"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/FooterBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "footer-row",
+      "type": "registry:ui",
+      "title": "Footer row",
+      "description": "The row every post, ad and deck ends on: the lockup on the left, the domain on the right. Links between them make it a website footer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/logo.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/FooterRow.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "form",
+      "type": "registry:ui",
+      "title": "Form",
+      "description": "Fields stacked 24px apart, a failure from the server in a dark red box, and the actions at the end, the main one last. Errors wait until a field is left or the form is sent.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Form.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useForm.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "hero-block",
+      "type": "registry:block",
+      "title": "Hero block",
+      "description": "The top of a page as the slides, posts and ads set it: a Funnel Display headline, a line of DM Sans and one White button on Black, with the light flowing in and the media (a search bar, a row of creatives) under the copy.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-texture.json",
+        "https://spyglass-ds.vercel.app/r/react/brand-light.json"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/HeroBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "home-page",
+      "type": "registry:block",
+      "title": "Home page",
+      "description": "The site's home, from library items in its order: the header, the playground hero, the proof row, the features, the reasons, the set-up steps beside the MCP session, the case stories, the pricing strip, the questions, the close among the creatives and the footer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-trail.json",
+        "https://spyglass-ds.vercel.app/r/react/case-stories-block.json",
+        "https://spyglass-ds.vercel.app/r/react/close-block.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/faq-block.json",
+        "https://spyglass-ds.vercel.app/r/react/features-block.json",
+        "https://spyglass-ds.vercel.app/r/react/how-it-works-block.json",
+        "https://spyglass-ds.vercel.app/r/react/mcp-session.json",
+        "https://spyglass-ds.vercel.app/r/react/playground-hero.json",
+        "https://spyglass-ds.vercel.app/r/react/pricing-panels-block.json",
+        "https://spyglass-ds.vercel.app/r/react/proof-block.json",
+        "https://spyglass-ds.vercel.app/r/react/site-footer.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json",
+        "https://spyglass-ds.vercel.app/r/react/why-block.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/HomePage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/home.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "hover-card",
+      "type": "registry:ui",
+      "title": "Hover Card",
+      "description": "More about a link while the pointer rests on it: the card's #262626 fill, a hairline and the brand corner. The pointer can cross into it; on touch the link just works.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/popover.json"
+      ],
+      "files": [
+        {
+          "path": "components/ui/HoverCard.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "how-it-works-block",
+      "type": "registry:block",
+      "title": "How it works block",
+      "description": "The home's set-up section: the headline, the lead, three numbered steps between hairlines, the connect menu beside the quiet button and the clients' marks, with the MCP session playing beside them from 1024.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/connect-menu.json",
+        "https://spyglass-ds.vercel.app/r/react/mcp-session.json",
+        "https://spyglass-ds.vercel.app/r/react/side-drifts.json"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/HowItWorksBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/home/how-it-works.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "input-group",
+      "type": "registry:ui",
+      "title": "Input Group",
+      "description": "A field with an icon, a prefix, a unit or a small button inside its hairline, drawn and sized as the input is. The hairline turns White while the field has focus.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/InputGroup.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "input-otp",
+      "type": "registry:ui",
+      "title": "Input OTP",
+      "description": "A one-time code, one cell per character, each cell drawn as the input. It is one real field, so paste and the phone's code suggestion work.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/InputOtp.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "input",
+      "type": "registry:ui",
+      "title": "Input",
+      "description": "A text field on Black: a #666666 hairline that turns White on focus, DM Sans, a #A3A3A3 placeholder and the brand corner. Sizes match the button's.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Input.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "instrument-marks",
+      "type": "registry:ui",
+      "title": "Instrument marks",
+      "description": "Four hairline corner brackets in the text colour around a target, a few pixels outside its edges, like a viewfinder locking on: the site's instrument mark for the item a figure is reading.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/visuals/Brackets.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "item",
+      "type": "registry:ui",
+      "title": "Item",
+      "description": "A row: media, a title in DM Sans Medium with a muted line under it, and actions at the end. No fill, a hairline box or the card's #262626 fill. ItemGroup puts a hairline between rows.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Item.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/ItemGroup.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "kbd",
+      "type": "registry:ui",
+      "title": "Kbd",
+      "description": "A key: DM Sans 12px in the soft neutral, in a 20px #1A1A1A box with a hairline and the small corner. KbdGroup holds the keys of one shortcut.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Kbd.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/KbdGroup.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "label",
+      "type": "registry:ui",
+      "title": "Label",
+      "description": "A field's label: DM Sans Medium in capitals with 6% tracking, in the soft gray, over the control it names. A muted hint can follow it.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Label.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "legal-page",
+      "type": "registry:block",
+      "title": "Legal page",
+      "description": "The site's legal pages (terms, privacy): the header, the page head with the title, the lead and the ASCII drift, then the text in the head's columns (the sections at the 640px measure on the left, their list staying in view on the right) and the footer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-trail.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/page-head.json",
+        "https://spyglass-ds.vercel.app/r/react/site-footer.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/LegalPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/legal.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "light-image",
+      "type": "registry:ui",
+      "title": "Light image",
+      "description": "One of the site's pre-made light pictures (or your own) with the ASCII grain drawn where its light falls off into Black; with a mask, a mouse brings a lens that magnifies the light and widens its Blue, Green and Red split.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/visuals/LightImage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/effects/grain.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/lens-gl.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/lens.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/pointer.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/light-image.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/light-art.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "logo-strip-block",
+      "type": "registry:block",
+      "title": "Logo strip block",
+      "description": "A row of customer names under a label in capitals, each set as a Funnel Display wordmark in the muted gray, so no third-party logo is drawn; their own marks go in the slot when you have permission.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/blocks/LogoStripBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "logo",
+      "type": "registry:ui",
+      "title": "Logo",
+      "description": "Every lockup from the brand's own files, in Black or White: the logomark, the 3D logomark, the wordmark, and the horizontal, vertical and 3D combination marks.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/visuals/Logo.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/logos.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "mcp-session",
+      "type": "registry:ui",
+      "title": "MCP session",
+      "description": "An AI chat asking an MCP server questions in turn: each typed at a typist's rhythm, the tool call and reply settling in, four creatives arriving one by one and the table's rows rising into place, then the next question.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/McpSession.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/home/session.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "menubar",
+      "type": "registry:ui",
+      "title": "Menubar",
+      "description": "Menu triggers in a row: a Black strip in a hairline with the brand corner, triggers in DM Sans Medium, each opening a panel of rows in the card's #262626 fill. Arrow keys move along the bar and through the rows.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/popover.json"
+      ],
+      "files": [
+        {
+          "path": "components/ui/Menubar.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/MenubarMenu.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/MenubarItem.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/MenubarLabel.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/MenubarSeparator.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "native-select",
+      "type": "registry:ui",
+      "title": "Native Select",
+      "description": "The browser's own select, drawn as the input: a #666666 hairline on Black that turns White on focus, the brand corner and a muted chevron. Phones open the system picker.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/NativeSelect.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "navigation-menu",
+      "type": "registry:ui",
+      "title": "Navigation Menu",
+      "description": "A site's top navigation: triggers and links in DM Sans Medium, each trigger opening a panel of links in the card's #262626 fill. It opens under a resting pointer, switches at once between triggers, and opens at once from the keyboard.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/popover.json"
+      ],
+      "files": [
+        {
+          "path": "components/ui/NavigationMenu.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/NavigationMenuItem.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/NavigationMenuLink.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "newsletter-block",
+      "type": "registry:block",
+      "title": "Newsletter block",
+      "description": "A newsletter sign-up on a #262626 card: the title, a line, an email field and the White button, small print under them.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/input.json"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/NewsletterBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "not-found-page",
+      "type": "registry:block",
+      "title": "404 page",
+      "description": "The site's 404 page: the header, the page head with the title, what happened in a plain sentence, the White way home and the quiet way to the docs, the ASCII drift in the right columns, and the footer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-trail.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/page-head.json",
+        "https://spyglass-ds.vercel.app/r/react/site-footer.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/NotFoundPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/not-found.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "offer-block",
+      "type": "registry:block",
+      "title": "Offer block",
+      "description": "The offer as the posts and the Creator plan ad close: a centered Funnel Display headline, the terms in capitals with concrete numbers and one White button, with the light flowing in around them or from the top over a plan card.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-texture.json",
+        "https://spyglass-ds.vercel.app/r/react/brand-light.json",
+        "https://spyglass-ds.vercel.app/r/react/button.json"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/OfferBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "page-close",
+      "type": "registry:ui",
+      "title": "Page close",
+      "description": "The site's closing section: a centered last head over its lines, a note in the soft gray, the connect menu with a quiet button (or a White and a quiet button), and from 1024 two ASCII drifts fading in at the corners.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/connect-menu.json",
+        "https://spyglass-ds.vercel.app/r/react/page-head.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/PageClose.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "page-head",
+      "type": "registry:ui",
+      "title": "Page head",
+      "description": "The site's page head: the page title as the section head with its lines breaking from 768, a lead in the soft gray, a White and a quiet button (or a control in the White one's place), and an ASCII drift in the right columns or fading in from the edge when centered. The error head is the same with a retry button.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/button.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/PageHead.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/site/ErrorHead.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "pagination",
+      "type": "registry:ui",
+      "title": "Pagination",
+      "description": "Previous and Next around the page numbers: 32px ghost buttons that fill under the pointer, the current page in a #666666 hairline box in White. First and last always show, an ellipsis stands for the rest.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Pagination.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "plan-card",
+      "type": "registry:ui",
+      "title": "Plan card",
+      "description": "The Creator plan card from the ad: the plan's name in Funnel Display, the price as a sentence with concrete numbers, the lines it includes and one full-width White button, on the #262626 fill with the brand corner.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/PlanCard.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "playground-hero",
+      "type": "registry:block",
+      "title": "Playground hero",
+      "description": "The home hero: the headline, the lead, the connect menu beside the quiet button, a prompt card typing example questions with the clients it works in, the note, and a 16/9 frame playing the MCP session with the light band crossing behind it.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/ascii-trail.json",
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/connect-menu.json",
+        "https://spyglass-ds.vercel.app/r/react/light-image.json",
+        "https://spyglass-ds.vercel.app/r/react/mcp-session.json",
+        "https://spyglass-ds.vercel.app/r/react/pricing-panels-block.json"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/PlaygroundHero.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/home/hero.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "popover",
+      "type": "registry:ui",
+      "title": "Popover",
+      "description": "A panel for any content, opened from a button: the card's #262626 fill on Black, a hairline and the brand corner. It grows from its trigger and flips to the side with room.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json"
+      ],
+      "files": [
+        {
+          "path": "components/ui/Popover.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/PopoverPanel.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/usePopover.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "lib/transition.tsx",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "pricing-page",
+      "type": "registry:block",
+      "title": "Pricing page",
+      "description": "The site's pricing page, built only from library items: the header, the centered page head, the plan cards with the billing switch, the compare table (from 768), the questions (the head on the left at every width, 5 parts to the questions' 7 from 1024), the closing section with the connect menu and the footer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-trail.json",
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/compare-table.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/faq-block.json",
+        "https://spyglass-ds.vercel.app/r/react/page-close.json",
+        "https://spyglass-ds.vercel.app/r/react/page-head.json",
+        "https://spyglass-ds.vercel.app/r/react/pricing-table.json",
+        "https://spyglass-ds.vercel.app/r/react/site-footer.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/PricingPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/pricing.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "pricing-panels-block",
+      "type": "registry:block",
+      "title": "Pricing panels block",
+      "description": "The home's pricing strip: the headline in two lines, the terms, the White button and the quiet one, and from 1024 a run of five creatives turned away in perspective whose sets take turns, one creative after another settling in.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/light-image.json"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/PricingPanelsBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/panels-motion.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/home/pricing.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "pricing-table-block",
+      "type": "registry:block",
+      "title": "Pricing table block",
+      "description": "Plans side by side: an optional centered heading and line over plan cards on the #262626 fill, each the same width, centered as a row; one plan sits alone in the middle.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/plan-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/PricingTableBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "pricing-table",
+      "type": "registry:ui",
+      "title": "Pricing table",
+      "description": "The site's plan cards: the Monthly or Yearly switch over a note, then up to four plans ruled apart by hairlines, each a #262626 tier with the name, who it is for and the price, its button and what it includes after checks. One plan is lit with its own tier light, Black type and a ring; a resting pointer lights another; one plan can carry the running rim light.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/text-swap.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/PricingTable.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/site/Segmented.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/plan-lights.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "product-cards",
+      "type": "registry:ui",
+      "title": "Product cards",
+      "description": "The site's product cards: products in a grid ruled apart by hairlines, each a link with the name in Funnel Display, one line on what it does and the endpoint in the code face; the #262626 fill under a mouse.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/site/ProductCards.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "product-compare",
+      "type": "registry:ui",
+      "title": "Product compare",
+      "description": "The site's product comparison: the section head over a table of what the product does against two other ways of doing it, a check, a cross or a few words in each cell, the last column yours with the logomark and White checks; on phones each row is its label over its cells.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/logo.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/ProductCompare.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "product-example",
+      "type": "registry:ui",
+      "title": "Product example",
+      "description": "The site's product example: the specs (endpoint, MCP tool, rate limit), the request as the code block in tabs beside the response panel from 1024 (the request staying in view as the page scrolls), the JSON scrolling across and fading at its edge, and optionally the creatives it returned, three across with a line each.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/code-block.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/ProductExample.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "product-features",
+      "type": "registry:ui",
+      "title": "Product features",
+      "description": "The site's product feature rows: one row per thing the product does, the title, lead and an optional quiet button beside a 4:3 stage on the #262626 fill where the ASCII texture shows around a clear middle and the feature's picture sits; copy 5 parts to the stage's 7 from 1024, every other row flipped, stacked below.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/button.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/ProductFeatures.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "product-hero",
+      "type": "registry:ui",
+      "title": "Product hero",
+      "description": "The site's product hero: the product's name and line centered with two buttons, then the composer typing each question at a human pace over its row of result cards turned away in perspective; a row flicks in, drifts while it is read and flicks out as the question is erased. A card under a mouse or focused turns to face you with its detail rising in. The works light behind it, or the ASCII texture in the margins.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/dispersion-field.json",
+        "https://spyglass-ds.vercel.app/r/react/logo.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/ProductHero.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/product-hero.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/works-light.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "product-page",
+      "type": "registry:block",
+      "title": "Product page",
+      "description": "The site's product page, one template for every product: the header, the product hero running the product's questions over their results with the works light behind, the proof row, the feature rows with their product visuals, the comparison where the product has one, the pricing receipt, the questions with the docs button, the closing section and the footer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-trail.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/faq-block.json",
+        "https://spyglass-ds.vercel.app/r/react/page-close.json",
+        "https://spyglass-ds.vercel.app/r/react/product-compare.json",
+        "https://spyglass-ds.vercel.app/r/react/product-features.json",
+        "https://spyglass-ds.vercel.app/r/react/product-hero.json",
+        "https://spyglass-ds.vercel.app/r/react/product-pricing.json",
+        "https://spyglass-ds.vercel.app/r/react/product-visual.json",
+        "https://spyglass-ds.vercel.app/r/react/proof-block.json",
+        "https://spyglass-ds.vercel.app/r/react/resources-page.json",
+        "https://spyglass-ds.vercel.app/r/react/site-footer.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/ProductPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/product.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "product-pricing",
+      "type": "registry:ui",
+      "title": "Product pricing",
+      "description": "The site's product pricing section. receipt (the site's): the head, the free note and two buttons beside a receipt of three records at the rate, the free row and the total in credits with what is left of the free month; open: the rate set large beside what is free; plans: what each plan buys at the rate; rate: the rate alone in a ruled card.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/ProductPricing.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "product-visual",
+      "type": "registry:ui",
+      "title": "Product visual",
+      "description": "The site's product visuals: the 4:3 stage of a product page's feature row, a #262626 panel with the ASCII field around its clear middle and one small looping scene of the product, picked by `kind`: records, adding an account, comment themes, filters narrowing a search, timelines, ranked sheets, the links board and the patterns switch.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/pricing-panels-block.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/ProductVisual.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/product-visual.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/product-visual-data.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/product-visual-css.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/product-visual-board.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "progress",
+      "type": "registry:ui",
+      "title": "Progress",
+      "description": "How far a task has got: a White bar on a 6px #262626 track with round ends, sliding to each new value on transform. Without a value, a short bar sweeps across at a steady pace.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Progress.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "prompt-card",
+      "type": "registry:ui",
+      "title": "Prompt card",
+      "description": "The site's prompt: a two-line field and a square White send button in a #1A1A1A card with the 20px corner and a #666666 ring, with an optional row naming where it works.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json"
+      ],
+      "files": [
+        {
+          "path": "components/product/PromptCard.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "proof-block",
+      "type": "registry:ui",
+      "title": "Proof block",
+      "description": "The site's proof section: a White lead line centered over the proof marquee of marks, 40px apart, with the section's padding under it; it follows a hero or a page head.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/proof-strip.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/ProofBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "proof-strip",
+      "type": "registry:ui",
+      "title": "Proof strip",
+      "description": "The site's proof marquee: marks in the muted gray moving left at a slow constant speed, fading out at both ends; under a mouse it stops and the mark under the pointer turns White; still with reduced motion.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/site/ProofStrip.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "radio-group",
+      "type": "registry:ui",
+      "title": "Radio Group",
+      "description": "One of a few, all in view: round marks in a hairline, the picked one edged in White with a White dot. Arrows move the pick.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/RadioGroup.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "resizable",
+      "type": "registry:ui",
+      "title": "Resizable",
+      "description": "Two panes and the #363636 hairline between them. The hairline is the handle: it turns White under the pointer, while dragged and when focused, and can carry a small grip. Arrow keys move it too. A pane that overflows scrolls with fading edges.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Resizable.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "resource-cards",
+      "type": "registry:ui",
+      "title": "Resource cards",
+      "description": "The site's resource hub: linked cards on the #262626 surface with a Black cover (a row of creatives or a few lines of code), the title, the line and a meta line, in two columns (or three for the use-cases hub), and hairline rows under them for what is not ready yet.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/badge.json",
+        "https://spyglass-ds.vercel.app/r/react/code-block.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/ResourceCards.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/resource-cards.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "resource-list-page",
+      "type": "registry:block",
+      "title": "Resource list page",
+      "description": "The site's list of posts or guides: the header, the page head with the list's title and line, the entries newest first as hairline rows (date, title, line; with a `thumb`, a 16:9 picture on the left and the three lines stacked beside it), or a quiet panel with the empty note and the way back to all resources, then the closing section and the footer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-trail.json",
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/page-close.json",
+        "https://spyglass-ds.vercel.app/r/react/page-head.json",
+        "https://spyglass-ds.vercel.app/r/react/resources-page.json",
+        "https://spyglass-ds.vercel.app/r/react/site-footer.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/ResourceListPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "resources-page",
+      "type": "registry:block",
+      "title": "Resources page",
+      "description": "The site's resources page: the header, the page head with its ASCII drift, the hub's linked cards (templates, docs with code, case studies) in two columns, the hairline rows of what is coming, the closing section and the footer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-trail.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/page-close.json",
+        "https://spyglass-ds.vercel.app/r/react/page-head.json",
+        "https://spyglass-ds.vercel.app/r/react/resource-cards.json",
+        "https://spyglass-ds.vercel.app/r/react/site-footer.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/ResourcesPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/resources.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/pages/site-chrome.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "row-fan",
+      "type": "registry:block",
+      "title": "Row fan",
+      "description": "Big names, each a link, whose pictures fan out in perspective beside the name (from 1024) or below it when it is pointed at, focused, tapped or scrolled to the middle, travelling from row to row on a soft spring; a card opens with its title and meta.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/RowFan.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/effects/row-fan.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/row-fan-css.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "scroll-area",
+      "type": "registry:ui",
+      "title": "Scroll Area",
+      "description": "A region that scrolls on its own with thin scrollbars: a #363636 thumb on a clear track. Native scrolling, so wheel, touch and keyboard all work; overscroll stays inside. An edge with more past it fades (fade-y, fade-x, fade-xy) instead of cutting rows off.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/ScrollArea.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "scroll-story",
+      "type": "registry:block",
+      "title": "Scroll story",
+      "description": "The site's scroll story: a story in chapters told while the reader scrolls. From 1024 the stage pins and the pieces (creatives, a board, chips, a page, a thread, a profile, a result card) move on keyframes in a 1512x982 frame scaled to the content width while each chapter's words rise in; below 1024 or with reduced motion the chapters stack over still arrangements.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/browser-frame.json",
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/ScrollStory.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/scroll-story.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/pages/scroll-stories.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "search-bar",
+      "type": "registry:ui",
+      "title": "Search bar",
+      "description": "The ad's search bar: a Black field with the brand corner, the prompt in White DM Sans and a White Search button inside it. Enter or the button runs the search.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json"
+      ],
+      "files": [
+        {
+          "path": "components/product/SearchBar.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "select",
+      "type": "registry:ui",
+      "title": "Select",
+      "description": "One choice from a short list, drawn as the field is: a Black field, a hairline that turns White while open, a chevron. The list opens in the card's #262626 panel, the chosen row checked. A long list scrolls with fading edges.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/popover.json"
+      ],
+      "files": [
+        {
+          "path": "components/ui/Select.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "separator",
+      "type": "registry:ui",
+      "title": "Separator",
+      "description": "The hairline: 1px in the #262626 edge step, across or down. Spyglass separates with a fill or a hairline, never a shadow.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Separator.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "settings-page",
+      "type": "registry:block",
+      "title": "Settings page",
+      "description": "A settings page: the side rail, profile fields and notification switches on cards, and the save button.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/field.json",
+        "https://spyglass-ds.vercel.app/r/react/input.json",
+        "https://spyglass-ds.vercel.app/r/react/logo.json",
+        "https://spyglass-ds.vercel.app/r/react/switch.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/SettingsPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/settings.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "sheet",
+      "type": "registry:ui",
+      "title": "Sheet",
+      "description": "A modal panel at an edge of the screen: the card's #262626 fill with a hairline on its inner edge, a Funnel Display title, the body scrolling on its own and buttons at the foot. It slides in on the drawer curve; Escape closes it at once. The body's edges fade while there is more to scroll.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/popover.json"
+      ],
+      "files": [
+        {
+          "path": "components/ui/Sheet.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "side-drifts",
+      "type": "registry:ui",
+      "title": "Side drifts",
+      "description": "ASCII drifts at a wide section's sides: from 1440 wide a column crop fades in from the left edge and a mass crop from the right, each 40% of the section's height and as wide as the margin beside the content.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json"
+      ],
+      "files": [
+        {
+          "path": "components/visuals/SideDrifts.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "sidebar",
+      "type": "registry:ui",
+      "title": "Sidebar",
+      "description": "The app's rail: Black with a hairline at its edge, the logo at the top, groups named in capitals, the page you are on in White, the account at the foot. It folds to icons with one button. Its body scrolls with fading edges, so no row is cut off.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Sidebar.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/SidebarLabel.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/SidebarLink.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "site-footer",
+      "type": "registry:block",
+      "title": "Site footer",
+      "description": "The site's footer: the wordmark across the page in the footer gray with the brand light through it, and a #262626 card rising over its descender with the link columns, the lockup and the legal line.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/badge.json",
+        "https://spyglass-ds.vercel.app/r/react/brand-light.json",
+        "https://spyglass-ds.vercel.app/r/react/logo.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/SiteFooter.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "site-header",
+      "type": "registry:ui",
+      "title": "Site header",
+      "description": "The site's header: the lockup, the links with their dropdown menus (products beside a live card, use cases beside a picture card, resources beside the docs card with the brand light), the sign-in and the one White key; on phones a sheet that reveals downward with the menus as disclosures. A Black ground and a hairline once the page scrolls.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/brand-light.json",
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/logo.json",
+        "https://spyglass-ds.vercel.app/r/react/product-visual.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/SiteHeader.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/site/NavMenus.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/site/MenuPanels.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/site/ProductsLivePanel.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/site/MenuSheet.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/site/SheetDisclosure.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/site/NavIcon.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/site-header.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/home-link.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "skeleton",
+      "type": "registry:ui",
+      "title": "Skeleton",
+      "description": "A placeholder in the shape of what is loading: a #1A1A1A block with the brand corner, or a circle, that breathes between full and half opacity. Never a shimmer; still with reduced motion.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/ui/Skeleton.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "slider",
+      "type": "registry:ui",
+      "title": "Slider",
+      "description": "A value on a range: a 4px #363636 track, White up to the value, and a White thumb with the small corner. It follows the hand without easing.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Slider.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "sonner",
+      "type": "registry:ui",
+      "title": "Sonner",
+      "description": "The corner where notes from toast() show: the newest in front, two more peeking out above. Pointing at the stack spreads it out and holds their time. A note rises in from below and leaves faster.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/toast.json"
+      ],
+      "files": [
+        {
+          "path": "components/ui/Sonner.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/sonner.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "spinner",
+      "type": "registry:ui",
+      "title": "Spinner",
+      "description": "Work with no known end: a quarter arc in the color around it, White on Black, turning on a #363636 ring at a constant speed. With reduced motion it breathes instead of turning.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Spinner.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "stat-block",
+      "type": "registry:block",
+      "title": "Stat block",
+      "description": "Numbers that say what the product does: Funnel Display figures over a line of DM Sans each, under a hairline or on the #262626 fill, four across.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/blocks/StatBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "steps-block",
+      "type": "registry:block",
+      "title": "Steps block",
+      "description": "How it works in numbered steps under hairlines: the number as a label, a title and a line, side by side from 768.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/blocks/StepsBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "stories-block",
+      "type": "registry:block",
+      "title": "Stories block",
+      "description": "The site's stories section: the section head centered over quotes in #262626 cards (the company's mark or name, the quote in Funnel Display 20/24, the person with a ringed 40px avatar and the role in capitals), three columns from 1024 that line up row by row, two cards in the middle, and an optional row of customer marks over a hairline.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/blocks/StoriesBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/stories.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "switch",
+      "type": "registry:ui",
+      "title": "Switch",
+      "description": "On or off, with no words: a #262626 track with a gray thumb when off, White with a Black thumb when on. The thumb slides on the strong ease-out.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Switch.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "table",
+      "type": "registry:ui",
+      "title": "Table",
+      "description": "Rows of one kind of thing on Black: heads as capital labels in muted DM Sans Medium, cells in DM Sans 14px, a #363636 hairline between rows and the ghost fill under the pointer. Framed, it sits in a hairline box with the brand corner. It scrolls sideways with fading edges inside the frame.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Table.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "tabs",
+      "type": "registry:ui",
+      "title": "Tabs",
+      "description": "Views of one thing, one at a time. The default is a segmented control: a #262626 track, the current view a White block with a Black label. Line tabs sit over a hairline with a 2px White line under the current one.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Tabs.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "templates-page",
+      "type": "registry:block",
+      "title": "Templates page",
+      "description": "The site's templates page, from library items: the header, the templates wall as the hero, the automation run, what each template brings back (a centered head over the row fan), the questions, the close with two buttons and the footer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-trail.json",
+        "https://spyglass-ds.vercel.app/r/react/automation-run.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/faq-block.json",
+        "https://spyglass-ds.vercel.app/r/react/page-close.json",
+        "https://spyglass-ds.vercel.app/r/react/row-fan.json",
+        "https://spyglass-ds.vercel.app/r/react/site-footer.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json",
+        "https://spyglass-ds.vercel.app/r/react/templates-wall.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/TemplatesPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "templates-wall",
+      "type": "registry:block",
+      "title": "Templates wall",
+      "description": "The site's templates wall: a helix of tiles drifting toward the viewer and turning slowly around the words, the headline over a chip that rolls through the template names on a raised surface stretching to each name, the lead and a quiet status line.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/automation-run.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/resources-page.json"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/TemplatesWall.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/templates-wall.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/pages/templates.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "testimonial-block",
+      "type": "registry:block",
+      "title": "Testimonial block",
+      "description": "One customer as a section: an optional label in capitals over the testimonial, the headshot beside the words or above them, on Black or on the #262626 fill.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/testimonial.json"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/TestimonialBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "testimonial",
+      "type": "registry:ui",
+      "title": "Testimonial",
+      "description": "The testimonial ad: a 4/5 headshot in the brand corner, the quote in Funnel Display in curly quotes, the name in DM Sans and the role and company in capitals.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/Testimonial.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "text-swap",
+      "type": "registry:ui",
+      "title": "Text swap",
+      "description": "A value that changes in place: the old one rises 12px and fades out while the new one rises in from below, in one clipped grid cell, with an optional muted unit and a small badge. Sentences, its companion, keeps each sentence of a line whole on a phone.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/TextSwap.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "components/ui/Sentences.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/text-swap.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "textarea",
+      "type": "registry:ui",
+      "title": "Textarea",
+      "description": "Several lines of text, drawn as the input is: a #666666 hairline on Black that turns White on focus, DM Sans, the brand corner. It grows by hand downward.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Textarea.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "toast",
+      "type": "registry:ui",
+      "title": "Toast",
+      "description": "One note, what just happened: the card's #262626 fill, a hairline and the brand corner, a DM Sans Medium title, a muted line, one small White button when there is something to do, and a close button.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/button.json"
+      ],
+      "files": [
+        {
+          "path": "components/ui/Toast.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "toggle-group",
+      "type": "registry:ui",
+      "title": "Toggle Group",
+      "description": "Buttons that stay pressed, side by side on one track with the brand corner. Each pressed one is a White block with Black text. On a narrow screen the track scrolls with fading edges.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/ToggleGroup.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "toggle",
+      "type": "registry:ui",
+      "title": "Toggle",
+      "description": "A button that stays pressed: no fill or a hairline at rest, the primary White with Black text while it is on. Sizes match the button's.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Toggle.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "hooks/useControllable.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "tooltip",
+      "type": "registry:ui",
+      "title": "Tooltip",
+      "description": "A control's name, for icon buttons: a White fill with Black caption text and the small corner. It waits 300ms under the pointer, shows at once on keyboard focus, and the next one in a row shows at once.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/popover.json"
+      ],
+      "files": [
+        {
+          "path": "components/ui/Tooltip.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "typography",
+      "type": "registry:ui",
+      "title": "Typography",
+      "description": "The brand's type scale as one part. Funnel Display Regular for titles, DM Sans for text, Medium for small and labels, labels in capitals with 6% tracking, Geist Mono for code. Every variant is a type utility from the tokens.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/ui/Text.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "use-case-answer",
+      "type": "registry:ui",
+      "title": "Use case answer",
+      "description": "One question and the answer that came back, as the site shows it on a use case page: the question in a bubble (or the API request as code), the status, the lead, rows with a creative, a title and detail and a figure, a note and the tools called, on the raised panel.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/UseCaseAnswer.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/use-case-answer.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "use-case-hero",
+      "type": "registry:ui",
+      "title": "Use case hero",
+      "description": "The site's use case hero: the page's name as the head, the line in the soft gray, the actions and who it is for, beside a raised panel edged with the ASCII texture holding a live visual: a chat session answering questions in turn, or a team's own ad library re-sorting itself.",
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-drift.json",
+        "https://spyglass-ds.vercel.app/r/react/button.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/site/UseCaseHero.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/use-case-hero.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "use-case-page",
+      "type": "registry:block",
+      "title": "Use case page",
+      "description": "A use case's page as the site sets it: the hero with the connect menu and the chat answering beside it, the proof line over the marks, the scroll story, three stories, the wheel of audiences with the light around its ring, the FAQ, the closing section and the footer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-trail.json",
+        "https://spyglass-ds.vercel.app/r/react/connect-menu.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/dispersion-field.json",
+        "https://spyglass-ds.vercel.app/r/react/faq-block.json",
+        "https://spyglass-ds.vercel.app/r/react/page-close.json",
+        "https://spyglass-ds.vercel.app/r/react/proof-block.json",
+        "https://spyglass-ds.vercel.app/r/react/resources-page.json",
+        "https://spyglass-ds.vercel.app/r/react/scroll-story.json",
+        "https://spyglass-ds.vercel.app/r/react/site-footer.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json",
+        "https://spyglass-ds.vercel.app/r/react/stories-block.json",
+        "https://spyglass-ds.vercel.app/r/react/use-case-hero.json",
+        "https://spyglass-ds.vercel.app/r/react/use-case-wheel.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/UseCasePage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/use-case.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "use-case-wheel",
+      "type": "registry:block",
+      "title": "Use case wheel",
+      "description": "The site's use cases wheel: the headline inside an ellipse of creatives over a drum of audiences. The pill holds the current audience beside a White arrow link; every 2.4s on screen it turns, a new pair of creatives scaling up at the foot while the others climb the ring (50ms apart, turning away as they rise) and the top pair leaves into the distance.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/UseCaseWheel.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/use-case-wheel.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "use-cases-page",
+      "type": "registry:block",
+      "title": "Use cases page",
+      "description": "The site's use-cases hub: the header, the page head with the ASCII drift, the use cases as linked cards three across (each with three creatives on its Black cover), the closing section with the connect menu, and the footer.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/ascii-trail.json",
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+        "https://spyglass-ds.vercel.app/r/react/page-close.json",
+        "https://spyglass-ds.vercel.app/r/react/page-head.json",
+        "https://spyglass-ds.vercel.app/r/react/resource-cards.json",
+        "https://spyglass-ds.vercel.app/r/react/resources-page.json",
+        "https://spyglass-ds.vercel.app/r/react/site-footer.json",
+        "https://spyglass-ds.vercel.app/r/react/site-header.json"
+      ],
+      "files": [
+        {
+          "path": "components/pages/UseCasesPage.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/pages/use-cases.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "why-block",
+      "type": "registry:block",
+      "title": "Why block",
+      "description": "The home's reasons: a centered head and three pictures over their titles and lines, hairlines between, each picture an instrument that plays while half of it is on screen: the archive axis, the pricing meter and ten tools giving way to one.",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/creative-card.json"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/WhyBlock.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/home/why.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/home/scene.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/home/demo.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+      "name": "wordmark-glow",
+      "type": "registry:ui",
+      "title": "Wordmark glow",
+      "description": "The big wordmark across an area in the footer gray over a faint 20px dot grid; a mouse lights the dots near it and the letters it crosses in the spectrum, the light easing after the pointer. The footer's other look (the site's footer uses the dispersion field's light by default).",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://spyglass-ds.vercel.app/r/react/logo.json"
+      ],
+      "files": [
+        {
+          "path": "components/visuals/WordmarkGlow.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "lib/effects/wordmark-glow.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/effects/wordmark-glow-css.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "lib/cn.ts",
+          "type": "registry:lib"
+        }
+      ]
+    }
+  ]
+}

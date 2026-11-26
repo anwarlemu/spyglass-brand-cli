@@ -1,0 +1,282 @@
+{
+  "name": "resource-cards",
+  "title": "Resource cards",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "The site's resource hub: linked cards on the #262626 surface with a Black cover (a row of creatives or a few lines of code), the title, the line and a meta line, in two columns (or three for the use-cases hub), and hairline rows under them for what is not ready yet.",
+  "use_for": "An index of resources, use cases, templates or guides: each card links to its page. `rows` lists what is coming with a badge; `columns={3}` sets the use-cases hub.",
+  "never": [
+    "Another brand's creative in a cover: pass the user's images as `src` or keep the Acme placeholders",
+    "Cards that lift, scale or move on hover: only the surface changes color",
+    "More than three columns, or a card without a link"
+  ],
+  "source": "Site pages/Resources (ResourceHub.tsx, Resources.module.css) and pages/UseCasesPage (UseCaseHub.tsx, UseCaseHub.module.css): cards 8px in on --surface with --radius-m, turning --surface-hover (160ms, ease-out); the cover 240px (320 from 1024; the use-cases hub keeps 240) 24px in on --bg with --radius-s; tiles 4:5, 12px apart, flex 0 1 --resources-tile-w 120px (use cases 80, 64 at 1024, 80 at 1280, 96 at 1440); the code in mono 14/20 with comments and marks in --text-3; text 16px in (24 on top from 768), h5 title, body line in --text-2, meta 14/20 in --text-3; 16px between cards, 48 before the rows; rows 20px tall padding (24 from 1024) with a 240px name column from 1024, the line in --text-off and the .t-badge",
+  "body": "Cards are links; a card whose `href` starts with `http` opens in a new tab. A row without `href` is plain text (a\nresource that is not live). The use-cases hub passes each use case as a card: its creatives as the cover, the name as\nthe title, the line and who it is for as the meta.\n\nEach picture is an image slot (`src`, `alt`, `fit`, `position`); without `src` it keeps its placeholder, which carries\n`data-ds-placeholder`.",
+  "requires": [
+    "badge",
+    "code-block",
+    "creative-card"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/ResourceCards.tsx",
+      "content": "import { Badge } from '@/react/components/ui/Badge'\nimport { Code } from '@/react/components/site/Code'\nimport { CreativeCard } from '@/react/components/site/CreativeCard'\nimport { isExternal, type ResourceCard, type ResourceCover, type ResourceRow } from '@/lib/resource-cards'\nimport { cn } from '@/react/lib/cn'\n\nexport type { ResourceCard, ResourceCover, ResourceCreative, ResourceRow } from '@/lib/resource-cards'\n\n// The site's resource hub (pages/Resources/ResourceHub, Resources.module.css; UseCaseHub reuses it): cards on the\n// #262626 surface, 8px in with the 8px corner, each a link with a Black cover (240px tall, 320 from 1024 with two\n// columns; 24px in, the 4px corner) holding a row of creatives (4:5, 12px apart, up to 120px wide) or a few lines of\n// code, then the title (Funnel Display 24/28), the line in the soft gray and the meta at the foot in the muted gray.\n// One column on phones, two from 768; `columns={3}` sets the use-cases hub: three from 1024, the cover 240px at every\n// width and its creatives 80px (64 at 1024, 80 at 1280, 96 at 1440). Under the cards, `rows` lists what is not ready:\n// hairline rows with the name, the line in the faint gray and a badge, the line in its own column from 1024. A card's\n// surface turns #363636 under a mouse and a row's name turns White (160ms, ease-out); nothing moves.\nexport interface ResourceCardsProps {\n  cards: ResourceCard[]\n  /** Rows under the cards (resources that are not ready). */\n  rows?: ResourceRow[]\n  /** The rows' list name. */\n  rowsLabel?: string\n  /** 2 (resources) or 3 (use cases, from 1024). */\n  columns?: 2 | 3\n  className?: string\n}\n\nfunction Cover({ cover, columns }: { cover: ResourceCover; columns: 2 | 3 }) {\n  if (cover.kind === 'code') {\n    return (\n      <span className=\"max-w-full overflow-hidden\">\n        <Code source={cover.source} language={cover.language} />\n      </span>\n    )\n  }\n  return (\n    <span className=\"flex w-full justify-center gap-3\">\n      {cover.items.map((c, i) => (\n        <span key={i} className={cn('block aspect-4/5 min-w-0', columns === 3 ? 'shrink-0 basis-20 lg:basis-16 xl:basis-20 min-[1440px]:basis-24' : 'shrink grow-0 basis-30')}>\n          <CreativeCard ratio=\"fill\" src={c.src} alt={c.alt} fit={c.fit} position={c.position} brand={c.brand} caption={c.caption} tone={c.tone} />\n        </span>\n      ))}\n    </span>\n  )\n}\n\nexport function ResourceCards({ cards, rows = [], rowsLabel = 'More resources', columns = 2, className }: ResourceCardsProps) {\n  return (\n    <div data-ds=\"resource-cards\" className={cn('flex flex-col gap-12 text-fg', className)}>\n      <ul role=\"list\" className={cn('m-0 grid list-none grid-cols-[minmax(0,1fr)] gap-4 p-0 md:grid-cols-2', columns === 3 && 'lg:grid-cols-3')}>\n        {cards.map((card) => (\n          <li key={card.href}>\n            <a href={card.href} target={isExternal(card.href) ? '_blank' : undefined} rel={isExternal(card.href) ? 'noreferrer' : undefined} className=\"flex h-full flex-col rounded-panel bg-surface-raised p-2 transition-[background-color] duration-160 ease-out hover:bg-surface-hover focus-visible:-outline-offset-2\">\n              <span aria-hidden=\"true\" className={cn('grid h-60 place-items-center overflow-hidden rounded-container bg-surface p-6', columns === 2 && 'lg:h-80')}>\n                {card.cover ? <Cover cover={card.cover} columns={columns} /> : null}\n              </span>\n              <span className=\"flex flex-1 flex-col gap-2 p-4 md:pt-6\">\n                <h2 className=\"type-heading-3\">{card.title}</h2>\n                <span className=\"type-body text-pretty text-fg-soft\">{card.line}</span>\n                {card.meta ? <span className=\"mt-auto pt-2 type-ui text-fg-muted\">{card.meta}</span> : null}\n              </span>\n            </a>\n          </li>\n        ))}\n      </ul>\n      {rows.length > 0 ? (\n        <ul role=\"list\" aria-label={rowsLabel} className=\"m-0 list-none border-t border-edge p-0\">\n          {rows.map((row) => {\n            const body = (\n              <>\n                <h2 className=\"col-start-1 row-start-1 type-body font-medium text-fg-soft transition-[color] duration-160 ease-out group-hover:text-fg\">{row.title}</h2>\n                <span className=\"col-span-full row-start-2 type-body text-pretty text-fg-faint lg:col-span-1 lg:col-start-2 lg:row-start-1\">{row.line}</span>\n                {row.badge ? <span className=\"col-start-2 row-start-1 flex justify-self-end lg:col-start-3\"><Badge variant=\"secondary\">{row.badge}</Badge></span> : null}\n              </>\n            )\n            const classes = 'grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 gap-y-1 border-b border-edge py-5 lg:grid-cols-[240px_minmax(0,1fr)_auto] lg:py-6'\n            return (\n              <li key={row.title}>\n                {row.href ? <a href={row.href} target={isExternal(row.href) ? '_blank' : undefined} rel={isExternal(row.href) ? 'noreferrer' : undefined} className={cn('group focus-visible:-outline-offset-2', classes)}>{body}</a> : <div className={classes}>{body}</div>}\n              </li>\n            )\n          })}\n        </ul>\n      ) : null}\n    </div>\n  )\n}\n\nexport default ResourceCards\n"
+    },
+    {
+      "path": "lib/resource-cards.ts",
+      "content": "// The resource cards' data, shared by both flavors (the site's ResourceHub; the code cover is the code-block item's\n// Code).\nimport type { ImageSlot } from '@/lib/image'\n\n/** A creative in a card's cover: the user's image as `src`, or an Acme placeholder (advertiser and tone). */\nexport interface ResourceCreative extends ImageSlot {\n\tbrand?: string\n\tcaption?: string\n\ttone?: 1 | 2 | 3 | 4\n}\n\n/** A card's cover: a row of creatives, or a few lines of code. */\nexport type ResourceCover = { kind: 'creatives'; items: ResourceCreative[] } | { kind: 'code'; source: string; language?: string }\n\nexport interface ResourceCard {\n\ttitle: string\n\tline: string\n\thref: string\n\t/** The small gray line at the foot (\"4 templates\", \"docs.acme.com\"). */\n\tmeta?: string\n\tcover?: ResourceCover\n}\n\n/** A row under the cards: a resource that is not ready, or a plain link. */\nexport interface ResourceRow {\n\ttitle: string\n\tline: string\n\t/** Leave it out for a row that is not live (it is not a link). */\n\thref?: string\n\t/** The badge on the right (\"Coming soon\"). */\n\tbadge?: string\n}\n\n/** A link to another site opens in a new tab. */\nexport const isExternal = (href: string) => /^https?:\\/\\//.test(href)\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Hub",
+      "label": "Resources hub",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/resource-cards/Hub.tsx",
+      "content": "import { ResourceCards, type ResourceCard, type ResourceRow } from '@/react/components/site/ResourceCards'\n// The resources hub with Acme's copy: templates and case studies with placeholder creatives, the docs with code, and\n// three resources that are coming soon.\n\nconst cards: ResourceCard[] = [\n  { title: 'Templates', line: 'Ready-made playbooks that run inside Claude or ChatGPT on Acme data.', href: '/templates', meta: '4 templates, coming soon', cover: { kind: 'creatives', items: [{ brand: 'Acme Skin', tone: 2 }, { brand: 'Acme Drinks', tone: 3 }, { brand: 'Acme Studio', tone: 1 }, { brand: 'Acme Fit', tone: 4 }] } },\n  { title: 'Docs', line: 'Set up the MCP server, call the REST API and use the SDKs.', href: 'https://docs.acme.com', meta: 'docs.acme.com', cover: { kind: 'code', source: '# The CLI\\nnpm install -g @acme/cli\\n# The MCP server\\nhttps://mcp.acme.com/mcp\\n# The REST API\\nhttps://api.acme.com/v2' } },\n  { title: 'Case studies', line: 'How agencies and marketing teams put Acme to work.', href: '/resources/case-studies', meta: '2 case studies', cover: { kind: 'creatives', items: [{ brand: 'Acme Skin', tone: 3 }, { brand: 'Acme Beauty', tone: 2 }, { brand: 'Acme Skin', tone: 4 }] } },\n]\nconst rows: ResourceRow[] = [\n  { title: 'Blog', line: 'What the Acme team shipped, and what is next.', badge: 'Coming soon' },\n  { title: 'Articles', line: 'Guides to creative research with agents.', badge: 'Coming soon' },\n  { title: 'Demos', line: 'Acme at work in Claude, ChatGPT and Cursor.', badge: 'Coming soon' },\n]\n\nexport default function Hub() {\n  return (\n    <div className=\"mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter) py-12\">\n      <ResourceCards cards={cards} rows={rows} rowsLabel=\"More resources\" />\n    </div>\n  )\n}\n",
+      "requires": [
+        "badge",
+        "code-block",
+        "creative-card"
+      ],
+      "packages": []
+    },
+    {
+      "name": "UseCases",
+      "label": "Three columns",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/resource-cards/UseCases.tsx",
+      "content": "import { ResourceCards, type ResourceCard } from '@/react/components/site/ResourceCards'\n// The use-cases hub: three columns from 1024, each use case with its creatives, its line and who it is for.\n\nconst tiles = (tone: 1 | 2 | 3 | 4) => ({ kind: 'creatives' as const, items: [{ brand: 'Acme Skin', tone }, { brand: 'Acme Drinks', tone: (tone % 4) + 1 as 1 | 2 | 3 | 4 }, { brand: 'Acme Fit', tone }] })\nconst cards: ResourceCard[] = [\n  { title: 'Creative research', line: 'The hooks, angles and formats that win for any brand.', meta: 'For creative strategists.', href: '/use-cases/creative-research', cover: tiles(2) },\n  { title: 'Paid ads', line: 'What competitors run, how long it runs and where it leads.', meta: 'For performance teams.', href: '/use-cases/paid-ads', cover: tiles(3) },\n  { title: 'Creator sourcing', line: 'The creators behind a category’s best ads.', meta: 'For partnership teams.', href: '/use-cases/creator-sourcing', cover: tiles(1) },\n]\n\nexport default function UseCases() {\n  return (\n    <div className=\"mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter) py-12\">\n      <ResourceCards cards={cards} columns={3} />\n    </div>\n  )\n}\n",
+      "requires": [
+        "badge",
+        "code-block",
+        "creative-card"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/ResourceCards.tsx",
+          "content": "import { Badge } from '@/react/components/ui/Badge'\nimport { Code } from '@/react/components/site/Code'\nimport { CreativeCard } from '@/react/components/site/CreativeCard'\nimport { isExternal, type ResourceCard, type ResourceCover, type ResourceRow } from '@/lib/resource-cards'\nimport { cn } from '@/react/lib/cn'\n\nexport type { ResourceCard, ResourceCover, ResourceCreative, ResourceRow } from '@/lib/resource-cards'\n\n// The site's resource hub (pages/Resources/ResourceHub, Resources.module.css; UseCaseHub reuses it): cards on the\n// #262626 surface, 8px in with the 8px corner, each a link with a Black cover (240px tall, 320 from 1024 with two\n// columns; 24px in, the 4px corner) holding a row of creatives (4:5, 12px apart, up to 120px wide) or a few lines of\n// code, then the title (Funnel Display 24/28), the line in the soft gray and the meta at the foot in the muted gray.\n// One column on phones, two from 768; `columns={3}` sets the use-cases hub: three from 1024, the cover 240px at every\n// width and its creatives 80px (64 at 1024, 80 at 1280, 96 at 1440). Under the cards, `rows` lists what is not ready:\n// hairline rows with the name, the line in the faint gray and a badge, the line in its own column from 1024. A card's\n// surface turns #363636 under a mouse and a row's name turns White (160ms, ease-out); nothing moves.\nexport interface ResourceCardsProps {\n  cards: ResourceCard[]\n  /** Rows under the cards (resources that are not ready). */\n  rows?: ResourceRow[]\n  /** The rows' list name. */\n  rowsLabel?: string\n  /** 2 (resources) or 3 (use cases, from 1024). */\n  columns?: 2 | 3\n  className?: string\n}\n\nfunction Cover({ cover, columns }: { cover: ResourceCover; columns: 2 | 3 }) {\n  if (cover.kind === 'code') {\n    return (\n      <span className=\"max-w-full overflow-hidden\">\n        <Code source={cover.source} language={cover.language} />\n      </span>\n    )\n  }\n  return (\n    <span className=\"flex w-full justify-center gap-3\">\n      {cover.items.map((c, i) => (\n        <span key={i} className={cn('block aspect-4/5 min-w-0', columns === 3 ? 'shrink-0 basis-20 lg:basis-16 xl:basis-20 min-[1440px]:basis-24' : 'shrink grow-0 basis-30')}>\n          <CreativeCard ratio=\"fill\" src={c.src} alt={c.alt} fit={c.fit} position={c.position} brand={c.brand} caption={c.caption} tone={c.tone} />\n        </span>\n      ))}\n    </span>\n  )\n}\n\nexport function ResourceCards({ cards, rows = [], rowsLabel = 'More resources', columns = 2, className }: ResourceCardsProps) {\n  return (\n    <div data-ds=\"resource-cards\" className={cn('flex flex-col gap-12 text-fg', className)}>\n      <ul role=\"list\" className={cn('m-0 grid list-none grid-cols-[minmax(0,1fr)] gap-4 p-0 md:grid-cols-2', columns === 3 && 'lg:grid-cols-3')}>\n        {cards.map((card) => (\n          <li key={card.href}>\n            <a href={card.href} target={isExternal(card.href) ? '_blank' : undefined} rel={isExternal(card.href) ? 'noreferrer' : undefined} className=\"flex h-full flex-col rounded-panel bg-surface-raised p-2 transition-[background-color] duration-160 ease-out hover:bg-surface-hover focus-visible:-outline-offset-2\">\n              <span aria-hidden=\"true\" className={cn('grid h-60 place-items-center overflow-hidden rounded-container bg-surface p-6', columns === 2 && 'lg:h-80')}>\n                {card.cover ? <Cover cover={card.cover} columns={columns} /> : null}\n              </span>\n              <span className=\"flex flex-1 flex-col gap-2 p-4 md:pt-6\">\n                <h2 className=\"type-heading-3\">{card.title}</h2>\n                <span className=\"type-body text-pretty text-fg-soft\">{card.line}</span>\n                {card.meta ? <span className=\"mt-auto pt-2 type-ui text-fg-muted\">{card.meta}</span> : null}\n              </span>\n            </a>\n          </li>\n        ))}\n      </ul>\n      {rows.length > 0 ? (\n        <ul role=\"list\" aria-label={rowsLabel} className=\"m-0 list-none border-t border-edge p-0\">\n          {rows.map((row) => {\n            const body = (\n              <>\n                <h2 className=\"col-start-1 row-start-1 type-body font-medium text-fg-soft transition-[color] duration-160 ease-out group-hover:text-fg\">{row.title}</h2>\n                <span className=\"col-span-full row-start-2 type-body text-pretty text-fg-faint lg:col-span-1 lg:col-start-2 lg:row-start-1\">{row.line}</span>\n                {row.badge ? <span className=\"col-start-2 row-start-1 flex justify-self-end lg:col-start-3\"><Badge variant=\"secondary\">{row.badge}</Badge></span> : null}\n              </>\n            )\n            const classes = 'grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 gap-y-1 border-b border-edge py-5 lg:grid-cols-[240px_minmax(0,1fr)_auto] lg:py-6'\n            return (\n              <li key={row.title}>\n                {row.href ? <a href={row.href} target={isExternal(row.href) ? '_blank' : undefined} rel={isExternal(row.href) ? 'noreferrer' : undefined} className={cn('group focus-visible:-outline-offset-2', classes)}>{body}</a> : <div className={classes}>{body}</div>}\n              </li>\n            )\n          })}\n        </ul>\n      ) : null}\n    </div>\n  )\n}\n\nexport default ResourceCards\n"
+        },
+        {
+          "path": "lib/resource-cards.ts",
+          "content": "// The resource cards' data, shared by both flavors (the site's ResourceHub; the code cover is the code-block item's\n// Code).\nimport type { ImageSlot } from '@/lib/image'\n\n/** A creative in a card's cover: the user's image as `src`, or an Acme placeholder (advertiser and tone). */\nexport interface ResourceCreative extends ImageSlot {\n\tbrand?: string\n\tcaption?: string\n\ttone?: 1 | 2 | 3 | 4\n}\n\n/** A card's cover: a row of creatives, or a few lines of code. */\nexport type ResourceCover = { kind: 'creatives'; items: ResourceCreative[] } | { kind: 'code'; source: string; language?: string }\n\nexport interface ResourceCard {\n\ttitle: string\n\tline: string\n\thref: string\n\t/** The small gray line at the foot (\"4 templates\", \"docs.acme.com\"). */\n\tmeta?: string\n\tcover?: ResourceCover\n}\n\n/** A row under the cards: a resource that is not ready, or a plain link. */\nexport interface ResourceRow {\n\ttitle: string\n\tline: string\n\t/** Leave it out for a row that is not live (it is not a link). */\n\thref?: string\n\t/** The badge on the right (\"Coming soon\"). */\n\tbadge?: string\n}\n\n/** A link to another site opens in a new tab. */\nexport const isExternal = (href: string) => /^https?:\\/\\//.test(href)\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "badge",
+        "code-block",
+        "creative-card"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "ResourceCards",
+            "file": "react/components/site/ResourceCards.tsx",
+            "props": [
+              {
+                "name": "cards",
+                "type": "ResourceCard[]",
+                "required": true
+              },
+              {
+                "name": "rows",
+                "type": "ResourceRow[]",
+                "required": false,
+                "default": "[]",
+                "description": "Rows under the cards (resources that are not ready)."
+              },
+              {
+                "name": "rowsLabel",
+                "type": "string",
+                "required": false,
+                "default": "'More resources'",
+                "description": "The rows' list name."
+              },
+              {
+                "name": "columns",
+                "type": "2 | 3",
+                "required": false,
+                "default": "2",
+                "description": "2 (resources) or 3 (use cases, from 1024)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Hub",
+          "label": "Resources hub",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/resource-cards/Hub.tsx",
+          "content": "import { ResourceCards, type ResourceCard, type ResourceRow } from '@/react/components/site/ResourceCards'\n// The resources hub with Acme's copy: templates and case studies with placeholder creatives, the docs with code, and\n// three resources that are coming soon.\n\nconst cards: ResourceCard[] = [\n  { title: 'Templates', line: 'Ready-made playbooks that run inside Claude or ChatGPT on Acme data.', href: '/templates', meta: '4 templates, coming soon', cover: { kind: 'creatives', items: [{ brand: 'Acme Skin', tone: 2 }, { brand: 'Acme Drinks', tone: 3 }, { brand: 'Acme Studio', tone: 1 }, { brand: 'Acme Fit', tone: 4 }] } },\n  { title: 'Docs', line: 'Set up the MCP server, call the REST API and use the SDKs.', href: 'https://docs.acme.com', meta: 'docs.acme.com', cover: { kind: 'code', source: '# The CLI\\nnpm install -g @acme/cli\\n# The MCP server\\nhttps://mcp.acme.com/mcp\\n# The REST API\\nhttps://api.acme.com/v2' } },\n  { title: 'Case studies', line: 'How agencies and marketing teams put Acme to work.', href: '/resources/case-studies', meta: '2 case studies', cover: { kind: 'creatives', items: [{ brand: 'Acme Skin', tone: 3 }, { brand: 'Acme Beauty', tone: 2 }, { brand: 'Acme Skin', tone: 4 }] } },\n]\nconst rows: ResourceRow[] = [\n  { title: 'Blog', line: 'What the Acme team shipped, and what is next.', badge: 'Coming soon' },\n  { title: 'Articles', line: 'Guides to creative research with agents.', badge: 'Coming soon' },\n  { title: 'Demos', line: 'Acme at work in Claude, ChatGPT and Cursor.', badge: 'Coming soon' },\n]\n\nexport default function Hub() {\n  return (\n    <div className=\"mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter) py-12\">\n      <ResourceCards cards={cards} rows={rows} rowsLabel=\"More resources\" />\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "badge",
+            "code-block",
+            "creative-card"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "UseCases",
+          "label": "Three columns",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/resource-cards/UseCases.tsx",
+          "content": "import { ResourceCards, type ResourceCard } from '@/react/components/site/ResourceCards'\n// The use-cases hub: three columns from 1024, each use case with its creatives, its line and who it is for.\n\nconst tiles = (tone: 1 | 2 | 3 | 4) => ({ kind: 'creatives' as const, items: [{ brand: 'Acme Skin', tone }, { brand: 'Acme Drinks', tone: (tone % 4) + 1 as 1 | 2 | 3 | 4 }, { brand: 'Acme Fit', tone }] })\nconst cards: ResourceCard[] = [\n  { title: 'Creative research', line: 'The hooks, angles and formats that win for any brand.', meta: 'For creative strategists.', href: '/use-cases/creative-research', cover: tiles(2) },\n  { title: 'Paid ads', line: 'What competitors run, how long it runs and where it leads.', meta: 'For performance teams.', href: '/use-cases/paid-ads', cover: tiles(3) },\n  { title: 'Creator sourcing', line: 'The creators behind a category’s best ads.', meta: 'For partnership teams.', href: '/use-cases/creator-sourcing', cover: tiles(1) },\n]\n\nexport default function UseCases() {\n  return (\n    <div className=\"mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter) py-12\">\n      <ResourceCards cards={cards} columns={3} />\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "badge",
+            "code-block",
+            "creative-card"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/resource-cards.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { isExternal, type ResourceCard, type ResourceCover, type ResourceRow } from '@/lib/resource-cards'\nimport '@/elements/components/site/code'\nimport '@/elements/components/site/creative-card'\nimport '@/elements/components/ui/badge'\nimport styles from 'virtual:tw'\n\nexport type { ResourceCard, ResourceCover, ResourceCreative, ResourceRow } from '@/lib/resource-cards'\n\n// ResourceCards.tsx as <spyglass-resource-cards>: the site's resource hub cards (a cover of creatives or code, the\n// title, the line and the meta) on the #262626 surface, two columns from 768 or `columns=\"3\"` for the use-cases hub\n// (three from 1024), and the hairline rows of what is not ready under them. `cards` and `rows` are lists (JSON\n// attributes or properties). A card's surface and a row's name change color under a mouse; nothing moves.\n\nconst ROW = 'grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 gap-y-1 border-b border-edge py-5 lg:grid-cols-[240px_minmax(0,1fr)_auto] lg:py-6'\n\n/**\n * @summary The resource hub's cards and rows.\n */\nexport class ResourceCards extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"resource-cards\"]'))\n\tstatic properties = { cards: { type: Array }, rows: { type: Array }, rowsLabel: { attribute: 'rows-label' }, columns: { type: Number } }\n\t/** The cards: { title, line, href, meta?, cover? }. */\n\tcards: ResourceCard[] = []\n\t/** Rows under the cards: { title, line, href?, badge? }. */\n\trows: ResourceRow[] = []\n\t/** The rows' list name. */\n\trowsLabel = 'More resources'\n\t/** 2 (resources) or 3 (use cases, from 1024). */\n\tcolumns: 2 | 3 = 2\n\n\t#cover(cover: ResourceCover, columns: 2 | 3) {\n\t\tif (cover.kind === 'code') return html`<span class=\"max-w-full overflow-hidden\"><spyglass-code source=${cover.source} language=${cover.language ?? 'shell'}></spyglass-code></span>`\n\t\tconst size = columns === 3 ? 'shrink-0 basis-20 lg:basis-16 xl:basis-20 min-[1440px]:basis-24' : 'shrink grow-0 basis-30'\n\t\treturn html`<span class=\"flex w-full justify-center gap-3\">${cover.items.map((c) => html`<span class=${['block aspect-4/5 min-w-0', size].join(' ')}><spyglass-creative-card ratio=\"fill\" src=${ifDefined(c.src)} fit=${ifDefined(c.fit)} position=${ifDefined(c.position)} alt=${ifDefined(c.alt)} brand=${ifDefined(c.brand)} caption=${ifDefined(c.caption)} tone=${ifDefined(c.tone)}></spyglass-creative-card></span>`)}</span>`\n\t}\n\n\trender() {\n\t\tconst columns = Number(this.columns) === 3 ? 3 : 2\n\t\tconst cards = this.cards ?? []\n\t\tconst rows = this.rows ?? []\n\t\tconst out = (href: string) => (isExternal(href) ? { target: '_blank', rel: 'noreferrer' } : { target: undefined, rel: undefined })\n\t\treturn html`<div data-ds=\"resource-cards\" class=\"flex flex-col gap-12 text-fg\"><ul role=\"list\" class=${['m-0 grid list-none grid-cols-[minmax(0,1fr)] gap-4 p-0 md:grid-cols-2', columns === 3 ? 'lg:grid-cols-3' : ''].join(' ')}>${cards.map((card) => html`<li><a href=${card.href} target=${ifDefined(out(card.href).target)} rel=${ifDefined(out(card.href).rel)} class=\"flex h-full flex-col rounded-panel bg-surface-raised p-2 transition-[background-color] duration-160 ease-out hover:bg-surface-hover focus-visible:-outline-offset-2\"><span aria-hidden=\"true\" class=${['grid h-60 place-items-center overflow-hidden rounded-container bg-surface p-6', columns === 2 ? 'lg:h-80' : ''].join(' ')}>${card.cover ? this.#cover(card.cover, columns) : nothing}</span><span class=\"flex flex-1 flex-col gap-2 p-4 md:pt-6\"><h2 class=\"type-heading-3\">${card.title}</h2><span class=\"type-body text-pretty text-fg-soft\">${card.line}</span>${card.meta ? html`<span class=\"mt-auto pt-2 type-ui text-fg-muted\">${card.meta}</span>` : nothing}</span></a></li>`)}</ul>${rows.length ? html`<ul role=\"list\" aria-label=${this.rowsLabel} class=\"m-0 list-none border-t border-edge p-0\">${rows.map((row) => {\n\t\t\tconst body = html`<h2 class=\"col-start-1 row-start-1 type-body font-medium text-fg-soft transition-[color] duration-160 ease-out group-hover:text-fg\">${row.title}</h2><span class=\"col-span-full row-start-2 type-body text-pretty text-fg-faint lg:col-span-1 lg:col-start-2 lg:row-start-1\">${row.line}</span>${row.badge ? html`<span class=\"col-start-2 row-start-1 flex justify-self-end lg:col-start-3\"><spyglass-badge variant=\"secondary\">${row.badge}</spyglass-badge></span>` : nothing}`\n\t\t\treturn html`<li>${row.href ? html`<a href=${row.href} target=${ifDefined(out(row.href).target)} rel=${ifDefined(out(row.href).rel)} class=${['group focus-visible:-outline-offset-2', ROW].join(' ')}>${body}</a>` : html`<div class=${ROW}>${body}</div>`}</li>`\n\t\t})}</ul>` : nothing}</div>`\n\t}\n}\n\ndefine('resource-cards', ResourceCards)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/resource-cards.js",
+        "elements/code.js",
+        "elements/creative-card.js",
+        "elements/badge.js"
+      ],
+      "tag": "spyglass-resource-cards",
+      "tags": [
+        "spyglass-resource-cards"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "badge",
+        "code-block",
+        "creative-card"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-resource-cards",
+            "name": "ResourceCards",
+            "module": "elements/resource-cards.js",
+            "description": "The resource hub's cards and rows.",
+            "attributes": [
+              {
+                "name": "cards",
+                "field": "cards",
+                "type": "ResourceCard[]",
+                "default": "[]",
+                "description": "The cards: { title, line, href, meta?, cover? }."
+              },
+              {
+                "name": "rows",
+                "field": "rows",
+                "type": "ResourceRow[]",
+                "default": "[]",
+                "description": "Rows under the cards: { title, line, href?, badge? }."
+              },
+              {
+                "name": "rows-label",
+                "field": "rowsLabel",
+                "type": "string",
+                "default": "'More resources'",
+                "description": "The rows' list name."
+              },
+              {
+                "name": "columns",
+                "field": "columns",
+                "type": "2 | 3",
+                "default": "2",
+                "description": "2 (resources) or 3 (use cases, from 1024)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "cards",
+                "type": "ResourceCard[]",
+                "default": "[]",
+                "description": "The cards: { title, line, href, meta?, cover? }.",
+                "attribute": "cards"
+              },
+              {
+                "name": "rows",
+                "type": "ResourceRow[]",
+                "default": "[]",
+                "description": "Rows under the cards: { title, line, href?, badge? }.",
+                "attribute": "rows"
+              },
+              {
+                "name": "rowsLabel",
+                "type": "string",
+                "default": "'More resources'",
+                "description": "The rows' list name.",
+                "attribute": "rows-label"
+              },
+              {
+                "name": "columns",
+                "type": "2 | 3",
+                "default": "2",
+                "description": "2 (resources) or 3 (use cases, from 1024).",
+                "attribute": "columns"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Hub",
+          "label": "Resources hub",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/resource-cards/Hub.html",
+          "content": "<!-- The resources hub with Acme's copy: templates and case studies with placeholder creatives, the docs with code, and three resources that are coming soon. -->\n<div class=\"mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter) py-12\">\n  <spyglass-resource-cards rows-label=\"More resources\" cards='[{\"title\":\"Templates\",\"line\":\"Ready-made playbooks that run inside Claude or ChatGPT on Acme data.\",\"href\":\"/templates\",\"meta\":\"4 templates, coming soon\",\"cover\":{\"kind\":\"creatives\",\"items\":[{\"brand\":\"Acme Skin\",\"tone\":2},{\"brand\":\"Acme Drinks\",\"tone\":3},{\"brand\":\"Acme Studio\",\"tone\":1},{\"brand\":\"Acme Fit\",\"tone\":4}]}},{\"title\":\"Docs\",\"line\":\"Set up the MCP server, call the REST API and use the SDKs.\",\"href\":\"https://docs.acme.com\",\"meta\":\"docs.acme.com\",\"cover\":{\"kind\":\"code\",\"source\":\"# The CLI\\nnpm install -g @acme/cli\\n# The MCP server\\nhttps://mcp.acme.com/mcp\\n# The REST API\\nhttps://api.acme.com/v2\"}},{\"title\":\"Case studies\",\"line\":\"How agencies and marketing teams put Acme to work.\",\"href\":\"/resources/case-studies\",\"meta\":\"2 case studies\",\"cover\":{\"kind\":\"creatives\",\"items\":[{\"brand\":\"Acme Skin\",\"tone\":3},{\"brand\":\"Acme Beauty\",\"tone\":2},{\"brand\":\"Acme Skin\",\"tone\":4}]}}]' rows='[{\"title\":\"Blog\",\"line\":\"What the Acme team shipped, and what is next.\",\"badge\":\"Coming soon\"},{\"title\":\"Articles\",\"line\":\"Guides to creative research with agents.\",\"badge\":\"Coming soon\"},{\"title\":\"Demos\",\"line\":\"Acme at work in Claude, ChatGPT and Cursor.\",\"badge\":\"Coming soon\"}]'></spyglass-resource-cards>\n</div>\n"
+        },
+        {
+          "name": "UseCases",
+          "label": "Three columns",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/resource-cards/UseCases.html",
+          "content": "<!-- The use-cases hub: three columns from 1024, each use case with its creatives, its line and who it is for. -->\n<div class=\"mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter) py-12\">\n  <spyglass-resource-cards columns=\"3\" cards='[{\"title\":\"Creative research\",\"line\":\"The hooks, angles and formats that win for any brand.\",\"meta\":\"For creative strategists.\",\"href\":\"/use-cases/creative-research\",\"cover\":{\"kind\":\"creatives\",\"items\":[{\"brand\":\"Acme Skin\",\"tone\":2},{\"brand\":\"Acme Drinks\",\"tone\":3},{\"brand\":\"Acme Fit\",\"tone\":2}]}},{\"title\":\"Paid ads\",\"line\":\"What competitors run, how long it runs and where it leads.\",\"meta\":\"For performance teams.\",\"href\":\"/use-cases/paid-ads\",\"cover\":{\"kind\":\"creatives\",\"items\":[{\"brand\":\"Acme Skin\",\"tone\":3},{\"brand\":\"Acme Drinks\",\"tone\":4},{\"brand\":\"Acme Fit\",\"tone\":3}]}},{\"title\":\"Creator sourcing\",\"line\":\"The creators behind a category’s best ads.\",\"meta\":\"For partnership teams.\",\"href\":\"/use-cases/creator-sourcing\",\"cover\":{\"kind\":\"creatives\",\"items\":[{\"brand\":\"Acme Skin\",\"tone\":1},{\"brand\":\"Acme Drinks\",\"tone\":2},{\"brand\":\"Acme Fit\",\"tone\":1}]}}]'></spyglass-resource-cards>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

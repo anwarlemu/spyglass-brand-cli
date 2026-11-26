@@ -1,0 +1,162 @@
+{
+  "name": "instrument-marks",
+  "title": "Instrument marks",
+  "type": "registry:ui",
+  "group": "visuals",
+  "description": "Four hairline corner brackets in the text colour around a target, a few pixels outside its edges, like a viewfinder locking on: the site's instrument mark for the item a figure is reading.",
+  "use_for": "Marking the tile, figure or row a diagram is pointing at, in the site's instrument figures.",
+  "never": [
+    "Around controls or text people read, as a focus or selection state",
+    "In a color: they are the text colour, hairline"
+  ],
+  "source": "Site instrument/marks (Brackets) and instrument.module.css (.brackets): inset -4px (--b-off), 8px arms (--b-arm), 1px hairline in --text, z 2",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/visuals/Brackets.tsx",
+      "content": "import type { CSSProperties } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// The site's instrument marks (instrument/marks): four hairline corner brackets in the text colour around a target,\n// `offset` outside its edges (4px), each arm `arm` long (8px), like a viewfinder locking on. Put it inside a positioned\n// box (the target); it sits above it (z 2) and takes no pointer. Decoration: hidden from assistive tech.\nexport type Strength = 'subtle' | 'stronger'\nexport interface BracketsProps {\n  /** How far outside the target's edges, in px. */\n  offset?: number\n  /** Each arm's length, in px. */\n  arm?: number\n  className?: string\n}\n\nconst ARM = 'absolute size-[var(--b-arm,var(--ds-space-sm))] border-0 border-solid border-fg'\n\nexport function Brackets({ offset, arm, className }: BracketsProps) {\n  const style = { ...(offset !== undefined && { '--b-off': `${offset}px` }), ...(arm !== undefined && { '--b-arm': `${arm}px` }) } as CSSProperties\n  return (\n    <span data-ds=\"brackets\" data-brackets=\"\" aria-hidden=\"true\" style={style} className={cn('pointer-events-none absolute inset-[calc(-1*var(--b-off,var(--ds-space-xs)))] z-2 origin-center', className)}>\n      <i className={cn(ARM, 'top-0 left-0 border-t border-l')} />\n      <i className={cn(ARM, 'top-0 right-0 border-t border-r')} />\n      <i className={cn(ARM, 'bottom-0 left-0 border-b border-l')} />\n      <i className={cn(ARM, 'right-0 bottom-0 border-r border-b')} />\n    </span>\n  )\n}\n\nexport default Brackets\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Target",
+      "label": "Around a target",
+      "center": true,
+      "half": false,
+      "path": "react/examples/instrument-marks/Target.tsx",
+      "content": "import { Brackets } from '@/react/components/visuals/Brackets'\n// Brackets locking on to a tile, and a wider pair with longer arms around a figure.\n\nexport default function Target() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-16\">\n      <div className=\"relative size-32 rounded-container bg-surface-raised\">\n        <Brackets />\n      </div>\n      <div className=\"relative px-4 py-2\">\n        <span className=\"font-heading text-heading-2 text-fg\">1,284 ads</span>\n        <Brackets offset={8} arm={12} />\n      </div>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/visuals/Brackets.tsx",
+          "content": "import type { CSSProperties } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// The site's instrument marks (instrument/marks): four hairline corner brackets in the text colour around a target,\n// `offset` outside its edges (4px), each arm `arm` long (8px), like a viewfinder locking on. Put it inside a positioned\n// box (the target); it sits above it (z 2) and takes no pointer. Decoration: hidden from assistive tech.\nexport type Strength = 'subtle' | 'stronger'\nexport interface BracketsProps {\n  /** How far outside the target's edges, in px. */\n  offset?: number\n  /** Each arm's length, in px. */\n  arm?: number\n  className?: string\n}\n\nconst ARM = 'absolute size-[var(--b-arm,var(--ds-space-sm))] border-0 border-solid border-fg'\n\nexport function Brackets({ offset, arm, className }: BracketsProps) {\n  const style = { ...(offset !== undefined && { '--b-off': `${offset}px` }), ...(arm !== undefined && { '--b-arm': `${arm}px` }) } as CSSProperties\n  return (\n    <span data-ds=\"brackets\" data-brackets=\"\" aria-hidden=\"true\" style={style} className={cn('pointer-events-none absolute inset-[calc(-1*var(--b-off,var(--ds-space-xs)))] z-2 origin-center', className)}>\n      <i className={cn(ARM, 'top-0 left-0 border-t border-l')} />\n      <i className={cn(ARM, 'top-0 right-0 border-t border-r')} />\n      <i className={cn(ARM, 'bottom-0 left-0 border-b border-l')} />\n      <i className={cn(ARM, 'right-0 bottom-0 border-r border-b')} />\n    </span>\n  )\n}\n\nexport default Brackets\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Brackets",
+            "file": "react/components/visuals/Brackets.tsx",
+            "props": [
+              {
+                "name": "offset",
+                "type": "number",
+                "required": false,
+                "description": "How far outside the target's edges, in px."
+              },
+              {
+                "name": "arm",
+                "type": "number",
+                "required": false,
+                "description": "Each arm's length, in px."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Target",
+          "label": "Around a target",
+          "center": true,
+          "half": false,
+          "path": "react/examples/instrument-marks/Target.tsx",
+          "content": "import { Brackets } from '@/react/components/visuals/Brackets'\n// Brackets locking on to a tile, and a wider pair with longer arms around a figure.\n\nexport default function Target() {\n  return (\n    <div className=\"flex flex-wrap items-center gap-16\">\n      <div className=\"relative size-32 rounded-container bg-surface-raised\">\n        <Brackets />\n      </div>\n      <div className=\"relative px-4 py-2\">\n        <span className=\"font-heading text-heading-2 text-fg\">1,284 ads</span>\n        <Brackets offset={8} arm={12} />\n      </div>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/visuals/brackets.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Brackets.tsx as <spyglass-brackets>: four hairline corner brackets around the positioned box it sits in, `offset`\n// outside its edges (4px), arms `arm` long (8px). Decoration: aria-hidden.\n\nconst ARM = 'absolute size-[var(--b-arm,var(--ds-space-sm))] border-0 border-solid border-fg'\n\n/**\n * @summary Corner brackets around a target, like a viewfinder.\n */\nexport class Brackets extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { offset: { type: Number }, arm: { type: Number } }\n\t/** How far outside the target's edges, in px. */\n\toffset?: number\n\t/** Each arm's length, in px. */\n\tarm?: number\n\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\tthis.setAttribute('aria-hidden', 'true')\n\t}\n\n\trender() {\n\t\tconst style = [this.offset !== undefined ? `--b-off: ${this.offset}px` : '', this.arm !== undefined ? `--b-arm: ${this.arm}px` : ''].filter(Boolean).join('; ')\n\t\treturn html`<span data-ds=\"brackets\" data-brackets=\"\" style=${style} class=\"pointer-events-none absolute inset-[calc(-1*var(--b-off,var(--ds-space-xs)))] z-2 origin-center\"><i class=${`${ARM} top-0 left-0 border-t border-l`}></i><i class=${`${ARM} top-0 right-0 border-t border-r`}></i><i class=${`${ARM} bottom-0 left-0 border-b border-l`}></i><i class=${`${ARM} right-0 bottom-0 border-r border-b`}></i></span>`\n\t}\n}\n\ndefine('brackets', Brackets)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/brackets.js"
+      ],
+      "tag": "spyglass-brackets",
+      "tags": [
+        "spyglass-brackets"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-brackets",
+            "name": "Brackets",
+            "module": "elements/brackets.js",
+            "description": "Corner brackets around a target, like a viewfinder.",
+            "attributes": [
+              {
+                "name": "offset",
+                "field": "offset",
+                "type": "number | undefined",
+                "description": "How far outside the target's edges, in px."
+              },
+              {
+                "name": "arm",
+                "field": "arm",
+                "type": "number | undefined",
+                "description": "Each arm's length, in px."
+              }
+            ],
+            "properties": [
+              {
+                "name": "offset",
+                "type": "number | undefined",
+                "description": "How far outside the target's edges, in px.",
+                "attribute": "offset"
+              },
+              {
+                "name": "arm",
+                "type": "number | undefined",
+                "description": "Each arm's length, in px.",
+                "attribute": "arm"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Target",
+          "label": "Around a target",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/instrument-marks/Target.html",
+          "content": "<!-- Brackets locking on to a tile, and a wider pair with longer arms around a figure. -->\n<div class=\"flex flex-wrap items-center gap-16\">\n  <div class=\"relative size-32 rounded-container bg-surface-raised\">\n    <spyglass-brackets></spyglass-brackets>\n  </div>\n  <div class=\"relative px-4 py-2\">\n    <span class=\"font-heading text-heading-2 text-fg\">1,284 ads</span>\n    <spyglass-brackets offset=\"8\" arm=\"12\"></spyglass-brackets>\n  </div>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

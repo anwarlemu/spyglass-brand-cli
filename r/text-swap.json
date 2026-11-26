@@ -1,0 +1,277 @@
+{
+  "name": "text-swap",
+  "title": "Text swap",
+  "type": "registry:ui",
+  "group": "visuals",
+  "description": "A value that changes in place: the old one rises 12px and fades out while the new one rises in from below, in one clipped grid cell, with an optional muted unit and a small badge. Sentences, its companion, keeps each sentence of a line whole on a phone.",
+  "use_for": "A price that follows the billing period, a plan name an estimator picks, a sort label; a hero line that should break between sentences on a phone (Sentences).",
+  "never": [
+    "For text people are reading: only short values that change on a choice",
+    "Swapping on a timer: it answers a choice",
+    "Moving with reduced motion: the value changes at once"
+  ],
+  "source": "Site pages/Pricing/Swap (Pricing.module.css .swap, .swapItem, .swapUnit; the tag in the plan badge's look, .badge: White, Black caption 4px by 8px, the small corner): inline-grid, clip margin 4px, 12px rise over --dur-loop-badge on --ease-loop (480ms, the brand's slow step); ui/Sentences (inline-block sentences below 768)",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/TextSwap.tsx",
+      "content": "'use client'\nimport { useEffect, useRef, useState } from 'react'\nimport { prefersReduced, SWAP_CSS, swapLeaveMs, swapTo, type SwapItem } from '@/lib/text-swap'\nimport { cn } from '@/react/lib/cn'\n\n// The site's animated value swap (pages/Pricing/Swap): a price, a plan name or a sort label that changes in place. The\n// old value rises 12px and fades out while the new one rises in from below, in one grid cell clipped 4px out, over\n// 480ms on the loop curve; a value that changes again mid-swap takes over from where it is. `unit` follows the value in\n// small muted type (\"/month\"), `tag` as a small White badge (\"Save 20%\", the plan badge's look). The type comes from the page (`className`). With\n// reduced motion the value changes at once. The leaving value is hidden from assistive tech.\nexport interface TextSwapProps {\n  text: string\n  /** Small muted text after the value (\"/month\"). */\n  unit?: string\n  /** A small badge after the value (\"Save 20%\"). */\n  tag?: string\n  className?: string\n}\n\nexport function TextSwap({ text, unit, tag, className }: TextSwapProps) {\n  const ref = useRef<HTMLSpanElement>(null)\n  const [items, setItems] = useState<SwapItem[]>([{ id: 0, text, unit, tag, state: 'in' }])\n  const [asked, setAsked] = useState({ text, unit, tag })\n  const dropAt = useRef(new Map<number, number>())\n\n  if (asked.text !== text || asked.unit !== unit || asked.tag !== tag) {\n    setAsked({ text, unit, tag })\n    setItems(swapTo(items, { text, unit, tag }, prefersReduced()))\n  }\n\n  useEffect(() => {\n    let frame = 0\n    if (items.some((i) => i.state === 'enter')) {\n      frame = requestAnimationFrame(() => {\n        frame = requestAnimationFrame(() => setItems((now) => now.map((i) => (i.state === 'enter' ? { ...i, state: 'in' as const } : i))))\n      })\n    }\n    const now = performance.now()\n    const leaving = items.filter((i) => i.state === 'out')\n    const live = new Set(leaving.map((i) => i.id))\n    for (const id of dropAt.current.keys()) if (!live.has(id)) dropAt.current.delete(id)\n    const ms = ref.current ? swapLeaveMs(ref.current) : 480\n    for (const i of leaving) if (!dropAt.current.has(i.id)) dropAt.current.set(i.id, now + ms)\n    let timer = 0\n    if (leaving.length) {\n      const due = Math.min(...leaving.map((i) => dropAt.current.get(i.id) ?? now))\n      timer = window.setTimeout(() => {\n        const t = performance.now()\n        const done = new Set(leaving.filter((i) => (dropAt.current.get(i.id) ?? 0) <= t).map((i) => i.id))\n        setItems((cur) => cur.filter((c) => !done.has(c.id)))\n      }, Math.max(0, due - now))\n    }\n    return () => {\n      cancelAnimationFrame(frame)\n      clearTimeout(timer)\n    }\n  }, [items])\n\n  return (\n    <span ref={ref} data-ds=\"text-swap\" className={cn('inline-grid overflow-clip align-top [overflow-clip-margin:var(--ds-space-xs)]', className)}>\n      <style href=\"ds-text-swap\" precedence=\"ds\">{SWAP_CSS}</style>\n      {items.map((item) => (\n        <span key={item.id} className=\"ds-swap-item\" data-state={item.state} aria-hidden={item.state === 'out' || undefined}>\n          {item.text}\n          {item.unit ? <span className=\"ms-2 font-text text-ui/5 text-fg-muted\">{item.unit}</span> : null}\n          {item.tag ? <span className=\"relative ms-2 inline-block rounded-ds-sm bg-action-primary px-2 py-1 font-text text-caption/5 font-medium whitespace-nowrap text-action-primary-fg\">{item.tag}</span> : null}\n        </span>\n      ))}\n    </span>\n  )\n}\n\nexport default TextSwap\n"
+    },
+    {
+      "path": "react/components/ui/Sentences.tsx",
+      "content": "import { Fragment } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// The site's sentence keeper (ui/Sentences): a line of copy split after each sentence, so below 768 each sentence wraps\n// as a whole (inline-block) instead of leaving one word alone on a line; wider, it reads as plain text.\nexport interface SentencesProps {\n  text: string\n  className?: string\n}\n\nexport function Sentences({ text, className }: SentencesProps) {\n  const parts = text.split(/(?<=[.!?])\\s+/)\n  return (\n    <span data-ds=\"sentences\" className={cn('contents', className)}>\n      {parts.map((part, i) => (\n        <Fragment key={`${i}-${part}`}>\n          {i > 0 ? ' ' : null}\n          <span className=\"max-md:inline-block\">{part}</span>\n        </Fragment>\n      ))}\n    </span>\n  )\n}\n\nexport default Sentences\n"
+    },
+    {
+      "path": "lib/text-swap.ts",
+      "content": "// The site's value swap (pages/Pricing/Swap): when the text changes, the old value rises 12px and fades out while the\n// new one rises in from 12px below, both in one grid cell, over --ds-duration-slow on the loop curve. Both flavors keep\n// their list of values with this, and share the CSS. With reduced motion the new value replaces the old at once.\nexport type SwapState = 'enter' | 'in' | 'out'\nexport interface SwapValue { text: string, unit?: string, tag?: string }\nexport interface SwapItem extends SwapValue { id: number, state: SwapState }\n\nconst same = (a: SwapValue | undefined, b: SwapValue) => !!a && a.text === b.text && a.unit === b.unit && a.tag === b.tag\n\n/** The list after the value changes to `next`: the shown value leaves and `next` enters (or replaces it, reduced). */\nexport function swapTo(items: SwapItem[], next: SwapValue, reduced: boolean): SwapItem[] {\n\tif (same(items.find((i) => i.state !== 'out'), next)) return items\n\tconst id = items.reduce((max, i) => Math.max(max, i.id), 0) + 1\n\tif (reduced) return [{ id, ...next, state: 'in' }]\n\treturn [...items.map((i) => (i.state === 'out' ? i : { ...i, state: 'out' as const })), { id, ...next, state: 'enter' as const }]\n}\n\nexport const prefersReduced = () => !!globalThis.matchMedia && globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches\n\n/** How long a leaving value stays: the swap's duration token, in ms. */\nexport function swapLeaveMs(el: Element): number {\n\tconst v = getComputedStyle(el).getPropertyValue('--ds-duration-slow').trim()\n\tconst n = parseFloat(v)\n\treturn Number.isFinite(n) && n > 0 ? n * (v.endsWith('ms') ? 1 : 1000) : 480\n}\n\nexport const SWAP_CSS = `\n.ds-swap-item { grid-area: 1 / 1; white-space: nowrap; transition: opacity var(--ds-duration-slow) var(--ds-easing-loop), translate var(--ds-duration-slow) var(--ds-easing-loop); }\n.ds-swap-item[data-state=\"enter\"] { opacity: 0; translate: 0 var(--ds-space-md); transition: none; }\n.ds-swap-item[data-state=\"out\"] { opacity: 0; translate: 0 calc(-1 * var(--ds-space-md)); }\n@media (prefers-reduced-motion: reduce) { .ds-swap-item { transition: none; } }\n`\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Price",
+      "label": "A price and its unit",
+      "center": true,
+      "half": false,
+      "path": "react/examples/text-swap/Price.tsx",
+      "content": "'use client'\nimport { useState } from 'react'\nimport { TextSwap } from '@/react/components/ui/TextSwap'\n// A plan's price that swaps with the billing period: the amount and the unit each rise out as the new ones rise in.\n\nexport default function Price() {\n  const [yearly, setYearly] = useState(false)\n  const pick = 'h-8 rounded-ds-sm px-3 type-ui text-fg-muted transition-[background-color,color] duration-160 ease-standard aria-pressed:bg-surface-subtle aria-pressed:text-fg'\n  return (\n    <div className=\"flex flex-col items-start gap-8\">\n      <div role=\"group\" aria-label=\"Billing\" className=\"flex gap-1 rounded-control bg-surface-raised p-1\">\n        <button type=\"button\" aria-pressed={!yearly} onClick={() => setYearly(false)} className={pick}>Monthly</button>\n        <button type=\"button\" aria-pressed={yearly} onClick={() => setYearly(true)} className={pick}>Yearly</button>\n      </div>\n      <p className=\"flex flex-wrap items-baseline gap-x-2 text-fg\">\n        <TextSwap className=\"font-heading text-heading-3\" text={yearly ? '$16' : '$20'} />\n        <TextSwap className=\"type-ui text-fg-muted\" text={yearly ? '/month, billed yearly' : '/month'} tag={yearly ? 'Save 20%' : undefined} />\n      </p>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    },
+    {
+      "name": "Lines",
+      "label": "Sentences",
+      "center": false,
+      "half": false,
+      "path": "react/examples/text-swap/Lines.tsx",
+      "content": "import { Sentences } from '@/react/components/ui/Sentences'\n// Sentences: on a phone each sentence wraps as a whole; wider, the copy reads as one paragraph.\n\nexport default function Lines() {\n  return (\n    <p className=\"max-w-xl type-body-lg text-fg-soft\">\n      <Sentences text=\"Ask in plain words. Acme's library answers with the ads that fit. Every one ranked by how long it ran.\" />\n    </p>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/TextSwap.tsx",
+          "content": "'use client'\nimport { useEffect, useRef, useState } from 'react'\nimport { prefersReduced, SWAP_CSS, swapLeaveMs, swapTo, type SwapItem } from '@/lib/text-swap'\nimport { cn } from '@/react/lib/cn'\n\n// The site's animated value swap (pages/Pricing/Swap): a price, a plan name or a sort label that changes in place. The\n// old value rises 12px and fades out while the new one rises in from below, in one grid cell clipped 4px out, over\n// 480ms on the loop curve; a value that changes again mid-swap takes over from where it is. `unit` follows the value in\n// small muted type (\"/month\"), `tag` as a small White badge (\"Save 20%\", the plan badge's look). The type comes from the page (`className`). With\n// reduced motion the value changes at once. The leaving value is hidden from assistive tech.\nexport interface TextSwapProps {\n  text: string\n  /** Small muted text after the value (\"/month\"). */\n  unit?: string\n  /** A small badge after the value (\"Save 20%\"). */\n  tag?: string\n  className?: string\n}\n\nexport function TextSwap({ text, unit, tag, className }: TextSwapProps) {\n  const ref = useRef<HTMLSpanElement>(null)\n  const [items, setItems] = useState<SwapItem[]>([{ id: 0, text, unit, tag, state: 'in' }])\n  const [asked, setAsked] = useState({ text, unit, tag })\n  const dropAt = useRef(new Map<number, number>())\n\n  if (asked.text !== text || asked.unit !== unit || asked.tag !== tag) {\n    setAsked({ text, unit, tag })\n    setItems(swapTo(items, { text, unit, tag }, prefersReduced()))\n  }\n\n  useEffect(() => {\n    let frame = 0\n    if (items.some((i) => i.state === 'enter')) {\n      frame = requestAnimationFrame(() => {\n        frame = requestAnimationFrame(() => setItems((now) => now.map((i) => (i.state === 'enter' ? { ...i, state: 'in' as const } : i))))\n      })\n    }\n    const now = performance.now()\n    const leaving = items.filter((i) => i.state === 'out')\n    const live = new Set(leaving.map((i) => i.id))\n    for (const id of dropAt.current.keys()) if (!live.has(id)) dropAt.current.delete(id)\n    const ms = ref.current ? swapLeaveMs(ref.current) : 480\n    for (const i of leaving) if (!dropAt.current.has(i.id)) dropAt.current.set(i.id, now + ms)\n    let timer = 0\n    if (leaving.length) {\n      const due = Math.min(...leaving.map((i) => dropAt.current.get(i.id) ?? now))\n      timer = window.setTimeout(() => {\n        const t = performance.now()\n        const done = new Set(leaving.filter((i) => (dropAt.current.get(i.id) ?? 0) <= t).map((i) => i.id))\n        setItems((cur) => cur.filter((c) => !done.has(c.id)))\n      }, Math.max(0, due - now))\n    }\n    return () => {\n      cancelAnimationFrame(frame)\n      clearTimeout(timer)\n    }\n  }, [items])\n\n  return (\n    <span ref={ref} data-ds=\"text-swap\" className={cn('inline-grid overflow-clip align-top [overflow-clip-margin:var(--ds-space-xs)]', className)}>\n      <style href=\"ds-text-swap\" precedence=\"ds\">{SWAP_CSS}</style>\n      {items.map((item) => (\n        <span key={item.id} className=\"ds-swap-item\" data-state={item.state} aria-hidden={item.state === 'out' || undefined}>\n          {item.text}\n          {item.unit ? <span className=\"ms-2 font-text text-ui/5 text-fg-muted\">{item.unit}</span> : null}\n          {item.tag ? <span className=\"relative ms-2 inline-block rounded-ds-sm bg-action-primary px-2 py-1 font-text text-caption/5 font-medium whitespace-nowrap text-action-primary-fg\">{item.tag}</span> : null}\n        </span>\n      ))}\n    </span>\n  )\n}\n\nexport default TextSwap\n"
+        },
+        {
+          "path": "react/components/ui/Sentences.tsx",
+          "content": "import { Fragment } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// The site's sentence keeper (ui/Sentences): a line of copy split after each sentence, so below 768 each sentence wraps\n// as a whole (inline-block) instead of leaving one word alone on a line; wider, it reads as plain text.\nexport interface SentencesProps {\n  text: string\n  className?: string\n}\n\nexport function Sentences({ text, className }: SentencesProps) {\n  const parts = text.split(/(?<=[.!?])\\s+/)\n  return (\n    <span data-ds=\"sentences\" className={cn('contents', className)}>\n      {parts.map((part, i) => (\n        <Fragment key={`${i}-${part}`}>\n          {i > 0 ? ' ' : null}\n          <span className=\"max-md:inline-block\">{part}</span>\n        </Fragment>\n      ))}\n    </span>\n  )\n}\n\nexport default Sentences\n"
+        },
+        {
+          "path": "lib/text-swap.ts",
+          "content": "// The site's value swap (pages/Pricing/Swap): when the text changes, the old value rises 12px and fades out while the\n// new one rises in from 12px below, both in one grid cell, over --ds-duration-slow on the loop curve. Both flavors keep\n// their list of values with this, and share the CSS. With reduced motion the new value replaces the old at once.\nexport type SwapState = 'enter' | 'in' | 'out'\nexport interface SwapValue { text: string, unit?: string, tag?: string }\nexport interface SwapItem extends SwapValue { id: number, state: SwapState }\n\nconst same = (a: SwapValue | undefined, b: SwapValue) => !!a && a.text === b.text && a.unit === b.unit && a.tag === b.tag\n\n/** The list after the value changes to `next`: the shown value leaves and `next` enters (or replaces it, reduced). */\nexport function swapTo(items: SwapItem[], next: SwapValue, reduced: boolean): SwapItem[] {\n\tif (same(items.find((i) => i.state !== 'out'), next)) return items\n\tconst id = items.reduce((max, i) => Math.max(max, i.id), 0) + 1\n\tif (reduced) return [{ id, ...next, state: 'in' }]\n\treturn [...items.map((i) => (i.state === 'out' ? i : { ...i, state: 'out' as const })), { id, ...next, state: 'enter' as const }]\n}\n\nexport const prefersReduced = () => !!globalThis.matchMedia && globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches\n\n/** How long a leaving value stays: the swap's duration token, in ms. */\nexport function swapLeaveMs(el: Element): number {\n\tconst v = getComputedStyle(el).getPropertyValue('--ds-duration-slow').trim()\n\tconst n = parseFloat(v)\n\treturn Number.isFinite(n) && n > 0 ? n * (v.endsWith('ms') ? 1 : 1000) : 480\n}\n\nexport const SWAP_CSS = `\n.ds-swap-item { grid-area: 1 / 1; white-space: nowrap; transition: opacity var(--ds-duration-slow) var(--ds-easing-loop), translate var(--ds-duration-slow) var(--ds-easing-loop); }\n.ds-swap-item[data-state=\"enter\"] { opacity: 0; translate: 0 var(--ds-space-md); transition: none; }\n.ds-swap-item[data-state=\"out\"] { opacity: 0; translate: 0 calc(-1 * var(--ds-space-md)); }\n@media (prefers-reduced-motion: reduce) { .ds-swap-item { transition: none; } }\n`\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "TextSwap",
+            "file": "react/components/ui/TextSwap.tsx",
+            "props": [
+              {
+                "name": "text",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "unit",
+                "type": "string",
+                "required": false,
+                "description": "Small muted text after the value (\"/month\")."
+              },
+              {
+                "name": "tag",
+                "type": "string",
+                "required": false,
+                "description": "A small badge after the value (\"Save 20%\")."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          },
+          {
+            "name": "Sentences",
+            "file": "react/components/ui/Sentences.tsx",
+            "props": [
+              {
+                "name": "text",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Price",
+          "label": "A price and its unit",
+          "center": true,
+          "half": false,
+          "path": "react/examples/text-swap/Price.tsx",
+          "content": "'use client'\nimport { useState } from 'react'\nimport { TextSwap } from '@/react/components/ui/TextSwap'\n// A plan's price that swaps with the billing period: the amount and the unit each rise out as the new ones rise in.\n\nexport default function Price() {\n  const [yearly, setYearly] = useState(false)\n  const pick = 'h-8 rounded-ds-sm px-3 type-ui text-fg-muted transition-[background-color,color] duration-160 ease-standard aria-pressed:bg-surface-subtle aria-pressed:text-fg'\n  return (\n    <div className=\"flex flex-col items-start gap-8\">\n      <div role=\"group\" aria-label=\"Billing\" className=\"flex gap-1 rounded-control bg-surface-raised p-1\">\n        <button type=\"button\" aria-pressed={!yearly} onClick={() => setYearly(false)} className={pick}>Monthly</button>\n        <button type=\"button\" aria-pressed={yearly} onClick={() => setYearly(true)} className={pick}>Yearly</button>\n      </div>\n      <p className=\"flex flex-wrap items-baseline gap-x-2 text-fg\">\n        <TextSwap className=\"font-heading text-heading-3\" text={yearly ? '$16' : '$20'} />\n        <TextSwap className=\"type-ui text-fg-muted\" text={yearly ? '/month, billed yearly' : '/month'} tag={yearly ? 'Save 20%' : undefined} />\n      </p>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        },
+        {
+          "name": "Lines",
+          "label": "Sentences",
+          "center": false,
+          "half": false,
+          "path": "react/examples/text-swap/Lines.tsx",
+          "content": "import { Sentences } from '@/react/components/ui/Sentences'\n// Sentences: on a phone each sentence wraps as a whole; wider, the copy reads as one paragraph.\n\nexport default function Lines() {\n  return (\n    <p className=\"max-w-xl type-body-lg text-fg-soft\">\n      <Sentences text=\"Ask in plain words. Acme's library answers with the ads that fit. Every one ranked by how long it ran.\" />\n    </p>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/text-swap.ts",
+          "content": "import { html, nothing, unsafeCSS, type PropertyValues } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport { prefersReduced, SWAP_CSS, swapLeaveMs, swapTo, type SwapItem } from '@/lib/text-swap'\nimport styles from 'virtual:tw'\n\n// TextSwap.tsx as <spyglass-text-swap>: a value that changes in place, the old one rising out as the new one rises in\n// (480ms, the loop curve; at once with reduced motion). `text`, `unit` (small muted text after it) and `tag` (a badge).\n// The type comes from the page: classes on the host reach the value by inheritance.\n\n/**\n * @summary A value that swaps in place when it changes.\n */\nexport class TextSwap extends DsElement {\n\tstatic styles = [DsElement.styles, styles, unsafeCSS(SWAP_CSS)]\n\tstatic properties = { text: {}, unit: {}, tag: {}, items: { state: true } }\n\ttext = ''\n\t/** Small muted text after the value (\"/month\"). */\n\tunit?: string\n\t/** A small badge after the value (\"Save 20%\"). */\n\ttag?: string\n\tprivate items: SwapItem[] = []\n\tprivate dropAt = new Map<number, number>()\n\tprivate frame = 0\n\tprivate timer = 0\n\n\tprotected willUpdate(changed: PropertyValues) {\n\t\tconst next = { text: this.text ?? '', unit: this.unit || undefined, tag: this.tag || undefined }\n\t\tif (!this.items.length) this.items = [{ id: 0, ...next, state: 'in' }]\n\t\telse if (changed.has('text') || changed.has('unit') || changed.has('tag')) this.items = swapTo(this.items, next, prefersReduced())\n\t}\n\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\tif (!changed.has('items')) return\n\t\tcancelAnimationFrame(this.frame)\n\t\tclearTimeout(this.timer)\n\t\tif (this.items.some((i) => i.state === 'enter')) {\n\t\t\tthis.frame = requestAnimationFrame(() => {\n\t\t\t\tthis.frame = requestAnimationFrame(() => (this.items = this.items.map((i) => (i.state === 'enter' ? { ...i, state: 'in' as const } : i))))\n\t\t\t})\n\t\t}\n\t\tconst now = performance.now()\n\t\tconst leaving = this.items.filter((i) => i.state === 'out')\n\t\tconst live = new Set(leaving.map((i) => i.id))\n\t\tfor (const id of this.dropAt.keys()) if (!live.has(id)) this.dropAt.delete(id)\n\t\tconst ms = swapLeaveMs(this)\n\t\tfor (const i of leaving) if (!this.dropAt.has(i.id)) this.dropAt.set(i.id, now + ms)\n\t\tif (leaving.length) {\n\t\t\tconst due = Math.min(...leaving.map((i) => this.dropAt.get(i.id) ?? now))\n\t\t\tthis.timer = window.setTimeout(() => {\n\t\t\t\tconst t = performance.now()\n\t\t\t\tconst done = new Set(leaving.filter((i) => (this.dropAt.get(i.id) ?? 0) <= t).map((i) => i.id))\n\t\t\t\tthis.items = this.items.filter((c) => !done.has(c.id))\n\t\t\t}, Math.max(0, due - now))\n\t\t}\n\t}\n\n\tdisconnectedCallback() {\n\t\tsuper.disconnectedCallback()\n\t\tcancelAnimationFrame(this.frame)\n\t\tclearTimeout(this.timer)\n\t}\n\n\trender() {\n\t\treturn html`<span data-ds=\"text-swap\" class=\"inline-grid overflow-clip align-top [overflow-clip-margin:var(--ds-space-xs)]\">${this.items.map((item) => html`<span class=\"ds-swap-item\" data-state=${item.state} aria-hidden=${item.state === 'out' ? 'true' : nothing}>${item.text}${item.unit ? html`<span class=\"ms-2 font-text text-ui/5 text-fg-muted\">${item.unit}</span>` : nothing}${item.tag ? html`<span class=\"relative ms-2 inline-block rounded-ds-sm bg-action-primary px-2 py-1 font-text text-caption/5 font-medium whitespace-nowrap text-action-primary-fg\">${item.tag}</span>` : nothing}</span>`)}</span>`\n\t}\n}\n\ndefine('text-swap', TextSwap)\n"
+        },
+        {
+          "path": "elements/components/ui/sentences.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Sentences.tsx as <spyglass-sentences>: `text` split after each sentence, so below 768 each sentence wraps whole.\n\n/**\n * @summary Copy that keeps each sentence whole on a phone.\n */\nexport class Sentences extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { text: {} }\n\ttext = ''\n\n\trender() {\n\t\tconst parts = (this.text ?? '').split(/(?<=[.!?])\\s+/)\n\t\treturn html`<span data-ds=\"sentences\" class=\"contents\">${parts.map((part, i) => html`${i > 0 ? ' ' : ''}<span class=\"max-md:inline-block\">${part}</span>`)}</span>`\n\t}\n}\n\ndefine('sentences', Sentences)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/text-swap.js",
+        "elements/sentences.js"
+      ],
+      "tag": "spyglass-text-swap",
+      "tags": [
+        "spyglass-text-swap",
+        "spyglass-sentences"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-text-swap",
+            "name": "TextSwap",
+            "module": "elements/text-swap.js",
+            "description": "A value that swaps in place when it changes.",
+            "attributes": [
+              {
+                "name": "text",
+                "field": "text",
+                "type": "string",
+                "default": "''"
+              },
+              {
+                "name": "unit",
+                "field": "unit",
+                "type": "string | undefined",
+                "description": "Small muted text after the value (\"/month\")."
+              },
+              {
+                "name": "tag",
+                "field": "tag",
+                "type": "string | undefined",
+                "description": "A small badge after the value (\"Save 20%\")."
+              },
+              {
+                "name": "items",
+                "field": "items",
+                "type": "SwapItem[]",
+                "default": "[]"
+              }
+            ],
+            "properties": [
+              {
+                "name": "text",
+                "type": "string",
+                "default": "''",
+                "attribute": "text"
+              },
+              {
+                "name": "unit",
+                "type": "string | undefined",
+                "description": "Small muted text after the value (\"/month\").",
+                "attribute": "unit"
+              },
+              {
+                "name": "tag",
+                "type": "string | undefined",
+                "description": "A small badge after the value (\"Save 20%\").",
+                "attribute": "tag"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          },
+          {
+            "tag": "spyglass-sentences",
+            "name": "Sentences",
+            "module": "elements/sentences.js",
+            "description": "Copy that keeps each sentence whole on a phone.",
+            "attributes": [
+              {
+                "name": "text",
+                "field": "text",
+                "type": "string",
+                "default": "''"
+              }
+            ],
+            "properties": [
+              {
+                "name": "text",
+                "type": "string",
+                "default": "''",
+                "attribute": "text"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Price",
+          "label": "A price and its unit",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/text-swap/Price.html",
+          "content": "<!-- A plan's price that swaps with the billing period: the amount and the unit each rise out as the new ones rise in. -->\n<div class=\"flex flex-col items-start gap-8\">\n  <div role=\"group\" aria-label=\"Billing\" class=\"flex gap-1 rounded-control bg-surface-raised p-1\">\n    <button type=\"button\" aria-pressed=\"true\" data-period=\"monthly\" class=\"h-8 rounded-ds-sm px-3 type-ui text-fg-muted transition-[background-color,color] duration-160 ease-standard aria-pressed:bg-surface-subtle aria-pressed:text-fg\">Monthly</button>\n    <button type=\"button\" aria-pressed=\"false\" data-period=\"yearly\" class=\"h-8 rounded-ds-sm px-3 type-ui text-fg-muted transition-[background-color,color] duration-160 ease-standard aria-pressed:bg-surface-subtle aria-pressed:text-fg\">Yearly</button>\n  </div>\n  <p class=\"flex flex-wrap items-baseline gap-x-2 text-fg\">\n    <spyglass-text-swap id=\"price-amount\" class=\"font-heading text-heading-3\" text=\"$20\"></spyglass-text-swap>\n    <spyglass-text-swap id=\"price-unit\" class=\"type-ui text-fg-muted\" text=\"/month\"></spyglass-text-swap>\n  </p>\n</div>\n<script type=\"module\">\n  const amount = document.getElementById('price-amount')\n  const unit = document.getElementById('price-unit')\n  for (const b of document.querySelectorAll('[data-period]')) b.addEventListener('click', () => {\n    const yearly = b.dataset.period === 'yearly'\n    for (const o of document.querySelectorAll('[data-period]')) o.setAttribute('aria-pressed', String(o === b))\n    amount.text = yearly ? '$16' : '$20'\n    unit.text = yearly ? '/month, billed yearly' : '/month'\n    unit.tag = yearly ? 'Save 20%' : undefined\n  })\n</script>\n"
+        },
+        {
+          "name": "Lines",
+          "label": "Sentences",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/text-swap/Lines.html",
+          "content": "<!-- Sentences: on a phone each sentence wraps as a whole; wider, the copy reads as one paragraph. -->\n<p class=\"max-w-xl type-body-lg text-fg-soft\">\n  <spyglass-sentences text=\"Ask in plain words. Acme's library answers with the ads that fit. Every one ranked by how long it ran.\"></spyglass-sentences>\n</p>\n"
+        }
+      ]
+    }
+  }
+}

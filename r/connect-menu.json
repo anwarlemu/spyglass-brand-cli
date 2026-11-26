@@ -1,0 +1,283 @@
+{
+  "name": "connect-menu",
+  "title": "Connect menu",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "The site's connect menu: a White button that opens a panel of the agents your MCP server can be added to, each row with its mark or first letter, a muted line and Open, plus a row that copies a setup prompt for any other agent; a pill slides to the row under the pointer or focus.",
+  "use_for": "A hero or a page head's main action when the product connects to agents (MCP); `up` near the foot of a page; pass `marks` and each client's `mark` only when you may show them.",
+  "never": [
+    "Third-party logos without permission: by default rows show their first letter and the button shows no marks",
+    "A second White button beside it: pair it with a quiet one",
+    "Arrows that move on hover: they change color only",
+    "Shadows under the panel: it sits on a hairline"
+  ],
+  "source": "Site v3/V3Playground ConnectMenu (ConnectMenu.module.css, content/v3/connect.ts): the .btn--primary trigger at 12px in with a 16px chevron that turns over; the panel 8px under it, 336px (100% under 768), 4px in, #1A1A1A in a --line hairline with an 8px corner; rows 8px in with a 32px tile, 14/20 Medium name over a 12/16 --text-3 line; a hairline; the copy row 40px (48 on phones); the --surface sliding pill; 160ms in and 120ms out from scale 0.96. The library drops the panel shadow, keeps the arrow still, and opens at once from the keyboard",
+  "body": "",
+  "requires": [
+    "button"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/ConnectMenu.tsx",
+      "content": "'use client'\nimport { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'\nimport { CONNECT_ICONS, connectContent, type ConnectContent } from '@/lib/connect'\nimport { followGlow } from '@/lib/glow'\nimport { cn } from '@/react/lib/cn'\n\n// The site's connect menu (v3/V3Playground ConnectMenu): a White 40px button (12px in, the clients' marks before the\n// label when given, a chevron that turns over while open) that opens a #1A1A1A panel 8px under it (336px; the\n// button's width on phones): a row per client (a 32px tile with its mark or first letter, the name over a muted line,\n// \"Open\" and an arrow that turn White on the row under the pointer or focus), a hairline, and a row that copies a\n// setup prompt (its icon and label cross over to a check and \"Prompt copied\" for 2s). A #262626 pill slides to the\n// row under the pointer or focus. A click opens it with a quick fade and grow from the button's corner (160ms in,\n// 120ms out); opened from the keyboard it appears at once and focus goes to the first row. Arrows move between rows,\n// Escape closes it and gives focus back, a click or focus outside closes it. Reduced motion keeps the fade only.\nexport interface ConnectMenuProps {\n  /** The copy, the rows and the prompt (lib/connect.ts). */\n  content?: ConnectContent\n  /** Marks shown before the label (SVG files, drawn White in 16px squares). */\n  marks?: string[]\n  /** Open the panel above the button (for a menu near the foot of a page). */\n  up?: boolean\n  /** Called after the prompt is copied. */\n  onCopy?: (prompt: string) => void\n  className?: string\n}\n\nconst TRIGGER =\n  'relative isolate inline-flex h-control-md shrink-0 cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-control bg-action-primary px-3 type-ui-strong whitespace-nowrap text-action-primary-fg select-none transition-[background-color,color] duration-160 ease-out before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:bg-[radial-gradient(circle_var(--ds-glow-radius)_at_var(--glow-x,50%)_var(--glow-y,50%),var(--ds-color-action-glow),transparent)] before:opacity-0 before:transition-opacity before:duration-240 before:ease-out hover:before:opacity-100 max-md:w-full'\n\nfunction Glyph({ name, className }: { name: keyof typeof CONNECT_ICONS; className?: string }) {\n  return <svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\" aria-hidden=\"true\" className={cn('flex-none fill-none stroke-current stroke-[1.5] [stroke-linecap:round] [stroke-linejoin:round]', className)} dangerouslySetInnerHTML={{ __html: CONNECT_ICONS[name] }} />\n}\n\nexport function ConnectMenu({ content: c = connectContent, marks = [], up = false, onCopy, className }: ConnectMenuProps) {\n  const [open, setOpen] = useState(false)\n  const [instant, setInstant] = useState(false)\n  const [copied, setCopied] = useState(false)\n  const [active, setActive] = useState(0)\n  const [pill, setPill] = useState<{ y: number; h: number } | null>(null)\n  const rootRef = useRef<HTMLDivElement>(null)\n  const panelRef = useRef<HTMLDivElement>(null)\n  const buttonRef = useRef<HTMLButtonElement>(null)\n  const panelId = `${useId()}-panel`\n  const copyIndex = c.clients.length\n\n  useEffect(() => {\n    if (!open) return\n    const onDown = (e: globalThis.PointerEvent) => { if (!rootRef.current?.contains(e.target as Node)) setOpen(false) }\n    const onKey = (e: globalThis.KeyboardEvent) => {\n      if (e.key !== 'Escape') return\n      setOpen(false)\n      buttonRef.current?.focus({ preventScroll: true })\n    }\n    document.addEventListener('pointerdown', onDown)\n    document.addEventListener('keydown', onKey)\n    return () => {\n      document.removeEventListener('pointerdown', onDown)\n      document.removeEventListener('keydown', onKey)\n    }\n  }, [open])\n\n  useEffect(() => {\n    if (!copied) return\n    const t = window.setTimeout(() => setCopied(false), 2000)\n    return () => window.clearTimeout(t)\n  }, [copied])\n\n  // The pill follows the active row; it moves by transform only, its height set at once.\n  useLayoutEffect(() => {\n    const row = panelRef.current?.querySelectorAll<HTMLElement>('[data-row]')[active]\n    if (row && row.offsetHeight) setPill({ y: row.offsetTop, h: row.offsetHeight })\n  }, [active, open])\n\n  const rows = () => [...(panelRef.current?.querySelectorAll<HTMLElement>('[data-row]') ?? [])]\n\n  const toggle = (e: MouseEvent<HTMLButtonElement>) => {\n    const next = !open\n    const keyboard = e.detail === 0\n    setInstant(keyboard)\n    setOpen(next)\n    if (next) setActive(0)\n    if (next && keyboard) requestAnimationFrame(() => rows()[0]?.focus({ preventScroll: true }))\n  }\n\n  const onPanelKey = (e: KeyboardEvent<HTMLDivElement>) => {\n    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return\n    e.preventDefault()\n    const list = rows()\n    const at = list.indexOf(document.activeElement as HTMLElement)\n    const next = e.key === 'Home' ? 0 : e.key === 'End' ? list.length - 1 : (at + (e.key === 'ArrowDown' ? 1 : -1) + list.length) % list.length\n    list[next]?.focus()\n  }\n\n  const copy = async () => {\n    try {\n      await navigator.clipboard.writeText(c.prompt)\n    } catch {}\n    setCopied(true)\n    onCopy?.(c.prompt)\n  }\n\n  return (\n    <div\n      ref={rootRef}\n      data-ds=\"connect-menu\"\n      data-open={open || undefined}\n      data-up={up || undefined}\n      data-instant={instant || undefined}\n      className={cn('ds-connect relative max-md:w-full', className)}\n      onBlur={(e) => { if (open && e.relatedTarget && !rootRef.current?.contains(e.relatedTarget as Node)) setOpen(false) }}\n    >\n      <style href=\"ds-connect-menu\" precedence=\"ds\">{css}</style>\n      <button ref={buttonRef} type=\"button\" className={TRIGGER} aria-expanded={open} aria-controls={panelId} onClick={toggle} onPointerMove={(e: PointerEvent<HTMLButtonElement>) => followGlow(e.currentTarget, e)}>\n        {marks.length ? (\n          <span aria-hidden=\"true\" className=\"mr-1 flex items-center gap-1\">\n            {marks.map((src) => <span key={src} className=\"size-4 bg-current\" style={{ mask: `url(\"${src}\") center / contain no-repeat` } as CSSProperties} />)}\n          </span>\n        ) : null}\n        {c.label}\n        <Glyph name=\"chevron\" className=\"ds-connect-chevron stroke-[1.75]\" />\n      </button>\n      <div ref={panelRef} id={panelId} inert={!open} onKeyDown={onPanelKey} className={cn('ds-connect-panel absolute left-0 z-10 isolate grid w-84 rounded-control border border-edge bg-surface-subtle p-1 text-left max-md:w-full', up ? 'bottom-[calc(100%+var(--ds-space-sm))]' : 'top-[calc(100%+var(--ds-space-sm))]')}>\n        {pill ? <span aria-hidden=\"true\" className=\"ds-connect-pill pointer-events-none absolute top-0 left-1 -z-1 w-[calc(100%-2*var(--ds-space-xs))] rounded-ds-sm bg-surface-raised\" style={{ height: pill.h, transform: `translateY(${pill.y}px)` }} /> : null}\n        <ul className=\"grid\" aria-label={c.menuLabel}>\n          {c.clients.map((client, i) => (\n            <li key={client.id}>\n              <a\n                data-row=\"\"\n                data-active={i === active || undefined}\n                href={client.href}\n                target={client.web ? '_blank' : undefined}\n                rel={client.web ? 'noopener noreferrer' : undefined}\n                className=\"group/row flex items-center gap-3 rounded-ds-sm p-2 outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus\"\n                onPointerEnter={() => setActive(i)}\n                onFocus={() => setActive(i)}\n                onClick={() => setOpen(false)}\n              >\n                <span aria-hidden=\"true\" className=\"grid size-8 flex-none place-items-center rounded-ds-sm bg-surface-raised transition-[background-color] duration-160 ease-loop group-data-active/row:bg-surface-inset\">\n                  {client.mark ? <span className=\"size-4 bg-fg\" style={{ mask: `url(\"${client.mark}\") center / contain no-repeat` } as CSSProperties} /> : <span className=\"type-caption font-medium text-fg\">{client.name.slice(0, 1)}</span>}\n                </span>\n                <span className=\"grid min-w-0 flex-1\">\n                  <span className=\"type-ui font-medium text-fg\">{client.name}</span>\n                  <span className=\"type-caption text-pretty text-fg-muted\">{client.description}</span>\n                </span>\n                <span className=\"flex flex-none items-center gap-1 type-caption text-fg-muted transition-[color] duration-160 ease-loop group-data-active/row:text-fg\">\n                  <span className=\"max-md:hidden\">{c.open}</span>\n                  <Glyph name=\"arrow\" />\n                </span>\n              </a>\n            </li>\n          ))}\n        </ul>\n        <span aria-hidden=\"true\" className=\"-mx-1 my-1 h-px bg-edge\" />\n        <button\n          type=\"button\"\n          data-row=\"\"\n          data-active={active === copyIndex || undefined}\n          data-copied={copied || undefined}\n          className=\"ds-connect-copy flex h-control-md cursor-pointer items-center gap-3 rounded-ds-sm px-2 text-left type-ui font-medium text-fg-soft outline-none transition-[color] duration-160 ease-loop focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus data-active:text-fg data-copied:text-fg max-md:h-control-form\"\n          onPointerEnter={() => setActive(copyIndex)}\n          onFocus={() => setActive(copyIndex)}\n          onClick={copy}\n        >\n          <span aria-hidden=\"true\" className=\"grid w-8 flex-none place-items-center\">\n            <Glyph name=\"copy\" className=\"ds-connect-swap [grid-area:1/1]\" />\n            <Glyph name=\"check\" className=\"ds-connect-swap [grid-area:1/1]\" />\n          </span>\n          <span className=\"grid\">\n            <span className=\"ds-connect-label [grid-area:1/1]\" data-on={!copied || undefined}>{c.copy.label}</span>\n            <span className=\"ds-connect-label [grid-area:1/1]\" data-on={copied || undefined} aria-hidden={!copied}>{c.copy.done}</span>\n          </span>\n        </button>\n        <p className=\"sr-only\" role=\"status\">{copied ? c.copy.done : ''}</p>\n      </div>\n    </div>\n  )\n}\n\nexport default ConnectMenu\n\nconst css = `\n.ds-connect-panel {\n  opacity: 0; visibility: hidden; transform-origin: top left;\n  transform: translateY(calc(-1 * var(--ds-space-xs))) scale(var(--ds-menu-from-scale));\n  transition: opacity var(--ds-duration-press) var(--ds-easing-out), transform var(--ds-duration-press) var(--ds-easing-out), visibility var(--ds-duration-instant) linear var(--ds-duration-press);\n}\n.ds-connect[data-up] .ds-connect-panel { transform-origin: bottom left; transform: translateY(var(--ds-space-xs)) scale(var(--ds-menu-from-scale)); }\n.ds-connect[data-open] .ds-connect-panel {\n  opacity: 1; visibility: visible; transform: none;\n  transition: opacity var(--ds-duration-micro) var(--ds-easing-out), transform var(--ds-duration-micro) var(--ds-easing-out), visibility var(--ds-duration-instant);\n}\n.ds-connect[data-instant] .ds-connect-panel { transition: none; }\n.ds-connect-chevron { transition: transform var(--ds-duration-micro) var(--ds-easing-out); }\n.ds-connect[data-open] .ds-connect-chevron { transform: rotate(180deg); }\n.ds-connect-pill { transition: transform var(--ds-duration-micro) var(--ds-easing-loop); }\n.ds-connect-swap, .ds-connect-label { transition: opacity var(--ds-duration-micro) var(--ds-easing-out), transform var(--ds-duration-micro) var(--ds-easing-out); }\n.ds-connect-label:not([data-on]) { opacity: 0; transform: translateY(var(--ds-space-xs)); }\n.ds-connect-label:not([data-on]):first-child { transform: translateY(calc(-1 * var(--ds-space-xs))); }\n.ds-connect-swap:last-child, .ds-connect-copy[data-copied] .ds-connect-swap:first-child { opacity: 0; transform: scale(0.8); }\n.ds-connect-copy[data-copied] .ds-connect-swap:last-child { opacity: 1; transform: none; }\n@media (max-width: 767px) {\n  .ds-connect-panel { transform-origin: top center; }\n  .ds-connect[data-up] .ds-connect-panel { transform-origin: bottom center; }\n}\n@media (prefers-reduced-motion: reduce) {\n  .ds-connect-panel, .ds-connect[data-up] .ds-connect-panel, .ds-connect[data-open] .ds-connect-panel { transform: none; }\n  .ds-connect-chevron, .ds-connect-pill, .ds-connect-swap, .ds-connect-label { transition: opacity var(--ds-duration-micro) var(--ds-easing-out); }\n  .ds-connect-label:not([data-on]), .ds-connect-label:not([data-on]):first-child, .ds-connect-swap:last-child, .ds-connect-copy[data-copied] .ds-connect-swap:first-child { transform: none; }\n}\n`\n"
+    },
+    {
+      "path": "lib/connect.ts",
+      "content": "// The connect menu's copy and rows (site v3/V3Playground ConnectMenu, content/v3/connect.ts): the agents an MCP server\n// can be added to. Both flavors read it. The defaults are neutral Acme rows; pass your own clients and their marks.\nexport interface ConnectClient {\n\tid: string\n\tname: string\n\t/** One line under the name. */\n\tdescription: string\n\thref: string\n\t/** Opens in a new tab. */\n\tweb?: boolean\n\t/** The client's mark (an SVG file, drawn as a White mask in a 16px square). Leave out for its first letter. */\n\tmark?: string\n}\n\nexport interface ConnectContent {\n\t/** The trigger's label. */\n\tlabel: string\n\t/** The list's accessible name. */\n\tmenuLabel: string\n\t/** The quiet word at the end of each row. */\n\topen: string\n\tcopy: { label: string; done: string }\n\t/** What the copy row puts on the clipboard. */\n\tprompt: string\n\tclients: ConnectClient[]\n}\n\nexport const connectContent: ConnectContent = {\n\tlabel: 'Connect to MCP',\n\tmenuLabel: 'Connect Acme to your agent',\n\topen: 'Open',\n\tcopy: { label: 'Copy prompt for another agent', done: 'Prompt copied' },\n\tprompt: 'Add the Acme MCP server to this agent. URL: https://mcp.acme.com/mcp (remote, Streamable HTTP). Sign in with Acme in the browser when asked.',\n\tclients: [\n\t\t{ id: 'chat', name: 'Acme Chat', description: 'Add as a custom connector', href: '#', web: true },\n\t\t{ id: 'assistant', name: 'Acme Assistant', description: 'Install the Acme plugin', href: '#', web: true },\n\t\t{ id: 'editor', name: 'Acme Editor', description: 'Adds Acme in one click', href: '#' },\n\t],\n}\n\n// The site's 16px glyphs (stroked, round caps), the same in both flavors.\nexport const CONNECT_ICONS = {\n\tchevron: '<path d=\"M4 6l4 4 4-4\" />',\n\tarrow: '<path d=\"M5.5 10.5l5-5M6.5 5.5h4v4\" />',\n\tcopy: '<rect x=\"5.5\" y=\"5.5\" width=\"8\" height=\"8\" rx=\"1.5\" /><path d=\"M10.5 3.5v-.5A1.5 1.5 0 0 0 9 1.5H4A1.5 1.5 0 0 0 2.5 3v5A1.5 1.5 0 0 0 4 9.5h.5\" />',\n\tcheck: '<path d=\"M3.5 8.5l3 3 6-7\" />',\n}\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Default",
+      "label": "Acme rows",
+      "center": true,
+      "half": true,
+      "path": "react/examples/connect-menu/Default.tsx",
+      "content": "import { ConnectMenu } from '@/react/components/site/ConnectMenu'\n// The connect menu with Acme's neutral rows: each client shows its first letter.\n\nexport default function Default() {\n  return (\n    <div className=\"flex min-h-96 w-full items-start justify-center px-4 pt-8\">\n      <ConnectMenu />\n    </div>\n  )\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Up",
+      "label": "Opening above",
+      "center": true,
+      "half": true,
+      "path": "react/examples/connect-menu/Up.tsx",
+      "content": "import { ConnectMenu } from '@/react/components/site/ConnectMenu'\n// Near the foot of a page the panel opens above the button.\n\nexport default function Up() {\n  return (\n    <div className=\"flex min-h-96 w-full items-end justify-center px-4 pb-8\">\n      <ConnectMenu up />\n    </div>\n  )\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/ConnectMenu.tsx",
+          "content": "'use client'\nimport { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'\nimport { CONNECT_ICONS, connectContent, type ConnectContent } from '@/lib/connect'\nimport { followGlow } from '@/lib/glow'\nimport { cn } from '@/react/lib/cn'\n\n// The site's connect menu (v3/V3Playground ConnectMenu): a White 40px button (12px in, the clients' marks before the\n// label when given, a chevron that turns over while open) that opens a #1A1A1A panel 8px under it (336px; the\n// button's width on phones): a row per client (a 32px tile with its mark or first letter, the name over a muted line,\n// \"Open\" and an arrow that turn White on the row under the pointer or focus), a hairline, and a row that copies a\n// setup prompt (its icon and label cross over to a check and \"Prompt copied\" for 2s). A #262626 pill slides to the\n// row under the pointer or focus. A click opens it with a quick fade and grow from the button's corner (160ms in,\n// 120ms out); opened from the keyboard it appears at once and focus goes to the first row. Arrows move between rows,\n// Escape closes it and gives focus back, a click or focus outside closes it. Reduced motion keeps the fade only.\nexport interface ConnectMenuProps {\n  /** The copy, the rows and the prompt (lib/connect.ts). */\n  content?: ConnectContent\n  /** Marks shown before the label (SVG files, drawn White in 16px squares). */\n  marks?: string[]\n  /** Open the panel above the button (for a menu near the foot of a page). */\n  up?: boolean\n  /** Called after the prompt is copied. */\n  onCopy?: (prompt: string) => void\n  className?: string\n}\n\nconst TRIGGER =\n  'relative isolate inline-flex h-control-md shrink-0 cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-control bg-action-primary px-3 type-ui-strong whitespace-nowrap text-action-primary-fg select-none transition-[background-color,color] duration-160 ease-out before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:bg-[radial-gradient(circle_var(--ds-glow-radius)_at_var(--glow-x,50%)_var(--glow-y,50%),var(--ds-color-action-glow),transparent)] before:opacity-0 before:transition-opacity before:duration-240 before:ease-out hover:before:opacity-100 max-md:w-full'\n\nfunction Glyph({ name, className }: { name: keyof typeof CONNECT_ICONS; className?: string }) {\n  return <svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\" aria-hidden=\"true\" className={cn('flex-none fill-none stroke-current stroke-[1.5] [stroke-linecap:round] [stroke-linejoin:round]', className)} dangerouslySetInnerHTML={{ __html: CONNECT_ICONS[name] }} />\n}\n\nexport function ConnectMenu({ content: c = connectContent, marks = [], up = false, onCopy, className }: ConnectMenuProps) {\n  const [open, setOpen] = useState(false)\n  const [instant, setInstant] = useState(false)\n  const [copied, setCopied] = useState(false)\n  const [active, setActive] = useState(0)\n  const [pill, setPill] = useState<{ y: number; h: number } | null>(null)\n  const rootRef = useRef<HTMLDivElement>(null)\n  const panelRef = useRef<HTMLDivElement>(null)\n  const buttonRef = useRef<HTMLButtonElement>(null)\n  const panelId = `${useId()}-panel`\n  const copyIndex = c.clients.length\n\n  useEffect(() => {\n    if (!open) return\n    const onDown = (e: globalThis.PointerEvent) => { if (!rootRef.current?.contains(e.target as Node)) setOpen(false) }\n    const onKey = (e: globalThis.KeyboardEvent) => {\n      if (e.key !== 'Escape') return\n      setOpen(false)\n      buttonRef.current?.focus({ preventScroll: true })\n    }\n    document.addEventListener('pointerdown', onDown)\n    document.addEventListener('keydown', onKey)\n    return () => {\n      document.removeEventListener('pointerdown', onDown)\n      document.removeEventListener('keydown', onKey)\n    }\n  }, [open])\n\n  useEffect(() => {\n    if (!copied) return\n    const t = window.setTimeout(() => setCopied(false), 2000)\n    return () => window.clearTimeout(t)\n  }, [copied])\n\n  // The pill follows the active row; it moves by transform only, its height set at once.\n  useLayoutEffect(() => {\n    const row = panelRef.current?.querySelectorAll<HTMLElement>('[data-row]')[active]\n    if (row && row.offsetHeight) setPill({ y: row.offsetTop, h: row.offsetHeight })\n  }, [active, open])\n\n  const rows = () => [...(panelRef.current?.querySelectorAll<HTMLElement>('[data-row]') ?? [])]\n\n  const toggle = (e: MouseEvent<HTMLButtonElement>) => {\n    const next = !open\n    const keyboard = e.detail === 0\n    setInstant(keyboard)\n    setOpen(next)\n    if (next) setActive(0)\n    if (next && keyboard) requestAnimationFrame(() => rows()[0]?.focus({ preventScroll: true }))\n  }\n\n  const onPanelKey = (e: KeyboardEvent<HTMLDivElement>) => {\n    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return\n    e.preventDefault()\n    const list = rows()\n    const at = list.indexOf(document.activeElement as HTMLElement)\n    const next = e.key === 'Home' ? 0 : e.key === 'End' ? list.length - 1 : (at + (e.key === 'ArrowDown' ? 1 : -1) + list.length) % list.length\n    list[next]?.focus()\n  }\n\n  const copy = async () => {\n    try {\n      await navigator.clipboard.writeText(c.prompt)\n    } catch {}\n    setCopied(true)\n    onCopy?.(c.prompt)\n  }\n\n  return (\n    <div\n      ref={rootRef}\n      data-ds=\"connect-menu\"\n      data-open={open || undefined}\n      data-up={up || undefined}\n      data-instant={instant || undefined}\n      className={cn('ds-connect relative max-md:w-full', className)}\n      onBlur={(e) => { if (open && e.relatedTarget && !rootRef.current?.contains(e.relatedTarget as Node)) setOpen(false) }}\n    >\n      <style href=\"ds-connect-menu\" precedence=\"ds\">{css}</style>\n      <button ref={buttonRef} type=\"button\" className={TRIGGER} aria-expanded={open} aria-controls={panelId} onClick={toggle} onPointerMove={(e: PointerEvent<HTMLButtonElement>) => followGlow(e.currentTarget, e)}>\n        {marks.length ? (\n          <span aria-hidden=\"true\" className=\"mr-1 flex items-center gap-1\">\n            {marks.map((src) => <span key={src} className=\"size-4 bg-current\" style={{ mask: `url(\"${src}\") center / contain no-repeat` } as CSSProperties} />)}\n          </span>\n        ) : null}\n        {c.label}\n        <Glyph name=\"chevron\" className=\"ds-connect-chevron stroke-[1.75]\" />\n      </button>\n      <div ref={panelRef} id={panelId} inert={!open} onKeyDown={onPanelKey} className={cn('ds-connect-panel absolute left-0 z-10 isolate grid w-84 rounded-control border border-edge bg-surface-subtle p-1 text-left max-md:w-full', up ? 'bottom-[calc(100%+var(--ds-space-sm))]' : 'top-[calc(100%+var(--ds-space-sm))]')}>\n        {pill ? <span aria-hidden=\"true\" className=\"ds-connect-pill pointer-events-none absolute top-0 left-1 -z-1 w-[calc(100%-2*var(--ds-space-xs))] rounded-ds-sm bg-surface-raised\" style={{ height: pill.h, transform: `translateY(${pill.y}px)` }} /> : null}\n        <ul className=\"grid\" aria-label={c.menuLabel}>\n          {c.clients.map((client, i) => (\n            <li key={client.id}>\n              <a\n                data-row=\"\"\n                data-active={i === active || undefined}\n                href={client.href}\n                target={client.web ? '_blank' : undefined}\n                rel={client.web ? 'noopener noreferrer' : undefined}\n                className=\"group/row flex items-center gap-3 rounded-ds-sm p-2 outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus\"\n                onPointerEnter={() => setActive(i)}\n                onFocus={() => setActive(i)}\n                onClick={() => setOpen(false)}\n              >\n                <span aria-hidden=\"true\" className=\"grid size-8 flex-none place-items-center rounded-ds-sm bg-surface-raised transition-[background-color] duration-160 ease-loop group-data-active/row:bg-surface-inset\">\n                  {client.mark ? <span className=\"size-4 bg-fg\" style={{ mask: `url(\"${client.mark}\") center / contain no-repeat` } as CSSProperties} /> : <span className=\"type-caption font-medium text-fg\">{client.name.slice(0, 1)}</span>}\n                </span>\n                <span className=\"grid min-w-0 flex-1\">\n                  <span className=\"type-ui font-medium text-fg\">{client.name}</span>\n                  <span className=\"type-caption text-pretty text-fg-muted\">{client.description}</span>\n                </span>\n                <span className=\"flex flex-none items-center gap-1 type-caption text-fg-muted transition-[color] duration-160 ease-loop group-data-active/row:text-fg\">\n                  <span className=\"max-md:hidden\">{c.open}</span>\n                  <Glyph name=\"arrow\" />\n                </span>\n              </a>\n            </li>\n          ))}\n        </ul>\n        <span aria-hidden=\"true\" className=\"-mx-1 my-1 h-px bg-edge\" />\n        <button\n          type=\"button\"\n          data-row=\"\"\n          data-active={active === copyIndex || undefined}\n          data-copied={copied || undefined}\n          className=\"ds-connect-copy flex h-control-md cursor-pointer items-center gap-3 rounded-ds-sm px-2 text-left type-ui font-medium text-fg-soft outline-none transition-[color] duration-160 ease-loop focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus data-active:text-fg data-copied:text-fg max-md:h-control-form\"\n          onPointerEnter={() => setActive(copyIndex)}\n          onFocus={() => setActive(copyIndex)}\n          onClick={copy}\n        >\n          <span aria-hidden=\"true\" className=\"grid w-8 flex-none place-items-center\">\n            <Glyph name=\"copy\" className=\"ds-connect-swap [grid-area:1/1]\" />\n            <Glyph name=\"check\" className=\"ds-connect-swap [grid-area:1/1]\" />\n          </span>\n          <span className=\"grid\">\n            <span className=\"ds-connect-label [grid-area:1/1]\" data-on={!copied || undefined}>{c.copy.label}</span>\n            <span className=\"ds-connect-label [grid-area:1/1]\" data-on={copied || undefined} aria-hidden={!copied}>{c.copy.done}</span>\n          </span>\n        </button>\n        <p className=\"sr-only\" role=\"status\">{copied ? c.copy.done : ''}</p>\n      </div>\n    </div>\n  )\n}\n\nexport default ConnectMenu\n\nconst css = `\n.ds-connect-panel {\n  opacity: 0; visibility: hidden; transform-origin: top left;\n  transform: translateY(calc(-1 * var(--ds-space-xs))) scale(var(--ds-menu-from-scale));\n  transition: opacity var(--ds-duration-press) var(--ds-easing-out), transform var(--ds-duration-press) var(--ds-easing-out), visibility var(--ds-duration-instant) linear var(--ds-duration-press);\n}\n.ds-connect[data-up] .ds-connect-panel { transform-origin: bottom left; transform: translateY(var(--ds-space-xs)) scale(var(--ds-menu-from-scale)); }\n.ds-connect[data-open] .ds-connect-panel {\n  opacity: 1; visibility: visible; transform: none;\n  transition: opacity var(--ds-duration-micro) var(--ds-easing-out), transform var(--ds-duration-micro) var(--ds-easing-out), visibility var(--ds-duration-instant);\n}\n.ds-connect[data-instant] .ds-connect-panel { transition: none; }\n.ds-connect-chevron { transition: transform var(--ds-duration-micro) var(--ds-easing-out); }\n.ds-connect[data-open] .ds-connect-chevron { transform: rotate(180deg); }\n.ds-connect-pill { transition: transform var(--ds-duration-micro) var(--ds-easing-loop); }\n.ds-connect-swap, .ds-connect-label { transition: opacity var(--ds-duration-micro) var(--ds-easing-out), transform var(--ds-duration-micro) var(--ds-easing-out); }\n.ds-connect-label:not([data-on]) { opacity: 0; transform: translateY(var(--ds-space-xs)); }\n.ds-connect-label:not([data-on]):first-child { transform: translateY(calc(-1 * var(--ds-space-xs))); }\n.ds-connect-swap:last-child, .ds-connect-copy[data-copied] .ds-connect-swap:first-child { opacity: 0; transform: scale(0.8); }\n.ds-connect-copy[data-copied] .ds-connect-swap:last-child { opacity: 1; transform: none; }\n@media (max-width: 767px) {\n  .ds-connect-panel { transform-origin: top center; }\n  .ds-connect[data-up] .ds-connect-panel { transform-origin: bottom center; }\n}\n@media (prefers-reduced-motion: reduce) {\n  .ds-connect-panel, .ds-connect[data-up] .ds-connect-panel, .ds-connect[data-open] .ds-connect-panel { transform: none; }\n  .ds-connect-chevron, .ds-connect-pill, .ds-connect-swap, .ds-connect-label { transition: opacity var(--ds-duration-micro) var(--ds-easing-out); }\n  .ds-connect-label:not([data-on]), .ds-connect-label:not([data-on]):first-child, .ds-connect-swap:last-child, .ds-connect-copy[data-copied] .ds-connect-swap:first-child { transform: none; }\n}\n`\n"
+        },
+        {
+          "path": "lib/connect.ts",
+          "content": "// The connect menu's copy and rows (site v3/V3Playground ConnectMenu, content/v3/connect.ts): the agents an MCP server\n// can be added to. Both flavors read it. The defaults are neutral Acme rows; pass your own clients and their marks.\nexport interface ConnectClient {\n\tid: string\n\tname: string\n\t/** One line under the name. */\n\tdescription: string\n\thref: string\n\t/** Opens in a new tab. */\n\tweb?: boolean\n\t/** The client's mark (an SVG file, drawn as a White mask in a 16px square). Leave out for its first letter. */\n\tmark?: string\n}\n\nexport interface ConnectContent {\n\t/** The trigger's label. */\n\tlabel: string\n\t/** The list's accessible name. */\n\tmenuLabel: string\n\t/** The quiet word at the end of each row. */\n\topen: string\n\tcopy: { label: string; done: string }\n\t/** What the copy row puts on the clipboard. */\n\tprompt: string\n\tclients: ConnectClient[]\n}\n\nexport const connectContent: ConnectContent = {\n\tlabel: 'Connect to MCP',\n\tmenuLabel: 'Connect Acme to your agent',\n\topen: 'Open',\n\tcopy: { label: 'Copy prompt for another agent', done: 'Prompt copied' },\n\tprompt: 'Add the Acme MCP server to this agent. URL: https://mcp.acme.com/mcp (remote, Streamable HTTP). Sign in with Acme in the browser when asked.',\n\tclients: [\n\t\t{ id: 'chat', name: 'Acme Chat', description: 'Add as a custom connector', href: '#', web: true },\n\t\t{ id: 'assistant', name: 'Acme Assistant', description: 'Install the Acme plugin', href: '#', web: true },\n\t\t{ id: 'editor', name: 'Acme Editor', description: 'Adds Acme in one click', href: '#' },\n\t],\n}\n\n// The site's 16px glyphs (stroked, round caps), the same in both flavors.\nexport const CONNECT_ICONS = {\n\tchevron: '<path d=\"M4 6l4 4 4-4\" />',\n\tarrow: '<path d=\"M5.5 10.5l5-5M6.5 5.5h4v4\" />',\n\tcopy: '<rect x=\"5.5\" y=\"5.5\" width=\"8\" height=\"8\" rx=\"1.5\" /><path d=\"M10.5 3.5v-.5A1.5 1.5 0 0 0 9 1.5H4A1.5 1.5 0 0 0 2.5 3v5A1.5 1.5 0 0 0 4 9.5h.5\" />',\n\tcheck: '<path d=\"M3.5 8.5l3 3 6-7\" />',\n}\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "ConnectMenu",
+            "file": "react/components/site/ConnectMenu.tsx",
+            "props": [
+              {
+                "name": "content",
+                "type": "ConnectContent",
+                "required": false,
+                "description": "The copy, the rows and the prompt (lib/connect.ts)."
+              },
+              {
+                "name": "marks",
+                "type": "string[]",
+                "required": false,
+                "default": "[]",
+                "description": "Marks shown before the label (SVG files, drawn White in 16px squares)."
+              },
+              {
+                "name": "up",
+                "type": "boolean",
+                "required": false,
+                "default": "false",
+                "description": "Open the panel above the button (for a menu near the foot of a page)."
+              },
+              {
+                "name": "onCopy",
+                "type": "(prompt: string) => void",
+                "required": false,
+                "description": "Called after the prompt is copied."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Default",
+          "label": "Acme rows",
+          "center": true,
+          "half": true,
+          "path": "react/examples/connect-menu/Default.tsx",
+          "content": "import { ConnectMenu } from '@/react/components/site/ConnectMenu'\n// The connect menu with Acme's neutral rows: each client shows its first letter.\n\nexport default function Default() {\n  return (\n    <div className=\"flex min-h-96 w-full items-start justify-center px-4 pt-8\">\n      <ConnectMenu />\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Up",
+          "label": "Opening above",
+          "center": true,
+          "half": true,
+          "path": "react/examples/connect-menu/Up.tsx",
+          "content": "import { ConnectMenu } from '@/react/components/site/ConnectMenu'\n// Near the foot of a page the panel opens above the button.\n\nexport default function Up() {\n  return (\n    <div className=\"flex min-h-96 w-full items-end justify-center px-4 pb-8\">\n      <ConnectMenu up />\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/connect-menu.ts",
+          "content": "import { html, nothing, svg } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { unsafeSVG } from 'lit/directives/unsafe-svg.js'\nimport { DsElement, define, HostLayoutController, uid } from '@/elements/lib/element'\nimport { CONNECT_ICONS, connectContent, type ConnectContent } from '@/lib/connect'\nimport { followGlow } from '@/lib/glow'\nimport styles from 'virtual:tw'\n\n// ConnectMenu.tsx as <spyglass-connect-menu>: the White button that opens the connect panel (a row per client, a\n// hairline, a row that copies a setup prompt), the #262626 pill sliding to the row under the pointer or focus. A click\n// opens it with a quick fade and grow; from the keyboard it appears at once with focus on the first row. Arrows move,\n// Escape closes and gives focus back, a click or focus outside closes it. `content` (JSON), `marks` (JSON list of SVG\n// files), `up`; fires `copy` with detail.prompt.\n\nconst TRIGGER =\n\t'relative isolate inline-flex h-control-md shrink-0 cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-control bg-action-primary px-3 type-ui-strong whitespace-nowrap text-action-primary-fg select-none transition-[background-color,color] duration-160 ease-out before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:bg-[radial-gradient(circle_var(--ds-glow-radius)_at_var(--glow-x,50%)_var(--glow-y,50%),var(--ds-color-action-glow),transparent)] before:opacity-0 before:transition-opacity before:duration-240 before:ease-out hover:before:opacity-100 max-md:w-full'\n\nconst glyph = (name: keyof typeof CONNECT_ICONS, cls = '') => html`<svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\" aria-hidden=\"true\" class=${`flex-none fill-none stroke-current stroke-[1.5] [stroke-linecap:round] [stroke-linejoin:round] ${cls}`.trim()}>${svg`${unsafeSVG(CONNECT_ICONS[name])}`}</svg>`\n\n/**\n * @summary The connect menu: a White button that opens the agents to connect to and a copy-prompt row.\n * @fires copy - After the prompt is copied; detail.prompt is the text.\n */\nexport class ConnectMenu extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"connect-menu\"]'))\n\tstatic properties = { content: { type: Object }, marks: { type: Array }, up: { type: Boolean }, open: { state: true }, instant: { state: true }, copied: { state: true }, active: { state: true }, pill: { state: true } }\n\t/** The copy, the rows and the prompt (lib/connect.ts). */\n\tcontent: ConnectContent = connectContent\n\t/** Marks before the label (SVG files, drawn White in 16px squares). */\n\tmarks: string[] = []\n\t/** Open the panel above the button. */\n\tup = false\n\tprivate open = false\n\tprivate instant = false\n\tprivate copied = false\n\tprivate active = 0\n\tprivate pill: { y: number; h: number } | null = null\n\tprivate panelId = uid('connect')\n\tprivate timer = 0\n\n\tprivate onDown = (e: PointerEvent) => { if (!e.composedPath().includes(this)) this.open = false }\n\tprivate onKey = (e: KeyboardEvent) => {\n\t\tif (e.key !== 'Escape' || !this.open) return\n\t\tthis.open = false\n\t\tthis.button?.focus({ preventScroll: true })\n\t}\n\tprivate get button() { return this.renderRoot.querySelector<HTMLButtonElement>('[data-trigger]') }\n\tprivate rows() { return [...this.renderRoot.querySelectorAll<HTMLElement>('[data-row]')] }\n\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\tdocument.addEventListener('pointerdown', this.onDown)\n\t\tdocument.addEventListener('keydown', this.onKey)\n\t}\n\tdisconnectedCallback() {\n\t\tsuper.disconnectedCallback()\n\t\tdocument.removeEventListener('pointerdown', this.onDown)\n\t\tdocument.removeEventListener('keydown', this.onKey)\n\t\tclearTimeout(this.timer)\n\t}\n\n\tprotected updated(changed: Map<string, unknown>) {\n\t\tsuper.updated(changed as never)\n\t\tif (changed.has('active') || changed.has('open')) {\n\t\t\tconst row = this.rows()[this.active]\n\t\t\tif (row && row.offsetHeight && (this.pill?.y !== row.offsetTop || this.pill?.h !== row.offsetHeight)) this.pill = { y: row.offsetTop, h: row.offsetHeight }\n\t\t}\n\t}\n\n\tprivate toggle(e: MouseEvent) {\n\t\tconst next = !this.open\n\t\tconst keyboard = e.detail === 0\n\t\tthis.instant = keyboard\n\t\tthis.open = next\n\t\tif (next) this.active = 0\n\t\tif (next && keyboard) requestAnimationFrame(() => this.rows()[0]?.focus({ preventScroll: true }))\n\t}\n\n\tprivate onPanelKey(e: KeyboardEvent) {\n\t\tif (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return\n\t\te.preventDefault()\n\t\tconst list = this.rows()\n\t\tconst at = list.indexOf((this.renderRoot as ShadowRoot).activeElement as HTMLElement)\n\t\tconst next = e.key === 'Home' ? 0 : e.key === 'End' ? list.length - 1 : (at + (e.key === 'ArrowDown' ? 1 : -1) + list.length) % list.length\n\t\tlist[next]?.focus()\n\t}\n\n\tprivate async copy() {\n\t\tconst c = this.content ?? connectContent\n\t\ttry {\n\t\t\tawait navigator.clipboard.writeText(c.prompt)\n\t\t} catch {}\n\t\tthis.copied = true\n\t\tclearTimeout(this.timer)\n\t\tthis.timer = window.setTimeout(() => (this.copied = false), 2000)\n\t\tthis.emit('copy', { prompt: c.prompt })\n\t}\n\n\trender() {\n\t\tconst c = this.content ?? connectContent\n\t\tconst marks = this.marks ?? []\n\t\tconst copyIndex = c.clients.length\n\t\treturn html`<div data-ds=\"connect-menu\" data-open=${ifDefined(this.open ? '' : undefined)} data-up=${ifDefined(this.up ? '' : undefined)} data-instant=${ifDefined(this.instant ? '' : undefined)} class=\"ds-connect relative max-md:w-full\" @focusout=${(e: FocusEvent) => { const root = e.currentTarget as HTMLElement; if (this.open && e.relatedTarget && !root.contains(e.relatedTarget as Node)) this.open = false }}><button data-trigger type=\"button\" class=${TRIGGER} aria-expanded=${String(this.open)} aria-controls=${this.panelId} @click=${this.toggle} @pointermove=${(e: PointerEvent) => followGlow(e.currentTarget as HTMLElement, e)}>${marks.length ? html`<span aria-hidden=\"true\" class=\"mr-1 flex items-center gap-1\">${marks.map((src) => html`<span class=\"size-4 bg-current\" style=${`mask: url(\"${src}\") center / contain no-repeat`}></span>`)}</span>` : nothing}${c.label}${glyph('chevron', 'ds-connect-chevron stroke-[1.75]')}</button><div id=${this.panelId} ?inert=${!this.open} @keydown=${this.onPanelKey} class=${`ds-connect-panel absolute left-0 z-10 isolate grid w-84 rounded-control border border-edge bg-surface-subtle p-1 text-left max-md:w-full ${this.up ? 'bottom-[calc(100%+var(--ds-space-sm))]' : 'top-[calc(100%+var(--ds-space-sm))]'}`}>${this.pill ? html`<span aria-hidden=\"true\" class=\"ds-connect-pill pointer-events-none absolute top-0 left-1 -z-1 w-[calc(100%-2*var(--ds-space-xs))] rounded-ds-sm bg-surface-raised\" style=${`height: ${this.pill.h}px; transform: translateY(${this.pill.y}px)`}></span>` : nothing}<ul class=\"grid\" aria-label=${c.menuLabel}>${c.clients.map((client, i) => html`<li><a data-row data-active=${ifDefined(i === this.active ? '' : undefined)} href=${client.href} target=${ifDefined(client.web ? '_blank' : undefined)} rel=${ifDefined(client.web ? 'noopener noreferrer' : undefined)} class=\"group/row flex items-center gap-3 rounded-ds-sm p-2 outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus\" @pointerenter=${() => (this.active = i)} @focus=${() => (this.active = i)} @click=${() => (this.open = false)}><span aria-hidden=\"true\" class=\"grid size-8 flex-none place-items-center rounded-ds-sm bg-surface-raised transition-[background-color] duration-160 ease-loop group-data-active/row:bg-surface-inset\">${client.mark ? html`<span class=\"size-4 bg-fg\" style=${`mask: url(\"${client.mark}\") center / contain no-repeat`}></span>` : html`<span class=\"type-caption font-medium text-fg\">${client.name.slice(0, 1)}</span>`}</span><span class=\"grid min-w-0 flex-1\"><span class=\"type-ui font-medium text-fg\">${client.name}</span><span class=\"type-caption text-pretty text-fg-muted\">${client.description}</span></span><span class=\"flex flex-none items-center gap-1 type-caption text-fg-muted transition-[color] duration-160 ease-loop group-data-active/row:text-fg\"><span class=\"max-md:hidden\">${c.open}</span>${glyph('arrow')}</span></a></li>`)}</ul><span aria-hidden=\"true\" class=\"-mx-1 my-1 h-px bg-edge\"></span><button type=\"button\" data-row data-active=${ifDefined(this.active === copyIndex ? '' : undefined)} data-copied=${ifDefined(this.copied ? '' : undefined)} class=\"ds-connect-copy flex h-control-md cursor-pointer items-center gap-3 rounded-ds-sm px-2 text-left type-ui font-medium text-fg-soft outline-none transition-[color] duration-160 ease-loop focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus data-active:text-fg data-copied:text-fg max-md:h-control-form\" @pointerenter=${() => (this.active = copyIndex)} @focus=${() => (this.active = copyIndex)} @click=${this.copy}><span aria-hidden=\"true\" class=\"grid w-8 flex-none place-items-center\">${glyph('copy', 'ds-connect-swap [grid-area:1/1]')}${glyph('check', 'ds-connect-swap [grid-area:1/1]')}</span><span class=\"grid\"><span class=\"ds-connect-label [grid-area:1/1]\" data-on=${ifDefined(this.copied ? undefined : '')}>${c.copy.label}</span><span class=\"ds-connect-label [grid-area:1/1]\" data-on=${ifDefined(this.copied ? '' : undefined)} aria-hidden=${String(!this.copied)}>${c.copy.done}</span></span></button><p class=\"sr-only\" role=\"status\">${this.copied ? c.copy.done : ''}</p></div></div>`\n\t}\n}\n\ndefine('connect-menu', ConnectMenu)\n"
+        },
+        {
+          "path": "elements/components/site/connect-menu.css",
+          "content": ".ds-connect-panel {\n  opacity: 0; visibility: hidden; transform-origin: top left;\n  transform: translateY(calc(-1 * var(--ds-space-xs))) scale(var(--ds-menu-from-scale));\n  transition: opacity var(--ds-duration-press) var(--ds-easing-out), transform var(--ds-duration-press) var(--ds-easing-out), visibility var(--ds-duration-instant) linear var(--ds-duration-press);\n}\n.ds-connect[data-up] .ds-connect-panel { transform-origin: bottom left; transform: translateY(var(--ds-space-xs)) scale(var(--ds-menu-from-scale)); }\n.ds-connect[data-open] .ds-connect-panel {\n  opacity: 1; visibility: visible; transform: none;\n  transition: opacity var(--ds-duration-micro) var(--ds-easing-out), transform var(--ds-duration-micro) var(--ds-easing-out), visibility var(--ds-duration-instant);\n}\n.ds-connect[data-instant] .ds-connect-panel { transition: none; }\n.ds-connect-chevron { transition: transform var(--ds-duration-micro) var(--ds-easing-out); }\n.ds-connect[data-open] .ds-connect-chevron { transform: rotate(180deg); }\n.ds-connect-pill { transition: transform var(--ds-duration-micro) var(--ds-easing-loop); }\n.ds-connect-swap, .ds-connect-label { transition: opacity var(--ds-duration-micro) var(--ds-easing-out), transform var(--ds-duration-micro) var(--ds-easing-out); }\n.ds-connect-label:not([data-on]) { opacity: 0; transform: translateY(var(--ds-space-xs)); }\n.ds-connect-label:not([data-on]):first-child { transform: translateY(calc(-1 * var(--ds-space-xs))); }\n.ds-connect-swap:last-child, .ds-connect-copy[data-copied] .ds-connect-swap:first-child { opacity: 0; transform: scale(0.8); }\n.ds-connect-copy[data-copied] .ds-connect-swap:last-child { opacity: 1; transform: none; }\n@media (max-width: 767px) {\n  .ds-connect-panel { transform-origin: top center; }\n  .ds-connect[data-up] .ds-connect-panel { transform-origin: bottom center; }\n}\n@media (prefers-reduced-motion: reduce) {\n  .ds-connect-panel, .ds-connect[data-up] .ds-connect-panel, .ds-connect[data-open] .ds-connect-panel { transform: none; }\n  .ds-connect-chevron, .ds-connect-pill, .ds-connect-swap, .ds-connect-label { transition: opacity var(--ds-duration-micro) var(--ds-easing-out); }\n  .ds-connect-label:not([data-on]), .ds-connect-label:not([data-on]):first-child, .ds-connect-swap:last-child, .ds-connect-copy[data-copied] .ds-connect-swap:first-child { transform: none; }\n}\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/connect-menu.js"
+      ],
+      "tag": "spyglass-connect-menu",
+      "tags": [
+        "spyglass-connect-menu"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-connect-menu",
+            "name": "ConnectMenu",
+            "module": "elements/connect-menu.js",
+            "description": "The connect menu: a White button that opens the agents to connect to and a copy-prompt row.",
+            "attributes": [
+              {
+                "name": "content",
+                "field": "content",
+                "type": "ConnectContent",
+                "default": "connectContent",
+                "description": "The copy, the rows and the prompt (lib/connect.ts)."
+              },
+              {
+                "name": "marks",
+                "field": "marks",
+                "type": "string[]",
+                "default": "[]",
+                "description": "Marks before the label (SVG files, drawn White in 16px squares)."
+              },
+              {
+                "name": "up",
+                "field": "up",
+                "type": "boolean",
+                "default": "false",
+                "description": "Open the panel above the button."
+              },
+              {
+                "name": "open",
+                "field": "open",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "instant",
+                "field": "instant",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "copied",
+                "field": "copied",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "active",
+                "field": "active",
+                "type": "number",
+                "default": "0"
+              },
+              {
+                "name": "pill",
+                "field": "pill",
+                "type": "{ y: number; h: number } | null",
+                "default": "null"
+              }
+            ],
+            "properties": [
+              {
+                "name": "content",
+                "type": "ConnectContent",
+                "default": "connectContent",
+                "description": "The copy, the rows and the prompt (lib/connect.ts).",
+                "attribute": "content"
+              },
+              {
+                "name": "marks",
+                "type": "string[]",
+                "default": "[]",
+                "description": "Marks before the label (SVG files, drawn White in 16px squares).",
+                "attribute": "marks"
+              },
+              {
+                "name": "up",
+                "type": "boolean",
+                "default": "false",
+                "description": "Open the panel above the button.",
+                "attribute": "up"
+              }
+            ],
+            "events": [
+              {
+                "name": "copy",
+                "description": "After the prompt is copied; detail.prompt is the text."
+              }
+            ],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Default",
+          "label": "Acme rows",
+          "center": true,
+          "half": true,
+          "path": "elements/examples/connect-menu/Default.html",
+          "content": "<!-- The connect menu with Acme's neutral rows: each client shows its first letter. -->\n<div class=\"flex min-h-96 w-full items-start justify-center px-4 pt-8\">\n  <spyglass-connect-menu></spyglass-connect-menu>\n</div>\n"
+        },
+        {
+          "name": "Up",
+          "label": "Opening above",
+          "center": true,
+          "half": true,
+          "path": "elements/examples/connect-menu/Up.html",
+          "content": "<!-- Near the foot of a page the panel opens above the button. -->\n<div class=\"flex min-h-96 w-full items-end justify-center px-4 pb-8\">\n  <spyglass-connect-menu up></spyglass-connect-menu>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

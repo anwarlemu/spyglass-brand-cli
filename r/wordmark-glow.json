@@ -1,0 +1,167 @@
+{
+  "name": "wordmark-glow",
+  "title": "Wordmark glow",
+  "type": "registry:ui",
+  "group": "visuals",
+  "description": "The big wordmark across an area in the footer gray over a faint 20px dot grid; a mouse lights the dots near it and the letters it crosses in the spectrum, the light easing after the pointer. The footer's other look (the site's footer uses the dispersion field's light by default).",
+  "use_for": "A footer or a closing band ending on the wordmark, with the footer's card as its children.",
+  "never": [
+    "The wordmark in a color, or the glow without the pointer: it stays the footer gray",
+    "More than once on a page",
+    "Moving with reduced motion: the letters keep a still glow"
+  ],
+  "source": "Site effect/WordmarkGlow (WordmarkGlow.tsx, WordmarkGlow.effect.module.css) and site/Footer/FooterWordmarkGlow: glow radius --footer-glow-radius 260px, centre 0.375 of the width above the word, dots --footer-dot-pitch 20px at white 0.1 fading in over 128px, strength 0.8, the spectrum swept every 90 degrees, masks easing over --dur-footer-glow 450ms on --ease-footer-glow",
+  "body": "",
+  "requires": [
+    "logo"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/visuals/WordmarkGlow.tsx",
+      "content": "'use client'\nimport { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'\nimport { LOGOS } from '@/lib/logos'\nimport { startWordmarkGlow } from '@/lib/effects/wordmark-glow'\nimport { GLOW_CSS, wordmarkMask } from '@/lib/effects/wordmark-glow-css'\nimport { cn } from '@/react/lib/cn'\n\n// The site's wordmark glow (effect/WordmarkGlow with site/Footer/FooterWordmarkGlow): the big wordmark across the\n// area in the footer gray over a faint 20px dot grid; a mouse lights the dots near it in the spectrum and, over the\n// wordmark, its letters, the light easing after the pointer and leaving when it does. `children` follow the wordmark\n// inside the area (a footer's card, pulled up over the descender). The site's footer uses the dispersion field's\n// light instead by default; this is its other look. Only for a fine pointer; with reduced motion the letters keep a\n// still glow and the dots stay plain. Decoration: the wordmark is hidden from assistive tech.\nexport interface WordmarkGlowProps {\n  /** What follows the wordmark inside the area. */\n  children?: ReactNode\n  className?: string\n}\n\nexport function WordmarkGlow({ children, className }: WordmarkGlowProps) {\n  const ref = useRef<HTMLDivElement>(null)\n  useEffect(() => {\n    const area = ref.current\n    return area ? startWordmarkGlow(area) : undefined\n  }, [])\n  const w = LOGOS.wordmark\n  return (\n    <div ref={ref} data-ds=\"wordmark-glow\" className={cn('relative isolate', className)} style={{ '--ds-glow-wordmark': wordmarkMask() } as CSSProperties}>\n      <style href=\"ds-wordmark-glow\" precedence=\"ds\">{GLOW_CSS}</style>\n      <span className=\"ds-glow-grid\" aria-hidden=\"true\" />\n      <span className=\"ds-glow-dots\" data-glow-dots=\"\" aria-hidden=\"true\" />\n      <div className=\"relative w-full [container-type:inline-size]\" data-glow-word=\"\" aria-hidden=\"true\" style={{ aspectRatio: `${w.width} / ${w.height}` }}>\n        <svg viewBox={`0 0 ${w.width} ${w.height}`} className=\"absolute inset-0 block size-full fill-wordmark-gray\" dangerouslySetInnerHTML={{ __html: w.body }} />\n        <span className=\"ds-glow-letters\" data-glow-letters=\"\" />\n      </div>\n      {children}\n    </div>\n  )\n}\n\nexport default WordmarkGlow\n"
+    },
+    {
+      "path": "lib/effects/wordmark-glow.ts",
+      "content": "// The site's wordmark glow (effect/WordmarkGlow): over an area with a 20px dot grid, a mouse lights the dots near it\n// (260px) in the spectrum, a conic sweep centred above the wordmark, and over the big wordmark lights its letters the\n// same way; the light eases after the pointer (masks moving over 480ms) and leaves when it does. The area holds\n// [data-glow-dots] and [data-glow-word] with [data-glow-letters] inside (found in `root`, a shadow root for the element). Only for a fine pointer without reduced motion.\ntype Layers = { position: string; size: string; after: { position: string; size: string }[] };\n\nconst px = (el: Element, name: string, fallback: number) => parseFloat(getComputedStyle(el).getPropertyValue(name)) || fallback;\n\nexport function startWordmarkGlow(area: HTMLElement, root: ParentNode = area): () => void {\n    const dots = root.querySelector<HTMLElement>(\"[data-glow-dots]\");\n    const word = root.querySelector<HTMLElement>(\"[data-glow-word]\");\n    const letters = word?.querySelector<HTMLElement>(\"[data-glow-letters]\");\n    if (!dots || !word || !letters) return () => {};\n    if (!window.matchMedia(\"(hover: hover) and (pointer: fine)\").matches) return () => {};\n    if (window.matchMedia(\"(prefers-reduced-motion: reduce)\").matches) return () => {};\n\n    const radius = px(area, \"--ds-footer-glow-radius\", 260);\n    const centre = px(area, \"--ds-glow-centre\", 0.375);\n    const offset = getComputedStyle(area).getPropertyValue(\"--ds-glow-dot-offset\").trim() || \"4px\";\n    const size = `${2 * radius}px ${2 * radius}px`;\n\n    let raf = 0;\n    let x = 0;\n    let y = 0;\n    let overWord = false;\n    let wordLit = false;\n    let areaLit = false;\n\n    const place = (el: HTMLElement, layers: Layers, box: DOMRect, on: boolean) => {\n      const lx = x - box.left;\n      const ly = y - box.top;\n      const at = on ? `${lx - radius}px ${ly - radius}px` : `${lx}px ${ly}px`;\n      el.style.maskPosition = [layers.position, ...layers.after.map((l) => l.position), at].join(\", \");\n      el.style.maskSize = [layers.size, ...layers.after.map((l) => l.size), on ? size : \"0px 0px\"].join(\", \");\n    };\n    const dotLayers: Layers = {\n      position: `${offset} ${offset}`,\n      size: \"var(--ds-glow-dot-pitch) var(--ds-glow-dot-pitch)\",\n      after: [{ position: \"0 0\", size: \"100% 100%\" }],\n    };\n    const letterLayers: Layers = { position: \"0 0\", size: \"100% 100%\", after: [] };\n\n    const frame = () => {\n      raf = 0;\n      const a = area.getBoundingClientRect();\n      const w = word.getBoundingClientRect();\n      dots.style.setProperty(\n        \"--glow-at\",\n        `${w.left - a.left + w.width / 2}px ${w.top - a.top + w.height / 2 - centre * w.width}px`,\n      );\n      areaLit = true;\n      place(dots, dotLayers, a, true);\n      if (overWord || wordLit) {\n        place(letters, letterLayers, w, overWord);\n        wordLit = overWord;\n      }\n    };\n\n    const move = (e: PointerEvent) => {\n      if (e.pointerType === \"touch\") return;\n      x = e.clientX;\n      y = e.clientY;\n      overWord = e.composedPath().includes(word);\n      if (!raf) raf = requestAnimationFrame(frame);\n    };\n\n    const leave = (e: PointerEvent) => {\n      if (e.pointerType === \"touch\") return;\n      cancelAnimationFrame(raf);\n      raf = 0;\n      x = e.clientX;\n      y = e.clientY;\n      if (areaLit) place(dots, dotLayers, area.getBoundingClientRect(), false);\n      if (wordLit) place(letters, letterLayers, word.getBoundingClientRect(), false);\n      areaLit = false;\n      wordLit = false;\n      overWord = false;\n    };\n\n    area.addEventListener(\"pointermove\", move, { passive: true });\n    area.addEventListener(\"pointerleave\", leave, { passive: true });\n    return () => {\n      cancelAnimationFrame(raf);\n      area.removeEventListener(\"pointermove\", move);\n      area.removeEventListener(\"pointerleave\", leave);\n    };\n}\n"
+    },
+    {
+      "path": "lib/effects/wordmark-glow-css.ts",
+      "content": "import { LOGOS } from '@/lib/logos'\n\n// The wordmark glow's look (effect/WordmarkGlow/WordmarkGlow.effect.module.css), shared by both flavors: the dot grid\n// fading in over 128px from the top, the spectrum (Blue, Green, Yellow, Orange, Red, Cyan) swept round a point above\n// the wordmark, shown through the dots and the letters only where the pointer's circle is. Reduced motion: no dots, the\n// letters lit still around the sweep's centre.\nexport const GLOW_CSS = `\n.ds-glow-grid, .ds-glow-dots, .ds-glow-letters { position: absolute; inset: 0; pointer-events: none; }\n.ds-glow-grid {\n  mask-image: linear-gradient(transparent, var(--ds-color-black) var(--ds-glow-dot-fade));\n  background-image: radial-gradient(circle, var(--ds-glow-dot-color) 1px, transparent 1px);\n  background-position: var(--ds-glow-dot-offset) var(--ds-glow-dot-offset);\n  background-size: var(--ds-glow-dot-pitch) var(--ds-glow-dot-pitch);\n}\n.ds-glow-dots, .ds-glow-letters {\n  background-image: repeating-conic-gradient(from 0deg at var(--glow-at, 50% 50%), var(--ds-color-blue) 0deg, var(--ds-color-green) 15deg, var(--ds-color-yellow) 30deg, var(--ds-color-orange) 45deg, var(--ds-color-red) 60deg, var(--ds-color-cyan) 75deg, var(--ds-color-blue) 90deg);\n  opacity: var(--ds-glow-strength);\n  mix-blend-mode: screen;\n  mask-repeat: repeat, no-repeat;\n  mask-composite: intersect;\n  mask-position: var(--ds-glow-dot-offset) var(--ds-glow-dot-offset), 50% 50%;\n  transition: mask-position var(--ds-duration-slow) var(--ds-easing-glow), mask-size var(--ds-duration-slow) var(--ds-easing-glow);\n}\n.ds-glow-dots {\n  mask-image: radial-gradient(circle, var(--ds-color-white) 1px, transparent 2px), linear-gradient(transparent, var(--ds-color-black) var(--ds-glow-dot-fade)), radial-gradient(circle closest-side, var(--ds-color-black) 0%, transparent 75%);\n  mask-repeat: repeat, no-repeat, no-repeat;\n  mask-position: var(--ds-glow-dot-offset) var(--ds-glow-dot-offset), 0 0, 50% 50%;\n  mask-size: var(--ds-glow-dot-pitch) var(--ds-glow-dot-pitch), 100% 100%, 0 0;\n}\n.ds-glow-letters {\n  --glow-at: 50% calc(50% - 100cqi * var(--ds-glow-centre));\n  mask-image: var(--ds-glow-wordmark), radial-gradient(circle closest-side, var(--ds-color-black) 0%, transparent 75%);\n  mask-repeat: no-repeat;\n  mask-position: 0 0, 50% 50%;\n  mask-size: 100% 100%, 0 0;\n}\n@media (prefers-reduced-motion: reduce) {\n  .ds-glow-letters { mask-size: 100% 100%, calc(2 * var(--ds-footer-glow-radius)) calc(2 * var(--ds-footer-glow-radius)); transition: none; }\n  .ds-glow-dots { display: none; }\n}\n`\n\n/** The wordmark as a mask image (the letters' shape). */\nexport function wordmarkMask(): string {\n\tconst w = LOGOS.wordmark\n\tconst svg = `<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 ${w.width} ${w.height}\">${w.body}</svg>`\n\treturn `url(\"data:image/svg+xml,${encodeURIComponent(svg)}\")`\n}\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Footer",
+      "label": "A footer",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/wordmark-glow/Footer.tsx",
+      "content": "import { WordmarkGlow } from '@/react/components/visuals/WordmarkGlow'\n// The footer's other look: the wordmark over its dot grid, a card pulled up over the descender. Point at the dots and\n// the letters (768 wide and up) and they light in the spectrum.\n\nexport default function Footer() {\n  return (\n    <WordmarkGlow className=\"mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter) pt-16 pb-8\">\n      <div className=\"relative z-1 -mt-[2.54%] rounded-panel border border-edge bg-surface-raised p-12 max-md:p-6\">\n        <p className=\"type-body text-fg-soft\">Acme's footer links sit here.</p>\n      </div>\n    </WordmarkGlow>\n  )\n}\n",
+      "requires": [
+        "logo"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/visuals/WordmarkGlow.tsx",
+          "content": "'use client'\nimport { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'\nimport { LOGOS } from '@/lib/logos'\nimport { startWordmarkGlow } from '@/lib/effects/wordmark-glow'\nimport { GLOW_CSS, wordmarkMask } from '@/lib/effects/wordmark-glow-css'\nimport { cn } from '@/react/lib/cn'\n\n// The site's wordmark glow (effect/WordmarkGlow with site/Footer/FooterWordmarkGlow): the big wordmark across the\n// area in the footer gray over a faint 20px dot grid; a mouse lights the dots near it in the spectrum and, over the\n// wordmark, its letters, the light easing after the pointer and leaving when it does. `children` follow the wordmark\n// inside the area (a footer's card, pulled up over the descender). The site's footer uses the dispersion field's\n// light instead by default; this is its other look. Only for a fine pointer; with reduced motion the letters keep a\n// still glow and the dots stay plain. Decoration: the wordmark is hidden from assistive tech.\nexport interface WordmarkGlowProps {\n  /** What follows the wordmark inside the area. */\n  children?: ReactNode\n  className?: string\n}\n\nexport function WordmarkGlow({ children, className }: WordmarkGlowProps) {\n  const ref = useRef<HTMLDivElement>(null)\n  useEffect(() => {\n    const area = ref.current\n    return area ? startWordmarkGlow(area) : undefined\n  }, [])\n  const w = LOGOS.wordmark\n  return (\n    <div ref={ref} data-ds=\"wordmark-glow\" className={cn('relative isolate', className)} style={{ '--ds-glow-wordmark': wordmarkMask() } as CSSProperties}>\n      <style href=\"ds-wordmark-glow\" precedence=\"ds\">{GLOW_CSS}</style>\n      <span className=\"ds-glow-grid\" aria-hidden=\"true\" />\n      <span className=\"ds-glow-dots\" data-glow-dots=\"\" aria-hidden=\"true\" />\n      <div className=\"relative w-full [container-type:inline-size]\" data-glow-word=\"\" aria-hidden=\"true\" style={{ aspectRatio: `${w.width} / ${w.height}` }}>\n        <svg viewBox={`0 0 ${w.width} ${w.height}`} className=\"absolute inset-0 block size-full fill-wordmark-gray\" dangerouslySetInnerHTML={{ __html: w.body }} />\n        <span className=\"ds-glow-letters\" data-glow-letters=\"\" />\n      </div>\n      {children}\n    </div>\n  )\n}\n\nexport default WordmarkGlow\n"
+        },
+        {
+          "path": "lib/effects/wordmark-glow.ts",
+          "content": "// The site's wordmark glow (effect/WordmarkGlow): over an area with a 20px dot grid, a mouse lights the dots near it\n// (260px) in the spectrum, a conic sweep centred above the wordmark, and over the big wordmark lights its letters the\n// same way; the light eases after the pointer (masks moving over 480ms) and leaves when it does. The area holds\n// [data-glow-dots] and [data-glow-word] with [data-glow-letters] inside (found in `root`, a shadow root for the element). Only for a fine pointer without reduced motion.\ntype Layers = { position: string; size: string; after: { position: string; size: string }[] };\n\nconst px = (el: Element, name: string, fallback: number) => parseFloat(getComputedStyle(el).getPropertyValue(name)) || fallback;\n\nexport function startWordmarkGlow(area: HTMLElement, root: ParentNode = area): () => void {\n    const dots = root.querySelector<HTMLElement>(\"[data-glow-dots]\");\n    const word = root.querySelector<HTMLElement>(\"[data-glow-word]\");\n    const letters = word?.querySelector<HTMLElement>(\"[data-glow-letters]\");\n    if (!dots || !word || !letters) return () => {};\n    if (!window.matchMedia(\"(hover: hover) and (pointer: fine)\").matches) return () => {};\n    if (window.matchMedia(\"(prefers-reduced-motion: reduce)\").matches) return () => {};\n\n    const radius = px(area, \"--ds-footer-glow-radius\", 260);\n    const centre = px(area, \"--ds-glow-centre\", 0.375);\n    const offset = getComputedStyle(area).getPropertyValue(\"--ds-glow-dot-offset\").trim() || \"4px\";\n    const size = `${2 * radius}px ${2 * radius}px`;\n\n    let raf = 0;\n    let x = 0;\n    let y = 0;\n    let overWord = false;\n    let wordLit = false;\n    let areaLit = false;\n\n    const place = (el: HTMLElement, layers: Layers, box: DOMRect, on: boolean) => {\n      const lx = x - box.left;\n      const ly = y - box.top;\n      const at = on ? `${lx - radius}px ${ly - radius}px` : `${lx}px ${ly}px`;\n      el.style.maskPosition = [layers.position, ...layers.after.map((l) => l.position), at].join(\", \");\n      el.style.maskSize = [layers.size, ...layers.after.map((l) => l.size), on ? size : \"0px 0px\"].join(\", \");\n    };\n    const dotLayers: Layers = {\n      position: `${offset} ${offset}`,\n      size: \"var(--ds-glow-dot-pitch) var(--ds-glow-dot-pitch)\",\n      after: [{ position: \"0 0\", size: \"100% 100%\" }],\n    };\n    const letterLayers: Layers = { position: \"0 0\", size: \"100% 100%\", after: [] };\n\n    const frame = () => {\n      raf = 0;\n      const a = area.getBoundingClientRect();\n      const w = word.getBoundingClientRect();\n      dots.style.setProperty(\n        \"--glow-at\",\n        `${w.left - a.left + w.width / 2}px ${w.top - a.top + w.height / 2 - centre * w.width}px`,\n      );\n      areaLit = true;\n      place(dots, dotLayers, a, true);\n      if (overWord || wordLit) {\n        place(letters, letterLayers, w, overWord);\n        wordLit = overWord;\n      }\n    };\n\n    const move = (e: PointerEvent) => {\n      if (e.pointerType === \"touch\") return;\n      x = e.clientX;\n      y = e.clientY;\n      overWord = e.composedPath().includes(word);\n      if (!raf) raf = requestAnimationFrame(frame);\n    };\n\n    const leave = (e: PointerEvent) => {\n      if (e.pointerType === \"touch\") return;\n      cancelAnimationFrame(raf);\n      raf = 0;\n      x = e.clientX;\n      y = e.clientY;\n      if (areaLit) place(dots, dotLayers, area.getBoundingClientRect(), false);\n      if (wordLit) place(letters, letterLayers, word.getBoundingClientRect(), false);\n      areaLit = false;\n      wordLit = false;\n      overWord = false;\n    };\n\n    area.addEventListener(\"pointermove\", move, { passive: true });\n    area.addEventListener(\"pointerleave\", leave, { passive: true });\n    return () => {\n      cancelAnimationFrame(raf);\n      area.removeEventListener(\"pointermove\", move);\n      area.removeEventListener(\"pointerleave\", leave);\n    };\n}\n"
+        },
+        {
+          "path": "lib/effects/wordmark-glow-css.ts",
+          "content": "import { LOGOS } from '@/lib/logos'\n\n// The wordmark glow's look (effect/WordmarkGlow/WordmarkGlow.effect.module.css), shared by both flavors: the dot grid\n// fading in over 128px from the top, the spectrum (Blue, Green, Yellow, Orange, Red, Cyan) swept round a point above\n// the wordmark, shown through the dots and the letters only where the pointer's circle is. Reduced motion: no dots, the\n// letters lit still around the sweep's centre.\nexport const GLOW_CSS = `\n.ds-glow-grid, .ds-glow-dots, .ds-glow-letters { position: absolute; inset: 0; pointer-events: none; }\n.ds-glow-grid {\n  mask-image: linear-gradient(transparent, var(--ds-color-black) var(--ds-glow-dot-fade));\n  background-image: radial-gradient(circle, var(--ds-glow-dot-color) 1px, transparent 1px);\n  background-position: var(--ds-glow-dot-offset) var(--ds-glow-dot-offset);\n  background-size: var(--ds-glow-dot-pitch) var(--ds-glow-dot-pitch);\n}\n.ds-glow-dots, .ds-glow-letters {\n  background-image: repeating-conic-gradient(from 0deg at var(--glow-at, 50% 50%), var(--ds-color-blue) 0deg, var(--ds-color-green) 15deg, var(--ds-color-yellow) 30deg, var(--ds-color-orange) 45deg, var(--ds-color-red) 60deg, var(--ds-color-cyan) 75deg, var(--ds-color-blue) 90deg);\n  opacity: var(--ds-glow-strength);\n  mix-blend-mode: screen;\n  mask-repeat: repeat, no-repeat;\n  mask-composite: intersect;\n  mask-position: var(--ds-glow-dot-offset) var(--ds-glow-dot-offset), 50% 50%;\n  transition: mask-position var(--ds-duration-slow) var(--ds-easing-glow), mask-size var(--ds-duration-slow) var(--ds-easing-glow);\n}\n.ds-glow-dots {\n  mask-image: radial-gradient(circle, var(--ds-color-white) 1px, transparent 2px), linear-gradient(transparent, var(--ds-color-black) var(--ds-glow-dot-fade)), radial-gradient(circle closest-side, var(--ds-color-black) 0%, transparent 75%);\n  mask-repeat: repeat, no-repeat, no-repeat;\n  mask-position: var(--ds-glow-dot-offset) var(--ds-glow-dot-offset), 0 0, 50% 50%;\n  mask-size: var(--ds-glow-dot-pitch) var(--ds-glow-dot-pitch), 100% 100%, 0 0;\n}\n.ds-glow-letters {\n  --glow-at: 50% calc(50% - 100cqi * var(--ds-glow-centre));\n  mask-image: var(--ds-glow-wordmark), radial-gradient(circle closest-side, var(--ds-color-black) 0%, transparent 75%);\n  mask-repeat: no-repeat;\n  mask-position: 0 0, 50% 50%;\n  mask-size: 100% 100%, 0 0;\n}\n@media (prefers-reduced-motion: reduce) {\n  .ds-glow-letters { mask-size: 100% 100%, calc(2 * var(--ds-footer-glow-radius)) calc(2 * var(--ds-footer-glow-radius)); transition: none; }\n  .ds-glow-dots { display: none; }\n}\n`\n\n/** The wordmark as a mask image (the letters' shape). */\nexport function wordmarkMask(): string {\n\tconst w = LOGOS.wordmark\n\tconst svg = `<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 ${w.width} ${w.height}\">${w.body}</svg>`\n\treturn `url(\"data:image/svg+xml,${encodeURIComponent(svg)}\")`\n}\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "logo"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "WordmarkGlow",
+            "file": "react/components/visuals/WordmarkGlow.tsx",
+            "props": [
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false,
+                "description": "What follows the wordmark inside the area."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Footer",
+          "label": "A footer",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/wordmark-glow/Footer.tsx",
+          "content": "import { WordmarkGlow } from '@/react/components/visuals/WordmarkGlow'\n// The footer's other look: the wordmark over its dot grid, a card pulled up over the descender. Point at the dots and\n// the letters (768 wide and up) and they light in the spectrum.\n\nexport default function Footer() {\n  return (\n    <WordmarkGlow className=\"mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter) pt-16 pb-8\">\n      <div className=\"relative z-1 -mt-[2.54%] rounded-panel border border-edge bg-surface-raised p-12 max-md:p-6\">\n        <p className=\"type-body text-fg-soft\">Acme's footer links sit here.</p>\n      </div>\n    </WordmarkGlow>\n  )\n}\n",
+          "registryDependencies": [
+            "logo"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/visuals/wordmark-glow.ts",
+          "content": "import { html, unsafeCSS } from 'lit'\nimport { unsafeSVG } from 'lit/directives/unsafe-svg.js'\nimport { DsElement, define } from '@/elements/lib/element'\nimport { LOGOS } from '@/lib/logos'\nimport { startWordmarkGlow } from '@/lib/effects/wordmark-glow'\nimport { GLOW_CSS, wordmarkMask } from '@/lib/effects/wordmark-glow-css'\nimport styles from 'virtual:tw'\n\n// WordmarkGlow.tsx as <spyglass-wordmark-glow>: the big wordmark over a faint dot grid; a mouse lights the dots and the\n// letters near it in the spectrum. Children go after the wordmark (the default slot). The host is the area: the page's\n// classes size and pad it. Only for a fine pointer.\n\n/**\n * @summary The big wordmark whose dots and letters light up under the pointer.\n * @slot - What follows the wordmark inside the area.\n */\nexport class WordmarkGlow extends DsElement {\n\tstatic styles = [DsElement.styles, styles, unsafeCSS(GLOW_CSS)]\n\tprivate stop: (() => void) | null = null\n\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\tif (this.hasUpdated && !this.stop) this.start()\n\t}\n\n\tdisconnectedCallback() {\n\t\tsuper.disconnectedCallback()\n\t\tthis.stop?.()\n\t\tthis.stop = null\n\t}\n\n\tprivate start() {\n\t\tthis.style.setProperty('--ds-glow-wordmark', wordmarkMask())\n\t\tthis.stop = startWordmarkGlow(this, this.renderRoot)\n\t}\n\n\tprotected firstUpdated(changed: Map<PropertyKey, unknown>) {\n\t\tsuper.firstUpdated(changed)\n\t\tthis.start()\n\t}\n\n\trender() {\n\t\tconst w = LOGOS.wordmark\n\t\treturn html`<span class=\"ds-glow-grid\" aria-hidden=\"true\"></span><span class=\"ds-glow-dots\" data-glow-dots=\"\" aria-hidden=\"true\"></span><div class=\"relative w-full [container-type:inline-size]\" data-glow-word=\"\" aria-hidden=\"true\" style=${`aspect-ratio: ${w.width} / ${w.height}`}><svg viewBox=\"0 0 ${w.width} ${w.height}\" class=\"absolute inset-0 block size-full fill-wordmark-gray\">${unsafeSVG(w.body)}</svg><span class=\"ds-glow-letters\" data-glow-letters=\"\"></span></div><slot></slot>`\n\t}\n}\n\ndefine('wordmark-glow', WordmarkGlow)\n"
+        },
+        {
+          "path": "elements/components/visuals/wordmark-glow.css",
+          "content": "/* The host is the area, as WordmarkGlow.tsx's root: the page's classes size and pad it. */\n:host {\n  position: relative;\n  isolation: isolate;\n  display: block;\n}\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/wordmark-glow.js"
+      ],
+      "tag": "spyglass-wordmark-glow",
+      "tags": [
+        "spyglass-wordmark-glow"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-wordmark-glow",
+            "name": "WordmarkGlow",
+            "module": "elements/wordmark-glow.js",
+            "description": "The big wordmark whose dots and letters light up under the pointer.",
+            "attributes": [],
+            "properties": [],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "What follows the wordmark inside the area."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Footer",
+          "label": "A footer",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/wordmark-glow/Footer.html",
+          "content": "<!-- The footer's other look: the wordmark over its dot grid, a card pulled up over the descender. Point at the dots and\nthe letters (768 wide and up) and they light in the spectrum. -->\n<spyglass-wordmark-glow class=\"mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter) pt-16 pb-8\">\n  <div class=\"relative z-1 -mt-[2.54%] rounded-panel border border-edge bg-surface-raised p-12 max-md:p-6\">\n    <p class=\"type-body text-fg-soft\">Acme's footer links sit here.</p>\n  </div>\n</spyglass-wordmark-glow>\n"
+        }
+      ]
+    }
+  }
+}

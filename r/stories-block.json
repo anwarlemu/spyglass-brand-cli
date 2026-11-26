@@ -1,0 +1,332 @@
+{
+  "name": "stories-block",
+  "title": "Stories block",
+  "type": "registry:block",
+  "group": "blocks",
+  "description": "The site's stories section: the section head centered over quotes in #262626 cards (the company's mark or name, the quote in Funnel Display 20/24, the person with a ringed 40px avatar and the role in capitals), three columns from 1024 that line up row by row, two cards in the middle, and an optional row of customer marks over a hairline.",
+  "use_for": "Quotes from customers on the home page and on use case pages. `stories` takes { company, logo?, quote, name, role, photo? }; `customers` and `logos` show the row of marks (the use case pages hide it).",
+  "never": [
+    "A real person's quote, name or photo without their consent: Acme placeholders in templates and examples",
+    "Another company's logo shipped in the library: pass the marks you may show",
+    "Stars, ratings or a carousel",
+    "A filter or tint over a photo"
+  ],
+  "source": "Site v3/V3Stories (V3Stories.tsx and .module.css, ui/Avatar): head 64px over the cards (80 from 1024), lead 24px under the head; cards 24px padding (32 from 1024), 8px corners, --surface, gaps 16 (24 from 1024), 640px wide on phones; quote 32px under the company, person 32px over the foot; customers 64px under (80), 48px over a hairline, two columns, three from 768, a spread row from 1024",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/blocks/StoriesBlock.tsx",
+      "content": "import type { CSSProperties } from 'react'\nimport { storiesContent, storiesCss, storyInitials, type Story, type StoryCustomer, type StoryMark } from '@/lib/stories'\nimport { cn } from '@/react/lib/cn'\n\n// The site's stories section (v3/V3Stories): the section head centered over cards of quotes, #262626 with 8px corners.\n// Each card has the company (its mark in the soft gray, or its name), the quote in Funnel Display 20/24 and the person\n// at the foot (a 40px avatar ringed by the strong hairline, the name, the role in capitals). One column up to 640px wide\n// on phones; from 1024 three columns whose cards line up row by row; two cards sit in the middle. Under them, with\n// `customers`, a row of customer marks over a hairline. Quotes come through `stories`: Acme placeholders by default,\n// never a real person or customer without their consent.\nexport interface StoriesBlockProps {\n  /** The section's id (its heading is `<id>-heading`). */\n  id?: string\n  headline?: string\n  lead?: string\n  /** The stories, in order: { company, logo?, quote, name, role, photo? }. */\n  stories?: Story[]\n  /** Show the row of customer marks under the stories. */\n  customers?: boolean\n  /** The customer marks: { name, src?, ratio?, height? }. */\n  logos?: StoryCustomer[]\n  /** The customer row's name for assistive tech. */\n  customersLabel?: string\n  className?: string\n}\n\nfunction Mark({ logo, label, className, at = 'left center' }: { logo: StoryMark; label: string; className: string; at?: string }) {\n  return <span role=\"img\" aria-label={label} className={className} style={{ height: logo.height, aspectRatio: String(logo.ratio), mask: `url(\"${logo.src}\") ${at} / contain no-repeat` } as CSSProperties} />\n}\n\nexport function StoriesBlock({ id = 'stories', headline = storiesContent.headline, lead = storiesContent.lead, stories = storiesContent.stories, customers = true, logos = storiesContent.customers, customersLabel = storiesContent.customersLabel, className }: StoriesBlockProps) {\n  return (\n    <section data-ds=\"stories-block\" id={id} aria-labelledby={`${id}-heading`} className={cn('py-(--ds-layout-section) text-fg', className)}>\n      <style href=\"ds-stories-block\" precedence=\"ds\">{storiesCss}</style>\n      <div className=\"mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)\">\n        <header className=\"mb-16 flex flex-col items-center text-center lg:mb-20\">\n          <h2 id={`${id}-heading`} className=\"type-section [text-box:trim-start_cap_alphabetic]\">{headline}</h2>\n          <p className=\"mt-6 max-w-measure type-body-lg text-pretty text-fg-soft\">{lead}</p>\n        </header>\n        <ul role=\"list\" className=\"ds-stories mx-auto grid max-w-measure grid-cols-1 gap-4 lg:max-w-none lg:grid-cols-3 lg:gap-6\">\n          {stories.map((story) => (\n            <li key={`${story.company}-${story.name}`} className=\"min-w-0 rounded-panel bg-surface-raised p-6 lg:row-span-3 lg:grid lg:grid-rows-subgrid lg:gap-y-0 lg:p-8\">\n              <figure className=\"flex h-full flex-col lg:row-span-3 lg:grid lg:grid-rows-subgrid lg:gap-y-0\">\n                <p className=\"flex min-h-8 items-center\">\n                  {story.logo\n                    ? <Mark logo={story.logo} label={story.company} className=\"block bg-fg-soft\" />\n                    : <span className=\"type-body font-medium text-fg-soft\">{story.company}</span>}\n                </p>\n                <blockquote className=\"mt-8 type-heading-4 text-pretty text-fg lg:self-start\">\n                  <p>&ldquo;{story.quote}&rdquo;</p>\n                </blockquote>\n                <figcaption className=\"mt-auto flex items-center gap-3 pt-8\">\n                  <span className={cn('relative grid size-10 flex-none place-items-center overflow-hidden rounded-full border border-edge-strong type-ui font-medium text-fg-soft', story.photo ? 'bg-edge-strong' : 'bg-surface-inset')}>\n                    <span aria-hidden=\"true\">{storyInitials(story.name)}</span>\n                    {story.photo ? <img src={story.photo} alt=\"\" loading=\"lazy\" decoding=\"async\" className=\"absolute inset-0 size-full rounded-full object-cover\" /> : null}\n                  </span>\n                  <span className=\"flex min-w-0 flex-col\">\n                    <span className=\"type-ui font-medium text-fg\">{story.name}</span>\n                    <span className=\"mt-1 type-label text-fg-muted\">{story.role}, {story.company}</span>\n                  </span>\n                </figcaption>\n              </figure>\n            </li>\n          ))}\n        </ul>\n        {customers && logos.length ? (\n          <ul role=\"list\" aria-label={customersLabel} className=\"mx-auto mt-16 grid max-w-measure grid-cols-2 items-center justify-items-center gap-x-4 gap-y-8 border-t border-edge pt-12 md:grid-cols-3 lg:mt-20 lg:flex lg:max-w-none lg:flex-wrap lg:justify-between lg:px-12\">\n            {logos.map((logo) => (\n              <li key={logo.name}>\n                {logo.src\n                  ? <Mark logo={{ src: logo.src, ratio: logo.ratio ?? 4, height: logo.height ?? 24 }} label={logo.name} className=\"block bg-fg-muted\" at=\"center\" />\n                  : <span className=\"type-heading-4 whitespace-nowrap text-fg-muted\">{logo.name}</span>}\n              </li>\n            ))}\n          </ul>\n        ) : null}\n      </div>\n    </section>\n  )\n}\n\nexport default StoriesBlock\n"
+    },
+    {
+      "path": "lib/stories.ts",
+      "content": "// The stories block's data and Acme placeholders (site v3/V3Stories, content/v3/stories.ts), read by both flavors.\n// A story is a quote with the person under it; a company's mark is drawn in the soft gray through a mask, so any\n// single-color file works. The placeholders are Acme's, with no photo: the avatar shows the initials.\n\n/** A company's mark: a single-color file drawn through a mask. */\nexport interface StoryMark {\n  src: string\n  /** Width over height. */\n  ratio: number\n  /** Height in px: 16, 20, 24 or 32. */\n  height: number\n}\n\nexport interface Story {\n  company: string\n  /** The company's mark; without one the company is set as text. */\n  logo?: StoryMark\n  quote: string\n  name: string\n  role: string\n  /** The person's photo, cropped round; without one, their initials. */\n  photo?: string\n}\n\n/** A customer's mark in the row under the stories; without `src` the name is set as a wordmark. */\nexport interface StoryCustomer {\n  name: string\n  src?: string\n  ratio?: number\n  height?: number\n}\n\nexport const storiesContent = {\n  headline: 'Marketing teams on Spyglass',\n  lead: 'Marketers, founders and agencies on how they research creative now.',\n  customersLabel: 'Spyglass customers',\n  stories: [\n    { company: 'Acme', quote: 'Creators, competitor tracking and trend research, all in one place. It changed how our team plans every launch.', name: 'Sam', role: 'Performance marketer' },\n    { company: 'Acme Labs', quote: 'The first platform that really cracks creative research. We brief from what is working, not from what we remember.', name: 'Jo', role: 'Head of growth' },\n    { company: 'Acme Studio', quote: 'Sharp, quick and built by a team that ships fixes the same day. The easiest tool to recommend to any operator.', name: 'Ari', role: 'Founder' },\n    { company: 'Acme Goods', quote: 'It shows me what our audience actually sees. Finding trends and new audiences has never been easier.', name: 'Kit', role: 'General manager' },\n    { company: 'Acme Air', quote: 'Agencies cannot afford blind spots. This gives us full competitive visibility across every account we run.', name: 'Rae', role: 'Operations lead' },\n    { company: 'Acme & Co', quote: 'We built the brand around our customers. This is the one place that shows every creative they engage with.', name: 'Lou', role: 'Co-founder' },\n  ] as Story[],\n  customers: [{ name: 'Acme' }, { name: 'Acme Labs' }, { name: 'Acme Studio' }, { name: 'Acme Goods' }, { name: 'Acme Air' }, { name: 'Acme & Co' }] as StoryCustomer[],\n}\n\n/** The first letters of the first two words (the avatar without a photo). */\nexport const storyInitials = (name: string) => name.split(' ').map((part) => part[0] ?? '').join('').slice(0, 2)\n\n// The grid's rules a class cannot say: from 1024 the cards share rows through a subgrid (company, quote, person line\n// up across a row); three cards or fewer take one row; two cards sit in the middle eight of twelve columns.\nexport const storiesCss = `\n@media (min-width: 1024px) {\n  .ds-stories { grid-template-rows: repeat(2, auto 1fr auto); }\n  .ds-stories:not(:has(> :nth-child(4))) { grid-template-rows: auto 1fr auto; }\n  .ds-stories:has(> :nth-child(2):last-child) { grid-template-columns: repeat(12, minmax(0, 1fr)); }\n  .ds-stories:has(> :nth-child(2):last-child) > :first-child { grid-column: 3 / span 4; }\n  .ds-stories:has(> :nth-child(2):last-child) > :last-child { grid-column: 7 / span 4; }\n}\n`\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Home",
+      "label": "Six stories with customers",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/stories-block/Home.tsx",
+      "content": "import { StoriesBlock } from '@/react/components/blocks/StoriesBlock'\n// Six Acme stories in three columns that line up row by row, with the row of customer marks under them.\n\nexport default function Home() {\n  return <StoriesBlock id=\"stories-home\" />\n}\n",
+      "requires": [],
+      "packages": []
+    },
+    {
+      "name": "Team",
+      "label": "Three stories",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/stories-block/Team.tsx",
+      "content": "import { StoriesBlock } from '@/react/components/blocks/StoriesBlock'\nimport { storiesContent } from '@/lib/stories'\n// A use case page's three stories with its own head and no customer row.\n\nexport default function Team() {\n  return <StoriesBlock id=\"stories-team\" headline=\"Creative research, in their words\" lead=\"A head of growth, a founder and a general manager on researching creative.\" stories={storiesContent.stories.slice(1, 4)} customers={false} />\n}\n",
+      "requires": [],
+      "packages": []
+    },
+    {
+      "name": "Pair",
+      "label": "Two stories",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/stories-block/Pair.tsx",
+      "content": "import { StoriesBlock } from '@/react/components/blocks/StoriesBlock'\nimport { storiesContent } from '@/lib/stories'\n// Two stories sit in the middle of the row.\n\nexport default function Pair() {\n  return <StoriesBlock id=\"stories-pair\" headline=\"Built by a team that ships\" lead=\"A head of growth and a founder on the team behind the API.\" stories={storiesContent.stories.slice(1, 3)} customers={false} />\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/blocks/StoriesBlock.tsx",
+          "content": "import type { CSSProperties } from 'react'\nimport { storiesContent, storiesCss, storyInitials, type Story, type StoryCustomer, type StoryMark } from '@/lib/stories'\nimport { cn } from '@/react/lib/cn'\n\n// The site's stories section (v3/V3Stories): the section head centered over cards of quotes, #262626 with 8px corners.\n// Each card has the company (its mark in the soft gray, or its name), the quote in Funnel Display 20/24 and the person\n// at the foot (a 40px avatar ringed by the strong hairline, the name, the role in capitals). One column up to 640px wide\n// on phones; from 1024 three columns whose cards line up row by row; two cards sit in the middle. Under them, with\n// `customers`, a row of customer marks over a hairline. Quotes come through `stories`: Acme placeholders by default,\n// never a real person or customer without their consent.\nexport interface StoriesBlockProps {\n  /** The section's id (its heading is `<id>-heading`). */\n  id?: string\n  headline?: string\n  lead?: string\n  /** The stories, in order: { company, logo?, quote, name, role, photo? }. */\n  stories?: Story[]\n  /** Show the row of customer marks under the stories. */\n  customers?: boolean\n  /** The customer marks: { name, src?, ratio?, height? }. */\n  logos?: StoryCustomer[]\n  /** The customer row's name for assistive tech. */\n  customersLabel?: string\n  className?: string\n}\n\nfunction Mark({ logo, label, className, at = 'left center' }: { logo: StoryMark; label: string; className: string; at?: string }) {\n  return <span role=\"img\" aria-label={label} className={className} style={{ height: logo.height, aspectRatio: String(logo.ratio), mask: `url(\"${logo.src}\") ${at} / contain no-repeat` } as CSSProperties} />\n}\n\nexport function StoriesBlock({ id = 'stories', headline = storiesContent.headline, lead = storiesContent.lead, stories = storiesContent.stories, customers = true, logos = storiesContent.customers, customersLabel = storiesContent.customersLabel, className }: StoriesBlockProps) {\n  return (\n    <section data-ds=\"stories-block\" id={id} aria-labelledby={`${id}-heading`} className={cn('py-(--ds-layout-section) text-fg', className)}>\n      <style href=\"ds-stories-block\" precedence=\"ds\">{storiesCss}</style>\n      <div className=\"mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)\">\n        <header className=\"mb-16 flex flex-col items-center text-center lg:mb-20\">\n          <h2 id={`${id}-heading`} className=\"type-section [text-box:trim-start_cap_alphabetic]\">{headline}</h2>\n          <p className=\"mt-6 max-w-measure type-body-lg text-pretty text-fg-soft\">{lead}</p>\n        </header>\n        <ul role=\"list\" className=\"ds-stories mx-auto grid max-w-measure grid-cols-1 gap-4 lg:max-w-none lg:grid-cols-3 lg:gap-6\">\n          {stories.map((story) => (\n            <li key={`${story.company}-${story.name}`} className=\"min-w-0 rounded-panel bg-surface-raised p-6 lg:row-span-3 lg:grid lg:grid-rows-subgrid lg:gap-y-0 lg:p-8\">\n              <figure className=\"flex h-full flex-col lg:row-span-3 lg:grid lg:grid-rows-subgrid lg:gap-y-0\">\n                <p className=\"flex min-h-8 items-center\">\n                  {story.logo\n                    ? <Mark logo={story.logo} label={story.company} className=\"block bg-fg-soft\" />\n                    : <span className=\"type-body font-medium text-fg-soft\">{story.company}</span>}\n                </p>\n                <blockquote className=\"mt-8 type-heading-4 text-pretty text-fg lg:self-start\">\n                  <p>&ldquo;{story.quote}&rdquo;</p>\n                </blockquote>\n                <figcaption className=\"mt-auto flex items-center gap-3 pt-8\">\n                  <span className={cn('relative grid size-10 flex-none place-items-center overflow-hidden rounded-full border border-edge-strong type-ui font-medium text-fg-soft', story.photo ? 'bg-edge-strong' : 'bg-surface-inset')}>\n                    <span aria-hidden=\"true\">{storyInitials(story.name)}</span>\n                    {story.photo ? <img src={story.photo} alt=\"\" loading=\"lazy\" decoding=\"async\" className=\"absolute inset-0 size-full rounded-full object-cover\" /> : null}\n                  </span>\n                  <span className=\"flex min-w-0 flex-col\">\n                    <span className=\"type-ui font-medium text-fg\">{story.name}</span>\n                    <span className=\"mt-1 type-label text-fg-muted\">{story.role}, {story.company}</span>\n                  </span>\n                </figcaption>\n              </figure>\n            </li>\n          ))}\n        </ul>\n        {customers && logos.length ? (\n          <ul role=\"list\" aria-label={customersLabel} className=\"mx-auto mt-16 grid max-w-measure grid-cols-2 items-center justify-items-center gap-x-4 gap-y-8 border-t border-edge pt-12 md:grid-cols-3 lg:mt-20 lg:flex lg:max-w-none lg:flex-wrap lg:justify-between lg:px-12\">\n            {logos.map((logo) => (\n              <li key={logo.name}>\n                {logo.src\n                  ? <Mark logo={{ src: logo.src, ratio: logo.ratio ?? 4, height: logo.height ?? 24 }} label={logo.name} className=\"block bg-fg-muted\" at=\"center\" />\n                  : <span className=\"type-heading-4 whitespace-nowrap text-fg-muted\">{logo.name}</span>}\n              </li>\n            ))}\n          </ul>\n        ) : null}\n      </div>\n    </section>\n  )\n}\n\nexport default StoriesBlock\n"
+        },
+        {
+          "path": "lib/stories.ts",
+          "content": "// The stories block's data and Acme placeholders (site v3/V3Stories, content/v3/stories.ts), read by both flavors.\n// A story is a quote with the person under it; a company's mark is drawn in the soft gray through a mask, so any\n// single-color file works. The placeholders are Acme's, with no photo: the avatar shows the initials.\n\n/** A company's mark: a single-color file drawn through a mask. */\nexport interface StoryMark {\n  src: string\n  /** Width over height. */\n  ratio: number\n  /** Height in px: 16, 20, 24 or 32. */\n  height: number\n}\n\nexport interface Story {\n  company: string\n  /** The company's mark; without one the company is set as text. */\n  logo?: StoryMark\n  quote: string\n  name: string\n  role: string\n  /** The person's photo, cropped round; without one, their initials. */\n  photo?: string\n}\n\n/** A customer's mark in the row under the stories; without `src` the name is set as a wordmark. */\nexport interface StoryCustomer {\n  name: string\n  src?: string\n  ratio?: number\n  height?: number\n}\n\nexport const storiesContent = {\n  headline: 'Marketing teams on Spyglass',\n  lead: 'Marketers, founders and agencies on how they research creative now.',\n  customersLabel: 'Spyglass customers',\n  stories: [\n    { company: 'Acme', quote: 'Creators, competitor tracking and trend research, all in one place. It changed how our team plans every launch.', name: 'Sam', role: 'Performance marketer' },\n    { company: 'Acme Labs', quote: 'The first platform that really cracks creative research. We brief from what is working, not from what we remember.', name: 'Jo', role: 'Head of growth' },\n    { company: 'Acme Studio', quote: 'Sharp, quick and built by a team that ships fixes the same day. The easiest tool to recommend to any operator.', name: 'Ari', role: 'Founder' },\n    { company: 'Acme Goods', quote: 'It shows me what our audience actually sees. Finding trends and new audiences has never been easier.', name: 'Kit', role: 'General manager' },\n    { company: 'Acme Air', quote: 'Agencies cannot afford blind spots. This gives us full competitive visibility across every account we run.', name: 'Rae', role: 'Operations lead' },\n    { company: 'Acme & Co', quote: 'We built the brand around our customers. This is the one place that shows every creative they engage with.', name: 'Lou', role: 'Co-founder' },\n  ] as Story[],\n  customers: [{ name: 'Acme' }, { name: 'Acme Labs' }, { name: 'Acme Studio' }, { name: 'Acme Goods' }, { name: 'Acme Air' }, { name: 'Acme & Co' }] as StoryCustomer[],\n}\n\n/** The first letters of the first two words (the avatar without a photo). */\nexport const storyInitials = (name: string) => name.split(' ').map((part) => part[0] ?? '').join('').slice(0, 2)\n\n// The grid's rules a class cannot say: from 1024 the cards share rows through a subgrid (company, quote, person line\n// up across a row); three cards or fewer take one row; two cards sit in the middle eight of twelve columns.\nexport const storiesCss = `\n@media (min-width: 1024px) {\n  .ds-stories { grid-template-rows: repeat(2, auto 1fr auto); }\n  .ds-stories:not(:has(> :nth-child(4))) { grid-template-rows: auto 1fr auto; }\n  .ds-stories:has(> :nth-child(2):last-child) { grid-template-columns: repeat(12, minmax(0, 1fr)); }\n  .ds-stories:has(> :nth-child(2):last-child) > :first-child { grid-column: 3 / span 4; }\n  .ds-stories:has(> :nth-child(2):last-child) > :last-child { grid-column: 7 / span 4; }\n}\n`\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "StoriesBlock",
+            "file": "react/components/blocks/StoriesBlock.tsx",
+            "props": [
+              {
+                "name": "id",
+                "type": "string",
+                "required": false,
+                "default": "'stories'",
+                "description": "The section's id (its heading is `<id>-heading`)."
+              },
+              {
+                "name": "headline",
+                "type": "string",
+                "required": false,
+                "default": "storiesContent.headline"
+              },
+              {
+                "name": "lead",
+                "type": "string",
+                "required": false,
+                "default": "storiesContent.lead"
+              },
+              {
+                "name": "stories",
+                "type": "Story[]",
+                "required": false,
+                "default": "storiesContent.stories",
+                "description": "The stories, in order: { company, logo?, quote, name, role, photo? }."
+              },
+              {
+                "name": "customers",
+                "type": "boolean",
+                "required": false,
+                "default": "true",
+                "description": "Show the row of customer marks under the stories."
+              },
+              {
+                "name": "logos",
+                "type": "StoryCustomer[]",
+                "required": false,
+                "default": "storiesContent.customers",
+                "description": "The customer marks: { name, src?, ratio?, height? }."
+              },
+              {
+                "name": "customersLabel",
+                "type": "string",
+                "required": false,
+                "default": "storiesContent.customersLabel",
+                "description": "The customer row's name for assistive tech."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Home",
+          "label": "Six stories with customers",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/stories-block/Home.tsx",
+          "content": "import { StoriesBlock } from '@/react/components/blocks/StoriesBlock'\n// Six Acme stories in three columns that line up row by row, with the row of customer marks under them.\n\nexport default function Home() {\n  return <StoriesBlock id=\"stories-home\" />\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        },
+        {
+          "name": "Team",
+          "label": "Three stories",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/stories-block/Team.tsx",
+          "content": "import { StoriesBlock } from '@/react/components/blocks/StoriesBlock'\nimport { storiesContent } from '@/lib/stories'\n// A use case page's three stories with its own head and no customer row.\n\nexport default function Team() {\n  return <StoriesBlock id=\"stories-team\" headline=\"Creative research, in their words\" lead=\"A head of growth, a founder and a general manager on researching creative.\" stories={storiesContent.stories.slice(1, 4)} customers={false} />\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        },
+        {
+          "name": "Pair",
+          "label": "Two stories",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/stories-block/Pair.tsx",
+          "content": "import { StoriesBlock } from '@/react/components/blocks/StoriesBlock'\nimport { storiesContent } from '@/lib/stories'\n// Two stories sit in the middle of the row.\n\nexport default function Pair() {\n  return <StoriesBlock id=\"stories-pair\" headline=\"Built by a team that ships\" lead=\"A head of growth and a founder on the team behind the API.\" stories={storiesContent.stories.slice(1, 3)} customers={false} />\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/blocks/stories-block.ts",
+          "content": "import { html, unsafeCSS } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { storiesContent, storiesCss, storyInitials, type Story, type StoryCustomer, type StoryMark } from '@/lib/stories'\nimport styles from 'virtual:tw'\n\n// StoriesBlock.tsx as <spyglass-stories-block>: the section head centered over cards of quotes (company, quote, person),\n// three columns from 1024 that line up row by row, two cards in the middle, and with `customers` a row of marks over a\n// hairline. `stories` and `logos` as JSON; `section-id` names the section (React's `id`); `customers=\"false\"` hides the row.\n\nconst mark = (logo: StoryMark, label: string, className: string, at = 'left center') => html`<span role=\"img\" aria-label=${label} class=${className} style=${`height: ${logo.height}px; aspect-ratio: ${logo.ratio}; mask: url(\"${logo.src}\") ${at} / contain no-repeat`}></span>`\n\n/** @summary The stories section: quotes in cards, with an optional row of customer marks. */\nexport class StoriesBlock extends DsElement {\n\tstatic styles = [DsElement.styles, styles, unsafeCSS(storiesCss)]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"stories-block\"]'))\n\tstatic properties = { sectionId: { attribute: 'section-id' }, headline: {}, lead: {}, stories: { type: Array }, customers: { type: Boolean, converter: { fromAttribute: (v: string | null) => v !== 'false' } }, logos: { type: Array }, customersLabel: { attribute: 'customers-label' } }\n\t/** The section's id (React's `id`); its heading is `<id>-heading`. */\n\tsectionId = 'stories'\n\theadline = storiesContent.headline\n\tlead = storiesContent.lead\n\t/** The stories: { company, logo?, quote, name, role, photo? }. */\n\tstories: Story[] = storiesContent.stories\n\t/** Show the row of customer marks (\"false\" hides it). */\n\tcustomers = true\n\t/** The customer marks: { name, src?, ratio?, height? }. */\n\tlogos: StoryCustomer[] = storiesContent.customers\n\t/** The customer row's name for assistive tech. */\n\tcustomersLabel = storiesContent.customersLabel\n\n\trender() {\n\t\tconst id = this.sectionId\n\t\tconst stories = this.stories ?? storiesContent.stories\n\t\tconst logos = this.logos ?? storiesContent.customers\n\t\treturn html`<section data-ds=\"stories-block\" id=${id} aria-labelledby=${`${id}-heading`} class=\"py-(--ds-layout-section) text-fg\"><div class=\"mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)\"><header class=\"mb-16 flex flex-col items-center text-center lg:mb-20\"><h2 id=${`${id}-heading`} class=\"type-section [text-box:trim-start_cap_alphabetic]\">${this.headline}</h2><p class=\"mt-6 max-w-measure type-body-lg text-pretty text-fg-soft\">${this.lead}</p></header><ul role=\"list\" class=\"ds-stories mx-auto grid max-w-measure grid-cols-1 gap-4 lg:max-w-none lg:grid-cols-3 lg:gap-6\">${stories.map((story) => html`<li class=\"min-w-0 rounded-panel bg-surface-raised p-6 lg:row-span-3 lg:grid lg:grid-rows-subgrid lg:gap-y-0 lg:p-8\"><figure class=\"flex h-full flex-col lg:row-span-3 lg:grid lg:grid-rows-subgrid lg:gap-y-0\"><p class=\"flex min-h-8 items-center\">${story.logo ? mark(story.logo, story.company, 'block bg-fg-soft') : html`<span class=\"type-body font-medium text-fg-soft\">${story.company}</span>`}</p><blockquote class=\"mt-8 type-heading-4 text-pretty text-fg lg:self-start\"><p>&ldquo;${story.quote}&rdquo;</p></blockquote><figcaption class=\"mt-auto flex items-center gap-3 pt-8\"><span class=${`relative grid size-10 flex-none place-items-center overflow-hidden rounded-full border border-edge-strong type-ui font-medium text-fg-soft ${story.photo ? 'bg-edge-strong' : 'bg-surface-inset'}`}><span aria-hidden=\"true\">${storyInitials(story.name)}</span>${story.photo ? html`<img src=${story.photo} alt=\"\" loading=\"lazy\" decoding=\"async\" class=\"absolute inset-0 size-full rounded-full object-cover\">` : ''}</span><span class=\"flex min-w-0 flex-col\"><span class=\"type-ui font-medium text-fg\">${story.name}</span><span class=\"mt-1 type-label text-fg-muted\">${story.role}, ${story.company}</span></span></figcaption></figure></li>`)}</ul>${this.customers && logos.length ? html`<ul role=\"list\" aria-label=${this.customersLabel} class=\"mx-auto mt-16 grid max-w-measure grid-cols-2 items-center justify-items-center gap-x-4 gap-y-8 border-t border-edge pt-12 md:grid-cols-3 lg:mt-20 lg:flex lg:max-w-none lg:flex-wrap lg:justify-between lg:px-12\">${logos.map((logo) => html`<li>${logo.src ? mark({ src: logo.src, ratio: logo.ratio ?? 4, height: logo.height ?? 24 }, logo.name, 'block bg-fg-muted', 'center') : html`<span class=\"type-heading-4 whitespace-nowrap text-fg-muted\">${logo.name}</span>`}</li>`)}</ul>` : ''}</div></section>`\n\t}\n}\n\ndefine('stories-block', StoriesBlock)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/stories-block.js"
+      ],
+      "tag": "spyglass-stories-block",
+      "tags": [
+        "spyglass-stories-block"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-stories-block",
+            "name": "StoriesBlock",
+            "module": "elements/stories-block.js",
+            "description": "The stories section: quotes in cards, with an optional row of customer marks.",
+            "attributes": [
+              {
+                "name": "section-id",
+                "field": "sectionId",
+                "type": "string",
+                "default": "'stories'",
+                "description": "The section's id (React's `id`); its heading is `<id>-heading`."
+              },
+              {
+                "name": "headline",
+                "field": "headline",
+                "type": "string"
+              },
+              {
+                "name": "lead",
+                "field": "lead",
+                "type": "string"
+              },
+              {
+                "name": "stories",
+                "field": "stories",
+                "type": "Story[]",
+                "description": "The stories: { company, logo?, quote, name, role, photo? }."
+              },
+              {
+                "name": "customers",
+                "field": "customers",
+                "type": "boolean",
+                "default": "true",
+                "description": "Show the row of customer marks (\"false\" hides it)."
+              },
+              {
+                "name": "logos",
+                "field": "logos",
+                "type": "StoryCustomer[]",
+                "description": "The customer marks: { name, src?, ratio?, height? }."
+              },
+              {
+                "name": "customers-label",
+                "field": "customersLabel",
+                "type": "string",
+                "description": "The customer row's name for assistive tech."
+              }
+            ],
+            "properties": [
+              {
+                "name": "sectionId",
+                "type": "string",
+                "default": "'stories'",
+                "description": "The section's id (React's `id`); its heading is `<id>-heading`.",
+                "attribute": "section-id"
+              },
+              {
+                "name": "headline",
+                "type": "string",
+                "attribute": "headline"
+              },
+              {
+                "name": "lead",
+                "type": "string",
+                "attribute": "lead"
+              },
+              {
+                "name": "stories",
+                "type": "Story[]",
+                "description": "The stories: { company, logo?, quote, name, role, photo? }.",
+                "attribute": "stories"
+              },
+              {
+                "name": "customers",
+                "type": "boolean",
+                "default": "true",
+                "description": "Show the row of customer marks (\"false\" hides it).",
+                "attribute": "customers"
+              },
+              {
+                "name": "logos",
+                "type": "StoryCustomer[]",
+                "description": "The customer marks: { name, src?, ratio?, height? }.",
+                "attribute": "logos"
+              },
+              {
+                "name": "customersLabel",
+                "type": "string",
+                "description": "The customer row's name for assistive tech.",
+                "attribute": "customers-label"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Home",
+          "label": "Six stories with customers",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/stories-block/Home.html",
+          "content": "<!-- Six Acme stories in three columns that line up row by row, with the row of customer marks under them. -->\n<spyglass-stories-block section-id=\"stories-home\"></spyglass-stories-block>\n"
+        },
+        {
+          "name": "Team",
+          "label": "Three stories",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/stories-block/Team.html",
+          "content": "<!-- A use case page's three stories with its own head and no customer row. -->\n<spyglass-stories-block section-id=\"stories-team\" headline=\"Creative research, in their words\" lead=\"A head of growth, a founder and a general manager on researching creative.\" customers=\"false\" stories='[{\"company\":\"Acme Labs\",\"quote\":\"The first platform that really cracks creative research. We brief from what is working, not from what we remember.\",\"name\":\"Jo\",\"role\":\"Head of growth\"},{\"company\":\"Acme Studio\",\"quote\":\"Sharp, quick and built by a team that ships fixes the same day. The easiest tool to recommend to any operator.\",\"name\":\"Ari\",\"role\":\"Founder\"},{\"company\":\"Acme Goods\",\"quote\":\"It shows me what our audience actually sees. Finding trends and new audiences has never been easier.\",\"name\":\"Kit\",\"role\":\"General manager\"}]'></spyglass-stories-block>\n"
+        },
+        {
+          "name": "Pair",
+          "label": "Two stories",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/stories-block/Pair.html",
+          "content": "<!-- Two stories sit in the middle of the row. -->\n<spyglass-stories-block section-id=\"stories-pair\" headline=\"Built by a team that ships\" lead=\"A head of growth and a founder on the team behind the API.\" customers=\"false\" stories='[{\"company\":\"Acme Labs\",\"quote\":\"The first platform that really cracks creative research. We brief from what is working, not from what we remember.\",\"name\":\"Jo\",\"role\":\"Head of growth\"},{\"company\":\"Acme Studio\",\"quote\":\"Sharp, quick and built by a team that ships fixes the same day. The easiest tool to recommend to any operator.\",\"name\":\"Ari\",\"role\":\"Founder\"}]'></spyglass-stories-block>\n"
+        }
+      ]
+    }
+  }
+}

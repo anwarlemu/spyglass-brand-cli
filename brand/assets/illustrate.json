@@ -1,0 +1,52 @@
+{
+ "$comment": "illustrate: the brand's own imagery as code. Styles, each with its source. brand/illustration.md holds the rules.",
+ "styles": {
+  "pattern": {
+   "name": "Brand pattern",
+   "from": "Brand guidelines, Brand Pattern and ASCII Texture (pages 33 and 34)",
+   "description": "The light flowing in from an edge with the ASCII texture behind it, on Black.",
+   "size": [
+    1920,
+    1080
+   ],
+   "image": false
+  },
+  "light": {
+   "name": "Brand light",
+   "from": "Brand guidelines, Brand Pattern (page 33); Figma page 8. Brand assets",
+   "description": "The light alone in any named variant: band, field, corner, strip-left, strip-right, tile, close-up, curved-strip.",
+   "size": null,
+   "image": false
+  },
+  "texture": {
+   "name": "ASCII texture",
+   "from": "Brand guidelines, ASCII Texture (page 34)",
+   "description": "The ASCII texture alone, on Black. An accent, never the main graphic.",
+   "size": [
+    1080,
+    1080
+   ],
+   "image": false
+  },
+  "split": {
+   "name": "Photo light split",
+   "from": "Figma page 8. Brand assets, Post, picture grid (966:4434): the first picture split into its color channels",
+   "description": "A picture split into its blue, green and red channels, shifted sideways by the site light's own step and added, so its edges separate exactly as the site's light does.",
+   "size": [
+    1080,
+    1080
+   ],
+   "image": "required"
+  }
+ },
+ "split": {
+  "shift": 0.0152,
+  "bleed": 0.032,
+  "from": "The site's light: its three channels sit 0.0152 of the width apart (public/brand/textures/dispersion-light-*.svg, brand.json light.offset), so the picture separates exactly as the site's light does; the bleed covers both shifts"
+ },
+ "pattern": {
+  "variant": "corner",
+  "texture": 0.7,
+  "from": "The guideline covers: the light in from the lower right, the texture low in the frame"
+ }
+}

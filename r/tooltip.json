@@ -1,0 +1,197 @@
+{
+  "name": "tooltip",
+  "title": "Tooltip",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A control's name, for icon buttons: a White fill with Black caption text and the small corner. It waits 300ms under the pointer, shows at once on keyboard focus, and the next one in a row shows at once.",
+  "use_for": "Naming icon buttons in a row of tools: save, copy link, download. The button still carries its aria-label.",
+  "never": [
+    "Anything someone needs to read or act on: put it on the page",
+    "A tooltip on a button that already shows its label",
+    "Showing on touch: a tap presses the button"
+  ],
+  "source": "Derived from the brand guidelines (no tooltip in the brand assets): White on Black as the brand's type, DM Sans caption size, the small corner",
+  "body": "",
+  "requires": [
+    "popover"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Tooltip.tsx",
+      "content": "'use client'\nimport { useEffect, useId, useRef, type FocusEvent, type PointerEvent, type ReactNode } from 'react'\nimport { PopoverPanel } from '@/react/components/ui/PopoverPanel'\nimport { usePopover, type Align, type Side } from '@/react/hooks/usePopover'\n\n// When the last tooltip closed: one opened right after it shows at once, so moving along a toolbar reads fast.\nlet lastClosed = 0\n\n// A control's name, for icon buttons: a White fill with Black DM Sans caption text and the small corner, 4px from its\n// trigger. Under the pointer it waits 300ms, then fades and moves 2px in over 160ms; on keyboard focus it shows at\n// once, without motion; a press, Escape or leaving hides it. Right after another tooltip it shows at once, so moving\n// along a toolbar reads fast. It never shows on touch (a tap presses the button). Wrap one focusable trigger; it gets\n// aria-describedby.\nexport interface TooltipProps {\n  /** The control's name. */\n  text: string\n  /** The side it shows on (it flips when there is no room). */\n  side?: Side\n  align?: Align\n  /** One focusable trigger. */\n  children?: ReactNode\n}\n\nconst WAIT = 300\n\nexport function Tooltip({ text, side = 'bottom', align = 'center', children }: TooltipProps) {\n  const pop = usePopover({ side, align, gap: 4, sticky: true })\n  const id = `tip-${useId()}`\n  const root = useRef<HTMLSpanElement | null>(null)\n  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)\n\n  useEffect(() => {\n    const trigger = root.current?.firstElementChild as HTMLElement | null\n    pop.anchor.current = trigger\n    trigger?.setAttribute('aria-describedby', id)\n  }, [id]) // eslint-disable-line react-hooks/exhaustive-deps\n  const was = useRef(false)\n  useEffect(() => {\n    if (was.current && !pop.open) lastClosed = Date.now()\n    was.current = pop.open\n  }, [pop.open])\n  useEffect(() => () => clearTimeout(timer.current), [])\n\n  function enter(event: PointerEvent) {\n    if (event.pointerType !== 'mouse' || pop.open) return\n    clearTimeout(timer.current)\n    if (Date.now() - lastClosed < WAIT) return void pop.show({ keyboard: true })\n    // ds-latency: the wait is the point; a pass of the pointer shows nothing.\n    timer.current = setTimeout(() => void pop.show(), WAIT)\n  }\n  function leave() {\n    clearTimeout(timer.current)\n    // Closed now, not after the next render: the pointer entering the next button lands in the same moment.\n    if (pop.open) lastClosed = Date.now()\n    pop.hide()\n  }\n  function focus(event: FocusEvent) {\n    if ((event.target as HTMLElement).matches(':focus-visible')) void pop.show({ keyboard: true })\n  }\n  return (\n    <>\n      <span data-ds=\"tooltip\" ref={root} className=\"inline-flex\" onPointerEnter={enter} onPointerLeave={leave} onPointerDown={leave} onFocus={focus} onBlur={leave}>\n        {children}\n      </span>\n      <PopoverPanel data-ds=\"tooltip\" id={id} pop={pop} tip role=\"tooltip\">{text}</PopoverPanel>\n    </>\n  )\n}\n\nexport default Tooltip\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Tools",
+      "label": "Icon buttons in a row",
+      "center": true,
+      "half": false,
+      "path": "react/examples/tooltip/Tools.tsx",
+      "content": "import { Bookmark, Download, Link, EyeOff } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { Tooltip } from '@/react/components/ui/Tooltip'\n// A creative's tools as icon buttons, each named by its tooltip. Point at one and wait, then move along: the next shows\n// at once. Tab to one and its name shows without a wait.\nconst tools = [\n  { label: 'Save to board', icon: Bookmark },\n  { label: 'Copy link', icon: Link },\n  { label: 'Download', icon: Download },\n  { label: 'Hide', icon: EyeOff },\n]\n\nexport default function Tools() {\n  return (\n    <div className=\"flex min-h-24 items-start justify-center gap-1\">\n      {tools.map((t) => (\n        <Tooltip key={t.label} text={t.label}>\n          <Button variant=\"ghost\" icon aria-label={t.label}><t.icon size={16} strokeWidth={1.5} /></Button>\n        </Tooltip>\n      ))}\n    </div>\n  )\n}\n",
+      "requires": [
+        "button",
+        "popover"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Tooltip.tsx",
+          "content": "'use client'\nimport { useEffect, useId, useRef, type FocusEvent, type PointerEvent, type ReactNode } from 'react'\nimport { PopoverPanel } from '@/react/components/ui/PopoverPanel'\nimport { usePopover, type Align, type Side } from '@/react/hooks/usePopover'\n\n// When the last tooltip closed: one opened right after it shows at once, so moving along a toolbar reads fast.\nlet lastClosed = 0\n\n// A control's name, for icon buttons: a White fill with Black DM Sans caption text and the small corner, 4px from its\n// trigger. Under the pointer it waits 300ms, then fades and moves 2px in over 160ms; on keyboard focus it shows at\n// once, without motion; a press, Escape or leaving hides it. Right after another tooltip it shows at once, so moving\n// along a toolbar reads fast. It never shows on touch (a tap presses the button). Wrap one focusable trigger; it gets\n// aria-describedby.\nexport interface TooltipProps {\n  /** The control's name. */\n  text: string\n  /** The side it shows on (it flips when there is no room). */\n  side?: Side\n  align?: Align\n  /** One focusable trigger. */\n  children?: ReactNode\n}\n\nconst WAIT = 300\n\nexport function Tooltip({ text, side = 'bottom', align = 'center', children }: TooltipProps) {\n  const pop = usePopover({ side, align, gap: 4, sticky: true })\n  const id = `tip-${useId()}`\n  const root = useRef<HTMLSpanElement | null>(null)\n  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)\n\n  useEffect(() => {\n    const trigger = root.current?.firstElementChild as HTMLElement | null\n    pop.anchor.current = trigger\n    trigger?.setAttribute('aria-describedby', id)\n  }, [id]) // eslint-disable-line react-hooks/exhaustive-deps\n  const was = useRef(false)\n  useEffect(() => {\n    if (was.current && !pop.open) lastClosed = Date.now()\n    was.current = pop.open\n  }, [pop.open])\n  useEffect(() => () => clearTimeout(timer.current), [])\n\n  function enter(event: PointerEvent) {\n    if (event.pointerType !== 'mouse' || pop.open) return\n    clearTimeout(timer.current)\n    if (Date.now() - lastClosed < WAIT) return void pop.show({ keyboard: true })\n    // ds-latency: the wait is the point; a pass of the pointer shows nothing.\n    timer.current = setTimeout(() => void pop.show(), WAIT)\n  }\n  function leave() {\n    clearTimeout(timer.current)\n    // Closed now, not after the next render: the pointer entering the next button lands in the same moment.\n    if (pop.open) lastClosed = Date.now()\n    pop.hide()\n  }\n  function focus(event: FocusEvent) {\n    if ((event.target as HTMLElement).matches(':focus-visible')) void pop.show({ keyboard: true })\n  }\n  return (\n    <>\n      <span data-ds=\"tooltip\" ref={root} className=\"inline-flex\" onPointerEnter={enter} onPointerLeave={leave} onPointerDown={leave} onFocus={focus} onBlur={leave}>\n        {children}\n      </span>\n      <PopoverPanel data-ds=\"tooltip\" id={id} pop={pop} tip role=\"tooltip\">{text}</PopoverPanel>\n    </>\n  )\n}\n\nexport default Tooltip\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "popover"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "Tooltip",
+            "file": "react/components/ui/Tooltip.tsx",
+            "props": [
+              {
+                "name": "text",
+                "type": "string",
+                "required": true,
+                "description": "The control's name."
+              },
+              {
+                "name": "side",
+                "type": "Side",
+                "required": false,
+                "default": "'bottom'",
+                "description": "The side it shows on (it flips when there is no room)."
+              },
+              {
+                "name": "align",
+                "type": "Align",
+                "required": false,
+                "default": "'center'"
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false,
+                "description": "One focusable trigger."
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Tools",
+          "label": "Icon buttons in a row",
+          "center": true,
+          "half": false,
+          "path": "react/examples/tooltip/Tools.tsx",
+          "content": "import { Bookmark, Download, Link, EyeOff } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { Tooltip } from '@/react/components/ui/Tooltip'\n// A creative's tools as icon buttons, each named by its tooltip. Point at one and wait, then move along: the next shows\n// at once. Tab to one and its name shows without a wait.\nconst tools = [\n  { label: 'Save to board', icon: Bookmark },\n  { label: 'Copy link', icon: Link },\n  { label: 'Download', icon: Download },\n  { label: 'Hide', icon: EyeOff },\n]\n\nexport default function Tools() {\n  return (\n    <div className=\"flex min-h-24 items-start justify-center gap-1\">\n      {tools.map((t) => (\n        <Tooltip key={t.label} text={t.label}>\n          <Button variant=\"ghost\" icon aria-label={t.label}><t.icon size={16} strokeWidth={1.5} /></Button>\n        </Tooltip>\n      ))}\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button",
+            "popover"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/tooltip.ts",
+          "content": "import { html, nothing, type PropertyValues } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport { boxOf, PopoverController, popoverStyles, type Align, type Side } from '@/elements/lib/popover'\nimport styles from 'virtual:tw'\n\n// Tooltip.tsx as <spyglass-tooltip>: a control's name, for icon buttons: a White fill with Black caption text and the\n// small corner, 4px from its trigger. Under the pointer it waits 300ms, then fades and moves 2px in over 160ms; on\n// keyboard focus it shows at once, without motion; a press, Escape or leaving hides it. Right after another tooltip it\n// shows at once. It never shows on touch (a tap presses the button). Wrap one focusable trigger; it gets\n// aria-description (an id cannot reach into the element's shadow root, as React's aria-describedby does).\n\n// When the last tooltip closed: one opened right after it shows at once, so moving along a toolbar reads fast.\nlet lastClosed = 0\nconst WAIT = 300\n\n/**\n * @summary A control's name, shown under it after a short wait.\n * @slot - One focusable trigger.\n */\nexport class Tooltip extends DsElement {\n\tstatic styles = [DsElement.styles, popoverStyles, styles]\n\tstatic properties = { text: {}, side: {}, align: {} }\n\n\t/** The control's name. */\n\ttext = ''\n\tside: Side = 'bottom'\n\talign: Align = 'center'\n\tprivate timer?: ReturnType<typeof setTimeout>\n\tprivate wasOpen = false\n\tprivate pop = new PopoverController(this, {\n\t\tgap: 4,\n\t\tsticky: true,\n\t\tanchor: () => boxOf(this.firstElementChild),\n\t\tpanel: () => this.renderRoot.querySelector<HTMLElement>('.ds-pop'),\n\t})\n\n\tprivate enter = (event: PointerEvent) => {\n\t\tif (event.pointerType !== 'mouse' || this.pop.open) return\n\t\tclearTimeout(this.timer)\n\t\tif (Date.now() - lastClosed < WAIT) return void this.pop.show({ keyboard: true })\n\t\t// ds-latency: the wait is the point; a pass of the pointer shows nothing.\n\t\tthis.timer = setTimeout(() => void this.pop.show(), WAIT)\n\t}\n\tprivate leave = () => {\n\t\tclearTimeout(this.timer)\n\t\tthis.pop.hide()\n\t}\n\tprivate onFocusIn = (event: FocusEvent) => {\n\t\tif ((event.composedPath()[0] as Element).matches(':focus-visible')) void this.pop.show({ keyboard: true })\n\t}\n\n\tdisconnectedCallback() {\n\t\tsuper.disconnectedCallback()\n\t\tclearTimeout(this.timer)\n\t}\n\tprotected willUpdate() {\n\t\tthis.pop.configure({ side: this.side, align: this.align })\n\t}\n\tprotected updated(changed: PropertyValues<this>) {\n\t\tsuper.updated(changed)\n\t\tif (this.wasOpen && !this.pop.open) lastClosed = Date.now()\n\t\tthis.wasOpen = this.pop.open\n\t\tthis.firstElementChild?.setAttribute('aria-description', this.text)\n\t}\n\n\trender() {\n\t\tconst panel = this.pop.rendered\n\t\t\t? html`<div data-ds=\"tooltip\" popover=\"manual\" class=\"ds-pop\" data-tip role=\"tooltip\" data-side=${this.pop.pos.side} ?data-instant=${this.pop.instant} ?data-placed=${this.pop.pos.placed} style=${this.pop.style()}>${this.text}</div>`\n\t\t\t: nothing\n\t\treturn html`<span data-ds=\"tooltip\" class=\"inline-flex\" @pointerenter=${this.enter} @pointerleave=${this.leave} @pointerdown=${this.leave} @focusin=${this.onFocusIn} @focusout=${this.leave}><slot></slot></span>${panel}`\n\t}\n}\n\ndefine('tooltip', Tooltip)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/tooltip.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-tooltip",
+      "tags": [
+        "spyglass-tooltip"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-tooltip",
+            "name": "Tooltip",
+            "module": "elements/tooltip.js",
+            "description": "A control's name, shown under it after a short wait.",
+            "attributes": [
+              {
+                "name": "text",
+                "field": "text",
+                "type": "string",
+                "default": "''",
+                "description": "The control's name."
+              },
+              {
+                "name": "side",
+                "field": "side",
+                "type": "Side",
+                "default": "'bottom'"
+              },
+              {
+                "name": "align",
+                "field": "align",
+                "type": "Align",
+                "default": "'center'"
+              }
+            ],
+            "properties": [
+              {
+                "name": "text",
+                "type": "string",
+                "default": "''",
+                "description": "The control's name.",
+                "attribute": "text"
+              },
+              {
+                "name": "side",
+                "type": "Side",
+                "default": "'bottom'",
+                "attribute": "side"
+              },
+              {
+                "name": "align",
+                "type": "Align",
+                "default": "'center'",
+                "attribute": "align"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "One focusable trigger."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Tools",
+          "label": "Icon buttons in a row",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/tooltip/Tools.html",
+          "content": "<!-- A creative's tools as icon buttons, each named by its tooltip. Point at one and wait, then move along: the next\n     shows at once. Tab to one and its name shows without a wait. -->\n<div class=\"flex min-h-24 items-start justify-center gap-1\">\n  <spyglass-tooltip text=\"Save to board\"><spyglass-button variant=\"ghost\" icon aria-label=\"Save to board\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-bookmark\"><path d=\"m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z\"></path></svg></spyglass-button></spyglass-tooltip>\n  <spyglass-tooltip text=\"Copy link\"><spyglass-button variant=\"ghost\" icon aria-label=\"Copy link\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-link\"><path d=\"M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71\"></path><path d=\"M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71\"></path></svg></spyglass-button></spyglass-tooltip>\n  <spyglass-tooltip text=\"Download\"><spyglass-button variant=\"ghost\" icon aria-label=\"Download\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-download\"><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"></path><polyline points=\"7 10 12 15 17 10\"></polyline><line x1=\"12\" x2=\"12\" y1=\"15\" y2=\"3\"></line></svg></spyglass-button></spyglass-tooltip>\n  <spyglass-tooltip text=\"Hide\"><spyglass-button variant=\"ghost\" icon aria-label=\"Hide\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-eye-off\"><path d=\"M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49\"></path><path d=\"M14.084 14.158a3 3 0 0 1-4.242-4.242\"></path><path d=\"M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143\"></path><path d=\"m2 2 20 20\"></path></svg></spyglass-button></spyglass-tooltip>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

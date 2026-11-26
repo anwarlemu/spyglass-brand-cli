@@ -1,0 +1,84 @@
+/* Base layer: what every Spyglass page sets once (the site's globals.css). Black ground, White DM Sans type at optical
+   size 14, Funnel Display heads at 450, a White focus ring, a #4D4D4D selection. */
+@layer base {
+  html {
+    background-color: var(--ds-color-surface);
+    color-scheme: dark;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ds-color-neutral-5) transparent;
+  }
+  /* A border with no color is a hairline. */
+  *, ::before, ::after, ::backdrop { border-color: var(--ds-color-edge); }
+  body {
+    background-color: var(--ds-color-surface);
+    color: var(--ds-color-fg);
+    font-family: var(--ds-font-text);
+    font-size: var(--ds-text-body);
+    line-height: var(--ds-text-body-leading);
+    font-variation-settings: "opsz" var(--ds-opsz-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  :where(h1, h2, h3, h4) {
+    font-family: var(--ds-font-heading);
+    font-weight: var(--ds-font-weight-heading);
+    line-height: var(--ds-text-heading-1-leading);
+    font-variation-settings: normal;
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: var(--ds-border-focus) solid var(--ds-color-edge-focus);
+    outline-offset: var(--ds-border-focus);
+  }
+  ::selection {
+    background: var(--ds-color-selection);
+    color: var(--ds-color-fg);
+  }
+  a,
+  button,
+  [role="button"],
+  [role="tab"] {
+    touch-action: manipulation;
+  }
+  /* Phones and touch: fields at 16px so iOS Safari does not zoom. */
+  @media (pointer: coarse), (max-width: 767px) {
+    input:not([type="checkbox"], [type="radio"], [type="file"]), textarea, select {
+      font-size: var(--ds-text-input);
+    }
+  }
+}
+
+/* Scroll edges fade, never cut content off: put fade-y (down), fade-x (across) or fade-xy (both ways: the two fades
+   intersect) on the element that scrolls. An edge with more content past it fades over 24px. The fade grows with the
+   first and last 24px of scroll (tied to the scroll, not to time), so a list at rest shows its first row in full and a
+   box that does not scroll has no fade. Browsers without scroll timelines get a short fixed fade. The mask only needs
+   an opaque color. */
+@property --fade-start { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --fade-end { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --fade-x-start { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --fade-x-end { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@keyframes fade-start { from { --fade-start: 0px; } to { --fade-start: 24px; } }
+@keyframes fade-end { from { --fade-end: 24px; } to { --fade-end: 0px; } }
+@keyframes fade-x-start { from { --fade-x-start: 0px; } to { --fade-x-start: 24px; } }
+@keyframes fade-x-end { from { --fade-x-end: 24px; } to { --fade-x-end: 0px; } }
+@layer base {
+  .fade-y { mask-image: linear-gradient(to bottom, transparent, var(--ds-color-black) var(--fade-start), var(--ds-color-black) calc(100% - var(--fade-end)), transparent); }
+  .fade-x { mask-image: linear-gradient(to right, transparent, var(--ds-color-black) var(--fade-start), var(--ds-color-black) calc(100% - var(--fade-end)), transparent); }
+  .fade-xy {
+    mask-image: linear-gradient(to bottom, transparent, var(--ds-color-black) var(--fade-start), var(--ds-color-black) calc(100% - var(--fade-end)), transparent), linear-gradient(to right, transparent, var(--ds-color-black) var(--fade-x-start), var(--ds-color-black) calc(100% - var(--fade-x-end)), transparent);
+    mask-composite: intersect;
+  }
+  @supports (animation-timeline: scroll()) {
+    .fade-y, .fade-x { animation: fade-start linear both, fade-end linear both; animation-range: 0px 24px, calc(100% - 24px) 100%; }
+    .fade-y { animation-timeline: scroll(self block), scroll(self block); }
+    .fade-x { animation-timeline: scroll(self inline), scroll(self inline); }
+    .fade-xy {
+      animation: fade-start linear both, fade-end linear both, fade-x-start linear both, fade-x-end linear both;
+      animation-range: 0px 24px, calc(100% - 24px) 100%, 0px 24px, calc(100% - 24px) 100%;
+      animation-timeline: scroll(self block), scroll(self block), scroll(self inline), scroll(self inline);
+    }
+  }
+  @supports not (animation-timeline: scroll()) {
+    .fade-y, .fade-x, .fade-xy { --fade-start: 8px; --fade-end: 8px; --fade-x-start: 8px; --fade-x-end: 8px; }
+  }
+}

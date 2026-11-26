@@ -1,0 +1,23 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "footer-block",
+  "type": "registry:block",
+  "title": "Footer block",
+  "description": "A website's footer band: a hairline above, the footer row (the lockup, links and the domain) inside the page width, and an optional legal line in the muted gray.",
+  "dependencies": [],
+  "registryDependencies": [
+    "https://spyglass-ds.vercel.app/r/react/footer-row.json"
+  ],
+  "files": [
+    {
+      "path": "components/blocks/FooterBlock.tsx",
+      "type": "registry:ui",
+      "content": "import type { ReactNode } from 'react'\nimport { FooterRow, type FooterLink } from '@/components/site/FooterRow'\nimport { cn } from '@/lib/cn'\n\n// A website's footer band, as every page template ends: a hairline above, the footer row (the lockup, the links, the\n// domain) inside the page width, and an optional line under it in the muted gray (the legal line). Links change color\n// on hover; nothing moves.\nexport interface FooterBlockProps {\n  /** The domain on the right. */\n  domain: string\n  links?: FooterLink[]\n  /** Where the lockup links. */\n  homeHref?: string\n  /** A line under the row: \"© 2026 Acme Inc.\" */\n  note?: ReactNode\n  className?: string\n}\n\nexport function FooterBlock({ domain, links = [], homeHref = '/', note, className }: FooterBlockProps) {\n  return (\n    <footer data-ds=\"footer-block\" className={cn('border-t border-edge bg-surface text-fg', className)}>\n      <div className=\"mx-auto grid w-full max-w-page-wide gap-8 px-12 py-10 max-sm:px-4\">\n        <FooterRow domain={domain} homeHref={homeHref} links={links} />\n        {note && <p className=\"type-caption text-fg-muted\">{note}</p>}\n      </div>\n    </footer>\n  )\n}\n\nexport default FooterBlock\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

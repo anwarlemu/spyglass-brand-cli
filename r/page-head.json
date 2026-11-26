@@ -1,0 +1,557 @@
+{
+  "name": "page-head",
+  "title": "Page head",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "The site's page head: the page title as the section head with its lines breaking from 768, a lead in the soft gray, a White and a quiet button (or a control in the White one's place), and an ASCII drift in the right columns or fading in from the edge when centered. The error head is the same with a retry button.",
+  "use_for": "The top of an inner page (resources, use cases, legal, coming soon, 404 and error pages); `align=\"centre\"` for pricing-style pages; `control` to put a connect menu or a form in the White button's place; `visual` for your own picture on the right.",
+  "never": [
+    "More than one White button: with a control, the White button is left out",
+    "A display-size title: page heads use the section head (56px at most)",
+    "Moving drifts: the texture holds still"
+  ],
+  "source": "Site pages/PageHead (PageHead.tsx, ErrorHead.tsx, PageHead.module.css) and ui/AsciiDrift: 64px above (96 at 768, 128 at 1024), 80 below (96 at 768); .t-head title; 24px between the title and the body; .t-lead in --text-2 at 640px; actions 40px below, 12px apart, stacked on phones; margin: 7fr and 5fr columns from 768 (48px apart, 64 from 1024), the cluster crop at -64px top and bottom, at least 160px tall; centre: the mass crop from the right, from 1024, half the width less 320px",
+  "body": "",
+  "requires": [
+    "ascii-drift",
+    "button"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/PageHead.tsx",
+      "content": "import type { ReactNode } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { asciiDriftStyleObject } from '@/lib/ascii-drift'\nimport { cn } from '@/react/lib/cn'\n\n// The site's page head (pages/PageHead, PageHead.module.css): the page title as the section head (32/36, 44/48 at 768,\n// 56/60 at 1024), each of `lines` on its own line from 768, a lead under it in the soft gray (20/28, 640px at most) and\n// the actions 40px below: a White button and a quiet one, or a `control` (a connect menu, a form) in the White\n// button's place. 64px above (96 at 768, 128 at 1024) and 80 below (96 at 768). `align=\"margin\"` (the default) puts the\n// copy in the left 7 of 12 columns from 768 and an ASCII drift (the texture's cluster crop fading out from the middle)\n// in the other 5, or your own `visual` there (shown on phones too); `align=\"centre\"` centers it all and, from 1024,\n// fades the texture's mass crop in from the right edge. An `eyebrow` sits 16px over the title in the label style.\n// Nothing moves. On phones the buttons take the full width, one under the other; beside a control, the control steps\n// aside there and the quiet button turns White (the site's MCP pair).\nexport interface PageAction {\n  label: string\n  href: string\n}\n\nexport interface PageHeadProps {\n  /** Names the heading (`<id>-heading`) the section is labeled by. */\n  id?: string\n  /** The title, one string per line (lines break from 768). */\n  lines: string[]\n  /** The capital label over the title. */\n  eyebrow?: string\n  /** The lead paragraph. */\n  lead?: string\n  /** The White button. Left out when there is a `control`. */\n  primary?: PageAction\n  /** The quiet button after it. */\n  secondary?: PageAction\n  /** A control in the White button's place (a connect menu, a sign-up form). */\n  control?: ReactNode\n  /** On phones, hide the control and turn the quiet button White (the site's MCP pair). False keeps both. */\n  pair?: boolean\n  /** margin (copy left, drift right) or centre. */\n  align?: 'margin' | 'centre'\n  /** Your own picture in the right columns instead of the drift (margin only). */\n  visual?: ReactNode\n  /** The ASCII drift in the right columns when there is no `visual` (margin only). */\n  drift?: boolean\n  className?: string\n}\n\nexport function PageHead({ id = 'page', lines, eyebrow, lead, primary, secondary, control, align = 'margin', visual, drift = true, pair = true, className }: PageHeadProps) {\n  const centre = align === 'centre'\n  const actions = control || primary || secondary\n  const paired = Boolean(control) && pair\n  return (\n    <section data-ds=\"page-head\" aria-labelledby={`${id}-heading`} data-align={align} className={cn('relative isolate overflow-x-clip pt-16 pb-20 text-fg md:pt-24 md:pb-24 lg:pt-32', className)}>\n      {centre ? <span aria-hidden=\"true\" className=\"pointer-events-none absolute top-0 right-0 -z-1 hidden h-full w-[calc(50%-var(--ds-page-head-drift-clear))] select-none lg:block\" style={asciiDriftStyleObject('mass', 'right')} /> : null}\n      <div className={cn('mx-auto flex w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] flex-col gap-6 px-(--ds-layout-gutter)', centre && 'items-center text-center')}>\n        {eyebrow ? <p className=\"-mb-2 type-label text-fg-muted\">{eyebrow}</p> : null}\n        <h1 id={`${id}-heading`} className=\"max-w-full type-section\">\n          {lines.map((line, i) => <span key={`${i}-${line}`} className=\"inline md:block\">{line}{i < lines.length - 1 ? ' ' : null}</span>)}\n        </h1>\n        <div className={cn('grid w-full grid-cols-[minmax(0,1fr)] gap-12', !centre && 'md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:items-start lg:gap-16')}>\n          <div className={cn(centre && 'flex flex-col items-center text-center')}>\n            {lead ? <p className=\"max-w-measure type-body-lg text-pretty text-fg-soft\">{lead}</p> : null}\n            {actions ? (\n              <div className={cn('mt-10 flex flex-col gap-3 md:flex-row md:flex-wrap', centre && 'self-stretch md:self-auto md:justify-center')}>\n                {control ? <div className={paired ? 'contents max-md:hidden' : 'contents'}>{control}</div> : null}\n                {!control && primary ? <Button href={primary.href}>{primary.label}</Button> : null}\n                {secondary && !paired ? <Button href={secondary.href} variant=\"secondary\">{secondary.label}</Button> : null}\n                {secondary && paired ? (\n                  <>\n                    <div className=\"contents max-md:hidden\"><Button href={secondary.href} variant=\"secondary\">{secondary.label}</Button></div>\n                    <div className=\"contents md:hidden\"><Button href={secondary.href}>{secondary.label}</Button></div>\n                  </>\n                ) : null}\n              </div>\n            ) : null}\n          </div>\n          {!centre && (visual || drift) ? (\n            <div className={cn('relative isolate min-w-0', visual ? 'block' : 'hidden md:block md:min-h-40 md:self-stretch')}>\n              {visual ?? <span aria-hidden=\"true\" className=\"pointer-events-none absolute inset-x-0 -inset-y-16 -z-1 select-none\" style={asciiDriftStyleObject('cluster')} />}\n            </div>\n          ) : null}\n        </div>\n      </div>\n    </section>\n  )\n}\n\nexport default PageHead\n"
+    },
+    {
+      "path": "react/components/site/ErrorHead.tsx",
+      "content": "import { PageHead, type PageAction } from '@/react/components/site/PageHead'\nimport { Button } from '@/react/components/ui/Button'\n\n// The site's error head (pages/PageHead/ErrorHead): the page head with no drift, the title in one line, the lead, and\n// a White \"Try again\" button (`onRetry`) beside the quiet way home.\nexport interface ErrorHeadContent {\n  lines: string[]\n  lead: string\n  retry: string\n  home: PageAction\n}\n\nexport const errorHeadContent: ErrorHeadContent = {\n  lines: ['Something went wrong'],\n  lead: 'This page did not load. Try again, or start from the homepage.',\n  retry: 'Try again',\n  home: { label: 'Go to the homepage', href: '/' },\n}\n\nexport interface ErrorHeadProps {\n  content?: ErrorHeadContent\n  /** Called when the White button is pressed. */\n  onRetry?: () => void\n  className?: string\n}\n\nexport function ErrorHead({ content: c = errorHeadContent, onRetry, className }: ErrorHeadProps) {\n  return (\n    <div data-ds=\"error-head\" className=\"contents\">\n      <PageHead\n        id=\"error\"\n        lines={[c.lines.join(' ')]}\n        lead={c.lead}\n        drift={false}\n        pair={false}\n        control={<Button onClick={onRetry}>{c.retry}</Button>}\n        secondary={c.home}\n        className={className}\n      />\n    </div>\n  )\n}\n\nexport default ErrorHead\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Margin",
+      "label": "Copy left, drift right",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/page-head/Margin.tsx",
+      "content": "import { PageHead } from '@/react/components/site/PageHead'\n// An inner page's head: the copy on the left, the ASCII drift on the right, a White and a quiet button.\n\nexport default function Margin() {\n  return <PageHead id=\"resources\" lines={['Resources']} lead=\"Templates, writing and docs for building on Acme.\" primary={{ label: 'Get a free API key', href: '#' }} secondary={{ label: 'Read the docs', href: '#' }} />\n}\n",
+      "requires": [
+        "ascii-drift",
+        "button"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Centre",
+      "label": "Centered",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/page-head/Centre.tsx",
+      "content": "import { PageHead } from '@/react/components/site/PageHead'\n// A centered head over two lines, the texture fading in from the right edge from 1024.\n\nexport default function Centre() {\n  return <PageHead id=\"pricing\" lines={['Simple pricing,', 'for every team']} lead=\"Start free. Pay as you grow, and cancel anytime.\" align=\"centre\" />\n}\n",
+      "requires": [
+        "ascii-drift",
+        "button"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Control",
+      "label": "With the connect menu",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/page-head/Control.tsx",
+      "content": "import { ConnectMenu } from '@/react/components/site/ConnectMenu'\nimport { PageHead } from '@/react/components/site/PageHead'\n// A use case's head with the connect menu in the White button's place; on phones it steps aside for a White button.\n\nexport default function Control() {\n  return <PageHead id=\"agents\" lines={['Acme for agents']} lead=\"Give any agent live answers from Acme in one step.\" control={<ConnectMenu />} secondary={{ label: 'Get a free API key', href: '#' }} />\n}\n",
+      "requires": [
+        "ascii-drift",
+        "button",
+        "connect-menu"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Eyebrow",
+      "label": "With an eyebrow, no buttons",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/page-head/Eyebrow.tsx",
+      "content": "import { PageHead } from '@/react/components/site/PageHead'\n// A legal page's head: an eyebrow over the title and the lead, no buttons.\n\nexport default function Eyebrow() {\n  return <PageHead id=\"terms\" eyebrow=\"Updated May 2026\" lines={['Terms of service']} lead=\"The terms that apply when you use Acme's products.\" />\n}\n",
+      "requires": [
+        "ascii-drift",
+        "button"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Error",
+      "label": "The error head",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/page-head/Error.tsx",
+      "content": "'use client'\nimport { ErrorHead } from '@/react/components/site/ErrorHead'\n// The error page's head: try again, or go home.\n\nexport default function Error() {\n  return <ErrorHead onRetry={() => {}} />\n}\n",
+      "requires": [
+        "ascii-drift",
+        "button"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/PageHead.tsx",
+          "content": "import type { ReactNode } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { asciiDriftStyleObject } from '@/lib/ascii-drift'\nimport { cn } from '@/react/lib/cn'\n\n// The site's page head (pages/PageHead, PageHead.module.css): the page title as the section head (32/36, 44/48 at 768,\n// 56/60 at 1024), each of `lines` on its own line from 768, a lead under it in the soft gray (20/28, 640px at most) and\n// the actions 40px below: a White button and a quiet one, or a `control` (a connect menu, a form) in the White\n// button's place. 64px above (96 at 768, 128 at 1024) and 80 below (96 at 768). `align=\"margin\"` (the default) puts the\n// copy in the left 7 of 12 columns from 768 and an ASCII drift (the texture's cluster crop fading out from the middle)\n// in the other 5, or your own `visual` there (shown on phones too); `align=\"centre\"` centers it all and, from 1024,\n// fades the texture's mass crop in from the right edge. An `eyebrow` sits 16px over the title in the label style.\n// Nothing moves. On phones the buttons take the full width, one under the other; beside a control, the control steps\n// aside there and the quiet button turns White (the site's MCP pair).\nexport interface PageAction {\n  label: string\n  href: string\n}\n\nexport interface PageHeadProps {\n  /** Names the heading (`<id>-heading`) the section is labeled by. */\n  id?: string\n  /** The title, one string per line (lines break from 768). */\n  lines: string[]\n  /** The capital label over the title. */\n  eyebrow?: string\n  /** The lead paragraph. */\n  lead?: string\n  /** The White button. Left out when there is a `control`. */\n  primary?: PageAction\n  /** The quiet button after it. */\n  secondary?: PageAction\n  /** A control in the White button's place (a connect menu, a sign-up form). */\n  control?: ReactNode\n  /** On phones, hide the control and turn the quiet button White (the site's MCP pair). False keeps both. */\n  pair?: boolean\n  /** margin (copy left, drift right) or centre. */\n  align?: 'margin' | 'centre'\n  /** Your own picture in the right columns instead of the drift (margin only). */\n  visual?: ReactNode\n  /** The ASCII drift in the right columns when there is no `visual` (margin only). */\n  drift?: boolean\n  className?: string\n}\n\nexport function PageHead({ id = 'page', lines, eyebrow, lead, primary, secondary, control, align = 'margin', visual, drift = true, pair = true, className }: PageHeadProps) {\n  const centre = align === 'centre'\n  const actions = control || primary || secondary\n  const paired = Boolean(control) && pair\n  return (\n    <section data-ds=\"page-head\" aria-labelledby={`${id}-heading`} data-align={align} className={cn('relative isolate overflow-x-clip pt-16 pb-20 text-fg md:pt-24 md:pb-24 lg:pt-32', className)}>\n      {centre ? <span aria-hidden=\"true\" className=\"pointer-events-none absolute top-0 right-0 -z-1 hidden h-full w-[calc(50%-var(--ds-page-head-drift-clear))] select-none lg:block\" style={asciiDriftStyleObject('mass', 'right')} /> : null}\n      <div className={cn('mx-auto flex w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] flex-col gap-6 px-(--ds-layout-gutter)', centre && 'items-center text-center')}>\n        {eyebrow ? <p className=\"-mb-2 type-label text-fg-muted\">{eyebrow}</p> : null}\n        <h1 id={`${id}-heading`} className=\"max-w-full type-section\">\n          {lines.map((line, i) => <span key={`${i}-${line}`} className=\"inline md:block\">{line}{i < lines.length - 1 ? ' ' : null}</span>)}\n        </h1>\n        <div className={cn('grid w-full grid-cols-[minmax(0,1fr)] gap-12', !centre && 'md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:items-start lg:gap-16')}>\n          <div className={cn(centre && 'flex flex-col items-center text-center')}>\n            {lead ? <p className=\"max-w-measure type-body-lg text-pretty text-fg-soft\">{lead}</p> : null}\n            {actions ? (\n              <div className={cn('mt-10 flex flex-col gap-3 md:flex-row md:flex-wrap', centre && 'self-stretch md:self-auto md:justify-center')}>\n                {control ? <div className={paired ? 'contents max-md:hidden' : 'contents'}>{control}</div> : null}\n                {!control && primary ? <Button href={primary.href}>{primary.label}</Button> : null}\n                {secondary && !paired ? <Button href={secondary.href} variant=\"secondary\">{secondary.label}</Button> : null}\n                {secondary && paired ? (\n                  <>\n                    <div className=\"contents max-md:hidden\"><Button href={secondary.href} variant=\"secondary\">{secondary.label}</Button></div>\n                    <div className=\"contents md:hidden\"><Button href={secondary.href}>{secondary.label}</Button></div>\n                  </>\n                ) : null}\n              </div>\n            ) : null}\n          </div>\n          {!centre && (visual || drift) ? (\n            <div className={cn('relative isolate min-w-0', visual ? 'block' : 'hidden md:block md:min-h-40 md:self-stretch')}>\n              {visual ?? <span aria-hidden=\"true\" className=\"pointer-events-none absolute inset-x-0 -inset-y-16 -z-1 select-none\" style={asciiDriftStyleObject('cluster')} />}\n            </div>\n          ) : null}\n        </div>\n      </div>\n    </section>\n  )\n}\n\nexport default PageHead\n"
+        },
+        {
+          "path": "react/components/site/ErrorHead.tsx",
+          "content": "import { PageHead, type PageAction } from '@/react/components/site/PageHead'\nimport { Button } from '@/react/components/ui/Button'\n\n// The site's error head (pages/PageHead/ErrorHead): the page head with no drift, the title in one line, the lead, and\n// a White \"Try again\" button (`onRetry`) beside the quiet way home.\nexport interface ErrorHeadContent {\n  lines: string[]\n  lead: string\n  retry: string\n  home: PageAction\n}\n\nexport const errorHeadContent: ErrorHeadContent = {\n  lines: ['Something went wrong'],\n  lead: 'This page did not load. Try again, or start from the homepage.',\n  retry: 'Try again',\n  home: { label: 'Go to the homepage', href: '/' },\n}\n\nexport interface ErrorHeadProps {\n  content?: ErrorHeadContent\n  /** Called when the White button is pressed. */\n  onRetry?: () => void\n  className?: string\n}\n\nexport function ErrorHead({ content: c = errorHeadContent, onRetry, className }: ErrorHeadProps) {\n  return (\n    <div data-ds=\"error-head\" className=\"contents\">\n      <PageHead\n        id=\"error\"\n        lines={[c.lines.join(' ')]}\n        lead={c.lead}\n        drift={false}\n        pair={false}\n        control={<Button onClick={onRetry}>{c.retry}</Button>}\n        secondary={c.home}\n        className={className}\n      />\n    </div>\n  )\n}\n\nexport default ErrorHead\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-drift",
+        "button"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "PageHead",
+            "file": "react/components/site/PageHead.tsx",
+            "props": [
+              {
+                "name": "id",
+                "type": "string",
+                "required": false,
+                "default": "'page'",
+                "description": "Names the heading (`<id>-heading`) the section is labeled by."
+              },
+              {
+                "name": "lines",
+                "type": "string[]",
+                "required": true,
+                "description": "The title, one string per line (lines break from 768)."
+              },
+              {
+                "name": "eyebrow",
+                "type": "string",
+                "required": false,
+                "description": "The capital label over the title."
+              },
+              {
+                "name": "lead",
+                "type": "string",
+                "required": false,
+                "description": "The lead paragraph."
+              },
+              {
+                "name": "primary",
+                "type": "PageAction",
+                "required": false,
+                "description": "The White button. Left out when there is a `control`."
+              },
+              {
+                "name": "secondary",
+                "type": "PageAction",
+                "required": false,
+                "description": "The quiet button after it."
+              },
+              {
+                "name": "control",
+                "type": "ReactNode",
+                "required": false,
+                "description": "A control in the White button's place (a connect menu, a sign-up form)."
+              },
+              {
+                "name": "pair",
+                "type": "boolean",
+                "required": false,
+                "default": "true",
+                "description": "On phones, hide the control and turn the quiet button White (the site's MCP pair). False keeps both."
+              },
+              {
+                "name": "align",
+                "type": "'margin' | 'centre'",
+                "required": false,
+                "default": "'margin'",
+                "description": "margin (copy left, drift right) or centre."
+              },
+              {
+                "name": "visual",
+                "type": "ReactNode",
+                "required": false,
+                "description": "Your own picture in the right columns instead of the drift (margin only)."
+              },
+              {
+                "name": "drift",
+                "type": "boolean",
+                "required": false,
+                "default": "true",
+                "description": "The ASCII drift in the right columns when there is no `visual` (margin only)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          },
+          {
+            "name": "ErrorHead",
+            "file": "react/components/site/ErrorHead.tsx",
+            "props": [
+              {
+                "name": "content",
+                "type": "ErrorHeadContent",
+                "required": false
+              },
+              {
+                "name": "onRetry",
+                "type": "() => void",
+                "required": false,
+                "description": "Called when the White button is pressed."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Margin",
+          "label": "Copy left, drift right",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/page-head/Margin.tsx",
+          "content": "import { PageHead } from '@/react/components/site/PageHead'\n// An inner page's head: the copy on the left, the ASCII drift on the right, a White and a quiet button.\n\nexport default function Margin() {\n  return <PageHead id=\"resources\" lines={['Resources']} lead=\"Templates, writing and docs for building on Acme.\" primary={{ label: 'Get a free API key', href: '#' }} secondary={{ label: 'Read the docs', href: '#' }} />\n}\n",
+          "registryDependencies": [
+            "ascii-drift",
+            "button"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Centre",
+          "label": "Centered",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/page-head/Centre.tsx",
+          "content": "import { PageHead } from '@/react/components/site/PageHead'\n// A centered head over two lines, the texture fading in from the right edge from 1024.\n\nexport default function Centre() {\n  return <PageHead id=\"pricing\" lines={['Simple pricing,', 'for every team']} lead=\"Start free. Pay as you grow, and cancel anytime.\" align=\"centre\" />\n}\n",
+          "registryDependencies": [
+            "ascii-drift",
+            "button"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Control",
+          "label": "With the connect menu",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/page-head/Control.tsx",
+          "content": "import { ConnectMenu } from '@/react/components/site/ConnectMenu'\nimport { PageHead } from '@/react/components/site/PageHead'\n// A use case's head with the connect menu in the White button's place; on phones it steps aside for a White button.\n\nexport default function Control() {\n  return <PageHead id=\"agents\" lines={['Acme for agents']} lead=\"Give any agent live answers from Acme in one step.\" control={<ConnectMenu />} secondary={{ label: 'Get a free API key', href: '#' }} />\n}\n",
+          "registryDependencies": [
+            "ascii-drift",
+            "button",
+            "connect-menu"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Eyebrow",
+          "label": "With an eyebrow, no buttons",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/page-head/Eyebrow.tsx",
+          "content": "import { PageHead } from '@/react/components/site/PageHead'\n// A legal page's head: an eyebrow over the title and the lead, no buttons.\n\nexport default function Eyebrow() {\n  return <PageHead id=\"terms\" eyebrow=\"Updated May 2026\" lines={['Terms of service']} lead=\"The terms that apply when you use Acme's products.\" />\n}\n",
+          "registryDependencies": [
+            "ascii-drift",
+            "button"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Error",
+          "label": "The error head",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/page-head/Error.tsx",
+          "content": "'use client'\nimport { ErrorHead } from '@/react/components/site/ErrorHead'\n// The error page's head: try again, or go home.\n\nexport default function Error() {\n  return <ErrorHead onRetry={() => {}} />\n}\n",
+          "registryDependencies": [
+            "ascii-drift",
+            "button"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/page-head.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { asciiDriftStyle } from '@/lib/ascii-drift'\nimport '@/elements/components/ui/button'\nimport styles from 'virtual:tw'\n\n// PageHead.tsx as <spyglass-page-head>: the page title as the section head (each of `lines` on its own line from 768),\n// a lead in the soft gray and the actions 40px below (a White button and a quiet one, or what is in the `control` slot\n// in the White button's place). `align=\"margin\"` puts an ASCII drift (or the `visual` slot) in the right 5 of 12\n// columns from 768; `align=\"centre\"` centers it all and fades the texture in from the right edge from 1024. Nothing moves.\nexport interface PageAction { label: string; href: string }\n\n/**\n * @summary The page head: title, lead, actions and the ASCII drift.\n * @slot control - A control in the White button's place (a connect menu, a form).\n * @slot visual - Your own picture in the right columns instead of the drift (margin only).\n */\nexport class PageHead extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"page-head\"]'))\n\tstatic properties = {\n\t\theadId: { attribute: 'head-id' },\n\t\tlines: { type: Array },\n\t\teyebrow: {},\n\t\tlead: {},\n\t\tprimary: { type: Object },\n\t\tsecondary: { type: Object },\n\t\talign: { reflect: true },\n\t\tdrift: { type: Boolean, converter: { fromAttribute: (v: string | null) => v !== 'false' } },\n\t\tpair: { type: Boolean, converter: { fromAttribute: (v: string | null) => v !== 'false' } },\n\t}\n\t/** Names the heading (`<head-id>-heading`) the section is labeled by (React's `id`). */\n\theadId = 'page'\n\t/** The title, one string per line (lines break from 768). */\n\tlines: string[] = []\n\t/** The capital label over the title. */\n\teyebrow?: string\n\tlead?: string\n\t/** The White button ({ label, href }); left out when the control slot is filled. */\n\tprimary?: PageAction\n\t/** The quiet button after it ({ label, href }). */\n\tsecondary?: PageAction\n\t/** margin (copy left, drift right) or centre. */\n\talign: 'margin' | 'centre' = 'margin'\n\t/** The ASCII drift in the right columns when the visual slot is empty (margin only). */\n\tdrift = true\n\t/** On phones, hide the control and turn the quiet button White (the site's MCP pair); pair=\"false\" keeps both. */\n\tpair = true\n\n\trender() {\n\t\tconst centre = this.align === 'centre'\n\t\tconst lines = this.lines ?? []\n\t\tconst control = this.hasSlot('control')\n\t\tconst visual = this.hasSlot('visual')\n\t\tconst actions = control || this.primary || this.secondary\n\t\tconst paired = control && this.pair\n\t\treturn html`<section data-ds=\"page-head\" aria-labelledby=${`${this.headId}-heading`} data-align=${this.align} class=\"relative isolate overflow-x-clip pt-16 pb-20 text-fg md:pt-24 md:pb-24 lg:pt-32\">${centre ? html`<span aria-hidden=\"true\" class=\"pointer-events-none absolute top-0 right-0 -z-1 hidden h-full w-[calc(50%-var(--ds-page-head-drift-clear))] select-none lg:block\" style=${asciiDriftStyle('mass', 'right')}></span>` : nothing}<div class=${`mx-auto flex w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] flex-col gap-6 px-(--ds-layout-gutter) ${centre ? 'items-center text-center' : ''}`.trim()}>${this.eyebrow ? html`<p class=\"-mb-2 type-label text-fg-muted\">${this.eyebrow}</p>` : nothing}<h1 id=${`${this.headId}-heading`} class=\"max-w-full type-section\">${lines.map((line, i) => html`<span class=\"inline md:block\">${line}${i < lines.length - 1 ? ' ' : nothing}</span>`)}</h1><div class=${`grid w-full grid-cols-[minmax(0,1fr)] gap-12 ${centre ? '' : 'md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:items-start lg:gap-16'}`.trim()}><div class=${centre ? 'flex flex-col items-center text-center' : ''}>${this.lead ? html`<p class=\"max-w-measure type-body-lg text-pretty text-fg-soft\">${this.lead}</p>` : nothing}${actions ? html`<div class=${`mt-10 flex flex-col gap-3 md:flex-row md:flex-wrap ${centre ? 'self-stretch md:self-auto md:justify-center' : ''}`.trim()}>${control ? html`<div class=${paired ? 'contents max-md:hidden' : 'contents'}><slot name=\"control\"></slot></div>` : nothing}${!control && this.primary ? html`<spyglass-button href=${this.primary.href}>${this.primary.label}</spyglass-button>` : nothing}${this.secondary && !paired ? html`<spyglass-button href=${this.secondary.href} variant=\"secondary\">${this.secondary.label}</spyglass-button>` : nothing}${this.secondary && paired ? html`<div class=\"contents max-md:hidden\"><spyglass-button href=${this.secondary.href} variant=\"secondary\">${this.secondary.label}</spyglass-button></div><div class=\"contents md:hidden\"><spyglass-button href=${this.secondary.href}>${this.secondary.label}</spyglass-button></div>` : nothing}</div>` : nothing}</div>${!centre && (visual || this.drift) ? html`<div class=${`relative isolate min-w-0 ${visual ? 'block' : 'hidden md:block md:min-h-40 md:self-stretch'}`}>${visual ? html`<slot name=\"visual\"></slot>` : html`<span aria-hidden=\"true\" class=\"pointer-events-none absolute inset-x-0 -inset-y-16 -z-1 select-none\" style=${asciiDriftStyle('cluster')}></span>`}</div>` : nothing}</div></div></section>`\n\t}\n}\n\ndefine('page-head', PageHead)\n"
+        },
+        {
+          "path": "elements/components/site/error-head.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport '@/elements/components/site/page-head'\nimport '@/elements/components/ui/button'\nimport styles from 'virtual:tw'\n\n// ErrorHead.tsx as <spyglass-error-head>: the page head with no drift, the title in one line, the lead, a White\n// \"Try again\" button (fires `retry`) beside the quiet way home. `content` as JSON: { lines, lead, retry, home }.\nexport interface ErrorHeadContent { lines: string[]; lead: string; retry: string; home: { label: string; href: string } }\nexport const errorHeadContent: ErrorHeadContent = {\n\tlines: ['Something went wrong'],\n\tlead: 'This page did not load. Try again, or start from the homepage.',\n\tretry: 'Try again',\n\thome: { label: 'Go to the homepage', href: '/' },\n}\n\n/**\n * @summary The error page's head: try again or go home.\n * @fires retry - When the White button is pressed.\n */\nexport class ErrorHead extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('spyglass-page-head'))\n\tstatic properties = { content: { type: Object } }\n\tcontent: ErrorHeadContent = errorHeadContent\n\n\trender() {\n\t\tconst c = this.content ?? errorHeadContent\n\t\treturn html`<div data-ds=\"error-head\" class=\"contents\"><spyglass-page-head head-id=\"error\" .lines=${[c.lines.join(' ')]} .lead=${c.lead} .drift=${false} .pair=${false} .secondary=${c.home}><spyglass-button slot=\"control\" @click=${() => this.emit('retry')}>${c.retry}</spyglass-button></spyglass-page-head></div>`\n\t}\n}\n\ndefine('error-head', ErrorHead)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/page-head.js",
+        "elements/error-head.js",
+        "elements/button.js",
+        "elements/connect-menu.js"
+      ],
+      "tag": "spyglass-page-head",
+      "tags": [
+        "spyglass-page-head",
+        "spyglass-error-head"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-page-head",
+            "name": "PageHead",
+            "module": "elements/page-head.js",
+            "description": "The page head: title, lead, actions and the ASCII drift.",
+            "attributes": [
+              {
+                "name": "head-id",
+                "field": "headId",
+                "type": "string",
+                "default": "'page'",
+                "description": "Names the heading (`<head-id>-heading`) the section is labeled by (React's `id`)."
+              },
+              {
+                "name": "lines",
+                "field": "lines",
+                "type": "string[]",
+                "default": "[]",
+                "description": "The title, one string per line (lines break from 768)."
+              },
+              {
+                "name": "eyebrow",
+                "field": "eyebrow",
+                "type": "string | undefined",
+                "description": "The capital label over the title."
+              },
+              {
+                "name": "lead",
+                "field": "lead",
+                "type": "string | undefined"
+              },
+              {
+                "name": "primary",
+                "field": "primary",
+                "type": "PageAction | undefined",
+                "description": "The White button ({ label, href }); left out when the control slot is filled."
+              },
+              {
+                "name": "secondary",
+                "field": "secondary",
+                "type": "PageAction | undefined",
+                "description": "The quiet button after it ({ label, href })."
+              },
+              {
+                "name": "align",
+                "field": "align",
+                "type": "\"centre\" | \"margin\"",
+                "default": "'margin'",
+                "description": "margin (copy left, drift right) or centre."
+              },
+              {
+                "name": "drift",
+                "field": "drift",
+                "type": "boolean",
+                "default": "true",
+                "description": "The ASCII drift in the right columns when the visual slot is empty (margin only)."
+              },
+              {
+                "name": "pair",
+                "field": "pair",
+                "type": "boolean",
+                "default": "true",
+                "description": "On phones, hide the control and turn the quiet button White (the site's MCP pair); pair=\"false\" keeps both."
+              }
+            ],
+            "properties": [
+              {
+                "name": "headId",
+                "type": "string",
+                "default": "'page'",
+                "description": "Names the heading (`<head-id>-heading`) the section is labeled by (React's `id`).",
+                "attribute": "head-id"
+              },
+              {
+                "name": "lines",
+                "type": "string[]",
+                "default": "[]",
+                "description": "The title, one string per line (lines break from 768).",
+                "attribute": "lines"
+              },
+              {
+                "name": "eyebrow",
+                "type": "string | undefined",
+                "description": "The capital label over the title.",
+                "attribute": "eyebrow"
+              },
+              {
+                "name": "lead",
+                "type": "string | undefined",
+                "attribute": "lead"
+              },
+              {
+                "name": "primary",
+                "type": "PageAction | undefined",
+                "description": "The White button ({ label, href }); left out when the control slot is filled.",
+                "attribute": "primary"
+              },
+              {
+                "name": "secondary",
+                "type": "PageAction | undefined",
+                "description": "The quiet button after it ({ label, href }).",
+                "attribute": "secondary"
+              },
+              {
+                "name": "align",
+                "type": "\"centre\" | \"margin\"",
+                "default": "'margin'",
+                "description": "margin (copy left, drift right) or centre.",
+                "attribute": "align"
+              },
+              {
+                "name": "drift",
+                "type": "boolean",
+                "default": "true",
+                "description": "The ASCII drift in the right columns when the visual slot is empty (margin only).",
+                "attribute": "drift"
+              },
+              {
+                "name": "pair",
+                "type": "boolean",
+                "default": "true",
+                "description": "On phones, hide the control and turn the quiet button White (the site's MCP pair); pair=\"false\" keeps both.",
+                "attribute": "pair"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "control",
+                "description": "A control in the White button's place (a connect menu, a form)."
+              },
+              {
+                "name": "visual",
+                "description": "Your own picture in the right columns instead of the drift (margin only)."
+              }
+            ],
+            "methods": []
+          },
+          {
+            "tag": "spyglass-error-head",
+            "name": "ErrorHead",
+            "module": "elements/error-head.js",
+            "description": "The error page's head: try again or go home.",
+            "attributes": [
+              {
+                "name": "content",
+                "field": "content",
+                "type": "ErrorHeadContent",
+                "default": "errorHeadContent"
+              }
+            ],
+            "properties": [
+              {
+                "name": "content",
+                "type": "ErrorHeadContent",
+                "default": "{ lines: ['Something went wrong'], lead: 'This page did not load. Try again, or start from the homepage.', retry: 'Try again', home: { label: 'Go to the homepage', href: '/' }, }",
+                "attribute": "content"
+              }
+            ],
+            "events": [
+              {
+                "name": "retry",
+                "description": "When the White button is pressed."
+              }
+            ],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Margin",
+          "label": "Copy left, drift right",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/page-head/Margin.html",
+          "content": "<!-- An inner page's head: the copy on the left, the ASCII drift on the right, a White and a quiet button. -->\n<spyglass-page-head head-id=\"resources\" lines='[\"Resources\"]' lead=\"Templates, writing and docs for building on Acme.\" primary='{\"label\":\"Get a free API key\",\"href\":\"#\"}' secondary='{\"label\":\"Read the docs\",\"href\":\"#\"}'></spyglass-page-head>\n"
+        },
+        {
+          "name": "Centre",
+          "label": "Centered",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/page-head/Centre.html",
+          "content": "<!-- A centered head over two lines, the texture fading in from the right edge from 1024. -->\n<spyglass-page-head head-id=\"pricing\" lines='[\"Simple pricing,\",\"for every team\"]' lead=\"Start free. Pay as you grow, and cancel anytime.\" align=\"centre\"></spyglass-page-head>\n"
+        },
+        {
+          "name": "Control",
+          "label": "With the connect menu",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/page-head/Control.html",
+          "content": "<!-- A use case's head with the connect menu in the White button's place; on phones it steps aside for a White button. -->\n<spyglass-page-head head-id=\"agents\" lines='[\"Acme for agents\"]' lead=\"Give any agent live answers from Acme in one step.\" secondary='{\"label\":\"Get a free API key\",\"href\":\"#\"}'><spyglass-connect-menu slot=\"control\"></spyglass-connect-menu></spyglass-page-head>\n"
+        },
+        {
+          "name": "Eyebrow",
+          "label": "With an eyebrow, no buttons",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/page-head/Eyebrow.html",
+          "content": "<!-- A legal page's head: an eyebrow over the title and the lead, no buttons. -->\n<spyglass-page-head head-id=\"terms\" eyebrow=\"Updated May 2026\" lines='[\"Terms of service\"]' lead=\"The terms that apply when you use Acme's products.\"></spyglass-page-head>\n"
+        },
+        {
+          "name": "Error",
+          "label": "The error head",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/page-head/Error.html",
+          "content": "<!-- The error page's head: try again, or go home. -->\n<spyglass-error-head></spyglass-error-head>\n"
+        }
+      ]
+    }
+  }
+}

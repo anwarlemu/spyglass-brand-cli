@@ -1,0 +1,274 @@
+{
+  "name": "newsletter-block",
+  "title": "Newsletter block",
+  "type": "registry:block",
+  "group": "blocks",
+  "description": "A newsletter sign-up on a #262626 card: the title, a line, an email field and the White button, small print under them.",
+  "use_for": "A newsletter or waitlist sign-up at the foot of a page or a post.",
+  "never": [
+    "A second White button",
+    "A pre-checked consent box"
+  ],
+  "source": "Built from the library (input, button) on the site's card fill",
+  "body": "",
+  "requires": [
+    "button",
+    "input"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/blocks/NewsletterBlock.tsx",
+      "content": "'use client'\nimport { useState, type FormEvent, type ReactNode } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { Input } from '@/react/components/ui/Input'\nimport { cn } from '@/react/lib/cn'\n\n// A newsletter sign-up on a #262626 card with the 4px corner: the title, a #D4D4D4 line, an email field and the White\n// button side by side from 640 (stacked on phones), and a line of small print under them. onSubscribe gets the address;\n// after it the card says `done` in its place. Nothing moves.\nexport interface NewsletterBlockProps {\n  title: ReactNode\n  body?: ReactNode\n  placeholder?: string\n  /** The button's label. */\n  cta?: string\n  /** Small print under the field. */\n  note?: ReactNode\n  /** Said in the field's place once subscribed. */\n  done?: string\n  onSubscribe?: (email: string) => void\n  className?: string\n}\n\nexport function NewsletterBlock({ title, body, placeholder = 'you@company.com', cta = 'Subscribe', note, done = 'You are on the list.', onSubscribe, className }: NewsletterBlockProps) {\n  const [sent, setSent] = useState(false)\n  const submit = (e: FormEvent<HTMLFormElement>) => {\n    e.preventDefault()\n    const email = String(new FormData(e.currentTarget).get('email') ?? '').trim()\n    if (!email) return\n    onSubscribe?.(email)\n    setSent(true)\n  }\n  return (\n    <section data-ds=\"newsletter-block\" className={cn('grid gap-6 rounded-container bg-surface-raised p-8 text-fg max-sm:p-6 lg:grid-cols-2 lg:items-end lg:gap-12', className)}>\n      <div className=\"grid gap-3\">\n        <h2 className=\"type-heading-1\">{title}</h2>\n        {body && <p className=\"max-w-measure type-body text-fg-soft\">{body}</p>}\n      </div>\n      <div className=\"grid gap-3\">\n        {sent ? (\n          <p role=\"status\" className=\"type-body text-fg\">{done}</p>\n        ) : (\n          <form onSubmit={submit} className=\"flex gap-3 max-sm:flex-col\">\n            <Input name=\"email\" type=\"email\" autoComplete=\"email\" required placeholder={placeholder} aria-label=\"Email\" className=\"min-w-0 flex-1\" />\n            <Button type=\"submit\">{cta}</Button>\n          </form>\n        )}\n        {note && <p className=\"type-caption text-fg-muted\">{note}</p>}\n      </div>\n    </section>\n  )\n}\n\nexport default NewsletterBlock\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Signup",
+      "label": "A sign-up",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/newsletter-block/Signup.tsx",
+      "content": "import { NewsletterBlock } from '@/react/components/blocks/NewsletterBlock'\n// A newsletter sign-up for Acme's weekly notes.\n\nexport default function Signup() {\n  return <NewsletterBlock title=\"What changed, every Monday.\" body=\"One email with the launches worth a look.\" note=\"No spam. Leave any time.\" />\n}\n",
+      "requires": [
+        "button",
+        "input"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/blocks/NewsletterBlock.tsx",
+          "content": "'use client'\nimport { useState, type FormEvent, type ReactNode } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { Input } from '@/react/components/ui/Input'\nimport { cn } from '@/react/lib/cn'\n\n// A newsletter sign-up on a #262626 card with the 4px corner: the title, a #D4D4D4 line, an email field and the White\n// button side by side from 640 (stacked on phones), and a line of small print under them. onSubscribe gets the address;\n// after it the card says `done` in its place. Nothing moves.\nexport interface NewsletterBlockProps {\n  title: ReactNode\n  body?: ReactNode\n  placeholder?: string\n  /** The button's label. */\n  cta?: string\n  /** Small print under the field. */\n  note?: ReactNode\n  /** Said in the field's place once subscribed. */\n  done?: string\n  onSubscribe?: (email: string) => void\n  className?: string\n}\n\nexport function NewsletterBlock({ title, body, placeholder = 'you@company.com', cta = 'Subscribe', note, done = 'You are on the list.', onSubscribe, className }: NewsletterBlockProps) {\n  const [sent, setSent] = useState(false)\n  const submit = (e: FormEvent<HTMLFormElement>) => {\n    e.preventDefault()\n    const email = String(new FormData(e.currentTarget).get('email') ?? '').trim()\n    if (!email) return\n    onSubscribe?.(email)\n    setSent(true)\n  }\n  return (\n    <section data-ds=\"newsletter-block\" className={cn('grid gap-6 rounded-container bg-surface-raised p-8 text-fg max-sm:p-6 lg:grid-cols-2 lg:items-end lg:gap-12', className)}>\n      <div className=\"grid gap-3\">\n        <h2 className=\"type-heading-1\">{title}</h2>\n        {body && <p className=\"max-w-measure type-body text-fg-soft\">{body}</p>}\n      </div>\n      <div className=\"grid gap-3\">\n        {sent ? (\n          <p role=\"status\" className=\"type-body text-fg\">{done}</p>\n        ) : (\n          <form onSubmit={submit} className=\"flex gap-3 max-sm:flex-col\">\n            <Input name=\"email\" type=\"email\" autoComplete=\"email\" required placeholder={placeholder} aria-label=\"Email\" className=\"min-w-0 flex-1\" />\n            <Button type=\"submit\">{cta}</Button>\n          </form>\n        )}\n        {note && <p className=\"type-caption text-fg-muted\">{note}</p>}\n      </div>\n    </section>\n  )\n}\n\nexport default NewsletterBlock\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button",
+        "input"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "NewsletterBlock",
+            "file": "react/components/blocks/NewsletterBlock.tsx",
+            "props": [
+              {
+                "name": "title",
+                "type": "ReactNode",
+                "required": true
+              },
+              {
+                "name": "body",
+                "type": "ReactNode",
+                "required": false
+              },
+              {
+                "name": "placeholder",
+                "type": "string",
+                "required": false,
+                "default": "'you@company.com'"
+              },
+              {
+                "name": "cta",
+                "type": "string",
+                "required": false,
+                "default": "'Subscribe'",
+                "description": "The button's label."
+              },
+              {
+                "name": "note",
+                "type": "ReactNode",
+                "required": false,
+                "description": "Small print under the field."
+              },
+              {
+                "name": "done",
+                "type": "string",
+                "required": false,
+                "default": "'You are on the list.'",
+                "description": "Said in the field's place once subscribed."
+              },
+              {
+                "name": "onSubscribe",
+                "type": "(email: string) => void",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Signup",
+          "label": "A sign-up",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/newsletter-block/Signup.tsx",
+          "content": "import { NewsletterBlock } from '@/react/components/blocks/NewsletterBlock'\n// A newsletter sign-up for Acme's weekly notes.\n\nexport default function Signup() {\n  return <NewsletterBlock title=\"What changed, every Monday.\" body=\"One email with the launches worth a look.\" note=\"No spam. Leave any time.\" />\n}\n",
+          "registryDependencies": [
+            "button",
+            "input"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/blocks/newsletter-block.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport '@/elements/components/ui/button'\nimport '@/elements/components/ui/input'\nimport styles from 'virtual:tw'\n\n// NewsletterBlock.tsx as <spyglass-newsletter-block>: the `heading` (React's `title`), `body`, an email field and the\n// `cta` button, the `note` under them; fires `subscribe` with { email } and then shows `done`.\n\n/**\n * @summary A newsletter sign-up on a card.\n * @fires subscribe - With { email }.\n */\nexport class NewsletterBlock extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"newsletter-block\"]'))\n\tstatic properties = { heading: {}, body: {}, placeholder: {}, cta: {}, note: {}, done: {}, sent: { state: true } }\n\t/** The heading (React's `title`). */\n\theading = ''\n\tbody?: string\n\tplaceholder = 'you@company.com'\n\t/** The button's label. */\n\tcta = 'Subscribe'\n\t/** Small print under the field. */\n\tnote?: string\n\t/** Said in the field's place once subscribed. */\n\tdone = 'You are on the list.'\n\tprivate sent = false\n\n\tprivate submit(e: Event) {\n\t\te.preventDefault()\n\t\tconst input = this.renderRoot.querySelector('spyglass-input') as (HTMLElement & { value?: string }) | null\n\t\tconst email = String(input?.value ?? '').trim()\n\t\tif (!email) return\n\t\tthis.emit('subscribe', { email })\n\t\tthis.sent = true\n\t}\n\n\trender() {\n\t\treturn html`<section data-ds=\"newsletter-block\" class=\"grid gap-6 rounded-container bg-surface-raised p-8 text-fg max-sm:p-6 lg:grid-cols-2 lg:items-end lg:gap-12\"><div class=\"grid gap-3\"><h2 class=\"type-heading-1\">${this.heading}</h2>${this.body ? html`<p class=\"max-w-measure type-body text-fg-soft\">${this.body}</p>` : nothing}</div><div class=\"grid gap-3\">${this.sent ? html`<p role=\"status\" class=\"type-body text-fg\">${this.done}</p>` : html`<form @submit=${(e: Event) => this.submit(e)} class=\"flex gap-3 max-sm:flex-col\"><spyglass-input name=\"email\" type=\"email\" autocomplete=\"email\" required placeholder=${this.placeholder} aria-label=\"Email\" class=\"min-w-0 flex-1\"></spyglass-input><spyglass-button type=\"submit\" @click=${(e: Event) => this.submit(e)}>${this.cta}</spyglass-button></form>`}${this.note ? html`<p class=\"type-caption text-fg-muted\">${this.note}</p>` : nothing}</div></section>`\n\t}\n}\n\ndefine('newsletter-block', NewsletterBlock)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/newsletter-block.js",
+        "elements/button.js",
+        "elements/input.js"
+      ],
+      "tag": "spyglass-newsletter-block",
+      "tags": [
+        "spyglass-newsletter-block"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button",
+        "input"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-newsletter-block",
+            "name": "NewsletterBlock",
+            "module": "elements/newsletter-block.js",
+            "description": "A newsletter sign-up on a card.",
+            "attributes": [
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string",
+                "default": "''",
+                "description": "The heading (React's `title`)."
+              },
+              {
+                "name": "body",
+                "field": "body",
+                "type": "string | undefined"
+              },
+              {
+                "name": "placeholder",
+                "field": "placeholder",
+                "type": "string",
+                "default": "'you@company.com'"
+              },
+              {
+                "name": "cta",
+                "field": "cta",
+                "type": "string",
+                "default": "'Subscribe'",
+                "description": "The button's label."
+              },
+              {
+                "name": "note",
+                "field": "note",
+                "type": "string | undefined",
+                "description": "Small print under the field."
+              },
+              {
+                "name": "done",
+                "field": "done",
+                "type": "string",
+                "default": "'You are on the list.'",
+                "description": "Said in the field's place once subscribed."
+              },
+              {
+                "name": "sent",
+                "field": "sent",
+                "type": "boolean",
+                "default": "false"
+              }
+            ],
+            "properties": [
+              {
+                "name": "heading",
+                "type": "string",
+                "default": "''",
+                "description": "The heading (React's `title`).",
+                "attribute": "heading"
+              },
+              {
+                "name": "body",
+                "type": "string | undefined",
+                "attribute": "body"
+              },
+              {
+                "name": "placeholder",
+                "type": "string",
+                "default": "'you@company.com'",
+                "attribute": "placeholder"
+              },
+              {
+                "name": "cta",
+                "type": "string",
+                "default": "'Subscribe'",
+                "description": "The button's label.",
+                "attribute": "cta"
+              },
+              {
+                "name": "note",
+                "type": "string | undefined",
+                "description": "Small print under the field.",
+                "attribute": "note"
+              },
+              {
+                "name": "done",
+                "type": "string",
+                "default": "'You are on the list.'",
+                "description": "Said in the field's place once subscribed.",
+                "attribute": "done"
+              }
+            ],
+            "events": [
+              {
+                "name": "subscribe",
+                "description": "With { email }."
+              }
+            ],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Signup",
+          "label": "A sign-up",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/newsletter-block/Signup.html",
+          "content": "<!-- A newsletter sign-up for Acme's weekly notes. -->\n<spyglass-newsletter-block heading=\"What changed, every Monday.\" body=\"One email with the launches worth a look.\" note=\"No spam. Leave any time.\"></spyglass-newsletter-block>\n"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,467 @@
+{
+  "name": "faq-block",
+  "title": "FAQ block",
+  "type": "registry:block",
+  "group": "blocks",
+  "description": "The site's FAQ: the section head, a lead and a quiet button on the left, held under the header while the questions scroll by on the right; one answer open at a time, the rows sliding to make room and the plus turning to a minus. `layout=\"stack\"` puts the head over a narrow list. The rows also stand alone as FaqAccordion.",
+  "use_for": "The questions section of a home, pricing, product or contact page (place it in a section with the page's padding); FaqAccordion alone where the page sets its own head.",
+  "never": [
+    "Answers the product does not state",
+    "More than one answer open at once",
+    "Colored question marks or icons"
+  ],
+  "source": "Site v3/V3Faq, ui/FaqAccordion and v2/V2Faq V2FaqList (V3Faq.module.css, V2Faq.module.css): 4fr and 7fr columns 64px apart from 1024, the head sticky at the header plus 32px, centered on phones; .t-lead 24px under the head, the quiet docs button 32px further; rows under --line hairlines, 20px (24 from 768) above and below a 20/28 --text-2 question, a 12px plus of 2px strokes; the answer 16/24 --text-2 at 640px, 24px (32 from 768) under; slots sized to the longest answer, rows sliding over --dur-move on --ease-out; the v2 list centered at 640 + 80px with its hairline at the foot",
+  "body": "",
+  "requires": [
+    "button"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/blocks/FaqBlock.tsx",
+      "content": "import type { ReactNode } from 'react'\nimport { FaqAccordion, type FaqAccordionItem } from '@/react/components/blocks/FaqAccordion'\nimport { Button } from '@/react/components/ui/Button'\nimport { cn } from '@/react/lib/cn'\n\n// The site's FAQ (v3/V3Faq): from 1024 the head on the left (4 of 11 columns, 64px apart, held 32px under the header\n// while the questions scroll by) and the questions on the right; one column below, the head centered on phones. The\n// head is the section head, a lead in the soft gray 24px under it and a quiet button 32px further. `layout=\"stack\"` is\n// the earlier site's (v2/V2Faq): the head centered over a narrow list with its hairline at the foot. The rows are\n// FaqAccordion. Place it in a page section; it brings no padding of its own. Answer only with what the product states.\nexport type FaqItem = FaqAccordionItem\n\nexport interface FaqBlockProps {\n  items: FaqItem[]\n  title?: ReactNode\n  /** A line under the title. */\n  body?: ReactNode\n  /** A quiet button under the title: { label: 'Read the docs', href }. */\n  action?: { label: string; href?: string }\n  /** Names the heading (`<id>-heading`). */\n  id?: string\n  /** split (head left, questions right) or stack (head over a narrow list). */\n  layout?: 'split' | 'stack'\n  /** The question open at first; -1 for none. */\n  defaultOpen?: number\n  className?: string\n}\n\nexport function FaqBlock({ items, title = 'Questions.', body, action, id = 'faq', layout = 'split', defaultOpen = 0, className }: FaqBlockProps) {\n  const stack = layout === 'stack'\n  return (\n    <section data-ds=\"faq-block\" aria-labelledby={`${id}-heading`} className={cn('grid grid-cols-[minmax(0,1fr)] text-fg', stack ? 'gap-y-16 lg:gap-y-20' : 'gap-y-12 lg:grid-cols-[minmax(0,4fr)_minmax(0,7fr)] lg:items-start lg:gap-x-16', className)}>\n      <header className={cn('flex flex-col', stack ? 'items-center text-center' : 'items-start max-md:items-center max-md:text-center lg:sticky lg:top-[calc(var(--ds-size-header)+var(--ds-space-2xl))]')}>\n        <h2 id={`${id}-heading`} className=\"type-section max-lg:[text-box:trim-start_cap_alphabetic]\">{title}</h2>\n        {body ? <p className=\"mt-6 max-w-measure type-body-lg text-pretty text-fg-soft\">{body}</p> : null}\n        {action ? <Button href={action.href} variant=\"secondary\" className=\"mt-8 max-md:w-full\">{action.label}</Button> : null}\n      </header>\n      <div className=\"min-w-0\">\n        <FaqAccordion items={items} defaultOpen={defaultOpen} edge={stack ? 'bottom' : 'top'} narrow={stack} />\n      </div>\n    </section>\n  )\n}\n\nexport default FaqBlock\n"
+    },
+    {
+      "path": "react/components/blocks/FaqAccordion.tsx",
+      "content": "'use client'\nimport { useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react'\nimport { faqShift, faqSlotHeight, slideFaqRows, type FaqMove } from '@/lib/faq'\nimport { cn } from '@/react/lib/cn'\n\n// The site's FAQ rows (ui/FaqAccordion, V3Faq.module.css, V2Faq.module.css): questions in DM Sans 20/28 in the soft\n// gray (White when open or under the pointer) under #363636 hairlines, 20px above and below (24 from 768), a 12px plus\n// that turns to a minus. One answer is open at a time (the first, unless `defaultOpen` says otherwise); it fades in\n// over 320ms, 640px wide at most, and every open slot is as tall as the longest answer, so the rows between the one\n// closing and the one opening slide by that height (transform only), and the page scrolls with them when the opened\n// row would leave the view. Arrows, Home and End move between questions.\n// Reduced motion: no slide or fade.\nexport interface FaqAccordionItem {\n  q: string\n  a: string\n  /** An anchor for the row. */\n  id?: string\n}\n\nexport interface FaqAccordionProps {\n  items: FaqAccordionItem[]\n  /** The row open at first; -1 for none. */\n  defaultOpen?: number\n  /** The hairline above the list (top, the default) or under it (bottom, the pricing page's). */\n  edge?: 'top' | 'bottom'\n  /** Centered and no wider than the measure plus 80px (the pricing page's list). */\n  narrow?: boolean\n  className?: string\n}\n\nconst ROW = 'relative border-t border-edge bg-surface first:border-t-0'\n\nexport function FaqAccordion({ items, defaultOpen = 0, edge = 'top', narrow = false, className }: FaqAccordionProps) {\n  const closed = items.length\n  const [open, setOpen] = useState(defaultOpen < 0 ? closed : defaultOpen)\n  const listRef = useRef<HTMLDivElement>(null)\n  const move = useRef<FaqMove | null>(null)\n  const uid = useId()\n\n  const select = (clicked: number) => {\n    const next = clicked === open ? closed : clicked\n    const distance = faqSlotHeight(listRef.current)\n    move.current = { from: open, to: next, distance, shift: faqShift(listRef.current, open, next, distance, closed) }\n    setOpen(next)\n  }\n\n  useLayoutEffect(() => {\n    const pending = move.current\n    move.current = null\n    if (listRef.current && pending) slideFaqRows(listRef.current, pending)\n  }, [open])\n\n  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {\n    const triggers = [...(listRef.current?.querySelectorAll<HTMLButtonElement>('[data-trigger]') ?? [])]\n    const at = triggers.indexOf(document.activeElement as HTMLButtonElement)\n    if (at < 0) return\n    const target = ({ ArrowDown: (at + 1) % triggers.length, ArrowUp: (at - 1 + triggers.length) % triggers.length, Home: 0, End: triggers.length - 1 } as Record<string, number>)[e.key]\n    if (target === undefined) return\n    e.preventDefault()\n    triggers[target].focus()\n  }\n\n  const sizers = (skip: number) => items.map((other, j) => (j === skip ? null : <span key={`${j}-${other.q}`} aria-hidden=\"true\" data-text={other.a} className=\"invisible block type-body text-pretty text-fg-soft [grid-area:1/1] before:content-[attr(data-text)]\" />))\n\n  return (\n    <div ref={listRef} data-ds=\"faq-accordion\" onKeyDown={onKeyDown} className={cn('ds-faq min-w-0 overflow-y-clip border-edge [overflow-anchor:none]', edge === 'top' ? 'border-t' : 'border-b', narrow && 'mx-auto max-w-[calc(var(--ds-layout-measure)+var(--ds-space-5xl))]', className)}>\n      <style href=\"ds-faq-accordion\" precedence=\"ds\">{css}</style>\n      {items.map((item, i) => {\n        const isOpen = i === open\n        return (\n          <div key={`${i}-${item.q}`} id={item.id} data-open={isOpen} className={ROW}>\n            <h3 className=\"[font:inherit]\">\n              <button\n                type=\"button\"\n                id={`${uid}-q-${i}`}\n                data-trigger=\"\"\n                aria-expanded={isOpen}\n                aria-controls={`${uid}-a-${i}`}\n                onClick={() => select(i)}\n                className=\"group/faq -mx-2 flex min-h-control-lg w-[calc(100%+2*var(--ds-space-sm))] cursor-pointer items-start justify-between gap-6 rounded-ds-sm px-2 py-5 text-left text-fg-soft transition-[color] duration-160 ease-out outline-offset-[calc(-1*var(--ds-border-focus))] hover:text-fg active:text-fg aria-expanded:text-fg md:py-6\"\n              >\n                <span className=\"min-w-0 type-body-lg text-balance\">{item.q}</span>\n                <span aria-hidden=\"true\" className=\"ds-faq-icon relative h-7 w-3 flex-none\" />\n              </button>\n            </h3>\n            <div data-slot=\"\" className={isOpen ? 'h-auto' : 'h-0'}>\n              <div className=\"grid grid-cols-[minmax(0,var(--ds-layout-measure))] bg-surface pb-6 md:pb-8\">\n                <div id={`${uid}-a-${i}`} role=\"region\" aria-labelledby={`${uid}-q-${i}`} className=\"ds-faq-panel [grid-area:1/1]\">\n                  <p className=\"block type-body text-pretty text-fg-soft\">{item.a}</p>\n                </div>\n                {sizers(i)}\n              </div>\n            </div>\n          </div>\n        )\n      })}\n      <div data-open={open === closed} aria-hidden=\"true\" className={ROW}>\n        <div data-slot=\"\" className={open === closed ? 'h-auto' : 'h-0'}>\n          <div className=\"grid grid-cols-[minmax(0,var(--ds-layout-measure))] bg-surface pb-6 md:pb-8\">{sizers(-1)}</div>\n        </div>\n      </div>\n    </div>\n  )\n}\n\nexport default FaqAccordion\n\nconst css = `\n.ds-faq { --faq-dur: var(--ds-duration-glide); --faq-ease: var(--ds-easing-out); }\n.ds-faq-icon { transition: transform var(--ds-duration-press) var(--ds-easing-out); }\n.ds-faq-icon::before, .ds-faq-icon::after { content: \"\"; position: absolute; inset: 0; width: var(--ds-space-md); height: var(--ds-stroke); margin: auto; background: currentColor; }\n.ds-faq-icon::after { transform: rotate(90deg); transition: transform var(--ds-duration-glide) var(--ds-easing-out); }\n[aria-expanded=\"true\"] > .ds-faq-icon::after { transform: rotate(0deg); }\n[aria-expanded=\"false\"]:active > .ds-faq-icon { transform: scale(0.75); }\n.ds-faq-panel { visibility: hidden; opacity: 0; transition: opacity var(--ds-duration-glide) var(--ds-easing-out), visibility var(--ds-duration-instant) linear var(--ds-duration-glide); }\n[data-open=\"true\"] .ds-faq-panel { visibility: visible; opacity: 1; transition: opacity var(--ds-duration-glide) var(--ds-easing-out); }\n@media (prefers-reduced-motion: reduce) {\n  .ds-faq-panel, [data-open=\"true\"] .ds-faq-panel, .ds-faq-icon::after { transition: none; }\n}\n`\n"
+    },
+    {
+      "path": "lib/faq.ts",
+      "content": "// The site's FAQ rows (ui/FaqAccordion): when one answer closes and another opens, every answer slot has the height of\n// the longest answer, so the rows between the two move by that height. They are drawn where they were and slid to\n// their new place by transform only (added to any slide still running), over --faq-dur on the site's ease-out; when the\n// row opened would slide out of view above, the page scrolls with it so it stays in view. Both flavors call it after\n// the open row changes. With reduced motion nothing slides (the page just keeps the row in view).\nexport interface FaqMove { from: number; to: number; distance: number; /** How far the page scrolls up so the opened row stays in view. */ shift?: number }\n\n// What a slide still owes the page's scroll, per list, so a second press during a slide measures from where the rows\n// will land.\nconst owed = new WeakMap<HTMLElement, number>()\n\n/** Opening a row below the open one moves it up by the closing answer's height; when that would take it above the\n * view (the page's scroll padding), the page scrolls back with the rows so the question stays where it was read. */\nexport function faqShift(list: HTMLElement | null, open: number, next: number, distance: number, closed: number): number {\n\tif (!list || next <= open || next === closed) return 0\n\tlet rest = list.getBoundingClientRect().top - distance + (owed.get(list) ?? 0) + (list.children[next] as HTMLElement).clientTop\n\tfor (let i = 0; i < next; i++) rest += list.children[i].getBoundingClientRect().height\n\tconst inset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0\n\treturn Math.max(0, Math.round(inset - rest))\n}\n\nexport function slideFaqRows(list: HTMLElement, move: FaqMove) {\n\tconst shift = move.shift ?? 0\n\tif (!move.distance) return\n\tif (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {\n\t\tif (shift) window.scrollBy({ top: -shift, behavior: 'instant' })\n\t\treturn\n\t}\n\tconst css = getComputedStyle(list)\n\tconst raw = css.getPropertyValue('--faq-dur').trim()\n\tconst duration = raw.endsWith('ms') ? parseFloat(raw) : parseFloat(raw) * 1000\n\tconst easing = css.getPropertyValue('--faq-ease').trim() || 'ease-out'\n\tconst down = move.to > move.from\n\tconst offset = down ? move.distance : -move.distance\n\tlet clock: Animation | undefined\n\tfor (let i = Math.min(move.from, move.to) + 1; i <= Math.max(move.from, move.to); i++) {\n\t\tconst a = list.children[i]?.animate([{ transform: `translateY(${offset}px)` }, { transform: 'translateY(0)' }], { duration: duration || 320, easing, composite: 'add' })\n\t\tclock ??= a\n\t}\n\tif (!clock || !shift) return\n\t// The scroll follows the slide frame by frame, so the opened question holds still on screen.\n\tconst rows = clock\n\tlet paid = 0\n\towed.set(list, (owed.get(list) ?? 0) + shift)\n\tconst tick = () => {\n\t\tconst running = rows.playState === 'running' && list.isConnected\n\t\tconst progress = running ? (rows.effect?.getComputedTiming().progress ?? 1) : 1\n\t\tconst before = window.scrollY\n\t\twindow.scrollBy({ top: paid - shift * (progress as number), behavior: 'instant' })\n\t\tconst step = before - window.scrollY\n\t\tpaid += step\n\t\towed.set(list, (owed.get(list) ?? 0) - step)\n\t\tif (running) requestAnimationFrame(tick)\n\t\telse owed.set(list, (owed.get(list) ?? 0) - (shift - paid))\n\t}\n\trequestAnimationFrame(tick)\n}\n\n/** The height every open answer slot has (the open slot's), measured before the change. */\nexport function faqSlotHeight(list: HTMLElement | null): number {\n\treturn list?.querySelector<HTMLElement>('[data-open=\"true\"] [data-slot]')?.getBoundingClientRect().height ?? 0\n}\n\nexport const faqExample = [\n\t{ q: 'What does the Creator plan cost?', a: '$10 for your first month, then $20/month.' },\n\t{ q: 'How many people can use it?', a: 'Unlimited team seats come with the plan, so everyone who makes or reviews creative can search.' },\n\t{ q: 'Which networks are in the index?', a: 'Meta, TikTok, Instagram, and YouTube creatives in one index.' },\n\t{ q: 'How long does it take to add a brand?', a: 'Add any brand or creator in under a minute.' },\n]\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Questions",
+      "label": "Questions about the plan",
+      "center": false,
+      "half": false,
+      "path": "react/examples/faq-block/Questions.tsx",
+      "content": "import { FaqBlock } from '@/react/components/blocks/FaqBlock'\n// Questions answered only with what the plan and the assets say.\n\nconst items = [\n  {\n    q: \"What does the Creator plan cost?\",\n    a: \"$10 for your first month, then $20/month.\"\n  },\n  {\n    q: \"How many people can use it?\",\n    a: \"Unlimited team seats come with the plan.\"\n  },\n  {\n    q: \"Which networks are in the index?\",\n    a: \"Meta, TikTok, Instagram, and YouTube creatives in one index.\"\n  },\n  {\n    q: \"How long does it take to add a brand?\",\n    a: \"Add any brand or creator in under a minute.\"\n  }\n]\n\nexport default function Questions() {\n  return <FaqBlock title=\"Frequently asked questions\" body=\"Everything Acme's team asked before starting.\" action={{ label: 'Contact us', href: '#contact' }} items={items} />\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Stack",
+      "label": "Head over a narrow list",
+      "center": false,
+      "half": false,
+      "path": "react/examples/faq-block/Stack.tsx",
+      "content": "import { FaqBlock } from '@/react/components/blocks/FaqBlock'\nimport { faqExample } from '@/lib/faq'\n// The earlier site's arrangement: the head centered over a narrow list.\n\nexport default function Stack() {\n  return <FaqBlock id=\"faq-stack\" layout=\"stack\" title=\"Questions, answered\" items={faqExample} />\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Rows",
+      "label": "The rows alone",
+      "center": false,
+      "half": false,
+      "path": "react/examples/faq-block/Rows.tsx",
+      "content": "import { FaqAccordion } from '@/react/components/blocks/FaqAccordion'\nimport { faqExample } from '@/lib/faq'\n// The rows alone, all closed at first.\n\nexport default function Rows() {\n  return <FaqAccordion items={faqExample} defaultOpen={-1} className=\"w-full max-w-180\" />\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/blocks/FaqBlock.tsx",
+          "content": "import type { ReactNode } from 'react'\nimport { FaqAccordion, type FaqAccordionItem } from '@/react/components/blocks/FaqAccordion'\nimport { Button } from '@/react/components/ui/Button'\nimport { cn } from '@/react/lib/cn'\n\n// The site's FAQ (v3/V3Faq): from 1024 the head on the left (4 of 11 columns, 64px apart, held 32px under the header\n// while the questions scroll by) and the questions on the right; one column below, the head centered on phones. The\n// head is the section head, a lead in the soft gray 24px under it and a quiet button 32px further. `layout=\"stack\"` is\n// the earlier site's (v2/V2Faq): the head centered over a narrow list with its hairline at the foot. The rows are\n// FaqAccordion. Place it in a page section; it brings no padding of its own. Answer only with what the product states.\nexport type FaqItem = FaqAccordionItem\n\nexport interface FaqBlockProps {\n  items: FaqItem[]\n  title?: ReactNode\n  /** A line under the title. */\n  body?: ReactNode\n  /** A quiet button under the title: { label: 'Read the docs', href }. */\n  action?: { label: string; href?: string }\n  /** Names the heading (`<id>-heading`). */\n  id?: string\n  /** split (head left, questions right) or stack (head over a narrow list). */\n  layout?: 'split' | 'stack'\n  /** The question open at first; -1 for none. */\n  defaultOpen?: number\n  className?: string\n}\n\nexport function FaqBlock({ items, title = 'Questions.', body, action, id = 'faq', layout = 'split', defaultOpen = 0, className }: FaqBlockProps) {\n  const stack = layout === 'stack'\n  return (\n    <section data-ds=\"faq-block\" aria-labelledby={`${id}-heading`} className={cn('grid grid-cols-[minmax(0,1fr)] text-fg', stack ? 'gap-y-16 lg:gap-y-20' : 'gap-y-12 lg:grid-cols-[minmax(0,4fr)_minmax(0,7fr)] lg:items-start lg:gap-x-16', className)}>\n      <header className={cn('flex flex-col', stack ? 'items-center text-center' : 'items-start max-md:items-center max-md:text-center lg:sticky lg:top-[calc(var(--ds-size-header)+var(--ds-space-2xl))]')}>\n        <h2 id={`${id}-heading`} className=\"type-section max-lg:[text-box:trim-start_cap_alphabetic]\">{title}</h2>\n        {body ? <p className=\"mt-6 max-w-measure type-body-lg text-pretty text-fg-soft\">{body}</p> : null}\n        {action ? <Button href={action.href} variant=\"secondary\" className=\"mt-8 max-md:w-full\">{action.label}</Button> : null}\n      </header>\n      <div className=\"min-w-0\">\n        <FaqAccordion items={items} defaultOpen={defaultOpen} edge={stack ? 'bottom' : 'top'} narrow={stack} />\n      </div>\n    </section>\n  )\n}\n\nexport default FaqBlock\n"
+        },
+        {
+          "path": "react/components/blocks/FaqAccordion.tsx",
+          "content": "'use client'\nimport { useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react'\nimport { faqShift, faqSlotHeight, slideFaqRows, type FaqMove } from '@/lib/faq'\nimport { cn } from '@/react/lib/cn'\n\n// The site's FAQ rows (ui/FaqAccordion, V3Faq.module.css, V2Faq.module.css): questions in DM Sans 20/28 in the soft\n// gray (White when open or under the pointer) under #363636 hairlines, 20px above and below (24 from 768), a 12px plus\n// that turns to a minus. One answer is open at a time (the first, unless `defaultOpen` says otherwise); it fades in\n// over 320ms, 640px wide at most, and every open slot is as tall as the longest answer, so the rows between the one\n// closing and the one opening slide by that height (transform only), and the page scrolls with them when the opened\n// row would leave the view. Arrows, Home and End move between questions.\n// Reduced motion: no slide or fade.\nexport interface FaqAccordionItem {\n  q: string\n  a: string\n  /** An anchor for the row. */\n  id?: string\n}\n\nexport interface FaqAccordionProps {\n  items: FaqAccordionItem[]\n  /** The row open at first; -1 for none. */\n  defaultOpen?: number\n  /** The hairline above the list (top, the default) or under it (bottom, the pricing page's). */\n  edge?: 'top' | 'bottom'\n  /** Centered and no wider than the measure plus 80px (the pricing page's list). */\n  narrow?: boolean\n  className?: string\n}\n\nconst ROW = 'relative border-t border-edge bg-surface first:border-t-0'\n\nexport function FaqAccordion({ items, defaultOpen = 0, edge = 'top', narrow = false, className }: FaqAccordionProps) {\n  const closed = items.length\n  const [open, setOpen] = useState(defaultOpen < 0 ? closed : defaultOpen)\n  const listRef = useRef<HTMLDivElement>(null)\n  const move = useRef<FaqMove | null>(null)\n  const uid = useId()\n\n  const select = (clicked: number) => {\n    const next = clicked === open ? closed : clicked\n    const distance = faqSlotHeight(listRef.current)\n    move.current = { from: open, to: next, distance, shift: faqShift(listRef.current, open, next, distance, closed) }\n    setOpen(next)\n  }\n\n  useLayoutEffect(() => {\n    const pending = move.current\n    move.current = null\n    if (listRef.current && pending) slideFaqRows(listRef.current, pending)\n  }, [open])\n\n  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {\n    const triggers = [...(listRef.current?.querySelectorAll<HTMLButtonElement>('[data-trigger]') ?? [])]\n    const at = triggers.indexOf(document.activeElement as HTMLButtonElement)\n    if (at < 0) return\n    const target = ({ ArrowDown: (at + 1) % triggers.length, ArrowUp: (at - 1 + triggers.length) % triggers.length, Home: 0, End: triggers.length - 1 } as Record<string, number>)[e.key]\n    if (target === undefined) return\n    e.preventDefault()\n    triggers[target].focus()\n  }\n\n  const sizers = (skip: number) => items.map((other, j) => (j === skip ? null : <span key={`${j}-${other.q}`} aria-hidden=\"true\" data-text={other.a} className=\"invisible block type-body text-pretty text-fg-soft [grid-area:1/1] before:content-[attr(data-text)]\" />))\n\n  return (\n    <div ref={listRef} data-ds=\"faq-accordion\" onKeyDown={onKeyDown} className={cn('ds-faq min-w-0 overflow-y-clip border-edge [overflow-anchor:none]', edge === 'top' ? 'border-t' : 'border-b', narrow && 'mx-auto max-w-[calc(var(--ds-layout-measure)+var(--ds-space-5xl))]', className)}>\n      <style href=\"ds-faq-accordion\" precedence=\"ds\">{css}</style>\n      {items.map((item, i) => {\n        const isOpen = i === open\n        return (\n          <div key={`${i}-${item.q}`} id={item.id} data-open={isOpen} className={ROW}>\n            <h3 className=\"[font:inherit]\">\n              <button\n                type=\"button\"\n                id={`${uid}-q-${i}`}\n                data-trigger=\"\"\n                aria-expanded={isOpen}\n                aria-controls={`${uid}-a-${i}`}\n                onClick={() => select(i)}\n                className=\"group/faq -mx-2 flex min-h-control-lg w-[calc(100%+2*var(--ds-space-sm))] cursor-pointer items-start justify-between gap-6 rounded-ds-sm px-2 py-5 text-left text-fg-soft transition-[color] duration-160 ease-out outline-offset-[calc(-1*var(--ds-border-focus))] hover:text-fg active:text-fg aria-expanded:text-fg md:py-6\"\n              >\n                <span className=\"min-w-0 type-body-lg text-balance\">{item.q}</span>\n                <span aria-hidden=\"true\" className=\"ds-faq-icon relative h-7 w-3 flex-none\" />\n              </button>\n            </h3>\n            <div data-slot=\"\" className={isOpen ? 'h-auto' : 'h-0'}>\n              <div className=\"grid grid-cols-[minmax(0,var(--ds-layout-measure))] bg-surface pb-6 md:pb-8\">\n                <div id={`${uid}-a-${i}`} role=\"region\" aria-labelledby={`${uid}-q-${i}`} className=\"ds-faq-panel [grid-area:1/1]\">\n                  <p className=\"block type-body text-pretty text-fg-soft\">{item.a}</p>\n                </div>\n                {sizers(i)}\n              </div>\n            </div>\n          </div>\n        )\n      })}\n      <div data-open={open === closed} aria-hidden=\"true\" className={ROW}>\n        <div data-slot=\"\" className={open === closed ? 'h-auto' : 'h-0'}>\n          <div className=\"grid grid-cols-[minmax(0,var(--ds-layout-measure))] bg-surface pb-6 md:pb-8\">{sizers(-1)}</div>\n        </div>\n      </div>\n    </div>\n  )\n}\n\nexport default FaqAccordion\n\nconst css = `\n.ds-faq { --faq-dur: var(--ds-duration-glide); --faq-ease: var(--ds-easing-out); }\n.ds-faq-icon { transition: transform var(--ds-duration-press) var(--ds-easing-out); }\n.ds-faq-icon::before, .ds-faq-icon::after { content: \"\"; position: absolute; inset: 0; width: var(--ds-space-md); height: var(--ds-stroke); margin: auto; background: currentColor; }\n.ds-faq-icon::after { transform: rotate(90deg); transition: transform var(--ds-duration-glide) var(--ds-easing-out); }\n[aria-expanded=\"true\"] > .ds-faq-icon::after { transform: rotate(0deg); }\n[aria-expanded=\"false\"]:active > .ds-faq-icon { transform: scale(0.75); }\n.ds-faq-panel { visibility: hidden; opacity: 0; transition: opacity var(--ds-duration-glide) var(--ds-easing-out), visibility var(--ds-duration-instant) linear var(--ds-duration-glide); }\n[data-open=\"true\"] .ds-faq-panel { visibility: visible; opacity: 1; transition: opacity var(--ds-duration-glide) var(--ds-easing-out); }\n@media (prefers-reduced-motion: reduce) {\n  .ds-faq-panel, [data-open=\"true\"] .ds-faq-panel, .ds-faq-icon::after { transition: none; }\n}\n`\n"
+        },
+        {
+          "path": "lib/faq.ts",
+          "content": "// The site's FAQ rows (ui/FaqAccordion): when one answer closes and another opens, every answer slot has the height of\n// the longest answer, so the rows between the two move by that height. They are drawn where they were and slid to\n// their new place by transform only (added to any slide still running), over --faq-dur on the site's ease-out; when the\n// row opened would slide out of view above, the page scrolls with it so it stays in view. Both flavors call it after\n// the open row changes. With reduced motion nothing slides (the page just keeps the row in view).\nexport interface FaqMove { from: number; to: number; distance: number; /** How far the page scrolls up so the opened row stays in view. */ shift?: number }\n\n// What a slide still owes the page's scroll, per list, so a second press during a slide measures from where the rows\n// will land.\nconst owed = new WeakMap<HTMLElement, number>()\n\n/** Opening a row below the open one moves it up by the closing answer's height; when that would take it above the\n * view (the page's scroll padding), the page scrolls back with the rows so the question stays where it was read. */\nexport function faqShift(list: HTMLElement | null, open: number, next: number, distance: number, closed: number): number {\n\tif (!list || next <= open || next === closed) return 0\n\tlet rest = list.getBoundingClientRect().top - distance + (owed.get(list) ?? 0) + (list.children[next] as HTMLElement).clientTop\n\tfor (let i = 0; i < next; i++) rest += list.children[i].getBoundingClientRect().height\n\tconst inset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0\n\treturn Math.max(0, Math.round(inset - rest))\n}\n\nexport function slideFaqRows(list: HTMLElement, move: FaqMove) {\n\tconst shift = move.shift ?? 0\n\tif (!move.distance) return\n\tif (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {\n\t\tif (shift) window.scrollBy({ top: -shift, behavior: 'instant' })\n\t\treturn\n\t}\n\tconst css = getComputedStyle(list)\n\tconst raw = css.getPropertyValue('--faq-dur').trim()\n\tconst duration = raw.endsWith('ms') ? parseFloat(raw) : parseFloat(raw) * 1000\n\tconst easing = css.getPropertyValue('--faq-ease').trim() || 'ease-out'\n\tconst down = move.to > move.from\n\tconst offset = down ? move.distance : -move.distance\n\tlet clock: Animation | undefined\n\tfor (let i = Math.min(move.from, move.to) + 1; i <= Math.max(move.from, move.to); i++) {\n\t\tconst a = list.children[i]?.animate([{ transform: `translateY(${offset}px)` }, { transform: 'translateY(0)' }], { duration: duration || 320, easing, composite: 'add' })\n\t\tclock ??= a\n\t}\n\tif (!clock || !shift) return\n\t// The scroll follows the slide frame by frame, so the opened question holds still on screen.\n\tconst rows = clock\n\tlet paid = 0\n\towed.set(list, (owed.get(list) ?? 0) + shift)\n\tconst tick = () => {\n\t\tconst running = rows.playState === 'running' && list.isConnected\n\t\tconst progress = running ? (rows.effect?.getComputedTiming().progress ?? 1) : 1\n\t\tconst before = window.scrollY\n\t\twindow.scrollBy({ top: paid - shift * (progress as number), behavior: 'instant' })\n\t\tconst step = before - window.scrollY\n\t\tpaid += step\n\t\towed.set(list, (owed.get(list) ?? 0) - step)\n\t\tif (running) requestAnimationFrame(tick)\n\t\telse owed.set(list, (owed.get(list) ?? 0) - (shift - paid))\n\t}\n\trequestAnimationFrame(tick)\n}\n\n/** The height every open answer slot has (the open slot's), measured before the change. */\nexport function faqSlotHeight(list: HTMLElement | null): number {\n\treturn list?.querySelector<HTMLElement>('[data-open=\"true\"] [data-slot]')?.getBoundingClientRect().height ?? 0\n}\n\nexport const faqExample = [\n\t{ q: 'What does the Creator plan cost?', a: '$10 for your first month, then $20/month.' },\n\t{ q: 'How many people can use it?', a: 'Unlimited team seats come with the plan, so everyone who makes or reviews creative can search.' },\n\t{ q: 'Which networks are in the index?', a: 'Meta, TikTok, Instagram, and YouTube creatives in one index.' },\n\t{ q: 'How long does it take to add a brand?', a: 'Add any brand or creator in under a minute.' },\n]\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "FaqBlock",
+            "file": "react/components/blocks/FaqBlock.tsx",
+            "props": [
+              {
+                "name": "items",
+                "type": "FaqItem[]",
+                "required": true
+              },
+              {
+                "name": "title",
+                "type": "ReactNode",
+                "required": false,
+                "default": "'Questions.'"
+              },
+              {
+                "name": "body",
+                "type": "ReactNode",
+                "required": false,
+                "description": "A line under the title."
+              },
+              {
+                "name": "action",
+                "type": "{ label: string; href?: string }",
+                "required": false,
+                "description": "A quiet button under the title: { label: 'Read the docs', href }."
+              },
+              {
+                "name": "id",
+                "type": "string",
+                "required": false,
+                "default": "'faq'",
+                "description": "Names the heading (`<id>-heading`)."
+              },
+              {
+                "name": "layout",
+                "type": "'split' | 'stack'",
+                "required": false,
+                "default": "'split'",
+                "description": "split (head left, questions right) or stack (head over a narrow list)."
+              },
+              {
+                "name": "defaultOpen",
+                "type": "number",
+                "required": false,
+                "default": "0",
+                "description": "The question open at first; -1 for none."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          },
+          {
+            "name": "FaqAccordion",
+            "file": "react/components/blocks/FaqAccordion.tsx",
+            "props": [
+              {
+                "name": "items",
+                "type": "FaqAccordionItem[]",
+                "required": true
+              },
+              {
+                "name": "defaultOpen",
+                "type": "number",
+                "required": false,
+                "default": "0",
+                "description": "The row open at first; -1 for none."
+              },
+              {
+                "name": "edge",
+                "type": "'top' | 'bottom'",
+                "required": false,
+                "default": "'top'",
+                "description": "The hairline above the list (top, the default) or under it (bottom, the pricing page's)."
+              },
+              {
+                "name": "narrow",
+                "type": "boolean",
+                "required": false,
+                "default": "false",
+                "description": "Centered and no wider than the measure plus 80px (the pricing page's list)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Questions",
+          "label": "Questions about the plan",
+          "center": false,
+          "half": false,
+          "path": "react/examples/faq-block/Questions.tsx",
+          "content": "import { FaqBlock } from '@/react/components/blocks/FaqBlock'\n// Questions answered only with what the plan and the assets say.\n\nconst items = [\n  {\n    q: \"What does the Creator plan cost?\",\n    a: \"$10 for your first month, then $20/month.\"\n  },\n  {\n    q: \"How many people can use it?\",\n    a: \"Unlimited team seats come with the plan.\"\n  },\n  {\n    q: \"Which networks are in the index?\",\n    a: \"Meta, TikTok, Instagram, and YouTube creatives in one index.\"\n  },\n  {\n    q: \"How long does it take to add a brand?\",\n    a: \"Add any brand or creator in under a minute.\"\n  }\n]\n\nexport default function Questions() {\n  return <FaqBlock title=\"Frequently asked questions\" body=\"Everything Acme's team asked before starting.\" action={{ label: 'Contact us', href: '#contact' }} items={items} />\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Stack",
+          "label": "Head over a narrow list",
+          "center": false,
+          "half": false,
+          "path": "react/examples/faq-block/Stack.tsx",
+          "content": "import { FaqBlock } from '@/react/components/blocks/FaqBlock'\nimport { faqExample } from '@/lib/faq'\n// The earlier site's arrangement: the head centered over a narrow list.\n\nexport default function Stack() {\n  return <FaqBlock id=\"faq-stack\" layout=\"stack\" title=\"Questions, answered\" items={faqExample} />\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Rows",
+          "label": "The rows alone",
+          "center": false,
+          "half": false,
+          "path": "react/examples/faq-block/Rows.tsx",
+          "content": "import { FaqAccordion } from '@/react/components/blocks/FaqAccordion'\nimport { faqExample } from '@/lib/faq'\n// The rows alone, all closed at first.\n\nexport default function Rows() {\n  return <FaqAccordion items={faqExample} defaultOpen={-1} className=\"w-full max-w-180\" />\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/blocks/faq-block.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport '@/elements/components/blocks/faq-accordion'\nimport '@/elements/components/ui/button'\nimport styles from 'virtual:tw'\n\n// FaqBlock.tsx as <spyglass-faq-block>: the site's FAQ, the head (`heading`, React's `title`; `body`; `action` as a quiet\n// button) on the left from 1024, held under the header while the questions (`items`, { q, a }) scroll by on the right;\n// `layout=\"stack\"` puts the head over a narrow list. `head-id` names the heading; `default-open` the first open row.\nexport interface FaqItem { q: string; a: string; id?: string }\n\n/**\n * @summary Questions and answers, as the site sets them.\n */\nexport class FaqBlock extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"faq-block\"]'))\n\tstatic properties = { items: { type: Array }, heading: {}, body: {}, action: { type: Object }, headId: { attribute: 'head-id' }, arrangement: { attribute: 'layout' }, defaultOpen: { type: Number, attribute: 'default-open' } }\n\titems: FaqItem[] = []\n\t/** The heading (React's `title`). */\n\theading = 'Questions.'\n\t/** A line under the heading. */\n\tbody?: string\n\t/** A quiet button under the heading. */\n\taction?: { label: string; href?: string }\n\t/** Names the heading (React's `id`). */\n\theadId = 'faq'\n\t/** split (head left, questions right) or stack (head over a narrow list); the `layout` attribute (React's `layout`). */\n\tarrangement: 'split' | 'stack' = 'split'\n\tdefaultOpen = 0\n\n\trender() {\n\t\tconst stack = this.arrangement === 'stack'\n\t\treturn html`<section data-ds=\"faq-block\" aria-labelledby=${`${this.headId}-heading`} class=${`grid grid-cols-[minmax(0,1fr)] text-fg ${stack ? 'gap-y-16 lg:gap-y-20' : 'gap-y-12 lg:grid-cols-[minmax(0,4fr)_minmax(0,7fr)] lg:items-start lg:gap-x-16'}`}><header class=${`flex flex-col ${stack ? 'items-center text-center' : 'items-start max-md:items-center max-md:text-center lg:sticky lg:top-[calc(var(--ds-size-header)+var(--ds-space-2xl))]'}`}><h2 id=${`${this.headId}-heading`} class=\"type-section max-lg:[text-box:trim-start_cap_alphabetic]\">${this.heading}</h2>${this.body ? html`<p class=\"mt-6 max-w-measure type-body-lg text-pretty text-fg-soft\">${this.body}</p>` : nothing}${this.action ? html`<spyglass-button href=${ifDefined(this.action.href)} variant=\"secondary\" class=\"mt-8 max-md:w-full\">${this.action.label}</spyglass-button>` : nothing}</header><div class=\"min-w-0\"><spyglass-faq-accordion .items=${this.items ?? []} .defaultOpen=${this.defaultOpen} edge=${stack ? 'bottom' : 'top'} ?narrow=${stack}></spyglass-faq-accordion></div></section>`\n\t}\n}\n\ndefine('faq-block', FaqBlock)\n"
+        },
+        {
+          "path": "elements/components/blocks/faq-accordion.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define, HostLayoutController, uid } from '@/elements/lib/element'\nimport { faqShift, faqSlotHeight, slideFaqRows, type FaqMove } from '@/lib/faq'\nimport styles from 'virtual:tw'\n\n// FaqAccordion.tsx as <spyglass-faq-accordion>: the site's FAQ rows, one answer open at a time, every open slot as tall\n// as the longest answer so the rows between slide by that height (transform only); the plus turns to a minus. Arrows,\n// Home and End move between questions. `items` (JSON: { q, a, id? }), `default-open` (-1 for none), `edge` (top or\n// bottom), `narrow`.\nexport interface FaqAccordionItem { q: string; a: string; id?: string }\n\nconst ROW = 'relative border-t border-edge bg-surface first:border-t-0'\n\n/** @summary Questions that open one at a time, the rows sliding to make room. */\nexport class FaqAccordion extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"faq-accordion\"]'))\n\tstatic properties = { items: { type: Array }, defaultOpen: { type: Number, attribute: 'default-open' }, edge: {}, narrow: { type: Boolean }, open: { state: true } }\n\titems: FaqAccordionItem[] = []\n\t/** The row open at first; -1 for none. */\n\tdefaultOpen = 0\n\t/** The hairline above the list (top) or under it (bottom). */\n\tedge: 'top' | 'bottom' = 'top'\n\t/** Centered and no wider than the measure plus 80px. */\n\tnarrow = false\n\tprivate open?: number\n\tprivate move: FaqMove | null = null\n\tprivate rowId = uid('faq')\n\n\tprivate get list() { return this.renderRoot.querySelector<HTMLElement>('[data-ds=\"faq-accordion\"]') }\n\n\tprivate select(clicked: number, current: number, closed: number) {\n\t\tconst next = clicked === current ? closed : clicked\n\t\tconst distance = faqSlotHeight(this.list)\n\t\tthis.move = { from: current, to: next, distance, shift: faqShift(this.list, current, next, distance, closed) }\n\t\tthis.open = next\n\t}\n\n\tprotected updated(changed: Map<string, unknown>) {\n\t\tsuper.updated(changed as never)\n\t\tconst pending = this.move\n\t\tthis.move = null\n\t\tif (pending && this.list) slideFaqRows(this.list, pending)\n\t}\n\n\tprivate onKeyDown(e: KeyboardEvent) {\n\t\tconst triggers = [...this.renderRoot.querySelectorAll<HTMLButtonElement>('[data-trigger]')]\n\t\tconst at = triggers.indexOf((this.renderRoot as ShadowRoot).activeElement as HTMLButtonElement)\n\t\tif (at < 0) return\n\t\tconst target = ({ ArrowDown: (at + 1) % triggers.length, ArrowUp: (at - 1 + triggers.length) % triggers.length, Home: 0, End: triggers.length - 1 } as Record<string, number>)[e.key]\n\t\tif (target === undefined) return\n\t\te.preventDefault()\n\t\ttriggers[target].focus()\n\t}\n\n\trender() {\n\t\tconst items = this.items ?? []\n\t\tconst closed = items.length\n\t\tconst open = this.open ?? (this.defaultOpen < 0 ? closed : this.defaultOpen)\n\t\tconst id = this.rowId\n\t\tconst sizers = (skip: number) => items.map((other, j) => (j === skip ? nothing : html`<span aria-hidden=\"true\" data-text=${other.a} class=\"invisible block type-body text-pretty text-fg-soft [grid-area:1/1] before:content-[attr(data-text)]\"></span>`))\n\t\treturn html`<div data-ds=\"faq-accordion\" @keydown=${this.onKeyDown} class=${['ds-faq min-w-0 overflow-y-clip border-edge [overflow-anchor:none]', this.edge === 'bottom' ? 'border-b' : 'border-t', this.narrow ? 'mx-auto max-w-[calc(var(--ds-layout-measure)+var(--ds-space-5xl))]' : ''].filter(Boolean).join(' ')}>${items.map((item, i) => {\n\t\t\tconst isOpen = i === open\n\t\t\treturn html`<div id=${ifDefined(item.id)} data-open=${String(isOpen)} class=${ROW}><h3 class=\"[font:inherit]\"><button type=\"button\" id=${`${id}-q-${i}`} data-trigger aria-expanded=${String(isOpen)} aria-controls=${`${id}-a-${i}`} @click=${() => this.select(i, open, closed)} class=\"group/faq -mx-2 flex min-h-control-lg w-[calc(100%+2*var(--ds-space-sm))] cursor-pointer items-start justify-between gap-6 rounded-ds-sm px-2 py-5 text-left text-fg-soft transition-[color] duration-160 ease-out outline-offset-[calc(-1*var(--ds-border-focus))] hover:text-fg active:text-fg aria-expanded:text-fg md:py-6\"><span class=\"min-w-0 type-body-lg text-balance\">${item.q}</span><span aria-hidden=\"true\" class=\"ds-faq-icon relative h-7 w-3 flex-none\"></span></button></h3><div data-slot class=${isOpen ? 'h-auto' : 'h-0'}><div class=\"grid grid-cols-[minmax(0,var(--ds-layout-measure))] bg-surface pb-6 md:pb-8\"><div id=${`${id}-a-${i}`} role=\"region\" aria-labelledby=${`${id}-q-${i}`} class=\"ds-faq-panel [grid-area:1/1]\"><p class=\"block type-body text-pretty text-fg-soft\">${item.a}</p></div>${sizers(i)}</div></div></div>`\n\t\t})}<div data-open=${String(open === closed)} aria-hidden=\"true\" class=${ROW}><div data-slot class=${open === closed ? 'h-auto' : 'h-0'}><div class=\"grid grid-cols-[minmax(0,var(--ds-layout-measure))] bg-surface pb-6 md:pb-8\">${sizers(-1)}</div></div></div></div>`\n\t}\n}\n\ndefine('faq-accordion', FaqAccordion)\n"
+        },
+        {
+          "path": "elements/components/blocks/faq-accordion.css",
+          "content": ".ds-faq { --faq-dur: var(--ds-duration-glide); --faq-ease: var(--ds-easing-out); }\n.ds-faq-icon { transition: transform var(--ds-duration-press) var(--ds-easing-out); }\n.ds-faq-icon::before, .ds-faq-icon::after { content: \"\"; position: absolute; inset: 0; width: var(--ds-space-md); height: var(--ds-stroke); margin: auto; background: currentColor; }\n.ds-faq-icon::after { transform: rotate(90deg); transition: transform var(--ds-duration-glide) var(--ds-easing-out); }\n[aria-expanded=\"true\"] > .ds-faq-icon::after { transform: rotate(0deg); }\n[aria-expanded=\"false\"]:active > .ds-faq-icon { transform: scale(0.75); }\n.ds-faq-panel { visibility: hidden; opacity: 0; transition: opacity var(--ds-duration-glide) var(--ds-easing-out), visibility var(--ds-duration-instant) linear var(--ds-duration-glide); }\n[data-open=\"true\"] .ds-faq-panel { visibility: visible; opacity: 1; transition: opacity var(--ds-duration-glide) var(--ds-easing-out); }\n@media (prefers-reduced-motion: reduce) {\n  .ds-faq-panel, [data-open=\"true\"] .ds-faq-panel, .ds-faq-icon::after { transition: none; }\n}\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/faq-block.js",
+        "elements/faq-accordion.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-faq-block",
+      "tags": [
+        "spyglass-faq-block",
+        "spyglass-faq-accordion"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-faq-block",
+            "name": "FaqBlock",
+            "module": "elements/faq-block.js",
+            "description": "Questions and answers, as the site sets them.",
+            "attributes": [
+              {
+                "name": "items",
+                "field": "items",
+                "type": "FaqItem[]",
+                "default": "[]"
+              },
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string",
+                "default": "'Questions.'",
+                "description": "The heading (React's `title`)."
+              },
+              {
+                "name": "body",
+                "field": "body",
+                "type": "string | undefined",
+                "description": "A line under the heading."
+              },
+              {
+                "name": "action",
+                "field": "action",
+                "type": "{ label: string; href?: string; } | undefined",
+                "description": "A quiet button under the heading."
+              },
+              {
+                "name": "head-id",
+                "field": "headId",
+                "type": "string",
+                "default": "'faq'",
+                "description": "Names the heading (React's `id`)."
+              },
+              {
+                "name": "layout",
+                "field": "arrangement",
+                "type": "\"split\" | \"stack\"",
+                "default": "'split'",
+                "description": "split (head left, questions right) or stack (head over a narrow list); the `layout` attribute (React's `layout`)."
+              },
+              {
+                "name": "default-open",
+                "field": "defaultOpen",
+                "type": "number",
+                "default": "0"
+              }
+            ],
+            "properties": [
+              {
+                "name": "items",
+                "type": "FaqItem[]",
+                "default": "[]",
+                "attribute": "items"
+              },
+              {
+                "name": "heading",
+                "type": "string",
+                "default": "'Questions.'",
+                "description": "The heading (React's `title`).",
+                "attribute": "heading"
+              },
+              {
+                "name": "body",
+                "type": "string | undefined",
+                "description": "A line under the heading.",
+                "attribute": "body"
+              },
+              {
+                "name": "action",
+                "type": "{ label: string; href?: string; } | undefined",
+                "description": "A quiet button under the heading.",
+                "attribute": "action"
+              },
+              {
+                "name": "headId",
+                "type": "string",
+                "default": "'faq'",
+                "description": "Names the heading (React's `id`).",
+                "attribute": "head-id"
+              },
+              {
+                "name": "arrangement",
+                "type": "\"split\" | \"stack\"",
+                "default": "'split'",
+                "description": "split (head left, questions right) or stack (head over a narrow list); the `layout` attribute (React's `layout`).",
+                "attribute": "layout"
+              },
+              {
+                "name": "defaultOpen",
+                "type": "number",
+                "default": "0",
+                "attribute": "default-open"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          },
+          {
+            "tag": "spyglass-faq-accordion",
+            "name": "FaqAccordion",
+            "module": "elements/faq-accordion.js",
+            "description": "Questions that open one at a time, the rows sliding to make room.",
+            "attributes": [
+              {
+                "name": "items",
+                "field": "items",
+                "type": "FaqAccordionItem[]",
+                "default": "[]"
+              },
+              {
+                "name": "default-open",
+                "field": "defaultOpen",
+                "type": "number",
+                "default": "0",
+                "description": "The row open at first; -1 for none."
+              },
+              {
+                "name": "edge",
+                "field": "edge",
+                "type": "\"top\" | \"bottom\"",
+                "default": "'top'",
+                "description": "The hairline above the list (top) or under it (bottom)."
+              },
+              {
+                "name": "narrow",
+                "field": "narrow",
+                "type": "boolean",
+                "default": "false",
+                "description": "Centered and no wider than the measure plus 80px."
+              },
+              {
+                "name": "open",
+                "field": "open",
+                "type": "number | undefined"
+              }
+            ],
+            "properties": [
+              {
+                "name": "items",
+                "type": "FaqAccordionItem[]",
+                "default": "[]",
+                "attribute": "items"
+              },
+              {
+                "name": "defaultOpen",
+                "type": "number",
+                "default": "0",
+                "description": "The row open at first; -1 for none.",
+                "attribute": "default-open"
+              },
+              {
+                "name": "edge",
+                "type": "\"top\" | \"bottom\"",
+                "default": "'top'",
+                "description": "The hairline above the list (top) or under it (bottom).",
+                "attribute": "edge"
+              },
+              {
+                "name": "narrow",
+                "type": "boolean",
+                "default": "false",
+                "description": "Centered and no wider than the measure plus 80px.",
+                "attribute": "narrow"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Questions",
+          "label": "Questions about the plan",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/faq-block/Questions.html",
+          "content": "<!-- Questions answered only with what the plan and the assets say. -->\n<spyglass-faq-block heading=\"Frequently asked questions\" body=\"Everything Acme's team asked before starting.\" action='{\"label\":\"Contact us\",\"href\":\"#contact\"}' items='[{\"q\":\"What does the Creator plan cost?\",\"a\":\"$10 for your first month, then $20/month.\"},{\"q\":\"How many people can use it?\",\"a\":\"Unlimited team seats come with the plan.\"},{\"q\":\"Which networks are in the index?\",\"a\":\"Meta, TikTok, Instagram, and YouTube creatives in one index.\"},{\"q\":\"How long does it take to add a brand?\",\"a\":\"Add any brand or creator in under a minute.\"}]'></spyglass-faq-block>\n"
+        },
+        {
+          "name": "Stack",
+          "label": "Head over a narrow list",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/faq-block/Stack.html",
+          "content": "<!-- The earlier site's arrangement: the head centered over a narrow list. -->\n<spyglass-faq-block head-id=\"faq-stack\" layout=\"stack\" heading=\"Questions, answered\" items='[{\"q\":\"What does the Creator plan cost?\",\"a\":\"$10 for your first month, then $20/month.\"},{\"q\":\"How many people can use it?\",\"a\":\"Unlimited team seats come with the plan, so everyone who makes or reviews creative can search.\"},{\"q\":\"Which networks are in the index?\",\"a\":\"Meta, TikTok, Instagram, and YouTube creatives in one index.\"},{\"q\":\"How long does it take to add a brand?\",\"a\":\"Add any brand or creator in under a minute.\"}]'></spyglass-faq-block>\n"
+        },
+        {
+          "name": "Rows",
+          "label": "The rows alone",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/faq-block/Rows.html",
+          "content": "<!-- The rows alone, all closed at first. -->\n<spyglass-faq-accordion default-open=\"-1\" class=\"w-full max-w-180\" items='[{\"q\":\"What does the Creator plan cost?\",\"a\":\"$10 for your first month, then $20/month.\"},{\"q\":\"How many people can use it?\",\"a\":\"Unlimited team seats come with the plan, so everyone who makes or reviews creative can search.\"},{\"q\":\"Which networks are in the index?\",\"a\":\"Meta, TikTok, Instagram, and YouTube creatives in one index.\"},{\"q\":\"How long does it take to add a brand?\",\"a\":\"Add any brand or creator in under a minute.\"}]'></spyglass-faq-accordion>\n"
+        }
+      ]
+    }
+  }
+}

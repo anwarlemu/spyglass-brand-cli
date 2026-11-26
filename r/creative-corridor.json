@@ -1,0 +1,185 @@
+{
+  "name": "creative-corridor",
+  "title": "Creative corridor",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "Creatives as walls on both sides, receding in perspective to a small light at the vanishing point, in the ad's exact places.",
+  "use_for": "The one picture of scale on a page: an index of every network, the depth of the archive. Headline above, a line of copy below.",
+  "never": [
+    "Text over the corridor",
+    "A corridor that moves or scrolls",
+    "Two corridors on one page"
+  ],
+  "source": "Figma page 8: Ad, The world's largest creative search engine (Corridor L0 to L5 and R0 to R5, Light, end of corridor 140x104 at the vanishing point)",
+  "body": "Each picture is an image slot (`src`, `alt`, `fit`, `position`); without `src` it keeps its placeholder, which carries\n`data-ds-placeholder`.",
+  "requires": [
+    "brand-light",
+    "creative-card"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/CreativeCorridor.tsx",
+      "content": "import { BrandLight } from '@/react/components/visuals/BrandLight'\nimport { CreativeCard, type CreativeItem } from '@/react/components/site/CreativeCard'\nimport { CORRIDOR_FRAME, CORRIDOR_LIGHT, corridorWalls, placeAt } from '@/lib/creative-layouts'\nimport { cn } from '@/react/lib/cn'\n\n// The corridor (Ad, The world's largest creative search engine): creatives as walls on both sides, receding in\n// perspective to a small light at the vanishing point. Twelve walls, nearest first and left then right, in the ad's\n// exact places; each is clipped so its far edge is shorter. The corridor scales with its width (1080 by 744).\nexport interface CreativeCorridorProps {\n  /** Up to twelve creatives, nearest first, alternating left and right (fewer repeat). */\n  items: CreativeItem[]\n  /** The light's seed. */\n  seed?: number\n  className?: string\n}\n\nexport function CreativeCorridor({ items, seed = 0, className }: CreativeCorridorProps) {\n  const { width, height } = CORRIDOR_FRAME\n  return (\n    <div data-ds=\"creative-corridor\" className={cn('relative w-full overflow-hidden', className)} style={{ aspectRatio: `${width} / ${height}` }}>\n      <div className=\"absolute\" style={placeAt(CORRIDOR_LIGHT, width, height)}>\n        <BrandLight variant=\"close-up\" seed={seed} cover className=\"size-full\" />\n      </div>\n      {corridorWalls().map((wall, i) => {\n        const { light: _light, seed: _seed, ...item } = items.length ? items[i % items.length] : ({} as CreativeItem)\n        return (\n          <div key={i} className=\"absolute\" style={{ ...placeAt(wall, width, height), clipPath: wall.clip }}>\n            <CreativeCard {...item} ratio=\"fill\" />\n          </div>\n        )\n      })}\n    </div>\n  )\n}\n\nexport default CreativeCorridor\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Corridor",
+      "label": "Corridor",
+      "center": false,
+      "half": false,
+      "path": "react/examples/creative-corridor/Corridor.tsx",
+      "content": "import { CreativeCorridor } from '@/react/components/site/CreativeCorridor'\n// The ad's corridor: twelve walls receding to the light.\n\nconst items = [\n  { brand: 'Acme Studio', tone: 3 as const },\n  { brand: 'Acme Studio', tone: 2 as const },\n  { brand: 'Acme Fit', tone: 4 as const },\n  { brand: 'Acme Drinks', tone: 3 as const },\n  { brand: 'Acme Skin', tone: 2 as const },\n  { brand: 'Acme Fit', tone: 1 as const },\n]\n\nexport default function Corridor() {\n  return <CreativeCorridor items={items} />\n}\n",
+      "requires": [
+        "brand-light",
+        "creative-card"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/CreativeCorridor.tsx",
+          "content": "import { BrandLight } from '@/react/components/visuals/BrandLight'\nimport { CreativeCard, type CreativeItem } from '@/react/components/site/CreativeCard'\nimport { CORRIDOR_FRAME, CORRIDOR_LIGHT, corridorWalls, placeAt } from '@/lib/creative-layouts'\nimport { cn } from '@/react/lib/cn'\n\n// The corridor (Ad, The world's largest creative search engine): creatives as walls on both sides, receding in\n// perspective to a small light at the vanishing point. Twelve walls, nearest first and left then right, in the ad's\n// exact places; each is clipped so its far edge is shorter. The corridor scales with its width (1080 by 744).\nexport interface CreativeCorridorProps {\n  /** Up to twelve creatives, nearest first, alternating left and right (fewer repeat). */\n  items: CreativeItem[]\n  /** The light's seed. */\n  seed?: number\n  className?: string\n}\n\nexport function CreativeCorridor({ items, seed = 0, className }: CreativeCorridorProps) {\n  const { width, height } = CORRIDOR_FRAME\n  return (\n    <div data-ds=\"creative-corridor\" className={cn('relative w-full overflow-hidden', className)} style={{ aspectRatio: `${width} / ${height}` }}>\n      <div className=\"absolute\" style={placeAt(CORRIDOR_LIGHT, width, height)}>\n        <BrandLight variant=\"close-up\" seed={seed} cover className=\"size-full\" />\n      </div>\n      {corridorWalls().map((wall, i) => {\n        const { light: _light, seed: _seed, ...item } = items.length ? items[i % items.length] : ({} as CreativeItem)\n        return (\n          <div key={i} className=\"absolute\" style={{ ...placeAt(wall, width, height), clipPath: wall.clip }}>\n            <CreativeCard {...item} ratio=\"fill\" />\n          </div>\n        )\n      })}\n    </div>\n  )\n}\n\nexport default CreativeCorridor\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "brand-light",
+        "creative-card"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "CreativeCorridor",
+            "file": "react/components/site/CreativeCorridor.tsx",
+            "props": [
+              {
+                "name": "items",
+                "type": "CreativeItem[]",
+                "required": true,
+                "description": "Up to twelve creatives, nearest first, alternating left and right (fewer repeat)."
+              },
+              {
+                "name": "seed",
+                "type": "number",
+                "required": false,
+                "default": "0",
+                "description": "The light's seed."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Corridor",
+          "label": "Corridor",
+          "center": false,
+          "half": false,
+          "path": "react/examples/creative-corridor/Corridor.tsx",
+          "content": "import { CreativeCorridor } from '@/react/components/site/CreativeCorridor'\n// The ad's corridor: twelve walls receding to the light.\n\nconst items = [\n  { brand: 'Acme Studio', tone: 3 as const },\n  { brand: 'Acme Studio', tone: 2 as const },\n  { brand: 'Acme Fit', tone: 4 as const },\n  { brand: 'Acme Drinks', tone: 3 as const },\n  { brand: 'Acme Skin', tone: 2 as const },\n  { brand: 'Acme Fit', tone: 1 as const },\n]\n\nexport default function Corridor() {\n  return <CreativeCorridor items={items} />\n}\n",
+          "registryDependencies": [
+            "brand-light",
+            "creative-card"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/creative-corridor.ts",
+          "content": "import type { ImageFit } from '@/lib/image'\nimport { html } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { styleMap } from 'lit/directives/style-map.js'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { CORRIDOR_FRAME, CORRIDOR_LIGHT, corridorWalls, placeAt } from '@/lib/creative-layouts'\nimport '@/elements/components/site/creative-card'\nimport '@/elements/components/visuals/brand-light'\nimport styles from 'virtual:tw'\n\n// CreativeCorridor.tsx as <spyglass-creative-corridor>: twelve creatives as walls receding to a small light, in the\n// ad's places, nearest first and alternating left and right (`items`); `seed` draws the light.\nexport interface CreativeItem { src?: string; alt?: string; fit?: ImageFit; position?: string; brand?: string; caption?: string; tone?: 1 | 2 | 3 | 4; href?: string; light?: boolean; seed?: number }\n\n/**\n * @summary The corridor: creatives as walls receding to the light.\n */\nexport class CreativeCorridor extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"creative-corridor\"]'))\n\tstatic properties = { items: { type: Array }, seed: { type: Number } }\n\t/** Up to twelve creatives, nearest first, left then right. */\n\titems: CreativeItem[] = []\n\t/** The light's seed. */\n\tseed = 0\n\n\trender() {\n\t\tconst { width, height } = CORRIDOR_FRAME\n\t\tconst items = this.items ?? []\n\t\treturn html`<div data-ds=\"creative-corridor\" class=\"relative w-full overflow-hidden\" style=\"aspect-ratio: ${width} / ${height};\"><div class=\"absolute\" style=${styleMap(placeAt(CORRIDOR_LIGHT, width, height))}><spyglass-brand-light variant=\"close-up\" seed=${this.seed} cover class=\"size-full\"></spyglass-brand-light></div>${corridorWalls().map((wall, i) => {\n\t\t\tconst it: CreativeItem = items.length ? items[i % items.length] : {}\n\t\t\treturn html`<div class=\"absolute\" style=${styleMap({ ...placeAt(wall, width, height), clipPath: wall.clip })}><spyglass-creative-card ratio=\"fill\" src=${ifDefined(it.src)} fit=${ifDefined(it.fit)} position=${ifDefined(it.position)} alt=${ifDefined(it.alt)} brand=${ifDefined(it.brand)} caption=${ifDefined(it.caption)} tone=${ifDefined(it.tone)} href=${ifDefined(it.href)}></spyglass-creative-card></div>`\n\t\t})}</div>`\n\t}\n}\n\ndefine('creative-corridor', CreativeCorridor)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/creative-corridor.js",
+        "elements/creative-card.js",
+        "elements/brand-light.js"
+      ],
+      "tag": "spyglass-creative-corridor",
+      "tags": [
+        "spyglass-creative-corridor"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "brand-light",
+        "creative-card"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-creative-corridor",
+            "name": "CreativeCorridor",
+            "module": "elements/creative-corridor.js",
+            "description": "The corridor: creatives as walls receding to the light.",
+            "attributes": [
+              {
+                "name": "items",
+                "field": "items",
+                "type": "CreativeItem[]",
+                "default": "[]",
+                "description": "Up to twelve creatives, nearest first, left then right."
+              },
+              {
+                "name": "seed",
+                "field": "seed",
+                "type": "number",
+                "default": "0",
+                "description": "The light's seed."
+              }
+            ],
+            "properties": [
+              {
+                "name": "items",
+                "type": "CreativeItem[]",
+                "default": "[]",
+                "description": "Up to twelve creatives, nearest first, left then right.",
+                "attribute": "items"
+              },
+              {
+                "name": "seed",
+                "type": "number",
+                "default": "0",
+                "description": "The light's seed.",
+                "attribute": "seed"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Corridor",
+          "label": "Corridor",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/creative-corridor/Corridor.html",
+          "content": "<!-- The ad's corridor: twelve walls receding to the light. -->\n<spyglass-creative-corridor items='[{\"brand\":\"Acme Studio\",\"tone\":3},{\"brand\":\"Acme Studio\",\"tone\":2},{\"brand\":\"Acme Fit\",\"tone\":4},{\"brand\":\"Acme Drinks\",\"tone\":3},{\"brand\":\"Acme Skin\",\"tone\":2},{\"brand\":\"Acme Fit\",\"tone\":1}]'></spyglass-creative-corridor>\n"
+        }
+      ]
+    }
+  }
+}

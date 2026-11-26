@@ -1,0 +1,191 @@
+{
+  "name": "sonner",
+  "title": "Sonner",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "The corner where notes from toast() show: the newest in front, two more peeking out above. Pointing at the stack spreads it out and holds their time. A note rises in from below and leaves faster.",
+  "use_for": "Saying something just happened, for a moment: saved to a board, a brand added, a link copied. Mount one Toaster per app and call toast(title, { description, action }) from anywhere.",
+  "never": [
+    "Errors that need an answer: keep them where they happened",
+    "What the page already shows",
+    "Notes that leave while someone is reading them: the time holds while the stack is pointed at"
+  ],
+  "source": "Derived from the brand guidelines (no toast in the brand assets): the Toast note, stacked in the corner of Black",
+  "body": "",
+  "requires": [
+    "toast"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Sonner.tsx",
+      "content": "'use client'\nimport { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react'\nimport { Toast } from '@/react/components/ui/Toast'\nimport { getToasts, subscribeToasts, toast, TOAST_MOST, type ToastData } from '@/lib/sonner'\n\nexport { toast } from '@/lib/sonner'\n\n// The corner where notes from toast() show (shadcn's sonner): the bottom right, full width on a phone. The newest is in\n// front; the two before it peek out above, 12px apart and a little smaller. Pointing at the stack (or tabbing into it)\n// spreads it out and stops every note's time, as does a hidden tab, so none leaves unread. A note rises in from below\n// over 360ms on the strong ease-out and leaves faster, 160ms, fading as it drops; the others move to their new places\n// as one goes. Each has a close button; an action closes it after it runs. Reduced motion keeps only the fades. Mount\n// one per app, then call toast('Saved to board', { description, action }) from anywhere.\nexport interface ToasterProps {\n  /** The region's name for assistive tech. */\n  label?: string\n}\n\nconst STEP = 100\nconst PEEK = 12\nconst GAP = 12\n\ntype Item = ToastData & { mounted: boolean, removed: boolean }\n\nexport function Toaster({ label = 'Notifications' }: ToasterProps) {\n  const store = useSyncExternalStore(subscribeToasts, getToasts, getToasts)\n  const [items, setItems] = useState<Item[]>([])\n  // Spread while pointed at or while focus is inside: two reasons, kept apart so losing one keeps the other.\n  const [hovered, setHovered] = useState(false)\n  const [focused, setFocused] = useState(false)\n  const expanded = hovered || focused\n  const [heights, setHeights] = useState<Record<number, number>>({})\n  const nodes = useRef(new Map<number, HTMLElement>())\n  const left = useRef(new Map<number, { left: number, shown: number }>())\n  const last = useRef(new Map<number, string>())\n  const exits = useRef(new Map<number, ReturnType<typeof setTimeout>>())\n  const list = useRef<HTMLOListElement | null>(null)\n  const held = useRef(false)\n  held.current = expanded\n\n  // The store's notes, with those still leaving kept in their places.\n  useEffect(() => {\n    setItems((prev) => {\n      const next: Item[] = prev.map((p) => {\n        const t = store.find((s) => s.id === p.id)\n        return t ? { ...t, mounted: p.mounted, removed: false } : { ...p, removed: true }\n      })\n      for (const t of store) if (!prev.some((p) => p.id === t.id)) next.push({ ...t, mounted: false, removed: false })\n      return next\n    })\n  }, [store])\n\n  // A new note starts below, out of sight, for one frame, then rises; a leaving one goes once its exit has played. A note\n  // that leaves with focus in it takes the focus away without a blur: the stack is no longer focused then.\n  useEffect(() => {\n    if (focused && !list.current?.contains(document.activeElement)) setFocused(false)\n    let frame = 0\n    if (items.some((i) => !i.mounted && !i.removed)) {\n      frame = requestAnimationFrame(() => {\n        frame = requestAnimationFrame(() => setItems((p) => p.map((i) => (i.removed ? i : { ...i, mounted: true }))))\n      })\n    }\n    for (const i of items) {\n      if (!i.removed || exits.current.has(i.id)) continue\n      // ds-latency: the note stays in the page until its exit has played.\n      exits.current.set(i.id, setTimeout(() => {\n        exits.current.delete(i.id)\n        setItems((p) => p.filter((x) => x.id !== i.id))\n      }, 160))\n    }\n    return () => cancelAnimationFrame(frame)\n  }, [items])\n  useEffect(() => () => { for (const t of exits.current.values()) clearTimeout(t) }, [])\n\n  // One clock for every note, only while there are any; it stops while the stack is pointed at or the tab is hidden.\n  const count = store.length\n  useEffect(() => {\n    if (!count) return\n    // ds-latency: the notes' own clock, off the input path; nothing waits on it.\n    const timer = setInterval(() => {\n      if (held.current || document.hidden) return\n      for (const t of getToasts()) {\n        const l = left.current.get(t.id)\n        const now = !l || l.shown !== t.shown ? t.duration : l.left - STEP\n        if (now <= 0) {\n          left.current.delete(t.id)\n          toast.dismiss(t.id)\n        }\n        else left.current.set(t.id, { left: now, shown: t.shown })\n      }\n    }, STEP)\n    return () => clearInterval(timer)\n  }, [count > 0]) // eslint-disable-line react-hooks/exhaustive-deps\n  useEffect(() => {\n    if (!count) {\n      setHovered(false)\n      setFocused(false)\n    }\n  }, [count])\n\n  // Each note's own height, for spreading the stack out.\n  useLayoutEffect(() => {\n    const next: Record<number, number> = {}\n    for (const [id, node] of nodes.current) next[id] = (node.firstElementChild as HTMLElement | null)?.offsetHeight ?? 0\n    if (Object.keys(next).length !== Object.keys(heights).length || Object.entries(next).some(([id, h]) => heights[Number(id)] !== h)) setHeights(next)\n  })\n\n  const showing = items.filter((i) => !i.removed).reverse()\n  const front = showing[0] ? heights[showing[0].id] ?? 0 : 0\n  const spread = showing.reduce((sum, i) => sum + (heights[i.id] ?? 0), 0) + Math.max(0, showing.length - 1) * GAP\n  const height = !showing.length ? 0 : expanded ? spread : front + (Math.min(showing.length, TOAST_MOST) - 1) * PEEK\n\n  function style(item: Item): CSSProperties {\n    const i = showing.indexOf(item)\n    if (item.removed || i < 0) return { transform: `${last.current.get(item.id) ?? 'translateY(0)'} translateY(50%)`, opacity: 0, zIndex: 0 }\n    if (!item.mounted) return { transform: 'translateY(100%)', opacity: 0, zIndex: showing.length - i }\n    const y = expanded ? -(showing.slice(0, i).reduce((sum, x) => sum + (heights[x.id] ?? 0), 0) + i * GAP) : -i * PEEK\n    const transform = `translateY(${y}px) scale(${expanded ? 1 : 1 - i * 0.05})`\n    last.current.set(item.id, transform)\n    return { transform, opacity: i < TOAST_MOST ? 1 : 0, zIndex: showing.length - i, height: !expanded && i > 0 && front ? `${front}px` : undefined }\n  }\n\n  return (\n    <>\n      <style href=\"ds-sonner\" precedence=\"ds\">{css}</style>\n      <section data-ds=\"sonner\" aria-label={label} aria-live=\"polite\">\n        <ol\n          ref={list}\n          className=\"ds-sonner\"\n          style={{ height: `${height}px` }}\n          onPointerEnter={() => setHovered(true)}\n          onPointerLeave={() => setHovered(false)}\n          onFocus={() => setFocused(true)}\n          onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocused(false) }}\n        >\n          {items.map((item) => (\n            <li\n              key={item.id}\n              ref={(el) => { if (el) nodes.current.set(item.id, el); else nodes.current.delete(item.id) }}\n              className=\"ds-sonner-toast\"\n              data-removed={item.removed || undefined}\n              style={style(item)}\n            >\n              <Toast\n                title={item.title}\n                description={item.description}\n                action={item.action && { label: item.action.label, onClick: () => { item.action?.onClick?.(); toast.dismiss(item.id) } }}\n                onDismiss={() => toast.dismiss(item.id)}\n              />\n            </li>\n          ))}\n        </ol>\n      </section>\n    </>\n  )\n}\n\nexport default Toaster\n\nconst css = `\n.ds-sonner { position: fixed; right: var(--ds-space-lg); bottom: calc(var(--ds-space-lg) + env(safe-area-inset-bottom)); z-index: 70; width: min(22.5rem, calc(100vw - 2 * var(--ds-space-lg))); margin: 0; padding: 0; list-style: none; }\n.ds-sonner-toast { position: absolute; right: 0; bottom: 0; left: 0; overflow: hidden; border-radius: var(--ds-radius-container); transform-origin: 50% 100%; transition: transform var(--ds-duration-entrance) var(--ds-easing-out), opacity var(--ds-duration-entrance) var(--ds-easing-out); }\n.ds-sonner-toast[data-removed] { pointer-events: none; transition-duration: var(--ds-duration-exit); }\n@media (prefers-reduced-motion: reduce) {\n  .ds-sonner-toast { transition: opacity var(--ds-duration-enter) var(--ds-easing-out); }\n}\n`\n"
+    },
+    {
+      "path": "lib/sonner.ts",
+      "content": "// The toasts' store for the sonner item, framework-free so both flavors share its behavior: toast() adds a note,\n// toast.dismiss() takes one (or all) away, and a Toaster subscribes and draws them. Three at most: a fourth pushes the\n// oldest out. The same title and description again restarts that note's time instead of stacking a copy. The time\n// itself is the Toaster's, so it can stop while a note is pointed at or the tab is hidden.\nexport interface ToastAction {\n\t/** The button's label. */\n\tlabel: string\n\t/** What it does; the toast closes after it. */\n\tonClick?: () => void\n}\nexport interface ToastOptions {\n\t/** A line under the title. */\n\tdescription?: string\n\t/** One button beside the text. */\n\taction?: ToastAction\n\t/** How long it stays, in ms (4000 by default). */\n\tduration?: number\n}\nexport interface ToastData extends ToastOptions {\n\tid: number\n\ttitle: string\n\tduration: number\n\t/** Bumped when the same note is shown again, so its time restarts. */\n\tshown: number\n}\n\nexport const TOAST_MS = 4000\nexport const TOAST_MOST = 3\n\nlet toasts: ToastData[] = []\nlet last = 0\nlet shown = 0\nconst listeners = new Set<() => void>()\nconst set = (next: ToastData[]) => {\n\ttoasts = next\n\tfor (const l of listeners) l()\n}\n\n/** Shows a note: what just happened, for a moment. Returns its id. */\nexport function toast(title: string, options: ToastOptions = {}): number {\n\tshown += 1\n\tconst same = toasts.find((t) => t.title === title && t.description === options.description)\n\tif (same) {\n\t\tset(toasts.map((t) => (t === same ? { ...t, shown } : t)))\n\t\treturn same.id\n\t}\n\tlast += 1\n\tset([...toasts.slice(1 - TOAST_MOST), { ...options, id: last, title, duration: options.duration ?? TOAST_MS, shown }])\n\treturn last\n}\n\n/** Takes a note away, or every note. */\ntoast.dismiss = (id?: number) => set(id === undefined ? [] : toasts.filter((t) => t.id !== id))\n\n/** The notes showing, oldest first. */\nexport const getToasts = () => toasts\n\n/** Calls `listener` whenever the notes change; returns the unsubscribe. */\nexport function subscribeToasts(listener: () => void) {\n\tlisteners.add(listener)\n\treturn () => {\n\t\tlisteners.delete(listener)\n\t}\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Board",
+      "label": "Save to a board",
+      "center": false,
+      "half": false,
+      "path": "react/examples/sonner/Board.tsx",
+      "content": "'use client'\nimport { useRef } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { toast, Toaster } from '@/react/components/ui/Sonner'\n// Press Save: a note rises in the corner, with Undo. Press it quickly and they stack, three at most; point at the stack\n// to spread it out and hold their time.\n\nexport default function Board() {\n  const count = useRef(23)\n  function save() {\n    count.current += 1\n    toast('Saved to board', { description: `Acme hooks now has ${count.current} creatives.`, action: { label: 'Undo' } })\n  }\n  return (\n    <div className=\"flex min-h-72 flex-wrap items-start justify-center gap-2\">\n      <Button onClick={save}>Save to board</Button>\n      <Button variant=\"secondary\" onClick={() => toast('Brand added', { description: 'New ads from Acme Studio show up here every day.' })}>Track brand</Button>\n      <Toaster />\n    </div>\n  )\n}\n",
+      "requires": [
+        "button",
+        "toast"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Sonner.tsx",
+          "content": "'use client'\nimport { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react'\nimport { Toast } from '@/react/components/ui/Toast'\nimport { getToasts, subscribeToasts, toast, TOAST_MOST, type ToastData } from '@/lib/sonner'\n\nexport { toast } from '@/lib/sonner'\n\n// The corner where notes from toast() show (shadcn's sonner): the bottom right, full width on a phone. The newest is in\n// front; the two before it peek out above, 12px apart and a little smaller. Pointing at the stack (or tabbing into it)\n// spreads it out and stops every note's time, as does a hidden tab, so none leaves unread. A note rises in from below\n// over 360ms on the strong ease-out and leaves faster, 160ms, fading as it drops; the others move to their new places\n// as one goes. Each has a close button; an action closes it after it runs. Reduced motion keeps only the fades. Mount\n// one per app, then call toast('Saved to board', { description, action }) from anywhere.\nexport interface ToasterProps {\n  /** The region's name for assistive tech. */\n  label?: string\n}\n\nconst STEP = 100\nconst PEEK = 12\nconst GAP = 12\n\ntype Item = ToastData & { mounted: boolean, removed: boolean }\n\nexport function Toaster({ label = 'Notifications' }: ToasterProps) {\n  const store = useSyncExternalStore(subscribeToasts, getToasts, getToasts)\n  const [items, setItems] = useState<Item[]>([])\n  // Spread while pointed at or while focus is inside: two reasons, kept apart so losing one keeps the other.\n  const [hovered, setHovered] = useState(false)\n  const [focused, setFocused] = useState(false)\n  const expanded = hovered || focused\n  const [heights, setHeights] = useState<Record<number, number>>({})\n  const nodes = useRef(new Map<number, HTMLElement>())\n  const left = useRef(new Map<number, { left: number, shown: number }>())\n  const last = useRef(new Map<number, string>())\n  const exits = useRef(new Map<number, ReturnType<typeof setTimeout>>())\n  const list = useRef<HTMLOListElement | null>(null)\n  const held = useRef(false)\n  held.current = expanded\n\n  // The store's notes, with those still leaving kept in their places.\n  useEffect(() => {\n    setItems((prev) => {\n      const next: Item[] = prev.map((p) => {\n        const t = store.find((s) => s.id === p.id)\n        return t ? { ...t, mounted: p.mounted, removed: false } : { ...p, removed: true }\n      })\n      for (const t of store) if (!prev.some((p) => p.id === t.id)) next.push({ ...t, mounted: false, removed: false })\n      return next\n    })\n  }, [store])\n\n  // A new note starts below, out of sight, for one frame, then rises; a leaving one goes once its exit has played. A note\n  // that leaves with focus in it takes the focus away without a blur: the stack is no longer focused then.\n  useEffect(() => {\n    if (focused && !list.current?.contains(document.activeElement)) setFocused(false)\n    let frame = 0\n    if (items.some((i) => !i.mounted && !i.removed)) {\n      frame = requestAnimationFrame(() => {\n        frame = requestAnimationFrame(() => setItems((p) => p.map((i) => (i.removed ? i : { ...i, mounted: true }))))\n      })\n    }\n    for (const i of items) {\n      if (!i.removed || exits.current.has(i.id)) continue\n      // ds-latency: the note stays in the page until its exit has played.\n      exits.current.set(i.id, setTimeout(() => {\n        exits.current.delete(i.id)\n        setItems((p) => p.filter((x) => x.id !== i.id))\n      }, 160))\n    }\n    return () => cancelAnimationFrame(frame)\n  }, [items])\n  useEffect(() => () => { for (const t of exits.current.values()) clearTimeout(t) }, [])\n\n  // One clock for every note, only while there are any; it stops while the stack is pointed at or the tab is hidden.\n  const count = store.length\n  useEffect(() => {\n    if (!count) return\n    // ds-latency: the notes' own clock, off the input path; nothing waits on it.\n    const timer = setInterval(() => {\n      if (held.current || document.hidden) return\n      for (const t of getToasts()) {\n        const l = left.current.get(t.id)\n        const now = !l || l.shown !== t.shown ? t.duration : l.left - STEP\n        if (now <= 0) {\n          left.current.delete(t.id)\n          toast.dismiss(t.id)\n        }\n        else left.current.set(t.id, { left: now, shown: t.shown })\n      }\n    }, STEP)\n    return () => clearInterval(timer)\n  }, [count > 0]) // eslint-disable-line react-hooks/exhaustive-deps\n  useEffect(() => {\n    if (!count) {\n      setHovered(false)\n      setFocused(false)\n    }\n  }, [count])\n\n  // Each note's own height, for spreading the stack out.\n  useLayoutEffect(() => {\n    const next: Record<number, number> = {}\n    for (const [id, node] of nodes.current) next[id] = (node.firstElementChild as HTMLElement | null)?.offsetHeight ?? 0\n    if (Object.keys(next).length !== Object.keys(heights).length || Object.entries(next).some(([id, h]) => heights[Number(id)] !== h)) setHeights(next)\n  })\n\n  const showing = items.filter((i) => !i.removed).reverse()\n  const front = showing[0] ? heights[showing[0].id] ?? 0 : 0\n  const spread = showing.reduce((sum, i) => sum + (heights[i.id] ?? 0), 0) + Math.max(0, showing.length - 1) * GAP\n  const height = !showing.length ? 0 : expanded ? spread : front + (Math.min(showing.length, TOAST_MOST) - 1) * PEEK\n\n  function style(item: Item): CSSProperties {\n    const i = showing.indexOf(item)\n    if (item.removed || i < 0) return { transform: `${last.current.get(item.id) ?? 'translateY(0)'} translateY(50%)`, opacity: 0, zIndex: 0 }\n    if (!item.mounted) return { transform: 'translateY(100%)', opacity: 0, zIndex: showing.length - i }\n    const y = expanded ? -(showing.slice(0, i).reduce((sum, x) => sum + (heights[x.id] ?? 0), 0) + i * GAP) : -i * PEEK\n    const transform = `translateY(${y}px) scale(${expanded ? 1 : 1 - i * 0.05})`\n    last.current.set(item.id, transform)\n    return { transform, opacity: i < TOAST_MOST ? 1 : 0, zIndex: showing.length - i, height: !expanded && i > 0 && front ? `${front}px` : undefined }\n  }\n\n  return (\n    <>\n      <style href=\"ds-sonner\" precedence=\"ds\">{css}</style>\n      <section data-ds=\"sonner\" aria-label={label} aria-live=\"polite\">\n        <ol\n          ref={list}\n          className=\"ds-sonner\"\n          style={{ height: `${height}px` }}\n          onPointerEnter={() => setHovered(true)}\n          onPointerLeave={() => setHovered(false)}\n          onFocus={() => setFocused(true)}\n          onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocused(false) }}\n        >\n          {items.map((item) => (\n            <li\n              key={item.id}\n              ref={(el) => { if (el) nodes.current.set(item.id, el); else nodes.current.delete(item.id) }}\n              className=\"ds-sonner-toast\"\n              data-removed={item.removed || undefined}\n              style={style(item)}\n            >\n              <Toast\n                title={item.title}\n                description={item.description}\n                action={item.action && { label: item.action.label, onClick: () => { item.action?.onClick?.(); toast.dismiss(item.id) } }}\n                onDismiss={() => toast.dismiss(item.id)}\n              />\n            </li>\n          ))}\n        </ol>\n      </section>\n    </>\n  )\n}\n\nexport default Toaster\n\nconst css = `\n.ds-sonner { position: fixed; right: var(--ds-space-lg); bottom: calc(var(--ds-space-lg) + env(safe-area-inset-bottom)); z-index: 70; width: min(22.5rem, calc(100vw - 2 * var(--ds-space-lg))); margin: 0; padding: 0; list-style: none; }\n.ds-sonner-toast { position: absolute; right: 0; bottom: 0; left: 0; overflow: hidden; border-radius: var(--ds-radius-container); transform-origin: 50% 100%; transition: transform var(--ds-duration-entrance) var(--ds-easing-out), opacity var(--ds-duration-entrance) var(--ds-easing-out); }\n.ds-sonner-toast[data-removed] { pointer-events: none; transition-duration: var(--ds-duration-exit); }\n@media (prefers-reduced-motion: reduce) {\n  .ds-sonner-toast { transition: opacity var(--ds-duration-enter) var(--ds-easing-out); }\n}\n`\n"
+        },
+        {
+          "path": "lib/sonner.ts",
+          "content": "// The toasts' store for the sonner item, framework-free so both flavors share its behavior: toast() adds a note,\n// toast.dismiss() takes one (or all) away, and a Toaster subscribes and draws them. Three at most: a fourth pushes the\n// oldest out. The same title and description again restarts that note's time instead of stacking a copy. The time\n// itself is the Toaster's, so it can stop while a note is pointed at or the tab is hidden.\nexport interface ToastAction {\n\t/** The button's label. */\n\tlabel: string\n\t/** What it does; the toast closes after it. */\n\tonClick?: () => void\n}\nexport interface ToastOptions {\n\t/** A line under the title. */\n\tdescription?: string\n\t/** One button beside the text. */\n\taction?: ToastAction\n\t/** How long it stays, in ms (4000 by default). */\n\tduration?: number\n}\nexport interface ToastData extends ToastOptions {\n\tid: number\n\ttitle: string\n\tduration: number\n\t/** Bumped when the same note is shown again, so its time restarts. */\n\tshown: number\n}\n\nexport const TOAST_MS = 4000\nexport const TOAST_MOST = 3\n\nlet toasts: ToastData[] = []\nlet last = 0\nlet shown = 0\nconst listeners = new Set<() => void>()\nconst set = (next: ToastData[]) => {\n\ttoasts = next\n\tfor (const l of listeners) l()\n}\n\n/** Shows a note: what just happened, for a moment. Returns its id. */\nexport function toast(title: string, options: ToastOptions = {}): number {\n\tshown += 1\n\tconst same = toasts.find((t) => t.title === title && t.description === options.description)\n\tif (same) {\n\t\tset(toasts.map((t) => (t === same ? { ...t, shown } : t)))\n\t\treturn same.id\n\t}\n\tlast += 1\n\tset([...toasts.slice(1 - TOAST_MOST), { ...options, id: last, title, duration: options.duration ?? TOAST_MS, shown }])\n\treturn last\n}\n\n/** Takes a note away, or every note. */\ntoast.dismiss = (id?: number) => set(id === undefined ? [] : toasts.filter((t) => t.id !== id))\n\n/** The notes showing, oldest first. */\nexport const getToasts = () => toasts\n\n/** Calls `listener` whenever the notes change; returns the unsubscribe. */\nexport function subscribeToasts(listener: () => void) {\n\tlisteners.add(listener)\n\treturn () => {\n\t\tlisteners.delete(listener)\n\t}\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "toast"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "Toaster",
+            "file": "react/components/ui/Sonner.tsx",
+            "props": [
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "default": "'Notifications'",
+                "description": "The region's name for assistive tech."
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Board",
+          "label": "Save to a board",
+          "center": false,
+          "half": false,
+          "path": "react/examples/sonner/Board.tsx",
+          "content": "'use client'\nimport { useRef } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { toast, Toaster } from '@/react/components/ui/Sonner'\n// Press Save: a note rises in the corner, with Undo. Press it quickly and they stack, three at most; point at the stack\n// to spread it out and hold their time.\n\nexport default function Board() {\n  const count = useRef(23)\n  function save() {\n    count.current += 1\n    toast('Saved to board', { description: `Acme hooks now has ${count.current} creatives.`, action: { label: 'Undo' } })\n  }\n  return (\n    <div className=\"flex min-h-72 flex-wrap items-start justify-center gap-2\">\n      <Button onClick={save}>Save to board</Button>\n      <Button variant=\"secondary\" onClick={() => toast('Brand added', { description: 'New ads from Acme Studio show up here every day.' })}>Track brand</Button>\n      <Toaster />\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button",
+            "toast"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/sonner.ts",
+          "content": "import { html } from 'lit'\nimport { repeat } from 'lit/directives/repeat.js'\nimport { styleMap } from 'lit/directives/style-map.js'\nimport { DsElement, define } from '@/elements/lib/element'\nimport '@/elements/components/ui/toast'\nimport { getToasts, subscribeToasts, toast, TOAST_MOST, type ToastData } from '@/lib/sonner'\nimport styles from 'virtual:tw'\n\nexport { toast } from '@/lib/sonner'\n\n// Sonner.tsx as <spyglass-sonner>: the corner where notes from toast() show: the bottom right, full width on a phone.\n// The newest is in front; the two before it peek out above, 12px apart and a little smaller. Pointing at the stack (or\n// tabbing into it) spreads it out and stops every note's time, as does a hidden tab. A note rises in from below over\n// 360ms and leaves faster, 160ms, fading as it drops. Each has a close button; an action closes it after it runs. Put\n// one on the page; show a note with `toast(title, { description, action })` from this module, or the element's\n// toast() method.\n\nconst STEP = 100\nconst PEEK = 12\nconst GAP = 12\n\ntype Item = ToastData & { mounted: boolean, removed: boolean }\n\n/**\n * @summary The corner where notes from toast() show, stacked.\n */\nexport class Sonner extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { label: {}, items: { state: true }, hovered: { state: true }, focused: { state: true }, heights: { state: true } }\n\n\t/** The region's name for assistive tech. */\n\tlabel = 'Notifications'\n\tprivate items: Item[] = []\n\t// Spread while pointed at or while focus is inside: two reasons, kept apart so losing one keeps the other.\n\tprivate hovered = false\n\tprivate focused = false\n\tprivate get expanded() {\n\t\treturn this.hovered || this.focused\n\t}\n\tprivate heights: Record<number, number> = {}\n\tprivate left = new Map<number, { left: number, shown: number }>()\n\tprivate last = new Map<number, string>()\n\tprivate exits = new Map<number, ReturnType<typeof setTimeout>>()\n\tprivate timer?: ReturnType<typeof setInterval>\n\tprivate frame = 0\n\tprivate unsubscribe?: () => void\n\n\t/** Shows a note (the module's toast()). */\n\ttoast(title: string, options?: Parameters<typeof toast>[1]) {\n\t\treturn toast(title, options)\n\t}\n\n\t// The store's notes, with those still leaving kept in their places.\n\tprivate sync = () => {\n\t\tconst store = getToasts()\n\t\tconst next: Item[] = this.items.map((p) => {\n\t\t\tconst t = store.find((s) => s.id === p.id)\n\t\t\treturn t ? { ...t, mounted: p.mounted, removed: false } : { ...p, removed: true }\n\t\t})\n\t\tfor (const t of store) if (!this.items.some((p) => p.id === t.id)) next.push({ ...t, mounted: false, removed: false })\n\t\tthis.items = next\n\t\tthis.clock()\n\t}\n\n\t// One clock for every note, only while there are any; it stops while the stack is pointed at or the tab is hidden.\n\tprivate clock() {\n\t\tconst count = getToasts().length\n\t\tif (count && !this.timer) {\n\t\t\t// ds-latency: the notes' own clock, off the input path; nothing waits on it.\n\t\t\tthis.timer = setInterval(() => {\n\t\t\t\tif (this.expanded || document.hidden) return\n\t\t\t\tfor (const t of getToasts()) {\n\t\t\t\t\tconst l = this.left.get(t.id)\n\t\t\t\t\tconst now = !l || l.shown !== t.shown ? t.duration : l.left - STEP\n\t\t\t\t\tif (now <= 0) {\n\t\t\t\t\t\tthis.left.delete(t.id)\n\t\t\t\t\t\ttoast.dismiss(t.id)\n\t\t\t\t\t} else this.left.set(t.id, { left: now, shown: t.shown })\n\t\t\t\t}\n\t\t\t}, STEP)\n\t\t}\n\t\tif (!count && this.timer) {\n\t\t\tclearInterval(this.timer)\n\t\t\tthis.timer = undefined\n\t\t\tthis.hovered = false\n\t\t\tthis.focused = false\n\t\t}\n\t}\n\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\tthis.unsubscribe = subscribeToasts(this.sync)\n\t\tthis.sync()\n\t}\n\tdisconnectedCallback() {\n\t\tsuper.disconnectedCallback()\n\t\tthis.unsubscribe?.()\n\t\tclearInterval(this.timer)\n\t\tthis.timer = undefined\n\t\tcancelAnimationFrame(this.frame)\n\t\tfor (const t of this.exits.values()) clearTimeout(t)\n\t\tthis.exits.clear()\n\t}\n\n\tprotected updated() {\n\t\t// A note that leaves with focus in it takes the focus away: the stack is no longer focused then.\n\t\tif (this.focused && !(this.renderRoot as ShadowRoot).activeElement) this.focused = false\n\t\t// Each note's own height, for spreading the stack out.\n\t\tconst next: Record<number, number> = {}\n\t\tfor (const li of this.renderRoot.querySelectorAll<HTMLElement>('.ds-sonner-toast')) {\n\t\t\tconst box = li.firstElementChild?.shadowRoot?.querySelector<HTMLElement>('[data-ds=\"toast\"]')\n\t\t\tnext[Number(li.dataset.id)] = box?.offsetHeight ?? 0\n\t\t}\n\t\tif (Object.keys(next).length !== Object.keys(this.heights).length || Object.entries(next).some(([id, h]) => this.heights[Number(id)] !== h)) this.heights = next\n\t\t// A new note starts below, out of sight, for one frame, then rises; a leaving one goes once its exit has played.\n\t\tif (this.items.some((i) => !i.mounted && !i.removed)) {\n\t\t\tcancelAnimationFrame(this.frame)\n\t\t\tthis.frame = requestAnimationFrame(() => {\n\t\t\t\tthis.frame = requestAnimationFrame(() => {\n\t\t\t\t\tthis.items = this.items.map((i) => (i.removed ? i : { ...i, mounted: true }))\n\t\t\t\t})\n\t\t\t})\n\t\t}\n\t\tfor (const i of this.items) {\n\t\t\tif (!i.removed || this.exits.has(i.id)) continue\n\t\t\t// ds-latency: the note stays in the page until its exit has played.\n\t\t\tthis.exits.set(i.id, setTimeout(() => {\n\t\t\t\tthis.exits.delete(i.id)\n\t\t\t\tthis.items = this.items.filter((x) => x.id !== i.id)\n\t\t\t}, 160))\n\t\t}\n\t}\n\n\tprivate onFocusOut = (event: FocusEvent) => {\n\t\tconst next = event.relatedTarget as Node | null\n\t\tif (!next || !this.renderRoot.contains(next)) this.focused = false\n\t}\n\n\trender() {\n\t\tconst showing = this.items.filter((i) => !i.removed).reverse()\n\t\tconst h = this.heights\n\t\tconst front = showing[0] ? h[showing[0].id] ?? 0 : 0\n\t\tconst spread = showing.reduce((sum, i) => sum + (h[i.id] ?? 0), 0) + Math.max(0, showing.length - 1) * GAP\n\t\tconst height = !showing.length ? 0 : this.expanded ? spread : front + (Math.min(showing.length, TOAST_MOST) - 1) * PEEK\n\t\tconst style = (item: Item): Record<string, string | undefined> => {\n\t\t\tconst i = showing.indexOf(item)\n\t\t\tif (item.removed || i < 0) return { transform: `${this.last.get(item.id) ?? 'translateY(0)'} translateY(50%)`, opacity: '0', zIndex: '0' }\n\t\t\tif (!item.mounted) return { transform: 'translateY(100%)', opacity: '0', zIndex: String(showing.length - i) }\n\t\t\tconst y = this.expanded ? -(showing.slice(0, i).reduce((sum, x) => sum + (h[x.id] ?? 0), 0) + i * GAP) : -i * PEEK\n\t\t\tconst transform = `translateY(${y}px) scale(${this.expanded ? 1 : 1 - i * 0.05})`\n\t\t\tthis.last.set(item.id, transform)\n\t\t\treturn { transform, opacity: i < TOAST_MOST ? '1' : '0', zIndex: String(showing.length - i), height: !this.expanded && i > 0 && front ? `${front}px` : undefined }\n\t\t}\n\t\treturn html`<section data-ds=\"sonner\" aria-label=${this.label} aria-live=\"polite\"><ol class=\"ds-sonner\" style=${styleMap({ height: `${height}px` })} @pointerenter=${() => { this.hovered = true }} @pointerleave=${() => { this.hovered = false }} @focusin=${() => { this.focused = true }} @focusout=${this.onFocusOut}>${repeat(\n\t\t\tthis.items,\n\t\t\t(item) => item.id,\n\t\t\t(item) => html`<li class=\"ds-sonner-toast\" data-id=${item.id} ?data-removed=${item.removed} style=${styleMap(style(item))}><spyglass-toast heading=${item.title} description=${item.description ?? ''} action-label=${item.action?.label ?? ''} dismissable @action=${() => { item.action?.onClick?.(); toast.dismiss(item.id) }} @dismiss=${() => toast.dismiss(item.id)}></spyglass-toast></li>`,\n\t\t)}</ol></section>`\n\t}\n}\n\ndefine('sonner', Sonner)\n"
+        },
+        {
+          "path": "elements/components/ui/sonner.css",
+          "content": ".ds-sonner { position: fixed; right: var(--ds-space-lg); bottom: calc(var(--ds-space-lg) + env(safe-area-inset-bottom)); z-index: 70; width: min(22.5rem, calc(100vw - 2 * var(--ds-space-lg))); margin: 0; padding: 0; list-style: none; }\n.ds-sonner-toast { position: absolute; right: 0; bottom: 0; left: 0; overflow: hidden; border-radius: var(--ds-radius-container); transform-origin: 50% 100%; transition: transform var(--ds-duration-entrance) var(--ds-easing-out), opacity var(--ds-duration-entrance) var(--ds-easing-out); }\n.ds-sonner-toast[data-removed] { pointer-events: none; transition-duration: var(--ds-duration-exit); }\n@media (prefers-reduced-motion: reduce) {\n  .ds-sonner-toast { transition: opacity var(--ds-duration-enter) var(--ds-easing-out); }\n}\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/sonner.js",
+        "elements/toast.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-sonner",
+      "tags": [
+        "spyglass-sonner"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button",
+        "toast"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-sonner",
+            "name": "Sonner",
+            "module": "elements/sonner.js",
+            "description": "The corner where notes from toast() show, stacked.",
+            "attributes": [
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "'Notifications'",
+                "description": "The region's name for assistive tech."
+              },
+              {
+                "name": "items",
+                "field": "items",
+                "type": "Item[]",
+                "default": "[]"
+              },
+              {
+                "name": "hovered",
+                "field": "hovered",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "focused",
+                "field": "focused",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "heights",
+                "field": "heights",
+                "type": "Record<number, number>",
+                "default": "{}"
+              }
+            ],
+            "properties": [
+              {
+                "name": "label",
+                "type": "string",
+                "default": "'Notifications'",
+                "description": "The region's name for assistive tech.",
+                "attribute": "label"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": [
+              {
+                "name": "toast",
+                "description": "Shows a note (the module's toast())."
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Board",
+          "label": "Save to a board",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/sonner/Board.html",
+          "content": "<!-- Press Save: a note rises in the corner, with Undo. Press it quickly and they stack, three at most; point at the\n     stack to spread it out and hold their time. -->\n<div class=\"flex min-h-72 flex-wrap items-start justify-center gap-2\">\n  <spyglass-button id=\"sonner-save\">Save to board</spyglass-button>\n  <spyglass-button id=\"sonner-track\" variant=\"secondary\">Track brand</spyglass-button>\n  <spyglass-sonner id=\"sonner\"></spyglass-sonner>\n</div>\n<script type=\"module\">\n  const sonner = document.getElementById('sonner')\n  let count = 23\n  document.getElementById('sonner-save').addEventListener('click', () => {\n    count += 1\n    sonner.toast('Saved to board', { description: `Acme hooks now has ${count} creatives.`, action: { label: 'Undo' } })\n  })\n  document.getElementById('sonner-track').addEventListener('click', () => {\n    sonner.toast('Brand added', { description: 'New ads from Acme Studio show up here every day.' })\n  })\n</script>\n"
+        }
+      ]
+    }
+  }
+}

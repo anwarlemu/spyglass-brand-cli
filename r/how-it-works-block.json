@@ -1,0 +1,248 @@
+{
+  "name": "how-it-works-block",
+  "title": "How it works block",
+  "type": "registry:block",
+  "group": "blocks",
+  "description": "The home's set-up section: the headline, the lead, three numbered steps between hairlines, the connect menu beside the quiet button and the clients' marks, with the MCP session playing beside them from 1024.",
+  "use_for": "Showing how to start in three steps, with the product answering a real question next to them.",
+  "never": [
+    "Other companies' logos without permission: the default marks are first letters",
+    "More than three steps",
+    "Marks that move on hover: the others dim and the name appears"
+  ],
+  "source": "Site v2/V2HowItWorks (V2HowItWorks.tsx and .module.css, Session.tsx and .module.css, sessionClock.ts, content/v2/how-it-works): five to seven columns 64px apart from 1024, 48px stacked; steps 16px tall padding between hairlines with a 32px number column; actions 12px apart, 40px under the steps; marks 40px tiles 8px apart; the session stage 480px least, 40px in (24/16 on phones), the window's foot fading over 96px; the column drift at the left from 1440; on phones the connect menu hidden and the quiet button White (globals.css [data-mcp-pair])",
+  "body": "",
+  "requires": [
+    "button",
+    "connect-menu",
+    "mcp-session",
+    "side-drifts"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/blocks/HowItWorksBlock.tsx",
+      "content": "import type { CSSProperties } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { ConnectMenu } from '@/react/components/site/ConnectMenu'\nimport { McpSession } from '@/react/components/site/McpSession'\nimport { SideDrifts } from '@/react/components/visuals/SideDrifts'\nimport type { ConnectContent } from '@/lib/connect'\nimport type { SessionContent } from '@/lib/home/session'\nimport { howItWorksContent, howMarks, type HowItWorksContent, type HowMark } from '@/lib/home/how-it-works'\nimport { cn } from '@/react/lib/cn'\n\n// The home's set-up section (site v2/V2HowItWorks): on the left the headline, the lead, three numbered steps between\n// hairlines, the connect menu beside the quiet button and the clients' marks (under a mouse the others dim and the\n// mark's name appears under it; color and opacity only); on the right the MCP session playing (mcp-session). Five to\n// seven columns from 1024, stacked below, centered head and the quiet button White and full width on phones (the menu steps aside, the site's MCP pair); a column drift at the left\n// edge from 1440. `connect` and `session` go to the menu and the session; `marks` are the clients' marks.\nexport interface HowItWorksBlockProps {\n  content?: HowItWorksContent\n  marks?: HowMark[]\n  connect?: ConnectContent\n  session?: SessionContent\n  className?: string\n}\n\nconst CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function HowItWorksBlock({ content: c = howItWorksContent, marks = howMarks, connect, session, className }: HowItWorksBlockProps) {\n  return (\n    <section data-ds=\"how-it-works-block\" className={cn('relative isolate py-(--ds-layout-section) text-fg', className)}>\n      <style href=\"ds-how-it-works-block\" precedence=\"ds\">{css}</style>\n      <SideDrifts left=\"middle\" right={false} />\n      <div className={cn(CONTAINER, 'ds-hw-layout')}>\n        <div className=\"ds-hw-copy\">\n          <h2 className=\"type-section\">{c.headline}</h2>\n          <p className=\"ds-hw-lead mt-6 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft\">{c.lead}</p>\n          <ol className=\"ds-hw-steps\">\n            {c.steps.map((step, i) => (\n              <li key={step.title} className=\"ds-hw-step\">\n                <span className=\"ds-hw-number\" aria-hidden=\"true\">{i + 1}</span>\n                <p className=\"ds-hw-step-text\"><span className=\"ds-hw-step-title\">{step.title}</span> {step.body}</p>\n              </li>\n            ))}\n          </ol>\n          <div className=\"ds-hw-actions\">\n            <div className=\"ds-hw-connect\"><ConnectMenu content={connect} /></div>\n            <Button href={c.secondary.href} variant=\"secondary\">{c.secondary.label}</Button>\n          </div>\n          {marks.length ? (\n            <ul className=\"ds-hw-marks\" aria-label={c.marksLabel}>\n              {marks.map((m) => (\n                <li key={m.name}>\n                  <a className=\"ds-hw-mark-link\" href={m.href}>\n                    {m.src ? <span className=\"ds-hw-mark\" style={{ '--mark': `url(\"${m.src}\")` } as CSSProperties} aria-hidden=\"true\" /> : <span className=\"ds-hw-letter\" aria-hidden=\"true\">{m.name.replace(/^Acme /, '').slice(0, 1)}</span>}\n                    <span className=\"ds-hw-mark-name\">{m.name}</span>\n                  </a>\n                </li>\n              ))}\n            </ul>\n          ) : null}\n        </div>\n        <McpSession content={session} />\n      </div>\n    </section>\n  )\n}\n\nexport default HowItWorksBlock\n\nconst css = `\n.ds-hw-layout { display: grid; gap: 48px; }\n.ds-hw-copy { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }\n@media (width < 1024px) { .ds-hw-copy > :first-child { text-box: trim-start cap alphabetic; } }\n.ds-hw-steps { width: 100%; margin-top: 40px; border-top: var(--ds-border-hairline) solid var(--ds-color-edge); }\n.ds-hw-step { display: grid; grid-template-columns: 32px minmax(0, 1fr); padding-block: 16px; border-bottom: var(--ds-border-hairline) solid var(--ds-color-edge); font-size: var(--ds-text-body); line-height: var(--ds-text-body-leading); }\n.ds-hw-number { font-family: var(--ds-font-heading); font-variant-numeric: tabular-nums; color: var(--ds-color-fg-muted); }\n.ds-hw-step-text { color: var(--ds-color-fg-soft); text-wrap: pretty; }\n.ds-hw-step-title { font-weight: var(--ds-font-weight-medium); color: var(--ds-color-fg); }\n.ds-hw-connect { display: contents; }\n.ds-hw-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 40px; }\n.ds-hw-marks { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px; margin-left: -8px; }\n.ds-hw-mark-link { position: relative; display: grid; place-items: center; width: 40px; height: 40px; color: var(--ds-color-fg); transition: color var(--ds-duration-micro) var(--ds-easing-out); }\n@media (pointer: coarse) { .ds-hw-mark-link::after { content: \"\"; position: absolute; inset: -4px; } }\n.ds-hw-mark { width: 24px; height: 24px; background-color: currentColor; mask: var(--mark) center / contain no-repeat; }\n.ds-hw-letter { display: grid; place-items: center; width: 24px; height: 24px; font-family: var(--ds-font-heading); font-size: var(--ds-text-heading-4); line-height: 1; }\n.ds-hw-mark-name { position: absolute; top: 100%; left: 50%; color: var(--ds-color-fg); font-size: var(--ds-text-caption); line-height: var(--ds-text-caption-leading); white-space: nowrap; opacity: 0; translate: -50% 0; pointer-events: none; transition: opacity var(--ds-duration-micro) var(--ds-easing-out); }\n@media (hover: hover) and (pointer: fine) {\n  .ds-hw-marks:has(.ds-hw-mark-link:hover) .ds-hw-mark-link:not(:hover) { color: var(--ds-color-fg-muted); }\n  .ds-hw-mark-link:hover .ds-hw-mark-name { opacity: 1; }\n}\n.ds-hw-marks:has(.ds-hw-mark-link:focus-visible) .ds-hw-mark-link:not(:focus-visible) { color: var(--ds-color-fg-muted); }\n.ds-hw-mark-link:focus-visible .ds-hw-mark-name { opacity: 1; }\n@media (prefers-reduced-motion: reduce) { .ds-hw-mark-link, .ds-hw-mark-name { transition: none; } }\n@media (width < 768px) {\n  .ds-hw-copy { align-items: stretch; }\n  .ds-hw-actions { display: grid; }\n  .ds-hw-actions > * { width: 100%; }\n  /* The site's MCP pair on phones (globals.css [data-mcp-pair]): the connect menu steps aside and the quiet button turns\n     White, the row's one White button. */\n  .ds-hw-connect { display: none; }\n  .ds-hw-actions { --ds-color-action-secondary: var(--ds-color-action-primary); --ds-color-action-secondary-hover: var(--ds-color-action-primary-hover); --ds-color-action-secondary-fg: var(--ds-color-action-primary-fg); --ds-color-action-secondary-edge: var(--ds-color-action-primary); --ds-color-action-secondary-edge-hover: var(--ds-color-action-primary-hover); }\n  .ds-hw-copy > h2, .ds-hw-lead { align-self: center; text-align: center; }\n}\n@media (min-width: 1024px) { .ds-hw-layout { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: stretch; gap: 64px; } }\n`\n"
+    },
+    {
+      "path": "lib/home/how-it-works.ts",
+      "content": "// The home's set-up section (site v2/V2HowItWorks, content/v2/how-it-works): the copy, the three steps and the\n// clients' marks under the buttons. The marks are neutral placeholders (each client's first letter); the site's are\n// other companies' logos, which come through `marks` with a `src`. Both flavors read this file.\nexport interface HowMark {\n\tname: string\n\thref: string\n\t/** The mark (an SVG file, drawn as a mask in the type's color, 24px). Leave out for its first letter. */\n\tsrc?: string\n}\n\nexport interface HowItWorksContent {\n\theadline: string\n\tlead: string\n\tsteps: { title: string; body: string }[]\n\t/** The quiet button beside the connect menu. */\n\tsecondary: { label: string; href: string }\n\tmarksLabel: string\n}\n\nexport const howItWorksContent: HowItWorksContent = {\n\theadline: 'Set up in under a minute',\n\tlead: 'Add the MCP server to your AI tool and sign in. No API key needed for MCP.',\n\tsteps: [\n\t\t{ title: 'Create a free account.', body: '500 free credits every month. No card required.' },\n\t\t{ title: 'Connect.', body: 'Add the MCP server to your AI tool, or call the REST API.' },\n\t\t{ title: 'Ask.', body: 'Ask in plain words. The answer comes back as structured data.' },\n\t],\n\tsecondary: { label: 'Get a free API key', href: '/sign-up' },\n\tmarksLabel: 'AI tools',\n}\n\nexport const howMarks: HowMark[] = ['Acme Chat', 'Acme Code', 'Acme Assistant', 'Acme Agent', 'Acme Editor', 'Acme Search', 'Any MCP client'].map((name) => ({ name, href: '#' }))\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Steps",
+      "label": "Acme rows and questions",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/how-it-works-block/Steps.tsx",
+      "content": "import { HowItWorksBlock } from '@/react/components/blocks/HowItWorksBlock'\n// The three steps, the connect menu with Acme rows and the session asking Acme questions.\n\nexport default function Steps() {\n  return <HowItWorksBlock />\n}\n",
+      "requires": [
+        "button",
+        "connect-menu",
+        "mcp-session",
+        "side-drifts"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/blocks/HowItWorksBlock.tsx",
+          "content": "import type { CSSProperties } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { ConnectMenu } from '@/react/components/site/ConnectMenu'\nimport { McpSession } from '@/react/components/site/McpSession'\nimport { SideDrifts } from '@/react/components/visuals/SideDrifts'\nimport type { ConnectContent } from '@/lib/connect'\nimport type { SessionContent } from '@/lib/home/session'\nimport { howItWorksContent, howMarks, type HowItWorksContent, type HowMark } from '@/lib/home/how-it-works'\nimport { cn } from '@/react/lib/cn'\n\n// The home's set-up section (site v2/V2HowItWorks): on the left the headline, the lead, three numbered steps between\n// hairlines, the connect menu beside the quiet button and the clients' marks (under a mouse the others dim and the\n// mark's name appears under it; color and opacity only); on the right the MCP session playing (mcp-session). Five to\n// seven columns from 1024, stacked below, centered head and the quiet button White and full width on phones (the menu steps aside, the site's MCP pair); a column drift at the left\n// edge from 1440. `connect` and `session` go to the menu and the session; `marks` are the clients' marks.\nexport interface HowItWorksBlockProps {\n  content?: HowItWorksContent\n  marks?: HowMark[]\n  connect?: ConnectContent\n  session?: SessionContent\n  className?: string\n}\n\nconst CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function HowItWorksBlock({ content: c = howItWorksContent, marks = howMarks, connect, session, className }: HowItWorksBlockProps) {\n  return (\n    <section data-ds=\"how-it-works-block\" className={cn('relative isolate py-(--ds-layout-section) text-fg', className)}>\n      <style href=\"ds-how-it-works-block\" precedence=\"ds\">{css}</style>\n      <SideDrifts left=\"middle\" right={false} />\n      <div className={cn(CONTAINER, 'ds-hw-layout')}>\n        <div className=\"ds-hw-copy\">\n          <h2 className=\"type-section\">{c.headline}</h2>\n          <p className=\"ds-hw-lead mt-6 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft\">{c.lead}</p>\n          <ol className=\"ds-hw-steps\">\n            {c.steps.map((step, i) => (\n              <li key={step.title} className=\"ds-hw-step\">\n                <span className=\"ds-hw-number\" aria-hidden=\"true\">{i + 1}</span>\n                <p className=\"ds-hw-step-text\"><span className=\"ds-hw-step-title\">{step.title}</span> {step.body}</p>\n              </li>\n            ))}\n          </ol>\n          <div className=\"ds-hw-actions\">\n            <div className=\"ds-hw-connect\"><ConnectMenu content={connect} /></div>\n            <Button href={c.secondary.href} variant=\"secondary\">{c.secondary.label}</Button>\n          </div>\n          {marks.length ? (\n            <ul className=\"ds-hw-marks\" aria-label={c.marksLabel}>\n              {marks.map((m) => (\n                <li key={m.name}>\n                  <a className=\"ds-hw-mark-link\" href={m.href}>\n                    {m.src ? <span className=\"ds-hw-mark\" style={{ '--mark': `url(\"${m.src}\")` } as CSSProperties} aria-hidden=\"true\" /> : <span className=\"ds-hw-letter\" aria-hidden=\"true\">{m.name.replace(/^Acme /, '').slice(0, 1)}</span>}\n                    <span className=\"ds-hw-mark-name\">{m.name}</span>\n                  </a>\n                </li>\n              ))}\n            </ul>\n          ) : null}\n        </div>\n        <McpSession content={session} />\n      </div>\n    </section>\n  )\n}\n\nexport default HowItWorksBlock\n\nconst css = `\n.ds-hw-layout { display: grid; gap: 48px; }\n.ds-hw-copy { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }\n@media (width < 1024px) { .ds-hw-copy > :first-child { text-box: trim-start cap alphabetic; } }\n.ds-hw-steps { width: 100%; margin-top: 40px; border-top: var(--ds-border-hairline) solid var(--ds-color-edge); }\n.ds-hw-step { display: grid; grid-template-columns: 32px minmax(0, 1fr); padding-block: 16px; border-bottom: var(--ds-border-hairline) solid var(--ds-color-edge); font-size: var(--ds-text-body); line-height: var(--ds-text-body-leading); }\n.ds-hw-number { font-family: var(--ds-font-heading); font-variant-numeric: tabular-nums; color: var(--ds-color-fg-muted); }\n.ds-hw-step-text { color: var(--ds-color-fg-soft); text-wrap: pretty; }\n.ds-hw-step-title { font-weight: var(--ds-font-weight-medium); color: var(--ds-color-fg); }\n.ds-hw-connect { display: contents; }\n.ds-hw-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 40px; }\n.ds-hw-marks { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px; margin-left: -8px; }\n.ds-hw-mark-link { position: relative; display: grid; place-items: center; width: 40px; height: 40px; color: var(--ds-color-fg); transition: color var(--ds-duration-micro) var(--ds-easing-out); }\n@media (pointer: coarse) { .ds-hw-mark-link::after { content: \"\"; position: absolute; inset: -4px; } }\n.ds-hw-mark { width: 24px; height: 24px; background-color: currentColor; mask: var(--mark) center / contain no-repeat; }\n.ds-hw-letter { display: grid; place-items: center; width: 24px; height: 24px; font-family: var(--ds-font-heading); font-size: var(--ds-text-heading-4); line-height: 1; }\n.ds-hw-mark-name { position: absolute; top: 100%; left: 50%; color: var(--ds-color-fg); font-size: var(--ds-text-caption); line-height: var(--ds-text-caption-leading); white-space: nowrap; opacity: 0; translate: -50% 0; pointer-events: none; transition: opacity var(--ds-duration-micro) var(--ds-easing-out); }\n@media (hover: hover) and (pointer: fine) {\n  .ds-hw-marks:has(.ds-hw-mark-link:hover) .ds-hw-mark-link:not(:hover) { color: var(--ds-color-fg-muted); }\n  .ds-hw-mark-link:hover .ds-hw-mark-name { opacity: 1; }\n}\n.ds-hw-marks:has(.ds-hw-mark-link:focus-visible) .ds-hw-mark-link:not(:focus-visible) { color: var(--ds-color-fg-muted); }\n.ds-hw-mark-link:focus-visible .ds-hw-mark-name { opacity: 1; }\n@media (prefers-reduced-motion: reduce) { .ds-hw-mark-link, .ds-hw-mark-name { transition: none; } }\n@media (width < 768px) {\n  .ds-hw-copy { align-items: stretch; }\n  .ds-hw-actions { display: grid; }\n  .ds-hw-actions > * { width: 100%; }\n  /* The site's MCP pair on phones (globals.css [data-mcp-pair]): the connect menu steps aside and the quiet button turns\n     White, the row's one White button. */\n  .ds-hw-connect { display: none; }\n  .ds-hw-actions { --ds-color-action-secondary: var(--ds-color-action-primary); --ds-color-action-secondary-hover: var(--ds-color-action-primary-hover); --ds-color-action-secondary-fg: var(--ds-color-action-primary-fg); --ds-color-action-secondary-edge: var(--ds-color-action-primary); --ds-color-action-secondary-edge-hover: var(--ds-color-action-primary-hover); }\n  .ds-hw-copy > h2, .ds-hw-lead { align-self: center; text-align: center; }\n}\n@media (min-width: 1024px) { .ds-hw-layout { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: stretch; gap: 64px; } }\n`\n"
+        },
+        {
+          "path": "lib/home/how-it-works.ts",
+          "content": "// The home's set-up section (site v2/V2HowItWorks, content/v2/how-it-works): the copy, the three steps and the\n// clients' marks under the buttons. The marks are neutral placeholders (each client's first letter); the site's are\n// other companies' logos, which come through `marks` with a `src`. Both flavors read this file.\nexport interface HowMark {\n\tname: string\n\thref: string\n\t/** The mark (an SVG file, drawn as a mask in the type's color, 24px). Leave out for its first letter. */\n\tsrc?: string\n}\n\nexport interface HowItWorksContent {\n\theadline: string\n\tlead: string\n\tsteps: { title: string; body: string }[]\n\t/** The quiet button beside the connect menu. */\n\tsecondary: { label: string; href: string }\n\tmarksLabel: string\n}\n\nexport const howItWorksContent: HowItWorksContent = {\n\theadline: 'Set up in under a minute',\n\tlead: 'Add the MCP server to your AI tool and sign in. No API key needed for MCP.',\n\tsteps: [\n\t\t{ title: 'Create a free account.', body: '500 free credits every month. No card required.' },\n\t\t{ title: 'Connect.', body: 'Add the MCP server to your AI tool, or call the REST API.' },\n\t\t{ title: 'Ask.', body: 'Ask in plain words. The answer comes back as structured data.' },\n\t],\n\tsecondary: { label: 'Get a free API key', href: '/sign-up' },\n\tmarksLabel: 'AI tools',\n}\n\nexport const howMarks: HowMark[] = ['Acme Chat', 'Acme Code', 'Acme Assistant', 'Acme Agent', 'Acme Editor', 'Acme Search', 'Any MCP client'].map((name) => ({ name, href: '#' }))\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button",
+        "connect-menu",
+        "mcp-session",
+        "side-drifts"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "HowItWorksBlock",
+            "file": "react/components/blocks/HowItWorksBlock.tsx",
+            "props": [
+              {
+                "name": "content",
+                "type": "HowItWorksContent",
+                "required": false
+              },
+              {
+                "name": "marks",
+                "type": "HowMark[]",
+                "required": false,
+                "default": "howMarks"
+              },
+              {
+                "name": "connect",
+                "type": "ConnectContent",
+                "required": false
+              },
+              {
+                "name": "session",
+                "type": "SessionContent",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Steps",
+          "label": "Acme rows and questions",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/how-it-works-block/Steps.tsx",
+          "content": "import { HowItWorksBlock } from '@/react/components/blocks/HowItWorksBlock'\n// The three steps, the connect menu with Acme rows and the session asking Acme questions.\n\nexport default function Steps() {\n  return <HowItWorksBlock />\n}\n",
+          "registryDependencies": [
+            "button",
+            "connect-menu",
+            "mcp-session",
+            "side-drifts"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/blocks/how-it-works-block.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport '@/elements/components/ui/button'\nimport '@/elements/components/site/connect-menu'\nimport '@/elements/components/site/mcp-session'\nimport '@/elements/components/visuals/side-drifts'\nimport type { ConnectContent } from '@/lib/connect'\nimport type { SessionContent } from '@/lib/home/session'\nimport { howItWorksContent, howMarks, type HowItWorksContent, type HowMark } from '@/lib/home/how-it-works'\nimport styles from 'virtual:tw'\n\n// HowItWorksBlock.tsx as <spyglass-how-it-works-block>: the headline, lead, three steps, the connect menu and the\n// quiet button, the clients' marks, and the MCP session beside them from 1024. `content`, `marks`, `connect` and\n// `session` as JSON.\n\nconst CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\n/** @summary The home's set-up section: three steps, the connect menu and the MCP session playing. */\nexport class HowItWorksBlock extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"how-it-works-block\"]'))\n\tstatic properties = { content: { type: Object }, marks: { type: Array }, connect: { type: Object }, session: { type: Object } }\n\t/** { headline, lead, steps, secondary, marksLabel }. */\n\tcontent: HowItWorksContent = howItWorksContent\n\t/** The clients' marks: { name, href, src? }. */\n\tmarks: HowMark[] = howMarks\n\t/** The connect menu's rows (lib/connect.ts). */\n\tconnect?: ConnectContent\n\t/** The session's questions (lib/home/session.ts). */\n\tsession?: SessionContent\n\n\trender() {\n\t\tconst c = this.content ?? howItWorksContent\n\t\tconst marks = this.marks ?? howMarks\n\t\treturn html`<section data-ds=\"how-it-works-block\" class=\"relative isolate py-(--ds-layout-section) text-fg\"><spyglass-side-drifts left=\"middle\" right=\"false\"></spyglass-side-drifts><div class=${`${CONTAINER} ds-hw-layout`}><div class=\"ds-hw-copy\"><h2 class=\"type-section\">${c.headline}</h2><p class=\"ds-hw-lead mt-6 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft\">${c.lead}</p><ol class=\"ds-hw-steps\">${c.steps.map((step, i) => html`<li class=\"ds-hw-step\"><span class=\"ds-hw-number\" aria-hidden=\"true\">${i + 1}</span><p class=\"ds-hw-step-text\"><span class=\"ds-hw-step-title\">${step.title}</span> ${step.body}</p></li>`)}</ol><div class=\"ds-hw-actions\"><div class=\"ds-hw-connect\"><spyglass-connect-menu .content=${this.connect}></spyglass-connect-menu></div><spyglass-button href=${c.secondary.href} variant=\"secondary\">${c.secondary.label}</spyglass-button></div>${marks.length ? html`<ul class=\"ds-hw-marks\" aria-label=${c.marksLabel}>${marks.map((m) => html`<li><a class=\"ds-hw-mark-link\" href=${m.href}>${m.src ? html`<span class=\"ds-hw-mark\" style=${`--mark: url(\"${m.src}\")`} aria-hidden=\"true\"></span>` : html`<span class=\"ds-hw-letter\" aria-hidden=\"true\">${m.name.replace(/^Acme /, '').slice(0, 1)}</span>`}<span class=\"ds-hw-mark-name\">${m.name}</span></a></li>`)}</ul>` : nothing}</div><spyglass-mcp-session .content=${this.session}></spyglass-mcp-session></div></section>`\n\t}\n}\n\ndefine('how-it-works-block', HowItWorksBlock)\n"
+        },
+        {
+          "path": "elements/components/blocks/how-it-works-block.css",
+          "content": ".ds-hw-layout { display: grid; gap: 48px; }\n.ds-hw-copy { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }\n@media (width < 1024px) { .ds-hw-copy > :first-child { text-box: trim-start cap alphabetic; } }\n.ds-hw-steps { width: 100%; margin-top: 40px; border-top: var(--ds-border-hairline) solid var(--ds-color-edge); }\n.ds-hw-step { display: grid; grid-template-columns: 32px minmax(0, 1fr); padding-block: 16px; border-bottom: var(--ds-border-hairline) solid var(--ds-color-edge); font-size: var(--ds-text-body); line-height: var(--ds-text-body-leading); }\n.ds-hw-number { font-family: var(--ds-font-heading); font-variant-numeric: tabular-nums; color: var(--ds-color-fg-muted); }\n.ds-hw-step-text { color: var(--ds-color-fg-soft); text-wrap: pretty; }\n.ds-hw-step-title { font-weight: var(--ds-font-weight-medium); color: var(--ds-color-fg); }\n.ds-hw-connect { display: contents; }\n.ds-hw-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 40px; }\n.ds-hw-marks { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px; margin-left: -8px; }\n.ds-hw-mark-link { position: relative; display: grid; place-items: center; width: 40px; height: 40px; color: var(--ds-color-fg); transition: color var(--ds-duration-micro) var(--ds-easing-out); }\n@media (pointer: coarse) { .ds-hw-mark-link::after { content: \"\"; position: absolute; inset: -4px; } }\n.ds-hw-mark { width: 24px; height: 24px; background-color: currentColor; mask: var(--mark) center / contain no-repeat; }\n.ds-hw-letter { display: grid; place-items: center; width: 24px; height: 24px; font-family: var(--ds-font-heading); font-size: var(--ds-text-heading-4); line-height: 1; }\n.ds-hw-mark-name { position: absolute; top: 100%; left: 50%; color: var(--ds-color-fg); font-size: var(--ds-text-caption); line-height: var(--ds-text-caption-leading); white-space: nowrap; opacity: 0; translate: -50% 0; pointer-events: none; transition: opacity var(--ds-duration-micro) var(--ds-easing-out); }\n@media (hover: hover) and (pointer: fine) {\n  .ds-hw-marks:has(.ds-hw-mark-link:hover) .ds-hw-mark-link:not(:hover) { color: var(--ds-color-fg-muted); }\n  .ds-hw-mark-link:hover .ds-hw-mark-name { opacity: 1; }\n}\n.ds-hw-marks:has(.ds-hw-mark-link:focus-visible) .ds-hw-mark-link:not(:focus-visible) { color: var(--ds-color-fg-muted); }\n.ds-hw-mark-link:focus-visible .ds-hw-mark-name { opacity: 1; }\n@media (prefers-reduced-motion: reduce) { .ds-hw-mark-link, .ds-hw-mark-name { transition: none; } }\n@media (width < 768px) {\n  .ds-hw-copy { align-items: stretch; }\n  .ds-hw-actions { display: grid; }\n  .ds-hw-actions > * { width: 100%; }\n  /* The site's MCP pair on phones (globals.css [data-mcp-pair]): the connect menu steps aside and the quiet button turns\n     White, the row's one White button. */\n  .ds-hw-connect { display: none; }\n  .ds-hw-actions { --ds-color-action-secondary: var(--ds-color-action-primary); --ds-color-action-secondary-hover: var(--ds-color-action-primary-hover); --ds-color-action-secondary-fg: var(--ds-color-action-primary-fg); --ds-color-action-secondary-edge: var(--ds-color-action-primary); --ds-color-action-secondary-edge-hover: var(--ds-color-action-primary-hover); }\n  .ds-hw-copy > h2, .ds-hw-lead { align-self: center; text-align: center; }\n}\n@media (min-width: 1024px) { .ds-hw-layout { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: stretch; gap: 64px; } }\n\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/how-it-works-block.js",
+        "elements/button.js",
+        "elements/connect-menu.js",
+        "elements/mcp-session.js",
+        "elements/side-drifts.js",
+        "elements/creative-card.js",
+        "elements/ascii-drift.js"
+      ],
+      "tag": "spyglass-how-it-works-block",
+      "tags": [
+        "spyglass-how-it-works-block"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-drift",
+        "button",
+        "connect-menu",
+        "creative-card",
+        "mcp-session",
+        "side-drifts"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-how-it-works-block",
+            "name": "HowItWorksBlock",
+            "module": "elements/how-it-works-block.js",
+            "description": "The home's set-up section: three steps, the connect menu and the MCP session playing.",
+            "attributes": [
+              {
+                "name": "content",
+                "field": "content",
+                "type": "HowItWorksContent",
+                "default": "howItWorksContent",
+                "description": "{ headline, lead, steps, secondary, marksLabel }."
+              },
+              {
+                "name": "marks",
+                "field": "marks",
+                "type": "HowMark[]",
+                "default": "howMarks",
+                "description": "The clients' marks: { name, href, src? }."
+              },
+              {
+                "name": "connect",
+                "field": "connect",
+                "type": "ConnectContent | undefined",
+                "description": "The connect menu's rows (lib/connect.ts)."
+              },
+              {
+                "name": "session",
+                "field": "session",
+                "type": "SessionContent | undefined",
+                "description": "The session's questions (lib/home/session.ts)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "content",
+                "type": "HowItWorksContent",
+                "default": "howItWorksContent",
+                "description": "{ headline, lead, steps, secondary, marksLabel }.",
+                "attribute": "content"
+              },
+              {
+                "name": "marks",
+                "type": "HowMark[]",
+                "default": "howMarks",
+                "description": "The clients' marks: { name, href, src? }.",
+                "attribute": "marks"
+              },
+              {
+                "name": "connect",
+                "type": "ConnectContent | undefined",
+                "description": "The connect menu's rows (lib/connect.ts).",
+                "attribute": "connect"
+              },
+              {
+                "name": "session",
+                "type": "SessionContent | undefined",
+                "description": "The session's questions (lib/home/session.ts).",
+                "attribute": "session"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Steps",
+          "label": "Acme rows and questions",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/how-it-works-block/Steps.html",
+          "content": "<!-- The three steps, the connect menu with Acme rows and the session asking Acme questions. -->\n<spyglass-how-it-works-block></spyglass-how-it-works-block>\n"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "toast",
+  "type": "registry:ui",
+  "title": "Toast",
+  "description": "One note, what just happened: the card's #262626 fill, a hairline and the brand corner, a DM Sans Medium title, a muted line, one small White button when there is something to do, and a close button.",
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "registryDependencies": [
+    "https://spyglass-ds.vercel.app/r/react/button.json"
+  ],
+  "files": [
+    {
+      "path": "components/ui/Toast.tsx",
+      "type": "registry:ui",
+      "content": "import { X } from 'lucide-react'\nimport { Button } from '@/components/ui/Button'\nimport { cn } from '@/lib/cn'\n\n// One note: what just happened, in the card's #262626 fill with a #666666 hairline and the brand corner, no shadow. The\n// title in DM Sans Medium, a muted line under it, one small White button beside them when there is something to do\n// (Undo, View), and a close button when it can be dismissed. The Toaster (sonner) stacks these in a corner and times\n// them; on its own it is a static note.\nexport interface ToastProps {\n  /** What happened, in a few words. */\n  title: string\n  /** A line under the title. */\n  description?: string\n  /** One button beside the text. */\n  action?: { label: string, onClick?: () => void }\n  /** Shows the close button; called when it is pressed. */\n  onDismiss?: () => void\n  className?: string\n}\n\nexport function Toast({ title, description, action, onDismiss, className }: ToastProps) {\n  return (\n    <div data-ds=\"toast\" className={cn('flex w-full items-start gap-3 rounded-container border border-edge-strong bg-surface-raised p-4', className)}>\n      <div className=\"flex min-w-0 flex-1 flex-col gap-1\">\n        <p className=\"type-ui-strong text-fg\">{title}</p>\n        {description && <p className=\"type-ui text-fg-muted\">{description}</p>}\n      </div>\n      {action && <Button size=\"sm\" className=\"-my-1.5\" onClick={action.onClick}>{action.label}</Button>}\n      {onDismiss && (\n        <button type=\"button\" className=\"-my-1.5 -mr-1.5 inline-flex size-control-sm shrink-0 cursor-pointer items-center justify-center rounded-control text-fg-muted transition-[background-color,color] duration-160 ease-standard hover:bg-action-ghost-hover hover:text-fg\" aria-label=\"Dismiss\" onClick={onDismiss}>\n          <X size={16} strokeWidth={1.5} aria-hidden=\"true\" />\n        </button>\n      )}\n    </div>\n  )\n}\n\nexport default Toast\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

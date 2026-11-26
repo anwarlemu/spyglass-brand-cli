@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "label",
+  "type": "registry:ui",
+  "title": "Label",
+  "description": "A field's label: DM Sans Medium in capitals with 6% tracking, in the soft gray, over the control it names. A muted hint can follow it.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/ui/Label.tsx",
+      "type": "registry:ui",
+      "content": "import type { LabelHTMLAttributes, ReactNode } from 'react'\nimport { cn } from '@/lib/cn'\n\n// A field's label on its own: the brand's label voice, DM Sans Medium in capitals with 6% tracking at 12px, in the soft\n// gray (#D4D4D4), over or beside the control it names, never in place of one. `htmlFor` ties it to the control's id;\n// `hint` adds a muted note after it, such as \"Optional\". Every other prop lands on the <label>.\nexport interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {\n  /** A muted note after the label, such as \"Optional\". */\n  hint?: string\n  children?: ReactNode\n}\n\nexport function Label({ hint, className, children, ...rest }: LabelProps) {\n  return <label data-ds=\"label\" {...rest} className={cn('inline-flex items-baseline gap-1.5 type-label text-fg-soft', className)}>{children}{hint && <span className=\"text-fg-muted\">{hint}</span>}</label>\n}\n\nexport default Label\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

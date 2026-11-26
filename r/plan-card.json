@@ -1,0 +1,245 @@
+{
+  "name": "plan-card",
+  "title": "Plan card",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "The Creator plan card from the ad: the plan's name in Funnel Display, the price as a sentence with concrete numbers, the lines it includes and one full-width White button, on the #262626 fill with the brand corner.",
+  "use_for": "A plan on a pricing page or under an offer headline. One plan card per plan, the button saying what it starts.",
+  "never": [
+    "A border, a shadow or a glow",
+    "A colored or second button in the card",
+    "Check marks or icons before the lines: the ad sets them as plain lines",
+    "A price without numbers (\"Affordable\")"
+  ],
+  "source": "Figma page 8: Ad, Creator plan offer: Card, Creator plan (600x452, #262626, radius 10, 48px in; Creator at 48, the price at 112, the lines from 184, 24px apart; Button, Start Creator for 50% off 504x56 at 348)",
+  "body": "The copy in the example is the ad's own. `onSelect` (React) and the `select` event (web component) fire when the button\nis pressed; `href` makes the button a link.",
+  "requires": [
+    "button"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/PlanCard.tsx",
+      "content": "import type { ReactNode } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { cn } from '@/react/lib/cn'\n\n// The site's plan tier (pages/Pricing .tier): a #262626 fill on Black with the 8px corner, 24px in; the plan's name in\n// Funnel Display 32/36 at 400, the price line in DM Sans, what the plan includes as #D4D4D4 14/20 lines under a\n// #4D4D4D hairline, and one full-width White button. The price 16px under the name, the lines 24px under it and 8px\n// apart, the button 24px below\n// (cards stretched side by side keep their buttons on one line: the lines take the extra height).\nexport interface PlanCardProps {\n  /** The plan's name. */\n  title: ReactNode\n  /** The price, as a sentence with concrete numbers. */\n  price?: ReactNode\n  /** What the plan includes, one line each. */\n  features?: string[]\n  /** The button's label. */\n  cta?: string\n  /** Makes the button a link. */\n  href?: string\n  /** Called when the button is pressed. */\n  onSelect?: () => void\n  className?: string\n}\n\nexport function PlanCard({ title, price, features = [], cta, href, onSelect, className }: PlanCardProps) {\n  return (\n    <div data-ds=\"plan-card\" className={cn('flex flex-col rounded-panel bg-surface-raised p-6 text-fg', className)}>\n      <h3 className=\"type-heading-2\">{title}</h3>\n      {price && <p className=\"mt-4 type-body text-fg\">{price}</p>}\n      {features.length > 0 && (\n        <ul className=\"mt-6 flex grow flex-col gap-2 border-t border-edge-surface pt-6 type-ui text-fg-soft\">\n          {features.map((f) => <li key={f}>{f}</li>)}\n        </ul>\n      )}\n      {cta && <Button href={href} onClick={onSelect} className=\"mt-6 w-full\">{cta}</Button>}\n    </div>\n  )\n}\n\nexport default PlanCard\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Creator",
+      "label": "Creator plan",
+      "center": true,
+      "half": false,
+      "path": "react/examples/plan-card/Creator.tsx",
+      "content": "import { PlanCard } from '@/react/components/site/PlanCard'\n// The Creator plan, as the ad sets it.\n\nexport default function Creator() {\n  return (\n    <PlanCard\n      className=\"w-150 max-w-full\"\n      title=\"Creator\"\n      price=\"$10 for your first month, then $20/month\"\n      features={['AI-powered research across brands, creators, ads, and campaigns', 'Unlimited board swipe files, alerts, and tracked brands', 'Unlimited team seats']}\n      cta=\"Start Creator for 50% off\"\n    />\n  )\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/PlanCard.tsx",
+          "content": "import type { ReactNode } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { cn } from '@/react/lib/cn'\n\n// The site's plan tier (pages/Pricing .tier): a #262626 fill on Black with the 8px corner, 24px in; the plan's name in\n// Funnel Display 32/36 at 400, the price line in DM Sans, what the plan includes as #D4D4D4 14/20 lines under a\n// #4D4D4D hairline, and one full-width White button. The price 16px under the name, the lines 24px under it and 8px\n// apart, the button 24px below\n// (cards stretched side by side keep their buttons on one line: the lines take the extra height).\nexport interface PlanCardProps {\n  /** The plan's name. */\n  title: ReactNode\n  /** The price, as a sentence with concrete numbers. */\n  price?: ReactNode\n  /** What the plan includes, one line each. */\n  features?: string[]\n  /** The button's label. */\n  cta?: string\n  /** Makes the button a link. */\n  href?: string\n  /** Called when the button is pressed. */\n  onSelect?: () => void\n  className?: string\n}\n\nexport function PlanCard({ title, price, features = [], cta, href, onSelect, className }: PlanCardProps) {\n  return (\n    <div data-ds=\"plan-card\" className={cn('flex flex-col rounded-panel bg-surface-raised p-6 text-fg', className)}>\n      <h3 className=\"type-heading-2\">{title}</h3>\n      {price && <p className=\"mt-4 type-body text-fg\">{price}</p>}\n      {features.length > 0 && (\n        <ul className=\"mt-6 flex grow flex-col gap-2 border-t border-edge-surface pt-6 type-ui text-fg-soft\">\n          {features.map((f) => <li key={f}>{f}</li>)}\n        </ul>\n      )}\n      {cta && <Button href={href} onClick={onSelect} className=\"mt-6 w-full\">{cta}</Button>}\n    </div>\n  )\n}\n\nexport default PlanCard\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "PlanCard",
+            "file": "react/components/site/PlanCard.tsx",
+            "props": [
+              {
+                "name": "title",
+                "type": "ReactNode",
+                "required": true,
+                "description": "The plan's name."
+              },
+              {
+                "name": "price",
+                "type": "ReactNode",
+                "required": false,
+                "description": "The price, as a sentence with concrete numbers."
+              },
+              {
+                "name": "features",
+                "type": "string[]",
+                "required": false,
+                "default": "[]",
+                "description": "What the plan includes, one line each."
+              },
+              {
+                "name": "cta",
+                "type": "string",
+                "required": false,
+                "description": "The button's label."
+              },
+              {
+                "name": "href",
+                "type": "string",
+                "required": false,
+                "description": "Makes the button a link."
+              },
+              {
+                "name": "onSelect",
+                "type": "() => void",
+                "required": false,
+                "description": "Called when the button is pressed."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Creator",
+          "label": "Creator plan",
+          "center": true,
+          "half": false,
+          "path": "react/examples/plan-card/Creator.tsx",
+          "content": "import { PlanCard } from '@/react/components/site/PlanCard'\n// The Creator plan, as the ad sets it.\n\nexport default function Creator() {\n  return (\n    <PlanCard\n      className=\"w-150 max-w-full\"\n      title=\"Creator\"\n      price=\"$10 for your first month, then $20/month\"\n      features={['AI-powered research across brands, creators, ads, and campaigns', 'Unlimited board swipe files, alerts, and tracked brands', 'Unlimited team seats']}\n      cta=\"Start Creator for 50% off\"\n    />\n  )\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/plan-card.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport '@/elements/components/ui/button'\nimport styles from 'virtual:tw'\n\n// PlanCard.tsx as <spyglass-plan-card>: the site's plan tier, the #262626 fill with the 8px corner, the plan's name\n// (`heading`, React's `title`), the price line, the lines it includes (`features`, a list) and one full-width White\n// button (`cta`, a link with `href`). Pressing the button fires `select`.\n\n/**\n * @summary The plan card: name, price, what it includes and one White button.\n * @fires select - The button was pressed.\n */\nexport class PlanCard extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"plan-card\"]'))\n\tstatic properties = { heading: {}, price: {}, features: { type: Array }, cta: {}, href: {} }\n\t/** The plan's name (React's `title`). */\n\theading = ''\n\t/** The price, as a sentence with concrete numbers. */\n\tprice?: string\n\t/** What the plan includes, one line each. */\n\tfeatures: string[] = []\n\t/** The button's label. */\n\tcta?: string\n\t/** Makes the button a link. */\n\thref?: string\n\n\trender() {\n\t\tconst features = this.features ?? []\n\t\treturn html`<div data-ds=\"plan-card\" class=\"flex flex-col rounded-panel bg-surface-raised p-6 text-fg\"><h3 class=\"type-heading-2\">${this.heading}</h3>${this.price ? html`<p class=\"mt-4 type-body text-fg\">${this.price}</p>` : nothing}${features.length ? html`<ul class=\"mt-6 flex grow flex-col gap-2 border-t border-edge-surface pt-6 type-ui text-fg-soft\">${features.map((f) => html`<li>${f}</li>`)}</ul>` : nothing}${this.cta ? html`<spyglass-button href=${ifDefined(this.href)} class=\"mt-6 w-full\" @click=${() => this.emit('select')}>${this.cta}</spyglass-button>` : nothing}</div>`\n\t}\n}\n\ndefine('plan-card', PlanCard)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/plan-card.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-plan-card",
+      "tags": [
+        "spyglass-plan-card"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-plan-card",
+            "name": "PlanCard",
+            "module": "elements/plan-card.js",
+            "description": "The plan card: name, price, what it includes and one White button.",
+            "attributes": [
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string",
+                "default": "''",
+                "description": "The plan's name (React's `title`)."
+              },
+              {
+                "name": "price",
+                "field": "price",
+                "type": "string | undefined",
+                "description": "The price, as a sentence with concrete numbers."
+              },
+              {
+                "name": "features",
+                "field": "features",
+                "type": "string[]",
+                "default": "[]",
+                "description": "What the plan includes, one line each."
+              },
+              {
+                "name": "cta",
+                "field": "cta",
+                "type": "string | undefined",
+                "description": "The button's label."
+              },
+              {
+                "name": "href",
+                "field": "href",
+                "type": "string | undefined",
+                "description": "Makes the button a link."
+              }
+            ],
+            "properties": [
+              {
+                "name": "heading",
+                "type": "string",
+                "default": "''",
+                "description": "The plan's name (React's `title`).",
+                "attribute": "heading"
+              },
+              {
+                "name": "price",
+                "type": "string | undefined",
+                "description": "The price, as a sentence with concrete numbers.",
+                "attribute": "price"
+              },
+              {
+                "name": "features",
+                "type": "string[]",
+                "default": "[]",
+                "description": "What the plan includes, one line each.",
+                "attribute": "features"
+              },
+              {
+                "name": "cta",
+                "type": "string | undefined",
+                "description": "The button's label.",
+                "attribute": "cta"
+              },
+              {
+                "name": "href",
+                "type": "string | undefined",
+                "description": "Makes the button a link.",
+                "attribute": "href"
+              }
+            ],
+            "events": [
+              {
+                "name": "select",
+                "description": "The button was pressed."
+              }
+            ],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Creator",
+          "label": "Creator plan",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/plan-card/Creator.html",
+          "content": "<!-- The Creator plan, as the ad sets it. -->\n<spyglass-plan-card class=\"w-150 max-w-full\" heading=\"Creator\" price=\"$10 for your first month, then $20/month\" features='[\"AI-powered research across brands, creators, ads, and campaigns\",\"Unlimited board swipe files, alerts, and tracked brands\",\"Unlimited team seats\"]' cta=\"Start Creator for 50% off\"></spyglass-plan-card>\n"
+        }
+      ]
+    }
+  }
+}

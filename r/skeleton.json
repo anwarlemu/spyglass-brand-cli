@@ -1,0 +1,208 @@
+{
+  "name": "skeleton",
+  "title": "Skeleton",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A placeholder in the shape of what is loading: a #1A1A1A block with the brand corner, or a circle, that breathes between full and half opacity. Never a shimmer; still with reduced motion.",
+  "use_for": "Holding the place of a creative card, a row or a chart while it loads, sized to the part it stands for so nothing moves when it lands.",
+  "never": [
+    "A shimmer, a gradient sweep or a spectrum color",
+    "A layout that jumps when the content lands: size each block to its part",
+    "A skeleton for something that loads in under 300ms"
+  ],
+  "source": "Derived from the brand guidelines (no loading state in the brand assets): the neutral steps for the block, the brand corner",
+  "body": "When the picture it holds the place of arrives, pass it as `src` (with `alt`, `fit` and `position`): the block shows it, still,\nin the same shape and corner. Without `src` the block carries `data-ds-placeholder`, so a page can be checked for\npictures still to fill.",
+  "requires": [
+    "creative-card"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Skeleton.tsx",
+      "content": "import type { HTMLAttributes } from 'react'\nimport { cn } from '@/react/lib/cn'\nimport { imageFit, type ImageSlot } from '@/lib/image'\n\n// A placeholder in the shape of what is loading: a #1A1A1A block with the brand corner (or a circle) that breathes\n// between full and half opacity every 2 seconds, never a shimmer. Size it with classes (h-4 w-48) to the part it holds\n// the place of, so nothing moves when the content lands. Still with reduced motion. Hidden from assistive tech: say\n// \"Loading\" once on the region (aria-busy) instead. When the picture it holds the place of arrives, pass it (`src`,\n// `alt`, `fit`, `position`): the block shows it, still, in the same shape. Without one it carries data-ds-placeholder.\nexport interface SkeletonProps extends HTMLAttributes<HTMLDivElement>, ImageSlot {\n  /** A circle (an avatar or a logo) in place of the brand corner. */\n  circle?: boolean\n}\n\nexport function Skeleton({ circle, src, alt = '', fit, position, className, ...rest }: SkeletonProps) {\n  const shape = circle ? 'rounded-full' : 'rounded-control'\n  if (src) {\n    return (\n      <div data-ds=\"skeleton\" className={cn('overflow-hidden bg-surface-subtle', shape, className)} {...rest}>\n        <img src={src} alt={alt} decoding=\"async\" className=\"block size-full object-cover\" style={imageFit({ fit, position })} />\n      </div>\n    )\n  }\n  return (\n    <>\n      <style href=\"ds-skeleton\" precedence=\"ds\">{css}</style>\n      <div data-ds=\"skeleton\" data-ds-placeholder=\"\" aria-hidden=\"true\" className={cn('ds-skeleton bg-surface-subtle', shape, className)} {...rest} />\n    </>\n  )\n}\n\nexport default Skeleton\n\nconst css = `\n.ds-skeleton { animation: ds-skeleton-breathe 2s var(--ds-easing-in-out) infinite; }\n@keyframes ds-skeleton-breathe { 50% { opacity: 0.5; } }\n@media (prefers-reduced-motion: reduce) { .ds-skeleton { animation: none; } }\n`\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Creative",
+      "label": "A creative card",
+      "center": true,
+      "half": false,
+      "path": "react/examples/skeleton/Creative.tsx",
+      "content": "import { Skeleton } from '@/react/components/ui/Skeleton'\n// A creative card while it loads: the thumbnail, the brand's logo and two lines, in the shapes they will take.\n\nexport default function Creative() {\n  return (\n    <div className=\"flex w-72 max-w-full flex-col gap-4 rounded-container bg-surface-raised p-4\" aria-busy=\"true\" aria-label=\"Loading creative\">\n      <Skeleton className=\"aspect-square w-full\" />\n      <div className=\"flex items-center gap-3\">\n        <Skeleton circle className=\"size-10 shrink-0\" />\n        <div className=\"flex flex-1 flex-col gap-2\">\n          <Skeleton className=\"h-4 w-3/4\" />\n          <Skeleton className=\"h-3 w-1/2\" />\n        </div>\n      </div>\n    </div>\n  )\n}\n",
+      "requires": [
+        "creative-card"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Skeleton.tsx",
+          "content": "import type { HTMLAttributes } from 'react'\nimport { cn } from '@/react/lib/cn'\nimport { imageFit, type ImageSlot } from '@/lib/image'\n\n// A placeholder in the shape of what is loading: a #1A1A1A block with the brand corner (or a circle) that breathes\n// between full and half opacity every 2 seconds, never a shimmer. Size it with classes (h-4 w-48) to the part it holds\n// the place of, so nothing moves when the content lands. Still with reduced motion. Hidden from assistive tech: say\n// \"Loading\" once on the region (aria-busy) instead. When the picture it holds the place of arrives, pass it (`src`,\n// `alt`, `fit`, `position`): the block shows it, still, in the same shape. Without one it carries data-ds-placeholder.\nexport interface SkeletonProps extends HTMLAttributes<HTMLDivElement>, ImageSlot {\n  /** A circle (an avatar or a logo) in place of the brand corner. */\n  circle?: boolean\n}\n\nexport function Skeleton({ circle, src, alt = '', fit, position, className, ...rest }: SkeletonProps) {\n  const shape = circle ? 'rounded-full' : 'rounded-control'\n  if (src) {\n    return (\n      <div data-ds=\"skeleton\" className={cn('overflow-hidden bg-surface-subtle', shape, className)} {...rest}>\n        <img src={src} alt={alt} decoding=\"async\" className=\"block size-full object-cover\" style={imageFit({ fit, position })} />\n      </div>\n    )\n  }\n  return (\n    <>\n      <style href=\"ds-skeleton\" precedence=\"ds\">{css}</style>\n      <div data-ds=\"skeleton\" data-ds-placeholder=\"\" aria-hidden=\"true\" className={cn('ds-skeleton bg-surface-subtle', shape, className)} {...rest} />\n    </>\n  )\n}\n\nexport default Skeleton\n\nconst css = `\n.ds-skeleton { animation: ds-skeleton-breathe 2s var(--ds-easing-in-out) infinite; }\n@keyframes ds-skeleton-breathe { 50% { opacity: 0.5; } }\n@media (prefers-reduced-motion: reduce) { .ds-skeleton { animation: none; } }\n`\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "creative-card"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "Skeleton",
+            "file": "react/components/ui/Skeleton.tsx",
+            "props": [
+              {
+                "name": "circle",
+                "type": "boolean",
+                "required": false,
+                "description": "A circle (an avatar or a logo) in place of the brand corner."
+              }
+            ],
+            "extends": [
+              "HTMLAttributes<HTMLDivElement>",
+              "ImageSlot"
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Creative",
+          "label": "A creative card",
+          "center": true,
+          "half": false,
+          "path": "react/examples/skeleton/Creative.tsx",
+          "content": "import { Skeleton } from '@/react/components/ui/Skeleton'\n// A creative card while it loads: the thumbnail, the brand's logo and two lines, in the shapes they will take.\n\nexport default function Creative() {\n  return (\n    <div className=\"flex w-72 max-w-full flex-col gap-4 rounded-container bg-surface-raised p-4\" aria-busy=\"true\" aria-label=\"Loading creative\">\n      <Skeleton className=\"aspect-square w-full\" />\n      <div className=\"flex items-center gap-3\">\n        <Skeleton circle className=\"size-10 shrink-0\" />\n        <div className=\"flex flex-1 flex-col gap-2\">\n          <Skeleton className=\"h-4 w-3/4\" />\n          <Skeleton className=\"h-3 w-1/2\" />\n        </div>\n      </div>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "creative-card"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/skeleton.ts",
+          "content": "import { html, nothing, type PropertyValues } from 'lit'\nimport { styleMap } from 'lit/directives/style-map.js'\nimport { imageFit, type ImageFit } from '@/lib/image'\nimport { DsElement, define } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Skeleton.tsx as <spyglass-skeleton>: a placeholder in the shape of what is loading, a #1A1A1A block with the brand\n// corner (or a circle) that breathes between full and half opacity, never a shimmer; still with reduced motion. The\n// host is the block, so size classes on the element (h-4 w-48) land on it. Hidden from assistive tech. With `src` (and\n// `alt`, `fit`, `position`) it shows the picture that arrived, still, in the same shape; without, the host carries\n// data-ds-placeholder.\n\n/** @summary A placeholder block in the shape of what is loading. */\nexport class Skeleton extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { circle: { type: Boolean, reflect: true }, src: { reflect: true }, alt: {}, fit: {}, position: {} }\n\n\t/** A circle (an avatar or a logo) in place of the brand corner. */\n\tcircle = false\n\t/** The picture that arrived. */\n\tsrc?: string\n\t/** What it shows. */\n\talt = ''\n\t/** How it fills the block (object-fit); cover by default. */\n\tfit?: ImageFit\n\t/** Where it is anchored (object-position). */\n\tposition?: string\n\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\tif (this.src) this.removeAttribute('aria-hidden')\n\t\telse this.setAttribute('aria-hidden', 'true')\n\t\tthis.toggleAttribute('data-ds-placeholder', !this.src)\n\t}\n\n\trender() {\n\t\treturn this.src ? html`<img src=${this.src} alt=${this.alt} decoding=\"async\" class=\"block size-full object-cover\" style=${styleMap(imageFit(this) ?? {})}>` : nothing\n\t}\n}\n\ndefine('skeleton', Skeleton)\n"
+        },
+        {
+          "path": "elements/components/ui/skeleton.css",
+          "content": "/* The host is the block (Skeleton.tsx's root div), so size classes on the element land on it. */\n:host { @apply block bg-surface-subtle rounded-control; animation: ds-skeleton-breathe 2s var(--ds-easing-in-out) infinite; }\n:host([circle]) { @apply rounded-full; }\n:host([src]) { overflow: hidden; animation: none; }\n@keyframes ds-skeleton-breathe { 50% { opacity: 0.5; } }\n@media (prefers-reduced-motion: reduce) { :host { animation: none; } }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/skeleton.js"
+      ],
+      "tag": "spyglass-skeleton",
+      "tags": [
+        "spyglass-skeleton"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-skeleton",
+            "name": "Skeleton",
+            "module": "elements/skeleton.js",
+            "description": "A placeholder block in the shape of what is loading.",
+            "attributes": [
+              {
+                "name": "circle",
+                "field": "circle",
+                "type": "boolean",
+                "default": "false",
+                "description": "A circle (an avatar or a logo) in place of the brand corner."
+              },
+              {
+                "name": "src",
+                "field": "src",
+                "type": "string | undefined",
+                "description": "The picture that arrived."
+              },
+              {
+                "name": "alt",
+                "field": "alt",
+                "type": "string",
+                "default": "''",
+                "description": "What it shows."
+              },
+              {
+                "name": "fit",
+                "field": "fit",
+                "type": "ImageFit | undefined",
+                "description": "How it fills the block (object-fit); cover by default."
+              },
+              {
+                "name": "position",
+                "field": "position",
+                "type": "string | undefined",
+                "description": "Where it is anchored (object-position)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "circle",
+                "type": "boolean",
+                "default": "false",
+                "description": "A circle (an avatar or a logo) in place of the brand corner.",
+                "attribute": "circle"
+              },
+              {
+                "name": "src",
+                "type": "string | undefined",
+                "description": "The picture that arrived.",
+                "attribute": "src"
+              },
+              {
+                "name": "alt",
+                "type": "string",
+                "default": "''",
+                "description": "What it shows.",
+                "attribute": "alt"
+              },
+              {
+                "name": "fit",
+                "type": "ImageFit | undefined",
+                "description": "How it fills the block (object-fit); cover by default.",
+                "attribute": "fit"
+              },
+              {
+                "name": "position",
+                "type": "string | undefined",
+                "description": "Where it is anchored (object-position).",
+                "attribute": "position"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Creative",
+          "label": "A creative card",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/skeleton/Creative.html",
+          "content": "<!-- A creative card while it loads: the thumbnail, the brand's logo and two lines, in the shapes they will take. -->\n<div class=\"flex w-72 max-w-full flex-col gap-4 rounded-container bg-surface-raised p-4\" aria-busy=\"true\" aria-label=\"Loading creative\">\n  <spyglass-skeleton class=\"aspect-square w-full\"></spyglass-skeleton>\n  <div class=\"flex items-center gap-3\">\n    <spyglass-skeleton circle class=\"size-10 shrink-0\"></spyglass-skeleton>\n    <div class=\"flex flex-1 flex-col gap-2\">\n      <spyglass-skeleton class=\"h-4 w-3/4\"></spyglass-skeleton>\n      <spyglass-skeleton class=\"h-3 w-1/2\"></spyglass-skeleton>\n    </div>\n  </div>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

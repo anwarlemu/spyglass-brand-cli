@@ -1,0 +1,203 @@
+{
+  "name": "error-page",
+  "title": "Error page",
+  "type": "registry:block",
+  "group": "pages",
+  "description": "The site's error page: what shows when a page fails to render, the error head alone on Black (the title in one line, what happened in a plain sentence, the White Try again and the quiet way home), with no header or footer.",
+  "use_for": "An app's or a website's error boundary (Next's error.tsx and global-error.tsx). Try again calls `onRetry` (React) or fires `retry` (web component).",
+  "never": [
+    "An error code, a stack trace or a joke as the title",
+    "More than one White button in a view",
+    "The header and footer: the page that failed may be what draws them"
+  ],
+  "source": "Site app/error.tsx, app/global-error.tsx, pages/PageHead/ErrorHead.tsx and content/pages/errors.ts: the page head without the drift, the White retry beside the quiet homepage link; main's last section keeps --section-y under it",
+  "body": "`sections` lists the sections to show, in order (`head`); a key left out is not shown.",
+  "requires": [
+    "creative-card",
+    "page-head"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/pages/ErrorPage.tsx",
+      "content": "import { ErrorHead } from '@/react/components/site/ErrorHead'\nimport { errorContent, type ErrorContent, errorSections, type ErrorSection } from '@/lib/pages/error'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\n\n// The site's error page (app/error.tsx and global-error.tsx): what shows when a page fails to render, so neither the\n// header nor the footer is there, only the error head on Black: the title in one line, the plain sentence, the White\n// \"Try again\" (`onRetry`) and the quiet way home. As the page's last section it keeps the site's section padding under\n// it (56px, 76 at 768, 84 at 1024), in a box that takes back what the page head keeps below. `content` replaces the\n// copy (lib/pages/error.ts).\nexport interface ErrorPageProps {\n  content?: ErrorContent\n  onRetry?: () => void\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly ErrorSection[]\n  className?: string\n}\n\nexport function ErrorPage({ content: c = errorContent, onRetry, sections, className }: ErrorPageProps) {\n  const parts: Record<ErrorSection, ReactNode> = {\n    head: (\n      <div className=\"-mb-6 md:-mb-5 lg:-mb-3\">\n        <ErrorHead content={c} onRetry={onRetry} />\n      </div>\n    ),\n  }\n  return (\n    <div data-ds=\"error-page\" className={cn('min-h-svh bg-surface text-fg', className)}>\n      <main id=\"main\">\n        {pageSections(errorSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n    </div>\n  )\n}\n\nexport default ErrorPage\n"
+    },
+    {
+      "path": "lib/pages/error.ts",
+      "content": "// The error page's copy (site content/pages/errors.ts): the title, what happened in a plain sentence, try again and the\n// way home. Both flavors read this file.\nexport const errorContent = {\n\tlines: ['Something went wrong'],\n\tlead: 'This page did not load. Try again, or start from the homepage.',\n\tretry: 'Try again',\n\thome: { label: 'Go to the homepage', href: '/' },\n}\nexport type ErrorContent = typeof errorContent\n\n/** The error page's sections in order; pass `sections` to reorder them or leave some out. */\nexport const errorSections = ['head'] as const\nexport type ErrorSection = (typeof errorSections)[number]\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Page",
+      "label": "Error page",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/error-page/Page.tsx",
+      "content": "'use client'\nimport { ErrorPage } from '@/react/components/pages/ErrorPage'\n// The error page as the site sets it: Try again would render the page again.\n\nexport default function Page() {\n  return <ErrorPage onRetry={() => {}} />\n}\n",
+      "requires": [
+        "creative-card",
+        "page-head"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/pages/ErrorPage.tsx",
+          "content": "import { ErrorHead } from '@/react/components/site/ErrorHead'\nimport { errorContent, type ErrorContent, errorSections, type ErrorSection } from '@/lib/pages/error'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\n\n// The site's error page (app/error.tsx and global-error.tsx): what shows when a page fails to render, so neither the\n// header nor the footer is there, only the error head on Black: the title in one line, the plain sentence, the White\n// \"Try again\" (`onRetry`) and the quiet way home. As the page's last section it keeps the site's section padding under\n// it (56px, 76 at 768, 84 at 1024), in a box that takes back what the page head keeps below. `content` replaces the\n// copy (lib/pages/error.ts).\nexport interface ErrorPageProps {\n  content?: ErrorContent\n  onRetry?: () => void\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly ErrorSection[]\n  className?: string\n}\n\nexport function ErrorPage({ content: c = errorContent, onRetry, sections, className }: ErrorPageProps) {\n  const parts: Record<ErrorSection, ReactNode> = {\n    head: (\n      <div className=\"-mb-6 md:-mb-5 lg:-mb-3\">\n        <ErrorHead content={c} onRetry={onRetry} />\n      </div>\n    ),\n  }\n  return (\n    <div data-ds=\"error-page\" className={cn('min-h-svh bg-surface text-fg', className)}>\n      <main id=\"main\">\n        {pageSections(errorSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n    </div>\n  )\n}\n\nexport default ErrorPage\n"
+        },
+        {
+          "path": "lib/pages/error.ts",
+          "content": "// The error page's copy (site content/pages/errors.ts): the title, what happened in a plain sentence, try again and the\n// way home. Both flavors read this file.\nexport const errorContent = {\n\tlines: ['Something went wrong'],\n\tlead: 'This page did not load. Try again, or start from the homepage.',\n\tretry: 'Try again',\n\thome: { label: 'Go to the homepage', href: '/' },\n}\nexport type ErrorContent = typeof errorContent\n\n/** The error page's sections in order; pass `sections` to reorder them or leave some out. */\nexport const errorSections = ['head'] as const\nexport type ErrorSection = (typeof errorSections)[number]\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "creative-card",
+        "page-head"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "ErrorPage",
+            "file": "react/components/pages/ErrorPage.tsx",
+            "props": [
+              {
+                "name": "content",
+                "type": "ErrorContent",
+                "required": false
+              },
+              {
+                "name": "onRetry",
+                "type": "() => void",
+                "required": false
+              },
+              {
+                "name": "sections",
+                "type": "readonly ErrorSection[]",
+                "required": false,
+                "description": "The sections to show, in order; all of them in the page order by default (leave one out to omit it)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Error page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/error-page/Page.tsx",
+          "content": "'use client'\nimport { ErrorPage } from '@/react/components/pages/ErrorPage'\n// The error page as the site sets it: Try again would render the page again.\n\nexport default function Page() {\n  return <ErrorPage onRetry={() => {}} />\n}\n",
+          "registryDependencies": [
+            "creative-card",
+            "page-head"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/pages/error-page.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { errorContent, type ErrorContent, errorSections, type ErrorSection } from '@/lib/pages/error'\nimport '@/elements/components/site/error-head'\nimport styles from 'virtual:tw'\nimport { pageSections } from '@/lib/image'\n\n// ErrorPage.tsx as <spyglass-error-page>: what shows when a page fails to render, the error head alone on Black (the\n// title, the plain sentence, Try again, which fires `retry`, and the way home). `content` replaces the copy.\n\n/**\n * @summary The error page.\n * @fires retry - When Try again is pressed.\n */\nexport class ErrorPage extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"error-page\"]'))\n\tstatic properties = { content: { type: Object }, sections: { type: Array } }\n\t/** The page's copy (lib/pages/error.ts by default). */\n\tcontent: ErrorContent = errorContent\n\t/** The sections to show, in order (a list of names); all of them in the page order by default. */\n\tsections?: ErrorSection[]\n\n\trender() {\n\t\tconst c = this.content ?? errorContent\n\t\tconst parts: Record<ErrorSection, unknown> = {\n\t\t\thead: html`<div class=\"-mb-6 md:-mb-5 lg:-mb-3\"><spyglass-error-head .content=${c} @retry=${(e: Event) => { e.stopPropagation(); this.emit('retry') }}></spyglass-error-head></div>`,\n\t\t}\n\t\treturn html`<div data-ds=\"error-page\" class=\"min-h-svh bg-surface text-fg\"><main id=\"main\">${pageSections(errorSections, this.sections).map((k) => parts[k])}</main></div>`\n\t}\n}\n\ndefine('error-page', ErrorPage)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/error-page.js",
+        "elements/error-head.js",
+        "elements/page-head.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-error-page",
+      "tags": [
+        "spyglass-error-page"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button",
+        "page-head"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-error-page",
+            "name": "ErrorPage",
+            "module": "elements/error-page.js",
+            "description": "The error page.",
+            "attributes": [
+              {
+                "name": "content",
+                "field": "content",
+                "type": "{ lines: string[]; lead: string; retry: string; home: { label: string; href: string; }; }",
+                "default": "errorContent",
+                "description": "The page's copy (lib/pages/error.ts by default)."
+              },
+              {
+                "name": "sections",
+                "field": "sections",
+                "type": "\"head\"[] | undefined",
+                "description": "The sections to show, in order (a list of names); all of them in the page order by default."
+              }
+            ],
+            "properties": [
+              {
+                "name": "content",
+                "type": "{ lines: string[]; lead: string; retry: string; home: { label: string; href: string; }; }",
+                "default": "errorContent",
+                "description": "The page's copy (lib/pages/error.ts by default).",
+                "attribute": "content"
+              },
+              {
+                "name": "sections",
+                "type": "\"head\"[] | undefined",
+                "description": "The sections to show, in order (a list of names); all of them in the page order by default.",
+                "attribute": "sections"
+              }
+            ],
+            "events": [
+              {
+                "name": "retry",
+                "description": "When Try again is pressed."
+              }
+            ],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Error page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/error-page/Page.html",
+          "content": "<!-- The error page as the site sets it: Try again would render the page again. -->\n<spyglass-error-page id=\"error-page\"></spyglass-error-page>\n<script type=\"module\">\n  document.getElementById('error-page').addEventListener('retry', () => {})\n</script>\n"
+        }
+      ]
+    }
+  }
+}

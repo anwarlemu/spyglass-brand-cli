@@ -1,0 +1,182 @@
+{
+  "name": "side-drifts",
+  "title": "Side drifts",
+  "type": "registry:ui",
+  "group": "visuals",
+  "description": "ASCII drifts at a wide section's sides: from 1440 wide a column crop fades in from the left edge and a mass crop from the right, each 40% of the section's height and as wide as the margin beside the content.",
+  "use_for": "Full-width sections on wide screens, where the content column leaves empty margins; inside a positioned section, behind the content.",
+  "never": [
+    "Inside a card or a narrow column",
+    "Over the content: they live in the margins"
+  ],
+  "source": "Site ui/SideDrifts (SideDrifts.module.css): hidden below 1440; width calc((100vw - --content-max) / 2 - 16px), height 40%, top 8%, 30% or 52%",
+  "body": "",
+  "requires": [
+    "ascii-drift"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/visuals/SideDrifts.tsx",
+      "content": "import { AsciiDrift } from '@/react/components/visuals/AsciiDrift'\nimport { cn } from '@/react/lib/cn'\n\n// The site's side drifts (ui/SideDrifts): from 1440 wide, where the content column leaves room at the sides, a column\n// crop of the ASCII texture fades in from the left edge and a mass crop from the right, each 40% of the section's height\n// and as wide as the margin beside the content less 16px. Below 1440 they are gone. Put it inside a positioned section\n// (`relative isolate`); the drifts sit behind the content and never move. Decoration: hidden from assistive tech.\nexport type SideDriftPlace = 'top' | 'middle' | 'bottom'\nexport interface SideDriftsProps {\n  /** Where the left drift sits (top 8%, middle 30%, bottom 52%), or false for none. */\n  left?: SideDriftPlace | false\n  /** Where the right drift sits, or false for none. */\n  right?: SideDriftPlace | false\n  className?: string\n}\n\nconst SIDE = 'hidden min-[1440px]:block min-[1440px]:h-[40%] min-[1440px]:w-[calc((100vw-var(--ds-layout-content))/2-var(--ds-space-lg))]'\nconst PLACE: Record<SideDriftPlace, string> = { top: 'min-[1440px]:top-[8%]', middle: 'min-[1440px]:top-[30%]', bottom: 'min-[1440px]:top-[52%]' }\n\nexport function SideDrifts({ left = 'top', right = 'bottom', className }: SideDriftsProps) {\n  return (\n    <span data-ds=\"side-drifts\" aria-hidden=\"true\" className={cn('contents', className)}>\n      {left ? <AsciiDrift crop=\"column\" from=\"left\" className={cn(SIDE, 'min-[1440px]:left-0', PLACE[left])} /> : null}\n      {right ? <AsciiDrift crop=\"mass\" from=\"right\" className={cn(SIDE, 'min-[1440px]:right-0', PLACE[right])} /> : null}\n    </span>\n  )\n}\n\nexport default SideDrifts\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Section",
+      "label": "A wide section",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/side-drifts/Section.tsx",
+      "content": "import { SideDrifts } from '@/react/components/visuals/SideDrifts'\n// A full-width section with drifts at both sides (shown from 1440 wide): the left one at the top, the right one lower.\n\nexport default function Section() {\n  return (\n    <section className=\"relative isolate flex min-h-[640px] flex-col items-center justify-center gap-4 overflow-clip bg-surface px-6 text-center\">\n      <SideDrifts left=\"top\" right=\"bottom\" />\n      <h2 className=\"type-heading-2 text-fg\">How it works</h2>\n      <p className=\"max-w-xl type-body text-fg-muted\">Ask in plain words. Acme's library answers with the ads that fit, ranked by how long they ran.</p>\n    </section>\n  )\n}\n",
+      "requires": [
+        "ascii-drift"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/visuals/SideDrifts.tsx",
+          "content": "import { AsciiDrift } from '@/react/components/visuals/AsciiDrift'\nimport { cn } from '@/react/lib/cn'\n\n// The site's side drifts (ui/SideDrifts): from 1440 wide, where the content column leaves room at the sides, a column\n// crop of the ASCII texture fades in from the left edge and a mass crop from the right, each 40% of the section's height\n// and as wide as the margin beside the content less 16px. Below 1440 they are gone. Put it inside a positioned section\n// (`relative isolate`); the drifts sit behind the content and never move. Decoration: hidden from assistive tech.\nexport type SideDriftPlace = 'top' | 'middle' | 'bottom'\nexport interface SideDriftsProps {\n  /** Where the left drift sits (top 8%, middle 30%, bottom 52%), or false for none. */\n  left?: SideDriftPlace | false\n  /** Where the right drift sits, or false for none. */\n  right?: SideDriftPlace | false\n  className?: string\n}\n\nconst SIDE = 'hidden min-[1440px]:block min-[1440px]:h-[40%] min-[1440px]:w-[calc((100vw-var(--ds-layout-content))/2-var(--ds-space-lg))]'\nconst PLACE: Record<SideDriftPlace, string> = { top: 'min-[1440px]:top-[8%]', middle: 'min-[1440px]:top-[30%]', bottom: 'min-[1440px]:top-[52%]' }\n\nexport function SideDrifts({ left = 'top', right = 'bottom', className }: SideDriftsProps) {\n  return (\n    <span data-ds=\"side-drifts\" aria-hidden=\"true\" className={cn('contents', className)}>\n      {left ? <AsciiDrift crop=\"column\" from=\"left\" className={cn(SIDE, 'min-[1440px]:left-0', PLACE[left])} /> : null}\n      {right ? <AsciiDrift crop=\"mass\" from=\"right\" className={cn(SIDE, 'min-[1440px]:right-0', PLACE[right])} /> : null}\n    </span>\n  )\n}\n\nexport default SideDrifts\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-drift"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "SideDrifts",
+            "file": "react/components/visuals/SideDrifts.tsx",
+            "props": [
+              {
+                "name": "left",
+                "type": "SideDriftPlace | false",
+                "required": false,
+                "default": "'top'",
+                "description": "Where the left drift sits (top 8%, middle 30%, bottom 52%), or false for none."
+              },
+              {
+                "name": "right",
+                "type": "SideDriftPlace | false",
+                "required": false,
+                "default": "'bottom'",
+                "description": "Where the right drift sits, or false for none."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Section",
+          "label": "A wide section",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/side-drifts/Section.tsx",
+          "content": "import { SideDrifts } from '@/react/components/visuals/SideDrifts'\n// A full-width section with drifts at both sides (shown from 1440 wide): the left one at the top, the right one lower.\n\nexport default function Section() {\n  return (\n    <section className=\"relative isolate flex min-h-[640px] flex-col items-center justify-center gap-4 overflow-clip bg-surface px-6 text-center\">\n      <SideDrifts left=\"top\" right=\"bottom\" />\n      <h2 className=\"type-heading-2 text-fg\">How it works</h2>\n      <p className=\"max-w-xl type-body text-fg-muted\">Ask in plain words. Acme's library answers with the ads that fit, ranked by how long they ran.</p>\n    </section>\n  )\n}\n",
+          "registryDependencies": [
+            "ascii-drift"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/visuals/side-drifts.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport '@/elements/components/visuals/ascii-drift'\nimport styles from 'virtual:tw'\n\n// SideDrifts.tsx as <spyglass-side-drifts>: from 1440 wide, a column crop of the ASCII texture fades in from the left\n// edge and a mass crop from the right, 40% of the section's height, as wide as the margin beside the content less 16px.\n// `left` and `right`: top, middle, bottom or false. Put it inside a positioned section. Decoration: aria-hidden.\n\nconst SIDE = 'hidden min-[1440px]:block min-[1440px]:h-[40%] min-[1440px]:w-[calc((100vw-var(--ds-layout-content))/2-var(--ds-space-lg))]'\nconst PLACE: Record<string, string> = { top: 'min-[1440px]:top-[8%]', middle: 'min-[1440px]:top-[30%]', bottom: 'min-[1440px]:top-[52%]' }\nconst side = { fromAttribute: (v: string | null) => (v === 'false' ? false : v) }\n\n/**\n * @summary The ASCII drifts at a wide section's sides.\n */\nexport class SideDrifts extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { left: { converter: side }, right: { converter: side } }\n\t/** top, middle, bottom or false. */\n\tleft: string | false = 'top'\n\t/** top, middle, bottom or false. */\n\tright: string | false = 'bottom'\n\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\tthis.setAttribute('aria-hidden', 'true')\n\t}\n\n\trender() {\n\t\tconst l = this.left && PLACE[this.left] ? this.left : false\n\t\tconst r = this.right && PLACE[this.right] ? this.right : false\n\t\treturn html`<span data-ds=\"side-drifts\" class=\"contents\">${l ? html`<spyglass-ascii-drift crop=\"column\" from=\"left\" class=${`${SIDE} min-[1440px]:left-0 ${PLACE[l]}`}></spyglass-ascii-drift>` : nothing}${r ? html`<spyglass-ascii-drift crop=\"mass\" from=\"right\" class=${`${SIDE} min-[1440px]:right-0 ${PLACE[r]}`}></spyglass-ascii-drift>` : nothing}</span>`\n\t}\n}\n\ndefine('side-drifts', SideDrifts)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/side-drifts.js",
+        "elements/ascii-drift.js"
+      ],
+      "tag": "spyglass-side-drifts",
+      "tags": [
+        "spyglass-side-drifts"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-drift"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-side-drifts",
+            "name": "SideDrifts",
+            "module": "elements/side-drifts.js",
+            "description": "The ASCII drifts at a wide section's sides.",
+            "attributes": [
+              {
+                "name": "left",
+                "field": "left",
+                "type": "string | false",
+                "default": "'top'",
+                "description": "top, middle, bottom or false."
+              },
+              {
+                "name": "right",
+                "field": "right",
+                "type": "string | false",
+                "default": "'bottom'",
+                "description": "top, middle, bottom or false."
+              }
+            ],
+            "properties": [
+              {
+                "name": "left",
+                "type": "string | false",
+                "default": "'top'",
+                "description": "top, middle, bottom or false.",
+                "attribute": "left"
+              },
+              {
+                "name": "right",
+                "type": "string | false",
+                "default": "'bottom'",
+                "description": "top, middle, bottom or false.",
+                "attribute": "right"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Section",
+          "label": "A wide section",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/side-drifts/Section.html",
+          "content": "<!-- A full-width section with drifts at both sides (shown from 1440 wide): the left one at the top, the right one lower. -->\n<section class=\"relative isolate flex min-h-[640px] flex-col items-center justify-center gap-4 overflow-clip bg-surface px-6 text-center\">\n  <spyglass-side-drifts left=\"top\" right=\"bottom\"></spyglass-side-drifts>\n  <h2 class=\"type-heading-2 text-fg\">How it works</h2>\n  <p class=\"max-w-xl type-body text-fg-muted\">Ask in plain words. Acme's library answers with the ads that fit, ranked by how long they ran.</p>\n</section>\n"
+        }
+      ]
+    }
+  }
+}

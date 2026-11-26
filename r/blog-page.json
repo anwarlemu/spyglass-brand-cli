@@ -1,0 +1,234 @@
+{
+  "name": "blog-page",
+  "title": "Blog page",
+  "type": "registry:block",
+  "group": "pages",
+  "description": "The blog index template, built only from library items: the title, the newest post large and every other post in a grid of three, each with an image, the date and category in capitals and a Funnel Display title.",
+  "use_for": "A website's blog index. The posts are neutral examples: replace them in lib/pages/blog.ts or pass `content`.",
+  "never": [
+    "New colors, shadows or type sizes added to a section: use the items' props",
+    "More than one White button in a section",
+    "Another brand's photo as a post image"
+  ],
+  "source": "Built from the library (site header, creative card, button, footer row) and the brand's type: Funnel Display titles, DM Sans excerpts, labels in capitals",
+  "body": "`sections` lists the sections to show, in order (`head`, `featured`, `posts`); a key left out is not shown. Each\npost's `image` is a creative: an image slot, or the placeholder's `brand`, `caption` and `tone`. `menus` passes the\nheader menus (the live card's `picture`, the use cases' `shots`).",
+  "requires": [
+    "button",
+    "creative-card",
+    "footer-row",
+    "site-header"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/pages/BlogPage.tsx",
+      "content": "import { Button } from '@/react/components/ui/Button'\nimport { CreativeCard } from '@/react/components/site/CreativeCard'\nimport { FooterRow } from '@/react/components/site/FooterRow'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { blogContent, type BlogContent, blogSections, type BlogSection } from '@/lib/pages/blog'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// The blog index from library items: the title, the newest post large (its image beside the title, the excerpt and a\n// button), then every other post in a grid of three, each an image, the date and category in capitals, the title in\n// Funnel Display and the excerpt. Titles change color on hover; nothing moves. `content` replaces the copy and the\n// posts (lib/pages/blog.ts).\nexport interface BlogPageProps {\n  content?: BlogContent\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly BlogSection[]\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\nconst TITLE = 'rounded-control transition-[color] duration-160 ease-standard hover:text-fg-soft'\n\nexport function BlogPage({ content: c = blogContent, menus, sections, className }: BlogPageProps) {\n  const [first, ...rest] = c.posts\n  const parts: Record<BlogSection, ReactNode> = {\n    head: (\n      <div className={cn(WRAP, 'grid gap-4 pt-16 pb-12 max-sm:pt-10 max-sm:pb-8')}>\n        <h1 className=\"type-section\">{c.title}</h1>\n        <p className=\"max-w-140 type-body-lg text-fg-soft\">{c.body}</p>\n      </div>\n    ),\n    featured: (\n      first && (\n        <article className={cn(WRAP, 'grid grid-cols-2 items-center gap-12 pb-16 max-md:grid-cols-1 max-sm:gap-6 max-sm:pb-12')}>\n          <CreativeCard {...first.image} alt={first.image.alt ?? first.title} ratio=\"7/5\" />\n          <div className=\"flex flex-col items-start gap-4\">\n            <p className=\"type-label text-fg-muted\">{`${first.date} · ${first.category}`}</p>\n            <h2 className=\"type-section\"><a href={first.href} className={TITLE}>{first.title}</a></h2>\n            <p className=\"type-body-lg text-fg-soft\">{first.excerpt}</p>\n            <Button href={first.href} variant=\"secondary\" className=\"mt-2\">{c.read}</Button>\n          </div>\n        </article>\n      )\n    ),\n    posts: (\n      <section aria-label=\"More posts\" className={cn(WRAP, 'grid grid-cols-3 gap-x-6 gap-y-12 pt-12 pb-24 max-md:grid-cols-2 max-sm:grid-cols-1 max-sm:pb-16')}>\n        {rest.map((p) => (\n          <article key={p.href} className=\"grid content-start gap-4\">\n            <CreativeCard {...p.image} alt={p.image.alt ?? p.title} ratio=\"7/5\" />\n            <p className=\"type-label text-fg-muted\">{`${p.date} · ${p.category}`}</p>\n            <h3 className=\"type-heading-3 text-balance\"><a href={p.href} className={TITLE}>{p.title}</a></h3>\n            <p className=\"type-ui text-fg-soft\">{p.excerpt}</p>\n          </article>\n        ))}\n      </section>\n    ),\n  }\n  return (\n    <div data-ds=\"blog-page\" className={cn('bg-surface text-fg', className)}>\n      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      <main>\n        {pageSections(blogSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <footer className=\"border-t border-edge\">\n        <div className={cn(WRAP, 'py-10')}>\n          <FooterRow domain={c.footer.domain} homeHref=\"/\" links={c.footer.links} />\n        </div>\n      </footer>\n    </div>\n  )\n}\n\nexport default BlogPage\n"
+    },
+    {
+      "path": "lib/pages/blog.ts",
+      "content": "// The blog index template's copy: neutral example posts by the team, with Acme placeholders. Replace them with real posts. Both flavors read this file.\nimport type { CreativeImage } from '@/lib/image'\n/** An Acme placeholder creative: the advertiser, a neutral tone (1 to 4) and a headline. */\nconst creative = (brand: string, tone: 1 | 2 | 3 | 4, caption?: string): CreativeImage => (caption ? { brand, tone, caption } : { brand, tone })\n\nconst nav = [\n\t{ label: 'Product', href: '/product' },\n\t{ label: 'Pricing', href: '/pricing' },\n\t{ label: 'Changelog', href: '/changelog' },\n\t{ label: 'Blog', href: '/blog' },\n]\nconst footer = {\n\tdomain: 'spyglass.so',\n\tlinks: [\n\t\t{ label: 'Product', href: '/product' },\n\t\t{ label: 'Pricing', href: '/pricing' },\n\t\t{ label: 'About', href: '/about' },\n\t\t{ label: 'Changelog', href: '/changelog' },\n\t\t{ label: 'Blog', href: '/blog' },\n\t\t{ label: 'Terms', href: '/legal' },\n\t],\n}\nconst header = { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get 50% off', href: '/pricing' } }\n\nexport const blogPosts = [\n\t{ href: '/blog/competitor-creative-mix', title: 'How to read a competitor’s creative mix.', excerpt: 'Count formats before you judge hooks. A week of one brand’s ads says more than its best one.', date: 'Nov 12, 2026', category: 'Research', image: creative('Acme Skin', 3) },\n\t{ href: '/blog/skincare-hooks', title: 'Five hooks that keep working in skincare ads.', excerpt: 'Before and after still leads. Here is what the rest of the top ads open with.', date: 'Nov 5, 2026', category: 'Hooks', image: creative('Acme Skin', 2) },\n\t{ href: '/blog/swipe-files', title: 'A swipe file your team will use.', excerpt: 'Boards work when each one answers a single question.', date: 'Oct 29, 2026', category: 'Boards', image: creative('Acme Studio', 4) },\n\t{ href: '/blog/launch-week', title: 'What a launch week looks like in the index.', excerpt: 'Acme Drinks shipped 40 creatives in seven days. We followed every one.', date: 'Oct 22, 2026', category: 'Research', image: creative('Acme Drinks', 1) },\n\t{ href: '/blog/ugc-or-studio', title: 'UGC or studio: what the numbers say.', excerpt: 'We sorted 1,000 Acme ads by format. The split was closer than we thought.', date: 'Oct 15, 2026', category: 'Formats', image: creative('Acme Fit', 3) },\n\t{ href: '/blog/briefs-from-changes', title: 'Write the brief from what changed.', excerpt: 'Start Monday with the five changes that matter, not fifty screenshots.', date: 'Oct 8, 2026', category: 'Briefs', image: creative('Acme Studio', 2) },\n]\n\nexport const blogContent = {\n\theader: { ...header, nav: nav.map((l) => (l.href === '/blog' ? { ...l, current: true } : l)) },\n\ttitle: 'Blog.',\n\tbody: 'What we learn from the creatives in the index.',\n\tread: 'Read the post',\n\tposts: blogPosts,\n\tfooter,\n}\n\nexport type BlogContent = typeof blogContent\nexport type BlogPost = (typeof blogPosts)[number]\n\n/** The blog index's sections in order; pass `sections` to reorder them or leave some out. */\nexport const blogSections = ['head', 'featured', 'posts'] as const\nexport type BlogSection = (typeof blogSections)[number]\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Page",
+      "label": "Blog page",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/blog-page/Page.tsx",
+      "content": "import { BlogPage } from '@/react/components/pages/BlogPage'\n// The blog page template with its own copy.\n\nexport default function Page() {\n  return <BlogPage />\n}\n",
+      "requires": [
+        "button",
+        "creative-card",
+        "footer-row",
+        "site-header"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/pages/BlogPage.tsx",
+          "content": "import { Button } from '@/react/components/ui/Button'\nimport { CreativeCard } from '@/react/components/site/CreativeCard'\nimport { FooterRow } from '@/react/components/site/FooterRow'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { blogContent, type BlogContent, blogSections, type BlogSection } from '@/lib/pages/blog'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// The blog index from library items: the title, the newest post large (its image beside the title, the excerpt and a\n// button), then every other post in a grid of three, each an image, the date and category in capitals, the title in\n// Funnel Display and the excerpt. Titles change color on hover; nothing moves. `content` replaces the copy and the\n// posts (lib/pages/blog.ts).\nexport interface BlogPageProps {\n  content?: BlogContent\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly BlogSection[]\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\nconst TITLE = 'rounded-control transition-[color] duration-160 ease-standard hover:text-fg-soft'\n\nexport function BlogPage({ content: c = blogContent, menus, sections, className }: BlogPageProps) {\n  const [first, ...rest] = c.posts\n  const parts: Record<BlogSection, ReactNode> = {\n    head: (\n      <div className={cn(WRAP, 'grid gap-4 pt-16 pb-12 max-sm:pt-10 max-sm:pb-8')}>\n        <h1 className=\"type-section\">{c.title}</h1>\n        <p className=\"max-w-140 type-body-lg text-fg-soft\">{c.body}</p>\n      </div>\n    ),\n    featured: (\n      first && (\n        <article className={cn(WRAP, 'grid grid-cols-2 items-center gap-12 pb-16 max-md:grid-cols-1 max-sm:gap-6 max-sm:pb-12')}>\n          <CreativeCard {...first.image} alt={first.image.alt ?? first.title} ratio=\"7/5\" />\n          <div className=\"flex flex-col items-start gap-4\">\n            <p className=\"type-label text-fg-muted\">{`${first.date} · ${first.category}`}</p>\n            <h2 className=\"type-section\"><a href={first.href} className={TITLE}>{first.title}</a></h2>\n            <p className=\"type-body-lg text-fg-soft\">{first.excerpt}</p>\n            <Button href={first.href} variant=\"secondary\" className=\"mt-2\">{c.read}</Button>\n          </div>\n        </article>\n      )\n    ),\n    posts: (\n      <section aria-label=\"More posts\" className={cn(WRAP, 'grid grid-cols-3 gap-x-6 gap-y-12 pt-12 pb-24 max-md:grid-cols-2 max-sm:grid-cols-1 max-sm:pb-16')}>\n        {rest.map((p) => (\n          <article key={p.href} className=\"grid content-start gap-4\">\n            <CreativeCard {...p.image} alt={p.image.alt ?? p.title} ratio=\"7/5\" />\n            <p className=\"type-label text-fg-muted\">{`${p.date} · ${p.category}`}</p>\n            <h3 className=\"type-heading-3 text-balance\"><a href={p.href} className={TITLE}>{p.title}</a></h3>\n            <p className=\"type-ui text-fg-soft\">{p.excerpt}</p>\n          </article>\n        ))}\n      </section>\n    ),\n  }\n  return (\n    <div data-ds=\"blog-page\" className={cn('bg-surface text-fg', className)}>\n      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      <main>\n        {pageSections(blogSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <footer className=\"border-t border-edge\">\n        <div className={cn(WRAP, 'py-10')}>\n          <FooterRow domain={c.footer.domain} homeHref=\"/\" links={c.footer.links} />\n        </div>\n      </footer>\n    </div>\n  )\n}\n\nexport default BlogPage\n"
+        },
+        {
+          "path": "lib/pages/blog.ts",
+          "content": "// The blog index template's copy: neutral example posts by the team, with Acme placeholders. Replace them with real posts. Both flavors read this file.\nimport type { CreativeImage } from '@/lib/image'\n/** An Acme placeholder creative: the advertiser, a neutral tone (1 to 4) and a headline. */\nconst creative = (brand: string, tone: 1 | 2 | 3 | 4, caption?: string): CreativeImage => (caption ? { brand, tone, caption } : { brand, tone })\n\nconst nav = [\n\t{ label: 'Product', href: '/product' },\n\t{ label: 'Pricing', href: '/pricing' },\n\t{ label: 'Changelog', href: '/changelog' },\n\t{ label: 'Blog', href: '/blog' },\n]\nconst footer = {\n\tdomain: 'spyglass.so',\n\tlinks: [\n\t\t{ label: 'Product', href: '/product' },\n\t\t{ label: 'Pricing', href: '/pricing' },\n\t\t{ label: 'About', href: '/about' },\n\t\t{ label: 'Changelog', href: '/changelog' },\n\t\t{ label: 'Blog', href: '/blog' },\n\t\t{ label: 'Terms', href: '/legal' },\n\t],\n}\nconst header = { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get 50% off', href: '/pricing' } }\n\nexport const blogPosts = [\n\t{ href: '/blog/competitor-creative-mix', title: 'How to read a competitor’s creative mix.', excerpt: 'Count formats before you judge hooks. A week of one brand’s ads says more than its best one.', date: 'Nov 12, 2026', category: 'Research', image: creative('Acme Skin', 3) },\n\t{ href: '/blog/skincare-hooks', title: 'Five hooks that keep working in skincare ads.', excerpt: 'Before and after still leads. Here is what the rest of the top ads open with.', date: 'Nov 5, 2026', category: 'Hooks', image: creative('Acme Skin', 2) },\n\t{ href: '/blog/swipe-files', title: 'A swipe file your team will use.', excerpt: 'Boards work when each one answers a single question.', date: 'Oct 29, 2026', category: 'Boards', image: creative('Acme Studio', 4) },\n\t{ href: '/blog/launch-week', title: 'What a launch week looks like in the index.', excerpt: 'Acme Drinks shipped 40 creatives in seven days. We followed every one.', date: 'Oct 22, 2026', category: 'Research', image: creative('Acme Drinks', 1) },\n\t{ href: '/blog/ugc-or-studio', title: 'UGC or studio: what the numbers say.', excerpt: 'We sorted 1,000 Acme ads by format. The split was closer than we thought.', date: 'Oct 15, 2026', category: 'Formats', image: creative('Acme Fit', 3) },\n\t{ href: '/blog/briefs-from-changes', title: 'Write the brief from what changed.', excerpt: 'Start Monday with the five changes that matter, not fifty screenshots.', date: 'Oct 8, 2026', category: 'Briefs', image: creative('Acme Studio', 2) },\n]\n\nexport const blogContent = {\n\theader: { ...header, nav: nav.map((l) => (l.href === '/blog' ? { ...l, current: true } : l)) },\n\ttitle: 'Blog.',\n\tbody: 'What we learn from the creatives in the index.',\n\tread: 'Read the post',\n\tposts: blogPosts,\n\tfooter,\n}\n\nexport type BlogContent = typeof blogContent\nexport type BlogPost = (typeof blogPosts)[number]\n\n/** The blog index's sections in order; pass `sections` to reorder them or leave some out. */\nexport const blogSections = ['head', 'featured', 'posts'] as const\nexport type BlogSection = (typeof blogSections)[number]\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button",
+        "creative-card",
+        "footer-row",
+        "site-header"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "BlogPage",
+            "file": "react/components/pages/BlogPage.tsx",
+            "props": [
+              {
+                "name": "content",
+                "type": "BlogContent",
+                "required": false
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus",
+                "required": false,
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "type": "readonly BlogSection[]",
+                "required": false,
+                "description": "The sections to show, in order; all of them in the page order by default (leave one out to omit it)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Blog page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/blog-page/Page.tsx",
+          "content": "import { BlogPage } from '@/react/components/pages/BlogPage'\n// The blog page template with its own copy.\n\nexport default function Page() {\n  return <BlogPage />\n}\n",
+          "registryDependencies": [
+            "button",
+            "creative-card",
+            "footer-row",
+            "site-header"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/pages/blog-page.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { blogContent, type BlogContent, blogSections, type BlogSection } from '@/lib/pages/blog'\nimport '@/elements/components/ui/button'\nimport '@/elements/components/site/creative-card'\nimport '@/elements/components/site/footer-row'\nimport '@/elements/components/site/site-header'\nimport styles from 'virtual:tw'\nimport { pageSections } from '@/lib/image'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { headerMenus, type HeaderMenus } from '@/lib/site-header'\n\n// BlogPage.tsx as <spyglass-blog-page>: the title, the newest post large and the others in a grid of three. Titles\n// change color on hover; nothing moves. `content` replaces the copy and the posts.\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\nconst TITLE = 'rounded-control transition-[color] duration-160 ease-standard hover:text-fg-soft'\n\n/**\n * @summary The blog index template.\n */\nexport class BlogPage extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"blog-page\"]'))\n\tstatic properties = { content: { type: Object }, menus: { type: Object }, sections: { type: Array } }\n\t/** The page's copy and posts (lib/pages/blog.ts by default). */\n\tcontent: BlogContent = blogContent\n\t/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n\tmenus?: HeaderMenus\n\t/** The sections to show, in order (a list of names); all of them in the page order by default. */\n\tsections?: BlogSection[]\n\n\trender() {\n\t\tconst c = this.content ?? blogContent\n\t\tconst [first, ...rest] = c.posts\n\t\tconst parts: Record<BlogSection, unknown> = {\n\t\t\thead: html`<div class=${`${WRAP} grid gap-4 pt-16 pb-12 max-sm:pt-10 max-sm:pb-8`}><h1 class=\"type-section\">${c.title}</h1><p class=\"max-w-140 type-body-lg text-fg-soft\">${c.body}</p></div>`,\n\t\t\tfeatured: html`${first ? html`<article class=${`${WRAP} grid grid-cols-2 items-center gap-12 pb-16 max-md:grid-cols-1 max-sm:gap-6 max-sm:pb-12`}><spyglass-creative-card src=${ifDefined(first.image.src)} fit=${ifDefined(first.image.fit)} position=${ifDefined(first.image.position)} brand=${ifDefined(first.image.brand)} caption=${ifDefined(first.image.caption)} tone=${ifDefined(first.image.tone)} alt=${first.image.alt ?? first.title} ratio=\"7/5\"></spyglass-creative-card><div class=\"flex flex-col items-start gap-4\"><p class=\"type-label text-fg-muted\">${`${first.date} · ${first.category}`}</p><h2 class=\"type-section\"><a href=${first.href} class=${TITLE}>${first.title}</a></h2><p class=\"type-body-lg text-fg-soft\">${first.excerpt}</p><spyglass-button href=${first.href} variant=\"secondary\" class=\"mt-2\">${c.read}</spyglass-button></div></article>` : nothing}`,\n\t\t\tposts: html`<section aria-label=\"More posts\" class=${`${WRAP} grid grid-cols-3 gap-x-6 gap-y-12 pt-12 pb-24 max-md:grid-cols-2 max-sm:grid-cols-1 max-sm:pb-16`}>${rest.map((p) => html`<article class=\"grid content-start gap-4\"><spyglass-creative-card src=${ifDefined(p.image.src)} fit=${ifDefined(p.image.fit)} position=${ifDefined(p.image.position)} brand=${ifDefined(p.image.brand)} caption=${ifDefined(p.image.caption)} tone=${ifDefined(p.image.tone)} alt=${p.image.alt ?? p.title} ratio=\"7/5\"></spyglass-creative-card><p class=\"type-label text-fg-muted\">${`${p.date} · ${p.category}`}</p><h3 class=\"type-heading-3 text-balance\"><a href=${p.href} class=${TITLE}>${p.title}</a></h3><p class=\"type-ui text-fg-soft\">${p.excerpt}</p></article>`)}</section>`,\n\t\t}\n\t\treturn html`<div data-ds=\"blog-page\" class=\"bg-surface text-fg\">\n<spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header>\n<main>${pageSections(blogSections, this.sections).map((k) => parts[k])}</main>\n<footer class=\"border-t border-edge\"><div class=${`${WRAP} py-10`}><spyglass-footer-row domain=${c.footer.domain} home-href=\"/\" .links=${c.footer.links}></spyglass-footer-row></div></footer>\n</div>`\n\t}\n}\n\ndefine('blog-page', BlogPage)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/blog-page.js",
+        "elements/button.js",
+        "elements/creative-card.js",
+        "elements/footer-row.js",
+        "elements/site-header.js",
+        "elements/logo.js",
+        "elements/menu-sheet.js",
+        "elements/menu-panels.js",
+        "elements/nav-menus.js",
+        "elements/nav-icon.js",
+        "elements/sheet-disclosure.js",
+        "elements/brand-light.js",
+        "elements/products-live-panel.js",
+        "elements/product-visual.js"
+      ],
+      "tag": "spyglass-blog-page",
+      "tags": [
+        "spyglass-blog-page"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "brand-light",
+        "button",
+        "creative-card",
+        "footer-row",
+        "logo",
+        "product-visual",
+        "site-header"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-blog-page",
+            "name": "BlogPage",
+            "module": "elements/blog-page.js",
+            "description": "The blog index template.",
+            "attributes": [
+              {
+                "name": "content",
+                "field": "content",
+                "type": "{ header: { nav: ({ label: string; href: string; } | { current: boolean; label: string; href: string; })[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; }; }; title: string; body: string; read: string; posts: { href: string; title: string; excerpt: string; date: string; category: string; image: CreativeImage; }[]; footer: { domain: string; links: { label: string; href: string; }[]; }; }",
+                "default": "blogContent",
+                "description": "The page's copy and posts (lib/pages/blog.ts by default)."
+              },
+              {
+                "name": "menus",
+                "field": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "field": "sections",
+                "type": "(\"head\" | \"featured\" | \"posts\")[] | undefined",
+                "description": "The sections to show, in order (a list of names); all of them in the page order by default."
+              }
+            ],
+            "properties": [
+              {
+                "name": "content",
+                "type": "{ header: { nav: ({ label: string; href: string; } | { current: boolean; label: string; href: string; })[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; }; }; title: string; body: string; read: string; posts: { href: string; title: string; excerpt: string; date: string; category: string; image: CreativeImage; }[]; footer: { domain: string; links: { label: string; href: string; }[]; }; }",
+                "default": "blogContent",
+                "description": "The page's copy and posts (lib/pages/blog.ts by default).",
+                "attribute": "content"
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default.",
+                "attribute": "menus"
+              },
+              {
+                "name": "sections",
+                "type": "(\"head\" | \"featured\" | \"posts\")[] | undefined",
+                "description": "The sections to show, in order (a list of names); all of them in the page order by default.",
+                "attribute": "sections"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Blog page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/blog-page/Page.html",
+          "content": "<!-- The blog page template with its own copy. -->\n<spyglass-blog-page></spyglass-blog-page>\n"
+        }
+      ]
+    }
+  }
+}

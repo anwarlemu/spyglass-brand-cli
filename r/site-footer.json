@@ -1,0 +1,301 @@
+{
+  "name": "site-footer",
+  "title": "Site footer",
+  "type": "registry:block",
+  "group": "blocks",
+  "description": "The site's footer: the wordmark across the page in the footer gray with the brand light through it, and a #262626 card rising over its descender with the link columns, the lockup and the legal line.",
+  "use_for": "The foot of a marketing site's pages, as spyglass.so ends. For posts, ads and a plain band use the footer row or the footer block.",
+  "never": [
+    "The wordmark in a spectrum color or White: it is the footer gray, and the light is the only color in it",
+    "Links that move on hover, or social icons in color",
+    "Real company or customer names in the columns"
+  ],
+  "source": "Site site/Footer (Footer.tsx, Footer.module.css): card 48px in with a #363636 hairline and the 8px corner, titles Funnel Display 20/24, links DM Sans 16/24 #D4D4D4, six columns from 1280, the wordmark in --grey-wordmark #373737 overlapped by half its descender",
+  "body": "",
+  "requires": [
+    "ascii-drift",
+    "badge",
+    "brand-light",
+    "logo",
+    "site-header"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/blocks/SiteFooter.tsx",
+      "content": "'use client'\nimport type { ReactNode } from 'react'\nimport { Badge } from '@/react/components/ui/Badge'\nimport { BrandLight } from '@/react/components/visuals/BrandLight'\nimport { Logo } from '@/react/components/visuals/Logo'\nimport { cn } from '@/react/lib/cn'\nimport { LOGOS } from '@/lib/logos'\nimport { homeLinkClick } from '@/lib/home-link'\nimport { asciiDriftStyleObject } from '@/lib/ascii-drift'\n\n// The site's footer (site/Footer): the wordmark across the page width in the footer gray (#373737), the brand light\n// running through its lower half, and a #262626 card with a #363636 hairline and the 8px corner rising over the\n// wordmark's descender. In the card: the link columns (a Funnel Display 20/24 title over #D4D4D4 16/24 links, six\n// across from 1280, three from 768, two on phones, the wide ones two by two), then under a hairline the lockup and the\n// legal line in #A3A3A3 14/20. A link without `href` is not live yet: it shows in #858585 with a \"Coming soon\" badge.\n// Links turn White under the pointer; nothing moves. The light is decoration and stays still.\nexport interface SiteFooterLink {\n  label: string\n  /** Leave it out for a page that is not live yet. */\n  href?: string\n}\n\nexport interface SiteFooterColumn {\n  title: string\n  links: SiteFooterLink[]\n  /** On phones, a column across the card with its links two by two. */\n  wide?: boolean\n}\n\nexport interface SiteFooterProps {\n  columns: SiteFooterColumn[]\n  /** The line beside the lockup: \"© 2026 Acme Inc.\" */\n  legal?: ReactNode\n  /** Where the lockup links. */\n  homeHref?: string\n  /** The badge on a link that is not live yet. */\n  soon?: string\n  /** The big wordmark and its light above the card (on by default). */\n  wordmark?: boolean\n  /** The light's seed. */\n  seed?: number\n  /** The lockup's accessible name. */\n  label?: string\n  className?: string\n}\n\nconst LINK = 'flex min-h-10 items-center rounded-ds-sm type-body text-fg-soft transition-[color] duration-160 ease-out hover:text-fg md:block md:min-h-0 md:py-1'\n\n/** The wordmark as a mask image, so the light shows only inside the letters. */\nfunction wordmarkMask() {\n  const w = LOGOS.wordmark\n  const svg = `<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 ${w.width} ${w.height}\" fill=\"#000\">${w.body}</svg>`\n  return `url(\"data:image/svg+xml,${encodeURIComponent(svg)}\")`\n}\n\nexport function SiteFooter({ columns, legal, homeHref = '/', soon = 'Coming soon', wordmark = true, seed = 0, label = 'Spyglass', className }: SiteFooterProps) {\n  const w = LOGOS.wordmark\n  const mask = wordmarkMask()\n  return (\n    <footer data-ds=\"site-footer\" className={cn('relative isolate bg-surface pt-(--ds-layout-section) text-fg', className)}>\n      <span aria-hidden=\"true\" className=\"pointer-events-none absolute top-[40%] bottom-0 left-0 -z-1 hidden w-[max(var(--ds-space-5xl),calc((100%-var(--ds-layout-content))/2))] select-none lg:block\" style={asciiDriftStyleObject('column', 'left', 'hero')} />\n      <span aria-hidden=\"true\" className=\"pointer-events-none absolute top-[40%] right-0 bottom-0 -z-1 hidden w-[max(var(--ds-space-5xl),calc((100%-var(--ds-layout-content))/2))] select-none lg:block\" style={asciiDriftStyleObject('scatter', 'right', 'hero')} />\n      <span aria-hidden=\"true\" className=\"pointer-events-none absolute inset-x-0 bottom-0 -z-1 hidden h-40 select-none lg:block\" style={asciiDriftStyleObject('mass', 'bottom', 'hero')} />\n      <div className=\"mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)\">\n        {wordmark && (\n          <div aria-hidden=\"true\" className=\"relative w-full\" style={{ aspectRatio: `${w.width} / ${w.height}` }}>\n            <svg viewBox={`0 0 ${w.width} ${w.height}`} className=\"absolute inset-0 block size-full fill-wordmark-gray\" dangerouslySetInnerHTML={{ __html: w.body }} />\n            <div className=\"absolute inset-0\" style={{ maskImage: mask, WebkitMaskImage: mask, maskSize: '100% 100%', WebkitMaskSize: '100% 100%', maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat' }}>\n              <BrandLight variant=\"curved-strip\" seed={seed} ground={false} cover className=\"absolute inset-x-0 top-1/4 h-3/4 mix-blend-screen\" />\n            </div>\n          </div>\n        )}\n        <div className={cn('relative z-1 pb-8', wordmark && '-mt-[2.54%]')}>\n          <div className=\"rounded-panel border border-edge bg-surface-raised px-12 pt-12 max-md:px-6 max-md:pt-8\">\n            <nav aria-label=\"Footer\">\n              <div className=\"grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-3 md:gap-y-12 xl:grid-cols-6\">\n                {columns.map((c) => (\n                  <div key={c.title} className={cn(c.wide && 'max-md:col-span-full')}>\n                    <h2 className=\"mb-4 type-heading-4 text-fg\">{c.title}</h2>\n                    <ul role=\"list\" className={cn(c.wide && 'max-md:grid max-md:grid-cols-2 max-md:gap-x-6')}>\n                      {c.links.map((l) => (\n                        <li key={l.label}>\n                          {l.href ? (\n                            <a href={l.href} className={LINK}>{l.label}</a>\n                          ) : (\n                            <span aria-disabled=\"true\" className=\"flex min-h-10 flex-wrap items-center gap-x-2 type-body text-fg-faint md:min-h-0 md:py-1\">{l.label}<Badge variant=\"secondary\">{soon}</Badge></span>\n                          )}\n                        </li>\n                      ))}\n                    </ul>\n                  </div>\n                ))}\n              </div>\n            </nav>\n            <div className=\"mt-16 flex items-center justify-between gap-6 border-t border-edge pt-5 pb-6 max-md:mt-12 max-sm:flex-col max-sm:items-start\">\n              <a href={homeHref} aria-label={label} onClick={(e) => homeLinkClick(e.nativeEvent)} className=\"rounded-ds-sm\"><Logo height={20} label={label} /></a>\n              {legal && <p className=\"type-ui text-fg-muted\">{legal}</p>}\n            </div>\n          </div>\n        </div>\n      </div>\n    </footer>\n  )\n}\n\nexport default SiteFooter\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Site",
+      "label": "Six columns and a legal line",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/site-footer/Site.tsx",
+      "content": "import { SiteFooter } from '@/react/components/blocks/SiteFooter'\n// The site's footer for Acme: six columns, a page that is not live yet, and the legal line.\n\nconst columns = [\n  { title: 'Products', wide: true, links: [{ label: 'Search', href: '/search' }, { label: 'Archive', href: '/archive' }, { label: 'Insights', href: '/insights' }, { label: 'Alerts' }] },\n  { title: 'Use cases', wide: true, links: [{ label: 'Paid ads', href: '/use-cases/paid' }, { label: 'Organic social', href: '/use-cases/organic' }, { label: 'Research', href: '/use-cases/research' }] },\n  { title: 'Resources', links: [{ label: 'Docs', href: '/docs' }, { label: 'Blog', href: '/blog' }, { label: 'Templates', href: '/templates' }] },\n  { title: 'Company', links: [{ label: 'About', href: '/about' }, { label: 'Contact', href: '/contact' }] },\n  { title: 'Legal', links: [{ label: 'Terms', href: '/terms' }, { label: 'Privacy', href: '/privacy' }] },\n  { title: 'Community', links: [{ label: 'X', href: 'https://x.com' }, { label: 'LinkedIn', href: 'https://linkedin.com' }] },\n]\n\nexport default function Site() {\n  return <SiteFooter columns={columns} legal=\"© 2026 Acme Inc.\" />\n}\n",
+      "requires": [
+        "ascii-drift",
+        "badge",
+        "brand-light",
+        "logo",
+        "site-header"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/blocks/SiteFooter.tsx",
+          "content": "'use client'\nimport type { ReactNode } from 'react'\nimport { Badge } from '@/react/components/ui/Badge'\nimport { BrandLight } from '@/react/components/visuals/BrandLight'\nimport { Logo } from '@/react/components/visuals/Logo'\nimport { cn } from '@/react/lib/cn'\nimport { LOGOS } from '@/lib/logos'\nimport { homeLinkClick } from '@/lib/home-link'\nimport { asciiDriftStyleObject } from '@/lib/ascii-drift'\n\n// The site's footer (site/Footer): the wordmark across the page width in the footer gray (#373737), the brand light\n// running through its lower half, and a #262626 card with a #363636 hairline and the 8px corner rising over the\n// wordmark's descender. In the card: the link columns (a Funnel Display 20/24 title over #D4D4D4 16/24 links, six\n// across from 1280, three from 768, two on phones, the wide ones two by two), then under a hairline the lockup and the\n// legal line in #A3A3A3 14/20. A link without `href` is not live yet: it shows in #858585 with a \"Coming soon\" badge.\n// Links turn White under the pointer; nothing moves. The light is decoration and stays still.\nexport interface SiteFooterLink {\n  label: string\n  /** Leave it out for a page that is not live yet. */\n  href?: string\n}\n\nexport interface SiteFooterColumn {\n  title: string\n  links: SiteFooterLink[]\n  /** On phones, a column across the card with its links two by two. */\n  wide?: boolean\n}\n\nexport interface SiteFooterProps {\n  columns: SiteFooterColumn[]\n  /** The line beside the lockup: \"© 2026 Acme Inc.\" */\n  legal?: ReactNode\n  /** Where the lockup links. */\n  homeHref?: string\n  /** The badge on a link that is not live yet. */\n  soon?: string\n  /** The big wordmark and its light above the card (on by default). */\n  wordmark?: boolean\n  /** The light's seed. */\n  seed?: number\n  /** The lockup's accessible name. */\n  label?: string\n  className?: string\n}\n\nconst LINK = 'flex min-h-10 items-center rounded-ds-sm type-body text-fg-soft transition-[color] duration-160 ease-out hover:text-fg md:block md:min-h-0 md:py-1'\n\n/** The wordmark as a mask image, so the light shows only inside the letters. */\nfunction wordmarkMask() {\n  const w = LOGOS.wordmark\n  const svg = `<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 ${w.width} ${w.height}\" fill=\"#000\">${w.body}</svg>`\n  return `url(\"data:image/svg+xml,${encodeURIComponent(svg)}\")`\n}\n\nexport function SiteFooter({ columns, legal, homeHref = '/', soon = 'Coming soon', wordmark = true, seed = 0, label = 'Spyglass', className }: SiteFooterProps) {\n  const w = LOGOS.wordmark\n  const mask = wordmarkMask()\n  return (\n    <footer data-ds=\"site-footer\" className={cn('relative isolate bg-surface pt-(--ds-layout-section) text-fg', className)}>\n      <span aria-hidden=\"true\" className=\"pointer-events-none absolute top-[40%] bottom-0 left-0 -z-1 hidden w-[max(var(--ds-space-5xl),calc((100%-var(--ds-layout-content))/2))] select-none lg:block\" style={asciiDriftStyleObject('column', 'left', 'hero')} />\n      <span aria-hidden=\"true\" className=\"pointer-events-none absolute top-[40%] right-0 bottom-0 -z-1 hidden w-[max(var(--ds-space-5xl),calc((100%-var(--ds-layout-content))/2))] select-none lg:block\" style={asciiDriftStyleObject('scatter', 'right', 'hero')} />\n      <span aria-hidden=\"true\" className=\"pointer-events-none absolute inset-x-0 bottom-0 -z-1 hidden h-40 select-none lg:block\" style={asciiDriftStyleObject('mass', 'bottom', 'hero')} />\n      <div className=\"mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)\">\n        {wordmark && (\n          <div aria-hidden=\"true\" className=\"relative w-full\" style={{ aspectRatio: `${w.width} / ${w.height}` }}>\n            <svg viewBox={`0 0 ${w.width} ${w.height}`} className=\"absolute inset-0 block size-full fill-wordmark-gray\" dangerouslySetInnerHTML={{ __html: w.body }} />\n            <div className=\"absolute inset-0\" style={{ maskImage: mask, WebkitMaskImage: mask, maskSize: '100% 100%', WebkitMaskSize: '100% 100%', maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat' }}>\n              <BrandLight variant=\"curved-strip\" seed={seed} ground={false} cover className=\"absolute inset-x-0 top-1/4 h-3/4 mix-blend-screen\" />\n            </div>\n          </div>\n        )}\n        <div className={cn('relative z-1 pb-8', wordmark && '-mt-[2.54%]')}>\n          <div className=\"rounded-panel border border-edge bg-surface-raised px-12 pt-12 max-md:px-6 max-md:pt-8\">\n            <nav aria-label=\"Footer\">\n              <div className=\"grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-3 md:gap-y-12 xl:grid-cols-6\">\n                {columns.map((c) => (\n                  <div key={c.title} className={cn(c.wide && 'max-md:col-span-full')}>\n                    <h2 className=\"mb-4 type-heading-4 text-fg\">{c.title}</h2>\n                    <ul role=\"list\" className={cn(c.wide && 'max-md:grid max-md:grid-cols-2 max-md:gap-x-6')}>\n                      {c.links.map((l) => (\n                        <li key={l.label}>\n                          {l.href ? (\n                            <a href={l.href} className={LINK}>{l.label}</a>\n                          ) : (\n                            <span aria-disabled=\"true\" className=\"flex min-h-10 flex-wrap items-center gap-x-2 type-body text-fg-faint md:min-h-0 md:py-1\">{l.label}<Badge variant=\"secondary\">{soon}</Badge></span>\n                          )}\n                        </li>\n                      ))}\n                    </ul>\n                  </div>\n                ))}\n              </div>\n            </nav>\n            <div className=\"mt-16 flex items-center justify-between gap-6 border-t border-edge pt-5 pb-6 max-md:mt-12 max-sm:flex-col max-sm:items-start\">\n              <a href={homeHref} aria-label={label} onClick={(e) => homeLinkClick(e.nativeEvent)} className=\"rounded-ds-sm\"><Logo height={20} label={label} /></a>\n              {legal && <p className=\"type-ui text-fg-muted\">{legal}</p>}\n            </div>\n          </div>\n        </div>\n      </div>\n    </footer>\n  )\n}\n\nexport default SiteFooter\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-drift",
+        "badge",
+        "brand-light",
+        "logo",
+        "site-header"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "SiteFooter",
+            "file": "react/components/blocks/SiteFooter.tsx",
+            "props": [
+              {
+                "name": "columns",
+                "type": "SiteFooterColumn[]",
+                "required": true
+              },
+              {
+                "name": "legal",
+                "type": "ReactNode",
+                "required": false,
+                "description": "The line beside the lockup: \"© 2026 Acme Inc.\""
+              },
+              {
+                "name": "homeHref",
+                "type": "string",
+                "required": false,
+                "default": "'/'",
+                "description": "Where the lockup links."
+              },
+              {
+                "name": "soon",
+                "type": "string",
+                "required": false,
+                "default": "'Coming soon'",
+                "description": "The badge on a link that is not live yet."
+              },
+              {
+                "name": "wordmark",
+                "type": "boolean",
+                "required": false,
+                "default": "true",
+                "description": "The big wordmark and its light above the card (on by default)."
+              },
+              {
+                "name": "seed",
+                "type": "number",
+                "required": false,
+                "default": "0",
+                "description": "The light's seed."
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "default": "'Spyglass'",
+                "description": "The lockup's accessible name."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Site",
+          "label": "Six columns and a legal line",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/site-footer/Site.tsx",
+          "content": "import { SiteFooter } from '@/react/components/blocks/SiteFooter'\n// The site's footer for Acme: six columns, a page that is not live yet, and the legal line.\n\nconst columns = [\n  { title: 'Products', wide: true, links: [{ label: 'Search', href: '/search' }, { label: 'Archive', href: '/archive' }, { label: 'Insights', href: '/insights' }, { label: 'Alerts' }] },\n  { title: 'Use cases', wide: true, links: [{ label: 'Paid ads', href: '/use-cases/paid' }, { label: 'Organic social', href: '/use-cases/organic' }, { label: 'Research', href: '/use-cases/research' }] },\n  { title: 'Resources', links: [{ label: 'Docs', href: '/docs' }, { label: 'Blog', href: '/blog' }, { label: 'Templates', href: '/templates' }] },\n  { title: 'Company', links: [{ label: 'About', href: '/about' }, { label: 'Contact', href: '/contact' }] },\n  { title: 'Legal', links: [{ label: 'Terms', href: '/terms' }, { label: 'Privacy', href: '/privacy' }] },\n  { title: 'Community', links: [{ label: 'X', href: 'https://x.com' }, { label: 'LinkedIn', href: 'https://linkedin.com' }] },\n]\n\nexport default function Site() {\n  return <SiteFooter columns={columns} legal=\"© 2026 Acme Inc.\" />\n}\n",
+          "registryDependencies": [
+            "ascii-drift",
+            "badge",
+            "brand-light",
+            "logo",
+            "site-header"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/blocks/site-footer.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { styleMap } from 'lit/directives/style-map.js'\nimport { unsafeSVG } from 'lit/directives/unsafe-svg.js'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { LOGOS } from '@/lib/logos'\nimport '@/elements/components/ui/badge'\nimport '@/elements/components/visuals/brand-light'\nimport '@/elements/components/visuals/logo'\nimport styles from 'virtual:tw'\nimport { homeLinkClick } from '@/lib/home-link'\nimport { asciiDriftStyle } from '@/lib/ascii-drift'\n\n// SiteFooter.tsx as <spyglass-site-footer>: the wordmark in the footer gray with the brand light through its lower\n// half, and the #262626 card over its descender with the link `columns` ({ title, links: { label, href? }[], wide? }),\n// the lockup and the `legal` line. A link without `href` shows the `soon` badge. Nothing moves.\nexport interface SiteFooterLink { label: string; href?: string }\nexport interface SiteFooterColumn { title: string; links: SiteFooterLink[]; wide?: boolean }\n\nconst LINK = 'flex min-h-10 items-center rounded-ds-sm type-body text-fg-soft transition-[color] duration-160 ease-out hover:text-fg md:block md:min-h-0 md:py-1'\n\nfunction wordmarkMask() {\n\tconst w = LOGOS.wordmark\n\tconst svg = `<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 ${w.width} ${w.height}\" fill=\"#000\">${w.body}</svg>`\n\treturn `url(\"data:image/svg+xml,${encodeURIComponent(svg)}\")`\n}\n\n/**\n * @summary The site's footer: the big wordmark with the light, and the card of link columns.\n */\nexport class SiteFooter extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"site-footer\"]'))\n\tstatic properties = { columns: { type: Array }, legal: {}, homeHref: { attribute: 'home-href' }, soon: {}, wordmark: { type: Boolean }, seed: { type: Number }, label: {} }\n\tcolumns: SiteFooterColumn[] = []\n\t/** The line beside the lockup. */\n\tlegal?: string\n\t/** Where the lockup links. */\n\thomeHref = '/'\n\t/** The badge on a link that is not live yet. */\n\tsoon = 'Coming soon'\n\t/** The big wordmark and its light (on by default; set the property to false to leave them out). */\n\twordmark = true\n\t/** The light's seed. */\n\tseed = 0\n\t/** The lockup's accessible name. */\n\tlabel = 'Spyglass'\n\n\trender() {\n\t\tconst w = LOGOS.wordmark\n\t\tconst mask = wordmarkMask()\n\t\tconst masked = { maskImage: mask, WebkitMaskImage: mask, maskSize: '100% 100%', WebkitMaskSize: '100% 100%', maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat' }\n\t\tconst columns = this.columns ?? []\n\t\treturn html`<footer data-ds=\"site-footer\" class=\"relative isolate bg-surface pt-(--ds-layout-section) text-fg\"><span aria-hidden=\"true\" class=\"pointer-events-none absolute top-[40%] bottom-0 left-0 -z-1 hidden w-[max(var(--ds-space-5xl),calc((100%-var(--ds-layout-content))/2))] select-none lg:block\" style=${asciiDriftStyle('column', 'left', 'hero')}></span><span aria-hidden=\"true\" class=\"pointer-events-none absolute top-[40%] right-0 bottom-0 -z-1 hidden w-[max(var(--ds-space-5xl),calc((100%-var(--ds-layout-content))/2))] select-none lg:block\" style=${asciiDriftStyle('scatter', 'right', 'hero')}></span><span aria-hidden=\"true\" class=\"pointer-events-none absolute inset-x-0 bottom-0 -z-1 hidden h-40 select-none lg:block\" style=${asciiDriftStyle('mass', 'bottom', 'hero')}></span><div class=\"mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)\">${this.wordmark ? html`<div aria-hidden=\"true\" class=\"relative w-full\" style=${styleMap({ aspectRatio: `${w.width} / ${w.height}` })}><svg viewBox=\"0 0 ${w.width} ${w.height}\" class=\"absolute inset-0 block size-full fill-wordmark-gray\">${unsafeSVG(w.body)}</svg><div class=\"absolute inset-0\" style=${styleMap(masked)}><spyglass-brand-light variant=\"curved-strip\" seed=${this.seed} ground=\"false\" cover class=\"absolute inset-x-0 top-1/4 h-3/4 mix-blend-screen\"></spyglass-brand-light></div></div>` : nothing}<div class=${this.wordmark ? 'relative z-1 pb-8 -mt-[2.54%]' : 'relative z-1 pb-8'}><div class=\"rounded-panel border border-edge bg-surface-raised px-12 pt-12 max-md:px-6 max-md:pt-8\"><nav aria-label=\"Footer\"><div class=\"grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-3 md:gap-y-12 xl:grid-cols-6\">${columns.map((c) => html`<div class=${c.wide ? 'max-md:col-span-full' : ''}><h2 class=\"mb-4 type-heading-4 text-fg\">${c.title}</h2><ul role=\"list\" class=${c.wide ? 'max-md:grid max-md:grid-cols-2 max-md:gap-x-6' : ''}>${c.links.map((l) => html`<li>${l.href ? html`<a href=${l.href} class=${LINK}>${l.label}</a>` : html`<span aria-disabled=\"true\" class=\"flex min-h-10 flex-wrap items-center gap-x-2 type-body text-fg-faint md:min-h-0 md:py-1\">${l.label}<spyglass-badge variant=\"secondary\">${this.soon}</spyglass-badge></span>`}</li>`)}</ul></div>`)}</div></nav><div class=\"mt-16 flex items-center justify-between gap-6 border-t border-edge pt-5 pb-6 max-md:mt-12 max-sm:flex-col max-sm:items-start\"><a href=${this.homeHref} aria-label=${this.label} @click=${homeLinkClick} class=\"rounded-ds-sm\"><spyglass-logo height=\"20\" aria-label=${this.label}></spyglass-logo></a>${this.legal ? html`<p class=\"type-ui text-fg-muted\">${this.legal}</p>` : nothing}</div></div></div></div></footer>`\n\t}\n}\n\ndefine('site-footer', SiteFooter)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/site-footer.js",
+        "elements/badge.js",
+        "elements/brand-light.js",
+        "elements/logo.js"
+      ],
+      "tag": "spyglass-site-footer",
+      "tags": [
+        "spyglass-site-footer"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "badge",
+        "brand-light",
+        "logo"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-site-footer",
+            "name": "SiteFooter",
+            "module": "elements/site-footer.js",
+            "description": "The site's footer: the big wordmark with the light, and the card of link columns.",
+            "attributes": [
+              {
+                "name": "columns",
+                "field": "columns",
+                "type": "SiteFooterColumn[]",
+                "default": "[]"
+              },
+              {
+                "name": "legal",
+                "field": "legal",
+                "type": "string | undefined",
+                "description": "The line beside the lockup."
+              },
+              {
+                "name": "home-href",
+                "field": "homeHref",
+                "type": "string",
+                "default": "'/'",
+                "description": "Where the lockup links."
+              },
+              {
+                "name": "soon",
+                "field": "soon",
+                "type": "string",
+                "default": "'Coming soon'",
+                "description": "The badge on a link that is not live yet."
+              },
+              {
+                "name": "wordmark",
+                "field": "wordmark",
+                "type": "boolean",
+                "default": "true",
+                "description": "The big wordmark and its light (on by default; set the property to false to leave them out)."
+              },
+              {
+                "name": "seed",
+                "field": "seed",
+                "type": "number",
+                "default": "0",
+                "description": "The light's seed."
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "'Spyglass'",
+                "description": "The lockup's accessible name."
+              }
+            ],
+            "properties": [
+              {
+                "name": "columns",
+                "type": "SiteFooterColumn[]",
+                "default": "[]",
+                "attribute": "columns"
+              },
+              {
+                "name": "legal",
+                "type": "string | undefined",
+                "description": "The line beside the lockup.",
+                "attribute": "legal"
+              },
+              {
+                "name": "homeHref",
+                "type": "string",
+                "default": "'/'",
+                "description": "Where the lockup links.",
+                "attribute": "home-href"
+              },
+              {
+                "name": "soon",
+                "type": "string",
+                "default": "'Coming soon'",
+                "description": "The badge on a link that is not live yet.",
+                "attribute": "soon"
+              },
+              {
+                "name": "wordmark",
+                "type": "boolean",
+                "default": "true",
+                "description": "The big wordmark and its light (on by default; set the property to false to leave them out).",
+                "attribute": "wordmark"
+              },
+              {
+                "name": "seed",
+                "type": "number",
+                "default": "0",
+                "description": "The light's seed.",
+                "attribute": "seed"
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "default": "'Spyglass'",
+                "description": "The lockup's accessible name.",
+                "attribute": "label"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Site",
+          "label": "Six columns and a legal line",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/site-footer/Site.html",
+          "content": "<!-- The site's footer for Acme: six columns, a page that is not live yet, and the legal line. -->\n<spyglass-site-footer legal=\"© 2026 Acme Inc.\" columns='[{\"title\":\"Products\",\"wide\":true,\"links\":[{\"label\":\"Search\",\"href\":\"/search\"},{\"label\":\"Archive\",\"href\":\"/archive\"},{\"label\":\"Insights\",\"href\":\"/insights\"},{\"label\":\"Alerts\"}]},{\"title\":\"Use cases\",\"wide\":true,\"links\":[{\"label\":\"Paid ads\",\"href\":\"/use-cases/paid\"},{\"label\":\"Organic social\",\"href\":\"/use-cases/organic\"},{\"label\":\"Research\",\"href\":\"/use-cases/research\"}]},{\"title\":\"Resources\",\"links\":[{\"label\":\"Docs\",\"href\":\"/docs\"},{\"label\":\"Blog\",\"href\":\"/blog\"},{\"label\":\"Templates\",\"href\":\"/templates\"}]},{\"title\":\"Company\",\"links\":[{\"label\":\"About\",\"href\":\"/about\"},{\"label\":\"Contact\",\"href\":\"/contact\"}]},{\"title\":\"Legal\",\"links\":[{\"label\":\"Terms\",\"href\":\"/terms\"},{\"label\":\"Privacy\",\"href\":\"/privacy\"}]},{\"title\":\"Community\",\"links\":[{\"label\":\"X\",\"href\":\"https://x.com\"},{\"label\":\"LinkedIn\",\"href\":\"https://linkedin.com\"}]}]'></spyglass-site-footer>\n"
+        }
+      ]
+    }
+  }
+}

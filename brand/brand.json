@@ -1,0 +1,67 @@
+{
+  "name": "Spyglass",
+  "bin": "spyglass-ds",
+  "source": "github:anwarlemu/spyglass-brand-cli#release",
+  "registryUrl": "https://spyglass-ds.vercel.app",
+  "site": "https://spyglass.so",
+  "domain": "spyglass.so",
+  "framework": "react",
+  "elementPrefix": "spyglass",
+  "assetBase": "/spyglass-ds",
+  "tagline": "The only creative search engine.",
+  "fonts": {
+    "$comment": "Faces from the site (layout.tsx, next/font: the same latin files Google Fonts serves). use web: the variable files the stylesheet loads (Funnel Display wght 300-800, DM Sans opsz 9-40 and wght 100-1000). use render: static instances cut from them with fontTools (headings at 450 and 400, DM Sans at optical size 14, 400 and 500), for the image and video renderers, which read static TrueType; they keep the old file names, so apps that preloaded them still find them. All SIL OFL 1.1.",
+    "files": [
+      { "family": "Funnel Display", "weight": 400, "range": "300 800", "file": "FunnelDisplay.woff2", "role": "heading", "use": "web", "license": "licenses/FunnelDisplay-OFL.txt" },
+      { "family": "DM Sans", "weight": 400, "range": "100 1000", "file": "DMSans.woff2", "role": "text", "use": "web", "license": "licenses/DMSans-OFL.txt" },
+      { "family": "Geist Mono", "weight": 400, "file": "GeistMono-400.woff2", "role": "code", "license": "licenses/GeistMono-OFL.txt" },
+      { "family": "Funnel Display", "weight": 450, "file": "FunnelDisplay-450.woff2", "role": "heading", "use": "render", "license": "licenses/FunnelDisplay-OFL.txt" },
+      { "family": "Funnel Display", "weight": 400, "file": "FunnelDisplay-400.woff2", "role": "subheading", "use": "render", "license": "licenses/FunnelDisplay-OFL.txt" },
+      { "family": "DM Sans", "weight": 400, "file": "DMSans-400.woff2", "role": "text", "use": "render", "license": "licenses/DMSans-OFL.txt" },
+      { "family": "DM Sans", "weight": 500, "file": "DMSans-500.woff2", "role": "text", "use": "render", "license": "licenses/DMSans-OFL.txt" }
+    ],
+    "css": "https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=DM+Sans:opsz,wght@9..40,100..1000&family=Geist+Mono&display=swap"
+  },
+  "icons": {
+    "name": "Lucide",
+    "packages": ["lucide-react", "lucide", "lucide-vue-next", "@lucide/svelte", "lucide-svelte", "lucide-angular", "lucide-solid", "lucide-preact"],
+    "stroke": 1.5
+  },
+  "type": {
+    "caps": true,
+    "bold": false
+  },
+  "light": {
+    "layers": [
+      { "name": "Light B", "token": "--ds-color-light-b", "color": "#1B1DFF", "opacity": 0.782, "shift": 0 },
+      { "name": "Light G", "token": "--ds-color-light-g", "color": "#00FF29", "opacity": 0.782, "shift": 1 },
+      { "name": "Light R", "token": "--ds-color-light-r", "color": "#DF0000", "opacity": 0.85, "shift": 2 }
+    ],
+    "offset": 0.0152,
+    "blur": 0.00268,
+    "blend": "plus-lighter",
+    "ground": "#000000"
+  },
+  "ascii": {
+    "ramp": " .:-=+*#",
+    "font": "Geist Mono",
+    "size": 13.333,
+    "leading": 1.2,
+    "opacity": 0.35
+  },
+  "logo": {
+    "source": "Figma file Qx2i6GhXZD1V4O7RE7hYQi, page 7. Brand guidelines: Clear Space (node 913:193) and minimum sizes (node 913:320)",
+    "clearSpace": 0.5,
+    "clearSpaceText": "Clear space is half the height of the logomark (x) on all four sides, for every version of the logo, kept free of text, images and other elements. It is a minimum: give the logo more room wherever the layout allows.",
+    "markHeight": { "mark": 1, "horizontal": 0.8333, "vertical": 0.5077, "mark-3d": 1, "horizontal-3d": 1 },
+    "minHeight": { "mark": 16, "horizontal": 16, "vertical": 32 }
+  },
+  "groups": {
+    "ui": "Components",
+    "product": "Product",
+    "site": "Site",
+    "visuals": "Brand",
+    "blocks": "Blocks",
+    "pages": "Pages"
+  }
+}

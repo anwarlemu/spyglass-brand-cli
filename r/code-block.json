@@ -1,0 +1,490 @@
+{
+  "name": "code-block",
+  "title": "Code block",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "The site's tabs of code: a #262626 panel with a 56px head of tabs (a White line sliding under the chosen one) and a copy button whose label turns to Copied, over code in White with its punctuation and comments muted, scrolling across. Code and the copy button also stand alone.",
+  "use_for": "Requests and setup steps on product, docs and resource pages (`tabs` of { id, label, code, language }); `Code` alone inside a response panel or a card; `CopyButton` beside a URL or a key.",
+  "never": [
+    "Colored syntax highlighting: only the muted gray and White",
+    "Code that wraps: it scrolls across and fades at its edges",
+    "A White copy button: it is quiet"
+  ],
+  "source": "Site sections/Connect (Code.tsx, CodeTabs.tsx, CopyButton.tsx, Connect.module.css .panel, .tab, .tabLine, .codePanel, .pre, .copy): --surface panel, --radius-m; head --control-l, 4px in (8 from 768), --line-surface hairline; tabs 14/20 Medium --text-3, 12px in (16 from 768), a --stroke White line on the sliding pill; .btn--quiet .btn--s copy at 80px or wider, --radius-s, labels crossing 4px over --dur-fast; panels 16px in (24 from 768), mono --small-size",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/CodeBlock.tsx",
+      "content": "'use client'\nimport { useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react'\nimport { Code } from '@/react/components/site/Code'\nimport { CopyButton } from '@/react/components/site/CopyButton'\nimport { codeTabsExample, type CodeTab } from '@/lib/code'\nimport { cn } from '@/react/lib/cn'\n\n// The site's tabs of code (sections/Connect CodeTabs, Code, CopyButton): a #262626 panel with an 8px corner; a 56px\n// head with the tabs (14/20 Medium in the muted gray, White when chosen, the soft gray under the pointer; a 2px White\n// line under the chosen one that slides to the next) and the copy button for the shown tab, over a hairline; under it\n// the code, 16px in (24 from 768), scrolling across and fading at its edges. Arrows, Home and End move between tabs.\nexport interface CodeBlockProps {\n  /** The tabs: { id, label, code, language }. One tab still shows its label. */\n  tabs?: CodeTab[]\n  /** The tab list's accessible name. */\n  label?: string\n  copy?: { label: string; copiedLabel: string; name: string }\n  onCopy?: (text: string) => void\n  className?: string\n}\n\nexport function CodeBlock({ tabs = codeTabsExample, label = 'Code', copy = { label: 'Copy', copiedLabel: 'Copied', name: 'Copy code' }, onCopy, className }: CodeBlockProps) {\n  const [active, setActive] = useState(0)\n  const [line, setLine] = useState<{ x: number; w: number } | null>(null)\n  const id = useId()\n  const listRef = useRef<HTMLDivElement>(null)\n  const buttons = useRef<(HTMLButtonElement | null)[]>([])\n\n  // The line moves by transform only: a 100px bar placed and scaled to the chosen tab's label.\n  useLayoutEffect(() => {\n    const list = listRef.current\n    if (!list) return\n    const measure = () => {\n      const tab = buttons.current[active]\n      if (!tab || !tab.offsetWidth) return\n      const pad = parseFloat(getComputedStyle(tab).paddingLeft)\n      setLine({ x: tab.offsetLeft + pad, w: tab.offsetWidth - 2 * pad })\n    }\n    measure()\n    const observer = new ResizeObserver(measure)\n    observer.observe(list)\n    return () => observer.disconnect()\n  }, [active])\n\n  const select = (index: number) => {\n    setActive(index)\n    const tab = buttons.current[index]\n    const list = listRef.current\n    if (!tab || !list) return\n    const t = tab.getBoundingClientRect()\n    const l = list.getBoundingClientRect()\n    if (t.left < l.left) list.scrollLeft += t.left - l.left\n    else if (t.right > l.right) list.scrollLeft += t.right - l.right\n  }\n\n  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {\n    const last = tabs.length - 1\n    const next = e.key === 'ArrowRight' ? (active === last ? 0 : active + 1) : e.key === 'ArrowLeft' ? (active === 0 ? last : active - 1) : e.key === 'Home' ? 0 : e.key === 'End' ? last : -1\n    if (next < 0) return\n    e.preventDefault()\n    select(next)\n    buttons.current[next]?.focus()\n  }\n\n  if (!tabs.length) return null\n  const shown = tabs[active] ?? tabs[0]\n\n  return (\n    <div data-ds=\"code-block\" className={cn('min-w-0 rounded-control bg-surface-raised text-fg', className)}>\n      <div className=\"relative flex h-control-lg items-center justify-between gap-2 px-1 after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-edge-surface md:px-2\">\n        <div ref={listRef} role=\"tablist\" aria-label={label} onKeyDown={onKeyDown} className=\"fade-x relative isolate flex h-full min-w-0 overflow-x-auto [scrollbar-width:none]\">\n          {line ? <span aria-hidden=\"true\" className=\"pointer-events-none absolute bottom-0 left-0 z-0 h-0.5 w-25 origin-left bg-fg transition-transform duration-160 ease-loop motion-reduce:transition-none\" style={{ transform: `translateX(${line.x}px) scaleX(${line.w / 100})` }} /> : null}\n          {tabs.map((tab, i) => (\n            <button\n              key={tab.id}\n              ref={(node) => { buttons.current[i] = node }}\n              type=\"button\"\n              role=\"tab\"\n              id={`${id}-tab-${tab.id}`}\n              aria-selected={i === active}\n              aria-controls={`${id}-panel-${tab.id}`}\n              tabIndex={i === active ? 0 : -1}\n              onClick={() => select(i)}\n              className=\"relative z-1 h-full flex-none cursor-pointer rounded-ds-sm px-3 type-ui-strong text-fg-muted transition-[color] duration-160 ease-out outline-offset-[calc(-1*var(--ds-border-focus))] hover:not-aria-selected:text-fg-soft active:text-fg aria-selected:text-fg md:px-4\"\n            >\n              {tab.label}\n            </button>\n          ))}\n        </div>\n        <CopyButton key={shown.id} text={shown.code} label={copy.label} copiedLabel={copy.copiedLabel} name={copy.name} selectId={`${id}-panel-${shown.id}`} onCopy={onCopy} />\n      </div>\n      <div className=\"grid grid-cols-[minmax(0,1fr)]\">\n        {tabs.map((tab, i) => (\n          <div\n            key={tab.id}\n            role=\"tabpanel\"\n            id={`${id}-panel-${tab.id}`}\n            aria-labelledby={`${id}-tab-${tab.id}`}\n            tabIndex={i === active ? 0 : -1}\n            inert={i !== active}\n            className={cn('fade-x min-w-0 overflow-x-auto rounded-b-control p-4 outline-offset-[calc(-1*var(--ds-border-focus))] [grid-area:1/1] [scrollbar-color:var(--ds-color-edge-strong)_transparent] [scrollbar-width:thin] md:p-6', i === active ? 'visible' : 'invisible')}\n          >\n            <Code source={tab.code} language={tab.language} />\n          </div>\n        ))}\n      </div>\n    </div>\n  )\n}\n\nexport default CodeBlock\n"
+    },
+    {
+      "path": "react/components/site/Code.tsx",
+      "content": "import { codeRuns } from '@/lib/code'\nimport { cn } from '@/react/lib/cn'\n\n// The site's code (sections/Connect Code): mono 14/20 in White, as wide as its longest line, with comments,\n// punctuation and string quotes in the muted gray. Put it in something that scrolls across.\nexport interface CodeProps {\n  source: string\n  /** shell, ts, python or json (json keeps `#` as text). */\n  language?: string\n  className?: string\n}\n\nexport function Code({ source, language = 'shell', className }: CodeProps) {\n  return (\n    <pre data-ds=\"code\" className={cn('m-0 w-max type-code text-fg [tab-size:2]', className)}>\n      <code>{codeRuns(source, language).map((r, i) => (r.dim ? <span key={i} className=\"text-fg-muted\">{r.text}</span> : r.text))}</code>\n    </pre>\n  )\n}\n\nexport default Code\n"
+    },
+    {
+      "path": "react/components/site/CopyButton.tsx",
+      "content": "'use client'\nimport { useEffect, useRef, useState } from 'react'\nimport { copyText } from '@/lib/code'\nimport { cn } from '@/react/lib/cn'\n\n// The site's copy button (sections/Connect CopyButton): a quiet 40px button with a 4px corner, its label in the soft\n// gray (White under the pointer); a press puts `text` on the clipboard and the label crosses over to \"Copied\" (up and\n// out, up and in, 160ms) for 2s. If the clipboard is refused, the text in `selectId` is selected instead.\nexport interface CopyButtonProps {\n  text: string\n  label?: string\n  copiedLabel?: string\n  /** Its accessible name. */\n  name?: string\n  /** The element whose text is selected when copying is refused. */\n  selectId?: string\n  onCopy?: (text: string) => void\n  className?: string\n}\n\nexport const COPY_BUTTON =\n  'ds-copy relative inline-flex h-control-md min-w-20 flex-none cursor-pointer items-center justify-center rounded-ds-sm bg-action-secondary px-4 type-ui-strong whitespace-nowrap text-fg-soft shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-action-secondary-edge)] transition-[background-color,color] duration-160 ease-out select-none before:absolute before:-inset-y-2 before:inset-x-0 hover:bg-action-secondary-hover hover:text-fg data-copied:text-fg'\n\nexport function CopyButton({ text, label = 'Copy', copiedLabel = 'Copied', name = 'Copy code', selectId, onCopy, className }: CopyButtonProps) {\n  const [copied, setCopied] = useState(false)\n  const timer = useRef<number | undefined>(undefined)\n  useEffect(() => () => window.clearTimeout(timer.current), [])\n\n  const copy = async () => {\n    const ok = await copyText(text)\n    if (!ok) {\n      const target = selectId ? document.getElementById(selectId) : null\n      if (target) window.getSelection()?.selectAllChildren(target)\n      return\n    }\n    setCopied(true)\n    onCopy?.(text)\n    window.clearTimeout(timer.current)\n    timer.current = window.setTimeout(() => setCopied(false), 2000)\n  }\n\n  return (\n    <span data-ds=\"copy-button\" className=\"contents\">\n      <style href=\"ds-copy-button\" precedence=\"ds\">{css}</style>\n      <button type=\"button\" aria-label={name} data-copied={copied || undefined} className={cn(COPY_BUTTON, className)} onClick={copy}>\n        <span aria-hidden=\"true\" className=\"grid justify-items-center\">\n          <span className=\"ds-copy-idle [grid-area:1/1]\">{label}</span>\n          <span className=\"ds-copy-done [grid-area:1/1]\">{copiedLabel}</span>\n        </span>\n      </button>\n      <span role=\"status\" className=\"sr-only\">{copied ? copiedLabel : ''}</span>\n    </span>\n  )\n}\n\nexport default CopyButton\n\nconst css = `\n.ds-copy-idle, .ds-copy-done { transition: opacity var(--ds-duration-micro) var(--ds-easing-out), transform var(--ds-duration-micro) var(--ds-easing-out); }\n.ds-copy-done { opacity: 0; transform: translateY(var(--ds-space-xs)); }\n.ds-copy[data-copied] .ds-copy-idle { opacity: 0; transform: translateY(calc(-1 * var(--ds-space-xs))); }\n.ds-copy[data-copied] .ds-copy-done { opacity: 1; transform: none; }\n@media (prefers-reduced-motion: reduce) {\n  .ds-copy-done, .ds-copy[data-copied] .ds-copy-idle { transform: none; }\n}\n`\n"
+    },
+    {
+      "path": "lib/code.ts",
+      "content": "// The site's code display (sections/Connect Code, CopyButton): source split into runs, with comments, punctuation and\n// string quotes in the muted gray and everything else White; and a copy that falls back to a hidden textarea. Both\n// flavors read it.\nexport interface CodeRun { text: string; dim?: boolean }\n\nconst TOKEN = /(#.*$)|(\"(?:[^\"\\\\]|\\\\.)*\")|(https?:\\/\\/[^\\s\"']+)|([{}[\\]():,=\\\\.'])/gm\n\n/** The runs of `source`; JSON keeps `#` as text. */\nexport function codeRuns(source: string, language = 'shell'): CodeRun[] {\n\tconst out: CodeRun[] = []\n\tlet last = 0\n\tfor (const match of source.matchAll(TOKEN)) {\n\t\tconst [text, comment, string, url, mark] = match\n\t\tconst at = match.index ?? 0\n\t\tif (comment && language === 'json') continue\n\t\tif (at > last) out.push({ text: source.slice(last, at) })\n\t\tif (comment || mark) out.push({ text, dim: true })\n\t\telse if (url) out.push({ text })\n\t\telse if (string) out.push({ text: '\"', dim: true }, { text: string.slice(1, -1) }, { text: '\"', dim: true })\n\t\tlast = at + text.length\n\t}\n\tif (last < source.length) out.push({ text: source.slice(last) })\n\treturn out\n}\n\n/** Puts `text` on the clipboard; true when it worked. */\nexport async function copyText(text: string): Promise<boolean> {\n\ttry {\n\t\tawait navigator.clipboard.writeText(text)\n\t\treturn true\n\t} catch {}\n\tconst previous = document.activeElement instanceof HTMLElement ? document.activeElement : null\n\tconst area = document.createElement('textarea')\n\tarea.value = text\n\tarea.setAttribute('readonly', '')\n\tarea.style.cssText = 'position:fixed;opacity:0;pointer-events:none'\n\tdocument.body.append(area)\n\tarea.focus({ preventScroll: true })\n\tarea.select()\n\tlet ok = false\n\ttry {\n\t\tok = document.execCommand('copy')\n\t} catch {}\n\tarea.remove()\n\tprevious?.focus({ preventScroll: true })\n\treturn ok\n}\n\nexport interface CodeTab { id: string; label: string; code: string; language?: string }\n\nexport const codeTabsExample: CodeTab[] = [\n\t{ id: 'curl', label: 'cURL', language: 'shell', code: '# Search the ads of a brand\\ncurl \"https://api.acme.com/v1/search\" \\\\\\n  -H \"Authorization: Bearer $ACME_KEY\" \\\\\\n  -d \\'{\"query\": \"skincare launches\", \"limit\": 20}\\'' },\n\t{ id: 'ts', label: 'TypeScript', language: 'ts', code: 'const res = await fetch(\"https://api.acme.com/v1/search\", {\\n  method: \"POST\",\\n  headers: { Authorization: `Bearer ${key}` },\\n  body: JSON.stringify({ query: \"skincare launches\", limit: 20 }),\\n})' },\n\t{ id: 'py', label: 'Python', language: 'python', code: 'import requests\\n\\nres = requests.post(\\n  \"https://api.acme.com/v1/search\",\\n  headers={\"Authorization\": f\"Bearer {key}\"},\\n  json={\"query\": \"skincare launches\", \"limit\": 20},\\n)' },\n]\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Tabs",
+      "label": "Three requests",
+      "center": true,
+      "half": false,
+      "path": "react/examples/code-block/Tabs.tsx",
+      "content": "import { CodeBlock } from '@/react/components/site/CodeBlock'\n// The same request in three languages; the copy button copies the shown tab.\n\nexport default function Tabs() {\n  return <CodeBlock label=\"Request\" className=\"w-full max-w-160\" />\n}\n",
+      "requires": [],
+      "packages": []
+    },
+    {
+      "name": "Single",
+      "label": "One tab",
+      "center": true,
+      "half": false,
+      "path": "react/examples/code-block/Single.tsx",
+      "content": "import { CodeBlock } from '@/react/components/site/CodeBlock'\n// One tab: setup commands, with comments muted.\n\nexport default function Single() {\n  return <CodeBlock label=\"Setup\" tabs={[{ id: 'shell', label: 'Terminal', language: 'shell', code: '# The CLI\\nnpm install -g @acme/cli\\n# The MCP server\\nhttps://mcp.acme.com/mcp' }]} className=\"w-full max-w-160\" />\n}\n",
+      "requires": [],
+      "packages": []
+    },
+    {
+      "name": "Copy",
+      "label": "A copy button beside a URL",
+      "center": true,
+      "half": false,
+      "path": "react/examples/code-block/Copy.tsx",
+      "content": "import { CopyButton } from '@/react/components/site/CopyButton'\n// The copy button on its own, beside a URL on a #262626 field.\n\nexport default function Copy() {\n  return (\n    <div className=\"flex min-h-control-lg w-full max-w-120 items-center gap-2 rounded-control bg-surface-raised p-1 ps-4\">\n      <code id=\"mcp-url\" className=\"min-w-0 flex-1 truncate type-code text-fg\">https://mcp.acme.com/mcp</code>\n      <CopyButton text=\"https://mcp.acme.com/mcp\" name=\"Copy the URL\" selectId=\"mcp-url\" />\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/CodeBlock.tsx",
+          "content": "'use client'\nimport { useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react'\nimport { Code } from '@/react/components/site/Code'\nimport { CopyButton } from '@/react/components/site/CopyButton'\nimport { codeTabsExample, type CodeTab } from '@/lib/code'\nimport { cn } from '@/react/lib/cn'\n\n// The site's tabs of code (sections/Connect CodeTabs, Code, CopyButton): a #262626 panel with an 8px corner; a 56px\n// head with the tabs (14/20 Medium in the muted gray, White when chosen, the soft gray under the pointer; a 2px White\n// line under the chosen one that slides to the next) and the copy button for the shown tab, over a hairline; under it\n// the code, 16px in (24 from 768), scrolling across and fading at its edges. Arrows, Home and End move between tabs.\nexport interface CodeBlockProps {\n  /** The tabs: { id, label, code, language }. One tab still shows its label. */\n  tabs?: CodeTab[]\n  /** The tab list's accessible name. */\n  label?: string\n  copy?: { label: string; copiedLabel: string; name: string }\n  onCopy?: (text: string) => void\n  className?: string\n}\n\nexport function CodeBlock({ tabs = codeTabsExample, label = 'Code', copy = { label: 'Copy', copiedLabel: 'Copied', name: 'Copy code' }, onCopy, className }: CodeBlockProps) {\n  const [active, setActive] = useState(0)\n  const [line, setLine] = useState<{ x: number; w: number } | null>(null)\n  const id = useId()\n  const listRef = useRef<HTMLDivElement>(null)\n  const buttons = useRef<(HTMLButtonElement | null)[]>([])\n\n  // The line moves by transform only: a 100px bar placed and scaled to the chosen tab's label.\n  useLayoutEffect(() => {\n    const list = listRef.current\n    if (!list) return\n    const measure = () => {\n      const tab = buttons.current[active]\n      if (!tab || !tab.offsetWidth) return\n      const pad = parseFloat(getComputedStyle(tab).paddingLeft)\n      setLine({ x: tab.offsetLeft + pad, w: tab.offsetWidth - 2 * pad })\n    }\n    measure()\n    const observer = new ResizeObserver(measure)\n    observer.observe(list)\n    return () => observer.disconnect()\n  }, [active])\n\n  const select = (index: number) => {\n    setActive(index)\n    const tab = buttons.current[index]\n    const list = listRef.current\n    if (!tab || !list) return\n    const t = tab.getBoundingClientRect()\n    const l = list.getBoundingClientRect()\n    if (t.left < l.left) list.scrollLeft += t.left - l.left\n    else if (t.right > l.right) list.scrollLeft += t.right - l.right\n  }\n\n  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {\n    const last = tabs.length - 1\n    const next = e.key === 'ArrowRight' ? (active === last ? 0 : active + 1) : e.key === 'ArrowLeft' ? (active === 0 ? last : active - 1) : e.key === 'Home' ? 0 : e.key === 'End' ? last : -1\n    if (next < 0) return\n    e.preventDefault()\n    select(next)\n    buttons.current[next]?.focus()\n  }\n\n  if (!tabs.length) return null\n  const shown = tabs[active] ?? tabs[0]\n\n  return (\n    <div data-ds=\"code-block\" className={cn('min-w-0 rounded-control bg-surface-raised text-fg', className)}>\n      <div className=\"relative flex h-control-lg items-center justify-between gap-2 px-1 after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-edge-surface md:px-2\">\n        <div ref={listRef} role=\"tablist\" aria-label={label} onKeyDown={onKeyDown} className=\"fade-x relative isolate flex h-full min-w-0 overflow-x-auto [scrollbar-width:none]\">\n          {line ? <span aria-hidden=\"true\" className=\"pointer-events-none absolute bottom-0 left-0 z-0 h-0.5 w-25 origin-left bg-fg transition-transform duration-160 ease-loop motion-reduce:transition-none\" style={{ transform: `translateX(${line.x}px) scaleX(${line.w / 100})` }} /> : null}\n          {tabs.map((tab, i) => (\n            <button\n              key={tab.id}\n              ref={(node) => { buttons.current[i] = node }}\n              type=\"button\"\n              role=\"tab\"\n              id={`${id}-tab-${tab.id}`}\n              aria-selected={i === active}\n              aria-controls={`${id}-panel-${tab.id}`}\n              tabIndex={i === active ? 0 : -1}\n              onClick={() => select(i)}\n              className=\"relative z-1 h-full flex-none cursor-pointer rounded-ds-sm px-3 type-ui-strong text-fg-muted transition-[color] duration-160 ease-out outline-offset-[calc(-1*var(--ds-border-focus))] hover:not-aria-selected:text-fg-soft active:text-fg aria-selected:text-fg md:px-4\"\n            >\n              {tab.label}\n            </button>\n          ))}\n        </div>\n        <CopyButton key={shown.id} text={shown.code} label={copy.label} copiedLabel={copy.copiedLabel} name={copy.name} selectId={`${id}-panel-${shown.id}`} onCopy={onCopy} />\n      </div>\n      <div className=\"grid grid-cols-[minmax(0,1fr)]\">\n        {tabs.map((tab, i) => (\n          <div\n            key={tab.id}\n            role=\"tabpanel\"\n            id={`${id}-panel-${tab.id}`}\n            aria-labelledby={`${id}-tab-${tab.id}`}\n            tabIndex={i === active ? 0 : -1}\n            inert={i !== active}\n            className={cn('fade-x min-w-0 overflow-x-auto rounded-b-control p-4 outline-offset-[calc(-1*var(--ds-border-focus))] [grid-area:1/1] [scrollbar-color:var(--ds-color-edge-strong)_transparent] [scrollbar-width:thin] md:p-6', i === active ? 'visible' : 'invisible')}\n          >\n            <Code source={tab.code} language={tab.language} />\n          </div>\n        ))}\n      </div>\n    </div>\n  )\n}\n\nexport default CodeBlock\n"
+        },
+        {
+          "path": "react/components/site/Code.tsx",
+          "content": "import { codeRuns } from '@/lib/code'\nimport { cn } from '@/react/lib/cn'\n\n// The site's code (sections/Connect Code): mono 14/20 in White, as wide as its longest line, with comments,\n// punctuation and string quotes in the muted gray. Put it in something that scrolls across.\nexport interface CodeProps {\n  source: string\n  /** shell, ts, python or json (json keeps `#` as text). */\n  language?: string\n  className?: string\n}\n\nexport function Code({ source, language = 'shell', className }: CodeProps) {\n  return (\n    <pre data-ds=\"code\" className={cn('m-0 w-max type-code text-fg [tab-size:2]', className)}>\n      <code>{codeRuns(source, language).map((r, i) => (r.dim ? <span key={i} className=\"text-fg-muted\">{r.text}</span> : r.text))}</code>\n    </pre>\n  )\n}\n\nexport default Code\n"
+        },
+        {
+          "path": "react/components/site/CopyButton.tsx",
+          "content": "'use client'\nimport { useEffect, useRef, useState } from 'react'\nimport { copyText } from '@/lib/code'\nimport { cn } from '@/react/lib/cn'\n\n// The site's copy button (sections/Connect CopyButton): a quiet 40px button with a 4px corner, its label in the soft\n// gray (White under the pointer); a press puts `text` on the clipboard and the label crosses over to \"Copied\" (up and\n// out, up and in, 160ms) for 2s. If the clipboard is refused, the text in `selectId` is selected instead.\nexport interface CopyButtonProps {\n  text: string\n  label?: string\n  copiedLabel?: string\n  /** Its accessible name. */\n  name?: string\n  /** The element whose text is selected when copying is refused. */\n  selectId?: string\n  onCopy?: (text: string) => void\n  className?: string\n}\n\nexport const COPY_BUTTON =\n  'ds-copy relative inline-flex h-control-md min-w-20 flex-none cursor-pointer items-center justify-center rounded-ds-sm bg-action-secondary px-4 type-ui-strong whitespace-nowrap text-fg-soft shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-action-secondary-edge)] transition-[background-color,color] duration-160 ease-out select-none before:absolute before:-inset-y-2 before:inset-x-0 hover:bg-action-secondary-hover hover:text-fg data-copied:text-fg'\n\nexport function CopyButton({ text, label = 'Copy', copiedLabel = 'Copied', name = 'Copy code', selectId, onCopy, className }: CopyButtonProps) {\n  const [copied, setCopied] = useState(false)\n  const timer = useRef<number | undefined>(undefined)\n  useEffect(() => () => window.clearTimeout(timer.current), [])\n\n  const copy = async () => {\n    const ok = await copyText(text)\n    if (!ok) {\n      const target = selectId ? document.getElementById(selectId) : null\n      if (target) window.getSelection()?.selectAllChildren(target)\n      return\n    }\n    setCopied(true)\n    onCopy?.(text)\n    window.clearTimeout(timer.current)\n    timer.current = window.setTimeout(() => setCopied(false), 2000)\n  }\n\n  return (\n    <span data-ds=\"copy-button\" className=\"contents\">\n      <style href=\"ds-copy-button\" precedence=\"ds\">{css}</style>\n      <button type=\"button\" aria-label={name} data-copied={copied || undefined} className={cn(COPY_BUTTON, className)} onClick={copy}>\n        <span aria-hidden=\"true\" className=\"grid justify-items-center\">\n          <span className=\"ds-copy-idle [grid-area:1/1]\">{label}</span>\n          <span className=\"ds-copy-done [grid-area:1/1]\">{copiedLabel}</span>\n        </span>\n      </button>\n      <span role=\"status\" className=\"sr-only\">{copied ? copiedLabel : ''}</span>\n    </span>\n  )\n}\n\nexport default CopyButton\n\nconst css = `\n.ds-copy-idle, .ds-copy-done { transition: opacity var(--ds-duration-micro) var(--ds-easing-out), transform var(--ds-duration-micro) var(--ds-easing-out); }\n.ds-copy-done { opacity: 0; transform: translateY(var(--ds-space-xs)); }\n.ds-copy[data-copied] .ds-copy-idle { opacity: 0; transform: translateY(calc(-1 * var(--ds-space-xs))); }\n.ds-copy[data-copied] .ds-copy-done { opacity: 1; transform: none; }\n@media (prefers-reduced-motion: reduce) {\n  .ds-copy-done, .ds-copy[data-copied] .ds-copy-idle { transform: none; }\n}\n`\n"
+        },
+        {
+          "path": "lib/code.ts",
+          "content": "// The site's code display (sections/Connect Code, CopyButton): source split into runs, with comments, punctuation and\n// string quotes in the muted gray and everything else White; and a copy that falls back to a hidden textarea. Both\n// flavors read it.\nexport interface CodeRun { text: string; dim?: boolean }\n\nconst TOKEN = /(#.*$)|(\"(?:[^\"\\\\]|\\\\.)*\")|(https?:\\/\\/[^\\s\"']+)|([{}[\\]():,=\\\\.'])/gm\n\n/** The runs of `source`; JSON keeps `#` as text. */\nexport function codeRuns(source: string, language = 'shell'): CodeRun[] {\n\tconst out: CodeRun[] = []\n\tlet last = 0\n\tfor (const match of source.matchAll(TOKEN)) {\n\t\tconst [text, comment, string, url, mark] = match\n\t\tconst at = match.index ?? 0\n\t\tif (comment && language === 'json') continue\n\t\tif (at > last) out.push({ text: source.slice(last, at) })\n\t\tif (comment || mark) out.push({ text, dim: true })\n\t\telse if (url) out.push({ text })\n\t\telse if (string) out.push({ text: '\"', dim: true }, { text: string.slice(1, -1) }, { text: '\"', dim: true })\n\t\tlast = at + text.length\n\t}\n\tif (last < source.length) out.push({ text: source.slice(last) })\n\treturn out\n}\n\n/** Puts `text` on the clipboard; true when it worked. */\nexport async function copyText(text: string): Promise<boolean> {\n\ttry {\n\t\tawait navigator.clipboard.writeText(text)\n\t\treturn true\n\t} catch {}\n\tconst previous = document.activeElement instanceof HTMLElement ? document.activeElement : null\n\tconst area = document.createElement('textarea')\n\tarea.value = text\n\tarea.setAttribute('readonly', '')\n\tarea.style.cssText = 'position:fixed;opacity:0;pointer-events:none'\n\tdocument.body.append(area)\n\tarea.focus({ preventScroll: true })\n\tarea.select()\n\tlet ok = false\n\ttry {\n\t\tok = document.execCommand('copy')\n\t} catch {}\n\tarea.remove()\n\tprevious?.focus({ preventScroll: true })\n\treturn ok\n}\n\nexport interface CodeTab { id: string; label: string; code: string; language?: string }\n\nexport const codeTabsExample: CodeTab[] = [\n\t{ id: 'curl', label: 'cURL', language: 'shell', code: '# Search the ads of a brand\\ncurl \"https://api.acme.com/v1/search\" \\\\\\n  -H \"Authorization: Bearer $ACME_KEY\" \\\\\\n  -d \\'{\"query\": \"skincare launches\", \"limit\": 20}\\'' },\n\t{ id: 'ts', label: 'TypeScript', language: 'ts', code: 'const res = await fetch(\"https://api.acme.com/v1/search\", {\\n  method: \"POST\",\\n  headers: { Authorization: `Bearer ${key}` },\\n  body: JSON.stringify({ query: \"skincare launches\", limit: 20 }),\\n})' },\n\t{ id: 'py', label: 'Python', language: 'python', code: 'import requests\\n\\nres = requests.post(\\n  \"https://api.acme.com/v1/search\",\\n  headers={\"Authorization\": f\"Bearer {key}\"},\\n  json={\"query\": \"skincare launches\", \"limit\": 20},\\n)' },\n]\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "CodeBlock",
+            "file": "react/components/site/CodeBlock.tsx",
+            "props": [
+              {
+                "name": "tabs",
+                "type": "CodeTab[]",
+                "required": false,
+                "default": "codeTabsExample",
+                "description": "The tabs: { id, label, code, language }. One tab still shows its label."
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "default": "'Code'",
+                "description": "The tab list's accessible name."
+              },
+              {
+                "name": "copy",
+                "type": "{ label: string; copiedLabel: string; name: string }",
+                "required": false,
+                "default": "{ label: 'Copy', copiedLabel: 'Copied', name: 'Copy code' }"
+              },
+              {
+                "name": "onCopy",
+                "type": "(text: string) => void",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          },
+          {
+            "name": "Code",
+            "file": "react/components/site/Code.tsx",
+            "props": [
+              {
+                "name": "source",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "language",
+                "type": "string",
+                "required": false,
+                "default": "'shell'",
+                "description": "shell, ts, python or json (json keeps `#` as text)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          },
+          {
+            "name": "CopyButton",
+            "file": "react/components/site/CopyButton.tsx",
+            "props": [
+              {
+                "name": "text",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "default": "'Copy'"
+              },
+              {
+                "name": "copiedLabel",
+                "type": "string",
+                "required": false,
+                "default": "'Copied'"
+              },
+              {
+                "name": "name",
+                "type": "string",
+                "required": false,
+                "default": "'Copy code'",
+                "description": "Its accessible name."
+              },
+              {
+                "name": "selectId",
+                "type": "string",
+                "required": false,
+                "description": "The element whose text is selected when copying is refused."
+              },
+              {
+                "name": "onCopy",
+                "type": "(text: string) => void",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Tabs",
+          "label": "Three requests",
+          "center": true,
+          "half": false,
+          "path": "react/examples/code-block/Tabs.tsx",
+          "content": "import { CodeBlock } from '@/react/components/site/CodeBlock'\n// The same request in three languages; the copy button copies the shown tab.\n\nexport default function Tabs() {\n  return <CodeBlock label=\"Request\" className=\"w-full max-w-160\" />\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        },
+        {
+          "name": "Single",
+          "label": "One tab",
+          "center": true,
+          "half": false,
+          "path": "react/examples/code-block/Single.tsx",
+          "content": "import { CodeBlock } from '@/react/components/site/CodeBlock'\n// One tab: setup commands, with comments muted.\n\nexport default function Single() {\n  return <CodeBlock label=\"Setup\" tabs={[{ id: 'shell', label: 'Terminal', language: 'shell', code: '# The CLI\\nnpm install -g @acme/cli\\n# The MCP server\\nhttps://mcp.acme.com/mcp' }]} className=\"w-full max-w-160\" />\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        },
+        {
+          "name": "Copy",
+          "label": "A copy button beside a URL",
+          "center": true,
+          "half": false,
+          "path": "react/examples/code-block/Copy.tsx",
+          "content": "import { CopyButton } from '@/react/components/site/CopyButton'\n// The copy button on its own, beside a URL on a #262626 field.\n\nexport default function Copy() {\n  return (\n    <div className=\"flex min-h-control-lg w-full max-w-120 items-center gap-2 rounded-control bg-surface-raised p-1 ps-4\">\n      <code id=\"mcp-url\" className=\"min-w-0 flex-1 truncate type-code text-fg\">https://mcp.acme.com/mcp</code>\n      <CopyButton text=\"https://mcp.acme.com/mcp\" name=\"Copy the URL\" selectId=\"mcp-url\" />\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/code-block.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { keyed } from 'lit/directives/keyed.js'\nimport { DsElement, define, HostLayoutController, uid } from '@/elements/lib/element'\nimport { codeTabsExample, type CodeTab } from '@/lib/code'\nimport '@/elements/components/site/code'\nimport '@/elements/components/site/copy-button'\nimport styles from 'virtual:tw'\n\n// CodeBlock.tsx as <spyglass-code-block>: tabs of code on a #262626 panel, the White line sliding under the chosen tab,\n// the copy button for the shown tab, the code scrolling across and fading at its edges. Arrows, Home and End move\n// between tabs. `tabs` (JSON: { id, label, code, language }), `label`, `copy` (JSON: { label, copiedLabel, name });\n// the copy button's `copy` event bubbles out.\n\n/** @summary Tabs of code with a copy button. */\nexport class CodeBlock extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"code-block\"]'))\n\tstatic properties = { tabs: { type: Array }, label: {}, copy: { type: Object }, active: { state: true }, line: { state: true } }\n\ttabs: CodeTab[] = codeTabsExample\n\t/** The tab list's accessible name. */\n\tlabel = 'Code'\n\tcopy = { label: 'Copy', copiedLabel: 'Copied', name: 'Copy code' }\n\tprivate active = 0\n\tprivate line: { x: number; w: number } | null = null\n\tprivate blockId = uid('code')\n\tprivate observer?: ResizeObserver\n\n\tprivate get list() { return this.renderRoot.querySelector<HTMLElement>('[role=\"tablist\"]') }\n\tprivate get buttons() { return [...this.renderRoot.querySelectorAll<HTMLButtonElement>('[role=\"tab\"]')] }\n\n\tprivate measure = () => {\n\t\tconst tab = this.buttons[this.active]\n\t\tif (!tab || !tab.offsetWidth) return\n\t\tconst pad = parseFloat(getComputedStyle(tab).paddingLeft)\n\t\tconst next = { x: tab.offsetLeft + pad, w: tab.offsetWidth - 2 * pad }\n\t\tif (next.x !== this.line?.x || next.w !== this.line?.w) this.line = next\n\t}\n\n\tprotected firstUpdated(changed: Map<string, unknown>) {\n\t\tsuper.firstUpdated(changed as never)\n\t\tthis.observer = new ResizeObserver(this.measure)\n\t\tif (this.list) this.observer.observe(this.list)\n\t}\n\tprotected updated(changed: Map<string, unknown>) {\n\t\tsuper.updated(changed as never)\n\t\tif (changed.has('active') || changed.has('tabs')) this.measure()\n\t}\n\tdisconnectedCallback() {\n\t\tsuper.disconnectedCallback()\n\t\tthis.observer?.disconnect()\n\t}\n\n\tprivate select(index: number) {\n\t\tthis.active = index\n\t\tconst tab = this.buttons[index]\n\t\tconst list = this.list\n\t\tif (!tab || !list) return\n\t\tconst t = tab.getBoundingClientRect()\n\t\tconst l = list.getBoundingClientRect()\n\t\tif (t.left < l.left) list.scrollLeft += t.left - l.left\n\t\telse if (t.right > l.right) list.scrollLeft += t.right - l.right\n\t}\n\n\tprivate onKeyDown(e: KeyboardEvent) {\n\t\tconst last = (this.tabs ?? []).length - 1\n\t\tconst a = this.active\n\t\tconst next = e.key === 'ArrowRight' ? (a === last ? 0 : a + 1) : e.key === 'ArrowLeft' ? (a === 0 ? last : a - 1) : e.key === 'Home' ? 0 : e.key === 'End' ? last : -1\n\t\tif (next < 0) return\n\t\te.preventDefault()\n\t\tthis.select(next)\n\t\tthis.updateComplete.then(() => this.buttons[next]?.focus())\n\t}\n\n\trender() {\n\t\tconst tabs = this.tabs ?? []\n\t\tif (!tabs.length) return nothing\n\t\tconst shown = tabs[this.active] ?? tabs[0]\n\t\tconst id = this.blockId\n\t\tconst copy = this.copy ?? { label: 'Copy', copiedLabel: 'Copied', name: 'Copy code' }\n\t\treturn html`<div data-ds=\"code-block\" class=\"min-w-0 rounded-control bg-surface-raised text-fg\"><div class=\"relative flex h-control-lg items-center justify-between gap-2 px-1 after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-edge-surface md:px-2\"><div role=\"tablist\" aria-label=${this.label} @keydown=${this.onKeyDown} class=\"fade-x relative isolate flex h-full min-w-0 overflow-x-auto [scrollbar-width:none]\">${this.line ? html`<span aria-hidden=\"true\" class=\"pointer-events-none absolute bottom-0 left-0 z-0 h-0.5 w-25 origin-left bg-fg transition-transform duration-160 ease-loop motion-reduce:transition-none\" style=${`transform: translateX(${this.line.x}px) scaleX(${this.line.w / 100})`}></span>` : nothing}${tabs.map((tab, i) => html`<button type=\"button\" role=\"tab\" id=${`${id}-tab-${tab.id}`} aria-selected=${String(i === this.active)} aria-controls=${`${id}-panel-${tab.id}`} tabindex=${i === this.active ? 0 : -1} @click=${() => this.select(i)} class=\"relative z-1 h-full flex-none cursor-pointer rounded-ds-sm px-3 type-ui-strong text-fg-muted transition-[color] duration-160 ease-out outline-offset-[calc(-1*var(--ds-border-focus))] hover:not-aria-selected:text-fg-soft active:text-fg aria-selected:text-fg md:px-4\">${tab.label}</button>`)}</div>${keyed(shown.id, html`<spyglass-copy-button .text=${shown.code} .label=${copy.label} .copiedLabel=${copy.copiedLabel} .name=${copy.name} select-id=${`${id}-panel-${shown.id}`}></spyglass-copy-button>`)}</div><div class=\"grid grid-cols-[minmax(0,1fr)]\">${tabs.map((tab, i) => html`<div role=\"tabpanel\" id=${`${id}-panel-${tab.id}`} aria-labelledby=${`${id}-tab-${tab.id}`} tabindex=${i === this.active ? 0 : -1} ?inert=${i !== this.active} class=${`fade-x min-w-0 overflow-x-auto rounded-b-control p-4 outline-offset-[calc(-1*var(--ds-border-focus))] [grid-area:1/1] [scrollbar-color:var(--ds-color-edge-strong)_transparent] [scrollbar-width:thin] md:p-6 ${i === this.active ? 'visible' : 'invisible'}`}><spyglass-code .source=${tab.code} .language=${tab.language ?? 'shell'}></spyglass-code></div>`)}</div></div>`\n\t}\n}\n\ndefine('code-block', CodeBlock)\n"
+        },
+        {
+          "path": "elements/components/site/code.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { codeRuns } from '@/lib/code'\nimport styles from 'virtual:tw'\n\n// Code.tsx as <spyglass-code>: mono 14/20 in White, as wide as its longest line, comments, punctuation and string\n// quotes in the muted gray. `source` and `language` (shell, ts, python or json).\n\n/** @summary Source code with the site's muted punctuation. */\nexport class Code extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"code\"]'))\n\tstatic properties = { source: {}, language: {} }\n\tsource = ''\n\t/** shell, ts, python or json (json keeps `#` as text). */\n\tlanguage = 'shell'\n\n\trender() {\n\t\treturn html`<pre data-ds=\"code\" class=\"m-0 w-max type-code text-fg [tab-size:2]\"><code>${codeRuns(this.source ?? '', this.language).map((r) => (r.dim ? html`<span class=\"text-fg-muted\">${r.text}</span>` : r.text))}</code></pre>`\n\t}\n}\n\ndefine('code', Code)\n"
+        },
+        {
+          "path": "elements/components/site/copy-button.ts",
+          "content": "import { html } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { copyText } from '@/lib/code'\nimport styles from 'virtual:tw'\n\n// CopyButton.tsx as <spyglass-copy-button>: the quiet 40px copy button whose label crosses over to \"Copied\" for 2s.\n// `text`, `label`, `copied-label`, `name` (its accessible name), `select-id` (selected when copying is refused, looked up\n// in the same document or shadow root); fires `copy` with detail.text.\nexport const COPY_BUTTON =\n\t'ds-copy relative inline-flex h-control-md min-w-20 flex-none cursor-pointer items-center justify-center rounded-ds-sm bg-action-secondary px-4 type-ui-strong whitespace-nowrap text-fg-soft shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-action-secondary-edge)] transition-[background-color,color] duration-160 ease-out select-none before:absolute before:-inset-y-2 before:inset-x-0 hover:bg-action-secondary-hover hover:text-fg data-copied:text-fg'\n\n/**\n * @summary A quiet button that copies text and says so.\n * @fires copy - After copying; detail.text.\n */\nexport class CopyButton extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('button'))\n\tstatic properties = { text: {}, label: {}, copiedLabel: { attribute: 'copied-label' }, name: {}, selectId: { attribute: 'select-id' }, copied: { state: true } }\n\ttext = ''\n\tlabel = 'Copy'\n\tcopiedLabel = 'Copied'\n\t/** Its accessible name. */\n\tname = 'Copy code'\n\tselectId?: string\n\tprivate copied = false\n\tprivate timer = 0\n\n\tdisconnectedCallback() {\n\t\tsuper.disconnectedCallback()\n\t\tclearTimeout(this.timer)\n\t}\n\n\tprivate async copy() {\n\t\tconst ok = await copyText(this.text)\n\t\tif (!ok) {\n\t\t\tconst root = this.getRootNode() as Document | ShadowRoot\n\t\t\tconst target = this.selectId ? root.getElementById?.(this.selectId) : null\n\t\t\tif (target) window.getSelection()?.selectAllChildren(target)\n\t\t\treturn\n\t\t}\n\t\tthis.copied = true\n\t\tthis.emit('copy', { text: this.text })\n\t\tclearTimeout(this.timer)\n\t\tthis.timer = window.setTimeout(() => (this.copied = false), 2000)\n\t}\n\n\trender() {\n\t\treturn html`<span data-ds=\"copy-button\" class=\"contents\"><button type=\"button\" aria-label=${this.name} data-copied=${ifDefined(this.copied ? '' : undefined)} class=${COPY_BUTTON} @click=${this.copy}><span aria-hidden=\"true\" class=\"grid justify-items-center\"><span class=\"ds-copy-idle [grid-area:1/1]\">${this.label}</span><span class=\"ds-copy-done [grid-area:1/1]\">${this.copiedLabel}</span></span></button><span role=\"status\" class=\"sr-only\">${this.copied ? this.copiedLabel : ''}</span></span>`\n\t}\n}\n\ndefine('copy-button', CopyButton)\n"
+        },
+        {
+          "path": "elements/components/site/copy-button.css",
+          "content": ".ds-copy-idle, .ds-copy-done { transition: opacity var(--ds-duration-micro) var(--ds-easing-out), transform var(--ds-duration-micro) var(--ds-easing-out); }\n.ds-copy-done { opacity: 0; transform: translateY(var(--ds-space-xs)); }\n.ds-copy[data-copied] .ds-copy-idle { opacity: 0; transform: translateY(calc(-1 * var(--ds-space-xs))); }\n.ds-copy[data-copied] .ds-copy-done { opacity: 1; transform: none; }\n@media (prefers-reduced-motion: reduce) {\n  .ds-copy-done, .ds-copy[data-copied] .ds-copy-idle { transform: none; }\n}\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/code-block.js",
+        "elements/code.js",
+        "elements/copy-button.js"
+      ],
+      "tag": "spyglass-code-block",
+      "tags": [
+        "spyglass-code-block",
+        "spyglass-code",
+        "spyglass-copy-button"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-code-block",
+            "name": "CodeBlock",
+            "module": "elements/code-block.js",
+            "description": "Tabs of code with a copy button.",
+            "attributes": [
+              {
+                "name": "tabs",
+                "field": "tabs",
+                "type": "CodeTab[]",
+                "default": "codeTabsExample"
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "'Code'",
+                "description": "The tab list's accessible name."
+              },
+              {
+                "name": "copy",
+                "field": "copy",
+                "type": "{ label: string; copiedLabel: string; name: string; }",
+                "default": "{ label: 'Copy', copiedLabel: 'Copied', name: 'Copy code' }"
+              },
+              {
+                "name": "active",
+                "field": "active",
+                "type": "number",
+                "default": "0"
+              },
+              {
+                "name": "line",
+                "field": "line",
+                "type": "{ x: number; w: number } | null",
+                "default": "null"
+              }
+            ],
+            "properties": [
+              {
+                "name": "tabs",
+                "type": "CodeTab[]",
+                "default": "codeTabsExample",
+                "attribute": "tabs"
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "default": "'Code'",
+                "description": "The tab list's accessible name.",
+                "attribute": "label"
+              },
+              {
+                "name": "copy",
+                "type": "{ label: string; copiedLabel: string; name: string; }",
+                "default": "{ label: 'Copy', copiedLabel: 'Copied', name: 'Copy code' }",
+                "attribute": "copy"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          },
+          {
+            "tag": "spyglass-code",
+            "name": "Code",
+            "module": "elements/code.js",
+            "description": "Source code with the site's muted punctuation.",
+            "attributes": [
+              {
+                "name": "source",
+                "field": "source",
+                "type": "string",
+                "default": "''"
+              },
+              {
+                "name": "language",
+                "field": "language",
+                "type": "string",
+                "default": "'shell'",
+                "description": "shell, ts, python or json (json keeps `#` as text)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "source",
+                "type": "string",
+                "default": "''",
+                "attribute": "source"
+              },
+              {
+                "name": "language",
+                "type": "string",
+                "default": "'shell'",
+                "description": "shell, ts, python or json (json keeps `#` as text).",
+                "attribute": "language"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          },
+          {
+            "tag": "spyglass-copy-button",
+            "name": "CopyButton",
+            "module": "elements/copy-button.js",
+            "description": "A quiet button that copies text and says so.",
+            "attributes": [
+              {
+                "name": "text",
+                "field": "text",
+                "type": "string",
+                "default": "''"
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "'Copy'"
+              },
+              {
+                "name": "copied-label",
+                "field": "copiedLabel",
+                "type": "string",
+                "default": "'Copied'"
+              },
+              {
+                "name": "name",
+                "field": "name",
+                "type": "string",
+                "default": "'Copy code'",
+                "description": "Its accessible name."
+              },
+              {
+                "name": "select-id",
+                "field": "selectId",
+                "type": "string | undefined"
+              },
+              {
+                "name": "copied",
+                "field": "copied",
+                "type": "boolean",
+                "default": "false"
+              }
+            ],
+            "properties": [
+              {
+                "name": "text",
+                "type": "string",
+                "default": "''",
+                "attribute": "text"
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "default": "'Copy'",
+                "attribute": "label"
+              },
+              {
+                "name": "copiedLabel",
+                "type": "string",
+                "default": "'Copied'",
+                "attribute": "copied-label"
+              },
+              {
+                "name": "name",
+                "type": "string",
+                "default": "'Copy code'",
+                "description": "Its accessible name.",
+                "attribute": "name"
+              },
+              {
+                "name": "selectId",
+                "type": "string | undefined",
+                "attribute": "select-id"
+              }
+            ],
+            "events": [
+              {
+                "name": "copy",
+                "description": "After copying; detail.text."
+              }
+            ],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Tabs",
+          "label": "Three requests",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/code-block/Tabs.html",
+          "content": "<!-- The same request in three languages; the copy button copies the shown tab. -->\n<spyglass-code-block label=\"Request\" class=\"w-full max-w-160\"></spyglass-code-block>\n"
+        },
+        {
+          "name": "Single",
+          "label": "One tab",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/code-block/Single.html",
+          "content": "<!-- One tab: setup commands, with comments muted. -->\n<spyglass-code-block id=\"single\" label=\"Setup\" class=\"w-full max-w-160\"></spyglass-code-block>\n<script type=\"module\">\n  document.getElementById('single').tabs = [{ id: 'shell', label: 'Terminal', language: 'shell', code: '# The CLI\\nnpm install -g @acme/cli\\n# The MCP server\\nhttps://mcp.acme.com/mcp' }]\n</script>\n"
+        },
+        {
+          "name": "Copy",
+          "label": "A copy button beside a URL",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/code-block/Copy.html",
+          "content": "<!-- The copy button on its own, beside a URL on a #262626 field. -->\n<div class=\"flex min-h-control-lg w-full max-w-120 items-center gap-2 rounded-control bg-surface-raised p-1 ps-4\">\n  <code id=\"mcp-url\" class=\"min-w-0 flex-1 truncate type-code text-fg\">https://mcp.acme.com/mcp</code>\n  <spyglass-copy-button text=\"https://mcp.acme.com/mcp\" name=\"Copy the URL\" select-id=\"mcp-url\"></spyglass-copy-button>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

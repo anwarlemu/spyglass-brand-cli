@@ -1,0 +1,23 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "native-select",
+  "type": "registry:ui",
+  "title": "Native Select",
+  "description": "The browser's own select, drawn as the input: a #666666 hairline on Black that turns White on focus, the brand corner and a muted chevron. Phones open the system picker.",
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/ui/NativeSelect.tsx",
+      "type": "registry:ui",
+      "content": "import type { Ref, SelectHTMLAttributes } from 'react'\nimport { ChevronDown } from 'lucide-react'\nimport { cn } from '@/lib/cn'\n\n// The browser's own select, drawn as the Input is: a #666666 hairline on Black that turns White on focus, DM Sans at\n// 14px (16px on phones, where the system picker opens), the brand corner, and its own 16px chevron in the muted gray,\n// the same in every browser. Sizes follow the input's: sm 32px, md 40px, lg 48px. Options go in as <option> children.\n// For a list with search or custom rows, use Select. `className` lands on the wrapper, every other prop on the\n// <select> (value and onChange as React's own).\nexport type NativeSelectSize = 'sm' | 'md' | 'lg'\n\nconst SIZES: Record<NativeSelectSize, string> = { sm: 'h-control-sm pr-8 pl-2.5', md: 'h-control-md pr-9 pl-3', lg: 'h-control-lg pr-10 pl-4' }\nconst CHEVRON: Record<NativeSelectSize, string> = { sm: 'right-2.5', md: 'right-3', lg: 'right-4' }\n\nexport interface NativeSelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size'> {\n  /** sm (32px), md (40px) or lg (48px). */\n  size?: NativeSelectSize\n  /** A red hairline (with the message beside it). */\n  invalid?: boolean\n  ref?: Ref<HTMLSelectElement>\n}\n\nexport function NativeSelect({ size = 'md', invalid, className, children, ...rest }: NativeSelectProps) {\n  return (\n    <span data-ds=\"native-select\" className={cn('relative inline-flex w-full items-center', className)}>\n      <select {...rest} aria-invalid={invalid || undefined} className={cn('w-full min-w-0 cursor-pointer appearance-none rounded-control border border-edge-strong bg-surface-subtle type-ui text-fg outline-none transition-[border-color] duration-160 ease-standard hover:not-disabled:border-action-secondary-edge-hover focus-visible:border-edge-focus aria-invalid:border-action-danger disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input', SIZES[size])}>{children}</select>\n      <ChevronDown size={16} strokeWidth={1.5} aria-hidden=\"true\" className={cn('pointer-events-none absolute text-fg-muted', CHEVRON[size])} />\n    </span>\n  )\n}\n\nexport default NativeSelect\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

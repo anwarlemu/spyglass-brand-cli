@@ -1,0 +1,192 @@
+{
+  "name": "breadcrumb",
+  "title": "Breadcrumb",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "Where you are, in DM Sans: each step back a muted link that turns White under the pointer, a small chevron between, the page itself in White.",
+  "use_for": "A creative inside a board, a setting inside a section: two or more levels deep.",
+  "never": [
+    "A breadcrumb on a page one level deep",
+    "Spectrum colors for the links",
+    "Icons that move on hover"
+  ],
+  "source": "Derived from the guidelines: DM Sans for UI text, White on Black with neutral muted steps. shadcn's breadcrumb for anatomy and aria-current.",
+  "body": "",
+  "requires": [],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/ui/Breadcrumb.tsx",
+      "content": "'use client'\nimport { Fragment, type ElementType, type MouseEvent } from 'react'\nimport { ChevronRight } from 'lucide-react'\nimport { cn } from '@/react/lib/cn'\n\n// shadcn's breadcrumb in the brand: where you are, in DM Sans 14px. Each step back is a muted link that turns White\n// under the pointer (160ms), a small chevron between them, and the page itself in White, the only step that truncates.\n// `as` renders a router link component for the steps back (it gets `href` and `to`); `onNavigate` hears a click.\nexport interface Crumb {\n  label: string\n  href?: string\n}\nexport interface BreadcrumbProps {\n  /** The steps, the page last. */\n  items: Crumb[]\n  /** The trail's name for assistive tech. */\n  label?: string\n  /** A router link component for the steps back. */\n  as?: ElementType\n  onNavigate?: (crumb: Crumb, event: MouseEvent) => void\n  className?: string\n}\n\nexport function Breadcrumb({ items, label = 'Breadcrumb', as: Link = 'a', onNavigate, className }: BreadcrumbProps) {\n  return (\n    <nav data-ds=\"breadcrumb\" className={cn('flex min-w-0 items-center gap-1.5 overflow-hidden type-ui', className)} aria-label={label}>\n      {items.map((crumb, i) => (\n        <Fragment key={i}>\n          {i > 0 && <ChevronRight size={14} strokeWidth={1.5} className=\"shrink-0 text-fg-faint rtl:-scale-x-100\" aria-hidden=\"true\" />}\n          {i < items.length - 1\n            ? <Link href={crumb.href ?? '#'} to={Link === 'a' ? undefined : crumb.href} className=\"shrink-0 rounded-ds-sm text-fg-muted transition-[color] duration-160 ease-standard hover:text-fg\" onClick={(event: MouseEvent) => onNavigate?.(crumb, event)}>{crumb.label}</Link>\n            : <span className=\"min-w-0 truncate text-fg\" aria-current=\"page\">{crumb.label}</span>}\n        </Fragment>\n      ))}\n    </nav>\n  )\n}\n\nexport default Breadcrumb\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Board",
+      "label": "A creative in a board",
+      "center": true,
+      "half": false,
+      "path": "react/examples/breadcrumb/Board.tsx",
+      "content": "import { Breadcrumb } from '@/react/components/ui/Breadcrumb'\n// A creative inside a board, with the way back.\n\nexport default function Board() {\n  return (\n    <Breadcrumb\n      className=\"max-w-full\"\n      items={[\n        { label: 'Boards', href: '#boards' },\n        { label: 'Acme skincare', href: '#acme-skincare' },\n        { label: 'Summer UGC, before and after hook' },\n      ]}\n    />\n  )\n}\n",
+      "requires": [],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Breadcrumb.tsx",
+          "content": "'use client'\nimport { Fragment, type ElementType, type MouseEvent } from 'react'\nimport { ChevronRight } from 'lucide-react'\nimport { cn } from '@/react/lib/cn'\n\n// shadcn's breadcrumb in the brand: where you are, in DM Sans 14px. Each step back is a muted link that turns White\n// under the pointer (160ms), a small chevron between them, and the page itself in White, the only step that truncates.\n// `as` renders a router link component for the steps back (it gets `href` and `to`); `onNavigate` hears a click.\nexport interface Crumb {\n  label: string\n  href?: string\n}\nexport interface BreadcrumbProps {\n  /** The steps, the page last. */\n  items: Crumb[]\n  /** The trail's name for assistive tech. */\n  label?: string\n  /** A router link component for the steps back. */\n  as?: ElementType\n  onNavigate?: (crumb: Crumb, event: MouseEvent) => void\n  className?: string\n}\n\nexport function Breadcrumb({ items, label = 'Breadcrumb', as: Link = 'a', onNavigate, className }: BreadcrumbProps) {\n  return (\n    <nav data-ds=\"breadcrumb\" className={cn('flex min-w-0 items-center gap-1.5 overflow-hidden type-ui', className)} aria-label={label}>\n      {items.map((crumb, i) => (\n        <Fragment key={i}>\n          {i > 0 && <ChevronRight size={14} strokeWidth={1.5} className=\"shrink-0 text-fg-faint rtl:-scale-x-100\" aria-hidden=\"true\" />}\n          {i < items.length - 1\n            ? <Link href={crumb.href ?? '#'} to={Link === 'a' ? undefined : crumb.href} className=\"shrink-0 rounded-ds-sm text-fg-muted transition-[color] duration-160 ease-standard hover:text-fg\" onClick={(event: MouseEvent) => onNavigate?.(crumb, event)}>{crumb.label}</Link>\n            : <span className=\"min-w-0 truncate text-fg\" aria-current=\"page\">{crumb.label}</span>}\n        </Fragment>\n      ))}\n    </nav>\n  )\n}\n\nexport default Breadcrumb\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Breadcrumb",
+            "file": "react/components/ui/Breadcrumb.tsx",
+            "props": [
+              {
+                "name": "items",
+                "type": "Crumb[]",
+                "required": true,
+                "description": "The steps, the page last."
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "default": "'Breadcrumb'",
+                "description": "The trail's name for assistive tech."
+              },
+              {
+                "name": "as",
+                "type": "ElementType",
+                "required": false,
+                "description": "A router link component for the steps back."
+              },
+              {
+                "name": "onNavigate",
+                "type": "(crumb: Crumb, event: MouseEvent) => void",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Board",
+          "label": "A creative in a board",
+          "center": true,
+          "half": false,
+          "path": "react/examples/breadcrumb/Board.tsx",
+          "content": "import { Breadcrumb } from '@/react/components/ui/Breadcrumb'\n// A creative inside a board, with the way back.\n\nexport default function Board() {\n  return (\n    <Breadcrumb\n      className=\"max-w-full\"\n      items={[\n        { label: 'Boards', href: '#boards' },\n        { label: 'Acme skincare', href: '#acme-skincare' },\n        { label: 'Summer UGC, before and after hook' },\n      ]}\n    />\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/breadcrumb.ts",
+          "content": "import { html } from 'lit'\nimport { ChevronRight } from 'lucide'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport styles from 'virtual:tw'\n\n// Breadcrumb.tsx as <spyglass-breadcrumb>: where you are, in DM Sans 14px. Each step back is a muted link that turns\n// White under the pointer, a small chevron between them, and the page itself in White, the only step that truncates.\n// `items` is a JSON attribute or the property. A click on a step back fires `navigate` (detail.crumb, detail.event:\n// call detail.event.preventDefault() to route it yourself).\nexport interface Crumb { label: string, href?: string }\n\n/**\n * @summary Where you are: each step back a link, the page in White.\n * @fires navigate - A step back was clicked (detail.crumb, detail.event).\n */\nexport class Breadcrumb extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"breadcrumb\"]'))\n\tstatic properties = { items: { type: Array }, label: {} }\n\n\t/** The steps, the page last: { label, href? }. */\n\titems: Crumb[] = []\n\t/** The trail's name for assistive tech. */\n\tlabel = 'Breadcrumb'\n\n\trender() {\n\t\tconst last = this.items.length - 1\n\t\treturn html`<nav data-ds=\"breadcrumb\" class=\"flex min-w-0 items-center gap-1.5 overflow-hidden type-ui\" aria-label=${this.label}>${this.items.map((crumb, i) => html`${i > 0 ? icon(ChevronRight, 'chevron-right', { size: 14, strokeWidth: 1.5, class: 'shrink-0 text-fg-faint rtl:-scale-x-100', attrs: { 'aria-hidden': 'true' } }) : ''}${i < last\n\t\t\t? html`<a href=${crumb.href ?? '#'} class=\"shrink-0 rounded-ds-sm text-fg-muted transition-[color] duration-160 ease-standard hover:text-fg\" @click=${(event: MouseEvent) => this.emit('navigate', { crumb, event })}>${crumb.label}</a>`\n\t\t\t: html`<span class=\"min-w-0 truncate text-fg\" aria-current=\"page\">${crumb.label}</span>`}`)}</nav>`\n\t}\n}\n\ndefine('breadcrumb', Breadcrumb)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/breadcrumb.js"
+      ],
+      "tag": "spyglass-breadcrumb",
+      "tags": [
+        "spyglass-breadcrumb"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-breadcrumb",
+            "name": "Breadcrumb",
+            "module": "elements/breadcrumb.js",
+            "description": "Where you are: each step back a link, the page in White.",
+            "attributes": [
+              {
+                "name": "items",
+                "field": "items",
+                "type": "Crumb[]",
+                "default": "[]",
+                "description": "The steps, the page last: { label, href? }."
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "'Breadcrumb'",
+                "description": "The trail's name for assistive tech."
+              }
+            ],
+            "properties": [
+              {
+                "name": "items",
+                "type": "Crumb[]",
+                "default": "[]",
+                "description": "The steps, the page last: { label, href? }.",
+                "attribute": "items"
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "default": "'Breadcrumb'",
+                "description": "The trail's name for assistive tech.",
+                "attribute": "label"
+              }
+            ],
+            "events": [
+              {
+                "name": "navigate",
+                "description": "A step back was clicked (detail.crumb, detail.event)."
+              }
+            ],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Board",
+          "label": "A creative in a board",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/breadcrumb/Board.html",
+          "content": "<!-- A creative inside a board, with the way back. -->\n<spyglass-breadcrumb class=\"max-w-full\" items='[{\"label\":\"Boards\",\"href\":\"#boards\"},{\"label\":\"Acme skincare\",\"href\":\"#acme-skincare\"},{\"label\":\"Summer UGC, before and after hook\"}]'></spyglass-breadcrumb>\n"
+        }
+      ]
+    }
+  }
+}

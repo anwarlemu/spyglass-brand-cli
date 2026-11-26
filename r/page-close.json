@@ -1,0 +1,342 @@
+{
+  "name": "page-close",
+  "title": "Page close",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "The site's closing section: a centered last head over its lines, a note in the soft gray, the connect menu with a quiet button (or a White and a quiet button), and from 1024 two ASCII drifts fading in at the corners.",
+  "use_for": "The last section before the footer on any site page; `control={null}` (connect=\"false\" in web components) for two plain buttons; `texture={false}` on a page that already has drifts nearby.",
+  "never": [
+    "Two White buttons: beside the connect menu the button is quiet",
+    "A display-size head: it is the section head",
+    "Moving drifts"
+  ],
+  "source": "Site pages/PageClose (PageClose.tsx, PageClose.module.css, content/home closing): .section padding, 24px between the head, the note and the actions, the actions 16px further and 12px apart, stacked at full width under 768; drifts from 1024: the mass crop from the left, bottom at the section padding, min(50% - 320px, 480px) by 64%; the scatter crop from the right, top at the section padding, min(20%, 320px) by 48%",
+  "body": "",
+  "requires": [
+    "ascii-drift",
+    "button",
+    "connect-menu",
+    "page-head"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/PageClose.tsx",
+      "content": "import type { ReactNode } from 'react'\nimport { ConnectMenu } from '@/react/components/site/ConnectMenu'\nimport type { PageAction } from '@/react/components/site/PageHead'\nimport { Button } from '@/react/components/ui/Button'\nimport { asciiDriftStyleObject } from '@/lib/ascii-drift'\nimport { cn } from '@/react/lib/cn'\n\n// The site's closing section (pages/PageClose): a centered section head (each of `lines` on its own line), a note in\n// the soft gray and the actions 16px under it: the connect menu with a quiet button by default, or, with `control`\n// set to null, a White and a quiet button. On phones the actions stack at full width, and beside a control the control\n// steps aside and the quiet button turns White (the site's MCP pair). From 1024 two crops of the\n// ASCII texture fade in, the mass from the lower left and the scatter from the upper right. Nothing moves.\nexport interface PageCloseProps {\n  /** The section's id; names its heading (`<id>-heading`). */\n  id?: string\n  lines?: string[]\n  note?: string\n  /** The White button (quiet beside a control). */\n  primary?: PageAction\n  /** The quiet button when there is no control. */\n  secondary?: PageAction\n  /** The main control (the connect menu by default); null for two buttons. */\n  control?: ReactNode\n  /** The two ASCII drifts from 1024. */\n  texture?: boolean\n  className?: string\n}\n\nexport function PageClose({\n  id = 'close',\n  lines = ['Give your agents', 'the social internet'],\n  note = '500 free credits every month. No card required.',\n  primary = { label: 'Get a free API key', href: '#' },\n  secondary = { label: 'Talk to us', href: '#' },\n  control = <ConnectMenu />,\n  texture = true,\n  className,\n}: PageCloseProps) {\n  return (\n    <section data-ds=\"page-close\" id={id} aria-labelledby={`${id}-heading`} className={cn('relative isolate overflow-x-clip py-(--ds-layout-section) text-fg', className)}>\n      {texture ? (\n        <>\n          <span aria-hidden=\"true\" className=\"pointer-events-none absolute bottom-(--ds-layout-section) left-0 -z-1 hidden h-[64%] w-[min(calc(50%-var(--ds-page-head-drift-clear)),var(--ds-page-close-drift-w))] select-none lg:block\" style={asciiDriftStyleObject('mass', 'left')} />\n          <span aria-hidden=\"true\" className=\"pointer-events-none absolute top-(--ds-layout-section) right-0 -z-1 hidden h-[48%] w-[min(20%,var(--ds-page-close-drift-high-w))] select-none lg:block\" style={asciiDriftStyleObject('scatter', 'right')} />\n        </>\n      ) : null}\n      <div className=\"mx-auto flex w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] flex-col items-center gap-6 px-(--ds-layout-gutter) text-center\">\n        <h2 id={`${id}-heading`} className=\"type-section [text-box:trim-start_cap_alphabetic]\">\n          {lines.map((line, i) => <span key={`${i}-${line}`} className=\"block\">{line}{i < lines.length - 1 ? ' ' : null}</span>)}\n        </h2>\n        {note ? <p className=\"type-body text-fg-soft\">{note}</p> : null}\n        <div className=\"mt-4 flex flex-wrap justify-center gap-3 max-md:flex-col max-md:self-stretch\">\n          {control ? (\n            <>\n              <div className=\"contents max-md:hidden\">{control}</div>\n              <div className=\"contents max-md:hidden\"><Button href={primary.href} variant=\"secondary\">{primary.label}</Button></div>\n              <div className=\"contents md:hidden\"><Button href={primary.href}>{primary.label}</Button></div>\n            </>\n          ) : (\n            <>\n              <Button href={primary.href}>{primary.label}</Button>\n              <Button href={secondary.href} variant=\"secondary\">{secondary.label}</Button>\n            </>\n          )}\n        </div>\n      </div>\n    </section>\n  )\n}\n\nexport default PageClose\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Default",
+      "label": "With the connect menu",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/page-close/Default.tsx",
+      "content": "import { PageClose } from '@/react/components/site/PageClose'\n// The closing section as the site sets it: the connect menu beside a quiet button, the drifts at the corners.\n\nexport default function Default() {\n  return <PageClose />\n}\n",
+      "requires": [
+        "ascii-drift",
+        "button",
+        "connect-menu",
+        "page-head"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Buttons",
+      "label": "Two buttons",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/page-close/Buttons.tsx",
+      "content": "import { PageClose } from '@/react/components/site/PageClose'\n// A White and a quiet button, without the texture.\n\nexport default function Buttons() {\n  return <PageClose id=\"start\" lines={['Start building', 'with Acme today']} note=\"Free to try. No card required.\" control={null} texture={false} />\n}\n",
+      "requires": [
+        "ascii-drift",
+        "button",
+        "connect-menu",
+        "page-head"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/PageClose.tsx",
+          "content": "import type { ReactNode } from 'react'\nimport { ConnectMenu } from '@/react/components/site/ConnectMenu'\nimport type { PageAction } from '@/react/components/site/PageHead'\nimport { Button } from '@/react/components/ui/Button'\nimport { asciiDriftStyleObject } from '@/lib/ascii-drift'\nimport { cn } from '@/react/lib/cn'\n\n// The site's closing section (pages/PageClose): a centered section head (each of `lines` on its own line), a note in\n// the soft gray and the actions 16px under it: the connect menu with a quiet button by default, or, with `control`\n// set to null, a White and a quiet button. On phones the actions stack at full width, and beside a control the control\n// steps aside and the quiet button turns White (the site's MCP pair). From 1024 two crops of the\n// ASCII texture fade in, the mass from the lower left and the scatter from the upper right. Nothing moves.\nexport interface PageCloseProps {\n  /** The section's id; names its heading (`<id>-heading`). */\n  id?: string\n  lines?: string[]\n  note?: string\n  /** The White button (quiet beside a control). */\n  primary?: PageAction\n  /** The quiet button when there is no control. */\n  secondary?: PageAction\n  /** The main control (the connect menu by default); null for two buttons. */\n  control?: ReactNode\n  /** The two ASCII drifts from 1024. */\n  texture?: boolean\n  className?: string\n}\n\nexport function PageClose({\n  id = 'close',\n  lines = ['Give your agents', 'the social internet'],\n  note = '500 free credits every month. No card required.',\n  primary = { label: 'Get a free API key', href: '#' },\n  secondary = { label: 'Talk to us', href: '#' },\n  control = <ConnectMenu />,\n  texture = true,\n  className,\n}: PageCloseProps) {\n  return (\n    <section data-ds=\"page-close\" id={id} aria-labelledby={`${id}-heading`} className={cn('relative isolate overflow-x-clip py-(--ds-layout-section) text-fg', className)}>\n      {texture ? (\n        <>\n          <span aria-hidden=\"true\" className=\"pointer-events-none absolute bottom-(--ds-layout-section) left-0 -z-1 hidden h-[64%] w-[min(calc(50%-var(--ds-page-head-drift-clear)),var(--ds-page-close-drift-w))] select-none lg:block\" style={asciiDriftStyleObject('mass', 'left')} />\n          <span aria-hidden=\"true\" className=\"pointer-events-none absolute top-(--ds-layout-section) right-0 -z-1 hidden h-[48%] w-[min(20%,var(--ds-page-close-drift-high-w))] select-none lg:block\" style={asciiDriftStyleObject('scatter', 'right')} />\n        </>\n      ) : null}\n      <div className=\"mx-auto flex w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] flex-col items-center gap-6 px-(--ds-layout-gutter) text-center\">\n        <h2 id={`${id}-heading`} className=\"type-section [text-box:trim-start_cap_alphabetic]\">\n          {lines.map((line, i) => <span key={`${i}-${line}`} className=\"block\">{line}{i < lines.length - 1 ? ' ' : null}</span>)}\n        </h2>\n        {note ? <p className=\"type-body text-fg-soft\">{note}</p> : null}\n        <div className=\"mt-4 flex flex-wrap justify-center gap-3 max-md:flex-col max-md:self-stretch\">\n          {control ? (\n            <>\n              <div className=\"contents max-md:hidden\">{control}</div>\n              <div className=\"contents max-md:hidden\"><Button href={primary.href} variant=\"secondary\">{primary.label}</Button></div>\n              <div className=\"contents md:hidden\"><Button href={primary.href}>{primary.label}</Button></div>\n            </>\n          ) : (\n            <>\n              <Button href={primary.href}>{primary.label}</Button>\n              <Button href={secondary.href} variant=\"secondary\">{secondary.label}</Button>\n            </>\n          )}\n        </div>\n      </div>\n    </section>\n  )\n}\n\nexport default PageClose\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-drift",
+        "button",
+        "connect-menu",
+        "page-head"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "PageClose",
+            "file": "react/components/site/PageClose.tsx",
+            "props": [
+              {
+                "name": "id",
+                "type": "string",
+                "required": false,
+                "default": "'close'",
+                "description": "The section's id; names its heading (`<id>-heading`)."
+              },
+              {
+                "name": "lines",
+                "type": "string[]",
+                "required": false,
+                "default": "['Give your agents', 'the social internet']"
+              },
+              {
+                "name": "note",
+                "type": "string",
+                "required": false,
+                "default": "'500 free credits every month. No card required.'"
+              },
+              {
+                "name": "primary",
+                "type": "PageAction",
+                "required": false,
+                "default": "{ label: 'Get a free API key', href: '#' }",
+                "description": "The White button (quiet beside a control)."
+              },
+              {
+                "name": "secondary",
+                "type": "PageAction",
+                "required": false,
+                "default": "{ label: 'Talk to us', href: '#' }",
+                "description": "The quiet button when there is no control."
+              },
+              {
+                "name": "control",
+                "type": "ReactNode",
+                "required": false,
+                "default": "<ConnectMenu />",
+                "description": "The main control (the connect menu by default); null for two buttons."
+              },
+              {
+                "name": "texture",
+                "type": "boolean",
+                "required": false,
+                "default": "true",
+                "description": "The two ASCII drifts from 1024."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Default",
+          "label": "With the connect menu",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/page-close/Default.tsx",
+          "content": "import { PageClose } from '@/react/components/site/PageClose'\n// The closing section as the site sets it: the connect menu beside a quiet button, the drifts at the corners.\n\nexport default function Default() {\n  return <PageClose />\n}\n",
+          "registryDependencies": [
+            "ascii-drift",
+            "button",
+            "connect-menu",
+            "page-head"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Buttons",
+          "label": "Two buttons",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/page-close/Buttons.tsx",
+          "content": "import { PageClose } from '@/react/components/site/PageClose'\n// A White and a quiet button, without the texture.\n\nexport default function Buttons() {\n  return <PageClose id=\"start\" lines={['Start building', 'with Acme today']} note=\"Free to try. No card required.\" control={null} texture={false} />\n}\n",
+          "registryDependencies": [
+            "ascii-drift",
+            "button",
+            "connect-menu",
+            "page-head"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/page-close.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { asciiDriftStyle } from '@/lib/ascii-drift'\nimport '@/elements/components/site/connect-menu'\nimport '@/elements/components/ui/button'\nimport styles from 'virtual:tw'\n\n// PageClose.tsx as <spyglass-page-close>: the centered closing section, its lines, the note and the actions (the\n// connect menu with a quiet button by default, your own control in the `control` slot, or with connect=\"false\" a White\n// and a quiet button), and from 1024 two ASCII drifts at the corners. Nothing moves.\nexport interface PageAction { label: string; href: string }\n\n/**\n * @summary The closing section: a last head, a note and the main actions.\n * @slot control - The main control in place of the connect menu.\n */\nexport class PageClose extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"page-close\"]'))\n\tstatic properties = {\n\t\tcloseId: { attribute: 'close-id' },\n\t\tlines: { type: Array },\n\t\tnote: {},\n\t\tprimary: { type: Object },\n\t\tsecondary: { type: Object },\n\t\tconnect: { type: Boolean, converter: { fromAttribute: (v: string | null) => v !== 'false' } },\n\t\ttexture: { type: Boolean, converter: { fromAttribute: (v: string | null) => v !== 'false' } },\n\t}\n\t/** The section's id (React's `id`); names its heading. */\n\tcloseId = 'close'\n\tlines: string[] = ['Give your agents', 'the social internet']\n\tnote = '500 free credits every month. No card required.'\n\t/** The White button ({ label, href }); quiet beside a control. */\n\tprimary: PageAction = { label: 'Get a free API key', href: '#' }\n\t/** The quiet button when there is no control. */\n\tsecondary: PageAction = { label: 'Talk to us', href: '#' }\n\t/** The connect menu as the main control when the control slot is empty (React's default `control`). */\n\tconnect = true\n\t/** The two ASCII drifts from 1024. */\n\ttexture = true\n\n\trender() {\n\t\tconst lines = this.lines ?? []\n\t\tconst slotted = this.hasSlot('control')\n\t\tconst control = slotted ? html`<slot name=\"control\"></slot>` : this.connect ? html`<spyglass-connect-menu></spyglass-connect-menu>` : null\n\t\treturn html`<section data-ds=\"page-close\" id=${this.closeId} aria-labelledby=${`${this.closeId}-heading`} class=\"relative isolate overflow-x-clip py-(--ds-layout-section) text-fg\">${this.texture ? html`<span aria-hidden=\"true\" class=\"pointer-events-none absolute bottom-(--ds-layout-section) left-0 -z-1 hidden h-[64%] w-[min(calc(50%-var(--ds-page-head-drift-clear)),var(--ds-page-close-drift-w))] select-none lg:block\" style=${asciiDriftStyle('mass', 'left')}></span><span aria-hidden=\"true\" class=\"pointer-events-none absolute top-(--ds-layout-section) right-0 -z-1 hidden h-[48%] w-[min(20%,var(--ds-page-close-drift-high-w))] select-none lg:block\" style=${asciiDriftStyle('scatter', 'right')}></span>` : nothing}<div class=\"mx-auto flex w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] flex-col items-center gap-6 px-(--ds-layout-gutter) text-center\"><h2 id=${`${this.closeId}-heading`} class=\"type-section [text-box:trim-start_cap_alphabetic]\">${lines.map((line, i) => html`<span class=\"block\">${line}${i < lines.length - 1 ? ' ' : nothing}</span>`)}</h2>${this.note ? html`<p class=\"type-body text-fg-soft\">${this.note}</p>` : nothing}<div class=\"mt-4 flex flex-wrap justify-center gap-3 max-md:flex-col max-md:self-stretch\">${control ? html`<div class=\"contents max-md:hidden\">${control}</div><div class=\"contents max-md:hidden\"><spyglass-button href=${this.primary.href} variant=\"secondary\">${this.primary.label}</spyglass-button></div><div class=\"contents md:hidden\"><spyglass-button href=${this.primary.href}>${this.primary.label}</spyglass-button></div>` : html`<spyglass-button href=${this.primary.href}>${this.primary.label}</spyglass-button><spyglass-button href=${this.secondary.href} variant=\"secondary\">${this.secondary.label}</spyglass-button>`}</div></div></section>`\n\t}\n}\n\ndefine('page-close', PageClose)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/page-close.js",
+        "elements/connect-menu.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-page-close",
+      "tags": [
+        "spyglass-page-close"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button",
+        "connect-menu"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-page-close",
+            "name": "PageClose",
+            "module": "elements/page-close.js",
+            "description": "The closing section: a last head, a note and the main actions.",
+            "attributes": [
+              {
+                "name": "close-id",
+                "field": "closeId",
+                "type": "string",
+                "default": "'close'",
+                "description": "The section's id (React's `id`); names its heading."
+              },
+              {
+                "name": "lines",
+                "field": "lines",
+                "type": "string[]",
+                "default": "['Give your agents', 'the social internet']"
+              },
+              {
+                "name": "note",
+                "field": "note",
+                "type": "string",
+                "default": "'500 free credits every month. No card required.'"
+              },
+              {
+                "name": "primary",
+                "field": "primary",
+                "type": "PageAction",
+                "default": "{ label: 'Get a free API key', href: '#' }",
+                "description": "The White button ({ label, href }); quiet beside a control."
+              },
+              {
+                "name": "secondary",
+                "field": "secondary",
+                "type": "PageAction",
+                "default": "{ label: 'Talk to us', href: '#' }",
+                "description": "The quiet button when there is no control."
+              },
+              {
+                "name": "connect",
+                "field": "connect",
+                "type": "boolean",
+                "default": "true",
+                "description": "The connect menu as the main control when the control slot is empty (React's default `control`)."
+              },
+              {
+                "name": "texture",
+                "field": "texture",
+                "type": "boolean",
+                "default": "true",
+                "description": "The two ASCII drifts from 1024."
+              }
+            ],
+            "properties": [
+              {
+                "name": "closeId",
+                "type": "string",
+                "default": "'close'",
+                "description": "The section's id (React's `id`); names its heading.",
+                "attribute": "close-id"
+              },
+              {
+                "name": "lines",
+                "type": "string[]",
+                "default": "['Give your agents', 'the social internet']",
+                "attribute": "lines"
+              },
+              {
+                "name": "note",
+                "type": "string",
+                "default": "'500 free credits every month. No card required.'",
+                "attribute": "note"
+              },
+              {
+                "name": "primary",
+                "type": "PageAction",
+                "default": "{ label: 'Get a free API key', href: '#' }",
+                "description": "The White button ({ label, href }); quiet beside a control.",
+                "attribute": "primary"
+              },
+              {
+                "name": "secondary",
+                "type": "PageAction",
+                "default": "{ label: 'Talk to us', href: '#' }",
+                "description": "The quiet button when there is no control.",
+                "attribute": "secondary"
+              },
+              {
+                "name": "connect",
+                "type": "boolean",
+                "default": "true",
+                "description": "The connect menu as the main control when the control slot is empty (React's default `control`).",
+                "attribute": "connect"
+              },
+              {
+                "name": "texture",
+                "type": "boolean",
+                "default": "true",
+                "description": "The two ASCII drifts from 1024.",
+                "attribute": "texture"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "control",
+                "description": "The main control in place of the connect menu."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Default",
+          "label": "With the connect menu",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/page-close/Default.html",
+          "content": "<!-- The closing section as the site sets it: the connect menu beside a quiet button, the drifts at the corners. -->\n<spyglass-page-close></spyglass-page-close>\n"
+        },
+        {
+          "name": "Buttons",
+          "label": "Two buttons",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/page-close/Buttons.html",
+          "content": "<!-- A White and a quiet button, without the texture. -->\n<spyglass-page-close close-id=\"start\" lines='[\"Start building\",\"with Acme today\"]' note=\"Free to try. No card required.\" connect=\"false\" texture=\"false\"></spyglass-page-close>\n"
+        }
+      ]
+    }
+  }
+}

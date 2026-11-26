@@ -1,0 +1,344 @@
+{
+  "name": "calendar",
+  "title": "Calendar",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A month to pick a day from: 40px day cells with the 4px corner, the picked day a White fill with a Black figure, today in a neutral hairline ring, the months either side faint. Arrows, Home, End and Page Up and Down move; Enter picks.",
+  "use_for": "Picking a launch day, a flight start or a report's range on a page with room for the month. In a field, use the date picker.",
+  "never": [
+    "A spectrum color for the picked day or today",
+    "Animating the change of month: it is pressed many times in a row",
+    "A calendar where a typed date would do (a birthday)"
+  ],
+  "source": "Derived from the guidelines: White on Black for the one choice, neutral hairlines, DM Sans for figures and labels, the 10px canvas corner scaled to the product (4px inside small cells). shadcn's calendar for anatomy, keys and ARIA (a grid with a roving day).",
+  "body": "",
+  "requires": [
+    "button"
+  ],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/ui/Calendar.tsx",
+      "content": "'use client'\nimport { useEffect, useRef, useState, type KeyboardEvent } from 'react'\nimport { ChevronLeft, ChevronRight } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { cn } from '@/react/lib/cn'\nimport { useControllable } from '@/react/hooks/useControllable'\n\n// shadcn's calendar in the brand: a month to pick a day from. 40px day cells (44px on phones) with the 4px corner,\n// weekday heads in DM Sans 12px muted, the month in DM Sans Medium between two ghost arrow buttons. The picked day is a\n// White fill with a Black figure; today carries a neutral hairline ring; the days of the months either side are faint;\n// days that can't be picked are faint and struck through. Arrows move a day or a week, Home and End to the week's\n// ends, Page Up and Page Down a month (with Shift a year), Enter or Space picks. Changing month doesn't animate: it is\n// pressed many times in a row. `value` with `onValueChange` (or `defaultValue` alone); `onSelect` fires on every pick.\nexport interface CalendarProps {\n  /** The calendar's name for assistive tech. */\n  label?: string\n  /** The first day that can be picked. */\n  min?: Date\n  /** The last day that can be picked. */\n  max?: Date\n  /** Days that can't be picked. */\n  disabled?: (day: Date) => boolean\n  /** 0 for Sunday, 1 for Monday. */\n  weekStartsOn?: 0 | 1\n  locale?: string\n  value?: Date | null\n  defaultValue?: Date | null\n  onValueChange?: (day: Date | null) => void\n  /** A day was picked. */\n  onSelect?: (day: Date) => void\n  className?: string\n}\n\nconst day0 = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())\nconst same = (a: Date | null | undefined, b: Date | null | undefined) => !!a && !!b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()\nconst addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n)\nfunction addMonths(d: Date, n: number) {\n  const last = new Date(d.getFullYear(), d.getMonth() + n + 1, 0).getDate()\n  return new Date(d.getFullYear(), d.getMonth() + n, Math.min(d.getDate(), last))\n}\n\nexport const DAY = 'inline-flex size-control-md cursor-pointer items-center justify-center rounded-ds-sm border border-transparent type-ui tabular-nums text-fg outline-none transition-[background-color,color] duration-160 ease-standard hover:not-data-picked:not-aria-disabled:bg-ds-neutral-4 aria-[current=date]:border-fg-faint data-outside:text-fg-faint data-picked:bg-action-primary data-picked:font-medium data-picked:text-action-primary-fg aria-disabled:cursor-not-allowed aria-disabled:text-fg-faint aria-disabled:line-through focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus data-picked:focus-visible:outline-fg-inverse max-md:size-control-touch'\n\nexport function Calendar({ label = 'Calendar', min, max, disabled, weekStartsOn = 0, locale = 'en-US', value, defaultValue = null, onValueChange, onSelect, className }: CalendarProps) {\n  const [model, setModel] = useControllable<Date | null>(value, defaultValue, onValueChange)\n  const today = day0(new Date())\n  const [focused, setFocused] = useState(() => day0(model ?? today))\n  const month = new Date(focused.getFullYear(), focused.getMonth(), 1)\n  useEffect(() => {\n    if (model && !same(model, focused)) setFocused(day0(model))\n  }, [model]) // eslint-disable-line react-hooks/exhaustive-deps\n\n  const caption = month.toLocaleDateString(locale, { month: 'long', year: 'numeric' })\n  const weekdays = Array.from({ length: 7 }, (_, i) => {\n    const d = new Date(2026, 1, 1 + ((i + weekStartsOn) % 7)) // 1 February 2026 is a Sunday.\n    return { short: d.toLocaleDateString(locale, { weekday: 'short' }).slice(0, 2), long: d.toLocaleDateString(locale, { weekday: 'long' }) }\n  })\n  // Whole weeks: the days of the months either side fill the first and last rows.\n  const lead = (month.getDay() - weekStartsOn + 7) % 7\n  const count = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate()\n  const cells = Array.from({ length: Math.ceil((lead + count) / 7) * 7 }, (_, i) => new Date(month.getFullYear(), month.getMonth(), i - lead + 1))\n  const weeks = Array.from({ length: cells.length / 7 }, (_, w) => cells.slice(w * 7, w * 7 + 7))\n  const blocked = (d: Date) => (!!min && d < day0(min)) || (!!max && d > day0(max)) || !!disabled?.(d)\n  const dayLabel = (d: Date) => d.toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })\n\n  const grid = useRef<HTMLTableElement | null>(null)\n  // The roving day takes focus once the move has rendered.\n  const [pendingFocus, setPendingFocus] = useState(0)\n  useEffect(() => {\n    if (pendingFocus) grid.current?.querySelector<HTMLElement>('[tabindex=\"0\"]')?.focus()\n  }, [pendingFocus])\n  function moveTo(d: Date) {\n    setFocused(d)\n    setPendingFocus(n => n + 1)\n  }\n  function pick(d: Date) {\n    if (blocked(d)) return\n    setFocused(d)\n    setModel(d)\n    onSelect?.(d)\n  }\n  function onKey(event: KeyboardEvent<HTMLTableElement>) {\n    const d = focused\n    const start = addDays(d, -((d.getDay() - weekStartsOn + 7) % 7))\n    const moves: Record<string, () => Date> = {\n      ArrowLeft: () => addDays(d, -1),\n      ArrowRight: () => addDays(d, 1),\n      ArrowUp: () => addDays(d, -7),\n      ArrowDown: () => addDays(d, 7),\n      Home: () => start,\n      End: () => addDays(start, 6),\n      PageUp: () => addMonths(d, event.shiftKey ? -12 : -1),\n      PageDown: () => addMonths(d, event.shiftKey ? 12 : 1),\n    }\n    const move = moves[event.key]\n    if (move) {\n      event.preventDefault()\n      moveTo(move())\n    }\n    else if (event.key === 'Enter' || event.key === ' ') {\n      event.preventDefault()\n      pick(d)\n    }\n  }\n\n  return (\n    <div data-ds=\"calendar\" className={cn('inline-flex flex-col gap-2 type-ui text-fg', className)} role=\"group\" aria-label={label}>\n      <div className=\"flex items-center gap-1\">\n        <Button variant=\"ghost\" size=\"sm\" icon aria-label=\"Previous month\" onClick={() => setFocused(addMonths(focused, -1))}><ChevronLeft size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n        <p className=\"min-w-0 flex-1 text-center type-ui-strong\" aria-live=\"polite\">{caption}</p>\n        <Button variant=\"ghost\" size=\"sm\" icon aria-label=\"Next month\" onClick={() => setFocused(addMonths(focused, 1))}><ChevronRight size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n      </div>\n      <table ref={grid} role=\"grid\" aria-label={caption} className=\"border-collapse\" onKeyDown={onKey}>\n        <thead>\n          <tr>\n            {weekdays.map(w => (\n              <th key={w.long} scope=\"col\" abbr={w.long} className=\"h-8 w-control-md p-0 text-center type-caption font-regular text-fg-muted max-md:w-control-touch\">{w.short}</th>\n            ))}\n          </tr>\n        </thead>\n        <tbody>\n          {weeks.map((week, i) => (\n            <tr key={i}>\n              {week.map((d) => {\n                const outside = d.getMonth() !== month.getMonth()\n                return (\n                  <td key={d.getTime()} className=\"p-0\" role=\"gridcell\" aria-selected={same(d, model)}>\n                    <button\n                      type=\"button\"\n                      className={DAY}\n                      tabIndex={same(d, focused) ? 0 : -1}\n                      aria-label={dayLabel(d)}\n                      aria-current={same(d, today) ? 'date' : undefined}\n                      aria-disabled={blocked(d) || undefined}\n                      data-picked={same(d, model) || undefined}\n                      data-outside={outside || undefined}\n                      onClick={() => pick(d)}\n                      onFocus={outside ? undefined : () => setFocused(d)}\n                    >\n                      {d.getDate()}\n                    </button>\n                  </td>\n                )\n              })}\n            </tr>\n          ))}\n        </tbody>\n      </table>\n    </div>\n  )\n}\n\nexport default Calendar\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    },
+    {
+      "path": "react/hooks/useControllable.ts",
+      "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Single",
+      "label": "A launch day",
+      "center": true,
+      "half": false,
+      "path": "react/examples/calendar/Single.tsx",
+      "content": "'use client'\nimport { useState } from 'react'\nimport { Calendar } from '@/react/components/ui/Calendar'\n// The day a campaign goes live; the picked day reads under the month.\n\nexport default function Single() {\n  const [day, setDay] = useState<Date | null>(new Date(2026, 10, 20))\n  return (\n    <div className=\"flex flex-col items-center gap-3\">\n      <Calendar label=\"Launch day\" value={day} onValueChange={setDay} />\n      <p className=\"type-caption text-fg-muted\" aria-live=\"polite\">{day ? `Goes live ${day.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}.` : 'Pick a day.'}</p>\n    </div>\n  )\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "Window",
+      "label": "Bounds, Monday start and blocked days",
+      "center": true,
+      "half": false,
+      "path": "react/examples/calendar/Window.tsx",
+      "content": "'use client'\nimport { Calendar } from '@/react/components/ui/Calendar'\n// A flight window: weeks start on Monday, only days from November 9 to December 11 can be picked, and never a Sunday.\n\nexport default function Window() {\n  return <Calendar label=\"Flight start\" weekStartsOn={1} defaultValue={new Date(2026, 10, 24)} min={new Date(2026, 10, 9)} max={new Date(2026, 11, 11)} disabled={(d) => d.getDay() === 0} />\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Calendar.tsx",
+          "content": "'use client'\nimport { useEffect, useRef, useState, type KeyboardEvent } from 'react'\nimport { ChevronLeft, ChevronRight } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { cn } from '@/react/lib/cn'\nimport { useControllable } from '@/react/hooks/useControllable'\n\n// shadcn's calendar in the brand: a month to pick a day from. 40px day cells (44px on phones) with the 4px corner,\n// weekday heads in DM Sans 12px muted, the month in DM Sans Medium between two ghost arrow buttons. The picked day is a\n// White fill with a Black figure; today carries a neutral hairline ring; the days of the months either side are faint;\n// days that can't be picked are faint and struck through. Arrows move a day or a week, Home and End to the week's\n// ends, Page Up and Page Down a month (with Shift a year), Enter or Space picks. Changing month doesn't animate: it is\n// pressed many times in a row. `value` with `onValueChange` (or `defaultValue` alone); `onSelect` fires on every pick.\nexport interface CalendarProps {\n  /** The calendar's name for assistive tech. */\n  label?: string\n  /** The first day that can be picked. */\n  min?: Date\n  /** The last day that can be picked. */\n  max?: Date\n  /** Days that can't be picked. */\n  disabled?: (day: Date) => boolean\n  /** 0 for Sunday, 1 for Monday. */\n  weekStartsOn?: 0 | 1\n  locale?: string\n  value?: Date | null\n  defaultValue?: Date | null\n  onValueChange?: (day: Date | null) => void\n  /** A day was picked. */\n  onSelect?: (day: Date) => void\n  className?: string\n}\n\nconst day0 = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())\nconst same = (a: Date | null | undefined, b: Date | null | undefined) => !!a && !!b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()\nconst addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n)\nfunction addMonths(d: Date, n: number) {\n  const last = new Date(d.getFullYear(), d.getMonth() + n + 1, 0).getDate()\n  return new Date(d.getFullYear(), d.getMonth() + n, Math.min(d.getDate(), last))\n}\n\nexport const DAY = 'inline-flex size-control-md cursor-pointer items-center justify-center rounded-ds-sm border border-transparent type-ui tabular-nums text-fg outline-none transition-[background-color,color] duration-160 ease-standard hover:not-data-picked:not-aria-disabled:bg-ds-neutral-4 aria-[current=date]:border-fg-faint data-outside:text-fg-faint data-picked:bg-action-primary data-picked:font-medium data-picked:text-action-primary-fg aria-disabled:cursor-not-allowed aria-disabled:text-fg-faint aria-disabled:line-through focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus data-picked:focus-visible:outline-fg-inverse max-md:size-control-touch'\n\nexport function Calendar({ label = 'Calendar', min, max, disabled, weekStartsOn = 0, locale = 'en-US', value, defaultValue = null, onValueChange, onSelect, className }: CalendarProps) {\n  const [model, setModel] = useControllable<Date | null>(value, defaultValue, onValueChange)\n  const today = day0(new Date())\n  const [focused, setFocused] = useState(() => day0(model ?? today))\n  const month = new Date(focused.getFullYear(), focused.getMonth(), 1)\n  useEffect(() => {\n    if (model && !same(model, focused)) setFocused(day0(model))\n  }, [model]) // eslint-disable-line react-hooks/exhaustive-deps\n\n  const caption = month.toLocaleDateString(locale, { month: 'long', year: 'numeric' })\n  const weekdays = Array.from({ length: 7 }, (_, i) => {\n    const d = new Date(2026, 1, 1 + ((i + weekStartsOn) % 7)) // 1 February 2026 is a Sunday.\n    return { short: d.toLocaleDateString(locale, { weekday: 'short' }).slice(0, 2), long: d.toLocaleDateString(locale, { weekday: 'long' }) }\n  })\n  // Whole weeks: the days of the months either side fill the first and last rows.\n  const lead = (month.getDay() - weekStartsOn + 7) % 7\n  const count = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate()\n  const cells = Array.from({ length: Math.ceil((lead + count) / 7) * 7 }, (_, i) => new Date(month.getFullYear(), month.getMonth(), i - lead + 1))\n  const weeks = Array.from({ length: cells.length / 7 }, (_, w) => cells.slice(w * 7, w * 7 + 7))\n  const blocked = (d: Date) => (!!min && d < day0(min)) || (!!max && d > day0(max)) || !!disabled?.(d)\n  const dayLabel = (d: Date) => d.toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })\n\n  const grid = useRef<HTMLTableElement | null>(null)\n  // The roving day takes focus once the move has rendered.\n  const [pendingFocus, setPendingFocus] = useState(0)\n  useEffect(() => {\n    if (pendingFocus) grid.current?.querySelector<HTMLElement>('[tabindex=\"0\"]')?.focus()\n  }, [pendingFocus])\n  function moveTo(d: Date) {\n    setFocused(d)\n    setPendingFocus(n => n + 1)\n  }\n  function pick(d: Date) {\n    if (blocked(d)) return\n    setFocused(d)\n    setModel(d)\n    onSelect?.(d)\n  }\n  function onKey(event: KeyboardEvent<HTMLTableElement>) {\n    const d = focused\n    const start = addDays(d, -((d.getDay() - weekStartsOn + 7) % 7))\n    const moves: Record<string, () => Date> = {\n      ArrowLeft: () => addDays(d, -1),\n      ArrowRight: () => addDays(d, 1),\n      ArrowUp: () => addDays(d, -7),\n      ArrowDown: () => addDays(d, 7),\n      Home: () => start,\n      End: () => addDays(start, 6),\n      PageUp: () => addMonths(d, event.shiftKey ? -12 : -1),\n      PageDown: () => addMonths(d, event.shiftKey ? 12 : 1),\n    }\n    const move = moves[event.key]\n    if (move) {\n      event.preventDefault()\n      moveTo(move())\n    }\n    else if (event.key === 'Enter' || event.key === ' ') {\n      event.preventDefault()\n      pick(d)\n    }\n  }\n\n  return (\n    <div data-ds=\"calendar\" className={cn('inline-flex flex-col gap-2 type-ui text-fg', className)} role=\"group\" aria-label={label}>\n      <div className=\"flex items-center gap-1\">\n        <Button variant=\"ghost\" size=\"sm\" icon aria-label=\"Previous month\" onClick={() => setFocused(addMonths(focused, -1))}><ChevronLeft size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n        <p className=\"min-w-0 flex-1 text-center type-ui-strong\" aria-live=\"polite\">{caption}</p>\n        <Button variant=\"ghost\" size=\"sm\" icon aria-label=\"Next month\" onClick={() => setFocused(addMonths(focused, 1))}><ChevronRight size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n      </div>\n      <table ref={grid} role=\"grid\" aria-label={caption} className=\"border-collapse\" onKeyDown={onKey}>\n        <thead>\n          <tr>\n            {weekdays.map(w => (\n              <th key={w.long} scope=\"col\" abbr={w.long} className=\"h-8 w-control-md p-0 text-center type-caption font-regular text-fg-muted max-md:w-control-touch\">{w.short}</th>\n            ))}\n          </tr>\n        </thead>\n        <tbody>\n          {weeks.map((week, i) => (\n            <tr key={i}>\n              {week.map((d) => {\n                const outside = d.getMonth() !== month.getMonth()\n                return (\n                  <td key={d.getTime()} className=\"p-0\" role=\"gridcell\" aria-selected={same(d, model)}>\n                    <button\n                      type=\"button\"\n                      className={DAY}\n                      tabIndex={same(d, focused) ? 0 : -1}\n                      aria-label={dayLabel(d)}\n                      aria-current={same(d, today) ? 'date' : undefined}\n                      aria-disabled={blocked(d) || undefined}\n                      data-picked={same(d, model) || undefined}\n                      data-outside={outside || undefined}\n                      onClick={() => pick(d)}\n                      onFocus={outside ? undefined : () => setFocused(d)}\n                    >\n                      {d.getDate()}\n                    </button>\n                  </td>\n                )\n              })}\n            </tr>\n          ))}\n        </tbody>\n      </table>\n    </div>\n  )\n}\n\nexport default Calendar\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        },
+        {
+          "path": "react/hooks/useControllable.ts",
+          "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "Calendar",
+            "file": "react/components/ui/Calendar.tsx",
+            "props": [
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "default": "'Calendar'",
+                "description": "The calendar's name for assistive tech."
+              },
+              {
+                "name": "min",
+                "type": "Date",
+                "required": false,
+                "description": "The first day that can be picked."
+              },
+              {
+                "name": "max",
+                "type": "Date",
+                "required": false,
+                "description": "The last day that can be picked."
+              },
+              {
+                "name": "disabled",
+                "type": "(day: Date) => boolean",
+                "required": false,
+                "description": "Days that can't be picked."
+              },
+              {
+                "name": "weekStartsOn",
+                "type": "0 | 1",
+                "required": false,
+                "default": "0",
+                "description": "0 for Sunday, 1 for Monday."
+              },
+              {
+                "name": "locale",
+                "type": "string",
+                "required": false,
+                "default": "'en-US'"
+              },
+              {
+                "name": "value",
+                "type": "Date | null",
+                "required": false
+              },
+              {
+                "name": "defaultValue",
+                "type": "Date | null",
+                "required": false,
+                "default": "null"
+              },
+              {
+                "name": "onValueChange",
+                "type": "(day: Date | null) => void",
+                "required": false
+              },
+              {
+                "name": "onSelect",
+                "type": "(day: Date) => void",
+                "required": false,
+                "description": "A day was picked."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Single",
+          "label": "A launch day",
+          "center": true,
+          "half": false,
+          "path": "react/examples/calendar/Single.tsx",
+          "content": "'use client'\nimport { useState } from 'react'\nimport { Calendar } from '@/react/components/ui/Calendar'\n// The day a campaign goes live; the picked day reads under the month.\n\nexport default function Single() {\n  const [day, setDay] = useState<Date | null>(new Date(2026, 10, 20))\n  return (\n    <div className=\"flex flex-col items-center gap-3\">\n      <Calendar label=\"Launch day\" value={day} onValueChange={setDay} />\n      <p className=\"type-caption text-fg-muted\" aria-live=\"polite\">{day ? `Goes live ${day.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}.` : 'Pick a day.'}</p>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        },
+        {
+          "name": "Window",
+          "label": "Bounds, Monday start and blocked days",
+          "center": true,
+          "half": false,
+          "path": "react/examples/calendar/Window.tsx",
+          "content": "'use client'\nimport { Calendar } from '@/react/components/ui/Calendar'\n// A flight window: weeks start on Monday, only days from November 9 to December 11 can be picked, and never a Sunday.\n\nexport default function Window() {\n  return <Calendar label=\"Flight start\" weekStartsOn={1} defaultValue={new Date(2026, 10, 24)} min={new Date(2026, 10, 9)} max={new Date(2026, 11, 11)} disabled={(d) => d.getDay() === 0} />\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/calendar.ts",
+          "content": "import { html as staticHtml } from 'lit/static-html.js'\nimport { type PropertyValues } from 'lit'\nimport { ChevronLeft, ChevronRight } from 'lucide'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define, tag } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport '@/elements/components/ui/button'\nimport styles from 'virtual:tw'\n\n// Calendar.tsx as <spyglass-calendar>: a month to pick a day from. 40px day cells (44px on phones) with the 4px\n// corner, weekday heads in DM Sans 12px muted, the month in DM Sans Medium between two ghost arrow buttons. The picked\n// day is a White fill with a Black figure; today carries a neutral hairline ring; the days of the months either side\n// are faint; days that can't be picked are faint and struck through. Arrows move a day or a week, Home and End to the\n// week's ends, Page Up and Page Down a month (with Shift a year), Enter or Space picks. Changing month doesn't\n// animate. `value` (a Date, or an ISO date attribute) with `input` and `change`, and `select` fires on every pick.\n// `min` and `max` are Dates (or ISO date attributes); `disabled` is a function of the day, set as a property.\n\nconst day0 = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())\nconst same = (a: Date | null | undefined, b: Date | null | undefined) => !!a && !!b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()\nconst addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n)\nfunction addMonths(d: Date, n: number) {\n\tconst last = new Date(d.getFullYear(), d.getMonth() + n + 1, 0).getDate()\n\treturn new Date(d.getFullYear(), d.getMonth() + n, Math.min(d.getDate(), last))\n}\nconst DAY = 'inline-flex size-control-md cursor-pointer items-center justify-center rounded-ds-sm border border-transparent type-ui tabular-nums text-fg outline-none transition-[background-color,color] duration-160 ease-standard hover:not-data-picked:not-aria-disabled:bg-ds-neutral-4 aria-[current=date]:border-fg-faint data-outside:text-fg-faint data-picked:bg-action-primary data-picked:font-medium data-picked:text-action-primary-fg aria-disabled:cursor-not-allowed aria-disabled:text-fg-faint aria-disabled:line-through focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus data-picked:focus-visible:outline-fg-inverse max-md:size-control-touch'\n// \"2026-11-13\" is that day where the page is, not midnight UTC.\nconst dateAttr = { fromAttribute: (v: string | null) => (v ? new Date(`${v}T00:00:00`) : null) }\n\n/**\n * @summary A month to pick a day from.\n * @fires input - A day was picked (read `value`).\n * @fires change - A day was picked (read `value`).\n * @fires select - A day was picked; detail.value is the day.\n */\nexport class Calendar extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = {\n\t\tvalue: { converter: dateAttr },\n\t\tlabel: {},\n\t\tmin: { converter: dateAttr },\n\t\tmax: { converter: dateAttr },\n\t\tdisabled: { attribute: false },\n\t\tweekStartsOn: { type: Number, attribute: 'week-starts-on' },\n\t\tlocale: {},\n\t\tfocused: { state: true },\n\t}\n\n\tvalue: Date | null = null\n\t/** The calendar's name for assistive tech. */\n\tlabel = 'Calendar'\n\tmin?: Date | null\n\tmax?: Date | null\n\t/** Days that can't be picked (a property: cal.disabled = (d) => d.getDay() === 0). */\n\tdisabled?: (day: Date) => boolean\n\t/** 0 for Sunday, 1 for Monday. */\n\tweekStartsOn: 0 | 1 = 0\n\tlocale = 'en-US'\n\tprivate focused = day0(new Date())\n\tprivate today = day0(new Date())\n\tprivate pendingFocus = false\n\n\tprotected willUpdate(changed: PropertyValues) {\n\t\tsuper.willUpdate(changed)\n\t\tif (changed.has('value') && this.value && !same(this.value, this.focused)) this.focused = day0(this.value)\n\t}\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\t// The roving day takes focus once the move has rendered.\n\t\tif (this.pendingFocus) {\n\t\t\tthis.pendingFocus = false\n\t\t\tthis.renderRoot.querySelector<HTMLElement>('table [tabindex=\"0\"]')?.focus()\n\t\t}\n\t}\n\n\tprivate blocked(d: Date) {\n\t\treturn (!!this.min && d < day0(this.min)) || (!!this.max && d > day0(this.max)) || !!this.disabled?.(d)\n\t}\n\tprivate dayLabel(d: Date) {\n\t\treturn d.toLocaleDateString(this.locale, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })\n\t}\n\tprivate moveTo(d: Date) {\n\t\tthis.focused = d\n\t\tthis.pendingFocus = true\n\t}\n\tprivate pick(d: Date) {\n\t\tif (this.blocked(d)) return\n\t\tthis.focused = d\n\t\tthis.commit(d)\n\t\tthis.emit('select', { value: d })\n\t}\n\tprivate onKey(event: KeyboardEvent) {\n\t\tconst d = this.focused\n\t\tconst start = addDays(d, -((d.getDay() - this.weekStartsOn + 7) % 7))\n\t\tconst moves: Record<string, () => Date> = {\n\t\t\tArrowLeft: () => addDays(d, -1),\n\t\t\tArrowRight: () => addDays(d, 1),\n\t\t\tArrowUp: () => addDays(d, -7),\n\t\t\tArrowDown: () => addDays(d, 7),\n\t\t\tHome: () => start,\n\t\t\tEnd: () => addDays(start, 6),\n\t\t\tPageUp: () => addMonths(d, event.shiftKey ? -12 : -1),\n\t\t\tPageDown: () => addMonths(d, event.shiftKey ? 12 : 1),\n\t\t}\n\t\tconst move = moves[event.key]\n\t\tif (move) {\n\t\t\tevent.preventDefault()\n\t\t\tthis.moveTo(move())\n\t\t} else if (event.key === 'Enter' || event.key === ' ') {\n\t\t\tevent.preventDefault()\n\t\t\tthis.pick(d)\n\t\t}\n\t}\n\n\trender() {\n\t\tconst month = new Date(this.focused.getFullYear(), this.focused.getMonth(), 1)\n\t\tconst caption = month.toLocaleDateString(this.locale, { month: 'long', year: 'numeric' })\n\t\tconst weekdays = Array.from({ length: 7 }, (_, i) => {\n\t\t\tconst d = new Date(2026, 1, 1 + ((i + this.weekStartsOn) % 7)) // 1 February 2026 is a Sunday.\n\t\t\treturn { short: d.toLocaleDateString(this.locale, { weekday: 'short' }).slice(0, 2), long: d.toLocaleDateString(this.locale, { weekday: 'long' }) }\n\t\t})\n\t\t// Whole weeks: the days of the months either side fill the first and last rows.\n\t\tconst lead = (month.getDay() - this.weekStartsOn + 7) % 7\n\t\tconst count = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate()\n\t\tconst cells = Array.from({ length: Math.ceil((lead + count) / 7) * 7 }, (_, i) => new Date(month.getFullYear(), month.getMonth(), i - lead + 1))\n\t\tconst weeks = Array.from({ length: cells.length / 7 }, (_, w) => cells.slice(w * 7, w * 7 + 7))\n\t\tconst button = tag('button')\n\t\treturn staticHtml`<div data-ds=\"calendar\" class=\"inline-flex flex-col gap-2 type-ui text-fg\" role=\"group\" aria-label=${this.label}>\n\t\t\t<div class=\"flex items-center gap-1\">\n\t\t\t\t<${button} variant=\"ghost\" size=\"sm\" icon aria-label=\"Previous month\" @click=${() => { this.focused = addMonths(this.focused, -1) }}>${icon(ChevronLeft, 'chevron-left', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } })}</${button}>\n\t\t\t\t<p class=\"min-w-0 flex-1 text-center type-ui-strong\" aria-live=\"polite\">${caption}</p>\n\t\t\t\t<${button} variant=\"ghost\" size=\"sm\" icon aria-label=\"Next month\" @click=${() => { this.focused = addMonths(this.focused, 1) }}>${icon(ChevronRight, 'chevron-right', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } })}</${button}>\n\t\t\t</div>\n\t\t\t<table role=\"grid\" aria-label=${caption} class=\"border-collapse\" @keydown=${this.onKey}>\n\t\t\t\t<thead>\n\t\t\t\t\t<tr>${weekdays.map((w) => staticHtml`<th scope=\"col\" abbr=${w.long} class=\"h-8 w-control-md p-0 text-center type-caption font-regular text-fg-muted max-md:w-control-touch\">${w.short}</th>`)}</tr>\n\t\t\t\t</thead>\n\t\t\t\t<tbody>${weeks.map((week) => staticHtml`<tr>${week.map((d) => {\n\t\t\t\t\tconst outside = d.getMonth() !== month.getMonth()\n\t\t\t\t\treturn staticHtml`<td class=\"p-0\" role=\"gridcell\" aria-selected=${String(same(d, this.value))}><button\n\t\t\t\t\t\t\ttype=\"button\"\n\t\t\t\t\t\t\tclass=${DAY}\n\t\t\t\t\t\t\ttabindex=${same(d, this.focused) ? '0' : '-1'}\n\t\t\t\t\t\t\taria-label=${this.dayLabel(d)}\n\t\t\t\t\t\t\taria-current=${ifDefined(same(d, this.today) ? 'date' : undefined)}\n\t\t\t\t\t\t\taria-disabled=${ifDefined(this.blocked(d) ? 'true' : undefined)}\n\t\t\t\t\t\t\tdata-picked=${ifDefined(same(d, this.value) ? 'true' : undefined)}\n\t\t\t\t\t\t\tdata-outside=${ifDefined(outside ? 'true' : undefined)}\n\t\t\t\t\t\t\t@click=${() => this.pick(d)}\n\t\t\t\t\t\t\t@focus=${() => { if (!outside) this.focused = d }}\n\t\t\t\t\t\t>${d.getDate()}</button></td>`\n\t\t\t\t})}</tr>`)}</tbody>\n\t\t\t</table>\n\t\t</div>`\n\t}\n}\n\ndefine('calendar', Calendar)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/calendar.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-calendar",
+      "tags": [
+        "spyglass-calendar"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-calendar",
+            "name": "Calendar",
+            "module": "elements/calendar.js",
+            "description": "A month to pick a day from.",
+            "attributes": [
+              {
+                "name": "value",
+                "field": "value",
+                "type": "Date | null",
+                "default": "null"
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "'Calendar'",
+                "description": "The calendar's name for assistive tech."
+              },
+              {
+                "name": "min",
+                "field": "min",
+                "type": "Date | null | undefined"
+              },
+              {
+                "name": "max",
+                "field": "max",
+                "type": "Date | null | undefined"
+              },
+              {
+                "name": "week-starts-on",
+                "field": "weekStartsOn",
+                "type": "0 | 1",
+                "default": "0",
+                "description": "0 for Sunday, 1 for Monday."
+              },
+              {
+                "name": "locale",
+                "field": "locale",
+                "type": "string",
+                "default": "'en-US'"
+              },
+              {
+                "name": "focused",
+                "field": "focused"
+              }
+            ],
+            "properties": [
+              {
+                "name": "value",
+                "type": "Date | null",
+                "default": "null",
+                "attribute": "value"
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "default": "'Calendar'",
+                "description": "The calendar's name for assistive tech.",
+                "attribute": "label"
+              },
+              {
+                "name": "min",
+                "type": "Date | null | undefined",
+                "attribute": "min"
+              },
+              {
+                "name": "max",
+                "type": "Date | null | undefined",
+                "attribute": "max"
+              },
+              {
+                "name": "disabled",
+                "type": "((day: Date) => boolean) | undefined",
+                "description": "Days that can't be picked (a property: cal.disabled = (d) => d.getDay() === 0)."
+              },
+              {
+                "name": "weekStartsOn",
+                "type": "0 | 1",
+                "default": "0",
+                "description": "0 for Sunday, 1 for Monday.",
+                "attribute": "week-starts-on"
+              },
+              {
+                "name": "locale",
+                "type": "string",
+                "default": "'en-US'",
+                "attribute": "locale"
+              }
+            ],
+            "events": [
+              {
+                "name": "input",
+                "description": "A day was picked (read `value`)."
+              },
+              {
+                "name": "change",
+                "description": "A day was picked (read `value`)."
+              },
+              {
+                "name": "select",
+                "description": "A day was picked; detail.value is the day."
+              }
+            ],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Single",
+          "label": "A launch day",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/calendar/Single.html",
+          "content": "<!-- The day a campaign goes live; the picked day reads under the month. -->\n<div class=\"flex flex-col items-center gap-3\">\n  <spyglass-calendar id=\"launch-day\" label=\"Launch day\" value=\"2026-11-20\"></spyglass-calendar>\n  <p id=\"launch-day-line\" class=\"type-caption text-fg-muted\" aria-live=\"polite\">Goes live Friday, November 20.</p>\n</div>\n<script type=\"module\">\n  const cal = document.getElementById('launch-day')\n  cal.addEventListener('change', () => {\n    document.getElementById('launch-day-line').textContent = cal.value ? `Goes live ${cal.value.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}.` : 'Pick a day.'\n  })\n</script>\n"
+        },
+        {
+          "name": "Window",
+          "label": "Bounds, Monday start and blocked days",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/calendar/Window.html",
+          "content": "<!-- A flight window: weeks start on Monday, only days from November 9 to December 11 can be picked, and never a Sunday. -->\n<spyglass-calendar id=\"flight-start\" label=\"Flight start\" week-starts-on=\"1\" value=\"2026-11-24\" min=\"2026-11-09\" max=\"2026-12-11\"></spyglass-calendar>\n<script type=\"module\">\n  document.getElementById('flight-start').disabled = (d) => d.getDay() === 0\n</script>\n"
+        }
+      ]
+    }
+  }
+}

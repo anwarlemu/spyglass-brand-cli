@@ -1,0 +1,311 @@
+{
+  "name": "prompt-card",
+  "title": "Prompt card",
+  "type": "registry:ui",
+  "group": "product",
+  "description": "The site's prompt: a two-line field and a square White send button in a #1A1A1A card with the 20px corner and a #666666 ring, with an optional row naming where it works.",
+  "use_for": "Asking the product a question on a hero or in a product view, where the search bar is too small for a sentence.",
+  "never": [
+    "Other companies' logos in the row: name the places in words",
+    "A typing animation that keeps running under the pointer or with reduced motion",
+    "A second button inside the card"
+  ],
+  "source": "Site v3/V3Playground/HeroPrompt (HeroPrompt.module.css): card --raised with --radius-l and an inset --line-strong ring, 12px in; the field 16/24 two lines tall; the send button --control-s square; the row under a --line hairline with a 14/20 --text-3 label",
+  "body": "",
+  "requires": [
+    "button"
+  ],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/product/PromptCard.tsx",
+      "content": "'use client'\nimport { useState, type FormEvent, type Ref } from 'react'\nimport { ArrowUp } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { cn } from '@/react/lib/cn'\n\n// The site's prompt (v3 HeroPrompt): a #1A1A1A card with the 20px corner inside a #666666 hairline ring, a two-line\n// field in DM Sans 16/24 with its hint in #A3A3A3, a square White send button at the lower right, and under a hairline\n// an optional row: a #A3A3A3 14/20 label and the places it works, as words in #D4D4D4 (never other companies' logos).\n// While the field has focus the ring lightens to #A3A3A3 with a #666666 2px halo (160ms on the site's ease-out).\n// Enter (without Shift) or the button calls onSubmit with the text.\nexport interface PromptCardProps {\n  /** The hint in the empty field. */\n  placeholder?: string\n  /** The field's accessible name. */\n  label?: string\n  /** The send button's accessible name. */\n  sendLabel?: string\n  /** The row's label: \"Works where you work\". */\n  worksLabel?: string\n  /** The places it works, as words. */\n  works?: string[]\n  defaultValue?: string\n  onSubmit?: (text: string) => void\n  name?: string\n  disabled?: boolean\n  className?: string\n  ref?: Ref<HTMLFormElement>\n}\n\nexport function PromptCard({ placeholder = 'Ask anything', label = 'Your question', sendLabel = 'Send', worksLabel, works = [], defaultValue = '', onSubmit, name = 'q', disabled, className, ref }: PromptCardProps) {\n  const [text, setText] = useState(defaultValue)\n  const submit = (event?: FormEvent<HTMLFormElement>) => {\n    event?.preventDefault()\n    if (!disabled && text.trim()) onSubmit?.(text.trim())\n  }\n  return (\n    <form data-ds=\"prompt-card\" ref={ref} onSubmit={submit} className={cn('grid w-full max-w-200 grid-cols-1 rounded-ds-lg bg-surface-subtle px-3 pt-3 text-left shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-edge-strong)] transition-[box-shadow] duration-160 ease-out has-[textarea:focus]:shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-fg-muted),0_0_0_var(--ds-border-focus)_var(--ds-color-edge-strong)]', className)}>\n      <div className=\"flex flex-wrap items-end justify-end gap-3 pb-3\">\n        <textarea\n          name={name}\n          value={text}\n          onChange={(e) => setText(e.target.value)}\n          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit() } }}\n          placeholder={placeholder}\n          aria-label={label}\n          disabled={disabled}\n          rows={2}\n          className=\"block h-18 w-full min-w-0 flex-[1_1_100%] resize-none rounded-control bg-transparent px-4 py-3 type-body text-fg outline-none placeholder:text-fg-muted disabled:cursor-not-allowed\"\n        />\n        <Button type=\"submit\" icon aria-label={sendLabel} disabled={disabled}><ArrowUp size={24} strokeWidth={2} aria-hidden=\"true\" /></Button>\n      </div>\n      {(worksLabel || works.length > 0) && (\n        <div className=\"grid gap-2 border-t border-edge px-4 py-3 sm:flex sm:items-center sm:justify-between\">\n          {worksLabel && <p className=\"type-ui text-fg-muted\">{worksLabel}</p>}\n          {works.length > 0 && <ul className=\"flex flex-wrap gap-x-5 gap-y-2 type-ui text-fg-soft\">{works.map((w) => <li key={w}>{w}</li>)}</ul>}\n        </div>\n      )}\n    </form>\n  )\n}\n\nexport default PromptCard\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Ask",
+      "label": "A question and where it works",
+      "center": true,
+      "half": false,
+      "path": "react/examples/prompt-card/Ask.tsx",
+      "content": "import { PromptCard } from '@/react/components/product/PromptCard'\n// The prompt with a hint and the places it works, for Acme's search.\n\nexport default function Ask() {\n  return <PromptCard placeholder=\"Show me the longest-running ads in running shoes.\" worksLabel=\"Works where you work\" works={['Chat apps', 'Code editors', 'Any MCP client', 'REST']} />\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/product/PromptCard.tsx",
+          "content": "'use client'\nimport { useState, type FormEvent, type Ref } from 'react'\nimport { ArrowUp } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { cn } from '@/react/lib/cn'\n\n// The site's prompt (v3 HeroPrompt): a #1A1A1A card with the 20px corner inside a #666666 hairline ring, a two-line\n// field in DM Sans 16/24 with its hint in #A3A3A3, a square White send button at the lower right, and under a hairline\n// an optional row: a #A3A3A3 14/20 label and the places it works, as words in #D4D4D4 (never other companies' logos).\n// While the field has focus the ring lightens to #A3A3A3 with a #666666 2px halo (160ms on the site's ease-out).\n// Enter (without Shift) or the button calls onSubmit with the text.\nexport interface PromptCardProps {\n  /** The hint in the empty field. */\n  placeholder?: string\n  /** The field's accessible name. */\n  label?: string\n  /** The send button's accessible name. */\n  sendLabel?: string\n  /** The row's label: \"Works where you work\". */\n  worksLabel?: string\n  /** The places it works, as words. */\n  works?: string[]\n  defaultValue?: string\n  onSubmit?: (text: string) => void\n  name?: string\n  disabled?: boolean\n  className?: string\n  ref?: Ref<HTMLFormElement>\n}\n\nexport function PromptCard({ placeholder = 'Ask anything', label = 'Your question', sendLabel = 'Send', worksLabel, works = [], defaultValue = '', onSubmit, name = 'q', disabled, className, ref }: PromptCardProps) {\n  const [text, setText] = useState(defaultValue)\n  const submit = (event?: FormEvent<HTMLFormElement>) => {\n    event?.preventDefault()\n    if (!disabled && text.trim()) onSubmit?.(text.trim())\n  }\n  return (\n    <form data-ds=\"prompt-card\" ref={ref} onSubmit={submit} className={cn('grid w-full max-w-200 grid-cols-1 rounded-ds-lg bg-surface-subtle px-3 pt-3 text-left shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-edge-strong)] transition-[box-shadow] duration-160 ease-out has-[textarea:focus]:shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-fg-muted),0_0_0_var(--ds-border-focus)_var(--ds-color-edge-strong)]', className)}>\n      <div className=\"flex flex-wrap items-end justify-end gap-3 pb-3\">\n        <textarea\n          name={name}\n          value={text}\n          onChange={(e) => setText(e.target.value)}\n          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit() } }}\n          placeholder={placeholder}\n          aria-label={label}\n          disabled={disabled}\n          rows={2}\n          className=\"block h-18 w-full min-w-0 flex-[1_1_100%] resize-none rounded-control bg-transparent px-4 py-3 type-body text-fg outline-none placeholder:text-fg-muted disabled:cursor-not-allowed\"\n        />\n        <Button type=\"submit\" icon aria-label={sendLabel} disabled={disabled}><ArrowUp size={24} strokeWidth={2} aria-hidden=\"true\" /></Button>\n      </div>\n      {(worksLabel || works.length > 0) && (\n        <div className=\"grid gap-2 border-t border-edge px-4 py-3 sm:flex sm:items-center sm:justify-between\">\n          {worksLabel && <p className=\"type-ui text-fg-muted\">{worksLabel}</p>}\n          {works.length > 0 && <ul className=\"flex flex-wrap gap-x-5 gap-y-2 type-ui text-fg-soft\">{works.map((w) => <li key={w}>{w}</li>)}</ul>}\n        </div>\n      )}\n    </form>\n  )\n}\n\nexport default PromptCard\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "PromptCard",
+            "file": "react/components/product/PromptCard.tsx",
+            "props": [
+              {
+                "name": "placeholder",
+                "type": "string",
+                "required": false,
+                "default": "'Ask anything'",
+                "description": "The hint in the empty field."
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "default": "'Your question'",
+                "description": "The field's accessible name."
+              },
+              {
+                "name": "sendLabel",
+                "type": "string",
+                "required": false,
+                "default": "'Send'",
+                "description": "The send button's accessible name."
+              },
+              {
+                "name": "worksLabel",
+                "type": "string",
+                "required": false,
+                "description": "The row's label: \"Works where you work\"."
+              },
+              {
+                "name": "works",
+                "type": "string[]",
+                "required": false,
+                "default": "[]",
+                "description": "The places it works, as words."
+              },
+              {
+                "name": "defaultValue",
+                "type": "string",
+                "required": false,
+                "default": "''"
+              },
+              {
+                "name": "onSubmit",
+                "type": "(text: string) => void",
+                "required": false
+              },
+              {
+                "name": "name",
+                "type": "string",
+                "required": false,
+                "default": "'q'"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Ask",
+          "label": "A question and where it works",
+          "center": true,
+          "half": false,
+          "path": "react/examples/prompt-card/Ask.tsx",
+          "content": "import { PromptCard } from '@/react/components/product/PromptCard'\n// The prompt with a hint and the places it works, for Acme's search.\n\nexport default function Ask() {\n  return <PromptCard placeholder=\"Show me the longest-running ads in running shoes.\" worksLabel=\"Works where you work\" works={['Chat apps', 'Code editors', 'Any MCP client', 'REST']} />\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/product/prompt-card.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { live } from 'lit/directives/live.js'\nimport { ArrowUp } from 'lucide'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport '@/elements/components/ui/button'\nimport styles from 'virtual:tw'\n\n// PromptCard.tsx as <spyglass-prompt-card>: the site's prompt card, a two-line field (`placeholder`, `label`) with a\n// square White send button and an optional row (`works-label`, `works` as words). Enter (without Shift) or the button\n// fires `send` with { text }.\n\n/**\n * @summary The site's prompt: a field and a send button in a #1A1A1A card with the 20px corner.\n * @fires send - With { text } when sent.\n */\nexport class PromptCard extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"prompt-card\"]'))\n\tstatic properties = { placeholder: {}, label: {}, sendLabel: { attribute: 'send-label' }, worksLabel: { attribute: 'works-label' }, works: { type: Array }, value: {}, name: {}, disabled: { type: Boolean, reflect: true } }\n\t/** The hint in the empty field. */\n\tplaceholder = 'Ask anything'\n\t/** The field's accessible name. */\n\tlabel = 'Your question'\n\t/** The send button's accessible name. */\n\tsendLabel = 'Send'\n\t/** The row's label. */\n\tworksLabel?: string\n\t/** The places it works, as words. */\n\tworks: string[] = []\n\tvalue = ''\n\tname = 'q'\n\tdisabled = false\n\n\tprivate send(event?: Event) {\n\t\tevent?.preventDefault()\n\t\tconst text = this.value.trim()\n\t\tif (!this.disabled && text) this.emit('send', { text })\n\t}\n\n\trender() {\n\t\tconst works = this.works ?? []\n\t\treturn html`<form data-ds=\"prompt-card\" @submit=${(e: Event) => this.send(e)} class=\"grid w-full max-w-200 grid-cols-1 rounded-ds-lg bg-surface-subtle px-3 pt-3 text-left shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-edge-strong)] transition-[box-shadow] duration-160 ease-out has-[textarea:focus]:shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-fg-muted),0_0_0_var(--ds-border-focus)_var(--ds-color-edge-strong)]\"><div class=\"flex flex-wrap items-end justify-end gap-3 pb-3\"><textarea name=${this.name} .value=${live(this.value)} @input=${(e: Event) => (this.value = (e.target as HTMLTextAreaElement).value)} @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter' && !e.shiftKey) this.send(e) }} placeholder=${this.placeholder} aria-label=${this.label} ?disabled=${this.disabled} rows=\"2\" class=\"block h-18 w-full min-w-0 flex-[1_1_100%] resize-none rounded-control bg-transparent px-4 py-3 type-body text-fg outline-none placeholder:text-fg-muted disabled:cursor-not-allowed\"></textarea><spyglass-button type=\"submit\" icon aria-label=${this.sendLabel} ?disabled=${this.disabled} @click=${() => this.send()}>${icon(ArrowUp, 'arrow-up', { size: 24, strokeWidth: 2, attrs: { 'aria-hidden': 'true' } })}</spyglass-button></div>${this.worksLabel || works.length ? html`<div class=\"grid gap-2 border-t border-edge px-4 py-3 sm:flex sm:items-center sm:justify-between\">${this.worksLabel ? html`<p class=\"type-ui text-fg-muted\">${this.worksLabel}</p>` : nothing}${works.length ? html`<ul class=\"flex flex-wrap gap-x-5 gap-y-2 type-ui text-fg-soft\">${works.map((w) => html`<li>${w}</li>`)}</ul>` : nothing}</div>` : nothing}</form>`\n\t}\n}\n\ndefine('prompt-card', PromptCard)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/prompt-card.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-prompt-card",
+      "tags": [
+        "spyglass-prompt-card"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-prompt-card",
+            "name": "PromptCard",
+            "module": "elements/prompt-card.js",
+            "description": "The site's prompt: a field and a send button in a #1A1A1A card with the 20px corner.",
+            "attributes": [
+              {
+                "name": "placeholder",
+                "field": "placeholder",
+                "type": "string",
+                "default": "'Ask anything'",
+                "description": "The hint in the empty field."
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "'Your question'",
+                "description": "The field's accessible name."
+              },
+              {
+                "name": "send-label",
+                "field": "sendLabel",
+                "type": "string",
+                "default": "'Send'",
+                "description": "The send button's accessible name."
+              },
+              {
+                "name": "works-label",
+                "field": "worksLabel",
+                "type": "string | undefined",
+                "description": "The row's label."
+              },
+              {
+                "name": "works",
+                "field": "works",
+                "type": "string[]",
+                "default": "[]",
+                "description": "The places it works, as words."
+              },
+              {
+                "name": "value",
+                "field": "value",
+                "type": "string",
+                "default": "''"
+              },
+              {
+                "name": "name",
+                "field": "name",
+                "type": "string",
+                "default": "'q'"
+              },
+              {
+                "name": "disabled",
+                "field": "disabled",
+                "type": "boolean",
+                "default": "false"
+              }
+            ],
+            "properties": [
+              {
+                "name": "placeholder",
+                "type": "string",
+                "default": "'Ask anything'",
+                "description": "The hint in the empty field.",
+                "attribute": "placeholder"
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "default": "'Your question'",
+                "description": "The field's accessible name.",
+                "attribute": "label"
+              },
+              {
+                "name": "sendLabel",
+                "type": "string",
+                "default": "'Send'",
+                "description": "The send button's accessible name.",
+                "attribute": "send-label"
+              },
+              {
+                "name": "worksLabel",
+                "type": "string | undefined",
+                "description": "The row's label.",
+                "attribute": "works-label"
+              },
+              {
+                "name": "works",
+                "type": "string[]",
+                "default": "[]",
+                "description": "The places it works, as words.",
+                "attribute": "works"
+              },
+              {
+                "name": "value",
+                "type": "string",
+                "default": "''",
+                "attribute": "value"
+              },
+              {
+                "name": "name",
+                "type": "string",
+                "default": "'q'",
+                "attribute": "name"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "disabled"
+              }
+            ],
+            "events": [
+              {
+                "name": "send",
+                "description": "With { text } when sent."
+              }
+            ],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Ask",
+          "label": "A question and where it works",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/prompt-card/Ask.html",
+          "content": "<!-- The prompt with a hint and the places it works, for Acme's search. -->\n<spyglass-prompt-card placeholder=\"Show me the longest-running ads in running shoes.\" works-label=\"Works where you work\" works='[\"Chat apps\",\"Code editors\",\"Any MCP client\",\"REST\"]'></spyglass-prompt-card>\n"
+        }
+      ]
+    }
+  }
+}

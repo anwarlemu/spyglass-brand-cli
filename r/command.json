@@ -1,0 +1,460 @@
+{
+  "name": "command",
+  "title": "Command",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A box to type in over a list of actions and places, on the #262626 overlay surface: the field on top over a hairline, groups with a capital label, the menus' rows with an icon and a shortcut. On the page, or in a window opened with Cmd+K. The list scrolls with fading edges, so no row is cut off.",
+  "use_for": "Jumping anywhere and running anything from the keyboard: searches, boards, brands, settings. CommandDialog for the app-wide Cmd+K menu.",
+  "never": [
+    "Motion on opening or closing: it opens many times a day",
+    "Tab between rows: the field keeps focus and the arrows move",
+    "A spectrum color on the highlighted row",
+    "The only way to an action: keep it in the interface too"
+  ],
+  "source": "Derived from the guidelines: the #262626 card fill on Black, neutral hairlines, the 10px canvas corner (8px here), DM Sans 14px rows, capital labels at 6%. shadcn's command (cmdk) for anatomy, filtering and keys.",
+  "body": "Rows are data: `groups` of `{ heading, items: [{ id, label, keywords, shortcut, icon, disabled }] }`. In the web\ncomponent, a row's icon is page content with `slot=\"icon-<id>\"`.",
+  "requires": [],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/ui/Command.tsx",
+      "content": "'use client'\nimport { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'\nimport { Search } from 'lucide-react'\n\n// shadcn's command menu in the brand: a box to type in over a list of actions and places, on the #262626 overlay\n// surface in a neutral hairline with the brand corner. The field sits on top over a hairline, DM Sans with a search\n// glyph; groups have a capital label; rows are the menus' rows (32px, a 4px corner, a #262626 fill on the row the\n// arrows or the pointer are on), an icon first and a shortcut last. The field keeps focus: typing filters (label and\n// keywords), arrows move the highlight and wrap, Home and End jump, Enter runs the row, the pointer moves the\n// highlight too. Nothing animates: it is used many times a day. `onSelect` gets the row. CommandDialog puts it in a\n// window opened with Cmd+K.\nexport interface CommandItem {\n  id: string\n  label: string\n  /** More words that find it. */\n  keywords?: string[]\n  /** A key or chord shown at the end (\"⌘B\"). */\n  shortcut?: string\n  /** A 16px Lucide icon before the label. */\n  icon?: ReactNode\n  disabled?: boolean\n}\nexport interface CommandGroup {\n  /** The group's label, in capitals. */\n  heading?: string\n  items: CommandItem[]\n}\nexport interface CommandProps {\n  groups: CommandGroup[]\n  /** The list's name for assistive tech. */\n  label?: string\n  /** The field's placeholder. */\n  placeholder?: string\n  /** What the list says when nothing matches. */\n  empty?: string\n  /** Focus the field when it mounts. */\n  autoFocus?: boolean\n  onSelect?: (item: CommandItem) => void\n  className?: string\n}\n\nexport const COMMAND_ROW = 'flex h-control-sm shrink-0 cursor-pointer items-center gap-2 rounded-ds-sm px-2 type-ui text-fg transition-[background-color] duration-160 ease-standard data-active:bg-ds-neutral-4 aria-disabled:cursor-not-allowed aria-disabled:text-fg-faint max-md:h-auto max-md:min-h-control-touch'\n\nexport function matches(item: CommandItem, q: string) {\n  if (!q) return true\n  const t = q.toLowerCase()\n  return item.label.toLowerCase().includes(t) || !!item.keywords?.some((k) => k.toLowerCase().includes(t))\n}\n\nexport function Command({ groups, label = 'Commands', placeholder = 'Type a command or search', empty = 'No results.', autoFocus, onSelect, className }: CommandProps) {\n  const id = `command-${useId()}`\n  const input = useRef<HTMLInputElement | null>(null)\n  const [query, setQuery] = useState('')\n  const [activeId, setActiveId] = useState('')\n  const q = query.trim()\n  const shown = groups.map((g) => ({ ...g, items: g.items.filter((i) => matches(i, q)) })).filter((g) => g.items.length)\n  const rows = shown.flatMap((g) => g.items)\n  const enabled = rows.filter((r) => !r.disabled)\n  // The highlight is kept by id, so it stays on its row as the list changes; with none, the first enabled row.\n  const active = enabled.find((r) => r.id === activeId) ?? enabled[0]\n  const rowId = (item: CommandItem) => `${id}-${rows.indexOf(item)}`\n\n  useEffect(() => {\n    if (autoFocus) input.current?.focus({ preventScroll: true })\n  }, [autoFocus])\n  const scroll = useRef(false)\n  useEffect(() => {\n    if (!scroll.current || !active) return\n    scroll.current = false\n    document.getElementById(rowId(active))?.scrollIntoView({ block: 'nearest' })\n  })\n\n  function move(to: number) {\n    const n = enabled.length\n    if (!n) return\n    setActiveId(enabled[(to % n + n) % n]!.id)\n    scroll.current = true\n  }\n  function run(item: CommandItem | undefined) {\n    if (!item || item.disabled) return\n    onSelect?.(item)\n  }\n  function onKey(event: KeyboardEvent) {\n    const at = active ? enabled.indexOf(active) : -1\n    if (event.key === 'ArrowDown') { event.preventDefault(); move(at + 1) }\n    else if (event.key === 'ArrowUp') { event.preventDefault(); move(at - 1) }\n    else if (event.key === 'Home' && !query) { event.preventDefault(); move(0) }\n    else if (event.key === 'End' && !query) { event.preventDefault(); move(enabled.length - 1) }\n    else if (event.key === 'Enter') { event.preventDefault(); run(active) }\n  }\n\n  return (\n    <div data-ds=\"command\" className={className ? `flex w-full flex-col overflow-hidden rounded-container border border-edge bg-surface-raised text-fg ${className}` : 'flex w-full flex-col overflow-hidden rounded-container border border-edge bg-surface-raised text-fg'}>\n      <label className=\"flex h-control-lg shrink-0 items-center gap-2 border-b border-edge px-3\">\n        <Search size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />\n        <input\n          ref={input}\n          value={query}\n          onChange={(e) => { setQuery(e.target.value); setActiveId('') }}\n          className=\"h-full min-w-0 flex-1 bg-transparent type-ui text-fg outline-none placeholder:text-fg-muted max-md:text-input\"\n          role=\"combobox\"\n          aria-label={placeholder}\n          placeholder={placeholder}\n          aria-autocomplete=\"list\"\n          aria-expanded=\"true\"\n          aria-controls={`${id}-list`}\n          aria-activedescendant={active ? rowId(active) : undefined}\n          autoComplete=\"off\"\n          spellCheck={false}\n          onKeyDown={onKey}\n        />\n      </label>\n      <div id={`${id}-list`} role=\"listbox\" aria-label={label} className=\"max-h-96 overflow-y-auto overscroll-contain p-1 fade-y\">\n        {shown.map((g, gi) => (\n          <div key={g.heading ?? gi} role=\"group\" aria-label={g.heading} className={gi ? '-mx-1 mt-1 border-t border-edge px-1 pt-1' : ''}>\n            {g.heading && <p className=\"px-2 pt-2 pb-1 type-label text-fg-muted\" aria-hidden=\"true\">{g.heading}</p>}\n            {g.items.map((item) => (\n              <div\n                key={item.id}\n                id={rowId(item)}\n                role=\"option\"\n                className={COMMAND_ROW}\n                aria-selected={item === active}\n                aria-disabled={item.disabled || undefined}\n                data-active={item === active || undefined}\n                onPointerMove={() => { if (!item.disabled && item !== active) setActiveId(item.id) }}\n                onMouseDown={(e) => e.preventDefault()}\n                onClick={() => run(item)}\n              >\n                {item.icon && <span className=\"flex shrink-0 text-fg-muted\" aria-hidden=\"true\">{item.icon}</span>}\n                <span className=\"min-w-0 flex-1 truncate\">{item.label}</span>\n                {item.shortcut && <span className=\"shrink-0 type-caption text-fg-faint\">{item.shortcut}</span>}\n              </div>\n            ))}\n          </div>\n        ))}\n        {!rows.length && <p className=\"px-2 py-6 text-center type-ui text-fg-muted\">{empty}</p>}\n      </div>\n    </div>\n  )\n}\n\nexport default Command\n"
+    },
+    {
+      "path": "react/components/ui/CommandDialog.tsx",
+      "content": "'use client'\nimport { useEffect, useRef, type SyntheticEvent, type MouseEvent } from 'react'\nimport { Command, type CommandItem, type CommandProps } from '@/react/components/ui/Command'\nimport { useControllable } from '@/react/hooks/useControllable'\n\n// The command menu in a window, 15vh from the top over a Black scrim: Cmd+K (Ctrl+K) opens and closes it from anywhere\n// on the page (`shortcut`, null for none), and so can your own button. It opens and closes at once, with no motion,\n// because it opens many times a day. Focus starts in the field; Escape or a press on the scrim closes it and focus\n// returns to what opened it; running a row closes it. The field is empty each time it opens. `open` with\n// `onOpenChange` (or `defaultOpen` alone).\nexport interface CommandDialogProps extends Omit<CommandProps, 'autoFocus' | 'className'> {\n  open?: boolean\n  defaultOpen?: boolean\n  onOpenChange?: (open: boolean) => void\n  /** The letter that opens it with Cmd or Ctrl; null for no shortcut. */\n  shortcut?: string | null\n}\n\nexport function CommandDialog({ open: openProp, defaultOpen = false, onOpenChange, shortcut = 'k', onSelect, ...command }: CommandDialogProps) {\n  const [open, setOpen] = useControllable(openProp, defaultOpen, onOpenChange)\n  const dialog = useRef<HTMLDialogElement | null>(null)\n  const returnTo = useRef<HTMLElement | null>(null)\n  const toggle = useRef(() => setOpen(!open))\n  toggle.current = () => setOpen(!open)\n\n  useEffect(() => {\n    if (!shortcut) return\n    function onKey(event: globalThis.KeyboardEvent) {\n      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === shortcut) {\n        event.preventDefault()\n        toggle.current()\n      }\n    }\n    document.addEventListener('keydown', onKey)\n    return () => document.removeEventListener('keydown', onKey)\n  }, [shortcut])\n\n  const mounted = useRef(false)\n  useEffect(() => {\n    const d = dialog.current\n    const first = !mounted.current\n    mounted.current = true\n    if (!d) return\n    if (open) {\n      if (d.open) return\n      returnTo.current = document.activeElement instanceof HTMLElement ? document.activeElement : null\n      d.showModal()\n      d.querySelector<HTMLElement>('[role=\"combobox\"]')?.focus()\n    }\n    else if (!first) {\n      if (d.open) d.close()\n      returnTo.current?.focus({ preventScroll: true })\n      returnTo.current = null\n    }\n  }, [open])\n\n  function onCancel(event: SyntheticEvent) {\n    event.preventDefault()\n    setOpen(false)\n  }\n  // A press on the scrim lands on the dialog element itself.\n  function onDown(event: MouseEvent) {\n    if (event.target === dialog.current) setOpen(false)\n  }\n  function picked(item: CommandItem) {\n    onSelect?.(item)\n    setOpen(false)\n  }\n  return (\n    <>\n      <style href=\"ds-command-dialog\" precedence=\"ds\">{css}</style>\n      <dialog data-ds=\"command-dialog\" ref={dialog} className=\"ds-cmd\" aria-label={command.label ?? 'Commands'} onCancel={onCancel} onMouseDown={onDown}>\n        {open && <Command {...command} onSelect={picked} />}\n      </dialog>\n    </>\n  )\n}\n\nexport default CommandDialog\n\nconst css = `\n/* No transition or animation: it opens and closes at once. */\n.ds-cmd { position: fixed; inset: 15vh auto auto 50%; width: min(560px, calc(100vw - 32px)); max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: transparent; color: var(--ds-color-fg); font-family: var(--ds-font-text); overscroll-behavior: contain; transform: translateX(-50%); }\n.ds-cmd::backdrop { background: var(--ds-color-scrim); }\n`\n"
+    },
+    {
+      "path": "react/hooks/useControllable.ts",
+      "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Menu",
+      "label": "On the page",
+      "center": true,
+      "half": false,
+      "path": "react/examples/command/Menu.tsx",
+      "content": "'use client'\nimport { useState } from 'react'\nimport { Bookmark, Building2, CreditCard, Search, Users } from 'lucide-react'\nimport { Command, type CommandGroup } from '@/react/components/ui/Command'\n// The command menu on the page: type to filter, arrows to move, Enter to run. The line under says what ran.\nconst groups: CommandGroup[] = [\n  { heading: 'Go to', items: [\n    { id: 'search', label: 'Search creatives', icon: <Search size={16} strokeWidth={1.5} />, shortcut: '/' },\n    { id: 'brands', label: 'Track a brand', keywords: ['creator', 'follow'], icon: <Building2 size={16} strokeWidth={1.5} /> },\n    { id: 'boards', label: 'Boards', icon: <Bookmark size={16} strokeWidth={1.5} /> },\n  ] },\n  { heading: 'Boards', items: [\n    { id: 'summer', label: 'Acme summer ads' },\n    { id: 'serum', label: 'Acme serum launch' },\n  ] },\n  { heading: 'Settings', items: [\n    { id: 'billing', label: 'Billing', keywords: ['plan', 'invoice'], icon: <CreditCard size={16} strokeWidth={1.5} />, shortcut: '⌘B' },\n    { id: 'team', label: 'Team', icon: <Users size={16} strokeWidth={1.5} />, disabled: true },\n  ] },\n]\n\nexport default function Menu() {\n  const [ran, setRan] = useState('')\n  return (\n    <div className=\"flex w-120 max-w-full flex-col gap-3\">\n      <Command groups={groups} label=\"Commands\" placeholder=\"Type a command or search\" onSelect={(item) => setRan(item.label)} />\n      <p className=\"type-caption text-fg-muted\" aria-live=\"polite\">{ran ? `Ran: ${ran}.` : 'Team needs an admin.'}</p>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": [
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "Palette",
+      "label": "In a window with Cmd+K",
+      "center": true,
+      "half": false,
+      "path": "react/examples/command/Palette.tsx",
+      "content": "'use client'\nimport { useState } from 'react'\nimport { Bookmark, Building2, CreditCard, Search, Users } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { CommandDialog } from '@/react/components/ui/CommandDialog'\nimport type { CommandGroup } from '@/react/components/ui/Command'\n// The command menu in a window: the button or Cmd+K opens it at once, Escape closes it, a row runs and closes it.\nconst groups: CommandGroup[] = [\n  { heading: 'Go to', items: [\n    { id: 'search', label: 'Search creatives', icon: <Search size={16} strokeWidth={1.5} />, shortcut: '/' },\n    { id: 'brands', label: 'Track a brand', keywords: ['creator', 'follow'], icon: <Building2 size={16} strokeWidth={1.5} /> },\n    { id: 'boards', label: 'Boards', icon: <Bookmark size={16} strokeWidth={1.5} /> },\n  ] },\n  { heading: 'Settings', items: [\n    { id: 'billing', label: 'Billing', keywords: ['plan', 'invoice'], icon: <CreditCard size={16} strokeWidth={1.5} />, shortcut: '⌘B' },\n    { id: 'team', label: 'Team', icon: <Users size={16} strokeWidth={1.5} /> },\n  ] },\n]\n\nexport default function Palette() {\n  const [open, setOpen] = useState(false)\n  const [ran, setRan] = useState('')\n  return (\n    <div className=\"flex min-h-96 flex-col items-center justify-center gap-3\">\n      <Button variant=\"secondary\" onClick={() => setOpen(true)}><Search size={16} strokeWidth={1.5} aria-hidden=\"true\" />Search Spyglass<span className=\"type-caption text-fg-muted\">⌘K</span></Button>\n      <p className=\"type-caption text-fg-muted\" aria-live=\"polite\">{ran ? `Ran: ${ran}.` : 'Press Cmd+K anywhere on the page.'}</p>\n      <CommandDialog open={open} onOpenChange={setOpen} groups={groups} onSelect={(item) => setRan(item.label)} />\n    </div>\n  )\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Command.tsx",
+          "content": "'use client'\nimport { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'\nimport { Search } from 'lucide-react'\n\n// shadcn's command menu in the brand: a box to type in over a list of actions and places, on the #262626 overlay\n// surface in a neutral hairline with the brand corner. The field sits on top over a hairline, DM Sans with a search\n// glyph; groups have a capital label; rows are the menus' rows (32px, a 4px corner, a #262626 fill on the row the\n// arrows or the pointer are on), an icon first and a shortcut last. The field keeps focus: typing filters (label and\n// keywords), arrows move the highlight and wrap, Home and End jump, Enter runs the row, the pointer moves the\n// highlight too. Nothing animates: it is used many times a day. `onSelect` gets the row. CommandDialog puts it in a\n// window opened with Cmd+K.\nexport interface CommandItem {\n  id: string\n  label: string\n  /** More words that find it. */\n  keywords?: string[]\n  /** A key or chord shown at the end (\"⌘B\"). */\n  shortcut?: string\n  /** A 16px Lucide icon before the label. */\n  icon?: ReactNode\n  disabled?: boolean\n}\nexport interface CommandGroup {\n  /** The group's label, in capitals. */\n  heading?: string\n  items: CommandItem[]\n}\nexport interface CommandProps {\n  groups: CommandGroup[]\n  /** The list's name for assistive tech. */\n  label?: string\n  /** The field's placeholder. */\n  placeholder?: string\n  /** What the list says when nothing matches. */\n  empty?: string\n  /** Focus the field when it mounts. */\n  autoFocus?: boolean\n  onSelect?: (item: CommandItem) => void\n  className?: string\n}\n\nexport const COMMAND_ROW = 'flex h-control-sm shrink-0 cursor-pointer items-center gap-2 rounded-ds-sm px-2 type-ui text-fg transition-[background-color] duration-160 ease-standard data-active:bg-ds-neutral-4 aria-disabled:cursor-not-allowed aria-disabled:text-fg-faint max-md:h-auto max-md:min-h-control-touch'\n\nexport function matches(item: CommandItem, q: string) {\n  if (!q) return true\n  const t = q.toLowerCase()\n  return item.label.toLowerCase().includes(t) || !!item.keywords?.some((k) => k.toLowerCase().includes(t))\n}\n\nexport function Command({ groups, label = 'Commands', placeholder = 'Type a command or search', empty = 'No results.', autoFocus, onSelect, className }: CommandProps) {\n  const id = `command-${useId()}`\n  const input = useRef<HTMLInputElement | null>(null)\n  const [query, setQuery] = useState('')\n  const [activeId, setActiveId] = useState('')\n  const q = query.trim()\n  const shown = groups.map((g) => ({ ...g, items: g.items.filter((i) => matches(i, q)) })).filter((g) => g.items.length)\n  const rows = shown.flatMap((g) => g.items)\n  const enabled = rows.filter((r) => !r.disabled)\n  // The highlight is kept by id, so it stays on its row as the list changes; with none, the first enabled row.\n  const active = enabled.find((r) => r.id === activeId) ?? enabled[0]\n  const rowId = (item: CommandItem) => `${id}-${rows.indexOf(item)}`\n\n  useEffect(() => {\n    if (autoFocus) input.current?.focus({ preventScroll: true })\n  }, [autoFocus])\n  const scroll = useRef(false)\n  useEffect(() => {\n    if (!scroll.current || !active) return\n    scroll.current = false\n    document.getElementById(rowId(active))?.scrollIntoView({ block: 'nearest' })\n  })\n\n  function move(to: number) {\n    const n = enabled.length\n    if (!n) return\n    setActiveId(enabled[(to % n + n) % n]!.id)\n    scroll.current = true\n  }\n  function run(item: CommandItem | undefined) {\n    if (!item || item.disabled) return\n    onSelect?.(item)\n  }\n  function onKey(event: KeyboardEvent) {\n    const at = active ? enabled.indexOf(active) : -1\n    if (event.key === 'ArrowDown') { event.preventDefault(); move(at + 1) }\n    else if (event.key === 'ArrowUp') { event.preventDefault(); move(at - 1) }\n    else if (event.key === 'Home' && !query) { event.preventDefault(); move(0) }\n    else if (event.key === 'End' && !query) { event.preventDefault(); move(enabled.length - 1) }\n    else if (event.key === 'Enter') { event.preventDefault(); run(active) }\n  }\n\n  return (\n    <div data-ds=\"command\" className={className ? `flex w-full flex-col overflow-hidden rounded-container border border-edge bg-surface-raised text-fg ${className}` : 'flex w-full flex-col overflow-hidden rounded-container border border-edge bg-surface-raised text-fg'}>\n      <label className=\"flex h-control-lg shrink-0 items-center gap-2 border-b border-edge px-3\">\n        <Search size={16} strokeWidth={1.5} className=\"shrink-0 text-fg-muted\" aria-hidden=\"true\" />\n        <input\n          ref={input}\n          value={query}\n          onChange={(e) => { setQuery(e.target.value); setActiveId('') }}\n          className=\"h-full min-w-0 flex-1 bg-transparent type-ui text-fg outline-none placeholder:text-fg-muted max-md:text-input\"\n          role=\"combobox\"\n          aria-label={placeholder}\n          placeholder={placeholder}\n          aria-autocomplete=\"list\"\n          aria-expanded=\"true\"\n          aria-controls={`${id}-list`}\n          aria-activedescendant={active ? rowId(active) : undefined}\n          autoComplete=\"off\"\n          spellCheck={false}\n          onKeyDown={onKey}\n        />\n      </label>\n      <div id={`${id}-list`} role=\"listbox\" aria-label={label} className=\"max-h-96 overflow-y-auto overscroll-contain p-1 fade-y\">\n        {shown.map((g, gi) => (\n          <div key={g.heading ?? gi} role=\"group\" aria-label={g.heading} className={gi ? '-mx-1 mt-1 border-t border-edge px-1 pt-1' : ''}>\n            {g.heading && <p className=\"px-2 pt-2 pb-1 type-label text-fg-muted\" aria-hidden=\"true\">{g.heading}</p>}\n            {g.items.map((item) => (\n              <div\n                key={item.id}\n                id={rowId(item)}\n                role=\"option\"\n                className={COMMAND_ROW}\n                aria-selected={item === active}\n                aria-disabled={item.disabled || undefined}\n                data-active={item === active || undefined}\n                onPointerMove={() => { if (!item.disabled && item !== active) setActiveId(item.id) }}\n                onMouseDown={(e) => e.preventDefault()}\n                onClick={() => run(item)}\n              >\n                {item.icon && <span className=\"flex shrink-0 text-fg-muted\" aria-hidden=\"true\">{item.icon}</span>}\n                <span className=\"min-w-0 flex-1 truncate\">{item.label}</span>\n                {item.shortcut && <span className=\"shrink-0 type-caption text-fg-faint\">{item.shortcut}</span>}\n              </div>\n            ))}\n          </div>\n        ))}\n        {!rows.length && <p className=\"px-2 py-6 text-center type-ui text-fg-muted\">{empty}</p>}\n      </div>\n    </div>\n  )\n}\n\nexport default Command\n"
+        },
+        {
+          "path": "react/components/ui/CommandDialog.tsx",
+          "content": "'use client'\nimport { useEffect, useRef, type SyntheticEvent, type MouseEvent } from 'react'\nimport { Command, type CommandItem, type CommandProps } from '@/react/components/ui/Command'\nimport { useControllable } from '@/react/hooks/useControllable'\n\n// The command menu in a window, 15vh from the top over a Black scrim: Cmd+K (Ctrl+K) opens and closes it from anywhere\n// on the page (`shortcut`, null for none), and so can your own button. It opens and closes at once, with no motion,\n// because it opens many times a day. Focus starts in the field; Escape or a press on the scrim closes it and focus\n// returns to what opened it; running a row closes it. The field is empty each time it opens. `open` with\n// `onOpenChange` (or `defaultOpen` alone).\nexport interface CommandDialogProps extends Omit<CommandProps, 'autoFocus' | 'className'> {\n  open?: boolean\n  defaultOpen?: boolean\n  onOpenChange?: (open: boolean) => void\n  /** The letter that opens it with Cmd or Ctrl; null for no shortcut. */\n  shortcut?: string | null\n}\n\nexport function CommandDialog({ open: openProp, defaultOpen = false, onOpenChange, shortcut = 'k', onSelect, ...command }: CommandDialogProps) {\n  const [open, setOpen] = useControllable(openProp, defaultOpen, onOpenChange)\n  const dialog = useRef<HTMLDialogElement | null>(null)\n  const returnTo = useRef<HTMLElement | null>(null)\n  const toggle = useRef(() => setOpen(!open))\n  toggle.current = () => setOpen(!open)\n\n  useEffect(() => {\n    if (!shortcut) return\n    function onKey(event: globalThis.KeyboardEvent) {\n      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === shortcut) {\n        event.preventDefault()\n        toggle.current()\n      }\n    }\n    document.addEventListener('keydown', onKey)\n    return () => document.removeEventListener('keydown', onKey)\n  }, [shortcut])\n\n  const mounted = useRef(false)\n  useEffect(() => {\n    const d = dialog.current\n    const first = !mounted.current\n    mounted.current = true\n    if (!d) return\n    if (open) {\n      if (d.open) return\n      returnTo.current = document.activeElement instanceof HTMLElement ? document.activeElement : null\n      d.showModal()\n      d.querySelector<HTMLElement>('[role=\"combobox\"]')?.focus()\n    }\n    else if (!first) {\n      if (d.open) d.close()\n      returnTo.current?.focus({ preventScroll: true })\n      returnTo.current = null\n    }\n  }, [open])\n\n  function onCancel(event: SyntheticEvent) {\n    event.preventDefault()\n    setOpen(false)\n  }\n  // A press on the scrim lands on the dialog element itself.\n  function onDown(event: MouseEvent) {\n    if (event.target === dialog.current) setOpen(false)\n  }\n  function picked(item: CommandItem) {\n    onSelect?.(item)\n    setOpen(false)\n  }\n  return (\n    <>\n      <style href=\"ds-command-dialog\" precedence=\"ds\">{css}</style>\n      <dialog data-ds=\"command-dialog\" ref={dialog} className=\"ds-cmd\" aria-label={command.label ?? 'Commands'} onCancel={onCancel} onMouseDown={onDown}>\n        {open && <Command {...command} onSelect={picked} />}\n      </dialog>\n    </>\n  )\n}\n\nexport default CommandDialog\n\nconst css = `\n/* No transition or animation: it opens and closes at once. */\n.ds-cmd { position: fixed; inset: 15vh auto auto 50%; width: min(560px, calc(100vw - 32px)); max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: transparent; color: var(--ds-color-fg); font-family: var(--ds-font-text); overscroll-behavior: contain; transform: translateX(-50%); }\n.ds-cmd::backdrop { background: var(--ds-color-scrim); }\n`\n"
+        },
+        {
+          "path": "react/hooks/useControllable.ts",
+          "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Command",
+            "file": "react/components/ui/Command.tsx",
+            "props": [
+              {
+                "name": "groups",
+                "type": "CommandGroup[]",
+                "required": true
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "default": "'Commands'",
+                "description": "The list's name for assistive tech."
+              },
+              {
+                "name": "placeholder",
+                "type": "string",
+                "required": false,
+                "default": "'Type a command or search'",
+                "description": "The field's placeholder."
+              },
+              {
+                "name": "empty",
+                "type": "string",
+                "required": false,
+                "default": "'No results.'",
+                "description": "What the list says when nothing matches."
+              },
+              {
+                "name": "autoFocus",
+                "type": "boolean",
+                "required": false,
+                "description": "Focus the field when it mounts."
+              },
+              {
+                "name": "onSelect",
+                "type": "(item: CommandItem) => void",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          },
+          {
+            "name": "CommandDialog",
+            "file": "react/components/ui/CommandDialog.tsx",
+            "props": [
+              {
+                "name": "open",
+                "type": "boolean",
+                "required": false
+              },
+              {
+                "name": "defaultOpen",
+                "type": "boolean",
+                "required": false,
+                "default": "false"
+              },
+              {
+                "name": "onOpenChange",
+                "type": "(open: boolean) => void",
+                "required": false
+              },
+              {
+                "name": "shortcut",
+                "type": "string | null",
+                "required": false,
+                "default": "'k'",
+                "description": "The letter that opens it with Cmd or Ctrl; null for no shortcut."
+              }
+            ],
+            "extends": [
+              "Omit<CommandProps, 'autoFocus' | 'className'>"
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Menu",
+          "label": "On the page",
+          "center": true,
+          "half": false,
+          "path": "react/examples/command/Menu.tsx",
+          "content": "'use client'\nimport { useState } from 'react'\nimport { Bookmark, Building2, CreditCard, Search, Users } from 'lucide-react'\nimport { Command, type CommandGroup } from '@/react/components/ui/Command'\n// The command menu on the page: type to filter, arrows to move, Enter to run. The line under says what ran.\nconst groups: CommandGroup[] = [\n  { heading: 'Go to', items: [\n    { id: 'search', label: 'Search creatives', icon: <Search size={16} strokeWidth={1.5} />, shortcut: '/' },\n    { id: 'brands', label: 'Track a brand', keywords: ['creator', 'follow'], icon: <Building2 size={16} strokeWidth={1.5} /> },\n    { id: 'boards', label: 'Boards', icon: <Bookmark size={16} strokeWidth={1.5} /> },\n  ] },\n  { heading: 'Boards', items: [\n    { id: 'summer', label: 'Acme summer ads' },\n    { id: 'serum', label: 'Acme serum launch' },\n  ] },\n  { heading: 'Settings', items: [\n    { id: 'billing', label: 'Billing', keywords: ['plan', 'invoice'], icon: <CreditCard size={16} strokeWidth={1.5} />, shortcut: '⌘B' },\n    { id: 'team', label: 'Team', icon: <Users size={16} strokeWidth={1.5} />, disabled: true },\n  ] },\n]\n\nexport default function Menu() {\n  const [ran, setRan] = useState('')\n  return (\n    <div className=\"flex w-120 max-w-full flex-col gap-3\">\n      <Command groups={groups} label=\"Commands\" placeholder=\"Type a command or search\" onSelect={(item) => setRan(item.label)} />\n      <p className=\"type-caption text-fg-muted\" aria-live=\"polite\">{ran ? `Ran: ${ran}.` : 'Team needs an admin.'}</p>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        },
+        {
+          "name": "Palette",
+          "label": "In a window with Cmd+K",
+          "center": true,
+          "half": false,
+          "path": "react/examples/command/Palette.tsx",
+          "content": "'use client'\nimport { useState } from 'react'\nimport { Bookmark, Building2, CreditCard, Search, Users } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { CommandDialog } from '@/react/components/ui/CommandDialog'\nimport type { CommandGroup } from '@/react/components/ui/Command'\n// The command menu in a window: the button or Cmd+K opens it at once, Escape closes it, a row runs and closes it.\nconst groups: CommandGroup[] = [\n  { heading: 'Go to', items: [\n    { id: 'search', label: 'Search creatives', icon: <Search size={16} strokeWidth={1.5} />, shortcut: '/' },\n    { id: 'brands', label: 'Track a brand', keywords: ['creator', 'follow'], icon: <Building2 size={16} strokeWidth={1.5} /> },\n    { id: 'boards', label: 'Boards', icon: <Bookmark size={16} strokeWidth={1.5} /> },\n  ] },\n  { heading: 'Settings', items: [\n    { id: 'billing', label: 'Billing', keywords: ['plan', 'invoice'], icon: <CreditCard size={16} strokeWidth={1.5} />, shortcut: '⌘B' },\n    { id: 'team', label: 'Team', icon: <Users size={16} strokeWidth={1.5} /> },\n  ] },\n]\n\nexport default function Palette() {\n  const [open, setOpen] = useState(false)\n  const [ran, setRan] = useState('')\n  return (\n    <div className=\"flex min-h-96 flex-col items-center justify-center gap-3\">\n      <Button variant=\"secondary\" onClick={() => setOpen(true)}><Search size={16} strokeWidth={1.5} aria-hidden=\"true\" />Search Spyglass<span className=\"type-caption text-fg-muted\">⌘K</span></Button>\n      <p className=\"type-caption text-fg-muted\" aria-live=\"polite\">{ran ? `Ran: ${ran}.` : 'Press Cmd+K anywhere on the page.'}</p>\n      <CommandDialog open={open} onOpenChange={setOpen} groups={groups} onSelect={(item) => setRan(item.label)} />\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/command.ts",
+          "content": "import { html, nothing, type PropertyValues } from 'lit'\nimport { repeat } from 'lit/directives/repeat.js'\nimport { live } from 'lit/directives/live.js'\nimport { Search } from 'lucide'\nimport { DsElement, define, uid } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport styles from 'virtual:tw'\n\n// Command.tsx as <spyglass-command>: a box to type in over a list of actions and places, on the #262626 overlay\n// surface in a neutral hairline with the brand corner; the field on top over a hairline, groups with a capital label,\n// the menus' rows with a #262626 fill on the row the arrows or the pointer are on. The field keeps focus: typing\n// filters (label and keywords), arrows move the highlight and wrap, Home and End jump, Enter runs the row. Nothing\n// animates. `groups` is a property or a JSON attribute ({ heading, items: [{ id, label, keywords, shortcut,\n// disabled }] }); a row's icon is page content with slot=\"icon-<id>\" (React's `icon`). `select` fires with the row.\nexport interface CommandItem { id: string, label: string, keywords?: string[], shortcut?: string, disabled?: boolean }\nexport interface CommandGroup { heading?: string, items: CommandItem[] }\n\nconst ROW = 'flex h-control-sm shrink-0 cursor-pointer items-center gap-2 rounded-ds-sm px-2 type-ui text-fg transition-[background-color] duration-160 ease-standard data-active:bg-ds-neutral-4 aria-disabled:cursor-not-allowed aria-disabled:text-fg-faint max-md:h-auto max-md:min-h-control-touch'\n\nfunction matches(item: CommandItem, q: string) {\n\tif (!q) return true\n\tconst t = q.toLowerCase()\n\treturn item.label.toLowerCase().includes(t) || !!item.keywords?.some((k) => k.toLowerCase().includes(t))\n}\n\n/**\n * @summary A box to type in over a list of actions and places.\n * @slot icon-<id> - The icon of the row with that id (a 16px Lucide icon).\n * @fires select - A row was run (detail: the row).\n */\nexport class Command extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { groups: { type: Array }, label: {}, placeholder: {}, empty: {}, autoFocus: { type: Boolean, attribute: 'auto-focus' }, query: { state: true }, activeId: { state: true } }\n\n\tgroups: CommandGroup[] = []\n\t/** The list's name for assistive tech. */\n\tlabel = 'Commands'\n\t/** The field's placeholder. */\n\tplaceholder = 'Type a command or search'\n\t/** What the list says when nothing matches. */\n\tempty = 'No results.'\n\t/** Focus the field when it first renders (the auto-focus attribute). */\n\tautoFocus = false\n\tprivate query = ''\n\tprivate activeId = ''\n\tprivate listId = uid('command')\n\tprivate scrollPending = false\n\n\t/** Focuses the field. */\n\tfocus(options?: FocusOptions) {\n\t\tthis.renderRoot.querySelector<HTMLInputElement>('input')?.focus(options)\n\t}\n\t/** Empties the field. */\n\treset() {\n\t\tthis.query = ''\n\t\tthis.activeId = ''\n\t}\n\n\tprivate get shown() {\n\t\tconst q = this.query.trim()\n\t\treturn (this.groups ?? []).map((g) => ({ ...g, items: g.items.filter((i) => matches(i, q)) })).filter((g) => g.items.length)\n\t}\n\n\tprotected firstUpdated() {\n\t\tif (this.autoFocus) this.focus({ preventScroll: true })\n\t}\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\tif (!this.scrollPending) return\n\t\tthis.scrollPending = false\n\t\tthis.renderRoot.querySelector('[data-active]')?.scrollIntoView({ block: 'nearest' })\n\t}\n\n\trender() {\n\t\tconst shown = this.shown\n\t\tconst rows = shown.flatMap((g) => g.items)\n\t\tconst enabled = rows.filter((r) => !r.disabled)\n\t\tconst active = enabled.find((r) => r.id === this.activeId) ?? enabled[0]\n\t\tconst rowId = (item: CommandItem) => `${this.listId}-${rows.indexOf(item)}`\n\t\tconst move = (to: number) => {\n\t\t\tconst n = enabled.length\n\t\t\tif (!n) return\n\t\t\tthis.activeId = enabled[(to % n + n) % n]!.id\n\t\t\tthis.scrollPending = true\n\t\t}\n\t\tconst run = (item: CommandItem | undefined) => {\n\t\t\tif (!item || item.disabled) return\n\t\t\tthis.emit('select', item)\n\t\t}\n\t\tconst onKey = (event: KeyboardEvent) => {\n\t\t\tconst at = active ? enabled.indexOf(active) : -1\n\t\t\tif (event.key === 'ArrowDown') { event.preventDefault(); move(at + 1) }\n\t\t\telse if (event.key === 'ArrowUp') { event.preventDefault(); move(at - 1) }\n\t\t\telse if (event.key === 'Home' && !this.query) { event.preventDefault(); move(0) }\n\t\t\telse if (event.key === 'End' && !this.query) { event.preventDefault(); move(enabled.length - 1) }\n\t\t\telse if (event.key === 'Enter') { event.preventDefault(); run(active) }\n\t\t}\n\t\treturn html`<div data-ds=\"command\" class=\"flex w-full flex-col overflow-hidden rounded-container border border-edge bg-surface-raised text-fg\">\n\t\t\t<label class=\"flex h-control-lg shrink-0 items-center gap-2 border-b border-edge px-3\">\n\t\t\t\t${icon(Search, 'search', { size: 16, strokeWidth: 1.5, class: 'shrink-0 text-fg-muted', attrs: { 'aria-hidden': 'true' } })}\n\t\t\t\t<input .value=${live(this.query)} class=\"h-full min-w-0 flex-1 bg-transparent type-ui text-fg outline-none placeholder:text-fg-muted max-md:text-input\" role=\"combobox\" aria-label=${this.placeholder} placeholder=${this.placeholder} aria-autocomplete=\"list\" aria-expanded=\"true\" aria-controls=${`${this.listId}-list`} aria-activedescendant=${active ? rowId(active) : nothing} autocomplete=\"off\" spellcheck=\"false\" @input=${(e: Event) => { this.query = (e.target as HTMLInputElement).value; this.activeId = '' }} @keydown=${onKey}>\n\t\t\t</label>\n\t\t\t<div id=${`${this.listId}-list`} role=\"listbox\" aria-label=${this.label} class=\"max-h-96 overflow-y-auto overscroll-contain p-1 fade-y\">\n\t\t\t\t${shown.map((g, gi) => html`<div role=\"group\" aria-label=${g.heading ?? nothing} class=${gi ? '-mx-1 mt-1 border-t border-edge px-1 pt-1' : ''}>\n\t\t\t\t\t${g.heading ? html`<p class=\"px-2 pt-2 pb-1 type-label text-fg-muted\" aria-hidden=\"true\">${g.heading}</p>` : nothing}\n\t\t\t\t\t${repeat(g.items, (item) => item.id, (item) => html`<div id=${rowId(item)} role=\"option\" class=${ROW} aria-selected=${String(item === active)} aria-disabled=${item.disabled ? 'true' : nothing} ?data-active=${item === active} @pointermove=${() => { if (!item.disabled && item !== active) this.activeId = item.id }} @mousedown=${(e: Event) => e.preventDefault()} @click=${() => run(item)}>${this.hasSlot(`icon-${item.id}`) ? html`<span class=\"flex shrink-0 text-fg-muted\" aria-hidden=\"true\"><slot name=${`icon-${item.id}`}></slot></span>` : nothing}<span class=\"min-w-0 flex-1 truncate\">${item.label}</span>${item.shortcut ? html`<span class=\"shrink-0 type-caption text-fg-faint\">${item.shortcut}</span>` : nothing}</div>`)}\n\t\t\t\t</div>`)}\n\t\t\t\t${!rows.length ? html`<p class=\"px-2 py-6 text-center type-ui text-fg-muted\">${this.empty}</p>` : nothing}\n\t\t\t</div>\n\t\t</div>`\n\t}\n}\n\ndefine('command', Command)\n"
+        },
+        {
+          "path": "elements/components/ui/command-dialog.ts",
+          "content": "import { html, nothing, type PropertyValues } from 'lit'\nimport { DsElement, define, tag, tagName } from '@/elements/lib/element'\nimport { html as staticHtml } from 'lit/static-html.js'\nimport '@/elements/components/ui/command'\nimport type { CommandGroup } from '@/elements/components/ui/command'\nimport styles from 'virtual:tw'\n\n// CommandDialog.tsx as <spyglass-command-dialog>: the command menu in a window, 15vh from the top over a Black scrim.\n// Cmd+K (Ctrl+K) opens and closes it from anywhere on the page (`shortcut`, \"\" for none), and so can the `open`\n// attribute. It opens and closes at once, with no motion. Focus starts in the field; Escape or a press on the scrim\n// closes it and focus returns to what opened it; running a row closes it (the row's `select` event reaches the page).\n// The field is empty each time it opens. Row icons are page content with slot=\"icon-<id>\", as on <spyglass-command>.\n\n/**\n * @summary The command menu in a window opened with Cmd+K.\n * @slot icon-<id> - The icon of the row with that id.\n * @fires select - A row was run (detail: the row), from the inner command menu.\n * @fires open-change - It opened or closed (detail.value).\n */\nexport class CommandDialog extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { groups: { type: Array }, label: {}, placeholder: {}, empty: {}, shortcut: {}, open: { type: Boolean, reflect: true } }\n\n\tgroups: CommandGroup[] = []\n\tlabel = 'Commands'\n\tplaceholder = 'Type a command or search'\n\tempty = 'No results.'\n\t/** The letter that opens it with Cmd or Ctrl; \"\" for no shortcut. */\n\tshortcut = 'k'\n\topen = false\n\tprivate returnTo: HTMLElement | null = null\n\n\tprivate get dialog() {\n\t\treturn this.renderRoot.querySelector('dialog')\n\t}\n\tprivate setOpen(open: boolean) {\n\t\tif (this.open === open) return\n\t\tthis.open = open\n\t\tthis.emit('open-change', { value: open })\n\t}\n\tprivate onKey = (event: KeyboardEvent) => {\n\t\tif (this.shortcut && (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === this.shortcut) {\n\t\t\tevent.preventDefault()\n\t\t\tthis.setOpen(!this.open)\n\t\t}\n\t}\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\tdocument.addEventListener('keydown', this.onKey)\n\t}\n\tdisconnectedCallback() {\n\t\tsuper.disconnectedCallback()\n\t\tdocument.removeEventListener('keydown', this.onKey)\n\t}\n\n\tprotected async updated(changed: PropertyValues<this>) {\n\t\tsuper.updated(changed)\n\t\tif (!changed.has('open')) return\n\t\tconst d = this.dialog\n\t\tif (!d) return\n\t\tif (this.open) {\n\t\t\tif (d.open) return\n\t\t\tlet a = document.activeElement as Element | null\n\t\t\twhile (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement\n\t\t\tthis.returnTo = a instanceof HTMLElement ? a : null\n\t\t\td.showModal()\n\t\t\tconst command = d.querySelector(tagName('command')) as (HTMLElement & { updateComplete: Promise<unknown> }) | null\n\t\t\tawait command?.updateComplete\n\t\t\tcommand?.focus()\n\t\t} else if (changed.get('open') !== undefined) {\n\t\t\tif (d.open) d.close()\n\t\t\tthis.returnTo?.focus({ preventScroll: true })\n\t\t\tthis.returnTo = null\n\t\t}\n\t}\n\n\tprivate onCancel = (event: Event) => {\n\t\tevent.preventDefault()\n\t\tthis.setOpen(false)\n\t}\n\t// A press on the scrim lands on the dialog element itself.\n\tprivate onDown = (event: MouseEvent) => {\n\t\tif (event.target === this.dialog) this.setOpen(false)\n\t}\n\n\trender() {\n\t\tconst command = tag('command')\n\t\t// The page's row icons pass through to the inner command menu.\n\t\tconst icons = [...this.children].map((c) => c.getAttribute('slot')).filter((s): s is string => !!s?.startsWith('icon-'))\n\t\treturn html`<dialog data-ds=\"command-dialog\" class=\"ds-cmd\" aria-label=${this.label} @cancel=${this.onCancel} @mousedown=${this.onDown} @select=${() => this.setOpen(false)}>\n\t\t\t${this.open ? staticHtml`<${command} .groups=${this.groups} label=${this.label} placeholder=${this.placeholder} empty=${this.empty}>${icons.map((s) => html`<slot name=${s} slot=${s}></slot>`)}</${command}>` : nothing}\n\t\t</dialog>`\n\t}\n}\n\ndefine('command-dialog', CommandDialog)\n"
+        },
+        {
+          "path": "elements/components/ui/command-dialog.css",
+          "content": "/* CommandDialog.tsx's styles. No transition or animation: it opens and closes at once. */\n.ds-cmd { position: fixed; inset: 15vh auto auto 50%; width: min(560px, calc(100vw - 32px)); max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: transparent; color: var(--ds-color-fg); font-family: var(--ds-font-text); overscroll-behavior: contain; transform: translateX(-50%); }\n.ds-cmd::backdrop { background: var(--ds-color-scrim); }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/command.js",
+        "elements/command-dialog.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-command",
+      "tags": [
+        "spyglass-command",
+        "spyglass-command-dialog"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-command",
+            "name": "Command",
+            "module": "elements/command.js",
+            "description": "A box to type in over a list of actions and places.",
+            "attributes": [
+              {
+                "name": "groups",
+                "field": "groups",
+                "type": "CommandGroup[]",
+                "default": "[]"
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "'Commands'",
+                "description": "The list's name for assistive tech."
+              },
+              {
+                "name": "placeholder",
+                "field": "placeholder",
+                "type": "string",
+                "default": "'Type a command or search'",
+                "description": "The field's placeholder."
+              },
+              {
+                "name": "empty",
+                "field": "empty",
+                "type": "string",
+                "default": "'No results.'",
+                "description": "What the list says when nothing matches."
+              },
+              {
+                "name": "auto-focus",
+                "field": "autoFocus",
+                "type": "boolean",
+                "default": "false",
+                "description": "Focus the field when it first renders (the auto-focus attribute)."
+              },
+              {
+                "name": "query",
+                "field": "query",
+                "type": "string",
+                "default": "''"
+              },
+              {
+                "name": "activeId",
+                "field": "activeId",
+                "type": "string",
+                "default": "''"
+              }
+            ],
+            "properties": [
+              {
+                "name": "groups",
+                "type": "CommandGroup[]",
+                "default": "[]",
+                "attribute": "groups"
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "default": "'Commands'",
+                "description": "The list's name for assistive tech.",
+                "attribute": "label"
+              },
+              {
+                "name": "placeholder",
+                "type": "string",
+                "default": "'Type a command or search'",
+                "description": "The field's placeholder.",
+                "attribute": "placeholder"
+              },
+              {
+                "name": "empty",
+                "type": "string",
+                "default": "'No results.'",
+                "description": "What the list says when nothing matches.",
+                "attribute": "empty"
+              },
+              {
+                "name": "autoFocus",
+                "type": "boolean",
+                "default": "false",
+                "description": "Focus the field when it first renders (the auto-focus attribute).",
+                "attribute": "auto-focus"
+              }
+            ],
+            "events": [
+              {
+                "name": "select",
+                "description": "A row was run (detail: the row)."
+              }
+            ],
+            "slots": [
+              {
+                "name": "icon-<id>",
+                "description": "The icon of the row with that id (a 16px Lucide icon)."
+              }
+            ],
+            "methods": [
+              {
+                "name": "focus",
+                "description": "Focuses the field."
+              },
+              {
+                "name": "reset",
+                "description": "Empties the field."
+              }
+            ]
+          },
+          {
+            "tag": "spyglass-command-dialog",
+            "name": "CommandDialog",
+            "module": "elements/command-dialog.js",
+            "description": "The command menu in a window opened with Cmd+K.",
+            "attributes": [
+              {
+                "name": "groups",
+                "field": "groups",
+                "type": "CommandGroup[]",
+                "default": "[]"
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "'Commands'"
+              },
+              {
+                "name": "placeholder",
+                "field": "placeholder",
+                "type": "string",
+                "default": "'Type a command or search'"
+              },
+              {
+                "name": "empty",
+                "field": "empty",
+                "type": "string",
+                "default": "'No results.'"
+              },
+              {
+                "name": "shortcut",
+                "field": "shortcut",
+                "type": "string",
+                "default": "'k'",
+                "description": "The letter that opens it with Cmd or Ctrl; \"\" for no shortcut."
+              },
+              {
+                "name": "open",
+                "field": "open",
+                "type": "boolean",
+                "default": "false"
+              }
+            ],
+            "properties": [
+              {
+                "name": "groups",
+                "type": "CommandGroup[]",
+                "default": "[]",
+                "attribute": "groups"
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "default": "'Commands'",
+                "attribute": "label"
+              },
+              {
+                "name": "placeholder",
+                "type": "string",
+                "default": "'Type a command or search'",
+                "attribute": "placeholder"
+              },
+              {
+                "name": "empty",
+                "type": "string",
+                "default": "'No results.'",
+                "attribute": "empty"
+              },
+              {
+                "name": "shortcut",
+                "type": "string",
+                "default": "'k'",
+                "description": "The letter that opens it with Cmd or Ctrl; \"\" for no shortcut.",
+                "attribute": "shortcut"
+              },
+              {
+                "name": "open",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "open"
+              }
+            ],
+            "events": [
+              {
+                "name": "select",
+                "description": "A row was run (detail: the row), from the inner command menu."
+              },
+              {
+                "name": "open-change",
+                "description": "It opened or closed (detail.value)."
+              }
+            ],
+            "slots": [
+              {
+                "name": "icon-<id>",
+                "description": "The icon of the row with that id."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Menu",
+          "label": "On the page",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/command/Menu.html",
+          "content": "<!-- The command menu on the page: type to filter, arrows to move, Enter to run. The line under says what ran. -->\n<div class=\"flex w-120 max-w-full flex-col gap-3\">\n  <spyglass-command id=\"command-menu\" label=\"Commands\" placeholder=\"Type a command or search\" groups='[{\"heading\":\"Go to\",\"items\":[{\"id\":\"search\",\"label\":\"Search creatives\",\"shortcut\":\"/\"},{\"id\":\"brands\",\"label\":\"Track a brand\",\"keywords\":[\"creator\",\"follow\"]},{\"id\":\"boards\",\"label\":\"Boards\"}]},{\"heading\":\"Boards\",\"items\":[{\"id\":\"summer\",\"label\":\"Acme summer ads\"},{\"id\":\"serum\",\"label\":\"Acme serum launch\"}]},{\"heading\":\"Settings\",\"items\":[{\"id\":\"billing\",\"label\":\"Billing\",\"keywords\":[\"plan\",\"invoice\"],\"shortcut\":\"⌘B\"},{\"id\":\"team\",\"label\":\"Team\",\"disabled\":true}]}]'>\n    <span slot=\"icon-search\" class=\"contents\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-search\"><circle cx=\"11\" cy=\"11\" r=\"8\"></circle><path d=\"m21 21-4.3-4.3\"></path></svg></span>\n    <span slot=\"icon-brands\" class=\"contents\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-building-2\"><path d=\"M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z\"></path><path d=\"M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2\"></path><path d=\"M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2\"></path><path d=\"M10 6h4\"></path><path d=\"M10 10h4\"></path><path d=\"M10 14h4\"></path><path d=\"M10 18h4\"></path></svg></span>\n    <span slot=\"icon-boards\" class=\"contents\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-bookmark\"><path d=\"m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z\"></path></svg></span>\n    <span slot=\"icon-billing\" class=\"contents\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-credit-card\"><rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"2\"></rect><line x1=\"2\" x2=\"22\" y1=\"10\" y2=\"10\"></line></svg></span>\n    <span slot=\"icon-team\" class=\"contents\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-users\"><path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"></path><circle cx=\"9\" cy=\"7\" r=\"4\"></circle><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"></path><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"></path></svg></span>\n  </spyglass-command>\n  <p id=\"command-menu-ran\" class=\"type-caption text-fg-muted\" aria-live=\"polite\">Team needs an admin.</p>\n</div>\n<script type=\"module\">\n  document.getElementById('command-menu').addEventListener('select', (e) => {\n    document.getElementById('command-menu-ran').textContent = `Ran: ${e.detail.label}.`\n  })\n</script>\n"
+        },
+        {
+          "name": "Palette",
+          "label": "In a window with Cmd+K",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/command/Palette.html",
+          "content": "<!-- The command menu in a window: the button or Cmd+K opens it at once, Escape closes it, a row runs and closes it. -->\n<div class=\"flex min-h-96 flex-col items-center justify-center gap-3\">\n  <spyglass-button id=\"palette-open\" variant=\"secondary\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-search\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"></circle><path d=\"m21 21-4.3-4.3\"></path></svg>Search Spyglass<span class=\"type-caption text-fg-muted\">⌘K</span></spyglass-button>\n  <p id=\"palette-ran\" class=\"type-caption text-fg-muted\" aria-live=\"polite\">Press Cmd+K anywhere on the page.</p>\n  <spyglass-command-dialog id=\"palette\" groups='[{\"heading\":\"Go to\",\"items\":[{\"id\":\"search\",\"label\":\"Search creatives\",\"shortcut\":\"/\"},{\"id\":\"brands\",\"label\":\"Track a brand\",\"keywords\":[\"creator\",\"follow\"]},{\"id\":\"boards\",\"label\":\"Boards\"}]},{\"heading\":\"Settings\",\"items\":[{\"id\":\"billing\",\"label\":\"Billing\",\"keywords\":[\"plan\",\"invoice\"],\"shortcut\":\"⌘B\"},{\"id\":\"team\",\"label\":\"Team\"}]}]'>\n    <span slot=\"icon-search\" class=\"contents\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-search\"><circle cx=\"11\" cy=\"11\" r=\"8\"></circle><path d=\"m21 21-4.3-4.3\"></path></svg></span>\n    <span slot=\"icon-brands\" class=\"contents\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-building-2\"><path d=\"M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z\"></path><path d=\"M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2\"></path><path d=\"M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2\"></path><path d=\"M10 6h4\"></path><path d=\"M10 10h4\"></path><path d=\"M10 14h4\"></path><path d=\"M10 18h4\"></path></svg></span>\n    <span slot=\"icon-boards\" class=\"contents\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-bookmark\"><path d=\"m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z\"></path></svg></span>\n    <span slot=\"icon-billing\" class=\"contents\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-credit-card\"><rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"2\"></rect><line x1=\"2\" x2=\"22\" y1=\"10\" y2=\"10\"></line></svg></span>\n    <span slot=\"icon-team\" class=\"contents\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-users\"><path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"></path><circle cx=\"9\" cy=\"7\" r=\"4\"></circle><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"></path><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"></path></svg></span>\n  </spyglass-command-dialog>\n</div>\n<script type=\"module\">\n  const palette = document.getElementById('palette')\n  document.getElementById('palette-open').addEventListener('click', () => { palette.open = true })\n  palette.addEventListener('select', (e) => {\n    document.getElementById('palette-ran').textContent = `Ran: ${e.detail.label}.`\n  })\n</script>\n"
+        }
+      ]
+    }
+  }
+}

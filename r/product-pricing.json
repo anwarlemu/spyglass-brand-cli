@@ -1,0 +1,613 @@
+{
+  "name": "product-pricing",
+  "title": "Product pricing",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "The site's product pricing section. receipt (the site's): the head, the free note and two buttons beside a receipt of three records at the rate, the free row and the total in credits with what is left of the free month; open: the rate set large beside what is free; plans: what each plan buys at the rate; rate: the rate alone in a ruled card.",
+  "use_for": "The pricing section of a product page, with the product's own rate and records.",
+  "never": [
+    "A total that does not add up: the item counts it from the rate and the rows",
+    "Prices other than the plans you sell",
+    "Two White buttons"
+  ],
+  "source": "Site pages/Products/ProductPricing, ProductPricingReceipt, ProductPricingOpen, ProductPricingPlans (and their CSS modules, ProductPricing.content.ts): the receipt on --raised with --radius-m, 16px in (32 from 768), rows ruled by --line with 48px pictures (64 from 768) 4:5, the total under --line-strong in h5 (h4 from 768); copy 5fr to 7fr from 1024 with 64px between (96 at 1280); the rate in h1-alt, display-s at 768 and display-l at 1024",
+  "body": "The receipt counts its total from `value` (the leading number, one credit by default) times the rows, and what is left\nfrom `freeMonthly`. A row without `picture` shows a neutral block; the free row without one shows the empty frame with a\nplus. `plans` reads the leading number of each plan's `credits` to say how many records it buys, and shows `after`\nwhen there is none.\n\nEach row's `picture` takes a src or an image slot; the neutral block and the free row's empty frame carry\n`data-ds-placeholder`.",
+  "requires": [
+    "button",
+    "creative-card"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/ProductPricing.tsx",
+      "content": "import { Button } from '@/react/components/ui/Button'\nimport { cn } from '@/react/lib/cn'\nimport { imageFit, toSlot, type ImageSlot } from '@/lib/image'\n\n// The site's product pricing section (pages/Products/ProductPricing and its variants). The site shows `receipt`: the\n// section head, a lead, the free note in 14/20 #A3A3A3 and two buttons beside a receipt on #1A1A1A with the 8px corner\n// (16px in, 32 from 768): the product and its rate over a \"Credits\" column, three records (a 4:5 picture, 48px, 64 from\n// 768; the name and a muted line; what each costs), the free row (an empty frame with a plus, or a picture) costing\n// \"Free\", then under a #666666 rule the tally and the total in Funnel Display (24/28, 32/36 from 768) and the free\n// credits left. `open` sets the rate large beside what is free; `plans` sets what each plan buys at the rate; `rate`\n// is the rate alone in a ruled card beside the free note. Copy 5 parts to 7 from 1024; centered on phones. Nothing moves.\nexport type ProductPricingVariant = 'receipt' | 'open' | 'plans' | 'rate'\n\nexport interface ReceiptRow {\n  name: string\n  meta: string\n  /** A 4:5 picture (a src or { src, alt, fit, position }); a neutral block when left out. */\n  picture?: string | ImageSlot\n}\n\nexport interface PricingPlanLine {\n  name: string\n  /** \"$10\", \"Custom\" or \"From $20\". */\n  price: string\n  unit?: string\n  /** \"5,000 credits a month\": the leading number sets how many records it buys. */\n  credits?: string\n  /** Shown when `credits` has no number. */\n  after?: string\n}\n\nexport interface ProductPricingAction { label: string; href: string }\n\nexport interface ProductPricingProps {\n  variant?: ProductPricingVariant\n  /** The rate: \"1 credit\". */\n  value: string\n  /** \"per creator found\". */\n  unit: string\n  headline?: string\n  lead?: string\n  /** The free line under the lead. */\n  note?: string\n  primary?: ProductPricingAction\n  secondary?: ProductPricingAction\n  /** receipt: the product's name at the top. */\n  product?: string\n  /** receipt: three records. */\n  rows?: ReceiptRow[]\n  /** receipt: the free row. */\n  free?: ReceiptRow\n  /** receipt: \"3 creators found\". */\n  tally?: string\n  /** Free credits a month. */\n  freeMonthly?: number\n  /** open: what is free, label and value. */\n  freeRows?: { label: string; value: string }[]\n  /** open: \"Find 20 creators, use 20 credits.\" */\n  example?: string\n  /** plans: the plans. */\n  plans?: PricingPlanLine[]\n  /** plans: what the records are called: \"creators\". */\n  noun?: string\n  /** rate: the second line beside the rate. */\n  missing?: string\n  /** Prefix for the heading id. */\n  id?: string\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\nconst fmt = (n: number) => n.toLocaleString('en-US')\nconst credits = (n: number) => `${fmt(n)} ${n === 1 ? 'credit' : 'credits'}`\nconst each = (value: string) => { const n = Number.parseInt(value, 10); return Number.isFinite(n) && n > 0 ? n : 1 }\nconst leading = (line?: string) => { const m = line?.match(/^[\\d,]+/); return m ? Number(m[0].replace(/,/g, '')) : null }\n\nfunction Actions({ primary, secondary, className }: { primary?: ProductPricingAction; secondary?: ProductPricingAction; className?: string }) {\n  if (!primary && !secondary) return null\n  return (\n    <div className={cn('flex flex-wrap gap-3', className)}>\n      {primary && <Button href={primary.href}>{primary.label}</Button>}\n      {secondary && <Button href={secondary.href} variant=\"secondary\">{secondary.label}</Button>}\n    </div>\n  )\n}\n\nfunction Picture({ image }: { image?: string | ImageSlot }) {\n  const p = toSlot(image)\n  return p.src\n    ? <img src={p.src} alt={p.alt ?? ''} width={64} height={80} className=\"block aspect-4/5 h-auto w-12 rounded-ds-sm object-cover md:w-16\" style={imageFit(p)} />\n    : <span aria-hidden=\"true\" data-ds-placeholder=\"\" className=\"block aspect-4/5 w-12 rounded-ds-sm bg-surface-inset md:w-16\" />\n}\n\nexport function ProductPricing({\n  variant = 'receipt',\n  value,\n  unit,\n  headline,\n  lead,\n  note = '500 free credits every month. No card required.',\n  primary = { label: 'Get a free API key', href: '#' },\n  secondary = { label: 'See pricing', href: '/pricing' },\n  product = '',\n  rows = [],\n  free = { name: 'Add a missing brand', meta: 'Indexed automatically' },\n  tally = '',\n  freeMonthly = 500,\n  freeRows = [],\n  example,\n  plans = [],\n  noun = 'records',\n  missing = 'Missing a brand or creator? Add it for free. Spyglass indexes it automatically.',\n  id = 'product',\n  className,\n}: ProductPricingProps) {\n  const headingId = `${id}-pricing-heading`\n  const per = each(value)\n\n  if (variant === 'open') {\n    return (\n      <section data-ds=\"product-pricing\" aria-labelledby={headingId} className={cn('border-t border-edge py-(--ds-layout-section) text-fg', className)}>\n        <style href=\"ds-product-pricing\" precedence=\"ds\">{css}</style>\n        <div className={cn(WRAP, 'ds-pp-open grid grid-cols-[minmax(0,1fr)] gap-y-12 lg:gap-x-16 xl:gap-x-24')}>\n          <div className=\"[grid-area:head]\">\n            <h2 id={headingId} className=\"type-section\">{headline ?? 'Pay for what you get back.'}</h2>\n            <p className=\"mt-4 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft\">{lead ?? 'No per-call fee. You are charged for the records a search returns, nothing else.'}</p>\n          </div>\n          <p className=\"flex flex-col items-start [grid-area:rate]\">\n            <span className=\"ds-pp-value whitespace-nowrap tabular-nums\">{value}</span>\n            <span className=\"mt-1 whitespace-nowrap type-body-lg md:type-body-xl\">{unit}</span>\n            {example && <span className=\"mt-4 whitespace-nowrap type-body text-fg-soft tabular-nums md:type-body-lg\">{example}</span>}\n          </p>\n          <dl className=\"border-b border-edge [grid-area:free]\">\n            {freeRows.map((r) => (\n              <div key={r.label} className=\"flex items-baseline justify-between gap-4 border-t border-edge py-4\">\n                <dt className=\"min-w-0 truncate type-body md:type-body-lg\">{r.label}</dt>\n                <dd className=\"flex-none type-body text-fg-soft md:type-body-lg\">{r.value}</dd>\n              </div>\n            ))}\n          </dl>\n          <Actions primary={primary} secondary={secondary} className=\"self-start [grid-area:actions]\" />\n        </div>\n      </section>\n    )\n  }\n\n  if (variant === 'plans') {\n    const lines = (headline ?? 'Start free. Pay for what you use').split(/(?<=\\.)\\s+/)\n    return (\n      <section data-ds=\"product-pricing\" aria-labelledby={headingId} className={cn('border-t border-edge py-(--ds-layout-section) text-fg', className)}>\n        <style href=\"ds-product-pricing\" precedence=\"ds\">{css}</style>\n        <div className={cn(WRAP, 'ds-pp-plans grid grid-cols-[minmax(0,1fr)] gap-y-8 lg:items-end lg:gap-x-16 lg:gap-y-16 xl:gap-x-24')}>\n          <h2 id={headingId} className=\"type-section [grid-area:headline]\">{lines.map((l) => <span key={l} className=\"block\">{l}</span>)}</h2>\n          <div className=\"[grid-area:rate]\">\n            <p className=\"whitespace-nowrap type-body-lg tabular-nums md:type-body-xl\">{value} {unit}</p>\n            <p className=\"mt-1 max-w-(--ds-layout-measure) type-body text-fg-soft md:type-body-lg\">{lead ?? 'Here is what each plan buys. The API and the MCP server share one pool of credits.'}</p>\n          </div>\n          <ul role=\"list\" className=\"grid grid-cols-[minmax(0,1fr)] border-b border-edge [grid-area:plans] lg:grid-cols-4 lg:border-t lg:border-b-0\">\n            {plans.map((p) => {\n              const at = p.price.search(/[$\\d]/)\n              const prefix = at > 0 ? p.price.slice(0, at).trim() : ''\n              const amount = at > 0 ? p.price.slice(at) : p.price\n              const n = leading(p.credits)\n              return (\n                <li key={p.name} className=\"ds-pp-plan grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 gap-y-1 border-t border-edge py-4 lg:grid-cols-[minmax(0,1fr)] lg:gap-y-2 lg:border-t-0 lg:border-l lg:px-6 lg:pt-6 lg:pb-0 lg:first:border-l-0 lg:first:pl-0\">\n                  <h3 className=\"type-heading-4 [grid-area:name]\">{p.name}</h3>\n                  <p className=\"whitespace-nowrap [grid-area:price] lg:mt-4\">\n                    {prefix && <span className=\"type-ui text-fg-muted\">{prefix} </span>}\n                    <span className=\"ds-pp-amount tabular-nums\">{amount}</span>{' '}\n                    {p.unit && <span className=\"type-ui text-fg-muted\">{p.unit}</span>}\n                  </p>\n                  <p className=\"min-w-0 truncate type-body tabular-nums [grid-area:gets] lg:type-body-lg\">{n === null ? p.after : `${fmt(Math.floor(n / per))} ${noun} a month`}</p>\n                </li>\n              )\n            })}\n          </ul>\n          <Actions primary={primary} secondary={secondary} className=\"mt-4 [grid-area:actions] lg:mt-0\" />\n        </div>\n      </section>\n    )\n  }\n\n  if (variant === 'rate') {\n    return (\n      <section data-ds=\"product-pricing\" aria-labelledby={headingId} className={cn('border-t border-edge py-(--ds-layout-section) text-fg', className)}>\n        <style href=\"ds-product-pricing\" precedence=\"ds\">{css}</style>\n        <div className={WRAP}>\n          <div className=\"grid grid-cols-[minmax(0,1fr)] gap-y-8 rounded-panel border border-edge bg-surface p-6 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:items-center md:gap-x-12 md:p-12 lg:p-16\">\n            <h2 id={headingId} className=\"flex flex-col gap-2\">\n              <span className=\"ds-pp-value tabular-nums\">{value}</span>{' '}\n              <span className=\"max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft\">{unit}</span>\n            </h2>\n            <div className=\"flex flex-col items-start\">\n              <p className=\"max-w-(--ds-layout-measure) type-body-lg\">{note}</p>\n              {missing && <p className=\"mt-2 max-w-(--ds-layout-measure) type-body text-pretty text-fg-soft\">{missing}</p>}\n              <Actions primary={primary} secondary={secondary} className=\"mt-8\" />\n            </div>\n          </div>\n        </div>\n      </section>\n    )\n  }\n\n  const total = per * rows.length\n  return (\n    <section data-ds=\"product-pricing\" aria-labelledby={headingId} className={cn('py-(--ds-layout-section) text-fg', className)}>\n      <div className={cn(WRAP, 'grid grid-cols-[minmax(0,1fr)] items-center gap-y-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-x-16 xl:gap-x-24')}>\n        <div className=\"flex flex-col items-center text-center md:items-start md:text-left\">\n          <h2 id={headingId} className=\"type-section\">{headline ?? 'You pay for what comes back'}</h2>\n          <p className=\"mt-4 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft\">{lead ?? 'No per-call fee. You pay per record returned, and the API and the MCP server share one pool.'}</p>\n          {note && <p className=\"mt-4 type-ui text-fg-muted\">{note}</p>}\n          <Actions primary={primary} secondary={secondary} className=\"mt-8 flex-col justify-center self-stretch md:flex-row md:self-auto\" />\n        </div>\n        <figure className=\"min-w-0 rounded-panel bg-surface-subtle p-4 md:p-8\">\n          <figcaption className=\"flex justify-between gap-4 type-ui text-fg-muted\">\n            <span className=\"min-w-0 truncate\">{product}<span className=\"hidden md:inline\">, {value} {unit}</span></span>\n            <span aria-hidden=\"true\" className=\"flex-none\">Credits</span>\n          </figcaption>\n          <ul role=\"list\" className=\"mt-3\">\n            {[...rows.map((r) => ({ ...r, cost: credits(per), zero: false })), { ...free, cost: 'Free', zero: true }].map((r) => (\n              <li key={`${r.name}, ${r.meta}`} className=\"grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-x-4 border-t border-edge py-3 md:grid-cols-[64px_minmax(0,1fr)_auto] md:py-4\">\n                {r.zero && !toSlot(r.picture).src\n                  ? <span aria-hidden=\"true\" data-ds-placeholder=\"\" className=\"relative grid aspect-4/5 w-12 place-items-center border border-edge-strong text-fg-soft md:w-16\"><svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\" fill=\"none\"><path d=\"M8 0v16M0 8h16\" stroke=\"currentColor\" strokeWidth=\"2\" /></svg></span>\n                  : <Picture image={r.picture} />}\n                <span className=\"flex min-w-0 flex-col\">\n                  <span className=\"truncate type-body\">{r.name}</span>\n                  <span className=\"truncate type-ui text-fg-muted\">{r.meta}</span>\n                </span>\n                <span className={cn('whitespace-nowrap type-ui md:type-body', r.zero ? 'text-fg' : 'text-fg-soft tabular-nums')}>{r.cost}</span>\n              </li>\n            ))}\n          </ul>\n          <p className=\"flex items-baseline justify-between gap-4 border-t border-edge-strong pt-4\">\n            <span className=\"min-w-0 truncate type-body md:type-body-lg\">{tally}</span>\n            <span className=\"flex-none type-heading-3 tabular-nums md:type-heading-2\">{credits(total)}</span>\n          </p>\n          <p className=\"mt-2 flex justify-between gap-4 type-ui text-fg-muted\">\n            <span>Free credits left this month</span>\n            <span className=\"tabular-nums\">{fmt(freeMonthly - total)} of {fmt(freeMonthly)}</span>\n          </p>\n        </figure>\n      </div>\n    </section>\n  )\n}\n\nexport default ProductPricing\n\nconst css = `\n.ds-pp-value { font-family: var(--ds-font-heading); font-weight: var(--ds-font-weight-regular); font-size: var(--ds-text-display-phone); line-height: var(--ds-text-display-phone-leading); }\n.ds-pp-amount { font-family: var(--ds-font-heading); font-weight: var(--ds-font-weight-regular); font-size: var(--ds-text-heading-4); line-height: var(--ds-text-heading-4-leading); }\n.ds-pp-open { grid-template-areas: \"head\" \"rate\" \"free\" \"actions\"; }\n.ds-pp-plans { grid-template-areas: \"headline\" \"rate\" \"plans\" \"actions\"; }\n.ds-pp-plan { grid-template-areas: \"name price\" \"gets gets\"; }\n@media (min-width: 768px) { .ds-pp-value { font-size: var(--ds-text-display-s); line-height: var(--ds-text-display-s-leading); } }\n@media (min-width: 1024px) {\n  .ds-pp-value { font-size: var(--ds-text-display); line-height: var(--ds-text-display-leading); }\n  .ds-pp-amount { font-size: var(--ds-text-display-phone); line-height: var(--ds-text-display-phone-leading); }\n  .ds-pp-open { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); grid-template-rows: auto 1fr; grid-template-areas: \"head rate\" \"actions free\"; }\n  .ds-pp-plans { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); grid-template-areas: \"headline rate\" \"plans plans\" \"actions actions\"; }\n  .ds-pp-plan { grid-template-areas: \"name\" \"price\" \"gets\"; }\n}\n`\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Receipt",
+      "label": "Receipt",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/product-pricing/Receipt.tsx",
+      "content": "import { ProductPricing } from '@/react/components/site/ProductPricing'\n// The site's receipt for Creator search: three Acme creators at one credit each and the free row.\n\nexport default function Receipt() {\n  return (\n    <ProductPricing\n      id=\"creator-search\"\n      value=\"1 credit\"\n      unit=\"per creator found\"\n      product=\"Creator search\"\n      rows={[\n        { name: 'Acme Fit', meta: '@acmefit' },\n        { name: 'Acme Run', meta: '@acmerun' },\n        { name: 'Acme Yoga', meta: '@acmeyoga' },\n      ]}\n      free={{ name: 'Add a missing creator', meta: 'Indexed automatically' }}\n      tally=\"3 creators found\"\n    />\n  )\n}\n",
+      "requires": [
+        "button",
+        "creative-card"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Open",
+      "label": "What is free",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/product-pricing/Open.tsx",
+      "content": "import { ProductPricing } from '@/react/components/site/ProductPricing'\n// The rate set large beside what is free.\n\nexport default function Open() {\n  return (\n    <ProductPricing\n      variant=\"open\"\n      id=\"creator-search\"\n      value=\"1 credit\"\n      unit=\"per creator found\"\n      example=\"Find 20 creators, use 20 credits.\"\n      freeRows={[\n        { label: '500 credits a month, no card', value: 'Free' },\n        { label: 'Adding a missing brand or creator', value: 'Free' },\n        { label: 'Looking up product categories', value: 'Free' },\n        { label: 'The API and the MCP server', value: 'One pool' },\n      ]}\n    />\n  )\n}\n",
+      "requires": [
+        "button",
+        "creative-card"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Plans",
+      "label": "What each plan buys",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/product-pricing/Plans.tsx",
+      "content": "import { ProductPricing } from '@/react/components/site/ProductPricing'\n// What each plan buys at one credit per creator.\n\nexport default function Plans() {\n  return (\n    <ProductPricing\n      variant=\"plans\"\n      id=\"creator-search\"\n      value=\"1 credit\"\n      unit=\"per creator found\"\n      noun=\"creators\"\n      plans={[\n        { name: 'Free', price: '$0', unit: 'a month', credits: '500 credits a month' },\n        { name: 'Creator', price: '$10', unit: 'a month', credits: '5,000 credits a month' },\n        { name: 'Pro', price: '$20', unit: 'minimum a month', credits: '$1.50 per 1K credits', after: 'Pay as you go' },\n        { name: 'Enterprise', price: 'Custom', credits: 'Volume pricing', after: 'Volume pricing' },\n      ]}\n    />\n  )\n}\n",
+      "requires": [
+        "button",
+        "creative-card"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Rate",
+      "label": "The rate alone",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/product-pricing/Rate.tsx",
+      "content": "import { ProductPricing } from '@/react/components/site/ProductPricing'\n// The rate alone in a ruled card beside the free note.\n\nexport default function Rate() {\n  return <ProductPricing variant=\"rate\" id=\"creator-search\" value=\"1 credit\" unit=\"per creator found\" />\n}\n",
+      "requires": [
+        "button",
+        "creative-card"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/ProductPricing.tsx",
+          "content": "import { Button } from '@/react/components/ui/Button'\nimport { cn } from '@/react/lib/cn'\nimport { imageFit, toSlot, type ImageSlot } from '@/lib/image'\n\n// The site's product pricing section (pages/Products/ProductPricing and its variants). The site shows `receipt`: the\n// section head, a lead, the free note in 14/20 #A3A3A3 and two buttons beside a receipt on #1A1A1A with the 8px corner\n// (16px in, 32 from 768): the product and its rate over a \"Credits\" column, three records (a 4:5 picture, 48px, 64 from\n// 768; the name and a muted line; what each costs), the free row (an empty frame with a plus, or a picture) costing\n// \"Free\", then under a #666666 rule the tally and the total in Funnel Display (24/28, 32/36 from 768) and the free\n// credits left. `open` sets the rate large beside what is free; `plans` sets what each plan buys at the rate; `rate`\n// is the rate alone in a ruled card beside the free note. Copy 5 parts to 7 from 1024; centered on phones. Nothing moves.\nexport type ProductPricingVariant = 'receipt' | 'open' | 'plans' | 'rate'\n\nexport interface ReceiptRow {\n  name: string\n  meta: string\n  /** A 4:5 picture (a src or { src, alt, fit, position }); a neutral block when left out. */\n  picture?: string | ImageSlot\n}\n\nexport interface PricingPlanLine {\n  name: string\n  /** \"$10\", \"Custom\" or \"From $20\". */\n  price: string\n  unit?: string\n  /** \"5,000 credits a month\": the leading number sets how many records it buys. */\n  credits?: string\n  /** Shown when `credits` has no number. */\n  after?: string\n}\n\nexport interface ProductPricingAction { label: string; href: string }\n\nexport interface ProductPricingProps {\n  variant?: ProductPricingVariant\n  /** The rate: \"1 credit\". */\n  value: string\n  /** \"per creator found\". */\n  unit: string\n  headline?: string\n  lead?: string\n  /** The free line under the lead. */\n  note?: string\n  primary?: ProductPricingAction\n  secondary?: ProductPricingAction\n  /** receipt: the product's name at the top. */\n  product?: string\n  /** receipt: three records. */\n  rows?: ReceiptRow[]\n  /** receipt: the free row. */\n  free?: ReceiptRow\n  /** receipt: \"3 creators found\". */\n  tally?: string\n  /** Free credits a month. */\n  freeMonthly?: number\n  /** open: what is free, label and value. */\n  freeRows?: { label: string; value: string }[]\n  /** open: \"Find 20 creators, use 20 credits.\" */\n  example?: string\n  /** plans: the plans. */\n  plans?: PricingPlanLine[]\n  /** plans: what the records are called: \"creators\". */\n  noun?: string\n  /** rate: the second line beside the rate. */\n  missing?: string\n  /** Prefix for the heading id. */\n  id?: string\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\nconst fmt = (n: number) => n.toLocaleString('en-US')\nconst credits = (n: number) => `${fmt(n)} ${n === 1 ? 'credit' : 'credits'}`\nconst each = (value: string) => { const n = Number.parseInt(value, 10); return Number.isFinite(n) && n > 0 ? n : 1 }\nconst leading = (line?: string) => { const m = line?.match(/^[\\d,]+/); return m ? Number(m[0].replace(/,/g, '')) : null }\n\nfunction Actions({ primary, secondary, className }: { primary?: ProductPricingAction; secondary?: ProductPricingAction; className?: string }) {\n  if (!primary && !secondary) return null\n  return (\n    <div className={cn('flex flex-wrap gap-3', className)}>\n      {primary && <Button href={primary.href}>{primary.label}</Button>}\n      {secondary && <Button href={secondary.href} variant=\"secondary\">{secondary.label}</Button>}\n    </div>\n  )\n}\n\nfunction Picture({ image }: { image?: string | ImageSlot }) {\n  const p = toSlot(image)\n  return p.src\n    ? <img src={p.src} alt={p.alt ?? ''} width={64} height={80} className=\"block aspect-4/5 h-auto w-12 rounded-ds-sm object-cover md:w-16\" style={imageFit(p)} />\n    : <span aria-hidden=\"true\" data-ds-placeholder=\"\" className=\"block aspect-4/5 w-12 rounded-ds-sm bg-surface-inset md:w-16\" />\n}\n\nexport function ProductPricing({\n  variant = 'receipt',\n  value,\n  unit,\n  headline,\n  lead,\n  note = '500 free credits every month. No card required.',\n  primary = { label: 'Get a free API key', href: '#' },\n  secondary = { label: 'See pricing', href: '/pricing' },\n  product = '',\n  rows = [],\n  free = { name: 'Add a missing brand', meta: 'Indexed automatically' },\n  tally = '',\n  freeMonthly = 500,\n  freeRows = [],\n  example,\n  plans = [],\n  noun = 'records',\n  missing = 'Missing a brand or creator? Add it for free. Spyglass indexes it automatically.',\n  id = 'product',\n  className,\n}: ProductPricingProps) {\n  const headingId = `${id}-pricing-heading`\n  const per = each(value)\n\n  if (variant === 'open') {\n    return (\n      <section data-ds=\"product-pricing\" aria-labelledby={headingId} className={cn('border-t border-edge py-(--ds-layout-section) text-fg', className)}>\n        <style href=\"ds-product-pricing\" precedence=\"ds\">{css}</style>\n        <div className={cn(WRAP, 'ds-pp-open grid grid-cols-[minmax(0,1fr)] gap-y-12 lg:gap-x-16 xl:gap-x-24')}>\n          <div className=\"[grid-area:head]\">\n            <h2 id={headingId} className=\"type-section\">{headline ?? 'Pay for what you get back.'}</h2>\n            <p className=\"mt-4 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft\">{lead ?? 'No per-call fee. You are charged for the records a search returns, nothing else.'}</p>\n          </div>\n          <p className=\"flex flex-col items-start [grid-area:rate]\">\n            <span className=\"ds-pp-value whitespace-nowrap tabular-nums\">{value}</span>\n            <span className=\"mt-1 whitespace-nowrap type-body-lg md:type-body-xl\">{unit}</span>\n            {example && <span className=\"mt-4 whitespace-nowrap type-body text-fg-soft tabular-nums md:type-body-lg\">{example}</span>}\n          </p>\n          <dl className=\"border-b border-edge [grid-area:free]\">\n            {freeRows.map((r) => (\n              <div key={r.label} className=\"flex items-baseline justify-between gap-4 border-t border-edge py-4\">\n                <dt className=\"min-w-0 truncate type-body md:type-body-lg\">{r.label}</dt>\n                <dd className=\"flex-none type-body text-fg-soft md:type-body-lg\">{r.value}</dd>\n              </div>\n            ))}\n          </dl>\n          <Actions primary={primary} secondary={secondary} className=\"self-start [grid-area:actions]\" />\n        </div>\n      </section>\n    )\n  }\n\n  if (variant === 'plans') {\n    const lines = (headline ?? 'Start free. Pay for what you use').split(/(?<=\\.)\\s+/)\n    return (\n      <section data-ds=\"product-pricing\" aria-labelledby={headingId} className={cn('border-t border-edge py-(--ds-layout-section) text-fg', className)}>\n        <style href=\"ds-product-pricing\" precedence=\"ds\">{css}</style>\n        <div className={cn(WRAP, 'ds-pp-plans grid grid-cols-[minmax(0,1fr)] gap-y-8 lg:items-end lg:gap-x-16 lg:gap-y-16 xl:gap-x-24')}>\n          <h2 id={headingId} className=\"type-section [grid-area:headline]\">{lines.map((l) => <span key={l} className=\"block\">{l}</span>)}</h2>\n          <div className=\"[grid-area:rate]\">\n            <p className=\"whitespace-nowrap type-body-lg tabular-nums md:type-body-xl\">{value} {unit}</p>\n            <p className=\"mt-1 max-w-(--ds-layout-measure) type-body text-fg-soft md:type-body-lg\">{lead ?? 'Here is what each plan buys. The API and the MCP server share one pool of credits.'}</p>\n          </div>\n          <ul role=\"list\" className=\"grid grid-cols-[minmax(0,1fr)] border-b border-edge [grid-area:plans] lg:grid-cols-4 lg:border-t lg:border-b-0\">\n            {plans.map((p) => {\n              const at = p.price.search(/[$\\d]/)\n              const prefix = at > 0 ? p.price.slice(0, at).trim() : ''\n              const amount = at > 0 ? p.price.slice(at) : p.price\n              const n = leading(p.credits)\n              return (\n                <li key={p.name} className=\"ds-pp-plan grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 gap-y-1 border-t border-edge py-4 lg:grid-cols-[minmax(0,1fr)] lg:gap-y-2 lg:border-t-0 lg:border-l lg:px-6 lg:pt-6 lg:pb-0 lg:first:border-l-0 lg:first:pl-0\">\n                  <h3 className=\"type-heading-4 [grid-area:name]\">{p.name}</h3>\n                  <p className=\"whitespace-nowrap [grid-area:price] lg:mt-4\">\n                    {prefix && <span className=\"type-ui text-fg-muted\">{prefix} </span>}\n                    <span className=\"ds-pp-amount tabular-nums\">{amount}</span>{' '}\n                    {p.unit && <span className=\"type-ui text-fg-muted\">{p.unit}</span>}\n                  </p>\n                  <p className=\"min-w-0 truncate type-body tabular-nums [grid-area:gets] lg:type-body-lg\">{n === null ? p.after : `${fmt(Math.floor(n / per))} ${noun} a month`}</p>\n                </li>\n              )\n            })}\n          </ul>\n          <Actions primary={primary} secondary={secondary} className=\"mt-4 [grid-area:actions] lg:mt-0\" />\n        </div>\n      </section>\n    )\n  }\n\n  if (variant === 'rate') {\n    return (\n      <section data-ds=\"product-pricing\" aria-labelledby={headingId} className={cn('border-t border-edge py-(--ds-layout-section) text-fg', className)}>\n        <style href=\"ds-product-pricing\" precedence=\"ds\">{css}</style>\n        <div className={WRAP}>\n          <div className=\"grid grid-cols-[minmax(0,1fr)] gap-y-8 rounded-panel border border-edge bg-surface p-6 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:items-center md:gap-x-12 md:p-12 lg:p-16\">\n            <h2 id={headingId} className=\"flex flex-col gap-2\">\n              <span className=\"ds-pp-value tabular-nums\">{value}</span>{' '}\n              <span className=\"max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft\">{unit}</span>\n            </h2>\n            <div className=\"flex flex-col items-start\">\n              <p className=\"max-w-(--ds-layout-measure) type-body-lg\">{note}</p>\n              {missing && <p className=\"mt-2 max-w-(--ds-layout-measure) type-body text-pretty text-fg-soft\">{missing}</p>}\n              <Actions primary={primary} secondary={secondary} className=\"mt-8\" />\n            </div>\n          </div>\n        </div>\n      </section>\n    )\n  }\n\n  const total = per * rows.length\n  return (\n    <section data-ds=\"product-pricing\" aria-labelledby={headingId} className={cn('py-(--ds-layout-section) text-fg', className)}>\n      <div className={cn(WRAP, 'grid grid-cols-[minmax(0,1fr)] items-center gap-y-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-x-16 xl:gap-x-24')}>\n        <div className=\"flex flex-col items-center text-center md:items-start md:text-left\">\n          <h2 id={headingId} className=\"type-section\">{headline ?? 'You pay for what comes back'}</h2>\n          <p className=\"mt-4 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft\">{lead ?? 'No per-call fee. You pay per record returned, and the API and the MCP server share one pool.'}</p>\n          {note && <p className=\"mt-4 type-ui text-fg-muted\">{note}</p>}\n          <Actions primary={primary} secondary={secondary} className=\"mt-8 flex-col justify-center self-stretch md:flex-row md:self-auto\" />\n        </div>\n        <figure className=\"min-w-0 rounded-panel bg-surface-subtle p-4 md:p-8\">\n          <figcaption className=\"flex justify-between gap-4 type-ui text-fg-muted\">\n            <span className=\"min-w-0 truncate\">{product}<span className=\"hidden md:inline\">, {value} {unit}</span></span>\n            <span aria-hidden=\"true\" className=\"flex-none\">Credits</span>\n          </figcaption>\n          <ul role=\"list\" className=\"mt-3\">\n            {[...rows.map((r) => ({ ...r, cost: credits(per), zero: false })), { ...free, cost: 'Free', zero: true }].map((r) => (\n              <li key={`${r.name}, ${r.meta}`} className=\"grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-x-4 border-t border-edge py-3 md:grid-cols-[64px_minmax(0,1fr)_auto] md:py-4\">\n                {r.zero && !toSlot(r.picture).src\n                  ? <span aria-hidden=\"true\" data-ds-placeholder=\"\" className=\"relative grid aspect-4/5 w-12 place-items-center border border-edge-strong text-fg-soft md:w-16\"><svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\" fill=\"none\"><path d=\"M8 0v16M0 8h16\" stroke=\"currentColor\" strokeWidth=\"2\" /></svg></span>\n                  : <Picture image={r.picture} />}\n                <span className=\"flex min-w-0 flex-col\">\n                  <span className=\"truncate type-body\">{r.name}</span>\n                  <span className=\"truncate type-ui text-fg-muted\">{r.meta}</span>\n                </span>\n                <span className={cn('whitespace-nowrap type-ui md:type-body', r.zero ? 'text-fg' : 'text-fg-soft tabular-nums')}>{r.cost}</span>\n              </li>\n            ))}\n          </ul>\n          <p className=\"flex items-baseline justify-between gap-4 border-t border-edge-strong pt-4\">\n            <span className=\"min-w-0 truncate type-body md:type-body-lg\">{tally}</span>\n            <span className=\"flex-none type-heading-3 tabular-nums md:type-heading-2\">{credits(total)}</span>\n          </p>\n          <p className=\"mt-2 flex justify-between gap-4 type-ui text-fg-muted\">\n            <span>Free credits left this month</span>\n            <span className=\"tabular-nums\">{fmt(freeMonthly - total)} of {fmt(freeMonthly)}</span>\n          </p>\n        </figure>\n      </div>\n    </section>\n  )\n}\n\nexport default ProductPricing\n\nconst css = `\n.ds-pp-value { font-family: var(--ds-font-heading); font-weight: var(--ds-font-weight-regular); font-size: var(--ds-text-display-phone); line-height: var(--ds-text-display-phone-leading); }\n.ds-pp-amount { font-family: var(--ds-font-heading); font-weight: var(--ds-font-weight-regular); font-size: var(--ds-text-heading-4); line-height: var(--ds-text-heading-4-leading); }\n.ds-pp-open { grid-template-areas: \"head\" \"rate\" \"free\" \"actions\"; }\n.ds-pp-plans { grid-template-areas: \"headline\" \"rate\" \"plans\" \"actions\"; }\n.ds-pp-plan { grid-template-areas: \"name price\" \"gets gets\"; }\n@media (min-width: 768px) { .ds-pp-value { font-size: var(--ds-text-display-s); line-height: var(--ds-text-display-s-leading); } }\n@media (min-width: 1024px) {\n  .ds-pp-value { font-size: var(--ds-text-display); line-height: var(--ds-text-display-leading); }\n  .ds-pp-amount { font-size: var(--ds-text-display-phone); line-height: var(--ds-text-display-phone-leading); }\n  .ds-pp-open { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); grid-template-rows: auto 1fr; grid-template-areas: \"head rate\" \"actions free\"; }\n  .ds-pp-plans { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); grid-template-areas: \"headline rate\" \"plans plans\" \"actions actions\"; }\n  .ds-pp-plan { grid-template-areas: \"name\" \"price\" \"gets\"; }\n}\n`\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button",
+        "creative-card"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "ProductPricing",
+            "file": "react/components/site/ProductPricing.tsx",
+            "props": [
+              {
+                "name": "variant",
+                "type": "ProductPricingVariant",
+                "required": false,
+                "default": "'receipt'"
+              },
+              {
+                "name": "value",
+                "type": "string",
+                "required": true,
+                "description": "The rate: \"1 credit\"."
+              },
+              {
+                "name": "unit",
+                "type": "string",
+                "required": true,
+                "description": "\"per creator found\"."
+              },
+              {
+                "name": "headline",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "lead",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "note",
+                "type": "string",
+                "required": false,
+                "default": "'500 free credits every month. No card required.'",
+                "description": "The free line under the lead."
+              },
+              {
+                "name": "primary",
+                "type": "ProductPricingAction",
+                "required": false,
+                "default": "{ label: 'Get a free API key', href: '#' }"
+              },
+              {
+                "name": "secondary",
+                "type": "ProductPricingAction",
+                "required": false,
+                "default": "{ label: 'See pricing', href: '/pricing' }"
+              },
+              {
+                "name": "product",
+                "type": "string",
+                "required": false,
+                "default": "''",
+                "description": "receipt: the product's name at the top."
+              },
+              {
+                "name": "rows",
+                "type": "ReceiptRow[]",
+                "required": false,
+                "default": "[]",
+                "description": "receipt: three records."
+              },
+              {
+                "name": "free",
+                "type": "ReceiptRow",
+                "required": false,
+                "default": "{ name: 'Add a missing brand', meta: 'Indexed automatically' }",
+                "description": "receipt: the free row."
+              },
+              {
+                "name": "tally",
+                "type": "string",
+                "required": false,
+                "default": "''",
+                "description": "receipt: \"3 creators found\"."
+              },
+              {
+                "name": "freeMonthly",
+                "type": "number",
+                "required": false,
+                "default": "500",
+                "description": "Free credits a month."
+              },
+              {
+                "name": "freeRows",
+                "type": "{ label: string; value: string }[]",
+                "required": false,
+                "default": "[]",
+                "description": "open: what is free, label and value."
+              },
+              {
+                "name": "example",
+                "type": "string",
+                "required": false,
+                "description": "open: \"Find 20 creators, use 20 credits.\""
+              },
+              {
+                "name": "plans",
+                "type": "PricingPlanLine[]",
+                "required": false,
+                "default": "[]",
+                "description": "plans: the plans."
+              },
+              {
+                "name": "noun",
+                "type": "string",
+                "required": false,
+                "default": "'records'",
+                "description": "plans: what the records are called: \"creators\"."
+              },
+              {
+                "name": "missing",
+                "type": "string",
+                "required": false,
+                "default": "'Missing a brand or creator? Add it for free. Spyglass indexes it automatically.'",
+                "description": "rate: the second line beside the rate."
+              },
+              {
+                "name": "id",
+                "type": "string",
+                "required": false,
+                "default": "'product'",
+                "description": "Prefix for the heading id."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Receipt",
+          "label": "Receipt",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/product-pricing/Receipt.tsx",
+          "content": "import { ProductPricing } from '@/react/components/site/ProductPricing'\n// The site's receipt for Creator search: three Acme creators at one credit each and the free row.\n\nexport default function Receipt() {\n  return (\n    <ProductPricing\n      id=\"creator-search\"\n      value=\"1 credit\"\n      unit=\"per creator found\"\n      product=\"Creator search\"\n      rows={[\n        { name: 'Acme Fit', meta: '@acmefit' },\n        { name: 'Acme Run', meta: '@acmerun' },\n        { name: 'Acme Yoga', meta: '@acmeyoga' },\n      ]}\n      free={{ name: 'Add a missing creator', meta: 'Indexed automatically' }}\n      tally=\"3 creators found\"\n    />\n  )\n}\n",
+          "registryDependencies": [
+            "button",
+            "creative-card"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Open",
+          "label": "What is free",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/product-pricing/Open.tsx",
+          "content": "import { ProductPricing } from '@/react/components/site/ProductPricing'\n// The rate set large beside what is free.\n\nexport default function Open() {\n  return (\n    <ProductPricing\n      variant=\"open\"\n      id=\"creator-search\"\n      value=\"1 credit\"\n      unit=\"per creator found\"\n      example=\"Find 20 creators, use 20 credits.\"\n      freeRows={[\n        { label: '500 credits a month, no card', value: 'Free' },\n        { label: 'Adding a missing brand or creator', value: 'Free' },\n        { label: 'Looking up product categories', value: 'Free' },\n        { label: 'The API and the MCP server', value: 'One pool' },\n      ]}\n    />\n  )\n}\n",
+          "registryDependencies": [
+            "button",
+            "creative-card"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Plans",
+          "label": "What each plan buys",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/product-pricing/Plans.tsx",
+          "content": "import { ProductPricing } from '@/react/components/site/ProductPricing'\n// What each plan buys at one credit per creator.\n\nexport default function Plans() {\n  return (\n    <ProductPricing\n      variant=\"plans\"\n      id=\"creator-search\"\n      value=\"1 credit\"\n      unit=\"per creator found\"\n      noun=\"creators\"\n      plans={[\n        { name: 'Free', price: '$0', unit: 'a month', credits: '500 credits a month' },\n        { name: 'Creator', price: '$10', unit: 'a month', credits: '5,000 credits a month' },\n        { name: 'Pro', price: '$20', unit: 'minimum a month', credits: '$1.50 per 1K credits', after: 'Pay as you go' },\n        { name: 'Enterprise', price: 'Custom', credits: 'Volume pricing', after: 'Volume pricing' },\n      ]}\n    />\n  )\n}\n",
+          "registryDependencies": [
+            "button",
+            "creative-card"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Rate",
+          "label": "The rate alone",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/product-pricing/Rate.tsx",
+          "content": "import { ProductPricing } from '@/react/components/site/ProductPricing'\n// The rate alone in a ruled card beside the free note.\n\nexport default function Rate() {\n  return <ProductPricing variant=\"rate\" id=\"creator-search\" value=\"1 credit\" unit=\"per creator found\" />\n}\n",
+          "registryDependencies": [
+            "button",
+            "creative-card"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/product-pricing.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport '@/elements/components/ui/button'\nimport styles from 'virtual:tw'\nimport { imageFit, toSlot, type ImageSlot } from '@/lib/image'\nimport { styleMap } from 'lit/directives/style-map.js'\n\n// ProductPricing.tsx as <spyglass-product-pricing>: the product pricing section. `receipt` (the site's): the head and\n// two buttons beside a receipt of three records, the free row and the total; `open`: the rate large beside what is\n// free; `plans`: what each plan buys at the rate; `rate`: the rate alone in a ruled card. Lists as JSON.\n\nexport type ProductPricingVariant = 'receipt' | 'open' | 'plans' | 'rate'\nexport interface ReceiptRow { name: string; meta: string; picture?: string | ImageSlot }\nexport interface PricingPlanLine { name: string; price: string; unit?: string; credits?: string; after?: string }\nexport interface ProductPricingAction { label: string; href: string }\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\nconst fmt = (n: number) => n.toLocaleString('en-US')\nconst credits = (n: number) => `${fmt(n)} ${n === 1 ? 'credit' : 'credits'}`\nconst each = (value: string) => { const n = Number.parseInt(value, 10); return Number.isFinite(n) && n > 0 ? n : 1 }\nconst leading = (line?: string) => { const m = line?.match(/^[\\d,]+/); return m ? Number(m[0].replace(/,/g, '')) : null }\n\n/**\n * @summary The product pricing section: a receipt of what a search costs, or the rate, what is free or what each plan buys.\n */\nexport class ProductPricing extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"product-pricing\"]'))\n\tstatic properties = {\n\t\tvariant: {}, value: {}, unit: {}, headline: {}, lead: {}, note: {}, primary: { type: Object }, secondary: { type: Object }, product: {}, rows: { type: Array }, free: { type: Object }, tally: {},\n\t\tfreeMonthly: { type: Number, attribute: 'free-monthly' }, freeRows: { type: Array, attribute: 'free-rows' }, example: {}, plans: { type: Array }, noun: {}, missing: {}, prefix: {},\n\t}\n\tvariant: ProductPricingVariant = 'receipt'\n\t/** The rate: \"1 credit\". */\n\tvalue = ''\n\t/** \"per creator found\". */\n\tunit = ''\n\theadline?: string\n\tlead?: string\n\tnote = '500 free credits every month. No card required.'\n\tprimary?: ProductPricingAction = { label: 'Get a free API key', href: '#' }\n\tsecondary?: ProductPricingAction = { label: 'See pricing', href: '/pricing' }\n\t/** receipt: the product's name at the top. */\n\tproduct = ''\n\trows: ReceiptRow[] = []\n\tfree: ReceiptRow = { name: 'Add a missing brand', meta: 'Indexed automatically' }\n\ttally = ''\n\tfreeMonthly = 500\n\tfreeRows: { label: string; value: string }[] = []\n\texample?: string\n\tplans: PricingPlanLine[] = []\n\tnoun = 'records'\n\tmissing = 'Missing a brand or creator? Add it for free. Spyglass indexes it automatically.'\n\t/** Prefix for the heading id (React's `id`). */\n\tprefix = 'product'\n\n\tprivate actions(cls: string) {\n\t\tconst { primary, secondary } = this\n\t\tif (!primary && !secondary) return nothing\n\t\treturn html`<div class=${`flex flex-wrap gap-3 ${cls}`}>${primary ? html`<spyglass-button href=${primary.href}>${primary.label}</spyglass-button>` : nothing}${secondary ? html`<spyglass-button href=${secondary.href} variant=\"secondary\">${secondary.label}</spyglass-button>` : nothing}</div>`\n\t}\n\n\tprivate picture(image?: string | ImageSlot) {\n\t\tconst p = toSlot(image)\n\t\treturn p.src ? html`<img src=${p.src} alt=${p.alt ?? ''} width=\"64\" height=\"80\" class=\"block aspect-4/5 h-auto w-12 rounded-ds-sm object-cover md:w-16\" style=${styleMap(imageFit(p) ?? {})}>` : html`<span aria-hidden=\"true\" data-ds-placeholder=\"\" class=\"block aspect-4/5 w-12 rounded-ds-sm bg-surface-inset md:w-16\"></span>`\n\t}\n\n\trender() {\n\t\tconst headingId = `${this.prefix}-pricing-heading`\n\t\tconst per = each(this.value)\n\t\tconst { value, unit } = this\n\n\t\tif (this.variant === 'open') {\n\t\t\treturn html`<section data-ds=\"product-pricing\" aria-labelledby=${headingId} class=\"border-t border-edge py-(--ds-layout-section) text-fg\"><div class=${`${WRAP} ds-pp-open grid grid-cols-[minmax(0,1fr)] gap-y-12 lg:gap-x-16 xl:gap-x-24`}><div class=\"[grid-area:head]\"><h2 id=${headingId} class=\"type-section\">${this.headline ?? 'Pay for what you get back.'}</h2><p class=\"mt-4 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft\">${this.lead ?? 'No per-call fee. You are charged for the records a search returns, nothing else.'}</p></div><p class=\"flex flex-col items-start [grid-area:rate]\"><span class=\"ds-pp-value whitespace-nowrap tabular-nums\">${value}</span><span class=\"mt-1 whitespace-nowrap type-body-lg md:type-body-xl\">${unit}</span>${this.example ? html`<span class=\"mt-4 whitespace-nowrap type-body text-fg-soft tabular-nums md:type-body-lg\">${this.example}</span>` : nothing}</p><dl class=\"border-b border-edge [grid-area:free]\">${(this.freeRows ?? []).map((r) => html`<div class=\"flex items-baseline justify-between gap-4 border-t border-edge py-4\"><dt class=\"min-w-0 truncate type-body md:type-body-lg\">${r.label}</dt><dd class=\"flex-none type-body text-fg-soft md:type-body-lg\">${r.value}</dd></div>`)}</dl>${this.actions('self-start [grid-area:actions]')}</div></section>`\n\t\t}\n\n\t\tif (this.variant === 'plans') {\n\t\t\tconst lines = (this.headline ?? 'Start free. Pay for what you use').split(/(?<=\\.)\\s+/)\n\t\t\treturn html`<section data-ds=\"product-pricing\" aria-labelledby=${headingId} class=\"border-t border-edge py-(--ds-layout-section) text-fg\"><div class=${`${WRAP} ds-pp-plans grid grid-cols-[minmax(0,1fr)] gap-y-8 lg:items-end lg:gap-x-16 lg:gap-y-16 xl:gap-x-24`}><h2 id=${headingId} class=\"type-section [grid-area:headline]\">${lines.map((l) => html`<span class=\"block\">${l}</span>`)}</h2><div class=\"[grid-area:rate]\"><p class=\"whitespace-nowrap type-body-lg tabular-nums md:type-body-xl\">${value} ${unit}</p><p class=\"mt-1 max-w-(--ds-layout-measure) type-body text-fg-soft md:type-body-lg\">${this.lead ?? 'Here is what each plan buys. The API and the MCP server share one pool of credits.'}</p></div><ul role=\"list\" class=\"grid grid-cols-[minmax(0,1fr)] border-b border-edge [grid-area:plans] lg:grid-cols-4 lg:border-t lg:border-b-0\">${(this.plans ?? []).map((p) => {\n\t\t\t\tconst at = p.price.search(/[$\\d]/)\n\t\t\t\tconst prefix = at > 0 ? p.price.slice(0, at).trim() : ''\n\t\t\t\tconst amount = at > 0 ? p.price.slice(at) : p.price\n\t\t\t\tconst n = leading(p.credits)\n\t\t\t\treturn html`<li class=\"ds-pp-plan grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 gap-y-1 border-t border-edge py-4 lg:grid-cols-[minmax(0,1fr)] lg:gap-y-2 lg:border-t-0 lg:border-l lg:px-6 lg:pt-6 lg:pb-0 lg:first:border-l-0 lg:first:pl-0\"><h3 class=\"type-heading-4 [grid-area:name]\">${p.name}</h3><p class=\"whitespace-nowrap [grid-area:price] lg:mt-4\">${prefix ? html`<span class=\"type-ui text-fg-muted\">${prefix} </span>` : nothing}<span class=\"ds-pp-amount tabular-nums\">${amount}</span> ${p.unit ? html`<span class=\"type-ui text-fg-muted\">${p.unit}</span>` : nothing}</p><p class=\"min-w-0 truncate type-body tabular-nums [grid-area:gets] lg:type-body-lg\">${n === null ? p.after : `${fmt(Math.floor(n / per))} ${this.noun} a month`}</p></li>`\n\t\t\t})}</ul>${this.actions('mt-4 [grid-area:actions] lg:mt-0')}</div></section>`\n\t\t}\n\n\t\tif (this.variant === 'rate') {\n\t\t\treturn html`<section data-ds=\"product-pricing\" aria-labelledby=${headingId} class=\"border-t border-edge py-(--ds-layout-section) text-fg\"><div class=${WRAP}><div class=\"grid grid-cols-[minmax(0,1fr)] gap-y-8 rounded-panel border border-edge bg-surface p-6 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:items-center md:gap-x-12 md:p-12 lg:p-16\"><h2 id=${headingId} class=\"flex flex-col gap-2\"><span class=\"ds-pp-value tabular-nums\">${value}</span> <span class=\"max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft\">${unit}</span></h2><div class=\"flex flex-col items-start\"><p class=\"max-w-(--ds-layout-measure) type-body-lg\">${this.note}</p>${this.missing ? html`<p class=\"mt-2 max-w-(--ds-layout-measure) type-body text-pretty text-fg-soft\">${this.missing}</p>` : nothing}${this.actions('mt-8')}</div></div></div></section>`\n\t\t}\n\n\t\tconst rows = this.rows ?? []\n\t\tconst total = per * rows.length\n\t\tconst lines = [...rows.map((r) => ({ ...r, cost: credits(per), zero: false })), { ...this.free, cost: 'Free', zero: true }]\n\t\treturn html`<section data-ds=\"product-pricing\" aria-labelledby=${headingId} class=\"py-(--ds-layout-section) text-fg\"><div class=${`${WRAP} grid grid-cols-[minmax(0,1fr)] items-center gap-y-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-x-16 xl:gap-x-24`}><div class=\"flex flex-col items-center text-center md:items-start md:text-left\"><h2 id=${headingId} class=\"type-section\">${this.headline ?? 'You pay for what comes back'}</h2><p class=\"mt-4 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft\">${this.lead ?? 'No per-call fee. You pay per record returned, and the API and the MCP server share one pool.'}</p>${this.note ? html`<p class=\"mt-4 type-ui text-fg-muted\">${this.note}</p>` : nothing}${this.actions('mt-8 flex-col justify-center self-stretch md:flex-row md:self-auto')}</div><figure class=\"min-w-0 rounded-panel bg-surface-subtle p-4 md:p-8\"><figcaption class=\"flex justify-between gap-4 type-ui text-fg-muted\"><span class=\"min-w-0 truncate\">${this.product}<span class=\"hidden md:inline\">, ${value} ${unit}</span></span><span aria-hidden=\"true\" class=\"flex-none\">Credits</span></figcaption><ul role=\"list\" class=\"mt-3\">${lines.map((r) => html`<li class=\"grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-x-4 border-t border-edge py-3 md:grid-cols-[64px_minmax(0,1fr)_auto] md:py-4\">${r.zero && !toSlot(r.picture).src ? html`<span aria-hidden=\"true\" data-ds-placeholder=\"\" class=\"relative grid aspect-4/5 w-12 place-items-center border border-edge-strong text-fg-soft md:w-16\"><svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\" fill=\"none\"><path d=\"M8 0v16M0 8h16\" stroke=\"currentColor\" stroke-width=\"2\"></path></svg></span>` : this.picture(r.picture)}<span class=\"flex min-w-0 flex-col\"><span class=\"truncate type-body\">${r.name}</span><span class=\"truncate type-ui text-fg-muted\">${r.meta}</span></span><span class=${`whitespace-nowrap type-ui md:type-body ${r.zero ? 'text-fg' : 'text-fg-soft tabular-nums'}`}>${r.cost}</span></li>`)}</ul><p class=\"flex items-baseline justify-between gap-4 border-t border-edge-strong pt-4\"><span class=\"min-w-0 truncate type-body md:type-body-lg\">${this.tally}</span><span class=\"flex-none type-heading-3 tabular-nums md:type-heading-2\">${credits(total)}</span></p><p class=\"mt-2 flex justify-between gap-4 type-ui text-fg-muted\"><span>Free credits left this month</span><span class=\"tabular-nums\">${fmt(this.freeMonthly - total)} of ${fmt(this.freeMonthly)}</span></p></figure></div></section>`\n\t}\n}\n\ndefine('product-pricing', ProductPricing)\n"
+        },
+        {
+          "path": "elements/components/site/product-pricing.css",
+          "content": ".ds-pp-value { font-family: var(--ds-font-heading); font-weight: var(--ds-font-weight-regular); font-size: var(--ds-text-display-phone); line-height: var(--ds-text-display-phone-leading); }\n.ds-pp-amount { font-family: var(--ds-font-heading); font-weight: var(--ds-font-weight-regular); font-size: var(--ds-text-heading-4); line-height: var(--ds-text-heading-4-leading); }\n.ds-pp-open { grid-template-areas: \"head\" \"rate\" \"free\" \"actions\"; }\n.ds-pp-plans { grid-template-areas: \"headline\" \"rate\" \"plans\" \"actions\"; }\n.ds-pp-plan { grid-template-areas: \"name price\" \"gets gets\"; }\n@media (min-width: 768px) { .ds-pp-value { font-size: var(--ds-text-display-s); line-height: var(--ds-text-display-s-leading); } }\n@media (min-width: 1024px) {\n  .ds-pp-value { font-size: var(--ds-text-display); line-height: var(--ds-text-display-leading); }\n  .ds-pp-amount { font-size: var(--ds-text-display-phone); line-height: var(--ds-text-display-phone-leading); }\n  .ds-pp-open { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); grid-template-rows: auto 1fr; grid-template-areas: \"head rate\" \"actions free\"; }\n  .ds-pp-plans { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); grid-template-areas: \"headline rate\" \"plans plans\" \"actions actions\"; }\n  .ds-pp-plan { grid-template-areas: \"name\" \"price\" \"gets\"; }\n}\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/product-pricing.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-product-pricing",
+      "tags": [
+        "spyglass-product-pricing"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-product-pricing",
+            "name": "ProductPricing",
+            "module": "elements/product-pricing.js",
+            "description": "The product pricing section: a receipt of what a search costs, or the rate, what is free or what each plan buys.",
+            "attributes": [
+              {
+                "name": "variant",
+                "field": "variant",
+                "type": "ProductPricingVariant",
+                "default": "'receipt'"
+              },
+              {
+                "name": "value",
+                "field": "value",
+                "type": "string",
+                "default": "''",
+                "description": "The rate: \"1 credit\"."
+              },
+              {
+                "name": "unit",
+                "field": "unit",
+                "type": "string",
+                "default": "''",
+                "description": "\"per creator found\"."
+              },
+              {
+                "name": "headline",
+                "field": "headline",
+                "type": "string | undefined"
+              },
+              {
+                "name": "lead",
+                "field": "lead",
+                "type": "string | undefined"
+              },
+              {
+                "name": "note",
+                "field": "note",
+                "type": "string",
+                "default": "'500 free credits every month. No card required.'"
+              },
+              {
+                "name": "primary",
+                "field": "primary",
+                "type": "ProductPricingAction | undefined",
+                "default": "{ label: 'Get a free API key', href: '#' }"
+              },
+              {
+                "name": "secondary",
+                "field": "secondary",
+                "type": "ProductPricingAction | undefined",
+                "default": "{ label: 'See pricing', href: '/pricing' }"
+              },
+              {
+                "name": "product",
+                "field": "product",
+                "type": "string",
+                "default": "''",
+                "description": "receipt: the product's name at the top."
+              },
+              {
+                "name": "rows",
+                "field": "rows",
+                "type": "ReceiptRow[]",
+                "default": "[]"
+              },
+              {
+                "name": "free",
+                "field": "free",
+                "type": "ReceiptRow",
+                "default": "{ name: 'Add a missing brand', meta: 'Indexed automatically' }"
+              },
+              {
+                "name": "tally",
+                "field": "tally",
+                "type": "string",
+                "default": "''"
+              },
+              {
+                "name": "free-monthly",
+                "field": "freeMonthly",
+                "type": "number",
+                "default": "500"
+              },
+              {
+                "name": "free-rows",
+                "field": "freeRows",
+                "type": "{ label: string; value: string; }[]",
+                "default": "[]"
+              },
+              {
+                "name": "example",
+                "field": "example",
+                "type": "string | undefined"
+              },
+              {
+                "name": "plans",
+                "field": "plans",
+                "type": "PricingPlanLine[]",
+                "default": "[]"
+              },
+              {
+                "name": "noun",
+                "field": "noun",
+                "type": "string",
+                "default": "'records'"
+              },
+              {
+                "name": "missing",
+                "field": "missing",
+                "type": "string",
+                "default": "'Missing a brand or creator? Add it for free. Spyglass indexes it automatically.'"
+              },
+              {
+                "name": "prefix",
+                "field": "prefix",
+                "type": "string",
+                "default": "'product'",
+                "description": "Prefix for the heading id (React's `id`)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "variant",
+                "type": "ProductPricingVariant",
+                "default": "'receipt'",
+                "attribute": "variant"
+              },
+              {
+                "name": "value",
+                "type": "string",
+                "default": "''",
+                "description": "The rate: \"1 credit\".",
+                "attribute": "value"
+              },
+              {
+                "name": "unit",
+                "type": "string",
+                "default": "''",
+                "description": "\"per creator found\".",
+                "attribute": "unit"
+              },
+              {
+                "name": "headline",
+                "type": "string | undefined",
+                "attribute": "headline"
+              },
+              {
+                "name": "lead",
+                "type": "string | undefined",
+                "attribute": "lead"
+              },
+              {
+                "name": "note",
+                "type": "string",
+                "default": "'500 free credits every month. No card required.'",
+                "attribute": "note"
+              },
+              {
+                "name": "primary",
+                "type": "ProductPricingAction | undefined",
+                "default": "{ label: 'Get a free API key', href: '#' }",
+                "attribute": "primary"
+              },
+              {
+                "name": "secondary",
+                "type": "ProductPricingAction | undefined",
+                "default": "{ label: 'See pricing', href: '/pricing' }",
+                "attribute": "secondary"
+              },
+              {
+                "name": "product",
+                "type": "string",
+                "default": "''",
+                "description": "receipt: the product's name at the top.",
+                "attribute": "product"
+              },
+              {
+                "name": "rows",
+                "type": "ReceiptRow[]",
+                "default": "[]",
+                "attribute": "rows"
+              },
+              {
+                "name": "free",
+                "type": "ReceiptRow",
+                "default": "{ name: 'Add a missing brand', meta: 'Indexed automatically' }",
+                "attribute": "free"
+              },
+              {
+                "name": "tally",
+                "type": "string",
+                "default": "''",
+                "attribute": "tally"
+              },
+              {
+                "name": "freeMonthly",
+                "type": "number",
+                "default": "500",
+                "attribute": "free-monthly"
+              },
+              {
+                "name": "freeRows",
+                "type": "{ label: string; value: string; }[]",
+                "default": "[]",
+                "attribute": "free-rows"
+              },
+              {
+                "name": "example",
+                "type": "string | undefined",
+                "attribute": "example"
+              },
+              {
+                "name": "plans",
+                "type": "PricingPlanLine[]",
+                "default": "[]",
+                "attribute": "plans"
+              },
+              {
+                "name": "noun",
+                "type": "string",
+                "default": "'records'",
+                "attribute": "noun"
+              },
+              {
+                "name": "missing",
+                "type": "string",
+                "default": "'Missing a brand or creator? Add it for free. Spyglass indexes it automatically.'",
+                "attribute": "missing"
+              },
+              {
+                "name": "prefix",
+                "type": "string",
+                "default": "'product'",
+                "description": "Prefix for the heading id (React's `id`).",
+                "attribute": "prefix"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Receipt",
+          "label": "Receipt",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/product-pricing/Receipt.html",
+          "content": "<!-- The site's receipt for Creator search: three Acme creators at one credit each and the free row. -->\n<spyglass-product-pricing prefix=\"creator-search\" value=\"1 credit\" unit=\"per creator found\" product=\"Creator search\" rows='[{\"name\":\"Acme Fit\",\"meta\":\"@acmefit\"},{\"name\":\"Acme Run\",\"meta\":\"@acmerun\"},{\"name\":\"Acme Yoga\",\"meta\":\"@acmeyoga\"}]' free='{\"name\":\"Add a missing creator\",\"meta\":\"Indexed automatically\"}' tally=\"3 creators found\"></spyglass-product-pricing>\n"
+        },
+        {
+          "name": "Open",
+          "label": "What is free",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/product-pricing/Open.html",
+          "content": "<!-- The rate set large beside what is free. -->\n<spyglass-product-pricing variant=\"open\" prefix=\"creator-search\" value=\"1 credit\" unit=\"per creator found\" example=\"Find 20 creators, use 20 credits.\" free-rows='[{\"label\":\"500 credits a month, no card\",\"value\":\"Free\"},{\"label\":\"Adding a missing brand or creator\",\"value\":\"Free\"},{\"label\":\"Looking up product categories\",\"value\":\"Free\"},{\"label\":\"The API and the MCP server\",\"value\":\"One pool\"}]'></spyglass-product-pricing>\n"
+        },
+        {
+          "name": "Plans",
+          "label": "What each plan buys",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/product-pricing/Plans.html",
+          "content": "<!-- What each plan buys at one credit per creator. -->\n<spyglass-product-pricing variant=\"plans\" prefix=\"creator-search\" value=\"1 credit\" unit=\"per creator found\" noun=\"creators\" plans='[{\"name\":\"Free\",\"price\":\"$0\",\"unit\":\"a month\",\"credits\":\"500 credits a month\"},{\"name\":\"Creator\",\"price\":\"$10\",\"unit\":\"a month\",\"credits\":\"5,000 credits a month\"},{\"name\":\"Pro\",\"price\":\"$20\",\"unit\":\"minimum a month\",\"credits\":\"$1.50 per 1K credits\",\"after\":\"Pay as you go\"},{\"name\":\"Enterprise\",\"price\":\"Custom\",\"credits\":\"Volume pricing\",\"after\":\"Volume pricing\"}]'></spyglass-product-pricing>\n"
+        },
+        {
+          "name": "Rate",
+          "label": "The rate alone",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/product-pricing/Rate.html",
+          "content": "<!-- The rate alone in a ruled card beside the free note. -->\n<spyglass-product-pricing variant=\"rate\" prefix=\"creator-search\" value=\"1 credit\" unit=\"per creator found\"></spyglass-product-pricing>\n"
+        }
+      ]
+    }
+  }
+}

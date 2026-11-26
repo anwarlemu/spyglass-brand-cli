@@ -1,0 +1,295 @@
+{
+  "name": "templates-page",
+  "title": "Templates page",
+  "type": "registry:block",
+  "group": "pages",
+  "description": "The site's templates page, from library items: the header, the templates wall as the hero, the automation run, what each template brings back (a centered head over the row fan), the questions, the close with two buttons and the footer.",
+  "use_for": "A page introducing templates or playbooks. Edit lib/pages/templates.ts or pass `content`; `fan` (the `fan` slot in web components) takes your own arrangement of the rows in place of the row fan.",
+  "never": [
+    "Another brand's ads or creators in the wall, the run or the rows: pass your own or keep the placeholders",
+    "More than one White button in a section",
+    "A schedule or a price the template does not state"
+  ],
+  "source": "Site app/templates/page.tsx (V2Templates as h1, AutomationRun with templatesPage.run, TemplateCities, V3Faq, PageClose with control null) and pages/TemplatesPage/TemplateCities(.module.css), tokens.css 840-931: the head trimmed at the cap, the lead 16px under it, the rows 48px under (72 at 768), each row padded 16px with 128px under it on phones (136 at 768, 16 from 1024 with 40 between rows), the rows as the row fan sets them (names 32/36, 44/48 at 768 and 64/68 at 1024, cards 72, 96 and 128); copy from content/pages/templates.ts and templatesCities.ts with third-party names left out",
+  "body": "The wall holds a still frame with reduced motion and the run holds its batch at rest. Each row is a link to its use case\nwith the template's schedule for assistive tech. The row items are Acme placeholder squares; pass\nyour own pictures through `content.cities.rows[].items[].src`.\n\n`sections` lists the sections to show, in order (`wall`, `run`, `cities`, `faq`, `close`); a key left out is not\nshown. `blocks.wall.pictures` fills the wall, `blocks.run.items` the run, and each city row's items take image slots\n(the generated blanks carry `data-ds-placeholder`). `menus` passes the header menus (the live card's `picture`, the\nuse cases' `shots`).",
+  "requires": [
+    "ascii-trail",
+    "automation-run",
+    "creative-card",
+    "faq-block",
+    "page-close",
+    "row-fan",
+    "site-footer",
+    "site-header",
+    "templates-wall"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/pages/TemplatesPage.tsx",
+      "content": "import { type ReactNode, Fragment } from 'react'\nimport { AsciiTrail } from '@/react/components/visuals/AsciiTrail'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { RowFan } from '@/react/components/site/RowFan'\nimport { AutomationRun } from '@/react/components/site/AutomationRun'\nimport { PageClose } from '@/react/components/site/PageClose'\nimport { TemplatesWall } from '@/react/components/blocks/TemplatesWall'\nimport { FaqBlock } from '@/react/components/blocks/FaqBlock'\nimport { SiteFooter } from '@/react/components/blocks/SiteFooter'\nimport { templatesPageContent, type TemplatesPageContent, templatesSections, type TemplatesSection, type TemplatesBlocks } from '@/lib/pages/templates'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// The site's templates page (app/templates): the header, the templates wall as the hero (an h1 filling the window under\n// the header), the automation run (a quote over the batch drifting by), what each template brings back\n// (pages/TemplatesPage/TemplateCities: a centered head and a row per template, its name 32/36, 44/48 at 768, 64/68 at\n// 1024, each row a link whose items fan out in perspective, the row fan), the questions, the close with a White and a quiet\n// button, and the footer. `fan` replaces the row fan with your own arrangement of the rows; `content` replaces\n// the copy (lib/pages/templates.ts).\nexport interface TemplatesPageProps {\n  content?: TemplatesPageContent\n  /** Your own arrangement of the rows in place of the row fan. */\n  fan?: ReactNode\n  /** Each block's data, pictures included: the wall's `pictures` and the run's `items`. */\n  blocks?: TemplatesBlocks\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly TemplatesSection[]\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function TemplatesPage({ content: c = templatesPageContent, fan, blocks = {}, menus, sections, className }: TemplatesPageProps) {\n  const t = c.cities\n  const parts: Record<TemplatesSection, ReactNode> = {\n    wall: <TemplatesWall hero content={c.wall} pictures={blocks.wall?.pictures} id=\"templates\" />,\n    run: <AutomationRun items={blocks.run?.items} id=\"templates-run\" />,\n    cities: (\n      <section id={t.id} aria-labelledby={`${t.id}-heading`} className=\"ds-tpl-cities overflow-x-clip pt-(--ds-layout-section)\">\n        <div className={cn(WRAP, 'grid justify-items-center text-center')}>\n          <h2 id={`${t.id}-heading`} className=\"type-section [text-box:trim-start_cap_alphabetic]\">{t.headline}</h2>\n          <p className=\"mt-4 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft\">{t.lead}</p>\n        </div>\n        <div className=\"ds-tpl-cities-rows relative\">\n          {fan ?? <RowFan rows={t.rows.map((r) => ({ key: r.key, name: r.name, href: r.href, cta: r.line, srLabel: `: ${t.status.toLowerCase()}. ${r.line}`, items: r.items }))} />}\n        </div>\n      </section>\n    ),\n    faq: (\n      <div className={cn(WRAP, 'py-(--ds-layout-section)')}>\n        <FaqBlock id={c.faq.id} title={c.faq.headline} body={c.faq.lead} action={c.faq.docs} items={c.faq.items} />\n      </div>\n    ),\n    close: <PageClose id=\"templates-close\" lines={c.close.lines} note={c.close.note} primary={c.close.primary} secondary={c.close.secondary} control={null} />,\n  }\n  return (\n    <div data-ds=\"templates-page\" className={cn('isolate bg-surface text-fg', className)}>\n      <AsciiTrail mode=\"page\" />\n      <style href=\"ds-templates-page\" precedence=\"ds\">{css}</style>\n      <SiteHeader menus={menus} links={c.chrome.header.nav} secondary={c.chrome.header.secondary} cta={c.chrome.header.cta} />\n      <main id=\"main\">\n        {pageSections(templatesSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <SiteFooter columns={c.chrome.footer.columns} legal={c.chrome.footer.legal} />\n    </div>\n  )\n}\n\nexport default TemplatesPage\n\nconst css = `\n.ds-tpl-cities { padding-bottom: calc(var(--ds-layout-section) - var(--ds-space-lg)); }\n.ds-tpl-cities-rows { margin-top: var(--ds-space-3xl); }\n@media (min-width: 768px) { .ds-tpl-cities-rows { margin-top: calc(var(--ds-space-4xl) + var(--ds-space-sm)); } }\n@media (min-width: 1024px) { .ds-tpl-cities { padding-bottom: var(--ds-layout-section); } }\n`\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Page",
+      "label": "Templates page",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/templates-page/Page.tsx",
+      "content": "import { TemplatesPage } from '@/react/components/pages/TemplatesPage'\n// The templates page with Acme's copy and neutral placeholders in the wall and the run.\n\nexport default function Page() {\n  return <TemplatesPage />\n}\n",
+      "requires": [
+        "ascii-trail",
+        "automation-run",
+        "creative-card",
+        "faq-block",
+        "page-close",
+        "row-fan",
+        "site-footer",
+        "site-header",
+        "templates-wall"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/pages/TemplatesPage.tsx",
+          "content": "import { type ReactNode, Fragment } from 'react'\nimport { AsciiTrail } from '@/react/components/visuals/AsciiTrail'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { RowFan } from '@/react/components/site/RowFan'\nimport { AutomationRun } from '@/react/components/site/AutomationRun'\nimport { PageClose } from '@/react/components/site/PageClose'\nimport { TemplatesWall } from '@/react/components/blocks/TemplatesWall'\nimport { FaqBlock } from '@/react/components/blocks/FaqBlock'\nimport { SiteFooter } from '@/react/components/blocks/SiteFooter'\nimport { templatesPageContent, type TemplatesPageContent, templatesSections, type TemplatesSection, type TemplatesBlocks } from '@/lib/pages/templates'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// The site's templates page (app/templates): the header, the templates wall as the hero (an h1 filling the window under\n// the header), the automation run (a quote over the batch drifting by), what each template brings back\n// (pages/TemplatesPage/TemplateCities: a centered head and a row per template, its name 32/36, 44/48 at 768, 64/68 at\n// 1024, each row a link whose items fan out in perspective, the row fan), the questions, the close with a White and a quiet\n// button, and the footer. `fan` replaces the row fan with your own arrangement of the rows; `content` replaces\n// the copy (lib/pages/templates.ts).\nexport interface TemplatesPageProps {\n  content?: TemplatesPageContent\n  /** Your own arrangement of the rows in place of the row fan. */\n  fan?: ReactNode\n  /** Each block's data, pictures included: the wall's `pictures` and the run's `items`. */\n  blocks?: TemplatesBlocks\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly TemplatesSection[]\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function TemplatesPage({ content: c = templatesPageContent, fan, blocks = {}, menus, sections, className }: TemplatesPageProps) {\n  const t = c.cities\n  const parts: Record<TemplatesSection, ReactNode> = {\n    wall: <TemplatesWall hero content={c.wall} pictures={blocks.wall?.pictures} id=\"templates\" />,\n    run: <AutomationRun items={blocks.run?.items} id=\"templates-run\" />,\n    cities: (\n      <section id={t.id} aria-labelledby={`${t.id}-heading`} className=\"ds-tpl-cities overflow-x-clip pt-(--ds-layout-section)\">\n        <div className={cn(WRAP, 'grid justify-items-center text-center')}>\n          <h2 id={`${t.id}-heading`} className=\"type-section [text-box:trim-start_cap_alphabetic]\">{t.headline}</h2>\n          <p className=\"mt-4 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft\">{t.lead}</p>\n        </div>\n        <div className=\"ds-tpl-cities-rows relative\">\n          {fan ?? <RowFan rows={t.rows.map((r) => ({ key: r.key, name: r.name, href: r.href, cta: r.line, srLabel: `: ${t.status.toLowerCase()}. ${r.line}`, items: r.items }))} />}\n        </div>\n      </section>\n    ),\n    faq: (\n      <div className={cn(WRAP, 'py-(--ds-layout-section)')}>\n        <FaqBlock id={c.faq.id} title={c.faq.headline} body={c.faq.lead} action={c.faq.docs} items={c.faq.items} />\n      </div>\n    ),\n    close: <PageClose id=\"templates-close\" lines={c.close.lines} note={c.close.note} primary={c.close.primary} secondary={c.close.secondary} control={null} />,\n  }\n  return (\n    <div data-ds=\"templates-page\" className={cn('isolate bg-surface text-fg', className)}>\n      <AsciiTrail mode=\"page\" />\n      <style href=\"ds-templates-page\" precedence=\"ds\">{css}</style>\n      <SiteHeader menus={menus} links={c.chrome.header.nav} secondary={c.chrome.header.secondary} cta={c.chrome.header.cta} />\n      <main id=\"main\">\n        {pageSections(templatesSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <SiteFooter columns={c.chrome.footer.columns} legal={c.chrome.footer.legal} />\n    </div>\n  )\n}\n\nexport default TemplatesPage\n\nconst css = `\n.ds-tpl-cities { padding-bottom: calc(var(--ds-layout-section) - var(--ds-space-lg)); }\n.ds-tpl-cities-rows { margin-top: var(--ds-space-3xl); }\n@media (min-width: 768px) { .ds-tpl-cities-rows { margin-top: calc(var(--ds-space-4xl) + var(--ds-space-sm)); } }\n@media (min-width: 1024px) { .ds-tpl-cities { padding-bottom: var(--ds-layout-section); } }\n`\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-trail",
+        "automation-run",
+        "creative-card",
+        "faq-block",
+        "page-close",
+        "row-fan",
+        "site-footer",
+        "site-header",
+        "templates-wall"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "TemplatesPage",
+            "file": "react/components/pages/TemplatesPage.tsx",
+            "props": [
+              {
+                "name": "content",
+                "type": "TemplatesPageContent",
+                "required": false
+              },
+              {
+                "name": "fan",
+                "type": "ReactNode",
+                "required": false,
+                "description": "Your own arrangement of the rows in place of the row fan."
+              },
+              {
+                "name": "blocks",
+                "type": "TemplatesBlocks",
+                "required": false,
+                "default": "{}",
+                "description": "Each block's data, pictures included: the wall's `pictures` and the run's `items`."
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus",
+                "required": false,
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "type": "readonly TemplatesSection[]",
+                "required": false,
+                "description": "The sections to show, in order; all of them in the page order by default (leave one out to omit it)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Templates page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/templates-page/Page.tsx",
+          "content": "import { TemplatesPage } from '@/react/components/pages/TemplatesPage'\n// The templates page with Acme's copy and neutral placeholders in the wall and the run.\n\nexport default function Page() {\n  return <TemplatesPage />\n}\n",
+          "registryDependencies": [
+            "ascii-trail",
+            "automation-run",
+            "creative-card",
+            "faq-block",
+            "page-close",
+            "row-fan",
+            "site-footer",
+            "site-header",
+            "templates-wall"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/pages/templates-page.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { templatesPageContent, type TemplatesPageContent, templatesSections, type TemplatesSection, type TemplatesBlocks } from '@/lib/pages/templates'\nimport '@/elements/components/site/site-header'\nimport '@/elements/components/site/automation-run'\nimport '@/elements/components/site/row-fan'\nimport '@/elements/components/site/page-close'\nimport '@/elements/components/blocks/templates-wall'\nimport '@/elements/components/blocks/faq-block'\nimport '@/elements/components/blocks/site-footer'\nimport '@/elements/components/visuals/ascii-trail'\nimport styles from 'virtual:tw'\nimport { pageSections } from '@/lib/image'\nimport { runPlaceholders } from '@/lib/automation-run'\nimport { headerMenus, type HeaderMenus } from '@/lib/site-header'\n\n// TemplatesPage.tsx as <spyglass-templates-page>: the header, the templates wall as the hero, the automation run, what\n// each template brings back (a centered head over the row fan), the\n// questions, the close with two buttons and the footer. `content` replaces the copy (lib/pages/templates.ts); the `fan`\n// slot replaces the row fan with your own arrangement of the rows.\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\n/**\n * @summary The templates page template.\n * @slot fan - Your own arrangement of the rows in place of the row fan.\n */\nexport class TemplatesPage extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"templates-page\"]'))\n\tstatic properties = { content: { type: Object }, sections: { type: Array }, blocks: { type: Object }, menus: { type: Object } }\n\t/** The page's copy (lib/pages/templates.ts by default). */\n\tcontent: TemplatesPageContent = templatesPageContent\n\t/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n\tmenus?: HeaderMenus\n\t/** The sections to show, in order (a list of names); all of them in the page order by default. */\n\t/** Each block's data, pictures included: the wall's `pictures` and the run's `items`. */\n\tblocks: TemplatesBlocks = {}\n\tsections?: TemplatesSection[]\n\n\trender() {\n\t\tconst c = this.content ?? templatesPageContent\n\t\tconst t = c.cities\n\t\tconst rows = this.hasSlot('fan') ? html`<slot name=\"fan\"></slot>` : html`<spyglass-row-fan .rows=${t.rows.map((r) => ({ key: r.key, name: r.name, href: r.href, cta: r.line, srLabel: `: ${t.status.toLowerCase()}. ${r.line}`, items: r.items }))}></spyglass-row-fan>`\n\t\tconst b = this.blocks ?? {}\n\t\tconst parts: Record<TemplatesSection, unknown> = {\n\t\t\twall: html`<spyglass-templates-wall hero .content=${c.wall} .pictures=${b.wall?.pictures} section-id=\"templates\"></spyglass-templates-wall>`,\n\t\t\trun: html`<spyglass-automation-run .items=${b.run?.items ?? runPlaceholders} section-id=\"templates-run\"></spyglass-automation-run>`,\n\t\t\tcities: html`<section id=${t.id} aria-labelledby=${`${t.id}-heading`} class=\"ds-tpl-cities overflow-x-clip pt-(--ds-layout-section)\"><div class=${`${WRAP} grid justify-items-center text-center`}><h2 id=${`${t.id}-heading`} class=\"type-section [text-box:trim-start_cap_alphabetic]\">${t.headline}</h2><p class=\"mt-4 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft\">${t.lead}</p></div><div class=\"ds-tpl-cities-rows relative\">${rows}</div></section>`,\n\t\t\tfaq: html`<div class=${`${WRAP} py-(--ds-layout-section)`}><spyglass-faq-block head-id=${c.faq.id} heading=${c.faq.headline} body=${c.faq.lead} .action=${c.faq.docs} .items=${c.faq.items}></spyglass-faq-block></div>`,\n\t\t\tclose: html`<spyglass-page-close close-id=\"templates-close\" .lines=${c.close.lines} note=${c.close.note} .primary=${c.close.primary} .secondary=${c.close.secondary} connect=\"false\"></spyglass-page-close>`,\n\t\t}\n\t\treturn html`<div data-ds=\"templates-page\" class=\"isolate bg-surface text-fg\"><spyglass-ascii-trail mode=\"page\"></spyglass-ascii-trail><spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.chrome.header.nav} .secondary=${c.chrome.header.secondary} .cta=${c.chrome.header.cta}></spyglass-site-header><main id=\"main\">${pageSections(templatesSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.chrome.footer.columns} legal=${c.chrome.footer.legal}></spyglass-site-footer></div>`\n\t}\n}\n\ndefine('templates-page', TemplatesPage)\n"
+        },
+        {
+          "path": "elements/components/pages/templates-page.css",
+          "content": ".ds-tpl-cities { padding-bottom: calc(var(--ds-layout-section) - var(--ds-space-lg)); }\n.ds-tpl-cities-rows { margin-top: var(--ds-space-3xl); }\n@media (min-width: 768px) { .ds-tpl-cities-rows { margin-top: calc(var(--ds-space-4xl) + var(--ds-space-sm)); } }\n@media (min-width: 1024px) { .ds-tpl-cities { padding-bottom: var(--ds-layout-section); } }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/templates-page.js",
+        "elements/site-header.js",
+        "elements/automation-run.js",
+        "elements/row-fan.js",
+        "elements/page-close.js",
+        "elements/templates-wall.js",
+        "elements/faq-block.js",
+        "elements/site-footer.js",
+        "elements/ascii-trail.js",
+        "elements/menu-sheet.js",
+        "elements/menu-panels.js",
+        "elements/nav-menus.js",
+        "elements/nav-icon.js",
+        "elements/sheet-disclosure.js",
+        "elements/button.js",
+        "elements/logo.js",
+        "elements/connect-menu.js",
+        "elements/faq-accordion.js",
+        "elements/badge.js",
+        "elements/brand-light.js",
+        "elements/products-live-panel.js",
+        "elements/product-visual.js"
+      ],
+      "tag": "spyglass-templates-page",
+      "tags": [
+        "spyglass-templates-page"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-trail",
+        "automation-run",
+        "badge",
+        "brand-light",
+        "button",
+        "connect-menu",
+        "faq-block",
+        "logo",
+        "page-close",
+        "product-visual",
+        "row-fan",
+        "site-footer",
+        "site-header",
+        "templates-wall"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-templates-page",
+            "name": "TemplatesPage",
+            "module": "elements/templates-page.js",
+            "description": "The templates page template.",
+            "attributes": [
+              {
+                "name": "content",
+                "field": "content",
+                "type": "{ chrome: { header: { nav: { label: string; href: string; }[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; short: string; }; }; footer: { columns: ({ title: string; wide: boolean; links: { label: string; href: string; }[]; } | { title: string; links: { label: string; href: string; }[]; wide?: undefined; })[]; legal: string; }; close: { lines: string[]; note: string; primary: { label: string; href: string; }; }; }; wall: TemplatesWallContent; cities: { id: string; headline: string; lead: string; status: string; rows: { key: string; name: string; href: string; line: string; items: TemplateCityItem[]; }[]; }; faq: { id: string; headline: string; lead: string; docs: { label: string; href: string; }; items: { q: string; a: string; }[]; }; close: { lines: string[]; note: string; primary: { label: string; href: string; }; secondary: { label: string; href: string; }; }; }",
+                "default": "templatesPageContent",
+                "description": "The page's copy (lib/pages/templates.ts by default)."
+              },
+              {
+                "name": "sections",
+                "field": "sections",
+                "type": "(\"close\" | \"run\" | \"faq\" | \"wall\" | \"cities\")[] | undefined"
+              },
+              {
+                "name": "blocks",
+                "field": "blocks",
+                "type": "TemplatesBlocks",
+                "default": "{}",
+                "description": "Each block's data, pictures included: the wall's `pictures` and the run's `items`."
+              },
+              {
+                "name": "menus",
+                "field": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              }
+            ],
+            "properties": [
+              {
+                "name": "content",
+                "type": "{ chrome: { header: { nav: { label: string; href: string; }[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; short: string; }; }; footer: { columns: ({ title: string; wide: boolean; links: { label: string; href: string; }[]; } | { title: string; links: { label: string; href: string; }[]; wide?: undefined; })[]; legal: string; }; close: { lines: string[]; note: string; primary: { label: string; href: string; }; }; }; wall: TemplatesWallContent; cities: { id: string; headline: string; lead: string; status: string; rows: { key: string; name: string; href: string; line: string; items: TemplateCityItem[]; }[]; }; faq: { id: string; headline: string; lead: string; docs: { label: string; href: string; }; items: { q: string; a: string; }[]; }; close: { lines: string[]; note: string; primary: { label: string; href: string; }; secondary: { label: string; href: string; }; }; }",
+                "default": "templatesPageContent",
+                "description": "The page's copy (lib/pages/templates.ts by default).",
+                "attribute": "content"
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default.",
+                "attribute": "menus"
+              },
+              {
+                "name": "blocks",
+                "type": "TemplatesBlocks",
+                "default": "{}",
+                "description": "Each block's data, pictures included: the wall's `pictures` and the run's `items`.",
+                "attribute": "blocks"
+              },
+              {
+                "name": "sections",
+                "type": "(\"close\" | \"run\" | \"faq\" | \"wall\" | \"cities\")[] | undefined",
+                "attribute": "sections"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "fan",
+                "description": "Your own arrangement of the rows in place of the row fan."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Templates page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/templates-page/Page.html",
+          "content": "<!-- The templates page with Acme's copy and neutral placeholders in the wall and the run. -->\n<spyglass-templates-page></spyglass-templates-page>\n"
+        }
+      ]
+    }
+  }
+}

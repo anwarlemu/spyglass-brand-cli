@@ -1,0 +1,172 @@
+{
+  "name": "separator",
+  "title": "Separator",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "The hairline: 1px in the #262626 edge step, across or down. Spyglass separates with a fill or a hairline, never a shadow.",
+  "use_for": "Splitting a card's head from its body, or links in a row. Decorative by default; mark it semantic when it splits content a screen reader should hear as split.",
+  "never": [
+    "A shadow or a thicker rule to separate",
+    "A rule where spacing already separates",
+    "A colored or glowing line: the spectrum belongs to the light"
+  ],
+  "source": "Derived from the brand guidelines (no separator in the brand assets): the neutral steps for the hairline",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Separator.tsx",
+      "content": "import { cn } from '@/react/lib/cn'\n\n// The hairline as its own part: 1px in the #262626 edge step, across or down. Spyglass separates with a fill or a\n// hairline, never a shadow. Decorative by default (role none); pass `semantic` when it splits content a screen reader\n// should hear as split.\nexport interface SeparatorProps {\n  /** Across (horizontal) or down (vertical, it stretches to its row's height). */\n  orientation?: 'horizontal' | 'vertical'\n  /** A real separator for assistive tech, not only a line. */\n  semantic?: boolean\n  className?: string\n}\n\nexport function Separator({ orientation = 'horizontal', semantic, className }: SeparatorProps) {\n  return (\n    <div\n      data-ds=\"separator\"\n      role={semantic ? 'separator' : 'none'}\n      aria-orientation={semantic ? orientation : undefined}\n      className={cn('shrink-0 bg-edge', orientation === 'vertical' ? 'w-px self-stretch' : 'h-px w-full', className)}\n    />\n  )\n}\n\nexport default Separator\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Profile",
+      "label": "Across and down",
+      "center": true,
+      "half": false,
+      "path": "react/examples/separator/Profile.tsx",
+      "content": "import { Separator } from '@/react/components/ui/Separator'\n// A board's title over a hairline, and its links split by short vertical lines.\n\nexport default function Profile() {\n  return (\n    <div className=\"flex w-80 max-w-full flex-col\">\n      <div className=\"flex flex-col gap-1\">\n        <p className=\"type-ui-strong text-fg\">Acme hooks</p>\n        <p className=\"type-caption text-fg-muted\">48 creatives from 12 brands.</p>\n      </div>\n      <Separator className=\"my-4\" />\n      <div className=\"flex h-5 items-center gap-4 type-ui text-fg-soft\">\n        <span>Ads</span>\n        <Separator orientation=\"vertical\" />\n        <span>Posts</span>\n        <Separator orientation=\"vertical\" />\n        <span>Product shots</span>\n      </div>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Separator.tsx",
+          "content": "import { cn } from '@/react/lib/cn'\n\n// The hairline as its own part: 1px in the #262626 edge step, across or down. Spyglass separates with a fill or a\n// hairline, never a shadow. Decorative by default (role none); pass `semantic` when it splits content a screen reader\n// should hear as split.\nexport interface SeparatorProps {\n  /** Across (horizontal) or down (vertical, it stretches to its row's height). */\n  orientation?: 'horizontal' | 'vertical'\n  /** A real separator for assistive tech, not only a line. */\n  semantic?: boolean\n  className?: string\n}\n\nexport function Separator({ orientation = 'horizontal', semantic, className }: SeparatorProps) {\n  return (\n    <div\n      data-ds=\"separator\"\n      role={semantic ? 'separator' : 'none'}\n      aria-orientation={semantic ? orientation : undefined}\n      className={cn('shrink-0 bg-edge', orientation === 'vertical' ? 'w-px self-stretch' : 'h-px w-full', className)}\n    />\n  )\n}\n\nexport default Separator\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Separator",
+            "file": "react/components/ui/Separator.tsx",
+            "props": [
+              {
+                "name": "orientation",
+                "type": "'horizontal' | 'vertical'",
+                "required": false,
+                "default": "'horizontal'",
+                "description": "Across (horizontal) or down (vertical, it stretches to its row's height)."
+              },
+              {
+                "name": "semantic",
+                "type": "boolean",
+                "required": false,
+                "description": "A real separator for assistive tech, not only a line."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Profile",
+          "label": "Across and down",
+          "center": true,
+          "half": false,
+          "path": "react/examples/separator/Profile.tsx",
+          "content": "import { Separator } from '@/react/components/ui/Separator'\n// A board's title over a hairline, and its links split by short vertical lines.\n\nexport default function Profile() {\n  return (\n    <div className=\"flex w-80 max-w-full flex-col\">\n      <div className=\"flex flex-col gap-1\">\n        <p className=\"type-ui-strong text-fg\">Acme hooks</p>\n        <p className=\"type-caption text-fg-muted\">48 creatives from 12 brands.</p>\n      </div>\n      <Separator className=\"my-4\" />\n      <div className=\"flex h-5 items-center gap-4 type-ui text-fg-soft\">\n        <span>Ads</span>\n        <Separator orientation=\"vertical\" />\n        <span>Posts</span>\n        <Separator orientation=\"vertical\" />\n        <span>Product shots</span>\n      </div>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/separator.ts",
+          "content": "import { type PropertyValues } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Separator.tsx as <spyglass-separator>: the hairline, 1px in the #262626 edge step, across or down. The host is the\n// line (React's root div), so a class on the element (a margin) lands on it. Decorative by default; `semantic` makes it\n// a separator for assistive tech.\n\n/** @summary The hairline, across or down. */\nexport class Separator extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { orientation: { reflect: true }, semantic: { type: Boolean } }\n\n\t/** horizontal (across) or vertical (down). */\n\torientation: 'horizontal' | 'vertical' = 'horizontal'\n\t/** A real separator for assistive tech, not only a line. */\n\tsemantic = false\n\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\tthis.setAttribute('role', this.semantic ? 'separator' : 'none')\n\t\tif (this.semantic) this.setAttribute('aria-orientation', this.orientation)\n\t\telse this.removeAttribute('aria-orientation')\n\t}\n\n\trender() {\n\t\treturn null\n\t}\n}\n\ndefine('separator', Separator)\n"
+        },
+        {
+          "path": "elements/components/ui/separator.css",
+          "content": "/* The host is the line (Separator.tsx's root div): across by default, down with orientation=\"vertical\". A class on the\n   element wins over these, as a class on <Separator> does. */\n:host { @apply block shrink-0 bg-edge h-px w-full; }\n:host([orientation=\"vertical\"]) { @apply h-auto w-px self-stretch; }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/separator.js"
+      ],
+      "tag": "spyglass-separator",
+      "tags": [
+        "spyglass-separator"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-separator",
+            "name": "Separator",
+            "module": "elements/separator.js",
+            "description": "The hairline, across or down.",
+            "attributes": [
+              {
+                "name": "orientation",
+                "field": "orientation",
+                "type": "\"horizontal\" | \"vertical\"",
+                "default": "'horizontal'",
+                "description": "horizontal (across) or vertical (down)."
+              },
+              {
+                "name": "semantic",
+                "field": "semantic",
+                "type": "boolean",
+                "default": "false",
+                "description": "A real separator for assistive tech, not only a line."
+              }
+            ],
+            "properties": [
+              {
+                "name": "orientation",
+                "type": "\"horizontal\" | \"vertical\"",
+                "default": "'horizontal'",
+                "description": "horizontal (across) or vertical (down).",
+                "attribute": "orientation"
+              },
+              {
+                "name": "semantic",
+                "type": "boolean",
+                "default": "false",
+                "description": "A real separator for assistive tech, not only a line.",
+                "attribute": "semantic"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Profile",
+          "label": "Across and down",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/separator/Profile.html",
+          "content": "<!-- A board's title over a hairline, and its links split by short vertical lines. -->\n<div class=\"flex w-80 max-w-full flex-col\">\n  <div class=\"flex flex-col gap-1\">\n    <p class=\"type-ui-strong text-fg\">Acme hooks</p>\n    <p class=\"type-caption text-fg-muted\">48 creatives from 12 brands.</p>\n  </div>\n  <spyglass-separator class=\"my-4\"></spyglass-separator>\n  <div class=\"flex h-5 items-center gap-4 type-ui text-fg-soft\">\n    <span>Ads</span>\n    <spyglass-separator orientation=\"vertical\"></spyglass-separator>\n    <span>Posts</span>\n    <spyglass-separator orientation=\"vertical\"></spyglass-separator>\n    <span>Product shots</span>\n  </div>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

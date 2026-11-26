@@ -1,0 +1,23 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "footer-row",
+  "type": "registry:ui",
+  "title": "Footer row",
+  "description": "The row every post, ad and deck ends on: the lockup on the left, the domain on the right. Links between them make it a website footer.",
+  "dependencies": [],
+  "registryDependencies": [
+    "https://spyglass-ds.vercel.app/r/react/logo.json"
+  ],
+  "files": [
+    {
+      "path": "components/site/FooterRow.tsx",
+      "type": "registry:ui",
+      "content": "import { Logo } from '@/components/visuals/Logo'\nimport { cn } from '@/lib/cn'\n\n// The row every post, ad and deck ends on: the lockup on the left and the domain on the right (the lockup 183x28 on\n// the canvas, 20px tall here; the domain in DM Sans, or in capitals with `caps` as the posts set it). `links` puts a\n// row of DM Sans links between them for a website footer; on phones they wrap onto their own line. Links change color\n// on hover, nothing moves.\nexport interface FooterLink {\n  label: string\n  href: string\n}\n\nexport interface FooterRowProps {\n  /** The domain on the right. */\n  domain: string\n  /** Where the domain links (https://<domain> by default). */\n  domainHref?: string\n  /** Where the lockup links; without it the lockup is not a link. */\n  homeHref?: string\n  /** The domain in capitals with 6% tracking, as the posts set it. */\n  caps?: boolean\n  /** Links between the lockup and the domain. */\n  links?: FooterLink[]\n  /** The lockup's accessible name. */\n  label?: string\n  className?: string\n}\n\nconst LINK = 'rounded-control text-fg-muted transition-[color] duration-160 ease-standard hover:text-fg'\n\nexport function FooterRow({ domain, domainHref, homeHref, caps = false, links = [], label = 'Spyglass', className }: FooterRowProps) {\n  return (\n    <div data-ds=\"footer-row\" className={cn('flex flex-wrap items-center justify-between gap-x-8 gap-y-6 text-fg', className)}>\n      {homeHref ? (\n        <a href={homeHref} aria-label={label} className=\"rounded-control\"><Logo height={20} label={label} /></a>\n      ) : (\n        <Logo height={20} label={label} />\n      )}\n      {links.length > 0 && (\n        <nav aria-label=\"Footer\" className=\"max-sm:order-last max-sm:w-full\">\n          <ul className=\"flex flex-wrap gap-x-6 gap-y-2 type-ui\">\n            {links.map((l) => <li key={l.href}><a href={l.href} className={LINK}>{l.label}</a></li>)}\n          </ul>\n        </nav>\n      )}\n      <a href={domainHref ?? `https://${domain}`} className={cn('rounded-control text-fg', caps ? 'type-label' : 'type-ui')}>{domain}</a>\n    </div>\n  )\n}\n\nexport default FooterRow\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "steps-block",
+  "type": "registry:block",
+  "title": "Steps block",
+  "description": "How it works in numbered steps under hairlines: the number as a label, a title and a line, side by side from 768.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/blocks/StepsBlock.tsx",
+      "type": "registry:ui",
+      "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/lib/cn'\n\n// How it works in steps, as the site's \"Set up in under a minute\": each step under a #363636 hairline, its number as\n// a label in capitals, a Funnel Display 24/28 title and a #D4D4D4 line; side by side from 768 (up to four), stacked on\n// phones. Nothing moves.\nexport interface Step {\n  title: string\n  body?: string\n}\n\nexport interface StepsBlockProps {\n  steps: Step[]\n  title?: ReactNode\n  body?: ReactNode\n  className?: string\n}\n\nexport function StepsBlock({ steps, title, body, className }: StepsBlockProps) {\n  return (\n    <section data-ds=\"steps-block\" className={cn('grid gap-10 text-fg', className)}>\n      {(title || body) && (\n        <div className=\"grid max-w-3xl gap-6\">\n          {title && <h2 className=\"type-section\">{title}</h2>}\n          {body && <p className=\"max-w-measure type-body-lg text-fg-soft\">{body}</p>}\n        </div>\n      )}\n      <ol className=\"m-0 grid list-none grid-cols-1 gap-8 p-0 md:auto-cols-fr md:grid-flow-col md:gap-6\">\n        {steps.map((s, n) => (\n          <li key={s.title} className=\"grid content-start gap-3 border-t border-edge pt-6\">\n            <span className=\"type-label text-fg-muted\">{String(n + 1).padStart(2, '0')}</span>\n            <h3 className=\"type-heading-3\">{s.title}</h3>\n            {s.body && <p className=\"type-body text-fg-soft\">{s.body}</p>}\n          </li>\n        ))}\n      </ol>\n    </section>\n  )\n}\n\nexport default StepsBlock\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

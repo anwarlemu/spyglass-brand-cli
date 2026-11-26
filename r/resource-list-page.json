@@ -1,0 +1,318 @@
+{
+  "name": "resource-list-page",
+  "title": "Resource list page",
+  "type": "registry:block",
+  "group": "pages",
+  "description": "The site's list of posts or guides: the header, the page head with the list's title and line, the entries newest first as hairline rows (date, title, line; with a `thumb`, a 16:9 picture on the left and the three lines stacked beside it), or a quiet panel with the empty note and the way back to all resources, then the closing section and the footer.",
+  "use_for": "A blog, articles or guides index; `list` takes the entries (an empty list shows the empty panel), `content` the rest of the copy.",
+  "never": [
+    "Cards in the rows: the list is hairline rows, with at most a small 16:9 thumbnail on the left",
+    "Dates in a local time zone: they read in UTC so every reader sees the same day",
+    "Real authors or customers in the copy: Acme only"
+  ],
+  "source": "Site app/resources/[slug]/page.tsx and pages/Resources (ResourceList.tsx, Resources.module.css .list, .row, .date, .rowTitle, .empty): rows 24px tall padding with a hairline under each, the date 14/20 in --text-3 in a 160px column 32px from the title from 768, the title 20/28, the line in --text-2; .rowThumb and .thumb: a 96px picture column 20px from the text (160 and 32 from 768), the picture 16:9 with --radius-s across the three lines; the back button full width below 768 (globals.css main a.btn); the empty panel --raised with --radius-m, at least 320px tall, 32px in, the note 20/28 and the quiet button 24px under it",
+  "body": "`sections` lists the sections to show, in order (`head`, `list`, `close`); a key left out is not shown. Each entry's\n`thumb` is an image slot or a placeholder `tone`. `menus` passes the header menus (the live card's `picture`, the use\ncases' `shots`).",
+  "requires": [
+    "ascii-trail",
+    "button",
+    "creative-card",
+    "page-close",
+    "page-head",
+    "resources-page",
+    "site-footer",
+    "site-header"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/pages/ResourceListPage.tsx",
+      "content": "import { Button } from '@/react/components/ui/Button'\nimport { AsciiTrail } from '@/react/components/visuals/AsciiTrail'\nimport { PageClose } from '@/react/components/site/PageClose'\nimport { PageHead } from '@/react/components/site/PageHead'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { SiteFooter } from '@/react/components/blocks/SiteFooter'\nimport { CreativeCard } from '@/react/components/site/CreativeCard'\nimport { formatResourceDate, resourceListContent, type ResourceList, type ResourceListContent, resourceListSections, type ResourceListSection } from '@/lib/pages/resources'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// The site's list of posts or guides (app/resources/[slug], pages/Resources/ResourceList): the header, the page head\n// with the list's title and line, then the entries newest first as hairline rows (the date in the muted gray, the\n// title at 20/28 and its line in the soft gray; the date in a 160px column from 768; an entry with a `thumb` puts\n// its 16:9 picture in a 96px column, 160 from 768, with the three lines stacked beside it), or, with no entries yet, a\n// #1A1A1A panel with the empty note and a quiet way back. The closing section and the footer follow. `list` sets\n// the list (lib/pages/resources.ts has the blog, empty, and articles); `content` the rest of the copy.\nexport interface ResourceListPageProps {\n  list?: ResourceList\n  content?: ResourceListContent\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly ResourceListSection[]\n  className?: string\n}\n\n/** A row's grid: date, title and line stacked; with a thumbnail, the picture in a 96px column (160 from 768) beside them. */\nconst resourceRowClass = (thumb: boolean) =>\n\tthumb\n\t\t? 'group grid grid-cols-[--spacing(24)_minmax(0,1fr)] items-start gap-x-5 gap-y-1 border-b border-edge py-6 focus-visible:-outline-offset-2 md:grid-cols-[160px_minmax(0,1fr)] md:gap-x-8'\n\t\t: 'group grid gap-1 border-b border-edge py-6 focus-visible:-outline-offset-2 md:grid-cols-[160px_minmax(0,1fr)] md:gap-x-8'\n/** The thumbnail's cell: the first column, across the three lines. */\nconst RESOURCE_THUMB = 'col-start-1 row-span-3 row-start-1'\n\nconst CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function ResourceListPage({ list, content: c = resourceListContent, menus, sections, className }: ResourceListPageProps) {\n  const l = list ?? c.list\n  const entries = [...l.entries].sort((a, b) => b.date.localeCompare(a.date))\n  const parts: Record<ResourceListSection, ReactNode> = {\n    head: <PageHead id={l.key} lines={[l.title]} lead={l.line} />,\n    list: (\n      <section aria-label={l.title} className=\"pb-(--ds-layout-section)\">\n        <div className={CONTAINER}>\n          {entries.length ? (\n            <ul role=\"list\" className=\"m-0 list-none border-t border-edge p-0\">\n              {entries.map((e) => (\n                <li key={e.href}>\n                  <a href={e.href} className={resourceRowClass(!!e.thumb)}>\n                    {e.thumb ? <CreativeCard ratio=\"16/9\" src={e.thumb.src} alt={e.thumb.alt} fit={e.thumb.fit} position={e.thumb.position} tone={e.thumb.tone} className={RESOURCE_THUMB} /> : null}\n                    <time dateTime={e.date} className={cn('type-ui text-fg-muted', e.thumb && 'col-start-2')}>{formatResourceDate(e.date)}</time>\n                    <span className={cn('type-body-lg text-fg', e.thumb && 'col-start-2')}>{e.title}</span>\n                    <span className={cn('type-body text-pretty text-fg-soft md:col-start-2', e.thumb && 'col-start-2')}>{e.line}</span>\n                  </a>\n                </li>\n              ))}\n            </ul>\n          ) : (\n            <div className=\"flex min-h-80 flex-col items-center justify-center gap-6 rounded-panel bg-surface-subtle p-8 text-center text-fg-soft\">\n              <p className=\"type-body-lg\">{l.empty}</p>\n              <Button href={c.back.href} variant=\"secondary\" className=\"max-md:w-full\">{c.back.label}</Button>\n            </div>\n          )}\n        </div>\n      </section>\n    ),\n    close: <PageClose lines={c.close.lines} note={c.close.note} primary={c.close.primary} />,\n  }\n  return (\n    <div data-ds=\"resource-list-page\" className={cn('isolate overflow-x-clip bg-surface text-fg', className)}>\n      <AsciiTrail mode=\"page\" />\n      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      <main>\n        {pageSections(resourceListSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <SiteFooter columns={c.footer.columns} legal={c.footer.legal} />\n    </div>\n  )\n}\n\nexport default ResourceListPage\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Empty",
+      "label": "No posts yet",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/resource-list-page/Empty.tsx",
+      "content": "import { ResourceListPage } from '@/react/components/pages/ResourceListPage'\n// The blog before its first post, as the site shows it today.\n\nexport default function Empty() {\n  return <ResourceListPage />\n}\n",
+      "requires": [
+        "ascii-trail",
+        "button",
+        "creative-card",
+        "page-close",
+        "page-head",
+        "resources-page",
+        "site-footer",
+        "site-header"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Articles",
+      "label": "With entries and thumbnails",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/resource-list-page/Articles.tsx",
+      "content": "import { ResourceListPage } from '@/react/components/pages/ResourceListPage'\nimport { articlesList } from '@/lib/pages/resources'\n// A list with entries: Acme's articles, newest first.\n\nexport default function Articles() {\n  return <ResourceListPage list={articlesList} />\n}\n",
+      "requires": [
+        "ascii-trail",
+        "button",
+        "creative-card",
+        "page-close",
+        "page-head",
+        "resources-page",
+        "site-footer",
+        "site-header"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/pages/ResourceListPage.tsx",
+          "content": "import { Button } from '@/react/components/ui/Button'\nimport { AsciiTrail } from '@/react/components/visuals/AsciiTrail'\nimport { PageClose } from '@/react/components/site/PageClose'\nimport { PageHead } from '@/react/components/site/PageHead'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { SiteFooter } from '@/react/components/blocks/SiteFooter'\nimport { CreativeCard } from '@/react/components/site/CreativeCard'\nimport { formatResourceDate, resourceListContent, type ResourceList, type ResourceListContent, resourceListSections, type ResourceListSection } from '@/lib/pages/resources'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// The site's list of posts or guides (app/resources/[slug], pages/Resources/ResourceList): the header, the page head\n// with the list's title and line, then the entries newest first as hairline rows (the date in the muted gray, the\n// title at 20/28 and its line in the soft gray; the date in a 160px column from 768; an entry with a `thumb` puts\n// its 16:9 picture in a 96px column, 160 from 768, with the three lines stacked beside it), or, with no entries yet, a\n// #1A1A1A panel with the empty note and a quiet way back. The closing section and the footer follow. `list` sets\n// the list (lib/pages/resources.ts has the blog, empty, and articles); `content` the rest of the copy.\nexport interface ResourceListPageProps {\n  list?: ResourceList\n  content?: ResourceListContent\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly ResourceListSection[]\n  className?: string\n}\n\n/** A row's grid: date, title and line stacked; with a thumbnail, the picture in a 96px column (160 from 768) beside them. */\nconst resourceRowClass = (thumb: boolean) =>\n\tthumb\n\t\t? 'group grid grid-cols-[--spacing(24)_minmax(0,1fr)] items-start gap-x-5 gap-y-1 border-b border-edge py-6 focus-visible:-outline-offset-2 md:grid-cols-[160px_minmax(0,1fr)] md:gap-x-8'\n\t\t: 'group grid gap-1 border-b border-edge py-6 focus-visible:-outline-offset-2 md:grid-cols-[160px_minmax(0,1fr)] md:gap-x-8'\n/** The thumbnail's cell: the first column, across the three lines. */\nconst RESOURCE_THUMB = 'col-start-1 row-span-3 row-start-1'\n\nconst CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function ResourceListPage({ list, content: c = resourceListContent, menus, sections, className }: ResourceListPageProps) {\n  const l = list ?? c.list\n  const entries = [...l.entries].sort((a, b) => b.date.localeCompare(a.date))\n  const parts: Record<ResourceListSection, ReactNode> = {\n    head: <PageHead id={l.key} lines={[l.title]} lead={l.line} />,\n    list: (\n      <section aria-label={l.title} className=\"pb-(--ds-layout-section)\">\n        <div className={CONTAINER}>\n          {entries.length ? (\n            <ul role=\"list\" className=\"m-0 list-none border-t border-edge p-0\">\n              {entries.map((e) => (\n                <li key={e.href}>\n                  <a href={e.href} className={resourceRowClass(!!e.thumb)}>\n                    {e.thumb ? <CreativeCard ratio=\"16/9\" src={e.thumb.src} alt={e.thumb.alt} fit={e.thumb.fit} position={e.thumb.position} tone={e.thumb.tone} className={RESOURCE_THUMB} /> : null}\n                    <time dateTime={e.date} className={cn('type-ui text-fg-muted', e.thumb && 'col-start-2')}>{formatResourceDate(e.date)}</time>\n                    <span className={cn('type-body-lg text-fg', e.thumb && 'col-start-2')}>{e.title}</span>\n                    <span className={cn('type-body text-pretty text-fg-soft md:col-start-2', e.thumb && 'col-start-2')}>{e.line}</span>\n                  </a>\n                </li>\n              ))}\n            </ul>\n          ) : (\n            <div className=\"flex min-h-80 flex-col items-center justify-center gap-6 rounded-panel bg-surface-subtle p-8 text-center text-fg-soft\">\n              <p className=\"type-body-lg\">{l.empty}</p>\n              <Button href={c.back.href} variant=\"secondary\" className=\"max-md:w-full\">{c.back.label}</Button>\n            </div>\n          )}\n        </div>\n      </section>\n    ),\n    close: <PageClose lines={c.close.lines} note={c.close.note} primary={c.close.primary} />,\n  }\n  return (\n    <div data-ds=\"resource-list-page\" className={cn('isolate overflow-x-clip bg-surface text-fg', className)}>\n      <AsciiTrail mode=\"page\" />\n      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      <main>\n        {pageSections(resourceListSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <SiteFooter columns={c.footer.columns} legal={c.footer.legal} />\n    </div>\n  )\n}\n\nexport default ResourceListPage\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-trail",
+        "button",
+        "creative-card",
+        "page-close",
+        "page-head",
+        "resources-page",
+        "site-footer",
+        "site-header"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "ResourceListPage",
+            "file": "react/components/pages/ResourceListPage.tsx",
+            "props": [
+              {
+                "name": "list",
+                "type": "ResourceList",
+                "required": false
+              },
+              {
+                "name": "content",
+                "type": "ResourceListContent",
+                "required": false
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus",
+                "required": false,
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "type": "readonly ResourceListSection[]",
+                "required": false,
+                "description": "The sections to show, in order; all of them in the page order by default (leave one out to omit it)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Empty",
+          "label": "No posts yet",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/resource-list-page/Empty.tsx",
+          "content": "import { ResourceListPage } from '@/react/components/pages/ResourceListPage'\n// The blog before its first post, as the site shows it today.\n\nexport default function Empty() {\n  return <ResourceListPage />\n}\n",
+          "registryDependencies": [
+            "ascii-trail",
+            "button",
+            "creative-card",
+            "page-close",
+            "page-head",
+            "resources-page",
+            "site-footer",
+            "site-header"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Articles",
+          "label": "With entries and thumbnails",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/resource-list-page/Articles.tsx",
+          "content": "import { ResourceListPage } from '@/react/components/pages/ResourceListPage'\nimport { articlesList } from '@/lib/pages/resources'\n// A list with entries: Acme's articles, newest first.\n\nexport default function Articles() {\n  return <ResourceListPage list={articlesList} />\n}\n",
+          "registryDependencies": [
+            "ascii-trail",
+            "button",
+            "creative-card",
+            "page-close",
+            "page-head",
+            "resources-page",
+            "site-footer",
+            "site-header"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/pages/resource-list-page.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { formatResourceDate, resourceListContent, type ResourceList, type ResourceListContent, resourceListSections, type ResourceListSection } from '@/lib/pages/resources'\nimport '@/elements/components/ui/button'\nimport '@/elements/components/site/creative-card'\nimport '@/elements/components/site/site-header'\nimport '@/elements/components/site/page-head'\nimport '@/elements/components/site/page-close'\nimport '@/elements/components/blocks/site-footer'\nimport '@/elements/components/visuals/ascii-trail'\nimport styles from 'virtual:tw'\nimport { pageSections } from '@/lib/image'\nimport { headerMenus, type HeaderMenus } from '@/lib/site-header'\n\n// ResourceListPage.tsx as <spyglass-resource-list-page>: the header, the page head, the entries newest first as\n// hairline rows (or the empty panel with a quiet way back), the closing section and the footer. `list` (JSON) sets the\n// list; `content` (JSON) the rest of the copy (lib/pages/resources.ts).\n\n/** A row's grid: date, title and line stacked; with a thumbnail, the picture in a 96px column (160 from 768) beside them. */\nconst resourceRowClass = (thumb: boolean) =>\n\tthumb\n\t\t? 'group grid grid-cols-[--spacing(24)_minmax(0,1fr)] items-start gap-x-5 gap-y-1 border-b border-edge py-6 focus-visible:-outline-offset-2 md:grid-cols-[160px_minmax(0,1fr)] md:gap-x-8'\n\t\t: 'group grid gap-1 border-b border-edge py-6 focus-visible:-outline-offset-2 md:grid-cols-[160px_minmax(0,1fr)] md:gap-x-8'\n/** The thumbnail's cell: the first column, across the three lines. */\nconst RESOURCE_THUMB = 'col-start-1 row-span-3 row-start-1'\n\nconst CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\n/**\n * @summary A list of posts or guides, or its empty state.\n */\nexport class ResourceListPage extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"resource-list-page\"]'))\n\tstatic properties = { list: { type: Object }, content: { type: Object }, menus: { type: Object }, sections: { type: Array } }\n\t/** The list: { key, title, line, entries: { title, line, href, date, thumb? }[], empty }. */\n\tlist?: ResourceList\n\t/** The copy (lib/pages/resources.ts by default). */\n\tcontent: ResourceListContent = resourceListContent\n\t/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n\tmenus?: HeaderMenus\n\t/** The sections to show, in order (a list of names); all of them in the page order by default. */\n\tsections?: ResourceListSection[]\n\n\trender() {\n\t\tconst c = this.content ?? resourceListContent\n\t\tconst l = this.list ?? c.list\n\t\tconst entries = [...l.entries].sort((a, b) => b.date.localeCompare(a.date))\n\t\tconst body = entries.length\n\t\t\t? html`<ul role=\"list\" class=\"m-0 list-none border-t border-edge p-0\">${entries.map((e) => html`<li><a href=${e.href} class=${resourceRowClass(!!e.thumb)}>${e.thumb ? html`<spyglass-creative-card ratio=\"16/9\" src=${ifDefined(e.thumb.src)} alt=${ifDefined(e.thumb.alt)} fit=${ifDefined(e.thumb.fit)} position=${ifDefined(e.thumb.position)} tone=${ifDefined(e.thumb.tone)} class=${RESOURCE_THUMB}></spyglass-creative-card>` : nothing}<time datetime=${e.date} class=${['type-ui text-fg-muted', e.thumb ? 'col-start-2' : ''].join(' ')}>${formatResourceDate(e.date)}</time><span class=${['type-body-lg text-fg', e.thumb ? 'col-start-2' : ''].join(' ')}>${e.title}</span><span class=${['type-body text-pretty text-fg-soft md:col-start-2', e.thumb ? 'col-start-2' : ''].join(' ')}>${e.line}</span></a></li>`)}</ul>`\n\t\t\t: html`<div class=\"flex min-h-80 flex-col items-center justify-center gap-6 rounded-panel bg-surface-subtle p-8 text-center text-fg-soft\"><p class=\"type-body-lg\">${l.empty}</p><spyglass-button href=${c.back.href} variant=\"secondary\" class=\"max-md:w-full\">${c.back.label}</spyglass-button></div>`\n\t\tconst parts: Record<ResourceListSection, unknown> = {\n\t\t\thead: html`<spyglass-page-head head-id=${l.key} .lines=${[l.title]} lead=${l.line}></spyglass-page-head>`,\n\t\t\tlist: html`<section aria-label=${l.title} class=\"pb-(--ds-layout-section)\"><div class=${CONTAINER}>${body}</div></section>`,\n\t\t\tclose: html`<spyglass-page-close .lines=${c.close.lines} note=${c.close.note} .primary=${c.close.primary}></spyglass-page-close>`,\n\t\t}\n\t\treturn html`<div data-ds=\"resource-list-page\" class=\"isolate overflow-x-clip bg-surface text-fg\"><spyglass-ascii-trail mode=\"page\"></spyglass-ascii-trail><spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header><main>${pageSections(resourceListSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`\n\t}\n}\n\ndefine('resource-list-page', ResourceListPage)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/resource-list-page.js",
+        "elements/button.js",
+        "elements/creative-card.js",
+        "elements/site-header.js",
+        "elements/page-head.js",
+        "elements/page-close.js",
+        "elements/site-footer.js",
+        "elements/ascii-trail.js",
+        "elements/menu-sheet.js",
+        "elements/menu-panels.js",
+        "elements/nav-menus.js",
+        "elements/nav-icon.js",
+        "elements/sheet-disclosure.js",
+        "elements/logo.js",
+        "elements/connect-menu.js",
+        "elements/badge.js",
+        "elements/brand-light.js",
+        "elements/products-live-panel.js",
+        "elements/product-visual.js"
+      ],
+      "tag": "spyglass-resource-list-page",
+      "tags": [
+        "spyglass-resource-list-page"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-trail",
+        "badge",
+        "brand-light",
+        "button",
+        "connect-menu",
+        "creative-card",
+        "logo",
+        "page-close",
+        "page-head",
+        "product-visual",
+        "site-footer",
+        "site-header"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-resource-list-page",
+            "name": "ResourceListPage",
+            "module": "elements/resource-list-page.js",
+            "description": "A list of posts or guides, or its empty state.",
+            "attributes": [
+              {
+                "name": "list",
+                "field": "list",
+                "type": "ResourceList | undefined",
+                "description": "The list: { key, title, line, entries: { title, line, href, date, thumb? }[], empty }."
+              },
+              {
+                "name": "content",
+                "field": "content",
+                "type": "{ back: { label: string; href: string; }; list: ResourceList; header: { nav: { label: string; href: string; }[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; short: string; }; }; footer: { columns: ({ title: string; wide: boolean; links: { label: string; href: string; }[]; } | { title: string; links: { label: string; href: string; }[]; wide?: undefined; })[]; legal: string; }; close: { lines: string[]; note: string; primary: { label: string; href: string; }; }; }",
+                "default": "resourceListContent",
+                "description": "The copy (lib/pages/resources.ts by default)."
+              },
+              {
+                "name": "menus",
+                "field": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "field": "sections",
+                "type": "(\"head\" | \"list\" | \"close\")[] | undefined",
+                "description": "The sections to show, in order (a list of names); all of them in the page order by default."
+              }
+            ],
+            "properties": [
+              {
+                "name": "list",
+                "type": "ResourceList | undefined",
+                "description": "The list: { key, title, line, entries: { title, line, href, date, thumb? }[], empty }.",
+                "attribute": "list"
+              },
+              {
+                "name": "content",
+                "type": "{ back: { label: string; href: string; }; list: ResourceList; header: { nav: { label: string; href: string; }[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; short: string; }; }; footer: { columns: ({ title: string; wide: boolean; links: { label: string; href: string; }[]; } | { title: string; links: { label: string; href: string; }[]; wide?: undefined; })[]; legal: string; }; close: { lines: string[]; note: string; primary: { label: string; href: string; }; }; }",
+                "default": "resourceListContent",
+                "description": "The copy (lib/pages/resources.ts by default).",
+                "attribute": "content"
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default.",
+                "attribute": "menus"
+              },
+              {
+                "name": "sections",
+                "type": "(\"head\" | \"list\" | \"close\")[] | undefined",
+                "description": "The sections to show, in order (a list of names); all of them in the page order by default.",
+                "attribute": "sections"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Empty",
+          "label": "No posts yet",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/resource-list-page/Empty.html",
+          "content": "<!-- The blog before its first post, as the site shows it today. -->\n<spyglass-resource-list-page></spyglass-resource-list-page>\n"
+        },
+        {
+          "name": "Articles",
+          "label": "With entries and thumbnails",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/resource-list-page/Articles.html",
+          "content": "<!-- A list with entries: Acme's articles, newest first. -->\n<spyglass-resource-list-page list='{\"key\":\"articles\",\"title\":\"Articles\",\"line\":\"Guides to creative research with agents.\",\"empty\":\"No articles yet. The first ones are on the way.\",\"entries\":[{\"title\":\"Reading a category from its longest-running ads\",\"line\":\"Why the ads a brand keeps paying for say more than the ones it launches.\",\"href\":\"/resources/articles/longest-running-ads\",\"date\":\"2026-11-12\",\"thumb\":{\"tone\":2}},{\"title\":\"Briefing an agent on a competitor\",\"line\":\"The three questions that turn an ad library into a brief.\",\"href\":\"/resources/articles/briefing-an-agent\",\"date\":\"2026-10-28\",\"thumb\":{\"tone\":3}},{\"title\":\"Hooks, angles and formats\",\"line\":\"A shared vocabulary for creative research, with examples from one category.\",\"href\":\"/resources/articles/hooks-angles-formats\",\"date\":\"2026-10-09\",\"thumb\":{\"tone\":1}}]}'></spyglass-resource-list-page>\n"
+        }
+      ]
+    }
+  }
+}

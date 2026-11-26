@@ -1,0 +1,364 @@
+{
+  "name": "input-otp",
+  "title": "Input OTP",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A one-time code, one cell per character, each cell drawn as the input. It is one real field, so paste and the phone's code suggestion work.",
+  "use_for": "Sign-in and verification codes sent by email or text. Say under it where the code went.",
+  "never": [
+    "Passwords or keys",
+    "Cells that move focus on their own: it is one field",
+    "A colored or glowing cell for the one being typed: its hairline turns White"
+  ],
+  "source": "Derived from the brand guidelines (no code field in the brand assets): the input's hairline, fill and corner, DM Sans for the digits",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/InputOtp.tsx",
+      "content": "'use client'\nimport { useRef, useState, type FormEvent } from 'react'\nimport { useControllable } from '@/react/hooks/useControllable'\n\n// A one-time code: square cells drawn as the Input is (a #666666 hairline on Black, the brand corner, 48px; 40px on\n// phones), DM Sans digits at 18px in tabular figures, the cell being typed into edged in White with a caret, and an\n// optional gap after `split` cells. It is one real input laid over the cells, so paste, the phone's code suggestion\n// (autocomplete=\"one-time-code\"), arrows and delete all work as in any field. Calls `onComplete` when every cell is\n// filled. A red hairline on every cell when invalid. The caret blinks in steps (no fade); reduced motion holds it still.\n// `value` with `onValueChange` controls it (or `defaultValue` alone).\nexport interface InputOtpProps {\n  /** How many cells (6). */\n  length?: number\n  /** A gap after this many cells (3 for two threes). */\n  split?: number\n  /** The name for assistive tech. */\n  label: string\n  /** Digits only (false takes letters too). */\n  numeric?: boolean\n  /** A red hairline on every cell. */\n  invalid?: boolean\n  disabled?: boolean\n  name?: string\n  value?: string\n  defaultValue?: string\n  onValueChange?: (code: string) => void\n  /** Every cell is filled. */\n  onComplete?: (code: string) => void\n  className?: string\n}\n\nexport function InputOtp({ length = 6, split, label, numeric = true, invalid, disabled, name, value, defaultValue = '', onValueChange, onComplete, className }: InputOtpProps) {\n  const [code, setCode] = useControllable(value, defaultValue, onValueChange)\n  const input = useRef<HTMLInputElement | null>(null)\n  const [focused, setFocused] = useState(false)\n  const [caret, setCaret] = useState(0)\n  const cells = Array.from({ length }, (_, i) => code[i] ?? '')\n  const active = focused ? Math.min(caret, length - 1) : -1\n\n  function sync() {\n    const el = input.current\n    if (!el) return\n    setCaret(el.selectionStart ?? el.value.length)\n  }\n  // A click lands on the next empty cell, as typing would.\n  function toEnd() {\n    const el = input.current\n    if (!el) return\n    const end = el.value.length\n    el.setSelectionRange(end, end)\n    sync()\n  }\n  function onInput(event: FormEvent<HTMLInputElement>) {\n    const el = event.currentTarget\n    const clean = (numeric ? el.value.replace(/\\D/g, '') : el.value.replace(/\\s/g, '')).slice(0, length)\n    if (clean !== el.value) el.value = clean\n    setCode(clean)\n    sync()\n    if (clean.length === length) onComplete?.(clean)\n  }\n\n  return (\n    <>\n      <style href=\"ds-input-otp\" precedence=\"ds\">{css}</style>\n      <div data-ds=\"input-otp\" className={className ? `ds-otp ${className}` : 'ds-otp'} data-invalid={invalid || undefined} data-disabled={disabled || undefined}>\n        <input\n          ref={input}\n          value={code}\n          name={name}\n          maxLength={length}\n          inputMode={numeric ? 'numeric' : 'text'}\n          pattern={numeric ? '[0-9]*' : undefined}\n          autoComplete=\"one-time-code\"\n          spellCheck=\"false\"\n          aria-label={label}\n          aria-invalid={invalid || undefined}\n          disabled={disabled}\n          onChange={onInput}\n          onFocus={() => { setFocused(true); toEnd() }}\n          onBlur={() => setFocused(false)}\n          onKeyUp={sync}\n          onClick={toEnd}\n        />\n        {cells.map((c, i) => (\n          <span key={i} className=\"ds-otp-cell\" data-active={i === active || undefined} data-gap={split && i === split - 1 && i < length - 1 ? true : undefined} aria-hidden=\"true\">{c}{i === active && !c && <i />}</span>\n        ))}\n      </div>\n    </>\n  )\n}\n\nexport default InputOtp\n\nconst css = `\n.ds-otp { position: relative; display: inline-flex; gap: var(--ds-space-sm); }\n.ds-otp > input { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; border: 0; background: transparent; color: transparent; caret-color: transparent; font-size: var(--ds-text-input); letter-spacing: 1em; outline: none; cursor: text; }\n.ds-otp > input::selection { background: transparent; }\n.ds-otp > input:disabled { cursor: not-allowed; }\n.ds-otp-cell { position: relative; display: inline-flex; width: var(--ds-size-control-lg); height: var(--ds-size-control-lg); align-items: center; justify-content: center; border: var(--ds-border-hairline) solid var(--ds-color-edge-strong); border-radius: var(--ds-radius-control); background: var(--ds-color-surface); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-body-lg); line-height: var(--ds-text-body-lg-leading); font-variant-numeric: tabular-nums; transition: border-color var(--ds-duration-micro) var(--ds-easing-standard); }\n.ds-otp-cell[data-gap] { margin-right: var(--ds-space-md); }\n.ds-otp-cell[data-active] { border-color: var(--ds-color-edge-focus); }\n.ds-otp-cell > i { width: 1px; height: 20px; background: var(--ds-color-fg); animation: ds-otp-caret 1000ms steps(1, end) infinite; }\n@keyframes ds-otp-caret { 50% { opacity: 0; } }\n@media (hover: hover) and (pointer: fine) { .ds-otp:not([data-disabled], [data-invalid]):hover .ds-otp-cell:not([data-active]) { border-color: var(--ds-color-action-secondary-edge-hover); } }\n.ds-otp[data-invalid] .ds-otp-cell { border-color: var(--ds-color-action-danger); }\n.ds-otp[data-disabled] .ds-otp-cell { border-color: var(--ds-color-edge); background: var(--ds-color-surface-sunken); color: var(--ds-color-fg-faint); }\n@media (max-width: 767px) { .ds-otp-cell { width: var(--ds-size-control-md); height: var(--ds-size-control-md); } }\n@media (prefers-reduced-motion: reduce) { .ds-otp-cell > i { animation: none; } }\n`\n"
+    },
+    {
+      "path": "react/hooks/useControllable.ts",
+      "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Verify",
+      "label": "Signing in",
+      "center": true,
+      "half": false,
+      "path": "react/examples/input-otp/Verify.tsx",
+      "content": "'use client'\nimport { useState } from 'react'\nimport { InputOtp } from '@/react/components/ui/InputOtp'\n// Signing in with a code from email: six digits in two threes, and a line that says when it is checked.\n\nexport default function Verify() {\n  const [done, setDone] = useState(false)\n  return (\n    <div className=\"flex flex-col items-start gap-3\">\n      <p className=\"type-label text-fg-soft\">Code from your email</p>\n      <InputOtp label=\"Code from your email\" split={3} onValueChange={() => setDone(false)} onComplete={() => setDone(true)} />\n      <p className=\"type-caption text-fg-muted\" role=\"status\">{done ? 'Checking your code.' : 'We sent it to you@acme.com.'}</p>\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    },
+    {
+      "name": "States",
+      "label": "Invalid and disabled",
+      "center": true,
+      "half": false,
+      "path": "react/examples/input-otp/States.tsx",
+      "content": "import { InputOtp } from '@/react/components/ui/InputOtp'\n// A code that was wrong, and one that can't be changed while it is checked.\n\nexport default function States() {\n  return (\n    <div className=\"flex flex-col items-start gap-6\">\n      <div className=\"flex flex-col items-start gap-3\">\n        <InputOtp label=\"Wrong code\" defaultValue=\"481920\" invalid />\n        <p className=\"type-caption text-fg-danger\">That code has expired. Send a new one.</p>\n      </div>\n      <InputOtp label=\"Code being checked\" defaultValue=\"2741\" length={4} disabled />\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/InputOtp.tsx",
+          "content": "'use client'\nimport { useRef, useState, type FormEvent } from 'react'\nimport { useControllable } from '@/react/hooks/useControllable'\n\n// A one-time code: square cells drawn as the Input is (a #666666 hairline on Black, the brand corner, 48px; 40px on\n// phones), DM Sans digits at 18px in tabular figures, the cell being typed into edged in White with a caret, and an\n// optional gap after `split` cells. It is one real input laid over the cells, so paste, the phone's code suggestion\n// (autocomplete=\"one-time-code\"), arrows and delete all work as in any field. Calls `onComplete` when every cell is\n// filled. A red hairline on every cell when invalid. The caret blinks in steps (no fade); reduced motion holds it still.\n// `value` with `onValueChange` controls it (or `defaultValue` alone).\nexport interface InputOtpProps {\n  /** How many cells (6). */\n  length?: number\n  /** A gap after this many cells (3 for two threes). */\n  split?: number\n  /** The name for assistive tech. */\n  label: string\n  /** Digits only (false takes letters too). */\n  numeric?: boolean\n  /** A red hairline on every cell. */\n  invalid?: boolean\n  disabled?: boolean\n  name?: string\n  value?: string\n  defaultValue?: string\n  onValueChange?: (code: string) => void\n  /** Every cell is filled. */\n  onComplete?: (code: string) => void\n  className?: string\n}\n\nexport function InputOtp({ length = 6, split, label, numeric = true, invalid, disabled, name, value, defaultValue = '', onValueChange, onComplete, className }: InputOtpProps) {\n  const [code, setCode] = useControllable(value, defaultValue, onValueChange)\n  const input = useRef<HTMLInputElement | null>(null)\n  const [focused, setFocused] = useState(false)\n  const [caret, setCaret] = useState(0)\n  const cells = Array.from({ length }, (_, i) => code[i] ?? '')\n  const active = focused ? Math.min(caret, length - 1) : -1\n\n  function sync() {\n    const el = input.current\n    if (!el) return\n    setCaret(el.selectionStart ?? el.value.length)\n  }\n  // A click lands on the next empty cell, as typing would.\n  function toEnd() {\n    const el = input.current\n    if (!el) return\n    const end = el.value.length\n    el.setSelectionRange(end, end)\n    sync()\n  }\n  function onInput(event: FormEvent<HTMLInputElement>) {\n    const el = event.currentTarget\n    const clean = (numeric ? el.value.replace(/\\D/g, '') : el.value.replace(/\\s/g, '')).slice(0, length)\n    if (clean !== el.value) el.value = clean\n    setCode(clean)\n    sync()\n    if (clean.length === length) onComplete?.(clean)\n  }\n\n  return (\n    <>\n      <style href=\"ds-input-otp\" precedence=\"ds\">{css}</style>\n      <div data-ds=\"input-otp\" className={className ? `ds-otp ${className}` : 'ds-otp'} data-invalid={invalid || undefined} data-disabled={disabled || undefined}>\n        <input\n          ref={input}\n          value={code}\n          name={name}\n          maxLength={length}\n          inputMode={numeric ? 'numeric' : 'text'}\n          pattern={numeric ? '[0-9]*' : undefined}\n          autoComplete=\"one-time-code\"\n          spellCheck=\"false\"\n          aria-label={label}\n          aria-invalid={invalid || undefined}\n          disabled={disabled}\n          onChange={onInput}\n          onFocus={() => { setFocused(true); toEnd() }}\n          onBlur={() => setFocused(false)}\n          onKeyUp={sync}\n          onClick={toEnd}\n        />\n        {cells.map((c, i) => (\n          <span key={i} className=\"ds-otp-cell\" data-active={i === active || undefined} data-gap={split && i === split - 1 && i < length - 1 ? true : undefined} aria-hidden=\"true\">{c}{i === active && !c && <i />}</span>\n        ))}\n      </div>\n    </>\n  )\n}\n\nexport default InputOtp\n\nconst css = `\n.ds-otp { position: relative; display: inline-flex; gap: var(--ds-space-sm); }\n.ds-otp > input { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; border: 0; background: transparent; color: transparent; caret-color: transparent; font-size: var(--ds-text-input); letter-spacing: 1em; outline: none; cursor: text; }\n.ds-otp > input::selection { background: transparent; }\n.ds-otp > input:disabled { cursor: not-allowed; }\n.ds-otp-cell { position: relative; display: inline-flex; width: var(--ds-size-control-lg); height: var(--ds-size-control-lg); align-items: center; justify-content: center; border: var(--ds-border-hairline) solid var(--ds-color-edge-strong); border-radius: var(--ds-radius-control); background: var(--ds-color-surface); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-body-lg); line-height: var(--ds-text-body-lg-leading); font-variant-numeric: tabular-nums; transition: border-color var(--ds-duration-micro) var(--ds-easing-standard); }\n.ds-otp-cell[data-gap] { margin-right: var(--ds-space-md); }\n.ds-otp-cell[data-active] { border-color: var(--ds-color-edge-focus); }\n.ds-otp-cell > i { width: 1px; height: 20px; background: var(--ds-color-fg); animation: ds-otp-caret 1000ms steps(1, end) infinite; }\n@keyframes ds-otp-caret { 50% { opacity: 0; } }\n@media (hover: hover) and (pointer: fine) { .ds-otp:not([data-disabled], [data-invalid]):hover .ds-otp-cell:not([data-active]) { border-color: var(--ds-color-action-secondary-edge-hover); } }\n.ds-otp[data-invalid] .ds-otp-cell { border-color: var(--ds-color-action-danger); }\n.ds-otp[data-disabled] .ds-otp-cell { border-color: var(--ds-color-edge); background: var(--ds-color-surface-sunken); color: var(--ds-color-fg-faint); }\n@media (max-width: 767px) { .ds-otp-cell { width: var(--ds-size-control-md); height: var(--ds-size-control-md); } }\n@media (prefers-reduced-motion: reduce) { .ds-otp-cell > i { animation: none; } }\n`\n"
+        },
+        {
+          "path": "react/hooks/useControllable.ts",
+          "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "InputOtp",
+            "file": "react/components/ui/InputOtp.tsx",
+            "props": [
+              {
+                "name": "length",
+                "type": "number",
+                "required": false,
+                "default": "6",
+                "description": "How many cells (6)."
+              },
+              {
+                "name": "split",
+                "type": "number",
+                "required": false,
+                "description": "A gap after this many cells (3 for two threes)."
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": true,
+                "description": "The name for assistive tech."
+              },
+              {
+                "name": "numeric",
+                "type": "boolean",
+                "required": false,
+                "default": "true",
+                "description": "Digits only (false takes letters too)."
+              },
+              {
+                "name": "invalid",
+                "type": "boolean",
+                "required": false,
+                "description": "A red hairline on every cell."
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "required": false
+              },
+              {
+                "name": "name",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "value",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "defaultValue",
+                "type": "string",
+                "required": false,
+                "default": "''"
+              },
+              {
+                "name": "onValueChange",
+                "type": "(code: string) => void",
+                "required": false
+              },
+              {
+                "name": "onComplete",
+                "type": "(code: string) => void",
+                "required": false,
+                "description": "Every cell is filled."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Verify",
+          "label": "Signing in",
+          "center": true,
+          "half": false,
+          "path": "react/examples/input-otp/Verify.tsx",
+          "content": "'use client'\nimport { useState } from 'react'\nimport { InputOtp } from '@/react/components/ui/InputOtp'\n// Signing in with a code from email: six digits in two threes, and a line that says when it is checked.\n\nexport default function Verify() {\n  const [done, setDone] = useState(false)\n  return (\n    <div className=\"flex flex-col items-start gap-3\">\n      <p className=\"type-label text-fg-soft\">Code from your email</p>\n      <InputOtp label=\"Code from your email\" split={3} onValueChange={() => setDone(false)} onComplete={() => setDone(true)} />\n      <p className=\"type-caption text-fg-muted\" role=\"status\">{done ? 'Checking your code.' : 'We sent it to you@acme.com.'}</p>\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        },
+        {
+          "name": "States",
+          "label": "Invalid and disabled",
+          "center": true,
+          "half": false,
+          "path": "react/examples/input-otp/States.tsx",
+          "content": "import { InputOtp } from '@/react/components/ui/InputOtp'\n// A code that was wrong, and one that can't be changed while it is checked.\n\nexport default function States() {\n  return (\n    <div className=\"flex flex-col items-start gap-6\">\n      <div className=\"flex flex-col items-start gap-3\">\n        <InputOtp label=\"Wrong code\" defaultValue=\"481920\" invalid />\n        <p className=\"type-caption text-fg-danger\">That code has expired. Send a new one.</p>\n      </div>\n      <InputOtp label=\"Code being checked\" defaultValue=\"2741\" length={4} disabled />\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/input-otp.ts",
+          "content": "import { html, LitElement, nothing, type PropertyValues } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { live } from 'lit/directives/live.js'\nimport { DsFormElement, define } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// InputOtp.tsx as <spyglass-input-otp>: a one-time code: square cells drawn as the input is (a #666666 hairline on\n// Black, the brand corner, 48px; 40px on phones), DM Sans digits at 18px, the cell being typed into edged in White with\n// a caret, and an optional gap after `split` cells. It is one real input laid over the cells, so paste, the phone's code\n// suggestion, arrows and delete all work as in any field. Fires `complete` when every cell is filled. A red hairline on\n// every cell when invalid. Form-associated (its `name` and `value` go with its form); the value is `value` with the\n// native `input` and `change` events.\n\n/**\n * @summary A one-time code, one cell per character.\n * @fires input - On every keystroke (read `value`).\n * @fires change - When the value is committed.\n * @fires complete - Every cell is filled; detail.value is the code.\n */\nexport class InputOtp extends DsFormElement {\n\tstatic styles = [DsFormElement.styles, styles]\n\tstatic shadowRootOptions = { ...LitElement.shadowRootOptions, delegatesFocus: true }\n\tstatic dsField = true\n\tstatic properties = {\n\t\tvalue: {},\n\t\tlength: { type: Number },\n\t\tsplit: { type: Number },\n\t\tlabel: {},\n\t\tnumeric: { converter: { fromAttribute: (v: string | null) => v !== 'false' } },\n\t\tinvalid: { type: Boolean, reflect: true },\n\t\tdisabled: { type: Boolean, reflect: true },\n\t\tname: {},\n\t\trequired: { type: Boolean },\n\t\tfocused: { state: true },\n\t\tcaret: { state: true },\n\t}\n\n\tvalue = ''\n\tlength = 6\n\t/** A gap after this many cells (3 for two threes). */\n\tsplit?: number\n\t/** The name for assistive tech. */\n\tlabel = ''\n\t/** Digits only (numeric=\"false\" takes letters too). */\n\tnumeric = true\n\tinvalid = false\n\tdisabled = false\n\tname?: string\n\t/** A code must be typed for its form to send. */\n\trequired = false\n\tprivate focused = false\n\tprivate caret = 0\n\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\tif (changed.has('value')) this.internals.setFormValue(this.value)\n\t}\n\tprotected validityControl() {\n\t\treturn this.renderRoot.querySelector<HTMLInputElement>('input')\n\t}\n\tformResetCallback() {\n\t\tthis.value = this.getAttribute('value') ?? ''\n\t}\n\tprivate get input() {\n\t\treturn this.renderRoot.querySelector('input')\n\t}\n\tprivate sync() {\n\t\tconst el = this.input\n\t\tif (!el) return\n\t\tthis.caret = el.selectionStart ?? el.value.length\n\t}\n\t// A click lands on the next empty cell, as typing would.\n\tprivate toEnd() {\n\t\tconst el = this.input\n\t\tif (!el) return\n\t\tconst end = el.value.length\n\t\tel.setSelectionRange(end, end)\n\t\tthis.sync()\n\t}\n\tprivate onInput(event: Event) {\n\t\tconst el = event.target as HTMLInputElement\n\t\tconst clean = (this.numeric ? el.value.replace(/\\D/g, '') : el.value.replace(/\\s/g, '')).slice(0, this.length)\n\t\tif (clean !== el.value) el.value = clean\n\t\tthis.value = clean\n\t\tthis.sync()\n\t\tif (clean.length === this.length) this.emit('complete', { value: clean })\n\t}\n\t// The inner change does not leave the shadow root: the element sends its own.\n\tprivate onChange() {\n\t\tthis.dispatchEvent(new Event('change', { bubbles: true, composed: true }))\n\t}\n\n\trender() {\n\t\tconst active = this.focused ? Math.min(this.caret, this.length - 1) : -1\n\t\tconst cells = Array.from({ length: this.length }, (_, i) => this.value[i] ?? '')\n\t\treturn html`<div data-ds=\"input-otp\" class=\"ds-otp\" data-invalid=${ifDefined(this.invalid ? 'true' : undefined)} data-disabled=${ifDefined(this.inactive ? 'true' : undefined)}>\n\t\t\t<input\n\t\t\t\t.value=${live(this.value)}\n\t\t\t\tmaxlength=${this.length}\n\t\t\t\tinputmode=${this.numeric ? 'numeric' : 'text'}\n\t\t\t\tpattern=${ifDefined(this.numeric ? '[0-9]*' : undefined)}\n\t\t\t\tautocomplete=\"one-time-code\"\n\t\t\t\tspellcheck=\"false\"\n\t\t\t\taria-label=${this.label}\n\t\t\t\taria-invalid=${ifDefined(this.invalid ? 'true' : undefined)}\n\t\t\t\t?disabled=${this.inactive}\n\t\t\t\t?required=${this.required}\n\t\t\t\t@input=${this.onInput}\n\t\t\t\t@change=${this.onChange}\n\t\t\t\t@focus=${() => { this.focused = true; this.toEnd() }}\n\t\t\t\t@blur=${() => { this.focused = false }}\n\t\t\t\t@keyup=${this.sync}\n\t\t\t\t@click=${this.toEnd}\n\t\t\t>\n\t\t\t${cells.map((c, i) => html`<span class=\"ds-otp-cell\" data-active=${ifDefined(i === active ? 'true' : undefined)} data-gap=${ifDefined(this.split && i === this.split - 1 && i < this.length - 1 ? 'true' : undefined)} aria-hidden=\"true\">${c}${i === active && !c ? html`<i></i>` : nothing}</span>`)}\n\t\t</div>`\n\t}\n}\n\ndefine('input-otp', InputOtp)\n"
+        },
+        {
+          "path": "elements/components/ui/input-otp.css",
+          "content": "/* InputOtp.tsx's styles, as they are. */\n.ds-otp { position: relative; display: inline-flex; gap: var(--ds-space-sm); }\n.ds-otp > input { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; border: 0; background: transparent; color: transparent; caret-color: transparent; font-size: var(--ds-text-input); letter-spacing: 1em; outline: none; cursor: text; }\n.ds-otp > input::selection { background: transparent; }\n.ds-otp > input:disabled { cursor: not-allowed; }\n.ds-otp-cell { position: relative; display: inline-flex; width: var(--ds-size-control-lg); height: var(--ds-size-control-lg); align-items: center; justify-content: center; border: var(--ds-border-hairline) solid var(--ds-color-edge-strong); border-radius: var(--ds-radius-control); background: var(--ds-color-surface); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-body-lg); line-height: var(--ds-text-body-lg-leading); font-variant-numeric: tabular-nums; transition: border-color var(--ds-duration-micro) var(--ds-easing-standard); }\n.ds-otp-cell[data-gap] { margin-right: var(--ds-space-md); }\n.ds-otp-cell[data-active] { border-color: var(--ds-color-edge-focus); }\n.ds-otp-cell > i { width: 1px; height: 20px; background: var(--ds-color-fg); animation: ds-otp-caret 1000ms steps(1, end) infinite; }\n@keyframes ds-otp-caret { 50% { opacity: 0; } }\n@media (hover: hover) and (pointer: fine) { .ds-otp:not([data-disabled], [data-invalid]):hover .ds-otp-cell:not([data-active]) { border-color: var(--ds-color-action-secondary-edge-hover); } }\n.ds-otp[data-invalid] .ds-otp-cell { border-color: var(--ds-color-action-danger); }\n.ds-otp[data-disabled] .ds-otp-cell { border-color: var(--ds-color-edge); background: var(--ds-color-surface-sunken); color: var(--ds-color-fg-faint); }\n@media (max-width: 767px) { .ds-otp-cell { width: var(--ds-size-control-md); height: var(--ds-size-control-md); } }\n@media (prefers-reduced-motion: reduce) { .ds-otp-cell > i { animation: none; } }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/input-otp.js"
+      ],
+      "tag": "spyglass-input-otp",
+      "tags": [
+        "spyglass-input-otp"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-input-otp",
+            "name": "InputOtp",
+            "module": "elements/input-otp.js",
+            "description": "A one-time code, one cell per character.",
+            "attributes": [
+              {
+                "name": "value",
+                "field": "value",
+                "type": "string",
+                "default": "''"
+              },
+              {
+                "name": "length",
+                "field": "length",
+                "type": "number",
+                "default": "6"
+              },
+              {
+                "name": "split",
+                "field": "split",
+                "type": "number | undefined",
+                "description": "A gap after this many cells (3 for two threes)."
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The name for assistive tech."
+              },
+              {
+                "name": "numeric",
+                "field": "numeric",
+                "type": "boolean",
+                "default": "true",
+                "description": "Digits only (numeric=\"false\" takes letters too)."
+              },
+              {
+                "name": "invalid",
+                "field": "invalid",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "disabled",
+                "field": "disabled",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "name",
+                "field": "name",
+                "type": "string | undefined"
+              },
+              {
+                "name": "required",
+                "field": "required",
+                "type": "boolean",
+                "default": "false",
+                "description": "A code must be typed for its form to send."
+              },
+              {
+                "name": "focused",
+                "field": "focused",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "caret",
+                "field": "caret",
+                "type": "number",
+                "default": "0"
+              }
+            ],
+            "properties": [
+              {
+                "name": "value",
+                "type": "string",
+                "default": "''",
+                "attribute": "value"
+              },
+              {
+                "name": "length",
+                "type": "number",
+                "default": "6",
+                "attribute": "length"
+              },
+              {
+                "name": "split",
+                "type": "number | undefined",
+                "description": "A gap after this many cells (3 for two threes).",
+                "attribute": "split"
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The name for assistive tech.",
+                "attribute": "label"
+              },
+              {
+                "name": "numeric",
+                "type": "boolean",
+                "default": "true",
+                "description": "Digits only (numeric=\"false\" takes letters too).",
+                "attribute": "numeric"
+              },
+              {
+                "name": "invalid",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "invalid"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "disabled"
+              },
+              {
+                "name": "name",
+                "type": "string | undefined",
+                "attribute": "name"
+              },
+              {
+                "name": "required",
+                "type": "boolean",
+                "default": "false",
+                "description": "A code must be typed for its form to send.",
+                "attribute": "required"
+              }
+            ],
+            "events": [
+              {
+                "name": "change",
+                "description": "When the value is committed."
+              },
+              {
+                "name": "input",
+                "description": "On every keystroke (read `value`)."
+              },
+              {
+                "name": "complete",
+                "description": "Every cell is filled; detail.value is the code."
+              }
+            ],
+            "slots": [],
+            "methods": [
+              {
+                "name": "formResetCallback"
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Verify",
+          "label": "Signing in",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/input-otp/Verify.html",
+          "content": "<!-- Signing in with a code from email: six digits in two threes, and a line that says when it is checked. -->\n<div class=\"flex flex-col items-start gap-3\">\n  <p class=\"type-label text-fg-soft\">Code from your email</p>\n  <spyglass-input-otp id=\"otp-verify\" label=\"Code from your email\" split=\"3\"></spyglass-input-otp>\n  <p id=\"otp-status\" class=\"type-caption text-fg-muted\" role=\"status\">We sent it to you@acme.com.</p>\n</div>\n<script type=\"module\">\n  const otp = document.getElementById('otp-verify')\n  const status = document.getElementById('otp-status')\n  // The input event reaches the page after complete: only a code still being typed resets the line.\n  otp.addEventListener('input', () => { if (otp.value.length < otp.length) status.textContent = 'We sent it to you@acme.com.' })\n  otp.addEventListener('complete', () => { status.textContent = 'Checking your code.' })\n</script>\n"
+        },
+        {
+          "name": "States",
+          "label": "Invalid and disabled",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/input-otp/States.html",
+          "content": "<!-- A code that was wrong, and one that can't be changed while it is checked. -->\n<div class=\"flex flex-col items-start gap-6\">\n  <div class=\"flex flex-col items-start gap-3\">\n    <spyglass-input-otp label=\"Wrong code\" value=\"481920\" invalid></spyglass-input-otp>\n    <p class=\"type-caption text-fg-danger\">That code has expired. Send a new one.</p>\n  </div>\n  <spyglass-input-otp label=\"Code being checked\" value=\"2741\" length=\"4\" disabled></spyglass-input-otp>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,199 @@
+{
+  "name": "hover-card",
+  "title": "Hover Card",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "More about a link while the pointer rests on it: the card's #262626 fill, a hairline and the brand corner. The pointer can cross into it; on touch the link just works.",
+  "use_for": "A preview of a brand, a creator or a board named in text, with a few numbers. The link must lead to the same thing on its own.",
+  "never": [
+    "The only way to reach what it shows: the link must work on its own",
+    "Actions someone has to take: use Popover or Dropdown Menu",
+    "A shadow or a glow: the fill and the hairline set it apart"
+  ],
+  "source": "Derived from the brand guidelines (no hover card in the brand assets): the plan card's #262626 fill and corner, the neutral steps for the hairline",
+  "body": "",
+  "requires": [
+    "popover"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/HoverCard.tsx",
+      "content": "'use client'\nimport { useEffect, useId, useRef, type FocusEvent, type PointerEvent, type ReactNode } from 'react'\nimport { PopoverPanel } from '@/react/components/ui/PopoverPanel'\nimport { usePopover, type Align, type Side } from '@/react/hooks/usePopover'\n\n// More about a link, shown while the pointer rests on it: the card's #262626 fill on Black with a hairline and the\n// brand corner, 16px in, opened after the tooltip's 300ms wait and, on keyboard focus, at once. The pointer can cross\n// into the card to select or follow what is in it; leaving both closes it after a short grace. It is a preview, never\n// the only way to the content: on touch the link just works. Wrap one link; the card is the `card` prop.\nexport interface HoverCardProps {\n  /** The side it opens on (it flips when there is no room). */\n  side?: Side\n  align?: Align\n  /** The card's width (a CSS length). */\n  width?: string\n  /** What the card shows. */\n  card?: ReactNode\n  /** One link. */\n  children?: ReactNode\n}\n\nconst WAIT = 300\nconst GRACE = 120\n\nexport function HoverCard({ side = 'bottom', align = 'start', width = '288px', card, children }: HoverCardProps) {\n  const pop = usePopover({ side, align, gap: 8, sticky: true })\n  const id = `card-${useId()}`\n  const root = useRef<HTMLSpanElement | null>(null)\n  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)\n\n  useEffect(() => {\n    const trigger = root.current?.firstElementChild as HTMLElement | null\n    pop.anchor.current = trigger\n    trigger?.setAttribute('aria-describedby', id)\n  }, [id]) // eslint-disable-line react-hooks/exhaustive-deps\n  useEffect(() => () => clearTimeout(timer.current), [])\n\n  function enter(event: PointerEvent) {\n    if (event.pointerType !== 'mouse') return\n    clearTimeout(timer.current)\n    // ds-latency: the wait keeps a passing pointer from opening it.\n    if (!pop.open) timer.current = setTimeout(() => void pop.show(), WAIT)\n  }\n  function leave(event: PointerEvent) {\n    if (event.pointerType !== 'mouse') return\n    clearTimeout(timer.current)\n    // ds-latency: a grace to cross the gap into the card.\n    timer.current = setTimeout(() => pop.hide(), GRACE)\n  }\n  function focus(event: FocusEvent) {\n    if ((event.target as HTMLElement).matches(':focus-visible')) void pop.show({ keyboard: true })\n  }\n  function blur(event: FocusEvent) {\n    const next = event.relatedTarget as Node | null\n    if (!next || !pop.panel.current?.contains(next)) pop.hide()\n  }\n  return (\n    <>\n      <span data-ds=\"hover-card\" ref={root} className=\"inline-flex\" onPointerEnter={enter} onPointerLeave={leave} onFocus={focus} onBlur={blur}>\n        {children}\n      </span>\n      <PopoverPanel data-ds=\"hover-card\" id={id} pop={pop} className=\"p-4\" style={{ width }} onPointerEnter={enter} onPointerLeave={leave}>\n        {card}\n      </PopoverPanel>\n    </>\n  )\n}\n\nexport default HoverCard\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Brand",
+      "label": "A brand in a sentence",
+      "center": true,
+      "half": false,
+      "path": "react/examples/hover-card/Brand.tsx",
+      "content": "'use client'\nimport { HoverCard } from '@/react/components/ui/HoverCard'\n// A brand named in a sentence; rest the pointer on it (or tab to it) and its card shows what Spyglass tracks for it.\n// The link still works on its own.\n\nexport default function Brand() {\n  return (\n    <div className=\"flex min-h-64 flex-col items-center gap-3\">\n      <p className=\"type-label text-fg-muted\">Top hooks</p>\n      <p className=\"max-w-90 type-ui text-fg-soft\">\n        This week's top hooks come from\n        {' '}\n        <HoverCard\n          card={(\n            <>\n              <p className=\"type-ui-strong text-fg\">Acme Studio</p>\n              <p className=\"mt-1 type-caption text-fg-muted\">Skincare brand. Tracked on Meta and TikTok since January.</p>\n              <dl className=\"mt-4 grid grid-cols-2 gap-x-4 gap-y-1 border-t border-edge pt-4 type-caption\">\n                <dt className=\"text-fg-muted\">Active ads</dt><dd className=\"text-right text-fg tabular-nums\">128</dd>\n                <dt className=\"text-fg-muted\">New this week</dt><dd className=\"text-right text-fg tabular-nums\">14</dd>\n              </dl>\n            </>\n          )}\n        >\n          <a href=\"#\" className=\"text-fg underline decoration-edge-strong underline-offset-4 transition-[text-decoration-color] duration-160 ease-standard hover:decoration-fg\" onClick={(e) => e.preventDefault()}>Acme Studio</a>\n        </HoverCard>\n        , the brand your team saved most.\n      </p>\n    </div>\n  )\n}\n",
+      "requires": [
+        "popover"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/HoverCard.tsx",
+          "content": "'use client'\nimport { useEffect, useId, useRef, type FocusEvent, type PointerEvent, type ReactNode } from 'react'\nimport { PopoverPanel } from '@/react/components/ui/PopoverPanel'\nimport { usePopover, type Align, type Side } from '@/react/hooks/usePopover'\n\n// More about a link, shown while the pointer rests on it: the card's #262626 fill on Black with a hairline and the\n// brand corner, 16px in, opened after the tooltip's 300ms wait and, on keyboard focus, at once. The pointer can cross\n// into the card to select or follow what is in it; leaving both closes it after a short grace. It is a preview, never\n// the only way to the content: on touch the link just works. Wrap one link; the card is the `card` prop.\nexport interface HoverCardProps {\n  /** The side it opens on (it flips when there is no room). */\n  side?: Side\n  align?: Align\n  /** The card's width (a CSS length). */\n  width?: string\n  /** What the card shows. */\n  card?: ReactNode\n  /** One link. */\n  children?: ReactNode\n}\n\nconst WAIT = 300\nconst GRACE = 120\n\nexport function HoverCard({ side = 'bottom', align = 'start', width = '288px', card, children }: HoverCardProps) {\n  const pop = usePopover({ side, align, gap: 8, sticky: true })\n  const id = `card-${useId()}`\n  const root = useRef<HTMLSpanElement | null>(null)\n  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)\n\n  useEffect(() => {\n    const trigger = root.current?.firstElementChild as HTMLElement | null\n    pop.anchor.current = trigger\n    trigger?.setAttribute('aria-describedby', id)\n  }, [id]) // eslint-disable-line react-hooks/exhaustive-deps\n  useEffect(() => () => clearTimeout(timer.current), [])\n\n  function enter(event: PointerEvent) {\n    if (event.pointerType !== 'mouse') return\n    clearTimeout(timer.current)\n    // ds-latency: the wait keeps a passing pointer from opening it.\n    if (!pop.open) timer.current = setTimeout(() => void pop.show(), WAIT)\n  }\n  function leave(event: PointerEvent) {\n    if (event.pointerType !== 'mouse') return\n    clearTimeout(timer.current)\n    // ds-latency: a grace to cross the gap into the card.\n    timer.current = setTimeout(() => pop.hide(), GRACE)\n  }\n  function focus(event: FocusEvent) {\n    if ((event.target as HTMLElement).matches(':focus-visible')) void pop.show({ keyboard: true })\n  }\n  function blur(event: FocusEvent) {\n    const next = event.relatedTarget as Node | null\n    if (!next || !pop.panel.current?.contains(next)) pop.hide()\n  }\n  return (\n    <>\n      <span data-ds=\"hover-card\" ref={root} className=\"inline-flex\" onPointerEnter={enter} onPointerLeave={leave} onFocus={focus} onBlur={blur}>\n        {children}\n      </span>\n      <PopoverPanel data-ds=\"hover-card\" id={id} pop={pop} className=\"p-4\" style={{ width }} onPointerEnter={enter} onPointerLeave={leave}>\n        {card}\n      </PopoverPanel>\n    </>\n  )\n}\n\nexport default HoverCard\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "popover"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "HoverCard",
+            "file": "react/components/ui/HoverCard.tsx",
+            "props": [
+              {
+                "name": "side",
+                "type": "Side",
+                "required": false,
+                "default": "'bottom'",
+                "description": "The side it opens on (it flips when there is no room)."
+              },
+              {
+                "name": "align",
+                "type": "Align",
+                "required": false,
+                "default": "'start'"
+              },
+              {
+                "name": "width",
+                "type": "string",
+                "required": false,
+                "default": "'288px'",
+                "description": "The card's width (a CSS length)."
+              },
+              {
+                "name": "card",
+                "type": "ReactNode",
+                "required": false,
+                "description": "What the card shows."
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false,
+                "description": "One link."
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Brand",
+          "label": "A brand in a sentence",
+          "center": true,
+          "half": false,
+          "path": "react/examples/hover-card/Brand.tsx",
+          "content": "'use client'\nimport { HoverCard } from '@/react/components/ui/HoverCard'\n// A brand named in a sentence; rest the pointer on it (or tab to it) and its card shows what Spyglass tracks for it.\n// The link still works on its own.\n\nexport default function Brand() {\n  return (\n    <div className=\"flex min-h-64 flex-col items-center gap-3\">\n      <p className=\"type-label text-fg-muted\">Top hooks</p>\n      <p className=\"max-w-90 type-ui text-fg-soft\">\n        This week's top hooks come from\n        {' '}\n        <HoverCard\n          card={(\n            <>\n              <p className=\"type-ui-strong text-fg\">Acme Studio</p>\n              <p className=\"mt-1 type-caption text-fg-muted\">Skincare brand. Tracked on Meta and TikTok since January.</p>\n              <dl className=\"mt-4 grid grid-cols-2 gap-x-4 gap-y-1 border-t border-edge pt-4 type-caption\">\n                <dt className=\"text-fg-muted\">Active ads</dt><dd className=\"text-right text-fg tabular-nums\">128</dd>\n                <dt className=\"text-fg-muted\">New this week</dt><dd className=\"text-right text-fg tabular-nums\">14</dd>\n              </dl>\n            </>\n          )}\n        >\n          <a href=\"#\" className=\"text-fg underline decoration-edge-strong underline-offset-4 transition-[text-decoration-color] duration-160 ease-standard hover:decoration-fg\" onClick={(e) => e.preventDefault()}>Acme Studio</a>\n        </HoverCard>\n        , the brand your team saved most.\n      </p>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "popover"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/hover-card.ts",
+          "content": "import { html, nothing, type PropertyValues } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport { boxOf, PopoverController, popoverStyles, within, type Align, type Side } from '@/elements/lib/popover'\nimport styles from 'virtual:tw'\n\n// HoverCard.tsx as <spyglass-hover-card>: more about a link, shown while the pointer rests on it: the card's #262626\n// fill with a hairline and the brand corner, 16px in, opened after the tooltip's 300ms wait and, on keyboard focus, at\n// once. The pointer can cross into the\n// card to select or follow what is in it; leaving both closes it after a short grace. It is a preview, never the only\n// way to the content: on touch the link just works. Wrap one link; the card is the `card` slot. Inside a paragraph, put\n// the card in a <template slot=\"card\"> (a <div> or <p> there would end the paragraph): the element moves its content\n// into a <div slot=\"card\"> as it connects.\nconst WAIT = 300\nconst GRACE = 120\n\n/**\n * @summary More about a link, shown while the pointer rests on it.\n * @slot - One link.\n * @slot card - What the card shows (an element, or a <template slot=\"card\">).\n */\nexport class HoverCard extends DsElement {\n\tstatic styles = [DsElement.styles, popoverStyles, styles]\n\tstatic properties = { side: {}, align: {}, width: {} }\n\n\tside: Side = 'bottom'\n\talign: Align = 'start'\n\twidth = '288px'\n\tprivate timer?: ReturnType<typeof setTimeout>\n\tprivate pop = new PopoverController(this, {\n\t\tgap: 8,\n\t\tsticky: true,\n\t\tanchor: () => boxOf([...this.children].find((c) => !c.hasAttribute('slot'))),\n\t\tpanel: () => this.renderRoot.querySelector<HTMLElement>('.ds-pop'),\n\t})\n\n\tprivate enter = (event: PointerEvent) => {\n\t\tif (event.pointerType !== 'mouse') return\n\t\tclearTimeout(this.timer)\n\t\t// ds-latency: the wait keeps a passing pointer from opening it.\n\t\tif (!this.pop.open) this.timer = setTimeout(() => void this.pop.show(), WAIT)\n\t}\n\tprivate leave = (event: PointerEvent) => {\n\t\tif (event.pointerType !== 'mouse') return\n\t\tclearTimeout(this.timer)\n\t\t// ds-latency: a grace to cross the gap into the card.\n\t\tthis.timer = setTimeout(() => this.pop.hide(), GRACE)\n\t}\n\tprivate onFocusIn = (event: FocusEvent) => {\n\t\tif ((event.composedPath()[0] as Element).matches(':focus-visible')) void this.pop.show({ keyboard: true })\n\t}\n\tprivate onFocusOut = (event: FocusEvent) => {\n\t\tconst next = event.relatedTarget as Node | null\n\t\tif (!next || !within(this.renderRoot.querySelector('.ds-pop'), next)) this.pop.hide()\n\t}\n\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\tconst template = this.querySelector<HTMLTemplateElement>(':scope > template[slot=\"card\"]')\n\t\tif (template) {\n\t\t\tconst card = document.createElement('div')\n\t\t\tcard.slot = 'card'\n\t\t\tcard.append(template.content.cloneNode(true))\n\t\t\ttemplate.replaceWith(card)\n\t\t}\n\t}\n\tdisconnectedCallback() {\n\t\tsuper.disconnectedCallback()\n\t\tclearTimeout(this.timer)\n\t}\n\tprotected willUpdate() {\n\t\tthis.pop.configure({ side: this.side, align: this.align })\n\t}\n\n\trender() {\n\t\tconst panel = this.pop.rendered\n\t\t\t? html`<div data-ds=\"hover-card\" popover=\"manual\" class=\"ds-pop p-4 fade-y\" data-side=${this.pop.pos.side} ?data-instant=${this.pop.instant} ?data-placed=${this.pop.pos.placed} style=${this.pop.style(`width: ${this.width}`)} @pointerenter=${this.enter} @pointerleave=${this.leave}><slot name=\"card\"></slot></div>`\n\t\t\t: nothing\n\t\treturn html`<span data-ds=\"hover-card\" class=\"inline-flex\" @pointerenter=${this.enter} @pointerleave=${this.leave} @focusin=${this.onFocusIn} @focusout=${this.onFocusOut}><slot></slot></span>${panel}`\n\t}\n}\n\ndefine('hover-card', HoverCard)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/hover-card.js"
+      ],
+      "tag": "spyglass-hover-card",
+      "tags": [
+        "spyglass-hover-card"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-hover-card",
+            "name": "HoverCard",
+            "module": "elements/hover-card.js",
+            "description": "More about a link, shown while the pointer rests on it.",
+            "attributes": [
+              {
+                "name": "side",
+                "field": "side",
+                "type": "Side",
+                "default": "'bottom'"
+              },
+              {
+                "name": "align",
+                "field": "align",
+                "type": "Align",
+                "default": "'start'"
+              },
+              {
+                "name": "width",
+                "field": "width",
+                "type": "string",
+                "default": "'288px'"
+              }
+            ],
+            "properties": [
+              {
+                "name": "side",
+                "type": "Side",
+                "default": "'bottom'",
+                "attribute": "side"
+              },
+              {
+                "name": "align",
+                "type": "Align",
+                "default": "'start'",
+                "attribute": "align"
+              },
+              {
+                "name": "width",
+                "type": "string",
+                "default": "'288px'",
+                "attribute": "width"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "One link."
+              },
+              {
+                "name": "card",
+                "description": "What the card shows (an element, or a <template slot=\"card\">)."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Brand",
+          "label": "A brand in a sentence",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/hover-card/Brand.html",
+          "content": "<!-- A brand named in a sentence; rest the pointer on it (or tab to it) and its card shows what Spyglass tracks for it.\n     The link still works on its own. -->\n<div class=\"flex min-h-64 flex-col items-center gap-3\">\n  <p class=\"type-label text-fg-muted\">Top hooks</p>\n  <p class=\"max-w-90 type-ui text-fg-soft\">\n    This week's top hooks come from\n    <spyglass-hover-card><a href=\"#\" class=\"text-fg underline decoration-edge-strong underline-offset-4 transition-[text-decoration-color] duration-160 ease-standard hover:decoration-fg\" onclick=\"event.preventDefault()\">Acme Studio</a><template slot=\"card\"><p class=\"type-ui-strong text-fg\">Acme Studio</p><p class=\"mt-1 type-caption text-fg-muted\">Skincare brand. Tracked on Meta and TikTok since January.</p><dl class=\"mt-4 grid grid-cols-2 gap-x-4 gap-y-1 border-t border-edge pt-4 type-caption\"><dt class=\"text-fg-muted\">Active ads</dt><dd class=\"text-right text-fg tabular-nums\">128</dd><dt class=\"text-fg-muted\">New this week</dt><dd class=\"text-right text-fg tabular-nums\">14</dd></dl></template></spyglass-hover-card>, the brand your team saved most.\n  </p>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

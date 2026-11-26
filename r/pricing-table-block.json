@@ -1,0 +1,225 @@
+{
+  "name": "pricing-table-block",
+  "title": "Pricing table block",
+  "type": "registry:block",
+  "group": "blocks",
+  "description": "Plans side by side: an optional centered heading and line over plan cards on the #262626 fill, each the same width, centered as a row; one plan sits alone in the middle.",
+  "use_for": "A pricing section with one to three plans, each stated exactly as sold.",
+  "never": [
+    "A price or feature the plan does not state",
+    "A highlighted plan in a spectrum color or with a glow",
+    "More than three plans in a row"
+  ],
+  "source": "Built from the library (plan card); Figma page 8: Ad, Creator plan offer (the Creator plan's copy is the ad's own)",
+  "body": "",
+  "requires": [
+    "plan-card"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/blocks/PricingTableBlock.tsx",
+      "content": "import type { ReactNode } from 'react'\nimport { PlanCard } from '@/react/components/site/PlanCard'\nimport { cn } from '@/react/lib/cn'\n\n// Plans side by side: an optional centered Funnel Display heading and line over plan cards (the Creator plan card from\n// the ad), each the same width and height, centered as a row; one plan sits alone in the middle. Up to three across,\n// one on phones. Every price and feature is what the plan states.\nexport interface Plan {\n  title: string\n  price?: string\n  features?: string[]\n  cta?: string\n  href?: string\n}\n\nexport interface PricingTableBlockProps {\n  plans: Plan[]\n  /** A heading above the plans. */\n  title?: ReactNode\n  /** A line under the heading. */\n  body?: ReactNode\n  className?: string\n}\n\nexport function PricingTableBlock({ plans, title, body, className }: PricingTableBlockProps) {\n  return (\n    <section data-ds=\"pricing-table-block\" className={cn('flex flex-col gap-12 text-fg max-sm:gap-8', className)}>\n      {(title || body) && (\n        <div className=\"mx-auto grid max-w-3xl gap-4 text-center\">\n          {title && <h2 className=\"type-section\">{title}</h2>}\n          {body && <p className=\"type-body-lg text-fg-soft\">{body}</p>}\n        </div>\n      )}\n      <div className=\"flex flex-wrap items-stretch justify-center gap-4\">\n        {plans.map((p) => <PlanCard key={p.title} title={p.title} price={p.price} features={p.features} cta={p.cta} href={p.href} className=\"w-100 max-w-full\" />)}\n      </div>\n    </section>\n  )\n}\n\nexport default PricingTableBlock\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Creator",
+      "label": "The Creator plan",
+      "center": false,
+      "half": false,
+      "path": "react/examples/pricing-table-block/Creator.tsx",
+      "content": "import { PricingTableBlock } from '@/react/components/blocks/PricingTableBlock'\n// The Creator plan, exactly as the ad states it.\n\nconst plans = [\n  { title: 'Creator', price: '$10 for your first month, then $20/month', features: ['AI-powered research across brands, creators, ads, and campaigns', 'Unlimited board swipe files, alerts, and tracked brands', 'Unlimited team seats'], cta: 'Start Creator for 50% off', href: '/sign-up' },\n]\n\nexport default function Creator() {\n  return <PricingTableBlock title=\"One plan. Everything in it.\" plans={plans} />\n}\n",
+      "requires": [
+        "plan-card"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Plans",
+      "label": "Acme's three plans",
+      "center": false,
+      "half": false,
+      "path": "react/examples/pricing-table-block/Plans.tsx",
+      "content": "import { PricingTableBlock } from '@/react/components/blocks/PricingTableBlock'\n// Acme's own three plans, side by side (placeholder plans: state yours exactly).\n\nconst plans = [\n  { title: 'Acme Solo', price: '$12/month', features: ['One seat', 'Ten tracked brands'], cta: 'Start Solo' },\n  { title: 'Acme Team', price: '$40/month', features: ['Five seats', 'Fifty tracked brands', 'Shared boards'], cta: 'Start Team' },\n  { title: 'Acme Studio', price: '$90/month', features: ['Unlimited seats', 'Unlimited tracked brands', 'Shared boards', 'Alerts'], cta: 'Start Studio' },\n]\n\nexport default function Plans() {\n  return <PricingTableBlock title=\"Plans for every team.\" body=\"Every plan is billed monthly.\" plans={plans} />\n}\n",
+      "requires": [
+        "plan-card"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/blocks/PricingTableBlock.tsx",
+          "content": "import type { ReactNode } from 'react'\nimport { PlanCard } from '@/react/components/site/PlanCard'\nimport { cn } from '@/react/lib/cn'\n\n// Plans side by side: an optional centered Funnel Display heading and line over plan cards (the Creator plan card from\n// the ad), each the same width and height, centered as a row; one plan sits alone in the middle. Up to three across,\n// one on phones. Every price and feature is what the plan states.\nexport interface Plan {\n  title: string\n  price?: string\n  features?: string[]\n  cta?: string\n  href?: string\n}\n\nexport interface PricingTableBlockProps {\n  plans: Plan[]\n  /** A heading above the plans. */\n  title?: ReactNode\n  /** A line under the heading. */\n  body?: ReactNode\n  className?: string\n}\n\nexport function PricingTableBlock({ plans, title, body, className }: PricingTableBlockProps) {\n  return (\n    <section data-ds=\"pricing-table-block\" className={cn('flex flex-col gap-12 text-fg max-sm:gap-8', className)}>\n      {(title || body) && (\n        <div className=\"mx-auto grid max-w-3xl gap-4 text-center\">\n          {title && <h2 className=\"type-section\">{title}</h2>}\n          {body && <p className=\"type-body-lg text-fg-soft\">{body}</p>}\n        </div>\n      )}\n      <div className=\"flex flex-wrap items-stretch justify-center gap-4\">\n        {plans.map((p) => <PlanCard key={p.title} title={p.title} price={p.price} features={p.features} cta={p.cta} href={p.href} className=\"w-100 max-w-full\" />)}\n      </div>\n    </section>\n  )\n}\n\nexport default PricingTableBlock\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "plan-card"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "PricingTableBlock",
+            "file": "react/components/blocks/PricingTableBlock.tsx",
+            "props": [
+              {
+                "name": "plans",
+                "type": "Plan[]",
+                "required": true
+              },
+              {
+                "name": "title",
+                "type": "ReactNode",
+                "required": false,
+                "description": "A heading above the plans."
+              },
+              {
+                "name": "body",
+                "type": "ReactNode",
+                "required": false,
+                "description": "A line under the heading."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Creator",
+          "label": "The Creator plan",
+          "center": false,
+          "half": false,
+          "path": "react/examples/pricing-table-block/Creator.tsx",
+          "content": "import { PricingTableBlock } from '@/react/components/blocks/PricingTableBlock'\n// The Creator plan, exactly as the ad states it.\n\nconst plans = [\n  { title: 'Creator', price: '$10 for your first month, then $20/month', features: ['AI-powered research across brands, creators, ads, and campaigns', 'Unlimited board swipe files, alerts, and tracked brands', 'Unlimited team seats'], cta: 'Start Creator for 50% off', href: '/sign-up' },\n]\n\nexport default function Creator() {\n  return <PricingTableBlock title=\"One plan. Everything in it.\" plans={plans} />\n}\n",
+          "registryDependencies": [
+            "plan-card"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Plans",
+          "label": "Acme's three plans",
+          "center": false,
+          "half": false,
+          "path": "react/examples/pricing-table-block/Plans.tsx",
+          "content": "import { PricingTableBlock } from '@/react/components/blocks/PricingTableBlock'\n// Acme's own three plans, side by side (placeholder plans: state yours exactly).\n\nconst plans = [\n  { title: 'Acme Solo', price: '$12/month', features: ['One seat', 'Ten tracked brands'], cta: 'Start Solo' },\n  { title: 'Acme Team', price: '$40/month', features: ['Five seats', 'Fifty tracked brands', 'Shared boards'], cta: 'Start Team' },\n  { title: 'Acme Studio', price: '$90/month', features: ['Unlimited seats', 'Unlimited tracked brands', 'Shared boards', 'Alerts'], cta: 'Start Studio' },\n]\n\nexport default function Plans() {\n  return <PricingTableBlock title=\"Plans for every team.\" body=\"Every plan is billed monthly.\" plans={plans} />\n}\n",
+          "registryDependencies": [
+            "plan-card"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/blocks/pricing-table-block.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport '@/elements/components/site/plan-card'\nimport styles from 'virtual:tw'\n\n// PricingTableBlock.tsx as <spyglass-pricing-table-block>: a centered `heading` (React's `title`) and `body` over plan\n// cards (`plans`, a list of { title, price, features, cta, href }), the same width and height, centered as a row.\nexport interface Plan { title: string; price?: string; features?: string[]; cta?: string; href?: string }\n\n/**\n * @summary Plans side by side.\n */\nexport class PricingTableBlock extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"pricing-table-block\"]'))\n\tstatic properties = { plans: { type: Array }, heading: {}, body: {} }\n\tplans: Plan[] = []\n\t/** A heading above the plans (React's `title`). */\n\theading?: string\n\t/** A line under the heading. */\n\tbody?: string\n\n\trender() {\n\t\treturn html`<section data-ds=\"pricing-table-block\" class=\"flex flex-col gap-12 text-fg max-sm:gap-8\">${this.heading || this.body ? html`<div class=\"mx-auto grid max-w-3xl gap-4 text-center\">${this.heading ? html`<h2 class=\"type-section\">${this.heading}</h2>` : nothing}${this.body ? html`<p class=\"type-body-lg text-fg-soft\">${this.body}</p>` : nothing}</div>` : nothing}<div class=\"flex flex-wrap items-stretch justify-center gap-4\">${(this.plans ?? []).map((p) => html`<spyglass-plan-card heading=${p.title} .price=${p.price} .features=${p.features ?? []} .cta=${p.cta} .href=${p.href} class=\"w-100 max-w-full\"></spyglass-plan-card>`)}</div></section>`\n\t}\n}\n\ndefine('pricing-table-block', PricingTableBlock)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/pricing-table-block.js",
+        "elements/plan-card.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-pricing-table-block",
+      "tags": [
+        "spyglass-pricing-table-block"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button",
+        "plan-card"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-pricing-table-block",
+            "name": "PricingTableBlock",
+            "module": "elements/pricing-table-block.js",
+            "description": "Plans side by side.",
+            "attributes": [
+              {
+                "name": "plans",
+                "field": "plans",
+                "type": "Plan[]",
+                "default": "[]"
+              },
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string | undefined",
+                "description": "A heading above the plans (React's `title`)."
+              },
+              {
+                "name": "body",
+                "field": "body",
+                "type": "string | undefined",
+                "description": "A line under the heading."
+              }
+            ],
+            "properties": [
+              {
+                "name": "plans",
+                "type": "Plan[]",
+                "default": "[]",
+                "attribute": "plans"
+              },
+              {
+                "name": "heading",
+                "type": "string | undefined",
+                "description": "A heading above the plans (React's `title`).",
+                "attribute": "heading"
+              },
+              {
+                "name": "body",
+                "type": "string | undefined",
+                "description": "A line under the heading.",
+                "attribute": "body"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Creator",
+          "label": "The Creator plan",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/pricing-table-block/Creator.html",
+          "content": "<!-- The Creator plan, exactly as the ad states it. -->\n<spyglass-pricing-table-block heading=\"One plan. Everything in it.\" plans='[{\"title\":\"Creator\",\"price\":\"$10 for your first month, then $20/month\",\"features\":[\"AI-powered research across brands, creators, ads, and campaigns\",\"Unlimited board swipe files, alerts, and tracked brands\",\"Unlimited team seats\"],\"cta\":\"Start Creator for 50% off\",\"href\":\"/sign-up\"}]'></spyglass-pricing-table-block>\n"
+        },
+        {
+          "name": "Plans",
+          "label": "Acme's three plans",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/pricing-table-block/Plans.html",
+          "content": "<!-- Acme's own three plans, side by side (placeholder plans: state yours exactly). -->\n<spyglass-pricing-table-block heading=\"Plans for every team.\" body=\"Every plan is billed monthly.\" plans='[{\"title\":\"Acme Solo\",\"price\":\"$12/month\",\"features\":[\"One seat\",\"Ten tracked brands\"],\"cta\":\"Start Solo\"},{\"title\":\"Acme Team\",\"price\":\"$40/month\",\"features\":[\"Five seats\",\"Fifty tracked brands\",\"Shared boards\"],\"cta\":\"Start Team\"},{\"title\":\"Acme Studio\",\"price\":\"$90/month\",\"features\":[\"Unlimited seats\",\"Unlimited tracked brands\",\"Shared boards\",\"Alerts\"],\"cta\":\"Start Studio\"}]'></spyglass-pricing-table-block>\n"
+        }
+      ]
+    }
+  }
+}

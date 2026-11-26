@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "instrument-marks",
+  "type": "registry:ui",
+  "title": "Instrument marks",
+  "description": "Four hairline corner brackets in the text colour around a target, a few pixels outside its edges, like a viewfinder locking on: the site's instrument mark for the item a figure is reading.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/visuals/Brackets.tsx",
+      "type": "registry:ui",
+      "content": "import type { CSSProperties } from 'react'\nimport { cn } from '@/lib/cn'\n\n// The site's instrument marks (instrument/marks): four hairline corner brackets in the text colour around a target,\n// `offset` outside its edges (4px), each arm `arm` long (8px), like a viewfinder locking on. Put it inside a positioned\n// box (the target); it sits above it (z 2) and takes no pointer. Decoration: hidden from assistive tech.\nexport type Strength = 'subtle' | 'stronger'\nexport interface BracketsProps {\n  /** How far outside the target's edges, in px. */\n  offset?: number\n  /** Each arm's length, in px. */\n  arm?: number\n  className?: string\n}\n\nconst ARM = 'absolute size-[var(--b-arm,var(--ds-space-sm))] border-0 border-solid border-fg'\n\nexport function Brackets({ offset, arm, className }: BracketsProps) {\n  const style = { ...(offset !== undefined && { '--b-off': `${offset}px` }), ...(arm !== undefined && { '--b-arm': `${arm}px` }) } as CSSProperties\n  return (\n    <span data-ds=\"brackets\" data-brackets=\"\" aria-hidden=\"true\" style={style} className={cn('pointer-events-none absolute inset-[calc(-1*var(--b-off,var(--ds-space-xs)))] z-2 origin-center', className)}>\n      <i className={cn(ARM, 'top-0 left-0 border-t border-l')} />\n      <i className={cn(ARM, 'top-0 right-0 border-t border-r')} />\n      <i className={cn(ARM, 'bottom-0 left-0 border-b border-l')} />\n      <i className={cn(ARM, 'right-0 bottom-0 border-r border-b')} />\n    </span>\n  )\n}\n\nexport default Brackets\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

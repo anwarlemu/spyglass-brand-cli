@@ -1,0 +1,311 @@
+{
+  "name": "testimonial-block",
+  "title": "Testimonial block",
+  "type": "registry:block",
+  "group": "blocks",
+  "description": "One customer as a section: an optional label in capitals over the testimonial, the headshot beside the words or above them, on Black or on the #262626 fill.",
+  "use_for": "A customer's own words on a home, product or pricing page.",
+  "never": [
+    "A quote written for a customer, or a real person's name without permission",
+    "Several testimonials in one block",
+    "Stars, ratings or company logos beside the quote"
+  ],
+  "source": "Built from the library (testimonial); Figma page 8: Ad, Testimonial (the quote, name and role; the Figma's named person and photo are never shipped)",
+  "body": "`image` takes a src or an image slot (`src`, `alt`, `fit`, `position`).",
+  "requires": [
+    "creative-card",
+    "testimonial"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/blocks/TestimonialBlock.tsx",
+      "content": "import type { ReactNode } from 'react'\nimport { Testimonial } from '@/react/components/site/Testimonial'\nimport type { ImageSlot } from '@/lib/image'\nimport { cn } from '@/react/lib/cn'\n\n// One customer, as a section: an optional label in capitals, then the testimonial with the headshot beside the words\n// (`side`, as a page sets it) or above them (`stacked`, as the ad does). `card` sets it on the #262626 fill. The quote\n// is a customer's own words: never write one for them.\nexport interface TestimonialBlockProps {\n  /** The words, without quote marks. */\n  quote: string\n  name: string\n  /** Role and company, shown in capitals. */\n  position?: string\n  /** The headshot (a src, or { src, alt, fit, position }), the placeholder (undefined) or none (false). */\n  image?: string | ImageSlot | false\n  /** A line in capitals above it. */\n  label?: ReactNode\n  /** side or stacked. */\n  layout?: 'side' | 'stacked'\n  /** On the card fill. */\n  card?: boolean\n  className?: string\n}\n\nexport function TestimonialBlock({ quote, name, position, image, label, layout = 'side', card = false, className }: TestimonialBlockProps) {\n  return (\n    <section data-ds=\"testimonial-block\" className={cn('grid gap-8 text-fg', card && 'rounded-container bg-surface-raised p-12 max-sm:p-6', className)}>\n      {label && <p className=\"type-label text-fg-muted\">{label}</p>}\n      <Testimonial quote={quote} name={name} position={position} image={image} layout={layout} />\n    </section>\n  )\n}\n\nexport default TestimonialBlock\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Side",
+      "label": "Headshot beside the words",
+      "center": false,
+      "half": false,
+      "path": "react/examples/testimonial-block/Side.tsx",
+      "content": "import { TestimonialBlock } from '@/react/components/blocks/TestimonialBlock'\n// An Acme customer, the placeholder headshot beside the words.\n\nexport default function Side() {\n  return <TestimonialBlock label=\"From a customer\" quote=\"We see every launch in our category the day it goes live.\" name=\"Alex Rivera\" position=\"Head of growth, Acme\" />\n}\n",
+      "requires": [
+        "creative-card",
+        "testimonial"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Card",
+      "label": "Stacked, on the card fill",
+      "center": false,
+      "half": false,
+      "path": "react/examples/testimonial-block/Card.tsx",
+      "content": "import { TestimonialBlock } from '@/react/components/blocks/TestimonialBlock'\n// The testimonial ad's arrangement on the card fill, without a headshot.\n\nexport default function Card() {\n  return <TestimonialBlock card layout=\"stacked\" image={false} quote=\"This is the only tool that gives me full competitive visibility across every account I manage.\" name=\"Acme customer\" position=\"Head of growth, Acme\" />\n}\n",
+      "requires": [
+        "creative-card",
+        "testimonial"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/blocks/TestimonialBlock.tsx",
+          "content": "import type { ReactNode } from 'react'\nimport { Testimonial } from '@/react/components/site/Testimonial'\nimport type { ImageSlot } from '@/lib/image'\nimport { cn } from '@/react/lib/cn'\n\n// One customer, as a section: an optional label in capitals, then the testimonial with the headshot beside the words\n// (`side`, as a page sets it) or above them (`stacked`, as the ad does). `card` sets it on the #262626 fill. The quote\n// is a customer's own words: never write one for them.\nexport interface TestimonialBlockProps {\n  /** The words, without quote marks. */\n  quote: string\n  name: string\n  /** Role and company, shown in capitals. */\n  position?: string\n  /** The headshot (a src, or { src, alt, fit, position }), the placeholder (undefined) or none (false). */\n  image?: string | ImageSlot | false\n  /** A line in capitals above it. */\n  label?: ReactNode\n  /** side or stacked. */\n  layout?: 'side' | 'stacked'\n  /** On the card fill. */\n  card?: boolean\n  className?: string\n}\n\nexport function TestimonialBlock({ quote, name, position, image, label, layout = 'side', card = false, className }: TestimonialBlockProps) {\n  return (\n    <section data-ds=\"testimonial-block\" className={cn('grid gap-8 text-fg', card && 'rounded-container bg-surface-raised p-12 max-sm:p-6', className)}>\n      {label && <p className=\"type-label text-fg-muted\">{label}</p>}\n      <Testimonial quote={quote} name={name} position={position} image={image} layout={layout} />\n    </section>\n  )\n}\n\nexport default TestimonialBlock\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "creative-card",
+        "testimonial"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "TestimonialBlock",
+            "file": "react/components/blocks/TestimonialBlock.tsx",
+            "props": [
+              {
+                "name": "quote",
+                "type": "string",
+                "required": true,
+                "description": "The words, without quote marks."
+              },
+              {
+                "name": "name",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "position",
+                "type": "string",
+                "required": false,
+                "description": "Role and company, shown in capitals."
+              },
+              {
+                "name": "image",
+                "type": "string | ImageSlot | false",
+                "required": false,
+                "description": "The headshot (a src, or { src, alt, fit, position }), the placeholder (undefined) or none (false)."
+              },
+              {
+                "name": "label",
+                "type": "ReactNode",
+                "required": false,
+                "description": "A line in capitals above it."
+              },
+              {
+                "name": "layout",
+                "type": "'side' | 'stacked'",
+                "required": false,
+                "default": "'side'",
+                "description": "side or stacked."
+              },
+              {
+                "name": "card",
+                "type": "boolean",
+                "required": false,
+                "default": "false",
+                "description": "On the card fill."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Side",
+          "label": "Headshot beside the words",
+          "center": false,
+          "half": false,
+          "path": "react/examples/testimonial-block/Side.tsx",
+          "content": "import { TestimonialBlock } from '@/react/components/blocks/TestimonialBlock'\n// An Acme customer, the placeholder headshot beside the words.\n\nexport default function Side() {\n  return <TestimonialBlock label=\"From a customer\" quote=\"We see every launch in our category the day it goes live.\" name=\"Alex Rivera\" position=\"Head of growth, Acme\" />\n}\n",
+          "registryDependencies": [
+            "creative-card",
+            "testimonial"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Card",
+          "label": "Stacked, on the card fill",
+          "center": false,
+          "half": false,
+          "path": "react/examples/testimonial-block/Card.tsx",
+          "content": "import { TestimonialBlock } from '@/react/components/blocks/TestimonialBlock'\n// The testimonial ad's arrangement on the card fill, without a headshot.\n\nexport default function Card() {\n  return <TestimonialBlock card layout=\"stacked\" image={false} quote=\"This is the only tool that gives me full competitive visibility across every account I manage.\" name=\"Acme customer\" position=\"Head of growth, Acme\" />\n}\n",
+          "registryDependencies": [
+            "creative-card",
+            "testimonial"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/blocks/testimonial-block.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport '@/elements/components/site/testimonial'\nimport type { ImageSlot } from '@/lib/image'\nimport styles from 'virtual:tw'\n\n// TestimonialBlock.tsx as <spyglass-testimonial-block>: a `label` in capitals over the testimonial, the headshot\n// beside the words (layout=\"side\") or above them (layout=\"stacked\"); `card` sets it on the #262626 fill.\n\n/**\n * @summary One customer, as a section.\n */\nexport class TestimonialBlock extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"testimonial-block\"]'))\n\tstatic properties = { quote: {}, name: {}, position: {}, image: {}, label: {}, arrangement: { attribute: 'layout' }, card: { type: Boolean } }\n\t/** The words, without quote marks. */\n\tquote = ''\n\tname = ''\n\t/** Role and company, shown in capitals. */\n\tposition?: string\n\t/** The headshot's src, or \"false\" for none. */\n\timage?: string | ImageSlot\n\t/** A line in capitals above it. */\n\tlabel?: string\n\t/** side or stacked (the layout attribute). */\n\tarrangement: 'side' | 'stacked' = 'side'\n\t/** On the card fill. */\n\tcard = false\n\n\trender() {\n\t\treturn html`<section data-ds=\"testimonial-block\" class=${['grid gap-8 text-fg', this.card ? 'rounded-container bg-surface-raised p-12 max-sm:p-6' : ''].filter(Boolean).join(' ')}>${this.label ? html`<p class=\"type-label text-fg-muted\">${this.label}</p>` : nothing}<spyglass-testimonial quote=${this.quote} name=${this.name} .position=${this.position} .image=${this.image} layout=${this.arrangement}></spyglass-testimonial></section>`\n\t}\n}\n\ndefine('testimonial-block', TestimonialBlock)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/testimonial-block.js",
+        "elements/testimonial.js",
+        "elements/creative-card.js"
+      ],
+      "tag": "spyglass-testimonial-block",
+      "tags": [
+        "spyglass-testimonial-block"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "creative-card",
+        "testimonial"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-testimonial-block",
+            "name": "TestimonialBlock",
+            "module": "elements/testimonial-block.js",
+            "description": "One customer, as a section.",
+            "attributes": [
+              {
+                "name": "quote",
+                "field": "quote",
+                "type": "string",
+                "default": "''",
+                "description": "The words, without quote marks."
+              },
+              {
+                "name": "name",
+                "field": "name",
+                "type": "string",
+                "default": "''"
+              },
+              {
+                "name": "position",
+                "field": "position",
+                "type": "string | undefined",
+                "description": "Role and company, shown in capitals."
+              },
+              {
+                "name": "image",
+                "field": "image",
+                "type": "string | ImageSlot | undefined",
+                "description": "The headshot's src, or \"false\" for none."
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string | undefined",
+                "description": "A line in capitals above it."
+              },
+              {
+                "name": "layout",
+                "field": "arrangement",
+                "type": "\"stacked\" | \"side\"",
+                "default": "'side'",
+                "description": "side or stacked (the layout attribute)."
+              },
+              {
+                "name": "card",
+                "field": "card",
+                "type": "boolean",
+                "default": "false",
+                "description": "On the card fill."
+              }
+            ],
+            "properties": [
+              {
+                "name": "quote",
+                "type": "string",
+                "default": "''",
+                "description": "The words, without quote marks.",
+                "attribute": "quote"
+              },
+              {
+                "name": "name",
+                "type": "string",
+                "default": "''",
+                "attribute": "name"
+              },
+              {
+                "name": "position",
+                "type": "string | undefined",
+                "description": "Role and company, shown in capitals.",
+                "attribute": "position"
+              },
+              {
+                "name": "image",
+                "type": "string | ImageSlot | undefined",
+                "description": "The headshot's src, or \"false\" for none.",
+                "attribute": "image"
+              },
+              {
+                "name": "label",
+                "type": "string | undefined",
+                "description": "A line in capitals above it.",
+                "attribute": "label"
+              },
+              {
+                "name": "arrangement",
+                "type": "\"stacked\" | \"side\"",
+                "default": "'side'",
+                "description": "side or stacked (the layout attribute).",
+                "attribute": "layout"
+              },
+              {
+                "name": "card",
+                "type": "boolean",
+                "default": "false",
+                "description": "On the card fill.",
+                "attribute": "card"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Side",
+          "label": "Headshot beside the words",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/testimonial-block/Side.html",
+          "content": "<!-- An Acme customer, the placeholder headshot beside the words. -->\n<spyglass-testimonial-block label=\"From a customer\" quote=\"We see every launch in our category the day it goes live.\" name=\"Alex Rivera\" position=\"Head of growth, Acme\"></spyglass-testimonial-block>\n"
+        },
+        {
+          "name": "Card",
+          "label": "Stacked, on the card fill",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/testimonial-block/Card.html",
+          "content": "<!-- The testimonial ad's arrangement on the card fill, without a headshot. -->\n<spyglass-testimonial-block card layout=\"stacked\" image=\"false\" quote=\"This is the only tool that gives me full competitive visibility across every account I manage.\" name=\"Acme customer\" position=\"Head of growth, Acme\"></spyglass-testimonial-block>\n"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,1671 @@
+{
+ "$comment": "Merch print files only (no mockups). Each item: trim size and bleed and safe area in inches with its source or convention, the variants it takes (full color: the site’s light images and ASCII texture on Black, its text gray for paragraphs; white or black: one color, transparent ground, an approved lockup only), and layouts in inches from the trim. Files are SVG at physical size and PNG at 300 dpi (--dpi) with the bleed included.",
+ "dpi": 300,
+ "items": [
+  {
+   "id": "cap-front",
+   "name": "Cap front panel",
+   "size": [
+    4,
+    1.75
+   ],
+   "bleed": 0,
+   "safe": 0.125,
+   "method": "embroidery",
+   "source": "Common front embroidery area on a structured six-panel cap: 4 by 1.75 in. Embroidery is thread, so one color per file and no bleed. Confirm against the print vendor’s template for the exact blank before ordering.",
+   "variants": {
+    "white": {
+     "ink": "white",
+     "ground": "none"
+    },
+    "black": {
+     "ink": "black",
+     "ground": "none"
+    }
+   },
+   "layers": [
+    {
+     "type": "logo",
+     "lockup": "horizontal",
+     "color": "$ink",
+     "box": [
+      0.125,
+      0.4,
+      3.75,
+      0.95
+     ],
+     "align": "center"
+    }
+   ]
+  },
+  {
+   "id": "tee-front",
+   "name": "T-shirt front",
+   "size": [
+    12,
+    16
+   ],
+   "bleed": 0,
+   "safe": 0.5,
+   "method": "DTG or screen print",
+   "source": "Common adult tee front print area: 12 by 16 in (DTG standard). Garment prints are not trimmed, so no bleed; keep art inside the safe area. Confirm against the print vendor’s template for the exact blank before ordering.",
+   "variants": {
+    "full-color": {
+     "ink": "white",
+     "ground": "black"
+    },
+    "white": {
+     "ink": "white",
+     "ground": "none"
+    },
+    "black": {
+     "ink": "black",
+     "ground": "none"
+    }
+   },
+   "layers": {
+    "full-color": [
+     {
+      "type": "ascii",
+      "tile": 12
+     },
+     {
+      "type": "art",
+      "id": "light",
+      "file": "video-light-a",
+      "box": [
+       0,
+       7,
+       12,
+       2.4
+      ],
+      "fit": "cover"
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "white",
+      "box": [
+       2,
+       3,
+       8,
+       1.22
+      ],
+      "align": "center"
+     },
+     {
+      "type": "stack",
+      "box": [
+       1,
+       11.4,
+       10,
+       4
+      ],
+      "items": [
+       {
+        "type": "text",
+        "slot": "headline",
+        "face": "display",
+        "size": 0.6,
+        "leading": 0.64,
+        "gap": 0,
+        "color": "$ink",
+        "align": "center",
+        "maxLines": 2
+       }
+      ],
+      "align": "center"
+     }
+    ],
+    "default": [
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "$ink",
+      "box": [
+       1.5,
+       2,
+       9,
+       1.37
+      ],
+      "align": "center"
+     },
+     {
+      "type": "stack",
+      "box": [
+       1,
+       5,
+       10,
+       8
+      ],
+      "items": [
+       {
+        "type": "text",
+        "slot": "headline",
+        "face": "display",
+        "size": 0.6,
+        "leading": 0.64,
+        "gap": 0,
+        "color": "$ink",
+        "align": "center",
+        "maxLines": 2
+       }
+      ],
+      "align": "center"
+     }
+    ]
+   },
+   "slots": {
+    "headline": "{tagline}"
+   }
+  },
+  {
+   "id": "tee-back",
+   "name": "T-shirt back",
+   "size": [
+    12,
+    16
+   ],
+   "bleed": 0,
+   "safe": 0.5,
+   "method": "DTG or screen print",
+   "source": "Common adult tee back print area: 12 by 16 in (DTG standard). No bleed. Confirm against the print vendor’s template for the exact blank before ordering.",
+   "variants": {
+    "full-color": {
+     "ink": "white",
+     "ground": "black"
+    },
+    "white": {
+     "ink": "white",
+     "ground": "none"
+    },
+    "black": {
+     "ink": "black",
+     "ground": "none"
+    }
+   },
+   "layers": {
+    "full-color": [
+     {
+      "type": "ascii",
+      "tile": 12
+     },
+     {
+      "type": "art",
+      "id": "light",
+      "file": "video-light-a",
+      "box": [
+       0,
+       0,
+       2.4,
+       16
+      ],
+      "fit": "cover",
+      "turn": true
+     },
+     {
+      "type": "art",
+      "id": "light-2",
+      "file": "video-light-b",
+      "box": [
+       9.6,
+       0,
+       2.4,
+       16
+      ],
+      "fit": "cover",
+      "turn": true,
+      "flip": "x"
+     },
+     {
+      "type": "stack",
+      "box": [
+       3,
+       2,
+       6.2,
+       11.6
+      ],
+      "items": [
+       {
+        "type": "text",
+        "slot": "headline",
+        "face": "display",
+        "size": 0.9,
+        "leading": 0.96,
+        "gap": 0,
+        "color": "$ink",
+        "maxLines": 5
+       }
+      ]
+     },
+     {
+      "type": "text",
+      "slot": "url",
+      "face": "label",
+      "size": 0.22,
+      "leading": 0.22,
+      "x": 3,
+      "top": 14.6,
+      "w": 6,
+      "color": "$ink",
+      "maxLines": 1
+     }
+    ],
+    "default": [
+     {
+      "type": "stack",
+      "box": [
+       1.5,
+       2,
+       9,
+       9.8
+      ],
+      "items": [
+       {
+        "type": "text",
+        "slot": "headline",
+        "face": "display",
+        "size": 0.9,
+        "leading": 0.96,
+        "gap": 0,
+        "color": "$ink",
+        "maxLines": 5
+       }
+      ]
+     },
+     {
+      "type": "text",
+      "slot": "url",
+      "face": "label",
+      "size": 0.22,
+      "leading": 0.22,
+      "x": 1.5,
+      "top": 14.6,
+      "w": 6,
+      "color": "$ink",
+      "maxLines": 1
+     },
+     {
+      "type": "logo",
+      "lockup": "mark",
+      "color": "$ink",
+      "box": [
+       1.5,
+       12.8,
+       1.6,
+       0.8
+      ],
+      "align": "left"
+     }
+    ]
+   },
+   "slots": {
+    "headline": "Know what changed before your next meeting.",
+    "url": "{domain}"
+   },
+   "required": [
+    "headline"
+   ]
+  },
+  {
+   "id": "hoodie-front",
+   "name": "Hoodie front",
+   "size": [
+    12,
+    10
+   ],
+   "bleed": 0,
+   "safe": 0.5,
+   "method": "DTG or screen print",
+   "source": "Pullover hoodie front, above the pouch pocket: 12 by 10 in is a common area (vendors range from 11.5 by 11.5 to 12 by 12 in). No bleed. Confirm against the print vendor’s template for the exact blank before ordering.",
+   "variants": {
+    "full-color": {
+     "ink": "white",
+     "ground": "black"
+    },
+    "white": {
+     "ink": "white",
+     "ground": "none"
+    },
+    "black": {
+     "ink": "black",
+     "ground": "none"
+    }
+   },
+   "layers": {
+    "full-color": [
+     {
+      "type": "ascii",
+      "tile": 12
+     },
+     {
+      "type": "art",
+      "id": "light",
+      "file": "close-band",
+      "box": [
+       0,
+       0,
+       12,
+       5.2
+      ],
+      "fit": "cover",
+      "at": [
+       0.5,
+       0.42
+      ]
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "white",
+      "box": [
+       1.5,
+       6.4,
+       9,
+       1.37
+      ],
+      "align": "center"
+     }
+    ],
+    "default": [
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "$ink",
+      "box": [
+       1.5,
+       3.2,
+       9,
+       1.37
+      ],
+      "align": "center"
+     }
+    ]
+   }
+  },
+  {
+   "id": "tote",
+   "name": "Tote bag",
+   "size": [
+    12,
+    14
+   ],
+   "bleed": 0,
+   "safe": 0.5,
+   "method": "screen print or DTG",
+   "source": "Print area on a standard 15 by 16 in canvas tote: 12 by 14 in is common. No bleed. Confirm against the print vendor’s template for the exact blank before ordering.",
+   "variants": {
+    "full-color": {
+     "ink": "white",
+     "ground": "black"
+    },
+    "white": {
+     "ink": "white",
+     "ground": "none"
+    },
+    "black": {
+     "ink": "black",
+     "ground": "none"
+    }
+   },
+   "layers": {
+    "full-color": [
+     {
+      "type": "ascii",
+      "tile": 12
+     },
+     {
+      "type": "art",
+      "id": "light",
+      "file": "corner-tl",
+      "box": [
+       0,
+       0,
+       7,
+       5.25
+      ],
+      "fit": "cover"
+     },
+     {
+      "type": "art",
+      "id": "light-2",
+      "file": "corner-br",
+      "box": [
+       5,
+       8.75,
+       7,
+       5.25
+      ],
+      "fit": "cover"
+     },
+     {
+      "type": "logo",
+      "lockup": "vertical",
+      "color": "white",
+      "box": [
+       3,
+       5.2,
+       6,
+       3.83
+      ],
+      "align": "center"
+     }
+    ],
+    "default": [
+     {
+      "type": "logo",
+      "lockup": "vertical",
+      "color": "$ink",
+      "box": [
+       3,
+       5.2,
+       6,
+       3.83
+      ],
+      "align": "center"
+     }
+    ]
+   }
+  },
+  {
+   "id": "mug-wrap",
+   "name": "Mug wrap, 11 oz",
+   "size": [
+    9,
+    3.5
+   ],
+   "bleed": 0.125,
+   "safe": 0.25,
+   "method": "sublimation",
+   "source": "11 oz mug wrap: 9 by 3.5 in is a common print area (vendors range from 8.5 to 9.5 in wide), with 0.125 in bleed for the full wrap. The lockup sits on each side of the handle. Confirm against the print vendor’s template for the exact blank before ordering.",
+   "variants": {
+    "full-color": {
+     "ink": "white",
+     "ground": "black"
+    },
+    "white": {
+     "ink": "white",
+     "ground": "none"
+    },
+    "black": {
+     "ink": "black",
+     "ground": "none"
+    }
+   },
+   "layers": {
+    "full-color": [
+     {
+      "type": "ascii",
+      "tile": 9
+     },
+     {
+      "type": "art",
+      "id": "light",
+      "file": "video-light-a",
+      "box": [
+       0,
+       1.15,
+       9,
+       1.2
+      ],
+      "fit": "cover"
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "white",
+      "box": [
+       0.5,
+       0.45,
+       2.6,
+       0.4
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "mark",
+      "color": "white",
+      "box": [
+       6.4,
+       2.6,
+       2.1,
+       0.44
+      ],
+      "align": "center"
+     }
+    ],
+    "default": [
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "$ink",
+      "box": [
+       0.5,
+       1.35,
+       3.2,
+       0.49
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "mark",
+      "color": "$ink",
+      "box": [
+       6.2,
+       1.25,
+       1.4,
+       0.7
+      ],
+      "align": "center"
+     }
+    ]
+   }
+  },
+  {
+   "id": "sticker",
+   "name": "Sticker, die-cut",
+   "size": [
+    3,
+    1.75
+   ],
+   "bleed": 0.125,
+   "safe": 0.125,
+   "method": "die-cut vinyl",
+   "source": "Die-cut sticker 3 by 1.75 in, cut along the rounded rectangle (CutContour path in the SVG, a spot line the cutter reads; it is not printed), 0.125 in bleed past the cut and 0.125 in safe inside it. Confirm against the print vendor’s template for the exact blank before ordering.",
+   "cut": {
+    "radius": 0.3
+   },
+   "variants": {
+    "full-color": {
+     "ink": "white",
+     "ground": "black"
+    },
+    "black": {
+     "ink": "white",
+     "ground": "black"
+    },
+    "white": {
+     "ink": "black",
+     "ground": "white"
+    }
+   },
+   "layers": {
+    "full-color": [
+     {
+      "type": "art",
+      "id": "light",
+      "file": "corner-br",
+      "box": [
+       0.9,
+       0.4,
+       2.1,
+       1.35
+      ],
+      "fit": "cover"
+     },
+     {
+      "type": "logo",
+      "lockup": "mark",
+      "color": "white",
+      "box": [
+       0.75,
+       0.5,
+       1.5,
+       0.75
+      ],
+      "align": "center"
+     }
+    ],
+    "default": [
+     {
+      "type": "logo",
+      "lockup": "mark",
+      "color": "$ink",
+      "box": [
+       0.75,
+       0.5,
+       1.5,
+       0.75
+      ],
+      "align": "center"
+     }
+    ]
+   }
+  },
+  {
+   "id": "poster",
+   "name": "Poster, 18 by 24 in",
+   "size": [
+    18,
+    24
+   ],
+   "bleed": 0.125,
+   "safe": 0.5,
+   "method": "digital or offset print",
+   "source": "Standard 18 by 24 in poster with 0.125 in bleed on every side and a 0.5 in safe margin. Confirm against the print vendor’s template for the exact blank before ordering.",
+   "variants": {
+    "full-color": {
+     "ink": "white",
+     "ground": "black"
+    },
+    "black": {
+     "ink": "white",
+     "ground": "black"
+    },
+    "white": {
+     "ink": "black",
+     "ground": "white"
+    }
+   },
+   "layers": {
+    "full-color": [
+     {
+      "type": "ascii",
+      "tile": 18
+     },
+     {
+      "type": "art",
+      "id": "light",
+      "file": "close-band",
+      "box": [
+       0,
+       0,
+       18,
+       10.2
+      ],
+      "fit": "cover",
+      "at": [
+       0.5,
+       0.42
+      ]
+     },
+     {
+      "type": "stack",
+      "box": [
+       1.2,
+       11,
+       15.6,
+       9.9
+      ],
+      "items": [
+       {
+        "type": "text",
+        "slot": "headline",
+        "face": "display",
+        "size": 1.6,
+        "leading": 1.71,
+        "gap": 0,
+        "color": "$ink",
+        "maxLines": 3
+       },
+       {
+        "type": "text",
+        "slot": "body",
+        "face": "body",
+        "size": 0.4,
+        "leading": 0.53,
+        "gap": 0.6,
+        "color": "neutral-11",
+        "w": 10,
+        "maxLines": 4
+       }
+      ],
+      "prefer": 12
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "white",
+      "box": [
+       1.2,
+       21.9,
+       3.66,
+       0.56
+      ],
+      "align": "left"
+     },
+     {
+      "type": "text",
+      "slot": "url",
+      "face": "label",
+      "size": 0.22,
+      "leading": 0.22,
+      "x": 10.8,
+      "top": 22.08,
+      "w": 6,
+      "color": "$ink",
+      "align": "right",
+      "maxLines": 1
+     }
+    ],
+    "default": [
+     {
+      "type": "stack",
+      "box": [
+       1.2,
+       2.4,
+       15.6,
+       18.4
+      ],
+      "items": [
+       {
+        "type": "text",
+        "slot": "headline",
+        "face": "display",
+        "size": 1.6,
+        "leading": 1.71,
+        "gap": 0,
+        "color": "$ink",
+        "maxLines": 4
+       },
+       {
+        "type": "text",
+        "slot": "body",
+        "face": "body",
+        "size": 0.4,
+        "leading": 0.53,
+        "gap": 1,
+        "color": "$ink",
+        "w": 10,
+        "maxLines": 6
+       }
+      ],
+      "prefer": 4
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "$ink",
+      "box": [
+       1.2,
+       21.9,
+       3.66,
+       0.56
+      ],
+      "align": "left"
+     },
+     {
+      "type": "text",
+      "slot": "url",
+      "face": "label",
+      "size": 0.22,
+      "leading": 0.22,
+      "x": 10.8,
+      "top": 22.08,
+      "w": 6,
+      "color": "$ink",
+      "align": "right",
+      "maxLines": 1
+     }
+    ]
+   },
+   "slots": {
+    "headline": "{tagline}",
+    "body": "AI search across millions of creatives. Ask a question and get instant, structured results.",
+    "url": "{domain}"
+   },
+   "required": [
+    "headline"
+   ]
+  },
+  {
+   "id": "socks",
+   "name": "Socks, leg panel",
+   "size": [
+    3.5,
+    7
+   ],
+   "bleed": 0.125,
+   "safe": 0.25,
+   "method": "sublimation",
+   "source": "Crew sock leg panel, one side: 3.5 by 7 in is a common sublimation area (print twice for a pair, or mirror for the outside faces); 0.125 in bleed. Confirm against the print vendor’s template for the exact blank before ordering.",
+   "variants": {
+    "full-color": {
+     "ink": "white",
+     "ground": "black"
+    },
+    "white": {
+     "ink": "white",
+     "ground": "black"
+    }
+   },
+   "layers": {
+    "full-color": [
+     {
+      "type": "ascii",
+      "tile": 3.5
+     },
+     {
+      "type": "art",
+      "id": "light",
+      "file": "video-light-a",
+      "box": [
+       0,
+       0,
+       1.2,
+       7
+      ],
+      "fit": "cover",
+      "turn": true
+     },
+     {
+      "type": "logo",
+      "lockup": "mark",
+      "color": "white",
+      "box": [
+       1.6,
+       2.6,
+       1.4,
+       0.7
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "white",
+      "box": [
+       1.45,
+       5.6,
+       1.7,
+       0.26
+      ],
+      "align": "center"
+     }
+    ],
+    "default": [
+     {
+      "type": "logo",
+      "lockup": "mark",
+      "color": "$ink",
+      "box": [
+       0.95,
+       2.6,
+       1.6,
+       0.8
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "$ink",
+      "box": [
+       0.75,
+       5.6,
+       2,
+       0.31
+      ],
+      "align": "center"
+     }
+    ]
+   }
+  },
+  {
+   "id": "poster-11x17",
+   "name": "Poster, 11 by 17 in",
+   "size": [
+    11,
+    17
+   ],
+   "bleed": 0.125,
+   "safe": 0.5,
+   "method": "digital or offset print",
+   "source": "Standard 11 by 17 in poster with 0.125 in bleed and a 0.5 in safe margin; the 18 by 24 layout scaled to it. Confirm against the print vendor’s template for the exact blank before ordering.",
+   "variants": {
+    "full-color": {
+     "ink": "white",
+     "ground": "black"
+    },
+    "black": {
+     "ink": "white",
+     "ground": "black"
+    },
+    "white": {
+     "ink": "black",
+     "ground": "white"
+    }
+   },
+   "layers": {
+    "full-color": [
+     {
+      "type": "ascii",
+      "tile": 11
+     },
+     {
+      "type": "art",
+      "id": "light",
+      "file": "close-band",
+      "box": [
+       0,
+       0,
+       11,
+       7.225
+      ],
+      "fit": "cover",
+      "at": [
+       0.5,
+       0.42
+      ]
+     },
+     {
+      "type": "stack",
+      "box": [
+       0.7333333333333334,
+       7.791666666666667,
+       9.533333333333333,
+       7.0125
+      ],
+      "items": [
+       {
+        "type": "text",
+        "slot": "headline",
+        "face": "display",
+        "size": 0.9777777777777779,
+        "leading": 1.0450000000000002,
+        "gap": 0,
+        "color": "$ink",
+        "maxLines": 3
+       },
+       {
+        "type": "text",
+        "slot": "body",
+        "face": "body",
+        "size": 0.24444444444444446,
+        "leading": 0.32388888888888895,
+        "gap": 0.3666666666666667,
+        "color": "neutral-11",
+        "w": 6.111111111111112,
+        "maxLines": 4
+       }
+      ]
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "white",
+      "box": [
+       0.7333333333333334,
+       15.716666666666667,
+       2.236666666666667,
+       0.34222222222222226
+      ],
+      "align": "left"
+     },
+     {
+      "type": "text",
+      "slot": "url",
+      "face": "label",
+      "size": 0.13444444444444445,
+      "leading": 0.13444444444444445,
+      "x": 6.6,
+      "top": 15.826666666666666,
+      "w": 3.666666666666667,
+      "color": "$ink",
+      "align": "right",
+      "maxLines": 1
+     }
+    ],
+    "default": [
+     {
+      "type": "stack",
+      "box": [
+       0.7333333333333334,
+       1.7,
+       9.533333333333333,
+       13.033333333333335
+      ],
+      "items": [
+       {
+        "type": "text",
+        "slot": "headline",
+        "face": "display",
+        "size": 0.9777777777777779,
+        "leading": 1.0450000000000002,
+        "gap": 0,
+        "color": "$ink",
+        "maxLines": 4
+       },
+       {
+        "type": "text",
+        "slot": "body",
+        "face": "body",
+        "size": 0.24444444444444446,
+        "leading": 0.32388888888888895,
+        "gap": 0.6111111111111112,
+        "color": "$ink",
+        "w": 6.111111111111112,
+        "maxLines": 6
+       }
+      ]
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "$ink",
+      "box": [
+       0.7333333333333334,
+       15.716666666666667,
+       2.236666666666667,
+       0.34222222222222226
+      ],
+      "align": "left"
+     },
+     {
+      "type": "text",
+      "slot": "url",
+      "face": "label",
+      "size": 0.13444444444444445,
+      "leading": 0.13444444444444445,
+      "x": 6.6,
+      "top": 15.826666666666666,
+      "w": 3.666666666666667,
+      "color": "$ink",
+      "align": "right",
+      "maxLines": 1
+     }
+    ]
+   },
+   "slots": {
+    "headline": "{tagline}",
+    "body": "AI search across millions of creatives. Ask a question and get instant, structured results.",
+    "url": "{domain}"
+   },
+   "required": [
+    "headline"
+   ]
+  },
+  {
+   "id": "poster-24x36",
+   "name": "Poster, 24 by 36 in",
+   "size": [
+    24,
+    36
+   ],
+   "bleed": 0.125,
+   "safe": 0.5,
+   "method": "digital or offset print",
+   "source": "Standard 24 by 36 in poster with 0.125 in bleed and a 0.5 in safe margin; the 18 by 24 layout scaled to it. Confirm against the print vendor’s template for the exact blank before ordering.",
+   "variants": {
+    "full-color": {
+     "ink": "white",
+     "ground": "black"
+    },
+    "black": {
+     "ink": "white",
+     "ground": "black"
+    },
+    "white": {
+     "ink": "black",
+     "ground": "white"
+    }
+   },
+   "layers": {
+    "full-color": [
+     {
+      "type": "ascii",
+      "tile": 24
+     },
+     {
+      "type": "art",
+      "id": "light",
+      "file": "close-band",
+      "box": [
+       0,
+       0,
+       24,
+       15.299999999999999
+      ],
+      "fit": "cover",
+      "at": [
+       0.5,
+       0.42
+      ]
+     },
+     {
+      "type": "stack",
+      "box": [
+       1.5999999999999999,
+       16.5,
+       20.799999999999997,
+       14.850000000000001
+      ],
+      "items": [
+       {
+        "type": "text",
+        "slot": "headline",
+        "face": "display",
+        "size": 2.1333333333333333,
+        "leading": 2.28,
+        "gap": 0,
+        "color": "$ink",
+        "maxLines": 3
+       },
+       {
+        "type": "text",
+        "slot": "body",
+        "face": "body",
+        "size": 0.5333333333333333,
+        "leading": 0.7066666666666667,
+        "gap": 0.7999999999999999,
+        "color": "neutral-11",
+        "w": 13.333333333333332,
+        "maxLines": 4
+       }
+      ]
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "white",
+      "box": [
+       1.5999999999999999,
+       33.2,
+       4.88,
+       0.7466666666666667
+      ],
+      "align": "left"
+     },
+     {
+      "type": "text",
+      "slot": "url",
+      "face": "label",
+      "size": 0.29333333333333333,
+      "leading": 0.29333333333333333,
+      "x": 14.4,
+      "top": 33.44,
+      "w": 8,
+      "color": "$ink",
+      "align": "right",
+      "maxLines": 1
+     }
+    ],
+    "default": [
+     {
+      "type": "stack",
+      "box": [
+       1.5999999999999999,
+       3.6,
+       20.799999999999997,
+       27.599999999999998
+      ],
+      "items": [
+       {
+        "type": "text",
+        "slot": "headline",
+        "face": "display",
+        "size": 2.1333333333333333,
+        "leading": 2.28,
+        "gap": 0,
+        "color": "$ink",
+        "maxLines": 4
+       },
+       {
+        "type": "text",
+        "slot": "body",
+        "face": "body",
+        "size": 0.5333333333333333,
+        "leading": 0.7066666666666667,
+        "gap": 1.3333333333333333,
+        "color": "$ink",
+        "w": 13.333333333333332,
+        "maxLines": 6
+       }
+      ]
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "$ink",
+      "box": [
+       1.5999999999999999,
+       33.2,
+       4.88,
+       0.7466666666666667
+      ],
+      "align": "left"
+     },
+     {
+      "type": "text",
+      "slot": "url",
+      "face": "label",
+      "size": 0.29333333333333333,
+      "leading": 0.29333333333333333,
+      "x": 14.4,
+      "top": 33.44,
+      "w": 8,
+      "color": "$ink",
+      "align": "right",
+      "maxLines": 1
+     }
+    ]
+   },
+   "slots": {
+    "headline": "{tagline}",
+    "body": "AI search across millions of creatives. Ask a question and get instant, structured results.",
+    "url": "{domain}"
+   },
+   "required": [
+    "headline"
+   ]
+  },
+  {
+   "id": "sticker-sheet",
+   "name": "Sticker sheet, letter",
+   "size": [
+    8.5,
+    11
+   ],
+   "bleed": 0.125,
+   "safe": 0.25,
+   "method": "kiss-cut vinyl sheet",
+   "source": "A letter-size kiss-cut sheet with six stickers (the lockups and the mark), 0.125 in bleed. The cut lines come from the vendor’s template; this file is the art. Confirm against the print vendor’s template for the exact blank before ordering.",
+   "variants": {
+    "full-color": {
+     "ink": "white",
+     "ground": "black"
+    },
+    "white": {
+     "ink": "black",
+     "ground": "white"
+    }
+   },
+   "layers": {
+    "full-color": [
+     {
+      "type": "logo",
+      "lockup": "mark",
+      "color": "white",
+      "box": [
+       0.75,
+       0.9,
+       3.25,
+       1.62
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "white",
+      "box": [
+       4.5,
+       1.2,
+       3.25,
+       0.5
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "vertical",
+      "color": "white",
+      "box": [
+       0.75,
+       4.2,
+       3.25,
+       2.08
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "mark-3d",
+      "color": "white",
+      "box": [
+       4.5,
+       4.4,
+       3.25,
+       1.62
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "wordmark",
+      "color": "white",
+      "box": [
+       0.75,
+       8.1,
+       3.25,
+       0.5
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "mark",
+      "color": "white",
+      "box": [
+       4.5,
+       7.6,
+       3.25,
+       1.62
+      ],
+      "align": "center"
+     }
+    ],
+    "default": [
+     {
+      "type": "logo",
+      "lockup": "mark",
+      "color": "$ink",
+      "box": [
+       0.75,
+       0.9,
+       3.25,
+       1.62
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "$ink",
+      "box": [
+       4.5,
+       1.2,
+       3.25,
+       0.5
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "vertical",
+      "color": "$ink",
+      "box": [
+       0.75,
+       4.2,
+       3.25,
+       2.08
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "mark-3d",
+      "color": "$ink",
+      "box": [
+       4.5,
+       4.4,
+       3.25,
+       1.62
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "wordmark",
+      "color": "$ink",
+      "box": [
+       0.75,
+       8.1,
+       3.25,
+       0.5
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "mark",
+      "color": "$ink",
+      "box": [
+       4.5,
+       7.6,
+       3.25,
+       1.62
+      ],
+      "align": "center"
+     }
+    ]
+   }
+  },
+  {
+   "id": "notebook-cover",
+   "name": "Notebook cover, A5",
+   "size": [
+    5.83,
+    8.27
+   ],
+   "bleed": 0.125,
+   "safe": 0.25,
+   "method": "digital print",
+   "source": "A5 notebook cover (5.83 by 8.27 in) with 0.125 in bleed; the site’s close band comes down from the top, the lockup sits low. Confirm against the print vendor’s template for the exact blank before ordering.",
+   "variants": {
+    "full-color": {
+     "ink": "white",
+     "ground": "black"
+    },
+    "white": {
+     "ink": "black",
+     "ground": "white"
+    }
+   },
+   "layers": {
+    "full-color": [
+     {
+      "type": "ascii",
+      "tile": 5.83
+     },
+     {
+      "type": "art",
+      "id": "light",
+      "file": "close-band",
+      "box": [
+       0,
+       0,
+       5.83,
+       3.4
+      ],
+      "fit": "cover",
+      "at": [
+       0.5,
+       0.42
+      ]
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "white",
+      "box": [
+       0.6,
+       7.1,
+       2.4,
+       0.37
+      ],
+      "align": "left"
+     }
+    ],
+    "default": [
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "$ink",
+      "box": [
+       0.6,
+       7.1,
+       2.4,
+       0.37
+      ],
+      "align": "left"
+     }
+    ]
+   }
+  },
+  {
+   "id": "lanyard",
+   "name": "Lanyard strap, 36 by 0.75 in",
+   "size": [
+    36,
+    0.75
+   ],
+   "bleed": 0.0625,
+   "safe": 0.06,
+   "method": "dye sublimation",
+   "source": "A 36 by 0.75 in sublimated lanyard strap, the lockup repeated every 6 in, 1/16 in bleed. Vendors fold and stitch the ends, so 1 in stays clear at each end. Confirm against the print vendor’s template for the exact blank before ordering.",
+   "variants": {
+    "full-color": {
+     "ink": "white",
+     "ground": "black"
+    },
+    "white": {
+     "ink": "black",
+     "ground": "white"
+    }
+   },
+   "layers": {
+    "full-color": [
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "white",
+      "box": [
+       1.5,
+       0.2,
+       2.6,
+       0.38
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "white",
+      "box": [
+       7.5,
+       0.2,
+       2.6,
+       0.38
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "white",
+      "box": [
+       13.5,
+       0.2,
+       2.6,
+       0.38
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "white",
+      "box": [
+       19.5,
+       0.2,
+       2.6,
+       0.38
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "white",
+      "box": [
+       25.5,
+       0.2,
+       2.6,
+       0.38
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "white",
+      "box": [
+       31.5,
+       0.2,
+       2.6,
+       0.38
+      ],
+      "align": "center"
+     }
+    ],
+    "default": [
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "$ink",
+      "box": [
+       1.5,
+       0.2,
+       2.6,
+       0.38
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "$ink",
+      "box": [
+       7.5,
+       0.2,
+       2.6,
+       0.38
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "$ink",
+      "box": [
+       13.5,
+       0.2,
+       2.6,
+       0.38
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "$ink",
+      "box": [
+       19.5,
+       0.2,
+       2.6,
+       0.38
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "$ink",
+      "box": [
+       25.5,
+       0.2,
+       2.6,
+       0.38
+      ],
+      "align": "center"
+     },
+     {
+      "type": "logo",
+      "lockup": "horizontal",
+      "color": "$ink",
+      "box": [
+       31.5,
+       0.2,
+       2.6,
+       0.38
+      ],
+      "align": "center"
+     }
+    ]
+   }
+  }
+ ]
+}

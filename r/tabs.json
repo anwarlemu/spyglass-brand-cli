@@ -1,0 +1,274 @@
+{
+  "name": "tabs",
+  "title": "Tabs",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "Views of one thing, one at a time. The default is a segmented control: a #262626 track, the current view a White block with a Black label. Line tabs sit over a hairline with a 2px White line under the current one.",
+  "use_for": "Two to six views of the same thing: kinds of creative in a search, a board's sections. Arrow keys move between tabs; the panel follows.",
+  "never": [
+    "Actions: use Button",
+    "More than six views: use a Select or a menu",
+    "Bold or a color on the current tab: the White block or the White line marks it",
+    "A sliding or bouncing indicator"
+  ],
+  "source": "Derived from the brand guidelines (no tabs in the brand assets): the primary button's White fill and Black label for the current view, the plan card's fill for the track, the neutral steps for the hairline",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Tabs.tsx",
+      "content": "'use client'\nimport { useId, useRef, type KeyboardEvent, type ReactNode } from 'react'\nimport { useControllable } from '@/react/hooks/useControllable'\nimport { cn } from '@/react/lib/cn'\n\n// Views of one thing, one at a time. `variant` default is a segmented control: a #262626 track with the brand corner,\n// the current view a White block with a Black DM Sans Medium label, the rest muted and White under the pointer. `line`\n// is for a page's sections: labels 24px apart over a #363636 hairline, the current one White with a 2px White line\n// under it. Colors change over 160ms; nothing slides. Arrow keys move between tabs and select (Home and End for the\n// ends); Tab moves into the panel. Pass `panels` (content by value) to draw the current panel under the list. The\n// value is `value` with `onValueChange` (or `defaultValue` alone).\nexport type TabOption<T extends string> = T | { value: T, label: string, disabled?: boolean }\nexport type TabsVariant = 'default' | 'line'\n\nexport interface TabsProps<T extends string> {\n  /** The tabs: values, or { value, label, disabled }. */\n  options: readonly TabOption<T>[]\n  /** The tab list's name for assistive tech. */\n  label: string\n  value?: T\n  defaultValue?: T\n  onValueChange?: (value: T) => void\n  /** default (a segmented control) or line (labels over a hairline). */\n  variant?: TabsVariant\n  /** The panel for each tab, by value. */\n  panels?: Partial<Record<T, ReactNode>>\n  className?: string\n}\n\nconst norm = <T extends string>(o: TabOption<T>) => (typeof o === 'string' ? { value: o, label: o, disabled: false } : { disabled: false, ...o })\n\nconst LIST: Record<TabsVariant, string> = {\n  default: 'inline-flex h-control-md w-fit max-w-full items-center gap-1 rounded-control bg-surface-raised p-1',\n  line: 'flex items-center gap-6 border-b border-edge',\n}\nconst TAB: Record<TabsVariant, string> = {\n  default: 'inline-flex h-full flex-1 cursor-pointer items-center justify-center rounded-ds-sm px-3 type-ui-strong whitespace-nowrap transition-[background-color,color] duration-160 ease-standard disabled:cursor-not-allowed disabled:text-fg-faint',\n  line: '-mb-px inline-flex h-control-md cursor-pointer items-center border-b-2 type-ui-strong whitespace-nowrap transition-[border-color,color] duration-160 ease-standard disabled:cursor-not-allowed disabled:text-fg-faint',\n}\nconst ON: Record<TabsVariant, string> = { default: 'bg-action-primary text-action-primary-fg', line: 'border-action-primary text-fg' }\nconst OFF: Record<TabsVariant, string> = { default: 'text-fg-muted hover:not-disabled:text-fg', line: 'border-transparent text-fg-muted hover:not-disabled:text-fg' }\n\n/** The id-safe form of a value. */\nconst slug = (v: string) => v.replace(/[^\\w-]/g, '-')\n\nexport function Tabs<T extends string>({ options, label, value, defaultValue, onValueChange, variant = 'default', panels, className }: TabsProps<T>) {\n  const opts = options.map(norm)\n  const [current, setCurrent] = useControllable<T | undefined>(value, defaultValue ?? opts.find((o) => !o.disabled)?.value, (v) => v !== undefined && onValueChange?.(v))\n  const base = `tabs-${useId().replace(/:/g, '')}`\n  const list = useRef<HTMLDivElement | null>(null)\n  const v = LIST[variant] ? variant : 'default'\n\n  function onKeyDown(event: KeyboardEvent) {\n    const enabled = opts.filter((o) => !o.disabled)\n    const at = enabled.findIndex((o) => o.value === current)\n    let next: number\n    if (event.key === 'ArrowRight') next = (at + 1) % enabled.length\n    else if (event.key === 'ArrowLeft') next = (at - 1 + enabled.length) % enabled.length\n    else if (event.key === 'Home') next = 0\n    else if (event.key === 'End') next = enabled.length - 1\n    else return\n    event.preventDefault()\n    const pick = enabled[next]\n    if (!pick) return\n    setCurrent(pick.value)\n    list.current?.querySelector<HTMLElement>(`#${base}-tab-${slug(pick.value)}`)?.focus()\n  }\n\n  const panel = current !== undefined ? panels?.[current] : undefined\n  return (\n    <div data-ds=\"tabs\" className={cn('flex flex-col gap-4', className)}>\n      <div ref={list} role=\"tablist\" aria-label={label} className={LIST[v]} onKeyDown={onKeyDown}>\n        {opts.map((o) => (\n          <button\n            key={o.value}\n            id={`${base}-tab-${slug(o.value)}`}\n            type=\"button\"\n            role=\"tab\"\n            aria-selected={current === o.value}\n            aria-controls={panels?.[o.value] !== undefined ? `${base}-panel-${slug(o.value)}` : undefined}\n            tabIndex={current === o.value ? 0 : -1}\n            disabled={o.disabled}\n            className={cn(TAB[v], current === o.value ? ON[v] : OFF[v])}\n            onClick={() => setCurrent(o.value)}\n          >\n            {o.label}\n          </button>\n        ))}\n      </div>\n      {panel !== undefined && current !== undefined && (\n        <div id={`${base}-panel-${slug(current)}`} role=\"tabpanel\" tabIndex={0} aria-labelledby={`${base}-tab-${slug(current)}`}>{panel}</div>\n      )}\n    </div>\n  )\n}\n\nexport default Tabs\n"
+    },
+    {
+      "path": "react/hooks/useControllable.ts",
+      "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Segmented",
+      "label": "Segmented control",
+      "center": true,
+      "half": false,
+      "path": "react/examples/tabs/Segmented.tsx",
+      "content": "import { Tabs } from '@/react/components/ui/Tabs'\n// What to search: a segmented control over the panel for each kind of creative.\n\nexport default function Segmented() {\n  return (\n    <Tabs\n      className=\"w-96 max-w-full\"\n      label=\"Creative type\"\n      options={[{ value: 'ads', label: 'Ads' }, { value: 'posts', label: 'Posts' }, { value: 'products', label: 'Product shots' }]}\n      defaultValue=\"ads\"\n      panels={{\n        ads: <div className=\"rounded-container bg-surface-raised p-6\"><p className=\"type-ui-strong text-fg\">Ads</p><p className=\"mt-1 type-ui text-fg-muted\">Paid creative from every brand you track.</p></div>,\n        posts: <div className=\"rounded-container bg-surface-raised p-6\"><p className=\"type-ui-strong text-fg\">Posts</p><p className=\"mt-1 type-ui text-fg-muted\">Organic posts and creator content.</p></div>,\n        products: <div className=\"rounded-container bg-surface-raised p-6\"><p className=\"type-ui-strong text-fg\">Product shots</p><p className=\"mt-1 type-ui text-fg-muted\">Stills of the product, as posted.</p></div>,\n      }}\n    />\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    },
+    {
+      "name": "Line",
+      "label": "Line tabs",
+      "center": true,
+      "half": false,
+      "path": "react/examples/tabs/Line.tsx",
+      "content": "import { Tabs } from '@/react/components/ui/Tabs'\n// A board's sections as line tabs, one of them not ready yet.\n\nexport default function Line() {\n  return (\n    <Tabs\n      className=\"w-full max-w-lg\"\n      variant=\"line\"\n      label=\"Board sections\"\n      options={[{ value: 'creatives', label: 'Creatives' }, { value: 'brands', label: 'Brands' }, { value: 'notes', label: 'Notes' }, { value: 'export', label: 'Export', disabled: true }]}\n      defaultValue=\"creatives\"\n      panels={{\n        creatives: <p className=\"type-ui text-fg-muted\">48 creatives, newest first.</p>,\n        brands: <p className=\"type-ui text-fg-muted\">12 brands on this board.</p>,\n        notes: <p className=\"type-ui text-fg-muted\">No notes yet.</p>,\n      }}\n    />\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Tabs.tsx",
+          "content": "'use client'\nimport { useId, useRef, type KeyboardEvent, type ReactNode } from 'react'\nimport { useControllable } from '@/react/hooks/useControllable'\nimport { cn } from '@/react/lib/cn'\n\n// Views of one thing, one at a time. `variant` default is a segmented control: a #262626 track with the brand corner,\n// the current view a White block with a Black DM Sans Medium label, the rest muted and White under the pointer. `line`\n// is for a page's sections: labels 24px apart over a #363636 hairline, the current one White with a 2px White line\n// under it. Colors change over 160ms; nothing slides. Arrow keys move between tabs and select (Home and End for the\n// ends); Tab moves into the panel. Pass `panels` (content by value) to draw the current panel under the list. The\n// value is `value` with `onValueChange` (or `defaultValue` alone).\nexport type TabOption<T extends string> = T | { value: T, label: string, disabled?: boolean }\nexport type TabsVariant = 'default' | 'line'\n\nexport interface TabsProps<T extends string> {\n  /** The tabs: values, or { value, label, disabled }. */\n  options: readonly TabOption<T>[]\n  /** The tab list's name for assistive tech. */\n  label: string\n  value?: T\n  defaultValue?: T\n  onValueChange?: (value: T) => void\n  /** default (a segmented control) or line (labels over a hairline). */\n  variant?: TabsVariant\n  /** The panel for each tab, by value. */\n  panels?: Partial<Record<T, ReactNode>>\n  className?: string\n}\n\nconst norm = <T extends string>(o: TabOption<T>) => (typeof o === 'string' ? { value: o, label: o, disabled: false } : { disabled: false, ...o })\n\nconst LIST: Record<TabsVariant, string> = {\n  default: 'inline-flex h-control-md w-fit max-w-full items-center gap-1 rounded-control bg-surface-raised p-1',\n  line: 'flex items-center gap-6 border-b border-edge',\n}\nconst TAB: Record<TabsVariant, string> = {\n  default: 'inline-flex h-full flex-1 cursor-pointer items-center justify-center rounded-ds-sm px-3 type-ui-strong whitespace-nowrap transition-[background-color,color] duration-160 ease-standard disabled:cursor-not-allowed disabled:text-fg-faint',\n  line: '-mb-px inline-flex h-control-md cursor-pointer items-center border-b-2 type-ui-strong whitespace-nowrap transition-[border-color,color] duration-160 ease-standard disabled:cursor-not-allowed disabled:text-fg-faint',\n}\nconst ON: Record<TabsVariant, string> = { default: 'bg-action-primary text-action-primary-fg', line: 'border-action-primary text-fg' }\nconst OFF: Record<TabsVariant, string> = { default: 'text-fg-muted hover:not-disabled:text-fg', line: 'border-transparent text-fg-muted hover:not-disabled:text-fg' }\n\n/** The id-safe form of a value. */\nconst slug = (v: string) => v.replace(/[^\\w-]/g, '-')\n\nexport function Tabs<T extends string>({ options, label, value, defaultValue, onValueChange, variant = 'default', panels, className }: TabsProps<T>) {\n  const opts = options.map(norm)\n  const [current, setCurrent] = useControllable<T | undefined>(value, defaultValue ?? opts.find((o) => !o.disabled)?.value, (v) => v !== undefined && onValueChange?.(v))\n  const base = `tabs-${useId().replace(/:/g, '')}`\n  const list = useRef<HTMLDivElement | null>(null)\n  const v = LIST[variant] ? variant : 'default'\n\n  function onKeyDown(event: KeyboardEvent) {\n    const enabled = opts.filter((o) => !o.disabled)\n    const at = enabled.findIndex((o) => o.value === current)\n    let next: number\n    if (event.key === 'ArrowRight') next = (at + 1) % enabled.length\n    else if (event.key === 'ArrowLeft') next = (at - 1 + enabled.length) % enabled.length\n    else if (event.key === 'Home') next = 0\n    else if (event.key === 'End') next = enabled.length - 1\n    else return\n    event.preventDefault()\n    const pick = enabled[next]\n    if (!pick) return\n    setCurrent(pick.value)\n    list.current?.querySelector<HTMLElement>(`#${base}-tab-${slug(pick.value)}`)?.focus()\n  }\n\n  const panel = current !== undefined ? panels?.[current] : undefined\n  return (\n    <div data-ds=\"tabs\" className={cn('flex flex-col gap-4', className)}>\n      <div ref={list} role=\"tablist\" aria-label={label} className={LIST[v]} onKeyDown={onKeyDown}>\n        {opts.map((o) => (\n          <button\n            key={o.value}\n            id={`${base}-tab-${slug(o.value)}`}\n            type=\"button\"\n            role=\"tab\"\n            aria-selected={current === o.value}\n            aria-controls={panels?.[o.value] !== undefined ? `${base}-panel-${slug(o.value)}` : undefined}\n            tabIndex={current === o.value ? 0 : -1}\n            disabled={o.disabled}\n            className={cn(TAB[v], current === o.value ? ON[v] : OFF[v])}\n            onClick={() => setCurrent(o.value)}\n          >\n            {o.label}\n          </button>\n        ))}\n      </div>\n      {panel !== undefined && current !== undefined && (\n        <div id={`${base}-panel-${slug(current)}`} role=\"tabpanel\" tabIndex={0} aria-labelledby={`${base}-tab-${slug(current)}`}>{panel}</div>\n      )}\n    </div>\n  )\n}\n\nexport default Tabs\n"
+        },
+        {
+          "path": "react/hooks/useControllable.ts",
+          "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Tabs",
+            "file": "react/components/ui/Tabs.tsx",
+            "props": [
+              {
+                "name": "options",
+                "type": "readonly TabOption<T>[]",
+                "required": true,
+                "description": "The tabs: values, or { value, label, disabled }."
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": true,
+                "description": "The tab list's name for assistive tech."
+              },
+              {
+                "name": "value",
+                "type": "T",
+                "required": false
+              },
+              {
+                "name": "defaultValue",
+                "type": "T",
+                "required": false
+              },
+              {
+                "name": "onValueChange",
+                "type": "(value: T) => void",
+                "required": false
+              },
+              {
+                "name": "variant",
+                "type": "TabsVariant",
+                "required": false,
+                "default": "'default'",
+                "description": "default (a segmented control) or line (labels over a hairline)."
+              },
+              {
+                "name": "panels",
+                "type": "Partial<Record<T, ReactNode>>",
+                "required": false,
+                "description": "The panel for each tab, by value."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Segmented",
+          "label": "Segmented control",
+          "center": true,
+          "half": false,
+          "path": "react/examples/tabs/Segmented.tsx",
+          "content": "import { Tabs } from '@/react/components/ui/Tabs'\n// What to search: a segmented control over the panel for each kind of creative.\n\nexport default function Segmented() {\n  return (\n    <Tabs\n      className=\"w-96 max-w-full\"\n      label=\"Creative type\"\n      options={[{ value: 'ads', label: 'Ads' }, { value: 'posts', label: 'Posts' }, { value: 'products', label: 'Product shots' }]}\n      defaultValue=\"ads\"\n      panels={{\n        ads: <div className=\"rounded-container bg-surface-raised p-6\"><p className=\"type-ui-strong text-fg\">Ads</p><p className=\"mt-1 type-ui text-fg-muted\">Paid creative from every brand you track.</p></div>,\n        posts: <div className=\"rounded-container bg-surface-raised p-6\"><p className=\"type-ui-strong text-fg\">Posts</p><p className=\"mt-1 type-ui text-fg-muted\">Organic posts and creator content.</p></div>,\n        products: <div className=\"rounded-container bg-surface-raised p-6\"><p className=\"type-ui-strong text-fg\">Product shots</p><p className=\"mt-1 type-ui text-fg-muted\">Stills of the product, as posted.</p></div>,\n      }}\n    />\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        },
+        {
+          "name": "Line",
+          "label": "Line tabs",
+          "center": true,
+          "half": false,
+          "path": "react/examples/tabs/Line.tsx",
+          "content": "import { Tabs } from '@/react/components/ui/Tabs'\n// A board's sections as line tabs, one of them not ready yet.\n\nexport default function Line() {\n  return (\n    <Tabs\n      className=\"w-full max-w-lg\"\n      variant=\"line\"\n      label=\"Board sections\"\n      options={[{ value: 'creatives', label: 'Creatives' }, { value: 'brands', label: 'Brands' }, { value: 'notes', label: 'Notes' }, { value: 'export', label: 'Export', disabled: true }]}\n      defaultValue=\"creatives\"\n      panels={{\n        creatives: <p className=\"type-ui text-fg-muted\">48 creatives, newest first.</p>,\n        brands: <p className=\"type-ui text-fg-muted\">12 brands on this board.</p>,\n        notes: <p className=\"type-ui text-fg-muted\">No notes yet.</p>,\n      }}\n    />\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/tabs.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define, HostLayoutController, uid } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Tabs.tsx as <spyglass-tabs>: views of one thing, one at a time. `variant` default is the segmented control (a\n// #262626 track, the current view a White block with a Black label); `line` is labels over a hairline with a 2px\n// White line under the current one. Colors change over 160ms; nothing slides. Arrow keys move and select (Home, End);\n// Tab moves into the panel. `options` is a JSON list; each panel is a child with slot=\"<value>\" (React's `panels`),\n// drawn under the list while its tab is current. `value` with the native `input` and `change` events.\n\nexport type TabOption = string | { value: string, label: string, disabled?: boolean }\nconst norm = (o: TabOption) => (typeof o === 'string' ? { value: o, label: o, disabled: false } : { disabled: false, ...o })\n\nconst LIST = {\n\tdefault: 'inline-flex h-control-md w-fit max-w-full items-center gap-1 rounded-control bg-surface-raised p-1',\n\tline: 'flex items-center gap-6 border-b border-edge',\n} as const\nconst TAB = {\n\tdefault: 'inline-flex h-full flex-1 cursor-pointer items-center justify-center rounded-ds-sm px-3 type-ui-strong whitespace-nowrap transition-[background-color,color] duration-160 ease-standard disabled:cursor-not-allowed disabled:text-fg-faint',\n\tline: '-mb-px inline-flex h-control-md cursor-pointer items-center border-b-2 type-ui-strong whitespace-nowrap transition-[border-color,color] duration-160 ease-standard disabled:cursor-not-allowed disabled:text-fg-faint',\n} as const\nconst ON = { default: 'bg-action-primary text-action-primary-fg', line: 'border-action-primary text-fg' } as const\nconst OFF = { default: 'text-fg-muted hover:not-disabled:text-fg', line: 'border-transparent text-fg-muted hover:not-disabled:text-fg' } as const\nconst slug = (v: string) => v.replace(/[^\\w-]/g, '-')\n\n/**\n * @summary Views of one thing: a segmented control or line tabs, with their panels.\n * @slot <value> - The panel for the tab with that value.\n * @fires input - The tab changed (read `value`).\n * @fires change - The tab changed (read `value`).\n */\nexport class Tabs extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"tabs\"]'))\n\tstatic properties = { value: { reflect: true }, options: { type: Array }, label: {}, variant: { reflect: true } }\n\n\t/** The current tab's value (the first enabled one when empty). */\n\tvalue = ''\n\t/** Values, or { value, label, disabled } (a JSON attribute or the property). */\n\toptions: TabOption[] = []\n\t/** The tab list's name for assistive tech. */\n\tlabel = ''\n\t/** default (a segmented control) or line. */\n\tvariant: keyof typeof LIST = 'default'\n\tprivate base = uid('tabs')\n\n\tprivate get current() {\n\t\tconst opts = this.options.map(norm)\n\t\treturn this.value || opts.find((o) => !o.disabled)?.value || ''\n\t}\n\n\tprivate onKeyDown(event: KeyboardEvent) {\n\t\tconst enabled = this.options.map(norm).filter((o) => !o.disabled)\n\t\tconst at = enabled.findIndex((o) => o.value === this.current)\n\t\tlet next: number\n\t\tif (event.key === 'ArrowRight') next = (at + 1) % enabled.length\n\t\telse if (event.key === 'ArrowLeft') next = (at - 1 + enabled.length) % enabled.length\n\t\telse if (event.key === 'Home') next = 0\n\t\telse if (event.key === 'End') next = enabled.length - 1\n\t\telse return\n\t\tevent.preventDefault()\n\t\tconst pick = enabled[next]\n\t\tif (!pick) return\n\t\tthis.commit(pick.value)\n\t\tvoid this.updateComplete.then(() => this.renderRoot.querySelector<HTMLElement>(`#${this.base}-tab-${slug(pick.value)}`)?.focus())\n\t}\n\n\trender() {\n\t\tconst v = LIST[this.variant] ? this.variant : 'default'\n\t\tconst opts = this.options.map(norm)\n\t\tconst current = this.current\n\t\tconst has = (value: string) => this.hasSlot(value)\n\t\treturn html`<div data-ds=\"tabs\" class=\"flex flex-col gap-4\">\n\t\t\t<div role=\"tablist\" aria-label=${this.label} class=${LIST[v]} @keydown=${this.onKeyDown}>${opts.map((o) => html`<button\n\t\t\t\tid=${`${this.base}-tab-${slug(o.value)}`}\n\t\t\t\ttype=\"button\"\n\t\t\t\trole=\"tab\"\n\t\t\t\taria-selected=${String(current === o.value)}\n\t\t\t\taria-controls=${ifDefined(has(o.value) ? `${this.base}-panel-${slug(o.value)}` : undefined)}\n\t\t\t\ttabindex=${current === o.value ? '0' : '-1'}\n\t\t\t\t?disabled=${o.disabled}\n\t\t\t\tclass=${`${TAB[v]} ${current === o.value ? ON[v] : OFF[v]}`}\n\t\t\t\t@click=${() => this.commit(o.value)}\n\t\t\t>${o.label}</button>`)}</div>\n\t\t\t${current && has(current) ? html`<div id=${`${this.base}-panel-${slug(current)}`} role=\"tabpanel\" tabindex=\"0\" aria-labelledby=${`${this.base}-tab-${slug(current)}`}><slot name=${current}></slot></div>` : nothing}\n\t\t</div>`\n\t}\n}\n\ndefine('tabs', Tabs)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/tabs.js"
+      ],
+      "tag": "spyglass-tabs",
+      "tags": [
+        "spyglass-tabs"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-tabs",
+            "name": "Tabs",
+            "module": "elements/tabs.js",
+            "description": "Views of one thing: a segmented control or line tabs, with their panels.",
+            "attributes": [
+              {
+                "name": "value",
+                "field": "value",
+                "type": "string",
+                "default": "''",
+                "description": "The current tab's value (the first enabled one when empty)."
+              },
+              {
+                "name": "options",
+                "field": "options",
+                "type": "TabOption[]",
+                "default": "[]",
+                "description": "Values, or { value, label, disabled } (a JSON attribute or the property)."
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The tab list's name for assistive tech."
+              },
+              {
+                "name": "variant",
+                "field": "variant",
+                "type": "\"default\" | \"line\"",
+                "default": "'default'",
+                "description": "default (a segmented control) or line."
+              }
+            ],
+            "properties": [
+              {
+                "name": "value",
+                "type": "string",
+                "default": "''",
+                "description": "The current tab's value (the first enabled one when empty).",
+                "attribute": "value"
+              },
+              {
+                "name": "options",
+                "type": "TabOption[]",
+                "default": "[]",
+                "description": "Values, or { value, label, disabled } (a JSON attribute or the property).",
+                "attribute": "options"
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "default": "''",
+                "description": "The tab list's name for assistive tech.",
+                "attribute": "label"
+              },
+              {
+                "name": "variant",
+                "type": "\"default\" | \"line\"",
+                "default": "'default'",
+                "description": "default (a segmented control) or line.",
+                "attribute": "variant"
+              }
+            ],
+            "events": [
+              {
+                "name": "input",
+                "description": "The tab changed (read `value`)."
+              },
+              {
+                "name": "change",
+                "description": "The tab changed (read `value`)."
+              }
+            ],
+            "slots": [
+              {
+                "name": "<value>",
+                "description": "The panel for the tab with that value."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Segmented",
+          "label": "Segmented control",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/tabs/Segmented.html",
+          "content": "<!-- What to search: a segmented control over the panel for each kind of creative. -->\n<spyglass-tabs class=\"w-96 max-w-full\" label=\"Creative type\" value=\"ads\" options='[{\"value\":\"ads\",\"label\":\"Ads\"},{\"value\":\"posts\",\"label\":\"Posts\"},{\"value\":\"products\",\"label\":\"Product shots\"}]'>\n  <div slot=\"ads\" class=\"rounded-container bg-surface-raised p-6\"><p class=\"type-ui-strong text-fg\">Ads</p><p class=\"mt-1 type-ui text-fg-muted\">Paid creative from every brand you track.</p></div>\n  <div slot=\"posts\" class=\"rounded-container bg-surface-raised p-6\"><p class=\"type-ui-strong text-fg\">Posts</p><p class=\"mt-1 type-ui text-fg-muted\">Organic posts and creator content.</p></div>\n  <div slot=\"products\" class=\"rounded-container bg-surface-raised p-6\"><p class=\"type-ui-strong text-fg\">Product shots</p><p class=\"mt-1 type-ui text-fg-muted\">Stills of the product, as posted.</p></div>\n</spyglass-tabs>\n"
+        },
+        {
+          "name": "Line",
+          "label": "Line tabs",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/tabs/Line.html",
+          "content": "<!-- A board's sections as line tabs, one of them not ready yet. -->\n<spyglass-tabs class=\"w-full max-w-lg\" variant=\"line\" label=\"Board sections\" value=\"creatives\" options='[{\"value\":\"creatives\",\"label\":\"Creatives\"},{\"value\":\"brands\",\"label\":\"Brands\"},{\"value\":\"notes\",\"label\":\"Notes\"},{\"value\":\"export\",\"label\":\"Export\",\"disabled\":true}]'>\n  <p slot=\"creatives\" class=\"type-ui text-fg-muted\">48 creatives, newest first.</p>\n  <p slot=\"brands\" class=\"type-ui text-fg-muted\">12 brands on this board.</p>\n  <p slot=\"notes\" class=\"type-ui text-fg-muted\">No notes yet.</p>\n</spyglass-tabs>\n"
+        }
+      ]
+    }
+  }
+}

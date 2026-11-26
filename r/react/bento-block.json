@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "bento-block",
+  "type": "registry:block",
+  "title": "Bento block",
+  "description": "Features as a bento grid: #262626 cards with the 4px corner, a title and a line, some wide or tall, an optional picture.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/blocks/BentoBlock.tsx",
+      "type": "registry:ui",
+      "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/lib/cn'\n\n// Features as a bento grid, as the site's feature cards sit: #262626 cards with the 4px corner, 24px in, a Funnel\n// Display 24/28 title and a #D4D4D4 line, an optional picture above the words. Six columns from 1024 (a card takes two,\n// a `wide` one four, a `tall` one two rows), two from 768, one on phones. Nothing moves.\nexport interface BentoItem {\n  title: string\n  body?: string\n  /** A picture above the words (src). */\n  image?: string\n  /** wide (four columns), tall (two rows) or normal. */\n  span?: 'normal' | 'wide' | 'tall'\n}\n\nexport interface BentoBlockProps {\n  items: BentoItem[]\n  title?: ReactNode\n  /** A line under the title. */\n  body?: ReactNode\n  className?: string\n}\n\nconst SPAN = { normal: 'lg:col-span-2', wide: 'md:col-span-2 lg:col-span-4', tall: 'lg:col-span-2 lg:row-span-2' }\n\nexport function BentoBlock({ items, title, body, className }: BentoBlockProps) {\n  return (\n    <section data-ds=\"bento-block\" className={cn('grid gap-10 text-fg', className)}>\n      {(title || body) && (\n        <div className=\"grid max-w-3xl gap-6\">\n          {title && <h2 className=\"type-section\">{title}</h2>}\n          {body && <p className=\"max-w-measure type-body-lg text-fg-soft\">{body}</p>}\n        </div>\n      )}\n      <ul role=\"list\" className=\"m-0 grid list-none grid-cols-1 gap-4 p-0 md:grid-cols-2 lg:auto-rows-[minmax(200px,auto)] lg:grid-cols-6\">\n        {items.map((i) => (\n          <li key={i.title} className={cn('flex flex-col gap-4 overflow-hidden rounded-container bg-surface-raised p-6', SPAN[i.span ?? 'normal'])}>\n            {i.image && <img src={i.image} alt=\"\" className=\"aspect-[16/9] w-full rounded-ds-sm object-cover\" />}\n            <div className=\"mt-auto grid gap-2\">\n              <h3 className=\"type-heading-3\">{i.title}</h3>\n              {i.body && <p className=\"type-body text-fg-soft\">{i.body}</p>}\n            </div>\n          </li>\n        ))}\n      </ul>\n    </section>\n  )\n}\n\nexport default BentoBlock\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

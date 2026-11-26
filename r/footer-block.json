@@ -1,0 +1,220 @@
+{
+  "name": "footer-block",
+  "title": "Footer block",
+  "type": "registry:block",
+  "group": "blocks",
+  "description": "A website's footer band: a hairline above, the footer row (the lockup, links and the domain) inside the page width, and an optional legal line in the muted gray.",
+  "use_for": "The foot of every website page.",
+  "never": [
+    "A second logo, social icons in color or a newsletter box inside it",
+    "Links that move on hover",
+    "The lockup recolored or resized below its minimum"
+  ],
+  "source": "Built from the library (footer row); the posts' and ads' footer row (lockup left, domain right) and the page templates' footer band",
+  "body": "",
+  "requires": [
+    "footer-row"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/blocks/FooterBlock.tsx",
+      "content": "import type { ReactNode } from 'react'\nimport { FooterRow, type FooterLink } from '@/react/components/site/FooterRow'\nimport { cn } from '@/react/lib/cn'\n\n// A website's footer band, as every page template ends: a hairline above, the footer row (the lockup, the links, the\n// domain) inside the page width, and an optional line under it in the muted gray (the legal line). Links change color\n// on hover; nothing moves.\nexport interface FooterBlockProps {\n  /** The domain on the right. */\n  domain: string\n  links?: FooterLink[]\n  /** Where the lockup links. */\n  homeHref?: string\n  /** A line under the row: \"© 2026 Acme Inc.\" */\n  note?: ReactNode\n  className?: string\n}\n\nexport function FooterBlock({ domain, links = [], homeHref = '/', note, className }: FooterBlockProps) {\n  return (\n    <footer data-ds=\"footer-block\" className={cn('border-t border-edge bg-surface text-fg', className)}>\n      <div className=\"mx-auto grid w-full max-w-page-wide gap-8 px-12 py-10 max-sm:px-4\">\n        <FooterRow domain={domain} homeHref={homeHref} links={links} />\n        {note && <p className=\"type-caption text-fg-muted\">{note}</p>}\n      </div>\n    </footer>\n  )\n}\n\nexport default FooterBlock\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Site",
+      "label": "With links and a legal line",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/footer-block/Site.tsx",
+      "content": "import { FooterBlock } from '@/react/components/blocks/FooterBlock'\n// A website's footer band with its links and a legal line, for Acme.\n\nconst links = [{label: 'Product', href: '/product'}, {label: 'Pricing', href: '/pricing'}, {label: 'About', href: '/about'}, {label: 'Contact', href: '/contact'}, {label: 'Terms', href: '/legal'}]\n\nexport default function Site() {\n  return <FooterBlock domain=\"acme.com\" note=\"© 2026 Acme Inc.\" links={links} />\n}\n",
+      "requires": [
+        "footer-row"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/blocks/FooterBlock.tsx",
+          "content": "import type { ReactNode } from 'react'\nimport { FooterRow, type FooterLink } from '@/react/components/site/FooterRow'\nimport { cn } from '@/react/lib/cn'\n\n// A website's footer band, as every page template ends: a hairline above, the footer row (the lockup, the links, the\n// domain) inside the page width, and an optional line under it in the muted gray (the legal line). Links change color\n// on hover; nothing moves.\nexport interface FooterBlockProps {\n  /** The domain on the right. */\n  domain: string\n  links?: FooterLink[]\n  /** Where the lockup links. */\n  homeHref?: string\n  /** A line under the row: \"© 2026 Acme Inc.\" */\n  note?: ReactNode\n  className?: string\n}\n\nexport function FooterBlock({ domain, links = [], homeHref = '/', note, className }: FooterBlockProps) {\n  return (\n    <footer data-ds=\"footer-block\" className={cn('border-t border-edge bg-surface text-fg', className)}>\n      <div className=\"mx-auto grid w-full max-w-page-wide gap-8 px-12 py-10 max-sm:px-4\">\n        <FooterRow domain={domain} homeHref={homeHref} links={links} />\n        {note && <p className=\"type-caption text-fg-muted\">{note}</p>}\n      </div>\n    </footer>\n  )\n}\n\nexport default FooterBlock\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "footer-row"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "FooterBlock",
+            "file": "react/components/blocks/FooterBlock.tsx",
+            "props": [
+              {
+                "name": "domain",
+                "type": "string",
+                "required": true,
+                "description": "The domain on the right."
+              },
+              {
+                "name": "links",
+                "type": "FooterLink[]",
+                "required": false,
+                "default": "[]"
+              },
+              {
+                "name": "homeHref",
+                "type": "string",
+                "required": false,
+                "default": "'/'",
+                "description": "Where the lockup links."
+              },
+              {
+                "name": "note",
+                "type": "ReactNode",
+                "required": false,
+                "description": "A line under the row: \"© 2026 Acme Inc.\""
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Site",
+          "label": "With links and a legal line",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/footer-block/Site.tsx",
+          "content": "import { FooterBlock } from '@/react/components/blocks/FooterBlock'\n// A website's footer band with its links and a legal line, for Acme.\n\nconst links = [{label: 'Product', href: '/product'}, {label: 'Pricing', href: '/pricing'}, {label: 'About', href: '/about'}, {label: 'Contact', href: '/contact'}, {label: 'Terms', href: '/legal'}]\n\nexport default function Site() {\n  return <FooterBlock domain=\"acme.com\" note=\"© 2026 Acme Inc.\" links={links} />\n}\n",
+          "registryDependencies": [
+            "footer-row"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/blocks/footer-block.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport '@/elements/components/site/footer-row'\nimport styles from 'virtual:tw'\n\n// FooterBlock.tsx as <spyglass-footer-block>: the hairline, the footer row (`domain`, `links`, `home-href`) inside the\n// page width and an optional `note` under it.\nexport interface FooterLink { label: string; href: string }\n\n/**\n * @summary A website's footer band.\n */\nexport class FooterBlock extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"footer-block\"]'))\n\tstatic properties = { domain: {}, links: { type: Array }, homeHref: { attribute: 'home-href' }, note: {} }\n\t/** The domain on the right. */\n\tdomain = ''\n\tlinks: FooterLink[] = []\n\t/** Where the lockup links. */\n\thomeHref = '/'\n\t/** A line under the row. */\n\tnote?: string\n\n\trender() {\n\t\treturn html`<footer data-ds=\"footer-block\" class=\"border-t border-edge bg-surface text-fg\"><div class=\"mx-auto grid w-full max-w-page-wide gap-8 px-12 py-10 max-sm:px-4\"><spyglass-footer-row domain=${this.domain} home-href=${this.homeHref} .links=${this.links ?? []}></spyglass-footer-row>${this.note ? html`<p class=\"type-caption text-fg-muted\">${this.note}</p>` : nothing}</div></footer>`\n\t}\n}\n\ndefine('footer-block', FooterBlock)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/footer-block.js",
+        "elements/footer-row.js",
+        "elements/logo.js"
+      ],
+      "tag": "spyglass-footer-block",
+      "tags": [
+        "spyglass-footer-block"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "footer-row",
+        "logo"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-footer-block",
+            "name": "FooterBlock",
+            "module": "elements/footer-block.js",
+            "description": "A website's footer band.",
+            "attributes": [
+              {
+                "name": "domain",
+                "field": "domain",
+                "type": "string",
+                "default": "''",
+                "description": "The domain on the right."
+              },
+              {
+                "name": "links",
+                "field": "links",
+                "type": "FooterLink[]",
+                "default": "[]"
+              },
+              {
+                "name": "home-href",
+                "field": "homeHref",
+                "type": "string",
+                "default": "'/'",
+                "description": "Where the lockup links."
+              },
+              {
+                "name": "note",
+                "field": "note",
+                "type": "string | undefined",
+                "description": "A line under the row."
+              }
+            ],
+            "properties": [
+              {
+                "name": "domain",
+                "type": "string",
+                "default": "''",
+                "description": "The domain on the right.",
+                "attribute": "domain"
+              },
+              {
+                "name": "links",
+                "type": "FooterLink[]",
+                "default": "[]",
+                "attribute": "links"
+              },
+              {
+                "name": "homeHref",
+                "type": "string",
+                "default": "'/'",
+                "description": "Where the lockup links.",
+                "attribute": "home-href"
+              },
+              {
+                "name": "note",
+                "type": "string | undefined",
+                "description": "A line under the row.",
+                "attribute": "note"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Site",
+          "label": "With links and a legal line",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/footer-block/Site.html",
+          "content": "<!-- A website's footer band with its links and a legal line, for Acme. -->\n<spyglass-footer-block domain=\"acme.com\" note=\"© 2026 Acme Inc.\" links='[{\"label\":\"Product\",\"href\":\"/product\"},{\"label\":\"Pricing\",\"href\":\"/pricing\"},{\"label\":\"About\",\"href\":\"/about\"},{\"label\":\"Contact\",\"href\":\"/contact\"},{\"label\":\"Terms\",\"href\":\"/legal\"}]'></spyglass-footer-block>\n"
+        }
+      ]
+    }
+  }
+}

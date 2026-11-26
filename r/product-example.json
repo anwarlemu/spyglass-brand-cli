@@ -1,0 +1,350 @@
+{
+  "name": "product-example",
+  "title": "Product example",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "The site's product example: the specs (endpoint, MCP tool, rate limit), the request as the code block in tabs beside the response panel from 1024 (the request staying in view as the page scrolls), the JSON scrolling across and fading at its edge, and optionally the creatives it returned, three across with a line each.",
+  "use_for": "Showing one real request and what comes back on a product or docs page.",
+  "never": [
+    "A response the API does not return",
+    "Keys or secrets in the code: use an environment variable",
+    "Colored syntax highlighting"
+  ],
+  "source": "Site pages/Products/Example (Products.module.css .specs, .example, .response, .responseHead, .responseBody, .media): specs 8px by 24px apart, t-label over mono values; the code tabs and the response 16px apart, two columns from 1024 with the request sticky at the header plus 32px; the response on --surface with --radius-m, a --control-l head 16px in (24 from 768) over a --line-surface hairline, the status in mono --text-3, the body 16px in (24 from 768) fading over 48px; returned creatives 3:4, three across 16px apart, small --text-2 lines",
+  "body": "`tabs` are the code block's tabs ({ id, label, code, language }); `media.items` are creative cards (`src`, or Acme\n`brand`, `tone` and `caption`) with a `meta` line under each.",
+  "requires": [
+    "code-block",
+    "creative-card"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/ProductExample.tsx",
+      "content": "import { CodeBlock } from '@/react/components/site/CodeBlock'\nimport { Code } from '@/react/components/site/Code'\nimport { CreativeCard, type CreativeItem } from '@/react/components/site/CreativeCard'\nimport type { CodeTab } from '@/lib/code'\nimport { cn } from '@/react/lib/cn'\n\n// The site's product example (pages/Products/Example): one request and what comes back. A row of specs (the endpoint,\n// the MCP tool, the rate limit: a muted label beside its value in the code face), then the request as the code block\n// (MCP, REST, Python tabs and the copy button) beside the response from 1024, the request staying in view as the page\n// scrolls: a #262626 panel with the 8px corner, a 56px head (\"Response\" and the 200 status, muted, in the code face)\n// over the JSON scrolling across and fading at its edge. Under it, optionally, the creatives it returned, three across\n// at 3:4 with a line each. Nothing moves but the code block's tab line.\nexport interface ProductExampleSpec { label: string; value: string }\n\nexport interface ProductExampleProps {\n  /** The question the request answers, read by assistive tech in the section's heading. */\n  question: string\n  /** The request, one tab each. */\n  tabs: CodeTab[]\n  /** The JSON that comes back. */\n  response: string\n  specs?: ProductExampleSpec[]\n  /** The creatives it returned, each with a line under it. */\n  media?: { label: string; items: (CreativeItem & { meta: string })[] }\n  heading?: string\n  codeLabel?: string\n  responseLabel?: string\n  status?: string\n  copy?: { label: string; copiedLabel: string; name: string }\n  /** Prefix for ids. */\n  id?: string\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function ProductExample({\n  question,\n  tabs,\n  response,\n  specs = [],\n  media,\n  heading = 'Request and response',\n  codeLabel = 'Request',\n  responseLabel = 'Response',\n  status = '200',\n  copy = { label: 'Copy', copiedLabel: 'Copied', name: 'Copy the request' },\n  id = 'product',\n  className,\n}: ProductExampleProps) {\n  return (\n    <section data-ds=\"product-example\" id={`${id}-example`} aria-labelledby={`${id}-example-heading`} className={cn('pb-(--ds-layout-section) text-fg', className)}>\n      <div className={WRAP}>\n        <h2 id={`${id}-example-heading`} className=\"sr-only\">{heading}: {question}</h2>\n        {specs.length > 0 && (\n          <dl className=\"mb-4 flex flex-wrap gap-x-6 gap-y-2\">\n            {specs.map((s) => (\n              <div key={s.label} className=\"flex min-w-0 items-baseline gap-2 type-ui\">\n                <dt className=\"flex-none type-label text-fg-muted\">{s.label}</dt>\n                <dd className=\"min-w-0 type-code wrap-anywhere\">{s.value}</dd>\n              </div>\n            ))}\n          </dl>\n        )}\n        <div className=\"grid grid-cols-[minmax(0,1fr)] items-start gap-4 lg:grid-cols-2\">\n          <div className=\"min-w-0 lg:sticky lg:top-[calc(var(--ds-size-header)+var(--ds-space-2xl))]\"><CodeBlock tabs={tabs} label={codeLabel} copy={copy} /></div>\n          <div className=\"flex min-w-0 flex-col gap-8\">\n            <div className=\"flex min-w-0 flex-col rounded-panel bg-surface-raised\">\n              <div className=\"relative flex h-control-lg flex-none items-center justify-between border-b border-edge-surface px-4 type-ui-strong md:px-6\">\n                <span>{responseLabel}</span>\n                <span className=\"type-code font-normal text-fg-muted\">{status}</span>\n              </div>\n              <div tabIndex={0} role=\"region\" aria-label={responseLabel} className=\"fade-x min-w-0 overflow-x-auto rounded-b-panel p-4 outline-offset-[-2px] md:p-6\">\n                <div className=\"w-max pr-12\"><Code source={response} language=\"json\" /></div>\n              </div>\n            </div>\n            {media && (\n              <figure className=\"m-0 flex flex-col gap-3\">\n                <figcaption className=\"type-label text-fg-muted\">{media.label}</figcaption>\n                <ul role=\"list\" className=\"m-0 grid list-none grid-cols-3 gap-4 p-0\">\n                  {media.items.map(({ meta, ...c }, i) => (\n                    <li key={`${c.brand ?? ''}-${i}`} className=\"flex min-w-0 flex-col gap-2\">\n                      <CreativeCard {...c} ratio=\"3/4\" className=\"w-full\" />\n                      <span className=\"type-ui text-pretty text-fg-soft\">{meta}</span>\n                    </li>\n                  ))}\n                </ul>\n              </figure>\n            )}\n          </div>\n        </div>\n      </div>\n    </section>\n  )\n}\n\nexport default ProductExample\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Media",
+      "label": "Media search",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/product-example/Media.tsx",
+      "content": "import { ProductExample } from '@/react/components/site/ProductExample'\n// A media search request in three tabs beside its response and the creatives it returned (Acme).\n\nconst tabs = [\n  {\n    \"id\": \"mcp\",\n    \"label\": \"MCP\",\n    \"language\": \"bash\",\n    \"code\": \"# Ask your agent\\nFind running shoe ads that ran for more than 30 days.\\n\\n# It calls searchMedia\\nsearchMedia({\\n  \\\"query\\\": \\\"running shoe ads\\\",\\n  \\\"minDaysLive\\\": 30,\\n  \\\"limit\\\": 3\\n})\"\n  },\n  {\n    \"id\": \"rest\",\n    \"label\": \"REST\",\n    \"language\": \"bash\",\n    \"code\": \"curl -X POST https://api.acme.com/v1/media \\\\\\n  -H \\\"Authorization: Bearer $ACME_API_KEY\\\" \\\\\\n  -H \\\"Content-Type: application/json\\\" \\\\\\n  -d '{\\n    \\\"query\\\": \\\"running shoe ads\\\",\\n    \\\"minDaysLive\\\": 30,\\n    \\\"limit\\\": 3\\n  }'\"\n  },\n  {\n    \"id\": \"python\",\n    \"label\": \"Python\",\n    \"language\": \"python\",\n    \"code\": \"import os\\nfrom acme import Acme\\n\\nclient = Acme(token=os.environ[\\\"ACME_API_KEY\\\"])\\n\\nresult = client.search_media(\\n    query=\\\"running shoe ads\\\",\\n    min_days_live=30,\\n    limit=3,\\n)\"\n  }\n]\n\nconst response = \"{\\n  \\\"count\\\": 3,\\n  \\\"media\\\": [\\n    {\\n      \\\"id\\\": \\\"1001\\\",\\n      \\\"brand\\\": \\\"Acme Run\\\",\\n      \\\"platform\\\": \\\"Instagram\\\",\\n      \\\"daysLive\\\": 74\\n    },\\n    {\\n      \\\"id\\\": \\\"1002\\\",\\n      \\\"brand\\\": \\\"Acme Trail\\\",\\n      \\\"platform\\\": \\\"TikTok\\\",\\n      \\\"daysLive\\\": 61\\n    },\\n    {\\n      \\\"id\\\": \\\"1003\\\",\\n      \\\"brand\\\": \\\"Acme Fit\\\",\\n      \\\"platform\\\": \\\"Meta\\\",\\n      \\\"daysLive\\\": 48\\n    }\\n  ]\\n}\"\n\nexport default function Media() {\n  return (\n    <ProductExample\n      id=\"media-search\"\n      question=\"Find running shoe ads that ran for more than 30 days.\"\n      tabs={tabs}\n      response={response}\n      specs={[{\"label\": \"Endpoint\", \"value\": \"POST /media\"}, {\"label\": \"MCP tool\", \"value\": \"searchMedia\"}, {\"label\": \"Rate limit\", \"value\": \"120 requests a minute\"}]}\n      media={{\"label\": \"Returned creatives\", \"items\": [{\"brand\": \"Acme Run\", \"tone\": 3, \"caption\": \"Built for miles.\", \"meta\": \"Acme Run, 74 days live\"}, {\"brand\": \"Acme Trail\", \"tone\": 2, \"caption\": \"Off the road.\", \"meta\": \"Acme Trail, 61 days live\"}, {\"brand\": \"Acme Fit\", \"tone\": 4, \"caption\": \"First 5K.\", \"meta\": \"Acme Fit, 48 days live\"}]}}\n    />\n  )\n}\n",
+      "requires": [
+        "code-block",
+        "creative-card"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/ProductExample.tsx",
+          "content": "import { CodeBlock } from '@/react/components/site/CodeBlock'\nimport { Code } from '@/react/components/site/Code'\nimport { CreativeCard, type CreativeItem } from '@/react/components/site/CreativeCard'\nimport type { CodeTab } from '@/lib/code'\nimport { cn } from '@/react/lib/cn'\n\n// The site's product example (pages/Products/Example): one request and what comes back. A row of specs (the endpoint,\n// the MCP tool, the rate limit: a muted label beside its value in the code face), then the request as the code block\n// (MCP, REST, Python tabs and the copy button) beside the response from 1024, the request staying in view as the page\n// scrolls: a #262626 panel with the 8px corner, a 56px head (\"Response\" and the 200 status, muted, in the code face)\n// over the JSON scrolling across and fading at its edge. Under it, optionally, the creatives it returned, three across\n// at 3:4 with a line each. Nothing moves but the code block's tab line.\nexport interface ProductExampleSpec { label: string; value: string }\n\nexport interface ProductExampleProps {\n  /** The question the request answers, read by assistive tech in the section's heading. */\n  question: string\n  /** The request, one tab each. */\n  tabs: CodeTab[]\n  /** The JSON that comes back. */\n  response: string\n  specs?: ProductExampleSpec[]\n  /** The creatives it returned, each with a line under it. */\n  media?: { label: string; items: (CreativeItem & { meta: string })[] }\n  heading?: string\n  codeLabel?: string\n  responseLabel?: string\n  status?: string\n  copy?: { label: string; copiedLabel: string; name: string }\n  /** Prefix for ids. */\n  id?: string\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function ProductExample({\n  question,\n  tabs,\n  response,\n  specs = [],\n  media,\n  heading = 'Request and response',\n  codeLabel = 'Request',\n  responseLabel = 'Response',\n  status = '200',\n  copy = { label: 'Copy', copiedLabel: 'Copied', name: 'Copy the request' },\n  id = 'product',\n  className,\n}: ProductExampleProps) {\n  return (\n    <section data-ds=\"product-example\" id={`${id}-example`} aria-labelledby={`${id}-example-heading`} className={cn('pb-(--ds-layout-section) text-fg', className)}>\n      <div className={WRAP}>\n        <h2 id={`${id}-example-heading`} className=\"sr-only\">{heading}: {question}</h2>\n        {specs.length > 0 && (\n          <dl className=\"mb-4 flex flex-wrap gap-x-6 gap-y-2\">\n            {specs.map((s) => (\n              <div key={s.label} className=\"flex min-w-0 items-baseline gap-2 type-ui\">\n                <dt className=\"flex-none type-label text-fg-muted\">{s.label}</dt>\n                <dd className=\"min-w-0 type-code wrap-anywhere\">{s.value}</dd>\n              </div>\n            ))}\n          </dl>\n        )}\n        <div className=\"grid grid-cols-[minmax(0,1fr)] items-start gap-4 lg:grid-cols-2\">\n          <div className=\"min-w-0 lg:sticky lg:top-[calc(var(--ds-size-header)+var(--ds-space-2xl))]\"><CodeBlock tabs={tabs} label={codeLabel} copy={copy} /></div>\n          <div className=\"flex min-w-0 flex-col gap-8\">\n            <div className=\"flex min-w-0 flex-col rounded-panel bg-surface-raised\">\n              <div className=\"relative flex h-control-lg flex-none items-center justify-between border-b border-edge-surface px-4 type-ui-strong md:px-6\">\n                <span>{responseLabel}</span>\n                <span className=\"type-code font-normal text-fg-muted\">{status}</span>\n              </div>\n              <div tabIndex={0} role=\"region\" aria-label={responseLabel} className=\"fade-x min-w-0 overflow-x-auto rounded-b-panel p-4 outline-offset-[-2px] md:p-6\">\n                <div className=\"w-max pr-12\"><Code source={response} language=\"json\" /></div>\n              </div>\n            </div>\n            {media && (\n              <figure className=\"m-0 flex flex-col gap-3\">\n                <figcaption className=\"type-label text-fg-muted\">{media.label}</figcaption>\n                <ul role=\"list\" className=\"m-0 grid list-none grid-cols-3 gap-4 p-0\">\n                  {media.items.map(({ meta, ...c }, i) => (\n                    <li key={`${c.brand ?? ''}-${i}`} className=\"flex min-w-0 flex-col gap-2\">\n                      <CreativeCard {...c} ratio=\"3/4\" className=\"w-full\" />\n                      <span className=\"type-ui text-pretty text-fg-soft\">{meta}</span>\n                    </li>\n                  ))}\n                </ul>\n              </figure>\n            )}\n          </div>\n        </div>\n      </div>\n    </section>\n  )\n}\n\nexport default ProductExample\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "code-block",
+        "creative-card"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "ProductExample",
+            "file": "react/components/site/ProductExample.tsx",
+            "props": [
+              {
+                "name": "question",
+                "type": "string",
+                "required": true,
+                "description": "The question the request answers, read by assistive tech in the section's heading."
+              },
+              {
+                "name": "tabs",
+                "type": "CodeTab[]",
+                "required": true,
+                "description": "The request, one tab each."
+              },
+              {
+                "name": "response",
+                "type": "string",
+                "required": true,
+                "description": "The JSON that comes back."
+              },
+              {
+                "name": "specs",
+                "type": "ProductExampleSpec[]",
+                "required": false,
+                "default": "[]"
+              },
+              {
+                "name": "media",
+                "type": "{ label: string; items: (CreativeItem & { meta: string })[] }",
+                "required": false,
+                "description": "The creatives it returned, each with a line under it."
+              },
+              {
+                "name": "heading",
+                "type": "string",
+                "required": false,
+                "default": "'Request and response'"
+              },
+              {
+                "name": "codeLabel",
+                "type": "string",
+                "required": false,
+                "default": "'Request'"
+              },
+              {
+                "name": "responseLabel",
+                "type": "string",
+                "required": false,
+                "default": "'Response'"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "required": false,
+                "default": "'200'"
+              },
+              {
+                "name": "copy",
+                "type": "{ label: string; copiedLabel: string; name: string }",
+                "required": false,
+                "default": "{ label: 'Copy', copiedLabel: 'Copied', name: 'Copy the request' }"
+              },
+              {
+                "name": "id",
+                "type": "string",
+                "required": false,
+                "default": "'product'",
+                "description": "Prefix for ids."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Media",
+          "label": "Media search",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/product-example/Media.tsx",
+          "content": "import { ProductExample } from '@/react/components/site/ProductExample'\n// A media search request in three tabs beside its response and the creatives it returned (Acme).\n\nconst tabs = [\n  {\n    \"id\": \"mcp\",\n    \"label\": \"MCP\",\n    \"language\": \"bash\",\n    \"code\": \"# Ask your agent\\nFind running shoe ads that ran for more than 30 days.\\n\\n# It calls searchMedia\\nsearchMedia({\\n  \\\"query\\\": \\\"running shoe ads\\\",\\n  \\\"minDaysLive\\\": 30,\\n  \\\"limit\\\": 3\\n})\"\n  },\n  {\n    \"id\": \"rest\",\n    \"label\": \"REST\",\n    \"language\": \"bash\",\n    \"code\": \"curl -X POST https://api.acme.com/v1/media \\\\\\n  -H \\\"Authorization: Bearer $ACME_API_KEY\\\" \\\\\\n  -H \\\"Content-Type: application/json\\\" \\\\\\n  -d '{\\n    \\\"query\\\": \\\"running shoe ads\\\",\\n    \\\"minDaysLive\\\": 30,\\n    \\\"limit\\\": 3\\n  }'\"\n  },\n  {\n    \"id\": \"python\",\n    \"label\": \"Python\",\n    \"language\": \"python\",\n    \"code\": \"import os\\nfrom acme import Acme\\n\\nclient = Acme(token=os.environ[\\\"ACME_API_KEY\\\"])\\n\\nresult = client.search_media(\\n    query=\\\"running shoe ads\\\",\\n    min_days_live=30,\\n    limit=3,\\n)\"\n  }\n]\n\nconst response = \"{\\n  \\\"count\\\": 3,\\n  \\\"media\\\": [\\n    {\\n      \\\"id\\\": \\\"1001\\\",\\n      \\\"brand\\\": \\\"Acme Run\\\",\\n      \\\"platform\\\": \\\"Instagram\\\",\\n      \\\"daysLive\\\": 74\\n    },\\n    {\\n      \\\"id\\\": \\\"1002\\\",\\n      \\\"brand\\\": \\\"Acme Trail\\\",\\n      \\\"platform\\\": \\\"TikTok\\\",\\n      \\\"daysLive\\\": 61\\n    },\\n    {\\n      \\\"id\\\": \\\"1003\\\",\\n      \\\"brand\\\": \\\"Acme Fit\\\",\\n      \\\"platform\\\": \\\"Meta\\\",\\n      \\\"daysLive\\\": 48\\n    }\\n  ]\\n}\"\n\nexport default function Media() {\n  return (\n    <ProductExample\n      id=\"media-search\"\n      question=\"Find running shoe ads that ran for more than 30 days.\"\n      tabs={tabs}\n      response={response}\n      specs={[{\"label\": \"Endpoint\", \"value\": \"POST /media\"}, {\"label\": \"MCP tool\", \"value\": \"searchMedia\"}, {\"label\": \"Rate limit\", \"value\": \"120 requests a minute\"}]}\n      media={{\"label\": \"Returned creatives\", \"items\": [{\"brand\": \"Acme Run\", \"tone\": 3, \"caption\": \"Built for miles.\", \"meta\": \"Acme Run, 74 days live\"}, {\"brand\": \"Acme Trail\", \"tone\": 2, \"caption\": \"Off the road.\", \"meta\": \"Acme Trail, 61 days live\"}, {\"brand\": \"Acme Fit\", \"tone\": 4, \"caption\": \"First 5K.\", \"meta\": \"Acme Fit, 48 days live\"}]}}\n    />\n  )\n}\n",
+          "registryDependencies": [
+            "code-block",
+            "creative-card"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/product-example.ts",
+          "content": "import type { ImageFit } from '@/lib/image'\nimport { html, nothing } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport '@/elements/components/site/code-block'\nimport '@/elements/components/site/code'\nimport '@/elements/components/site/creative-card'\nimport type { CodeTab } from '@/lib/code'\nimport styles from 'virtual:tw'\n\n// ProductExample.tsx as <spyglass-product-example>: one request and what comes back. The specs row, the request as the\n// code block beside the response panel from 1024 (the request staying in view), and optionally the creatives it\n// returned. `tabs`, `specs` and `media` ({ label, items: [{ brand, tone, caption, src, meta }] }) as JSON.\n\nexport interface ProductExampleSpec { label: string; value: string }\nexport interface ProductExampleMedia { label: string; items: { brand?: string; tone?: number; caption?: string; src?: string; alt?: string; fit?: ImageFit; position?: string; meta: string }[] }\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\n/**\n * @summary The product example: the request in tabs beside the response, with the creatives it returned.\n */\nexport class ProductExample extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"product-example\"]'))\n\tstatic properties = { question: {}, tabs: { type: Array }, response: {}, specs: { type: Array }, media: { type: Object }, heading: {}, codeLabel: { attribute: 'code-label' }, responseLabel: { attribute: 'response-label' }, status: {}, copy: { type: Object }, prefix: {} }\n\tquestion = ''\n\ttabs: CodeTab[] = []\n\t/** The JSON that comes back. */\n\tresponse = ''\n\tspecs: ProductExampleSpec[] = []\n\tmedia?: ProductExampleMedia\n\theading = 'Request and response'\n\tcodeLabel = 'Request'\n\tresponseLabel = 'Response'\n\tstatus = '200'\n\tcopy = { label: 'Copy', copiedLabel: 'Copied', name: 'Copy the request' }\n\t/** Prefix for ids (React's `id`). */\n\tprefix = 'product'\n\n\trender() {\n\t\tconst specs = this.specs ?? []\n\t\tconst media = this.media\n\t\treturn html`<section data-ds=\"product-example\" id=${`${this.prefix}-example`} aria-labelledby=${`${this.prefix}-example-heading`} class=\"pb-(--ds-layout-section) text-fg\"><div class=${WRAP}><h2 id=${`${this.prefix}-example-heading`} class=\"sr-only\">${this.heading}: ${this.question}</h2>${specs.length > 0 ? html`<dl class=\"mb-4 flex flex-wrap gap-x-6 gap-y-2\">${specs.map((s) => html`<div class=\"flex min-w-0 items-baseline gap-2 type-ui\"><dt class=\"flex-none type-label text-fg-muted\">${s.label}</dt><dd class=\"min-w-0 type-code wrap-anywhere\">${s.value}</dd></div>`)}</dl>` : nothing}<div class=\"grid grid-cols-[minmax(0,1fr)] items-start gap-4 lg:grid-cols-2\"><div class=\"min-w-0 lg:sticky lg:top-[calc(var(--ds-size-header)+var(--ds-space-2xl))]\"><spyglass-code-block .tabs=${this.tabs ?? []} label=${this.codeLabel} .copy=${this.copy}></spyglass-code-block></div><div class=\"flex min-w-0 flex-col gap-8\"><div class=\"flex min-w-0 flex-col rounded-panel bg-surface-raised\"><div class=\"relative flex h-control-lg flex-none items-center justify-between border-b border-edge-surface px-4 type-ui-strong md:px-6\"><span>${this.responseLabel}</span><span class=\"type-code font-normal text-fg-muted\">${this.status}</span></div><div tabindex=\"0\" role=\"region\" aria-label=${this.responseLabel} class=\"fade-x min-w-0 overflow-x-auto rounded-b-panel p-4 outline-offset-[-2px] md:p-6\"><div class=\"w-max pr-12\"><spyglass-code .source=${this.response} language=\"json\"></spyglass-code></div></div></div>${media ? html`<figure class=\"m-0 flex flex-col gap-3\"><figcaption class=\"type-label text-fg-muted\">${media.label}</figcaption><ul role=\"list\" class=\"m-0 grid list-none grid-cols-3 gap-4 p-0\">${(media.items ?? []).map((c) => html`<li class=\"flex min-w-0 flex-col gap-2\"><spyglass-creative-card brand=${c.brand ?? ''} tone=${c.tone ?? 2} caption=${c.caption ?? ''} src=${c.src ?? ''} alt=${c.alt ?? ''} fit=${ifDefined(c.fit)} position=${ifDefined(c.position)} ratio=\"3/4\" class=\"w-full\"></spyglass-creative-card><span class=\"type-ui text-pretty text-fg-soft\">${c.meta}</span></li>`)}</ul></figure>` : nothing}</div></div></div></section>`\n\t}\n}\n\ndefine('product-example', ProductExample)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/product-example.js",
+        "elements/code-block.js",
+        "elements/code.js",
+        "elements/creative-card.js",
+        "elements/copy-button.js"
+      ],
+      "tag": "spyglass-product-example",
+      "tags": [
+        "spyglass-product-example"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "code-block",
+        "creative-card"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-product-example",
+            "name": "ProductExample",
+            "module": "elements/product-example.js",
+            "description": "The product example: the request in tabs beside the response, with the creatives it returned.",
+            "attributes": [
+              {
+                "name": "question",
+                "field": "question",
+                "type": "string",
+                "default": "''"
+              },
+              {
+                "name": "tabs",
+                "field": "tabs",
+                "type": "CodeTab[]",
+                "default": "[]"
+              },
+              {
+                "name": "response",
+                "field": "response",
+                "type": "string",
+                "default": "''",
+                "description": "The JSON that comes back."
+              },
+              {
+                "name": "specs",
+                "field": "specs",
+                "type": "ProductExampleSpec[]",
+                "default": "[]"
+              },
+              {
+                "name": "media",
+                "field": "media",
+                "type": "ProductExampleMedia | undefined"
+              },
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string",
+                "default": "'Request and response'"
+              },
+              {
+                "name": "code-label",
+                "field": "codeLabel",
+                "type": "string",
+                "default": "'Request'"
+              },
+              {
+                "name": "response-label",
+                "field": "responseLabel",
+                "type": "string",
+                "default": "'Response'"
+              },
+              {
+                "name": "status",
+                "field": "status",
+                "type": "string",
+                "default": "'200'"
+              },
+              {
+                "name": "copy",
+                "field": "copy",
+                "type": "{ label: string; copiedLabel: string; name: string; }",
+                "default": "{ label: 'Copy', copiedLabel: 'Copied', name: 'Copy the request' }"
+              },
+              {
+                "name": "prefix",
+                "field": "prefix",
+                "type": "string",
+                "default": "'product'",
+                "description": "Prefix for ids (React's `id`)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "question",
+                "type": "string",
+                "default": "''",
+                "attribute": "question"
+              },
+              {
+                "name": "tabs",
+                "type": "CodeTab[]",
+                "default": "[]",
+                "attribute": "tabs"
+              },
+              {
+                "name": "response",
+                "type": "string",
+                "default": "''",
+                "description": "The JSON that comes back.",
+                "attribute": "response"
+              },
+              {
+                "name": "specs",
+                "type": "ProductExampleSpec[]",
+                "default": "[]",
+                "attribute": "specs"
+              },
+              {
+                "name": "media",
+                "type": "ProductExampleMedia | undefined",
+                "attribute": "media"
+              },
+              {
+                "name": "heading",
+                "type": "string",
+                "default": "'Request and response'",
+                "attribute": "heading"
+              },
+              {
+                "name": "codeLabel",
+                "type": "string",
+                "default": "'Request'",
+                "attribute": "code-label"
+              },
+              {
+                "name": "responseLabel",
+                "type": "string",
+                "default": "'Response'",
+                "attribute": "response-label"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "default": "'200'",
+                "attribute": "status"
+              },
+              {
+                "name": "copy",
+                "type": "{ label: string; copiedLabel: string; name: string; }",
+                "default": "{ label: 'Copy', copiedLabel: 'Copied', name: 'Copy the request' }",
+                "attribute": "copy"
+              },
+              {
+                "name": "prefix",
+                "type": "string",
+                "default": "'product'",
+                "description": "Prefix for ids (React's `id`).",
+                "attribute": "prefix"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Media",
+          "label": "Media search",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/product-example/Media.html",
+          "content": "<!-- A media search request in three tabs beside its response and the creatives it returned (Acme). -->\n<spyglass-product-example prefix=\"media-search\" question=\"Find running shoe ads that ran for more than 30 days.\" tabs='[{\"id\": \"mcp\", \"label\": \"MCP\", \"language\": \"bash\", \"code\": \"# Ask your agent\\nFind running shoe ads that ran for more than 30 days.\\n\\n# It calls searchMedia\\nsearchMedia({\\n  \\\"query\\\": \\\"running shoe ads\\\",\\n  \\\"minDaysLive\\\": 30,\\n  \\\"limit\\\": 3\\n})\"}, {\"id\": \"rest\", \"label\": \"REST\", \"language\": \"bash\", \"code\": \"curl -X POST https://api.acme.com/v1/media \\\\\\n  -H \\\"Authorization: Bearer $ACME_API_KEY\\\" \\\\\\n  -H \\\"Content-Type: application/json\\\" \\\\\\n  -d &#39;{\\n    \\\"query\\\": \\\"running shoe ads\\\",\\n    \\\"minDaysLive\\\": 30,\\n    \\\"limit\\\": 3\\n  }&#39;\"}, {\"id\": \"python\", \"label\": \"Python\", \"language\": \"python\", \"code\": \"import os\\nfrom acme import Acme\\n\\nclient = Acme(token=os.environ[\\\"ACME_API_KEY\\\"])\\n\\nresult = client.search_media(\\n    query=\\\"running shoe ads\\\",\\n    min_days_live=30,\\n    limit=3,\\n)\"}]' response='{\n  \"count\": 3,\n  \"media\": [\n    {\n      \"id\": \"1001\",\n      \"brand\": \"Acme Run\",\n      \"platform\": \"Instagram\",\n      \"daysLive\": 74\n    },\n    {\n      \"id\": \"1002\",\n      \"brand\": \"Acme Trail\",\n      \"platform\": \"TikTok\",\n      \"daysLive\": 61\n    },\n    {\n      \"id\": \"1003\",\n      \"brand\": \"Acme Fit\",\n      \"platform\": \"Meta\",\n      \"daysLive\": 48\n    }\n  ]\n}' specs='[{\"label\": \"Endpoint\", \"value\": \"POST /media\"}, {\"label\": \"MCP tool\", \"value\": \"searchMedia\"}, {\"label\": \"Rate limit\", \"value\": \"120 requests a minute\"}]' media='{\"label\": \"Returned creatives\", \"items\": [{\"brand\": \"Acme Run\", \"tone\": 3, \"caption\": \"Built for miles.\", \"meta\": \"Acme Run, 74 days live\"}, {\"brand\": \"Acme Trail\", \"tone\": 2, \"caption\": \"Off the road.\", \"meta\": \"Acme Trail, 61 days live\"}, {\"brand\": \"Acme Fit\", \"tone\": 4, \"caption\": \"First 5K.\", \"meta\": \"Acme Fit, 48 days live\"}]}'></spyglass-product-example>\n"
+        }
+      ]
+    }
+  }
+}

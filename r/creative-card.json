@@ -1,0 +1,348 @@
+{
+  "name": "creative-card",
+  "title": "Creative card",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "A creative as the brand shows it: an ad, a product shot or a UGC frame in the brand corner, its color exactly as posted. Without an image it draws a neutral placeholder, so no layout needs a third-party photo.",
+  "use_for": "Every creative on a page or in a view: search results, boards, the hero's row, a ring or a corridor. Pass the image as `src` (the user's own creative); the placeholder stands in until there is one.",
+  "never": [
+    "A filter, a tint, a grade or neon over the image: color as posted",
+    "A border, a shadow or a glow around it",
+    "Another brand's photo in a template or an example: use the placeholder or the user's image",
+    "Moving or zooming on hover"
+  ],
+  "source": "Brand guidelines page 36 (Brand imagery: real creative, color as posted, on Black); Figma page 8: every Creative rounded rectangle (ads 4/5, the post's 200 squares, the ad's 296x400 three up, the ring's 160x114 and 112x146)",
+  "body": "`src` is used exactly as given: object-fit cover, no filter. Without `src` the card is a neutral gradient from two\nneutral steps (`tone` 1 to 4) with the advertiser in capitals (from 112px wide) and a headline (from 192px wide), named\nfor assistive tech by `alt` or by those two. The arrangements (creative grid, row, ring and corridor) take the same\nfields as a list.\n\n`fit` and `position` place the image in the card (object-fit, cover by default, and object-position). The placeholder\ncarries `data-ds-placeholder`.",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/CreativeCard.tsx",
+      "content": "import type { CSSProperties } from 'react'\nimport { cn } from '@/react/lib/cn'\nimport { imageFit, type ImageFit } from '@/lib/image'\n\n// A creative as the brand assets show it: an ad, a product shot or a UGC frame in a rounded rectangle with the brand\n// corner, the image's color exactly as posted (no grading, filter, overlay or neon). `src` is the image; without one it\n// draws a neutral placeholder (a soft gradient from the neutral steps, with the advertiser and a headline when there is\n// room), so layouts never need a third-party photo. `ratio` keeps the shapes the assets use (4/5 ads, 1/1 tiles, 3/4\n// the ad's three up, 7/5 the ring's landscape tiles, 3/5 the tall ones) or `fill` takes the box its classes give it.\n// `href` makes it a link. `fit` and `position` place the image in its box (object-fit, cover by default, and\n// object-position). The placeholder carries data-ds-placeholder. It does not move on hover.\nexport type CreativeRatio = '4/5' | '1/1' | '3/4' | '7/5' | '3/5' | '9/16' | '16/9' | 'fill'\nexport type CreativeTone = 1 | 2 | 3 | 4\n\nexport interface CreativeCardProps {\n  /** The image, used exactly as posted. */\n  src?: string\n  /** What the creative shows (the image's alt text, or the placeholder's name). */\n  alt?: string\n  /** How the image fills the card (object-fit); cover by default. */\n  fit?: ImageFit\n  /** Where the image is anchored (object-position), for example \"50% 20%\". */\n  position?: string\n  /** The shape: 4/5, 1/1, 3/4, 7/5, 3/5, 9/16, 16/9 (the deck's frame) or fill. */\n  ratio?: CreativeRatio\n  /** The placeholder's advertiser, in capitals at the foot (shown from 112px wide). */\n  brand?: string\n  /** The placeholder's headline (shown from 192px wide). */\n  caption?: string\n  /** The placeholder's neutral gradient, 1 (darkest) to 4. */\n  tone?: CreativeTone\n  /** Makes the creative a link. */\n  href?: string\n  className?: string\n  style?: CSSProperties\n}\n\n// Placeholder grounds: two neutral steps apart, lighter at the top, as a photo lit from above reads on Black.\nconst TONES: Record<CreativeTone, string> = {\n  1: 'bg-linear-to-b from-ds-neutral-4 to-ds-neutral-2',\n  2: 'bg-linear-to-b from-ds-neutral-5 to-ds-neutral-3',\n  3: 'bg-linear-to-b from-ds-neutral-6 to-ds-neutral-4',\n  4: 'bg-linear-to-b from-ds-neutral-7 to-ds-neutral-5',\n}\n\nexport function CreativeCard({ src, alt = '', fit, position, ratio = '4/5', brand, caption, tone = 2, href, className, style }: CreativeCardProps) {\n  const box: CSSProperties = ratio === 'fill' ? { ...style } : { aspectRatio: ratio.replace('/', ' / '), ...style }\n  const classes = cn('@container relative block overflow-hidden rounded-container', src ? 'bg-surface-subtle' : TONES[tone] ?? TONES[2], ratio === 'fill' && 'size-full', className)\n  const body = src ? (\n    <img src={src} alt={alt} loading=\"lazy\" decoding=\"async\" className=\"block size-full object-cover\" style={imageFit({ fit, position })} />\n  ) : (\n    <>\n      {caption && <span aria-hidden=\"true\" className=\"absolute inset-x-4 top-4 hidden type-heading-4 text-fg @min-[12rem]:block\">{caption}</span>}\n      {brand && <span aria-hidden=\"true\" className=\"absolute bottom-3 left-3 hidden type-label text-fg @min-[7rem]:block\">{brand}</span>}\n    </>\n  )\n  const label = src ? undefined : alt || [brand, caption].filter(Boolean).join(', ') || undefined\n  const blank = src ? undefined : ''\n  if (href) return <a data-ds=\"creative-card\" data-ds-placeholder={blank} href={href} aria-label={label} style={box} className={classes}>{body}</a>\n  return <div data-ds=\"creative-card\" data-ds-placeholder={blank} role={label ? 'img' : undefined} aria-label={label} style={box} className={classes}>{body}</div>\n}\n\nexport default CreativeCard\n\n/** One creative in an arrangement (grid, row, ring, corridor): a creative's props, or `light` for a light tile. */\nexport interface CreativeItem extends Omit<CreativeCardProps, 'ratio' | 'className' | 'style'> {\n  /** A tile of the brand light instead of a creative (the grid and the ring interleave them). */\n  light?: boolean\n  /** The light tile's seed. */\n  seed?: number\n}\n"
+    },
+    {
+      "path": "lib/creative-layouts.ts",
+      "content": "// Where the brand assets put their creatives, in Figma's numbers (page \"8. Brand assets\"), for the arrangements both\n// flavors draw: the creative ring (Post, Creative ring, 1080x1080), the corridor (Ad, The world's largest creative\n// search engine: twelve walls receding to the light at 540, 700) and the deck cover's row of creatives (sizes rising\n// to the middle). Positions become percentages of the frame, so an arrangement scales with its box.\n\nexport interface Rect { x: number; y: number; w: number; h: number }\n\n/** Percent of a length, rounded to 4 places. */\nexport const pct = (v: number, of: number) => `${Math.round((v / of) * 1e6) / 1e4}%`\n\n/** A rect as left, top, width and height in percent of its frame. */\nexport const placeAt = (r: Rect, width: number, height: number) => ({ left: pct(r.x, width), top: pct(r.y, height), width: pct(r.w, width), height: pct(r.h, height) })\n\n/** The creative ring: 1080x1080, twelve tiles clockwise from the top, four of them light tiles, the lockup inside. */\nexport const RING_FRAME = 1080\nexport const RING_SLOTS: (Rect & { light?: boolean })[] = [\n\t{ x: 475, y: 116, w: 128, h: 128 },\n\t{ x: 674, y: 154, w: 112, h: 146 },\n\t{ x: 789, y: 303, w: 160, h: 114 },\n\t{ x: 856, y: 475, w: 128, h: 128, light: true },\n\t{ x: 813, y: 647, w: 112, h: 146 },\n\t{ x: 650, y: 795, w: 160, h: 114 },\n\t{ x: 483, y: 827, w: 112, h: 145, light: true },\n\t{ x: 286, y: 788, w: 128, h: 128 },\n\t{ x: 131, y: 663, w: 160, h: 114 },\n\t{ x: 96, y: 475, w: 128, h: 128, light: true },\n\t{ x: 155, y: 287, w: 112, h: 146 },\n\t{ x: 294, y: 155, w: 112, h: 145, light: true },\n]\n/** How many creatives the ring shows (the other four slots are light tiles). */\nexport const RING_CREATIVES = RING_SLOTS.filter((s) => !s.light).length\n\n/** The corridor, cut to its walls: 1080 wide, 744 tall (the ad's y 328 to 1072), vanishing at 540, 372. */\nexport const CORRIDOR_FRAME = { width: 1080, height: 744 }\nconst VP = 540\nconst WALLS: Rect[] = [\n\t{ x: -60, y: 0, w: 200, h: 744 },\n\t{ x: 170, y: 142, w: 87, h: 459 },\n\t{ x: 272, y: 206, w: 48, h: 332 },\n\t{ x: 330, y: 242, w: 31, h: 260 },\n\t{ x: 368, y: 265, w: 21, h: 213 },\n\t{ x: 394, y: 281, w: 15, h: 181 },\n]\n/** The light at the end of the corridor (140x104, the close-up's proportions). */\nexport const CORRIDOR_LIGHT: Rect = { x: 470, y: 320, w: 140, h: 104 }\n\nexport interface Wall extends Rect {\n\tside: 'left' | 'right'\n\t/** The clip that draws the wall in perspective: its far edge shorter, toward the vanishing point. */\n\tclip: string\n}\n\n/** The twelve walls, nearest first, left then right: L0, R0, L1, R1 ... L5, R5. */\nexport function corridorWalls(): Wall[] {\n\tconst out: Wall[] = []\n\tfor (const l of WALLS) {\n\t\tconst near = VP - l.x\n\t\tconst far = VP - (l.x + l.w)\n\t\tconst inset = Math.round(((1 - far / near) / 2) * 1e4) / 100\n\t\tout.push({ ...l, side: 'left', clip: `polygon(0 0, 100% ${inset}%, 100% ${100 - inset}%, 0 100%)` })\n\t\tout.push({ ...l, x: 2 * VP - l.x - l.w, side: 'right', clip: `polygon(0 ${inset}%, 100% 0, 100% 100%, 0 ${100 - inset}%)` })\n\t}\n\treturn out\n}\n\n/** The deck cover's row: widths rising to the middle (200, 240, 304 on the 1920 canvas), all 4/5. */\nexport function peakWeights(n: number): number[] {\n\tconst mid = (n - 1) / 2\n\treturn Array.from({ length: n }, (_, i) => {\n\t\tconst d = Math.abs(i - mid)\n\t\treturn d < 0.75 ? 304 : d < 1.75 ? 240 : 200\n\t})\n}\n"
+    },
+    {
+      "path": "lib/image.ts",
+      "content": "// An image slot: what every picture in the library takes in place of its placeholder, in both flavors. `src` is the\n// image (the user's own, used as posted), `alt` what it shows ('' when it is decoration), `fit` how it fills its box\n// (object-fit: cover by default) and `position` where it is anchored (object-position, for example \"50% 20%\" or\n// \"top\"). Without `src` an item keeps its placeholder, and every placeholder carries `data-ds-placeholder`, so a page\n// can be checked for pictures still to fill.\n\nexport type ImageFit = 'cover' | 'contain' | 'fill' | 'none' | 'scale-down'\n\nexport interface ImageSlot {\n\t/** The image. */\n\tsrc?: string\n\t/** What it shows; empty when it is decoration. */\n\talt?: string\n\t/** How it fills its box (object-fit); cover by default. */\n\tfit?: ImageFit\n\t/** Where it is anchored in its box (object-position), for example \"50% 20%\" or \"top\". */\n\tposition?: string\n}\n\n/** The attribute every placeholder carries (a picture still to fill). */\nexport const PLACEHOLDER_ATTR = 'data-ds-placeholder'\n\n/** The object-fit and object-position an image asks for, as a style object both flavors take; undefined when it asks for neither. */\nexport function imageFit(slot?: { fit?: ImageFit; position?: string } | null): { objectFit?: ImageFit; objectPosition?: string } | undefined {\n\tif (!slot || (!slot.fit && !slot.position)) return undefined\n\treturn { ...(slot.fit ? { objectFit: slot.fit } : {}), ...(slot.position ? { objectPosition: slot.position } : {}) }\n}\n\n/** The same as a style attribute's text, for markup written as a string; '' when it asks for neither. */\nexport function imageFitText(slot?: { fit?: ImageFit; position?: string } | null): string {\n\tif (!slot) return ''\n\treturn [slot.fit ? `object-fit: ${slot.fit}` : '', slot.position ? `object-position: ${slot.position}` : ''].filter(Boolean).join('; ')\n}\n\n/** A string or a slot as a slot (lists of pictures take either). */\nexport const toSlot = (v?: string | ImageSlot | null): ImageSlot => (typeof v === 'string' ? { src: v } : v ?? {})\n\n/**\n * The page's sections in the order given: the keys it knows, each once, in the order listed; the page's own order when\n * none is given. Leave a key out to omit that section.\n */\nexport function pageSections<K extends string>(all: readonly K[], given?: readonly string[] | null): K[] {\n\tif (!Array.isArray(given)) return [...all]\n\tconst out: K[] = []\n\tfor (const k of given) if ((all as readonly string[]).includes(k) && !out.includes(k as K)) out.push(k as K)\n\treturn out\n}\n\n/** Whether a src is a placeholder: none, or a generated blank that carries the placeholder attribute in its markup. */\nexport const isPlaceholderSrc = (src?: string) => !src || src.includes(PLACEHOLDER_ATTR)\n\n/** A creative in a page's data: an image slot, or (without `src`) the creative card's placeholder: its advertiser, a\n * headline and a neutral tone (1 to 4). */\nexport interface CreativeImage extends ImageSlot {\n\t/** The placeholder's advertiser. */\n\tbrand?: string\n\t/** The placeholder's headline. */\n\tcaption?: string\n\t/** The placeholder's neutral gradient, 1 (darkest) to 4. */\n\ttone?: 1 | 2 | 3 | 4\n}\n\n/**\n * The sections in order with those that live inside one element (an article's head, cover and body) gathered into a\n * list where the first of them falls, so a page can keep that element whole whatever the order.\n */\nexport function groupSections<K extends string>(order: readonly K[], inside: readonly K[]): (K | K[])[] {\n\tconst group = order.filter((k) => inside.includes(k))\n\tconst out: (K | K[])[] = []\n\tfor (const k of order) if (!inside.includes(k)) out.push(k)\n\telse if (k === group[0]) out.push(group)\n\treturn out\n}\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Placeholder",
+      "label": "Placeholders",
+      "center": false,
+      "half": false,
+      "path": "react/examples/creative-card/Placeholder.tsx",
+      "content": "import { CreativeCard } from '@/react/components/site/CreativeCard'\n// Placeholders in the four neutral tones, with the advertiser and a headline, until the real creatives arrive.\n\nexport default function Placeholder() {\n  return (\n    <div className=\"grid grid-cols-4 gap-4 max-sm:grid-cols-2\">\n      <CreativeCard tone={1} brand=\"Acme Skin\" caption=\"Morning routine.\" />\n      <CreativeCard tone={2} brand=\"Acme Drinks\" caption=\"Two new flavors.\" />\n      <CreativeCard tone={3} brand=\"Acme Studio\" caption=\"Made to move.\" />\n      <CreativeCard tone={4} brand=\"Acme Fit\" caption=\"Ten minute plan.\" />\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    },
+    {
+      "name": "Shapes",
+      "label": "Shapes",
+      "center": false,
+      "half": false,
+      "path": "react/examples/creative-card/Shapes.tsx",
+      "content": "import { CreativeCard } from '@/react/components/site/CreativeCard'\n// The shapes the assets use: 4/5 ads, 1/1 tiles, 7/5 landscape, 3/5 tall stories.\n\nexport default function Shapes() {\n  return (\n    <div className=\"flex items-end gap-4 max-sm:gap-2\">\n      <CreativeCard ratio=\"4/5\" tone={2} brand=\"Acme\" className=\"w-40 max-sm:w-20\" />\n      <CreativeCard ratio=\"1/1\" tone={3} brand=\"Acme\" className=\"w-40 max-sm:w-20\" />\n      <CreativeCard ratio=\"7/5\" tone={1} brand=\"Acme\" className=\"w-48 max-sm:w-24\" />\n      <CreativeCard ratio=\"3/5\" tone={4} brand=\"Acme\" className=\"w-32 max-sm:w-16\" />\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/CreativeCard.tsx",
+          "content": "import type { CSSProperties } from 'react'\nimport { cn } from '@/react/lib/cn'\nimport { imageFit, type ImageFit } from '@/lib/image'\n\n// A creative as the brand assets show it: an ad, a product shot or a UGC frame in a rounded rectangle with the brand\n// corner, the image's color exactly as posted (no grading, filter, overlay or neon). `src` is the image; without one it\n// draws a neutral placeholder (a soft gradient from the neutral steps, with the advertiser and a headline when there is\n// room), so layouts never need a third-party photo. `ratio` keeps the shapes the assets use (4/5 ads, 1/1 tiles, 3/4\n// the ad's three up, 7/5 the ring's landscape tiles, 3/5 the tall ones) or `fill` takes the box its classes give it.\n// `href` makes it a link. `fit` and `position` place the image in its box (object-fit, cover by default, and\n// object-position). The placeholder carries data-ds-placeholder. It does not move on hover.\nexport type CreativeRatio = '4/5' | '1/1' | '3/4' | '7/5' | '3/5' | '9/16' | '16/9' | 'fill'\nexport type CreativeTone = 1 | 2 | 3 | 4\n\nexport interface CreativeCardProps {\n  /** The image, used exactly as posted. */\n  src?: string\n  /** What the creative shows (the image's alt text, or the placeholder's name). */\n  alt?: string\n  /** How the image fills the card (object-fit); cover by default. */\n  fit?: ImageFit\n  /** Where the image is anchored (object-position), for example \"50% 20%\". */\n  position?: string\n  /** The shape: 4/5, 1/1, 3/4, 7/5, 3/5, 9/16, 16/9 (the deck's frame) or fill. */\n  ratio?: CreativeRatio\n  /** The placeholder's advertiser, in capitals at the foot (shown from 112px wide). */\n  brand?: string\n  /** The placeholder's headline (shown from 192px wide). */\n  caption?: string\n  /** The placeholder's neutral gradient, 1 (darkest) to 4. */\n  tone?: CreativeTone\n  /** Makes the creative a link. */\n  href?: string\n  className?: string\n  style?: CSSProperties\n}\n\n// Placeholder grounds: two neutral steps apart, lighter at the top, as a photo lit from above reads on Black.\nconst TONES: Record<CreativeTone, string> = {\n  1: 'bg-linear-to-b from-ds-neutral-4 to-ds-neutral-2',\n  2: 'bg-linear-to-b from-ds-neutral-5 to-ds-neutral-3',\n  3: 'bg-linear-to-b from-ds-neutral-6 to-ds-neutral-4',\n  4: 'bg-linear-to-b from-ds-neutral-7 to-ds-neutral-5',\n}\n\nexport function CreativeCard({ src, alt = '', fit, position, ratio = '4/5', brand, caption, tone = 2, href, className, style }: CreativeCardProps) {\n  const box: CSSProperties = ratio === 'fill' ? { ...style } : { aspectRatio: ratio.replace('/', ' / '), ...style }\n  const classes = cn('@container relative block overflow-hidden rounded-container', src ? 'bg-surface-subtle' : TONES[tone] ?? TONES[2], ratio === 'fill' && 'size-full', className)\n  const body = src ? (\n    <img src={src} alt={alt} loading=\"lazy\" decoding=\"async\" className=\"block size-full object-cover\" style={imageFit({ fit, position })} />\n  ) : (\n    <>\n      {caption && <span aria-hidden=\"true\" className=\"absolute inset-x-4 top-4 hidden type-heading-4 text-fg @min-[12rem]:block\">{caption}</span>}\n      {brand && <span aria-hidden=\"true\" className=\"absolute bottom-3 left-3 hidden type-label text-fg @min-[7rem]:block\">{brand}</span>}\n    </>\n  )\n  const label = src ? undefined : alt || [brand, caption].filter(Boolean).join(', ') || undefined\n  const blank = src ? undefined : ''\n  if (href) return <a data-ds=\"creative-card\" data-ds-placeholder={blank} href={href} aria-label={label} style={box} className={classes}>{body}</a>\n  return <div data-ds=\"creative-card\" data-ds-placeholder={blank} role={label ? 'img' : undefined} aria-label={label} style={box} className={classes}>{body}</div>\n}\n\nexport default CreativeCard\n\n/** One creative in an arrangement (grid, row, ring, corridor): a creative's props, or `light` for a light tile. */\nexport interface CreativeItem extends Omit<CreativeCardProps, 'ratio' | 'className' | 'style'> {\n  /** A tile of the brand light instead of a creative (the grid and the ring interleave them). */\n  light?: boolean\n  /** The light tile's seed. */\n  seed?: number\n}\n"
+        },
+        {
+          "path": "lib/creative-layouts.ts",
+          "content": "// Where the brand assets put their creatives, in Figma's numbers (page \"8. Brand assets\"), for the arrangements both\n// flavors draw: the creative ring (Post, Creative ring, 1080x1080), the corridor (Ad, The world's largest creative\n// search engine: twelve walls receding to the light at 540, 700) and the deck cover's row of creatives (sizes rising\n// to the middle). Positions become percentages of the frame, so an arrangement scales with its box.\n\nexport interface Rect { x: number; y: number; w: number; h: number }\n\n/** Percent of a length, rounded to 4 places. */\nexport const pct = (v: number, of: number) => `${Math.round((v / of) * 1e6) / 1e4}%`\n\n/** A rect as left, top, width and height in percent of its frame. */\nexport const placeAt = (r: Rect, width: number, height: number) => ({ left: pct(r.x, width), top: pct(r.y, height), width: pct(r.w, width), height: pct(r.h, height) })\n\n/** The creative ring: 1080x1080, twelve tiles clockwise from the top, four of them light tiles, the lockup inside. */\nexport const RING_FRAME = 1080\nexport const RING_SLOTS: (Rect & { light?: boolean })[] = [\n\t{ x: 475, y: 116, w: 128, h: 128 },\n\t{ x: 674, y: 154, w: 112, h: 146 },\n\t{ x: 789, y: 303, w: 160, h: 114 },\n\t{ x: 856, y: 475, w: 128, h: 128, light: true },\n\t{ x: 813, y: 647, w: 112, h: 146 },\n\t{ x: 650, y: 795, w: 160, h: 114 },\n\t{ x: 483, y: 827, w: 112, h: 145, light: true },\n\t{ x: 286, y: 788, w: 128, h: 128 },\n\t{ x: 131, y: 663, w: 160, h: 114 },\n\t{ x: 96, y: 475, w: 128, h: 128, light: true },\n\t{ x: 155, y: 287, w: 112, h: 146 },\n\t{ x: 294, y: 155, w: 112, h: 145, light: true },\n]\n/** How many creatives the ring shows (the other four slots are light tiles). */\nexport const RING_CREATIVES = RING_SLOTS.filter((s) => !s.light).length\n\n/** The corridor, cut to its walls: 1080 wide, 744 tall (the ad's y 328 to 1072), vanishing at 540, 372. */\nexport const CORRIDOR_FRAME = { width: 1080, height: 744 }\nconst VP = 540\nconst WALLS: Rect[] = [\n\t{ x: -60, y: 0, w: 200, h: 744 },\n\t{ x: 170, y: 142, w: 87, h: 459 },\n\t{ x: 272, y: 206, w: 48, h: 332 },\n\t{ x: 330, y: 242, w: 31, h: 260 },\n\t{ x: 368, y: 265, w: 21, h: 213 },\n\t{ x: 394, y: 281, w: 15, h: 181 },\n]\n/** The light at the end of the corridor (140x104, the close-up's proportions). */\nexport const CORRIDOR_LIGHT: Rect = { x: 470, y: 320, w: 140, h: 104 }\n\nexport interface Wall extends Rect {\n\tside: 'left' | 'right'\n\t/** The clip that draws the wall in perspective: its far edge shorter, toward the vanishing point. */\n\tclip: string\n}\n\n/** The twelve walls, nearest first, left then right: L0, R0, L1, R1 ... L5, R5. */\nexport function corridorWalls(): Wall[] {\n\tconst out: Wall[] = []\n\tfor (const l of WALLS) {\n\t\tconst near = VP - l.x\n\t\tconst far = VP - (l.x + l.w)\n\t\tconst inset = Math.round(((1 - far / near) / 2) * 1e4) / 100\n\t\tout.push({ ...l, side: 'left', clip: `polygon(0 0, 100% ${inset}%, 100% ${100 - inset}%, 0 100%)` })\n\t\tout.push({ ...l, x: 2 * VP - l.x - l.w, side: 'right', clip: `polygon(0 ${inset}%, 100% 0, 100% 100%, 0 ${100 - inset}%)` })\n\t}\n\treturn out\n}\n\n/** The deck cover's row: widths rising to the middle (200, 240, 304 on the 1920 canvas), all 4/5. */\nexport function peakWeights(n: number): number[] {\n\tconst mid = (n - 1) / 2\n\treturn Array.from({ length: n }, (_, i) => {\n\t\tconst d = Math.abs(i - mid)\n\t\treturn d < 0.75 ? 304 : d < 1.75 ? 240 : 200\n\t})\n}\n"
+        },
+        {
+          "path": "lib/image.ts",
+          "content": "// An image slot: what every picture in the library takes in place of its placeholder, in both flavors. `src` is the\n// image (the user's own, used as posted), `alt` what it shows ('' when it is decoration), `fit` how it fills its box\n// (object-fit: cover by default) and `position` where it is anchored (object-position, for example \"50% 20%\" or\n// \"top\"). Without `src` an item keeps its placeholder, and every placeholder carries `data-ds-placeholder`, so a page\n// can be checked for pictures still to fill.\n\nexport type ImageFit = 'cover' | 'contain' | 'fill' | 'none' | 'scale-down'\n\nexport interface ImageSlot {\n\t/** The image. */\n\tsrc?: string\n\t/** What it shows; empty when it is decoration. */\n\talt?: string\n\t/** How it fills its box (object-fit); cover by default. */\n\tfit?: ImageFit\n\t/** Where it is anchored in its box (object-position), for example \"50% 20%\" or \"top\". */\n\tposition?: string\n}\n\n/** The attribute every placeholder carries (a picture still to fill). */\nexport const PLACEHOLDER_ATTR = 'data-ds-placeholder'\n\n/** The object-fit and object-position an image asks for, as a style object both flavors take; undefined when it asks for neither. */\nexport function imageFit(slot?: { fit?: ImageFit; position?: string } | null): { objectFit?: ImageFit; objectPosition?: string } | undefined {\n\tif (!slot || (!slot.fit && !slot.position)) return undefined\n\treturn { ...(slot.fit ? { objectFit: slot.fit } : {}), ...(slot.position ? { objectPosition: slot.position } : {}) }\n}\n\n/** The same as a style attribute's text, for markup written as a string; '' when it asks for neither. */\nexport function imageFitText(slot?: { fit?: ImageFit; position?: string } | null): string {\n\tif (!slot) return ''\n\treturn [slot.fit ? `object-fit: ${slot.fit}` : '', slot.position ? `object-position: ${slot.position}` : ''].filter(Boolean).join('; ')\n}\n\n/** A string or a slot as a slot (lists of pictures take either). */\nexport const toSlot = (v?: string | ImageSlot | null): ImageSlot => (typeof v === 'string' ? { src: v } : v ?? {})\n\n/**\n * The page's sections in the order given: the keys it knows, each once, in the order listed; the page's own order when\n * none is given. Leave a key out to omit that section.\n */\nexport function pageSections<K extends string>(all: readonly K[], given?: readonly string[] | null): K[] {\n\tif (!Array.isArray(given)) return [...all]\n\tconst out: K[] = []\n\tfor (const k of given) if ((all as readonly string[]).includes(k) && !out.includes(k as K)) out.push(k as K)\n\treturn out\n}\n\n/** Whether a src is a placeholder: none, or a generated blank that carries the placeholder attribute in its markup. */\nexport const isPlaceholderSrc = (src?: string) => !src || src.includes(PLACEHOLDER_ATTR)\n\n/** A creative in a page's data: an image slot, or (without `src`) the creative card's placeholder: its advertiser, a\n * headline and a neutral tone (1 to 4). */\nexport interface CreativeImage extends ImageSlot {\n\t/** The placeholder's advertiser. */\n\tbrand?: string\n\t/** The placeholder's headline. */\n\tcaption?: string\n\t/** The placeholder's neutral gradient, 1 (darkest) to 4. */\n\ttone?: 1 | 2 | 3 | 4\n}\n\n/**\n * The sections in order with those that live inside one element (an article's head, cover and body) gathered into a\n * list where the first of them falls, so a page can keep that element whole whatever the order.\n */\nexport function groupSections<K extends string>(order: readonly K[], inside: readonly K[]): (K | K[])[] {\n\tconst group = order.filter((k) => inside.includes(k))\n\tconst out: (K | K[])[] = []\n\tfor (const k of order) if (!inside.includes(k)) out.push(k)\n\telse if (k === group[0]) out.push(group)\n\treturn out\n}\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "CreativeCard",
+            "file": "react/components/site/CreativeCard.tsx",
+            "props": [
+              {
+                "name": "src",
+                "type": "string",
+                "required": false,
+                "description": "The image, used exactly as posted."
+              },
+              {
+                "name": "alt",
+                "type": "string",
+                "required": false,
+                "default": "''",
+                "description": "What the creative shows (the image's alt text, or the placeholder's name)."
+              },
+              {
+                "name": "fit",
+                "type": "ImageFit",
+                "required": false,
+                "description": "How the image fills the card (object-fit); cover by default."
+              },
+              {
+                "name": "position",
+                "type": "string",
+                "required": false,
+                "description": "Where the image is anchored (object-position), for example \"50% 20%\"."
+              },
+              {
+                "name": "ratio",
+                "type": "CreativeRatio",
+                "required": false,
+                "default": "'4/5'",
+                "description": "The shape: 4/5, 1/1, 3/4, 7/5, 3/5, 9/16, 16/9 (the deck's frame) or fill."
+              },
+              {
+                "name": "brand",
+                "type": "string",
+                "required": false,
+                "description": "The placeholder's advertiser, in capitals at the foot (shown from 112px wide)."
+              },
+              {
+                "name": "caption",
+                "type": "string",
+                "required": false,
+                "description": "The placeholder's headline (shown from 192px wide)."
+              },
+              {
+                "name": "tone",
+                "type": "CreativeTone",
+                "required": false,
+                "default": "2",
+                "description": "The placeholder's neutral gradient, 1 (darkest) to 4."
+              },
+              {
+                "name": "href",
+                "type": "string",
+                "required": false,
+                "description": "Makes the creative a link."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "style",
+                "type": "CSSProperties",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Placeholder",
+          "label": "Placeholders",
+          "center": false,
+          "half": false,
+          "path": "react/examples/creative-card/Placeholder.tsx",
+          "content": "import { CreativeCard } from '@/react/components/site/CreativeCard'\n// Placeholders in the four neutral tones, with the advertiser and a headline, until the real creatives arrive.\n\nexport default function Placeholder() {\n  return (\n    <div className=\"grid grid-cols-4 gap-4 max-sm:grid-cols-2\">\n      <CreativeCard tone={1} brand=\"Acme Skin\" caption=\"Morning routine.\" />\n      <CreativeCard tone={2} brand=\"Acme Drinks\" caption=\"Two new flavors.\" />\n      <CreativeCard tone={3} brand=\"Acme Studio\" caption=\"Made to move.\" />\n      <CreativeCard tone={4} brand=\"Acme Fit\" caption=\"Ten minute plan.\" />\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        },
+        {
+          "name": "Shapes",
+          "label": "Shapes",
+          "center": false,
+          "half": false,
+          "path": "react/examples/creative-card/Shapes.tsx",
+          "content": "import { CreativeCard } from '@/react/components/site/CreativeCard'\n// The shapes the assets use: 4/5 ads, 1/1 tiles, 7/5 landscape, 3/5 tall stories.\n\nexport default function Shapes() {\n  return (\n    <div className=\"flex items-end gap-4 max-sm:gap-2\">\n      <CreativeCard ratio=\"4/5\" tone={2} brand=\"Acme\" className=\"w-40 max-sm:w-20\" />\n      <CreativeCard ratio=\"1/1\" tone={3} brand=\"Acme\" className=\"w-40 max-sm:w-20\" />\n      <CreativeCard ratio=\"7/5\" tone={1} brand=\"Acme\" className=\"w-48 max-sm:w-24\" />\n      <CreativeCard ratio=\"3/5\" tone={4} brand=\"Acme\" className=\"w-32 max-sm:w-16\" />\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/creative-card.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { styleMap } from 'lit/directives/style-map.js'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { imageFit, type ImageFit } from '@/lib/image'\nimport styles from 'virtual:tw'\n\n// CreativeCard.tsx as <spyglass-creative-card>: a creative in the brand corner, the image's color as posted. `src` is\n// the image; without one it draws the neutral placeholder (the advertiser from 112px wide, a headline from 192px).\n// `ratio` is 4/5, 1/1, 3/4, 7/5, 3/5, 9/16 or fill; `href` makes it a link; `fit` and `position` place the image\n// (object-fit and object-position). The placeholder carries data-ds-placeholder. It does not move on hover.\nexport type CreativeRatio = '4/5' | '1/1' | '3/4' | '7/5' | '3/5' | '9/16' | '16/9' | 'fill'\nexport type CreativeTone = 1 | 2 | 3 | 4\n\nconst TONES: Record<CreativeTone, string> = {\n\t1: 'bg-linear-to-b from-ds-neutral-4 to-ds-neutral-2',\n\t2: 'bg-linear-to-b from-ds-neutral-5 to-ds-neutral-3',\n\t3: 'bg-linear-to-b from-ds-neutral-6 to-ds-neutral-4',\n\t4: 'bg-linear-to-b from-ds-neutral-7 to-ds-neutral-5',\n}\n\n/**\n * @summary A creative: an image as posted in the brand corner, or a neutral placeholder.\n */\nexport class CreativeCard extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"creative-card\"]'))\n\tstatic properties = { src: {}, alt: {}, fit: {}, position: {}, ratio: {}, brand: {}, caption: {}, tone: { type: Number }, href: {} }\n\t/** The image, used exactly as posted. */\n\tsrc?: string\n\t/** What the creative shows. */\n\talt = ''\n\t/** How the image fills the card (object-fit); cover by default. */\n\tfit?: ImageFit\n\t/** Where the image is anchored (object-position). */\n\tposition?: string\n\t/** 4/5, 1/1, 3/4, 7/5, 3/5, 9/16, 16/9 or fill. */\n\tratio: CreativeRatio = '4/5'\n\t/** The placeholder's advertiser. */\n\tbrand?: string\n\t/** The placeholder's headline. */\n\tcaption?: string\n\t/** The placeholder's neutral gradient, 1 to 4. */\n\ttone: CreativeTone = 2\n\t/** Makes the creative a link. */\n\thref?: string\n\n\trender() {\n\t\tconst ratio = this.ratio || '4/5'\n\t\tconst box = ratio === 'fill' ? {} : { aspectRatio: ratio.replace('/', ' / ') }\n\t\tconst classes = ['@container relative block overflow-hidden rounded-container', this.src ? 'bg-surface-subtle' : TONES[this.tone] ?? TONES[2], ratio === 'fill' ? 'size-full' : ''].filter(Boolean).join(' ')\n\t\tconst body = this.src\n\t\t\t? html`<img src=${this.src} alt=${this.alt} loading=\"lazy\" decoding=\"async\" class=\"block size-full object-cover\" style=${styleMap(imageFit(this) ?? {})}>`\n\t\t\t: html`${this.caption ? html`<span aria-hidden=\"true\" class=\"absolute inset-x-4 top-4 hidden type-heading-4 text-fg @min-[12rem]:block\">${this.caption}</span>` : nothing}${this.brand ? html`<span aria-hidden=\"true\" class=\"absolute bottom-3 left-3 hidden type-label text-fg @min-[7rem]:block\">${this.brand}</span>` : nothing}`\n\t\tconst label = this.src ? undefined : this.alt || [this.brand, this.caption].filter(Boolean).join(', ') || undefined\n\t\treturn this.href\n\t\t\t? html`<a data-ds=\"creative-card\" data-ds-placeholder=${ifDefined(this.src ? undefined : '')} href=${this.href} aria-label=${ifDefined(label)} style=${styleMap(box)} class=${classes}>${body}</a>`\n\t\t\t: html`<div data-ds=\"creative-card\" data-ds-placeholder=${ifDefined(this.src ? undefined : '')} role=${ifDefined(label ? 'img' : undefined)} aria-label=${ifDefined(label)} style=${styleMap(box)} class=${classes}>${body}</div>`\n\t}\n}\n\ndefine('creative-card', CreativeCard)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/creative-card.js"
+      ],
+      "tag": "spyglass-creative-card",
+      "tags": [
+        "spyglass-creative-card"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-creative-card",
+            "name": "CreativeCard",
+            "module": "elements/creative-card.js",
+            "description": "A creative: an image as posted in the brand corner, or a neutral placeholder.",
+            "attributes": [
+              {
+                "name": "src",
+                "field": "src",
+                "type": "string | undefined",
+                "description": "The image, used exactly as posted."
+              },
+              {
+                "name": "alt",
+                "field": "alt",
+                "type": "string",
+                "default": "''",
+                "description": "What the creative shows."
+              },
+              {
+                "name": "fit",
+                "field": "fit",
+                "type": "ImageFit | undefined",
+                "description": "How the image fills the card (object-fit); cover by default."
+              },
+              {
+                "name": "position",
+                "field": "position",
+                "type": "string | undefined",
+                "description": "Where the image is anchored (object-position)."
+              },
+              {
+                "name": "ratio",
+                "field": "ratio",
+                "type": "CreativeRatio",
+                "default": "'4/5'",
+                "description": "4/5, 1/1, 3/4, 7/5, 3/5, 9/16, 16/9 or fill."
+              },
+              {
+                "name": "brand",
+                "field": "brand",
+                "type": "string | undefined",
+                "description": "The placeholder's advertiser."
+              },
+              {
+                "name": "caption",
+                "field": "caption",
+                "type": "string | undefined",
+                "description": "The placeholder's headline."
+              },
+              {
+                "name": "tone",
+                "field": "tone",
+                "type": "CreativeTone",
+                "default": "2",
+                "description": "The placeholder's neutral gradient, 1 to 4."
+              },
+              {
+                "name": "href",
+                "field": "href",
+                "type": "string | undefined",
+                "description": "Makes the creative a link."
+              }
+            ],
+            "properties": [
+              {
+                "name": "src",
+                "type": "string | undefined",
+                "description": "The image, used exactly as posted.",
+                "attribute": "src"
+              },
+              {
+                "name": "alt",
+                "type": "string",
+                "default": "''",
+                "description": "What the creative shows.",
+                "attribute": "alt"
+              },
+              {
+                "name": "fit",
+                "type": "ImageFit | undefined",
+                "description": "How the image fills the card (object-fit); cover by default.",
+                "attribute": "fit"
+              },
+              {
+                "name": "position",
+                "type": "string | undefined",
+                "description": "Where the image is anchored (object-position).",
+                "attribute": "position"
+              },
+              {
+                "name": "ratio",
+                "type": "CreativeRatio",
+                "default": "'4/5'",
+                "description": "4/5, 1/1, 3/4, 7/5, 3/5, 9/16, 16/9 or fill.",
+                "attribute": "ratio"
+              },
+              {
+                "name": "brand",
+                "type": "string | undefined",
+                "description": "The placeholder's advertiser.",
+                "attribute": "brand"
+              },
+              {
+                "name": "caption",
+                "type": "string | undefined",
+                "description": "The placeholder's headline.",
+                "attribute": "caption"
+              },
+              {
+                "name": "tone",
+                "type": "CreativeTone",
+                "default": "2",
+                "description": "The placeholder's neutral gradient, 1 to 4.",
+                "attribute": "tone"
+              },
+              {
+                "name": "href",
+                "type": "string | undefined",
+                "description": "Makes the creative a link.",
+                "attribute": "href"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Placeholder",
+          "label": "Placeholders",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/creative-card/Placeholder.html",
+          "content": "<!-- Placeholders in the four neutral tones, with the advertiser and a headline, until the real creatives arrive. -->\n<div class=\"grid grid-cols-4 gap-4 max-sm:grid-cols-2\">\n  <spyglass-creative-card tone=\"1\" brand=\"Acme Skin\" caption=\"Morning routine.\"></spyglass-creative-card>\n  <spyglass-creative-card tone=\"2\" brand=\"Acme Drinks\" caption=\"Two new flavors.\"></spyglass-creative-card>\n  <spyglass-creative-card tone=\"3\" brand=\"Acme Studio\" caption=\"Made to move.\"></spyglass-creative-card>\n  <spyglass-creative-card tone=\"4\" brand=\"Acme Fit\" caption=\"Ten minute plan.\"></spyglass-creative-card>\n</div>\n"
+        },
+        {
+          "name": "Shapes",
+          "label": "Shapes",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/creative-card/Shapes.html",
+          "content": "<!-- The shapes the assets use: 4/5 ads, 1/1 tiles, 7/5 landscape, 3/5 tall stories. -->\n<div class=\"flex items-end gap-4 max-sm:gap-2\">\n  <spyglass-creative-card ratio=\"4/5\" tone=\"2\" brand=\"Acme\" class=\"w-40 max-sm:w-20\"></spyglass-creative-card>\n  <spyglass-creative-card ratio=\"1/1\" tone=\"3\" brand=\"Acme\" class=\"w-40 max-sm:w-20\"></spyglass-creative-card>\n  <spyglass-creative-card ratio=\"7/5\" tone=\"1\" brand=\"Acme\" class=\"w-48 max-sm:w-24\"></spyglass-creative-card>\n  <spyglass-creative-card ratio=\"3/5\" tone=\"4\" brand=\"Acme\" class=\"w-32 max-sm:w-16\"></spyglass-creative-card>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

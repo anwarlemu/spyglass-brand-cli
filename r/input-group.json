@@ -1,0 +1,355 @@
+{
+  "name": "input-group",
+  "title": "Input Group",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A field with an icon, a prefix, a unit or a small button inside its hairline, drawn and sized as the input is. The hairline turns White while the field has focus.",
+  "use_for": "Fields that read better with their context attached: a search icon, a link's fixed start, a currency and its period, an invite button beside an email.",
+  "never": [
+    "A primary search: use the search bar",
+    "Icons that do nothing at the end of a field",
+    "More than one button inside a field"
+  ],
+  "source": "Derived from the brand guidelines (no grouped field in the brand assets): the input's hairline, fill and corner, and the search bar's button set inside the field",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/InputGroup.tsx",
+      "content": "import type { InputHTMLAttributes, ReactNode, Ref } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// A field with something at its start or end inside the same hairline: an icon, a unit or a prefix in the muted gray,\n// or a small button. It is drawn as the Input is (a #666666 hairline on Black that turns White while the field has\n// focus, DM Sans at 14px, 16px on phones, the brand corner) and sized as it is: sm 32px, md 40px, lg 48px. A button in\n// `end` sits 4px from the edge (use a ghost or secondary sm button in md, md in lg). `invalid` turns the hairline red.\n// `className` lands on the group; every other prop on the <input> (value and onChange as React's own).\nexport type InputGroupSize = 'sm' | 'md' | 'lg'\n\nconst SIZES: Record<InputGroupSize, string> = { sm: 'h-control-sm gap-1.5 px-2.5', md: 'h-control-md gap-2 px-3', lg: 'h-control-lg gap-2 px-4' }\n// A button at the end comes 4px from the edge, whatever the group's padding.\nconst END: Record<InputGroupSize, string> = { sm: 'has-[button]:-mr-1.5', md: 'has-[button]:-mr-2', lg: 'has-[button]:-mr-3' }\n\nexport interface InputGroupProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {\n  /** What sits before the text: an icon, a prefix. */\n  start?: ReactNode\n  /** What sits after the text: a unit, a count, a small button. */\n  end?: ReactNode\n  /** sm (32px), md (40px) or lg (48px). */\n  size?: InputGroupSize\n  /** A red hairline (with the message beside it). */\n  invalid?: boolean\n  ref?: Ref<HTMLInputElement>\n}\n\nexport function InputGroup({ start, end, size = 'md', invalid, className, ...rest }: InputGroupProps) {\n  return (\n    <div\n      data-ds=\"input-group\"\n      data-invalid={invalid || undefined}\n      className={cn('flex w-full min-w-0 items-center rounded-control border border-edge-strong bg-surface-subtle text-fg transition-[border-color] duration-160 ease-standard hover:not-has-[input:disabled]:border-action-secondary-edge-hover has-[input:focus-visible]:border-edge-focus data-invalid:border-action-danger has-[input:disabled]:cursor-not-allowed', SIZES[size], className)}\n    >\n      {start && <span className=\"flex shrink-0 items-center gap-1.5 type-ui text-fg-muted\">{start}</span>}\n      <input {...rest} aria-invalid={invalid || undefined} className=\"h-full w-full min-w-0 flex-1 bg-transparent type-ui text-fg outline-none placeholder:text-fg-muted disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input\" />\n      {end && <span className={cn('flex shrink-0 items-center gap-1.5 type-ui text-fg-muted', END[size])}>{end}</span>}\n    </div>\n  )\n}\n\nexport default InputGroup\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Addons",
+      "label": "Icons, text and buttons",
+      "center": true,
+      "half": false,
+      "path": "react/examples/input-group/Addons.tsx",
+      "content": "import { Search } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { InputGroup } from '@/react/components/ui/InputGroup'\n// An icon, a prefix, a unit and a button, each inside the field's hairline.\n\nexport default function Addons() {\n  return (\n    <div className=\"flex w-96 max-w-full flex-col gap-4\">\n      <InputGroup aria-label=\"Search boards\" placeholder=\"Search boards\" start={<Search size={16} strokeWidth={1.5} aria-hidden=\"true\" />} />\n      <InputGroup aria-label=\"Board link\" defaultValue=\"acme-hooks\" start=\"spyglass.so/b/\" />\n      <InputGroup aria-label=\"Monthly budget\" type=\"number\" defaultValue=\"20\" start=\"$\" end=\"per month\" />\n      <InputGroup aria-label=\"Invite by email\" type=\"email\" placeholder=\"name@acme.com\" end={<Button variant=\"secondary\" size=\"sm\">Invite</Button>} />\n    </div>\n  )\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "Sizes",
+      "label": "Sizes",
+      "center": true,
+      "half": false,
+      "path": "react/examples/input-group/Sizes.tsx",
+      "content": "import { Search } from 'lucide-react'\nimport { InputGroup } from '@/react/components/ui/InputGroup'\n// The three sizes, matching the input's, and one that says what is wrong.\n\nexport default function Sizes() {\n  return (\n    <div className=\"flex w-80 max-w-full flex-col gap-3\">\n      <InputGroup size=\"sm\" aria-label=\"Search, small\" placeholder=\"Search\" start={<Search size={16} strokeWidth={1.5} aria-hidden=\"true\" />} />\n      <InputGroup size=\"md\" aria-label=\"Search, medium\" placeholder=\"Search\" start={<Search size={16} strokeWidth={1.5} aria-hidden=\"true\" />} />\n      <InputGroup size=\"lg\" aria-label=\"Search, large\" placeholder=\"Search\" start={<Search size={16} strokeWidth={1.5} aria-hidden=\"true\" />} />\n      <InputGroup aria-label=\"Board link, taken\" defaultValue=\"acme\" start=\"spyglass.so/b/\" invalid />\n    </div>\n  )\n}\n",
+      "requires": [],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/InputGroup.tsx",
+          "content": "import type { InputHTMLAttributes, ReactNode, Ref } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// A field with something at its start or end inside the same hairline: an icon, a unit or a prefix in the muted gray,\n// or a small button. It is drawn as the Input is (a #666666 hairline on Black that turns White while the field has\n// focus, DM Sans at 14px, 16px on phones, the brand corner) and sized as it is: sm 32px, md 40px, lg 48px. A button in\n// `end` sits 4px from the edge (use a ghost or secondary sm button in md, md in lg). `invalid` turns the hairline red.\n// `className` lands on the group; every other prop on the <input> (value and onChange as React's own).\nexport type InputGroupSize = 'sm' | 'md' | 'lg'\n\nconst SIZES: Record<InputGroupSize, string> = { sm: 'h-control-sm gap-1.5 px-2.5', md: 'h-control-md gap-2 px-3', lg: 'h-control-lg gap-2 px-4' }\n// A button at the end comes 4px from the edge, whatever the group's padding.\nconst END: Record<InputGroupSize, string> = { sm: 'has-[button]:-mr-1.5', md: 'has-[button]:-mr-2', lg: 'has-[button]:-mr-3' }\n\nexport interface InputGroupProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {\n  /** What sits before the text: an icon, a prefix. */\n  start?: ReactNode\n  /** What sits after the text: a unit, a count, a small button. */\n  end?: ReactNode\n  /** sm (32px), md (40px) or lg (48px). */\n  size?: InputGroupSize\n  /** A red hairline (with the message beside it). */\n  invalid?: boolean\n  ref?: Ref<HTMLInputElement>\n}\n\nexport function InputGroup({ start, end, size = 'md', invalid, className, ...rest }: InputGroupProps) {\n  return (\n    <div\n      data-ds=\"input-group\"\n      data-invalid={invalid || undefined}\n      className={cn('flex w-full min-w-0 items-center rounded-control border border-edge-strong bg-surface-subtle text-fg transition-[border-color] duration-160 ease-standard hover:not-has-[input:disabled]:border-action-secondary-edge-hover has-[input:focus-visible]:border-edge-focus data-invalid:border-action-danger has-[input:disabled]:cursor-not-allowed', SIZES[size], className)}\n    >\n      {start && <span className=\"flex shrink-0 items-center gap-1.5 type-ui text-fg-muted\">{start}</span>}\n      <input {...rest} aria-invalid={invalid || undefined} className=\"h-full w-full min-w-0 flex-1 bg-transparent type-ui text-fg outline-none placeholder:text-fg-muted disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input\" />\n      {end && <span className={cn('flex shrink-0 items-center gap-1.5 type-ui text-fg-muted', END[size])}>{end}</span>}\n    </div>\n  )\n}\n\nexport default InputGroup\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "InputGroup",
+            "file": "react/components/ui/InputGroup.tsx",
+            "props": [
+              {
+                "name": "start",
+                "type": "ReactNode",
+                "required": false,
+                "description": "What sits before the text: an icon, a prefix."
+              },
+              {
+                "name": "end",
+                "type": "ReactNode",
+                "required": false,
+                "description": "What sits after the text: a unit, a count, a small button."
+              },
+              {
+                "name": "size",
+                "type": "InputGroupSize",
+                "required": false,
+                "default": "'md'",
+                "description": "sm (32px), md (40px) or lg (48px)."
+              },
+              {
+                "name": "invalid",
+                "type": "boolean",
+                "required": false,
+                "description": "A red hairline (with the message beside it)."
+              }
+            ],
+            "extends": [
+              "Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>"
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Addons",
+          "label": "Icons, text and buttons",
+          "center": true,
+          "half": false,
+          "path": "react/examples/input-group/Addons.tsx",
+          "content": "import { Search } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { InputGroup } from '@/react/components/ui/InputGroup'\n// An icon, a prefix, a unit and a button, each inside the field's hairline.\n\nexport default function Addons() {\n  return (\n    <div className=\"flex w-96 max-w-full flex-col gap-4\">\n      <InputGroup aria-label=\"Search boards\" placeholder=\"Search boards\" start={<Search size={16} strokeWidth={1.5} aria-hidden=\"true\" />} />\n      <InputGroup aria-label=\"Board link\" defaultValue=\"acme-hooks\" start=\"spyglass.so/b/\" />\n      <InputGroup aria-label=\"Monthly budget\" type=\"number\" defaultValue=\"20\" start=\"$\" end=\"per month\" />\n      <InputGroup aria-label=\"Invite by email\" type=\"email\" placeholder=\"name@acme.com\" end={<Button variant=\"secondary\" size=\"sm\">Invite</Button>} />\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        },
+        {
+          "name": "Sizes",
+          "label": "Sizes",
+          "center": true,
+          "half": false,
+          "path": "react/examples/input-group/Sizes.tsx",
+          "content": "import { Search } from 'lucide-react'\nimport { InputGroup } from '@/react/components/ui/InputGroup'\n// The three sizes, matching the input's, and one that says what is wrong.\n\nexport default function Sizes() {\n  return (\n    <div className=\"flex w-80 max-w-full flex-col gap-3\">\n      <InputGroup size=\"sm\" aria-label=\"Search, small\" placeholder=\"Search\" start={<Search size={16} strokeWidth={1.5} aria-hidden=\"true\" />} />\n      <InputGroup size=\"md\" aria-label=\"Search, medium\" placeholder=\"Search\" start={<Search size={16} strokeWidth={1.5} aria-hidden=\"true\" />} />\n      <InputGroup size=\"lg\" aria-label=\"Search, large\" placeholder=\"Search\" start={<Search size={16} strokeWidth={1.5} aria-hidden=\"true\" />} />\n      <InputGroup aria-label=\"Board link, taken\" defaultValue=\"acme\" start=\"spyglass.so/b/\" invalid />\n    </div>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/input-group.ts",
+          "content": "import { html, LitElement, nothing, type PropertyValues } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { live } from 'lit/directives/live.js'\nimport { DsFormElement, define, HostLayoutController } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// InputGroup.tsx as <spyglass-input-group>: a field with something at its start or end inside the same hairline: an\n// icon, a unit or a prefix in the muted gray (slot=\"start\", slot=\"end\"), or a small button. Drawn and sized as the\n// input is (sm 32px, md 40px, lg 48px); the hairline turns White while the field has focus and red when `invalid`.\n// Form-associated (its `name` and `value` go with its form); the value is `value` with the native `input` and `change`\n// events, and Enter submits its form. aria-label and aria-description pass to the inner input.\n\nconst SIZES = { sm: 'h-control-sm gap-1.5 px-2.5', md: 'h-control-md gap-2 px-3', lg: 'h-control-lg gap-2 px-4' } as const\n// A button at the end comes 4px from the edge, whatever the group's padding. The slot is in the box, so the button\n// it holds is read from the host.\nconst END = { sm: '-mr-1.5', md: '-mr-2', lg: '-mr-3' } as const\nexport type InputGroupSize = keyof typeof SIZES\n\n/**\n * @summary A field with an icon, a unit or a button inside its hairline.\n * @slot start - What sits before the text: an icon, a prefix.\n * @slot end - What sits after the text: a unit, a count, a small button.\n * @fires input - On every keystroke (read `value`).\n * @fires change - When the value is committed.\n */\nexport class InputGroup extends DsFormElement {\n\tstatic styles = [DsFormElement.styles, styles]\n\tstatic shadowRootOptions = { ...LitElement.shadowRootOptions, delegatesFocus: true }\n\tstatic dsField = true\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"input-group\"]'))\n\tstatic properties = {\n\t\tvalue: {},\n\t\ttype: {},\n\t\tname: {},\n\t\tplaceholder: {},\n\t\tautocomplete: {},\n\t\tsize: { reflect: true },\n\t\tdisabled: { type: Boolean, reflect: true },\n\t\treadonly: { type: Boolean },\n\t\trequired: { type: Boolean },\n\t\tinvalid: { type: Boolean, reflect: true },\n\t\tlabel: { attribute: 'aria-label' },\n\t\tdescription: { attribute: 'aria-description' },\n\t}\n\n\tvalue = ''\n\ttype = 'text'\n\tname?: string\n\tplaceholder?: string\n\tautocomplete?: string\n\t/** sm (32px), md (40px) or lg (48px). */\n\tsize: InputGroupSize = 'md'\n\tdisabled = false\n\treadonly = false\n\trequired = false\n\t/** A red hairline (with the message beside it). */\n\tinvalid = false\n\t/** The name for assistive tech, passed to the inner input. */\n\tlabel?: string\n\t/** The description or error, passed to the inner input. */\n\tdescription?: string\n\n\t// The start and end slots are drawn only when they have content, so the element follows its children: content that\n\t// lands after the first render (a parser still streaming, a framework filling it) gets its addon box.\n\tprivate observer = new MutationObserver(() => this.requestUpdate())\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\tif (!this.value && this.getAttribute('value')) this.value = this.getAttribute('value')!\n\t\tthis.observer.observe(this, { childList: true })\n\t\tthis.requestUpdate()\n\t}\n\tdisconnectedCallback() {\n\t\tsuper.disconnectedCallback()\n\t\tthis.observer.disconnect()\n\t}\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\tif (changed.has('value')) this.internals.setFormValue(this.value)\n\t}\n\tprotected validityControl() {\n\t\treturn this.renderRoot.querySelector<HTMLInputElement>('input')\n\t}\n\tformResetCallback() {\n\t\tthis.value = this.getAttribute('value') ?? ''\n\t}\n\tprivate onInput(event: Event) {\n\t\tthis.value = (event.target as HTMLInputElement).value\n\t}\n\tprivate onKeyDown(event: KeyboardEvent) {\n\t\tif (event.key === 'Enter' && !event.isComposing && this.form) {\n\t\t\tevent.preventDefault()\n\t\t\tthis.form.requestSubmit()\n\t\t}\n\t}\n\tprivate onChange() {\n\t\tthis.dispatchEvent(new Event('change', { bubbles: true, composed: true }))\n\t}\n\n\trender() {\n\t\tconst size = SIZES[this.size] ? this.size : 'md'\n\t\tconst button = !!this.querySelector(':scope > [slot=\"end\"] button, :scope > button[slot=\"end\"], :scope > [slot=\"end\"][data-ds=\"button\"]')\n\t\tconst box = ['flex w-full min-w-0 items-center rounded-control border border-edge-strong bg-surface-subtle text-fg transition-[border-color] duration-160 ease-standard hover:not-has-[input:disabled]:border-action-secondary-edge-hover has-[input:focus-visible]:border-edge-focus data-invalid:border-action-danger has-[input:disabled]:cursor-not-allowed', SIZES[size]].join(' ')\n\t\treturn html`<div data-ds=\"input-group\" data-invalid=${ifDefined(this.invalid ? 'true' : undefined)} class=${box}>${this.hasSlot('start') ? html`<span class=\"flex shrink-0 items-center gap-1.5 type-ui text-fg-muted\"><slot name=\"start\"></slot></span>` : nothing}<input .value=${live(this.value)} type=${this.type} name=${ifDefined(this.name)} placeholder=${ifDefined(this.placeholder)} autocomplete=${ifDefined(this.autocomplete as never)} ?disabled=${this.inactive} ?readonly=${this.readonly} ?required=${this.required} aria-invalid=${ifDefined(this.invalid ? 'true' : undefined)} aria-label=${ifDefined(this.label)} aria-description=${ifDefined(this.description)} class=\"h-full w-full min-w-0 flex-1 bg-transparent type-ui text-fg outline-none placeholder:text-fg-muted disabled:cursor-not-allowed disabled:text-fg-faint max-md:text-input pointer-coarse:text-input\" @input=${this.onInput} @change=${this.onChange} @keydown=${this.onKeyDown}>${this.hasSlot('end') ? html`<span class=${['flex shrink-0 items-center gap-1.5 type-ui text-fg-muted', button ? END[size] : ''].join(' ')}><slot name=\"end\"></slot></span>` : nothing}</div>`\n\t}\n}\n\ndefine('input-group', InputGroup)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/input-group.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-input-group",
+      "tags": [
+        "spyglass-input-group"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-input-group",
+            "name": "InputGroup",
+            "module": "elements/input-group.js",
+            "description": "A field with an icon, a unit or a button inside its hairline.",
+            "attributes": [
+              {
+                "name": "value",
+                "field": "value",
+                "type": "string",
+                "default": "''"
+              },
+              {
+                "name": "type",
+                "field": "type",
+                "type": "string",
+                "default": "'text'"
+              },
+              {
+                "name": "name",
+                "field": "name",
+                "type": "string | undefined"
+              },
+              {
+                "name": "placeholder",
+                "field": "placeholder",
+                "type": "string | undefined"
+              },
+              {
+                "name": "autocomplete",
+                "field": "autocomplete",
+                "type": "string | undefined"
+              },
+              {
+                "name": "size",
+                "field": "size",
+                "type": "\"sm\" | \"md\" | \"lg\"",
+                "default": "'md'",
+                "description": "sm (32px), md (40px) or lg (48px)."
+              },
+              {
+                "name": "disabled",
+                "field": "disabled",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "readonly",
+                "field": "readonly",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "required",
+                "field": "required",
+                "type": "boolean",
+                "default": "false"
+              },
+              {
+                "name": "invalid",
+                "field": "invalid",
+                "type": "boolean",
+                "default": "false",
+                "description": "A red hairline (with the message beside it)."
+              },
+              {
+                "name": "aria-label",
+                "field": "label",
+                "type": "string | undefined",
+                "description": "The name for assistive tech, passed to the inner input."
+              },
+              {
+                "name": "aria-description",
+                "field": "description",
+                "type": "string | undefined",
+                "description": "The description or error, passed to the inner input."
+              }
+            ],
+            "properties": [
+              {
+                "name": "value",
+                "type": "string",
+                "default": "''",
+                "attribute": "value"
+              },
+              {
+                "name": "type",
+                "type": "string",
+                "default": "'text'",
+                "attribute": "type"
+              },
+              {
+                "name": "name",
+                "type": "string | undefined",
+                "attribute": "name"
+              },
+              {
+                "name": "placeholder",
+                "type": "string | undefined",
+                "attribute": "placeholder"
+              },
+              {
+                "name": "autocomplete",
+                "type": "string | undefined",
+                "attribute": "autocomplete"
+              },
+              {
+                "name": "size",
+                "type": "\"sm\" | \"md\" | \"lg\"",
+                "default": "'md'",
+                "description": "sm (32px), md (40px) or lg (48px).",
+                "attribute": "size"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "disabled"
+              },
+              {
+                "name": "readonly",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "readonly"
+              },
+              {
+                "name": "required",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "required"
+              },
+              {
+                "name": "invalid",
+                "type": "boolean",
+                "default": "false",
+                "description": "A red hairline (with the message beside it).",
+                "attribute": "invalid"
+              },
+              {
+                "name": "label",
+                "type": "string | undefined",
+                "description": "The name for assistive tech, passed to the inner input.",
+                "attribute": "aria-label"
+              },
+              {
+                "name": "description",
+                "type": "string | undefined",
+                "description": "The description or error, passed to the inner input.",
+                "attribute": "aria-description"
+              }
+            ],
+            "events": [
+              {
+                "name": "change",
+                "description": "When the value is committed."
+              },
+              {
+                "name": "input",
+                "description": "On every keystroke (read `value`)."
+              }
+            ],
+            "slots": [
+              {
+                "name": "start",
+                "description": "What sits before the text: an icon, a prefix."
+              },
+              {
+                "name": "end",
+                "description": "What sits after the text: a unit, a count, a small button."
+              }
+            ],
+            "methods": [
+              {
+                "name": "formResetCallback"
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Addons",
+          "label": "Icons, text and buttons",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/input-group/Addons.html",
+          "content": "<!-- An icon, a prefix, a unit and a button, each inside the field's hairline. -->\n<div class=\"flex w-96 max-w-full flex-col gap-4\">\n  <spyglass-input-group aria-label=\"Search boards\" placeholder=\"Search boards\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-search\" slot=\"start\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"></circle><path d=\"m21 21-4.3-4.3\"></path></svg></spyglass-input-group>\n  <spyglass-input-group aria-label=\"Board link\" value=\"acme-hooks\"><span slot=\"start\">spyglass.so/b/</span></spyglass-input-group>\n  <spyglass-input-group aria-label=\"Monthly budget\" type=\"number\" value=\"20\"><span slot=\"start\">$</span><span slot=\"end\">per month</span></spyglass-input-group>\n  <spyglass-input-group aria-label=\"Invite by email\" type=\"email\" placeholder=\"name@acme.com\"><spyglass-button slot=\"end\" variant=\"secondary\" size=\"sm\">Invite</spyglass-button></spyglass-input-group>\n</div>\n"
+        },
+        {
+          "name": "Sizes",
+          "label": "Sizes",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/input-group/Sizes.html",
+          "content": "<!-- The three sizes, matching the input's, and one that says what is wrong. -->\n<div class=\"flex w-80 max-w-full flex-col gap-3\">\n  <spyglass-input-group size=\"sm\" aria-label=\"Search, small\" placeholder=\"Search\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-search\" slot=\"start\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"></circle><path d=\"m21 21-4.3-4.3\"></path></svg></spyglass-input-group>\n  <spyglass-input-group size=\"md\" aria-label=\"Search, medium\" placeholder=\"Search\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-search\" slot=\"start\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"></circle><path d=\"m21 21-4.3-4.3\"></path></svg></spyglass-input-group>\n  <spyglass-input-group size=\"lg\" aria-label=\"Search, large\" placeholder=\"Search\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-search\" slot=\"start\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"></circle><path d=\"m21 21-4.3-4.3\"></path></svg></spyglass-input-group>\n  <spyglass-input-group aria-label=\"Board link, taken\" value=\"acme\" invalid><span slot=\"start\">spyglass.so/b/</span></spyglass-input-group>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

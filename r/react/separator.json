@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "separator",
+  "type": "registry:ui",
+  "title": "Separator",
+  "description": "The hairline: 1px in the #262626 edge step, across or down. Spyglass separates with a fill or a hairline, never a shadow.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/ui/Separator.tsx",
+      "type": "registry:ui",
+      "content": "import { cn } from '@/lib/cn'\n\n// The hairline as its own part: 1px in the #262626 edge step, across or down. Spyglass separates with a fill or a\n// hairline, never a shadow. Decorative by default (role none); pass `semantic` when it splits content a screen reader\n// should hear as split.\nexport interface SeparatorProps {\n  /** Across (horizontal) or down (vertical, it stretches to its row's height). */\n  orientation?: 'horizontal' | 'vertical'\n  /** A real separator for assistive tech, not only a line. */\n  semantic?: boolean\n  className?: string\n}\n\nexport function Separator({ orientation = 'horizontal', semantic, className }: SeparatorProps) {\n  return (\n    <div\n      data-ds=\"separator\"\n      role={semantic ? 'separator' : 'none'}\n      aria-orientation={semantic ? orientation : undefined}\n      className={cn('shrink-0 bg-edge', orientation === 'vertical' ? 'w-px self-stretch' : 'h-px w-full', className)}\n    />\n  )\n}\n\nexport default Separator\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

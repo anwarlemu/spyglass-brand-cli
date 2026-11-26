@@ -1,0 +1,223 @@
+{
+  "name": "button-group",
+  "title": "Button group",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "Buttons that belong together, joined into one block: the brand corner on the outer corners only and a 1px Black seam between them. A field with its button, a button with its menu arrow, or a vertical stack.",
+  "use_for": "Paging, a pair of views, save with a choice of board, an email field with its Invite button.",
+  "never": [
+    "Unrelated actions in one group",
+    "Two primary buttons in one group",
+    "A border around the whole group"
+  ],
+  "source": "Derived from the guidelines: the brand button (White primary, #262626 secondary, the 10px canvas corner, 8px here) on Black. shadcn's button group for anatomy.",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/ButtonGroup.tsx",
+      "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// shadcn's button group in the brand: buttons that belong together, joined into one block with the brand corner on\n// its outer corners only and a 1px Black seam between them (the ground showing through), so #262626 halves read as\n// one control. Secondary buttons for a set of tools, a field with its button, a button with its menu arrow.\n// `vertical` stacks them. Give it a label for the group.\nexport interface ButtonGroupProps {\n  /** The group's name for assistive tech. */\n  label?: string\n  /** Stacked. */\n  vertical?: boolean\n  className?: string\n  children?: ReactNode\n}\n\nexport function ButtonGroup({ label, vertical, className, children }: ButtonGroupProps) {\n  return (\n    <div data-ds=\"button-group\" className={cn('ds-btngroup', className)} role=\"group\" aria-label={label} data-vertical={vertical || undefined}>\n      <style href=\"ds-button-group\" precedence=\"ds\">{css}</style>\n      {children}\n    </div>\n  )\n}\n\nexport default ButtonGroup\n\nconst css = `\n.ds-btngroup { display: inline-flex; align-items: stretch; gap: var(--ds-border-hairline); }\n.ds-btngroup[data-vertical] { flex-direction: column; }\n.ds-btngroup > * { position: relative; }\n.ds-btngroup > :is(:hover, :focus-visible, :focus-within) { z-index: 1; }\n.ds-btngroup:not([data-vertical]) > :not(:first-child) { border-start-start-radius: 0; border-end-start-radius: 0; }\n.ds-btngroup:not([data-vertical]) > :not(:last-child) { border-start-end-radius: 0; border-end-end-radius: 0; }\n.ds-btngroup[data-vertical] > :not(:first-child) { border-start-start-radius: 0; border-start-end-radius: 0; }\n.ds-btngroup[data-vertical] > :not(:last-child) { border-end-start-radius: 0; border-end-end-radius: 0; }\n`\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Toolbar",
+      "label": "Toolbar",
+      "center": true,
+      "half": false,
+      "path": "react/examples/button-group/Toolbar.tsx",
+      "content": "import { ChevronDown, ChevronLeft, ChevronRight, LayoutGrid, Rows3 } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { ButtonGroup } from '@/react/components/ui/ButtonGroup'\n// A results toolbar: paging, the two views, and a save button with its menu arrow, each set joined into one block.\n\nexport default function Toolbar() {\n  return (\n    <div className=\"flex flex-wrap items-center justify-center gap-3\">\n      <ButtonGroup label=\"Pages\">\n        <Button variant=\"secondary\" icon aria-label=\"Previous page\"><ChevronLeft size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n        <Button variant=\"secondary\" icon aria-label=\"Next page\"><ChevronRight size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n      </ButtonGroup>\n      <ButtonGroup label=\"View\">\n        <Button variant=\"secondary\"><LayoutGrid size={16} strokeWidth={1.5} aria-hidden=\"true\" />Grid</Button>\n        <Button variant=\"secondary\"><Rows3 size={16} strokeWidth={1.5} aria-hidden=\"true\" />Rows</Button>\n      </ButtonGroup>\n      <ButtonGroup label=\"Save\">\n        <Button variant=\"secondary\">Save to board</Button>\n        <Button variant=\"secondary\" icon aria-label=\"Choose a board\"><ChevronDown size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n      </ButtonGroup>\n    </div>\n  )\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "Field",
+      "label": "A field and a stack",
+      "center": true,
+      "half": false,
+      "path": "react/examples/button-group/Field.tsx",
+      "content": "import { Button } from '@/react/components/ui/Button'\nimport { ButtonGroup } from '@/react/components/ui/ButtonGroup'\nimport { Input } from '@/react/components/ui/Input'\n// A field with its button, and a stack of secondary buttons.\n\nexport default function Field() {\n  return (\n    <div className=\"flex w-120 max-w-full flex-col items-center gap-6\">\n      <ButtonGroup label=\"Invite\" className=\"w-full\">\n        <Input aria-label=\"Email\" placeholder=\"team@acme.com\" />\n        <Button>Invite</Button>\n      </ButtonGroup>\n      <ButtonGroup label=\"Sort\" vertical>\n        <Button variant=\"secondary\">Newest</Button>\n        <Button variant=\"secondary\">Longest running</Button>\n        <Button variant=\"secondary\">Most engagement</Button>\n      </ButtonGroup>\n    </div>\n  )\n}\n",
+      "requires": [
+        "button",
+        "input"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/ButtonGroup.tsx",
+          "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// shadcn's button group in the brand: buttons that belong together, joined into one block with the brand corner on\n// its outer corners only and a 1px Black seam between them (the ground showing through), so #262626 halves read as\n// one control. Secondary buttons for a set of tools, a field with its button, a button with its menu arrow.\n// `vertical` stacks them. Give it a label for the group.\nexport interface ButtonGroupProps {\n  /** The group's name for assistive tech. */\n  label?: string\n  /** Stacked. */\n  vertical?: boolean\n  className?: string\n  children?: ReactNode\n}\n\nexport function ButtonGroup({ label, vertical, className, children }: ButtonGroupProps) {\n  return (\n    <div data-ds=\"button-group\" className={cn('ds-btngroup', className)} role=\"group\" aria-label={label} data-vertical={vertical || undefined}>\n      <style href=\"ds-button-group\" precedence=\"ds\">{css}</style>\n      {children}\n    </div>\n  )\n}\n\nexport default ButtonGroup\n\nconst css = `\n.ds-btngroup { display: inline-flex; align-items: stretch; gap: var(--ds-border-hairline); }\n.ds-btngroup[data-vertical] { flex-direction: column; }\n.ds-btngroup > * { position: relative; }\n.ds-btngroup > :is(:hover, :focus-visible, :focus-within) { z-index: 1; }\n.ds-btngroup:not([data-vertical]) > :not(:first-child) { border-start-start-radius: 0; border-end-start-radius: 0; }\n.ds-btngroup:not([data-vertical]) > :not(:last-child) { border-start-end-radius: 0; border-end-end-radius: 0; }\n.ds-btngroup[data-vertical] > :not(:first-child) { border-start-start-radius: 0; border-start-end-radius: 0; }\n.ds-btngroup[data-vertical] > :not(:last-child) { border-end-start-radius: 0; border-end-end-radius: 0; }\n`\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "ButtonGroup",
+            "file": "react/components/ui/ButtonGroup.tsx",
+            "props": [
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "description": "The group's name for assistive tech."
+              },
+              {
+                "name": "vertical",
+                "type": "boolean",
+                "required": false,
+                "description": "Stacked."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Toolbar",
+          "label": "Toolbar",
+          "center": true,
+          "half": false,
+          "path": "react/examples/button-group/Toolbar.tsx",
+          "content": "import { ChevronDown, ChevronLeft, ChevronRight, LayoutGrid, Rows3 } from 'lucide-react'\nimport { Button } from '@/react/components/ui/Button'\nimport { ButtonGroup } from '@/react/components/ui/ButtonGroup'\n// A results toolbar: paging, the two views, and a save button with its menu arrow, each set joined into one block.\n\nexport default function Toolbar() {\n  return (\n    <div className=\"flex flex-wrap items-center justify-center gap-3\">\n      <ButtonGroup label=\"Pages\">\n        <Button variant=\"secondary\" icon aria-label=\"Previous page\"><ChevronLeft size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n        <Button variant=\"secondary\" icon aria-label=\"Next page\"><ChevronRight size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n      </ButtonGroup>\n      <ButtonGroup label=\"View\">\n        <Button variant=\"secondary\"><LayoutGrid size={16} strokeWidth={1.5} aria-hidden=\"true\" />Grid</Button>\n        <Button variant=\"secondary\"><Rows3 size={16} strokeWidth={1.5} aria-hidden=\"true\" />Rows</Button>\n      </ButtonGroup>\n      <ButtonGroup label=\"Save\">\n        <Button variant=\"secondary\">Save to board</Button>\n        <Button variant=\"secondary\" icon aria-label=\"Choose a board\"><ChevronDown size={16} strokeWidth={1.5} aria-hidden=\"true\" /></Button>\n      </ButtonGroup>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        },
+        {
+          "name": "Field",
+          "label": "A field and a stack",
+          "center": true,
+          "half": false,
+          "path": "react/examples/button-group/Field.tsx",
+          "content": "import { Button } from '@/react/components/ui/Button'\nimport { ButtonGroup } from '@/react/components/ui/ButtonGroup'\nimport { Input } from '@/react/components/ui/Input'\n// A field with its button, and a stack of secondary buttons.\n\nexport default function Field() {\n  return (\n    <div className=\"flex w-120 max-w-full flex-col items-center gap-6\">\n      <ButtonGroup label=\"Invite\" className=\"w-full\">\n        <Input aria-label=\"Email\" placeholder=\"team@acme.com\" />\n        <Button>Invite</Button>\n      </ButtonGroup>\n      <ButtonGroup label=\"Sort\" vertical>\n        <Button variant=\"secondary\">Newest</Button>\n        <Button variant=\"secondary\">Longest running</Button>\n        <Button variant=\"secondary\">Most engagement</Button>\n      </ButtonGroup>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button",
+            "input"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/button-group.ts",
+          "content": "import { html } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// ButtonGroup.tsx as <spyglass-button-group>: buttons that belong together, joined into one block with the brand corner\n// on its outer corners only and a 1px Black seam between them. `vertical` stacks them. Give it a label for the group.\n//\n// React's rules reach each child's root (`.ds-btngroup > *`). A library element such as <spyglass-button> draws its\n// root in its own shadow root, so the group marks each child with its place (data-group=\"first middle last\") and gives\n// that shadow root a small sheet that squares the inner corners there; a child that is its own box (a native field)\n// takes the rules in button-group.css.\n\n// For a child's shadow root: the child's root box is the shadow root's element with data-ds.\nconst CHILD_RULES = `\n:host([data-group]) > [data-ds] { position: relative; }\n:host([data-group]) > [data-ds]:is(:hover, :focus-visible, :focus-within) { z-index: 1; }\n:host([data-group~=\"after-x\"]) > [data-ds] { border-start-start-radius: 0; border-end-start-radius: 0; }\n:host([data-group~=\"before-x\"]) > [data-ds] { border-start-end-radius: 0; border-end-end-radius: 0; }\n:host([data-group~=\"after-y\"]) > [data-ds] { border-start-start-radius: 0; border-start-end-radius: 0; }\n:host([data-group~=\"before-y\"]) > [data-ds] { border-end-start-radius: 0; border-end-end-radius: 0; }\n`\nconst childSheets = new WeakSet<ShadowRoot>()\nfunction adoptChildRules(root: ShadowRoot) {\n\tif (childSheets.has(root)) return\n\tconst sheet = new CSSStyleSheet()\n\tsheet.replaceSync(CHILD_RULES)\n\troot.adoptedStyleSheets = [...root.adoptedStyleSheets, sheet]\n\tchildSheets.add(root)\n}\n\n/**\n * @summary Buttons that belong together, joined into one block.\n * @slot - The buttons (or a field with its button).\n */\nexport class ButtonGroup extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\t// Layout classes on the element (w-full) land on the group's box, as on the React root.\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"button-group\"]'))\n\tstatic properties = { label: {}, vertical: { type: Boolean } }\n\n\t/** The group's name. */\n\tlabel?: string\n\t/** Stacked. */\n\tvertical = false\n\n\t/** The box a child draws: its shadow root's root when its host lays out nothing, else the child itself. */\n\tprivate box(child: HTMLElement) {\n\t\tconst root = child.shadowRoot\n\t\tif (root && getComputedStyle(child).display === 'contents') return root.querySelector<HTMLElement>('[data-ds]') ?? child\n\t\treturn child\n\t}\n\n\tprivate async mark() {\n\t\tconst kids = [...this.children] as HTMLElement[]\n\t\t// Library elements draw their roots once defined and rendered.\n\t\tawait Promise.all(kids.filter((k) => k.localName.includes('-')).map(async (k) => {\n\t\t\tawait customElements.whenDefined(k.localName)\n\t\t\tawait (k as HTMLElement & { updateComplete?: Promise<unknown> }).updateComplete\n\t\t}))\n\t\tconst axis = this.vertical ? 'y' : 'x'\n\t\tkids.forEach((k, i) => {\n\t\t\tif (k.shadowRoot && this.box(k) !== k) adoptChildRules(k.shadowRoot)\n\t\t\tconst marks = [i > 0 ? `after-${axis}` : '', i < kids.length - 1 ? `before-${axis}` : ''].filter(Boolean)\n\t\t\tk.setAttribute('data-group', marks.join(' '))\n\t\t})\n\t}\n\n\tprotected updated() {\n\t\tvoid this.mark()\n\t}\n\n\trender() {\n\t\treturn html`<div data-ds=\"button-group\" class=\"ds-btngroup\" role=\"group\" aria-label=${ifDefined(this.label)} ?data-vertical=${this.vertical}><slot @slotchange=${() => void this.mark()}></slot></div>`\n\t}\n}\n\ndefine('button-group', ButtonGroup)\n"
+        },
+        {
+          "path": "elements/components/ui/button-group.css",
+          "content": "/* ButtonGroup.tsx's styles, for the group's own box. React's rules for its children (`.ds-btngroup > *`) cannot reach\n   the boxes the library's elements draw in their own shadow roots, so the element marks each child (data-group) and\n   these rules, with the ones it gives each child's shadow root, draw what React's do. */\n.ds-btngroup { display: inline-flex; align-items: stretch; gap: var(--ds-border-hairline); }\n.ds-btngroup[data-vertical] { flex-direction: column; }\n/* A child that is its own box (a native field). The page's reset outranks ::slotted, so the corners are important. */\n::slotted(*) { position: relative; }\n::slotted(:is(:hover, :focus-visible, :focus-within)) { z-index: 1; }\n::slotted([data-group~=\"after-x\"]) { border-start-start-radius: 0 !important; border-end-start-radius: 0 !important; }\n::slotted([data-group~=\"before-x\"]) { border-start-end-radius: 0 !important; border-end-end-radius: 0 !important; }\n::slotted([data-group~=\"after-y\"]) { border-start-start-radius: 0 !important; border-start-end-radius: 0 !important; }\n::slotted([data-group~=\"before-y\"]) { border-end-start-radius: 0 !important; border-end-end-radius: 0 !important; }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/button-group.js",
+        "elements/button.js",
+        "elements/input.js"
+      ],
+      "tag": "spyglass-button-group",
+      "tags": [
+        "spyglass-button-group"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-button-group",
+            "name": "ButtonGroup",
+            "module": "elements/button-group.js",
+            "description": "Buttons that belong together, joined into one block.",
+            "attributes": [
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string | undefined",
+                "description": "The group's name."
+              },
+              {
+                "name": "vertical",
+                "field": "vertical",
+                "type": "boolean",
+                "default": "false",
+                "description": "Stacked."
+              }
+            ],
+            "properties": [
+              {
+                "name": "label",
+                "type": "string | undefined",
+                "description": "The group's name.",
+                "attribute": "label"
+              },
+              {
+                "name": "vertical",
+                "type": "boolean",
+                "default": "false",
+                "description": "Stacked.",
+                "attribute": "vertical"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The buttons (or a field with its button)."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Toolbar",
+          "label": "Toolbar",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/button-group/Toolbar.html",
+          "content": "<!-- A results toolbar: paging, the two views, and a save button with its menu arrow, each set joined into one block. -->\n<div class=\"flex flex-wrap items-center justify-center gap-3\">\n  <spyglass-button-group label=\"Pages\">\n    <spyglass-button variant=\"secondary\" icon aria-label=\"Previous page\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-chevron-left\" aria-hidden=\"true\"><path d=\"m15 18-6-6 6-6\"></path></svg></spyglass-button>\n    <spyglass-button variant=\"secondary\" icon aria-label=\"Next page\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-chevron-right\" aria-hidden=\"true\"><path d=\"m9 18 6-6-6-6\"></path></svg></spyglass-button>\n  </spyglass-button-group>\n  <spyglass-button-group label=\"View\">\n    <spyglass-button variant=\"secondary\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-layout-grid\" aria-hidden=\"true\"><rect width=\"7\" height=\"7\" x=\"3\" y=\"3\" rx=\"1\"></rect><rect width=\"7\" height=\"7\" x=\"14\" y=\"3\" rx=\"1\"></rect><rect width=\"7\" height=\"7\" x=\"14\" y=\"14\" rx=\"1\"></rect><rect width=\"7\" height=\"7\" x=\"3\" y=\"14\" rx=\"1\"></rect></svg>Grid</spyglass-button>\n    <spyglass-button variant=\"secondary\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-rows-3\" aria-hidden=\"true\"><rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"></rect><path d=\"M21 9H3\"></path><path d=\"M21 15H3\"></path></svg>Rows</spyglass-button>\n  </spyglass-button-group>\n  <spyglass-button-group label=\"Save\">\n    <spyglass-button variant=\"secondary\">Save to board</spyglass-button>\n    <spyglass-button variant=\"secondary\" icon aria-label=\"Choose a board\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-chevron-down\" aria-hidden=\"true\"><path d=\"m6 9 6 6 6-6\"></path></svg></spyglass-button>\n  </spyglass-button-group>\n</div>\n"
+        },
+        {
+          "name": "Field",
+          "label": "A field and a stack",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/button-group/Field.html",
+          "content": "<!-- A field with its button, and a stack of secondary buttons. -->\n<div class=\"flex w-120 max-w-full flex-col items-center gap-6\">\n  <spyglass-button-group label=\"Invite\" class=\"w-full\">\n    <spyglass-input aria-label=\"Email\" placeholder=\"team@acme.com\"></spyglass-input>\n    <spyglass-button>Invite</spyglass-button>\n  </spyglass-button-group>\n  <spyglass-button-group label=\"Sort\" vertical>\n    <spyglass-button variant=\"secondary\">Newest</spyglass-button>\n    <spyglass-button variant=\"secondary\">Longest running</spyglass-button>\n    <spyglass-button variant=\"secondary\">Most engagement</spyglass-button>\n  </spyglass-button-group>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

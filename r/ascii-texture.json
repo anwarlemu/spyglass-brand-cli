@@ -1,0 +1,300 @@
+{
+  "name": "ascii-texture",
+  "title": "ASCII texture",
+  "type": "registry:ui",
+  "group": "visuals",
+  "description": "The brand's ASCII texture, generated: Geist Mono characters from \" .:-=+*#\" read off a soft heat map, White at 0.35 opacity on Black. Seeded, with areas kept clear.",
+  "use_for": "A quiet grain behind the light and around the content of a hero, a post or a deck slide, where the light fades out.",
+  "never": [
+    "As the main graphic",
+    "Over text, the logo or a photo: keep those areas clear",
+    "At full opacity, or in a color"
+  ],
+  "source": "Brand guidelines page 34 (ASCII texture); Figma page 8: ASCII texture (native) text layers, Geist Mono 13.333px at 1.2, opacity 0.35",
+  "body": "",
+  "requires": [
+    "brand-light"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/visuals/AsciiTexture.tsx",
+      "content": "import type { CSSProperties } from 'react'\nimport { ASCII_FONT, asciiGrid, asciiLines, asciiText, type AsciiRect } from '@/lib/ascii'\nimport { cn } from '@/react/lib/cn'\n\n// The ASCII texture, drawn from the seeded generator (lib/ascii.ts): Geist Mono characters from \" .:-=+*#\" off a soft\n// heat map, White at 0.35 opacity. It keeps the frame's proportions, or with `cover` fills the box its classes give it\n// (`absolute inset-0` behind a section), and sits behind the light.\n// `clear` keeps areas free (text, the logo, photos), in the frame's px; the texture fades out around them. An accent,\n// never the main graphic. Decoration: hidden from assistive tech.\nexport interface AsciiTextureProps {\n  seed?: number\n  /** How much of the frame is covered, 0 to 1. */\n  density?: number\n  /** The frame it is drawn for, in px (13.333px characters at 1080 wide). */\n  width?: number\n  height?: number\n  /** Areas to keep clear, in the frame's px. */\n  clear?: AsciiRect[]\n  /** Fill the box the classes give it instead of keeping the frame's proportions. */\n  cover?: boolean\n  className?: string\n}\n\nexport function AsciiTexture({ seed = 0, density = 0.5, width = 1080, height = 1080, clear = [], cover = false, className }: AsciiTextureProps) {\n  const { cols, rows, cw, lh } = asciiGrid(width, height)\n  const lines = asciiLines({ cols, rows, seed, density, clear: clear.map((r) => ({ x: r.x / cw, y: r.y / lh, w: r.w / cw, h: r.h / lh })) })\n  const style: CSSProperties | undefined = cover ? undefined : { aspectRatio: `${width} / ${height}` }\n  return (\n    <div data-ds=\"ascii-texture\" aria-hidden=\"true\" style={style} className={cn('pointer-events-none overflow-hidden', className)}>\n      <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio=\"xMidYMid slice\" className=\"block size-full fill-fg font-code\">\n        <g fillOpacity={ASCII_FONT.opacity} fontSize={ASCII_FONT.size} xmlSpace=\"preserve\" className=\"whitespace-pre\">\n          {lines.map((line, j) => (line.trim() ? <text key={j} x={0} y={Math.round((j * lh + ASCII_FONT.size * 0.95) * 1000) / 1000}>{asciiText(line)}</text> : null))}\n        </g>\n      </svg>\n    </div>\n  )\n}\n\nexport default AsciiTexture\n"
+    },
+    {
+      "path": "lib/ascii.ts",
+      "content": "// The ASCII texture: a field of Geist Mono characters from the ramp \" .:-=+*#\", read off a soft heat map, set in White\n// at 0.35 opacity on Black. In the brand assets it is a text layer 13.333px with a 1.2 line height (8px advance, 16px\n// lines on the 1080px canvas): soft clusters, dense at their cores (# and *) and thinning to . and : at their edges,\n// kept clear of text, the logo and photos. Deterministic: the same options give the same characters everywhere.\nimport { seeded } from '@/lib/light'\n\nexport const ASCII_RAMP = ' .:-=+*#'\n/** Geist Mono at the canvas size: 13.333px, line height 1.2, advance 0.6em. */\nexport const ASCII_FONT = { size: 13.333, leading: 1.2, advance: 0.6, opacity: 0.35 }\n\nexport interface AsciiRect { x: number; y: number; w: number; h: number }\n\n/** A line as SVG text draws it: spaces as no-break spaces (the same advance in a monospace face), so leading and\n * repeated spaces keep their width in every renderer instead of collapsing. */\nexport const asciiText = (line: string) => line.replace(/ /g, '\\u00a0')\n\nexport interface AsciiOptions {\n\t/** Columns and rows of characters. */\n\tcols: number\n\trows: number\n\tseed?: number\n\t/** How much of the field is covered, 0 to 1 (default 0.5, as the brand assets). */\n\tdensity?: number\n\t/** Areas to keep clear (text, the logo, photos), in cells; the texture fades out around them. */\n\tclear?: AsciiRect[]\n}\n\n/** Smooth step from 0 at a to 1 at b. */\nconst smooth = (a: number, b: number, x: number) => {\n\tconst t = Math.min(1, Math.max(0, (x - a) / (b - a)))\n\treturn t * t * (3 - 2 * t)\n}\n\n/** The texture as lines of text, `rows` lines of `cols` characters. */\nexport function asciiLines(options: AsciiOptions): string[] {\n\tconst { cols, rows } = options\n\tconst seed = Math.trunc(options.seed ?? 0)\n\tconst density = Math.min(1, Math.max(0, options.density ?? 0.5))\n\tif (!(cols > 0 && rows > 0)) throw new Error('asciiLines needs cols and rows above 0')\n\tconst rnd = seeded(seed * 31337 + 3)\n\t// Clusters: wide, low ellipses (characters are twice as tall as wide, and the brand's clusters run sideways).\n\tconst count = Math.max(2, Math.round(((cols * rows) / 1500) * (0.3 + density)))\n\tconst blobs = Array.from({ length: count }, () => ({\n\t\tx: rnd() * cols,\n\t\ty: rnd() * rows,\n\t\tsx: 4 + rnd() * 11,\n\t\tsy: 1.5 + rnd() * 3,\n\t\ta: 0.65 + rnd() * 0.7,\n\t\ttilt: (rnd() - 0.5) * 0.5,\n\t}))\n\t// Grain: a per-cell hash, so cores break into \"### ##\" as the brand's do.\n\tconst grain = (i: number, j: number) => {\n\t\tlet h = Math.imul(i + 1, 374761393) + Math.imul(j + 1, 668265263) + Math.imul(seed + 7, 1442695041)\n\t\th = Math.imul(h ^ (h >>> 13), 1274126177)\n\t\treturn ((h ^ (h >>> 16)) >>> 0) / 4294967296\n\t}\n\tconst lines: string[] = []\n\tfor (let j = 0; j < rows; j++) {\n\t\tlet line = ''\n\t\tfor (let i = 0; i < cols; i++) {\n\t\t\tlet v = 0\n\t\t\tfor (const b of blobs) {\n\t\t\t\tconst dx = i - b.x\n\t\t\t\tconst dy = j - b.y + dx * b.tilt * 0.1\n\t\t\t\tv += b.a * Math.exp(-((dx * dx) / (2 * b.sx * b.sx) + (dy * dy) / (2 * b.sy * b.sy)))\n\t\t\t}\n\t\t\t// Soft edges at the frame and around the clear areas.\n\t\t\tlet keep = 1\n\t\t\tfor (const r of options.clear ?? []) {\n\t\t\t\tconst dx = Math.max(r.x - i, 0, i - (r.x + r.w))\n\t\t\t\tconst dy = Math.max(r.y - j, 0, j - (r.y + r.h)) * 2\n\t\t\t\tkeep = Math.min(keep, smooth(0, 6, Math.hypot(dx, dy)))\n\t\t\t}\n\t\t\tv = Math.min(1.2, v) * keep\n\t\t\tconst g = grain(i, j)\n\t\t\tv += (g - 0.5) * 0.3\n\t\t\t// A few stray dots on the empty ground, as the brand's texture has.\n\t\t\tconst k = v < 0.2 ? (g > 0.994 && keep > 0.9 ? 1 : 0) : Math.min(ASCII_RAMP.length - 1, Math.floor(((v - 0.2) / 0.8) * (ASCII_RAMP.length - 1)) + 1)\n\t\t\tline += ASCII_RAMP[k]\n\t\t}\n\t\tlines.push(line.replace(/\\s+$/, ''))\n\t}\n\treturn lines\n}\n\nexport interface AsciiSvgOptions extends Omit<AsciiOptions, 'cols' | 'rows'> {\n\twidth: number\n\theight: number\n\t/** Character size in px (default 13.333, the canvas size). */\n\tsize?: number\n\t/** Paint the Black ground (default false: the texture sits behind the light on a page that is already Black). */\n\tground?: boolean\n\t/** The font family to name (default \"Geist Mono\"). */\n\tfont?: string\n\t/** Areas to keep clear, in pixels. */\n\tclearPx?: AsciiRect[]\n}\n\n/** The grid for a frame: how many characters fit across and down at a size. */\nexport function asciiGrid(width: number, height: number, size = ASCII_FONT.size) {\n\tconst cw = size * ASCII_FONT.advance\n\tconst lh = size * ASCII_FONT.leading\n\treturn { cols: Math.ceil(width / cw), rows: Math.ceil(height / lh), cw, lh }\n}\n\nconst esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')\nconst num = (n: number) => String(Math.round(n * 1000) / 1000)\n\n/** The texture as a standalone SVG: one <text> per row, White at 0.35 opacity. */\nexport function asciiSvg(options: AsciiSvgOptions): string {\n\tconst size = options.size ?? ASCII_FONT.size\n\tconst { cols, rows, cw, lh } = asciiGrid(options.width, options.height, size)\n\tconst clear = [...(options.clear ?? []), ...(options.clearPx ?? []).map((r) => ({ x: r.x / cw, y: r.y / lh, w: r.w / cw, h: r.h / lh }))]\n\tconst lines = asciiLines({ cols, rows, seed: options.seed, density: options.density, clear })\n\tconst font = options.font ?? 'Geist Mono'\n\tconst ground = options.ground ? `<rect width=\"${num(options.width)}\" height=\"${num(options.height)}\" fill=\"#000000\"/>` : ''\n\tconst text = lines.map((l, j) => (l.trim() ? `<text x=\"0\" y=\"${num(j * lh + size * 0.95)}\">${esc(asciiText(l))}</text>` : '')).join('')\n\treturn `<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"${num(options.width)}\" height=\"${num(options.height)}\" viewBox=\"0 0 ${num(options.width)} ${num(options.height)}\">${ground}<g fill=\"#FFFFFF\" fill-opacity=\"${ASCII_FONT.opacity}\" font-family=\"${font}, ui-monospace, monospace\" font-size=\"${num(size)}\" xml:space=\"preserve\" style=\"white-space:pre\">${text}</g></svg>`\n}\n\n/** The parts of a 2D canvas context drawAscii uses. */\nexport interface AsciiCanvas {\n\tsave(): void\n\trestore(): void\n\tfillText(text: string, x: number, y: number): void\n\tfont: string\n\tfillStyle: unknown\n\tglobalAlpha: number\n\ttextBaseline: string\n}\n\n/** Paints the texture onto a canvas (its font must be loaded). */\nexport function drawAscii(ctx: AsciiCanvas, lines: string[], size = ASCII_FONT.size, font = 'Geist Mono') {\n\tctx.save()\n\tctx.font = `${size}px \"${font}\", ui-monospace, monospace`\n\tctx.fillStyle = '#FFFFFF'\n\tctx.globalAlpha = ASCII_FONT.opacity\n\tctx.textBaseline = 'alphabetic'\n\tlines.forEach((l, j) => ctx.fillText(l, 0, j * size * ASCII_FONT.leading + size * 0.95))\n\tctx.restore()\n}\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Field",
+      "label": "A field",
+      "center": false,
+      "half": false,
+      "path": "react/examples/ascii-texture/Field.tsx",
+      "content": "import { AsciiTexture } from '@/react/components/visuals/AsciiTexture'\n// The texture on its own, at the canvas size.\n\nexport default function Field() {\n  return <AsciiTexture seed={4} width={1080} height={540} className=\"w-full rounded-container bg-surface\" />\n}\n",
+      "requires": [
+        "brand-light"
+      ],
+      "packages": []
+    },
+    {
+      "name": "Clear",
+      "label": "Clear around a headline",
+      "center": false,
+      "half": false,
+      "path": "react/examples/ascii-texture/Clear.tsx",
+      "content": "import { AsciiTexture } from '@/react/components/visuals/AsciiTexture'\nimport { BrandLight } from '@/react/components/visuals/BrandLight'\n// Behind the light and a headline, with the headline's area kept clear.\n\nexport default function Clear() {\n  return (\n    <div className=\"relative aspect-[2/1] w-full overflow-hidden rounded-container bg-surface\">\n      <BrandLight variant=\"field\" seed={0} cover className=\"absolute inset-0 size-full\" />\n      <AsciiTexture seed={9} width={1080} height={540} clear={[{ x: 80, y: 300, w: 640, h: 180 }]} cover className=\"absolute inset-0 size-full\" />\n      <h2 className=\"absolute bottom-[9%] left-[7%] max-w-[60%] type-hero max-sm:type-heading-3\">Stop screenshotting at midnight.</h2>\n    </div>\n  )\n}\n",
+      "requires": [
+        "brand-light"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/visuals/AsciiTexture.tsx",
+          "content": "import type { CSSProperties } from 'react'\nimport { ASCII_FONT, asciiGrid, asciiLines, asciiText, type AsciiRect } from '@/lib/ascii'\nimport { cn } from '@/react/lib/cn'\n\n// The ASCII texture, drawn from the seeded generator (lib/ascii.ts): Geist Mono characters from \" .:-=+*#\" off a soft\n// heat map, White at 0.35 opacity. It keeps the frame's proportions, or with `cover` fills the box its classes give it\n// (`absolute inset-0` behind a section), and sits behind the light.\n// `clear` keeps areas free (text, the logo, photos), in the frame's px; the texture fades out around them. An accent,\n// never the main graphic. Decoration: hidden from assistive tech.\nexport interface AsciiTextureProps {\n  seed?: number\n  /** How much of the frame is covered, 0 to 1. */\n  density?: number\n  /** The frame it is drawn for, in px (13.333px characters at 1080 wide). */\n  width?: number\n  height?: number\n  /** Areas to keep clear, in the frame's px. */\n  clear?: AsciiRect[]\n  /** Fill the box the classes give it instead of keeping the frame's proportions. */\n  cover?: boolean\n  className?: string\n}\n\nexport function AsciiTexture({ seed = 0, density = 0.5, width = 1080, height = 1080, clear = [], cover = false, className }: AsciiTextureProps) {\n  const { cols, rows, cw, lh } = asciiGrid(width, height)\n  const lines = asciiLines({ cols, rows, seed, density, clear: clear.map((r) => ({ x: r.x / cw, y: r.y / lh, w: r.w / cw, h: r.h / lh })) })\n  const style: CSSProperties | undefined = cover ? undefined : { aspectRatio: `${width} / ${height}` }\n  return (\n    <div data-ds=\"ascii-texture\" aria-hidden=\"true\" style={style} className={cn('pointer-events-none overflow-hidden', className)}>\n      <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio=\"xMidYMid slice\" className=\"block size-full fill-fg font-code\">\n        <g fillOpacity={ASCII_FONT.opacity} fontSize={ASCII_FONT.size} xmlSpace=\"preserve\" className=\"whitespace-pre\">\n          {lines.map((line, j) => (line.trim() ? <text key={j} x={0} y={Math.round((j * lh + ASCII_FONT.size * 0.95) * 1000) / 1000}>{asciiText(line)}</text> : null))}\n        </g>\n      </svg>\n    </div>\n  )\n}\n\nexport default AsciiTexture\n"
+        },
+        {
+          "path": "lib/ascii.ts",
+          "content": "// The ASCII texture: a field of Geist Mono characters from the ramp \" .:-=+*#\", read off a soft heat map, set in White\n// at 0.35 opacity on Black. In the brand assets it is a text layer 13.333px with a 1.2 line height (8px advance, 16px\n// lines on the 1080px canvas): soft clusters, dense at their cores (# and *) and thinning to . and : at their edges,\n// kept clear of text, the logo and photos. Deterministic: the same options give the same characters everywhere.\nimport { seeded } from '@/lib/light'\n\nexport const ASCII_RAMP = ' .:-=+*#'\n/** Geist Mono at the canvas size: 13.333px, line height 1.2, advance 0.6em. */\nexport const ASCII_FONT = { size: 13.333, leading: 1.2, advance: 0.6, opacity: 0.35 }\n\nexport interface AsciiRect { x: number; y: number; w: number; h: number }\n\n/** A line as SVG text draws it: spaces as no-break spaces (the same advance in a monospace face), so leading and\n * repeated spaces keep their width in every renderer instead of collapsing. */\nexport const asciiText = (line: string) => line.replace(/ /g, '\\u00a0')\n\nexport interface AsciiOptions {\n\t/** Columns and rows of characters. */\n\tcols: number\n\trows: number\n\tseed?: number\n\t/** How much of the field is covered, 0 to 1 (default 0.5, as the brand assets). */\n\tdensity?: number\n\t/** Areas to keep clear (text, the logo, photos), in cells; the texture fades out around them. */\n\tclear?: AsciiRect[]\n}\n\n/** Smooth step from 0 at a to 1 at b. */\nconst smooth = (a: number, b: number, x: number) => {\n\tconst t = Math.min(1, Math.max(0, (x - a) / (b - a)))\n\treturn t * t * (3 - 2 * t)\n}\n\n/** The texture as lines of text, `rows` lines of `cols` characters. */\nexport function asciiLines(options: AsciiOptions): string[] {\n\tconst { cols, rows } = options\n\tconst seed = Math.trunc(options.seed ?? 0)\n\tconst density = Math.min(1, Math.max(0, options.density ?? 0.5))\n\tif (!(cols > 0 && rows > 0)) throw new Error('asciiLines needs cols and rows above 0')\n\tconst rnd = seeded(seed * 31337 + 3)\n\t// Clusters: wide, low ellipses (characters are twice as tall as wide, and the brand's clusters run sideways).\n\tconst count = Math.max(2, Math.round(((cols * rows) / 1500) * (0.3 + density)))\n\tconst blobs = Array.from({ length: count }, () => ({\n\t\tx: rnd() * cols,\n\t\ty: rnd() * rows,\n\t\tsx: 4 + rnd() * 11,\n\t\tsy: 1.5 + rnd() * 3,\n\t\ta: 0.65 + rnd() * 0.7,\n\t\ttilt: (rnd() - 0.5) * 0.5,\n\t}))\n\t// Grain: a per-cell hash, so cores break into \"### ##\" as the brand's do.\n\tconst grain = (i: number, j: number) => {\n\t\tlet h = Math.imul(i + 1, 374761393) + Math.imul(j + 1, 668265263) + Math.imul(seed + 7, 1442695041)\n\t\th = Math.imul(h ^ (h >>> 13), 1274126177)\n\t\treturn ((h ^ (h >>> 16)) >>> 0) / 4294967296\n\t}\n\tconst lines: string[] = []\n\tfor (let j = 0; j < rows; j++) {\n\t\tlet line = ''\n\t\tfor (let i = 0; i < cols; i++) {\n\t\t\tlet v = 0\n\t\t\tfor (const b of blobs) {\n\t\t\t\tconst dx = i - b.x\n\t\t\t\tconst dy = j - b.y + dx * b.tilt * 0.1\n\t\t\t\tv += b.a * Math.exp(-((dx * dx) / (2 * b.sx * b.sx) + (dy * dy) / (2 * b.sy * b.sy)))\n\t\t\t}\n\t\t\t// Soft edges at the frame and around the clear areas.\n\t\t\tlet keep = 1\n\t\t\tfor (const r of options.clear ?? []) {\n\t\t\t\tconst dx = Math.max(r.x - i, 0, i - (r.x + r.w))\n\t\t\t\tconst dy = Math.max(r.y - j, 0, j - (r.y + r.h)) * 2\n\t\t\t\tkeep = Math.min(keep, smooth(0, 6, Math.hypot(dx, dy)))\n\t\t\t}\n\t\t\tv = Math.min(1.2, v) * keep\n\t\t\tconst g = grain(i, j)\n\t\t\tv += (g - 0.5) * 0.3\n\t\t\t// A few stray dots on the empty ground, as the brand's texture has.\n\t\t\tconst k = v < 0.2 ? (g > 0.994 && keep > 0.9 ? 1 : 0) : Math.min(ASCII_RAMP.length - 1, Math.floor(((v - 0.2) / 0.8) * (ASCII_RAMP.length - 1)) + 1)\n\t\t\tline += ASCII_RAMP[k]\n\t\t}\n\t\tlines.push(line.replace(/\\s+$/, ''))\n\t}\n\treturn lines\n}\n\nexport interface AsciiSvgOptions extends Omit<AsciiOptions, 'cols' | 'rows'> {\n\twidth: number\n\theight: number\n\t/** Character size in px (default 13.333, the canvas size). */\n\tsize?: number\n\t/** Paint the Black ground (default false: the texture sits behind the light on a page that is already Black). */\n\tground?: boolean\n\t/** The font family to name (default \"Geist Mono\"). */\n\tfont?: string\n\t/** Areas to keep clear, in pixels. */\n\tclearPx?: AsciiRect[]\n}\n\n/** The grid for a frame: how many characters fit across and down at a size. */\nexport function asciiGrid(width: number, height: number, size = ASCII_FONT.size) {\n\tconst cw = size * ASCII_FONT.advance\n\tconst lh = size * ASCII_FONT.leading\n\treturn { cols: Math.ceil(width / cw), rows: Math.ceil(height / lh), cw, lh }\n}\n\nconst esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')\nconst num = (n: number) => String(Math.round(n * 1000) / 1000)\n\n/** The texture as a standalone SVG: one <text> per row, White at 0.35 opacity. */\nexport function asciiSvg(options: AsciiSvgOptions): string {\n\tconst size = options.size ?? ASCII_FONT.size\n\tconst { cols, rows, cw, lh } = asciiGrid(options.width, options.height, size)\n\tconst clear = [...(options.clear ?? []), ...(options.clearPx ?? []).map((r) => ({ x: r.x / cw, y: r.y / lh, w: r.w / cw, h: r.h / lh }))]\n\tconst lines = asciiLines({ cols, rows, seed: options.seed, density: options.density, clear })\n\tconst font = options.font ?? 'Geist Mono'\n\tconst ground = options.ground ? `<rect width=\"${num(options.width)}\" height=\"${num(options.height)}\" fill=\"#000000\"/>` : ''\n\tconst text = lines.map((l, j) => (l.trim() ? `<text x=\"0\" y=\"${num(j * lh + size * 0.95)}\">${esc(asciiText(l))}</text>` : '')).join('')\n\treturn `<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"${num(options.width)}\" height=\"${num(options.height)}\" viewBox=\"0 0 ${num(options.width)} ${num(options.height)}\">${ground}<g fill=\"#FFFFFF\" fill-opacity=\"${ASCII_FONT.opacity}\" font-family=\"${font}, ui-monospace, monospace\" font-size=\"${num(size)}\" xml:space=\"preserve\" style=\"white-space:pre\">${text}</g></svg>`\n}\n\n/** The parts of a 2D canvas context drawAscii uses. */\nexport interface AsciiCanvas {\n\tsave(): void\n\trestore(): void\n\tfillText(text: string, x: number, y: number): void\n\tfont: string\n\tfillStyle: unknown\n\tglobalAlpha: number\n\ttextBaseline: string\n}\n\n/** Paints the texture onto a canvas (its font must be loaded). */\nexport function drawAscii(ctx: AsciiCanvas, lines: string[], size = ASCII_FONT.size, font = 'Geist Mono') {\n\tctx.save()\n\tctx.font = `${size}px \"${font}\", ui-monospace, monospace`\n\tctx.fillStyle = '#FFFFFF'\n\tctx.globalAlpha = ASCII_FONT.opacity\n\tctx.textBaseline = 'alphabetic'\n\tlines.forEach((l, j) => ctx.fillText(l, 0, j * size * ASCII_FONT.leading + size * 0.95))\n\tctx.restore()\n}\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "brand-light"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "AsciiTexture",
+            "file": "react/components/visuals/AsciiTexture.tsx",
+            "props": [
+              {
+                "name": "seed",
+                "type": "number",
+                "required": false,
+                "default": "0"
+              },
+              {
+                "name": "density",
+                "type": "number",
+                "required": false,
+                "default": "0.5",
+                "description": "How much of the frame is covered, 0 to 1."
+              },
+              {
+                "name": "width",
+                "type": "number",
+                "required": false,
+                "default": "1080",
+                "description": "The frame it is drawn for, in px (13.333px characters at 1080 wide)."
+              },
+              {
+                "name": "height",
+                "type": "number",
+                "required": false,
+                "default": "1080"
+              },
+              {
+                "name": "clear",
+                "type": "AsciiRect[]",
+                "required": false,
+                "default": "[]",
+                "description": "Areas to keep clear, in the frame's px."
+              },
+              {
+                "name": "cover",
+                "type": "boolean",
+                "required": false,
+                "default": "false",
+                "description": "Fill the box the classes give it instead of keeping the frame's proportions."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Field",
+          "label": "A field",
+          "center": false,
+          "half": false,
+          "path": "react/examples/ascii-texture/Field.tsx",
+          "content": "import { AsciiTexture } from '@/react/components/visuals/AsciiTexture'\n// The texture on its own, at the canvas size.\n\nexport default function Field() {\n  return <AsciiTexture seed={4} width={1080} height={540} className=\"w-full rounded-container bg-surface\" />\n}\n",
+          "registryDependencies": [
+            "brand-light"
+          ],
+          "dependencies": []
+        },
+        {
+          "name": "Clear",
+          "label": "Clear around a headline",
+          "center": false,
+          "half": false,
+          "path": "react/examples/ascii-texture/Clear.tsx",
+          "content": "import { AsciiTexture } from '@/react/components/visuals/AsciiTexture'\nimport { BrandLight } from '@/react/components/visuals/BrandLight'\n// Behind the light and a headline, with the headline's area kept clear.\n\nexport default function Clear() {\n  return (\n    <div className=\"relative aspect-[2/1] w-full overflow-hidden rounded-container bg-surface\">\n      <BrandLight variant=\"field\" seed={0} cover className=\"absolute inset-0 size-full\" />\n      <AsciiTexture seed={9} width={1080} height={540} clear={[{ x: 80, y: 300, w: 640, h: 180 }]} cover className=\"absolute inset-0 size-full\" />\n      <h2 className=\"absolute bottom-[9%] left-[7%] max-w-[60%] type-hero max-sm:type-heading-3\">Stop screenshotting at midnight.</h2>\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "brand-light"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/visuals/ascii-texture.ts",
+          "content": "import { html, nothing, svg } from 'lit'\nimport { DsElement, define } from '@/elements/lib/element'\nimport { ASCII_FONT, asciiGrid, asciiLines, asciiText, type AsciiRect } from '@/lib/ascii'\nimport styles from 'virtual:tw'\n\n// AsciiTexture.tsx as <spyglass-ascii-texture>: Geist Mono characters from \" .:-=+*#\" off a soft heat map, White at\n// 0.35 opacity, from the seeded generator (lib/ascii.ts). The element is the box; it keeps the frame's proportions\n// unless `cover`. `clear` (a JSON list of {x, y, w, h} in the frame's px) keeps areas free. Decoration: aria-hidden.\n\n/**\n * @summary The ASCII texture, generated from a seed.\n */\nexport class AsciiTexture extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = {\n\t\tseed: { type: Number },\n\t\tdensity: { type: Number },\n\t\twidth: { type: Number },\n\t\theight: { type: Number },\n\t\tclear: { type: Array },\n\t\tcover: { type: Boolean },\n\t}\n\tseed = 0\n\t/** How much of the frame is covered, 0 to 1. */\n\tdensity = 0.5\n\t/** The frame it is drawn for, in px. */\n\twidth = 1080\n\theight = 1080\n\t/** Areas to keep clear, in the frame's px. */\n\tclear: AsciiRect[] = []\n\t/** Fill the box its classes give it instead of keeping the frame's proportions. */\n\tcover = false\n\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\tthis.setAttribute('aria-hidden', 'true')\n\t}\n\n\trender() {\n\t\tconst { cols, rows, cw, lh } = asciiGrid(this.width, this.height)\n\t\tconst lines = asciiLines({ cols, rows, seed: this.seed, density: this.density, clear: (this.clear ?? []).map((r) => ({ x: r.x / cw, y: r.y / lh, w: r.w / cw, h: r.h / lh })) })\n\t\tthis.style.aspectRatio = this.cover ? '' : `${this.width} / ${this.height}`\n\t\treturn html`<svg viewBox=\"0 0 ${this.width} ${this.height}\" preserveAspectRatio=\"xMidYMid slice\" class=\"block size-full fill-fg font-code\"><g fill-opacity=${ASCII_FONT.opacity} font-size=${ASCII_FONT.size} xml:space=\"preserve\" class=\"whitespace-pre\">${lines.map((line, j) => (line.trim() ? svg`<text x=\"0\" y=${Math.round((j * lh + ASCII_FONT.size * 0.95) * 1000) / 1000}>${asciiText(line)}</text>` : nothing))}</g></svg>`\n\t}\n}\n\ndefine('ascii-texture', AsciiTexture)\n"
+        },
+        {
+          "path": "elements/components/visuals/ascii-texture.css",
+          "content": "/* The element is the box, as AsciiTexture.tsx's root: the page's classes size and place it. */\n:host {\n  display: block;\n  overflow: hidden;\n  pointer-events: none;\n}\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/ascii-texture.js",
+        "elements/brand-light.js"
+      ],
+      "tag": "spyglass-ascii-texture",
+      "tags": [
+        "spyglass-ascii-texture"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-ascii-texture",
+            "name": "AsciiTexture",
+            "module": "elements/ascii-texture.js",
+            "description": "The ASCII texture, generated from a seed.",
+            "attributes": [
+              {
+                "name": "seed",
+                "field": "seed",
+                "type": "number",
+                "default": "0"
+              },
+              {
+                "name": "density",
+                "field": "density",
+                "type": "number",
+                "default": "0.5",
+                "description": "How much of the frame is covered, 0 to 1."
+              },
+              {
+                "name": "width",
+                "field": "width",
+                "type": "number",
+                "default": "1080",
+                "description": "The frame it is drawn for, in px."
+              },
+              {
+                "name": "height",
+                "field": "height",
+                "type": "number",
+                "default": "1080"
+              },
+              {
+                "name": "clear",
+                "field": "clear",
+                "type": "AsciiRect[]",
+                "default": "[]",
+                "description": "Areas to keep clear, in the frame's px."
+              },
+              {
+                "name": "cover",
+                "field": "cover",
+                "type": "boolean",
+                "default": "false",
+                "description": "Fill the box its classes give it instead of keeping the frame's proportions."
+              }
+            ],
+            "properties": [
+              {
+                "name": "seed",
+                "type": "number",
+                "default": "0",
+                "attribute": "seed"
+              },
+              {
+                "name": "density",
+                "type": "number",
+                "default": "0.5",
+                "description": "How much of the frame is covered, 0 to 1.",
+                "attribute": "density"
+              },
+              {
+                "name": "width",
+                "type": "number",
+                "default": "1080",
+                "description": "The frame it is drawn for, in px.",
+                "attribute": "width"
+              },
+              {
+                "name": "height",
+                "type": "number",
+                "default": "1080",
+                "attribute": "height"
+              },
+              {
+                "name": "clear",
+                "type": "AsciiRect[]",
+                "default": "[]",
+                "description": "Areas to keep clear, in the frame's px.",
+                "attribute": "clear"
+              },
+              {
+                "name": "cover",
+                "type": "boolean",
+                "default": "false",
+                "description": "Fill the box its classes give it instead of keeping the frame's proportions.",
+                "attribute": "cover"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Field",
+          "label": "A field",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/ascii-texture/Field.html",
+          "content": "<!-- The texture on its own, at the canvas size. -->\n<spyglass-ascii-texture seed=\"4\" width=\"1080\" height=\"540\" class=\"w-full rounded-container bg-surface\"></spyglass-ascii-texture>\n"
+        },
+        {
+          "name": "Clear",
+          "label": "Clear around a headline",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/ascii-texture/Clear.html",
+          "content": "<!-- Behind the light and a headline, with the headline's area kept clear. -->\n<div class=\"relative aspect-[2/1] w-full overflow-hidden rounded-container bg-surface\">\n  <spyglass-brand-light variant=\"field\" seed=\"0\" cover class=\"absolute inset-0 size-full\"></spyglass-brand-light>\n  <spyglass-ascii-texture seed=\"9\" width=\"1080\" height=\"540\" clear='[{\"x\":80,\"y\":300,\"w\":640,\"h\":180}]' cover class=\"absolute inset-0 size-full\"></spyglass-ascii-texture>\n  <h2 class=\"absolute bottom-[9%] left-[7%] max-w-[60%] type-hero max-sm:type-heading-3\">Stop screenshotting at midnight.</h2>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

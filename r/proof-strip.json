@@ -1,0 +1,172 @@
+{
+  "name": "proof-strip",
+  "title": "Proof strip",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "The site's proof marquee: marks in the muted gray moving left at a slow constant speed, fading out at both ends; under a mouse it stops and the mark under the pointer turns White; still with reduced motion.",
+  "use_for": "Showing who uses the product under a hero or a sign-in form, with marks you are allowed to show.",
+  "never": [
+    "Third-party logos without permission: the default marks are Acme wordmarks",
+    "Marks in their own colors: they are drawn in the muted gray",
+    "Marks that move or grow on hover"
+  ],
+  "source": "Site v3/V3Proof ProofStrip (V3Proof.module.css): three copies of the row moving one copy every 68s, linear; a 14% fade at each end; 32px slots 64px apart (48 on the sign-in page); --text-3 marks turning White on hover; paused on hover; none with reduced motion",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/ProofStrip.tsx",
+      "content": "import type { CSSProperties } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// The site's proof marquee (v3/V3Proof ProofStrip): a row of marks in the muted gray moving left at a constant, slow\n// speed (one copy every 68s, linear, as constant motion is), fading out at both ends over 14% of the row. Under a mouse\n// the row stops and the mark under the pointer turns White (color only; nothing moves). With reduced motion the row\n// holds still. The moving row is hidden from assistive tech; the names are listed once for it instead.\n// Marks come in through `logos`: an SVG or PNG `src` drawn as a mask in the gray (its own colors are not used), or,\n// with no `src`, the name set as a Funnel Display wordmark, so no third-party logo is ever drawn by default.\nexport interface ProofLogo {\n  name: string\n  /** The mark's file (SVG or PNG), drawn in the muted gray. Leave out to set the name as a wordmark. */\n  src?: string\n  /** Its width over its height. */\n  ratio?: number\n  /** Its height in px (16 to 32). */\n  height?: number\n}\n\nexport interface ProofStripProps {\n  logos?: ProofLogo[]\n  /** 48px between marks instead of 64 (the sign-in page's row). */\n  tight?: boolean\n  className?: string\n}\n\nexport const proofPlaceholders: ProofLogo[] = [{ name: 'Acme' }, { name: 'Acme Labs' }, { name: 'Acme Studio' }, { name: 'Acme Goods' }, { name: 'Acme Air' }, { name: 'Acme & Co' }]\n\nexport function ProofStrip({ logos = proofPlaceholders, tight = false, className }: ProofStripProps) {\n  return (\n    <div data-ds=\"proof-strip\" className={cn('w-full max-w-288', className)}>\n      <style href=\"ds-proof-strip\" precedence=\"ds\">{css}</style>\n      <ul className=\"sr-only\">{[...new Set(logos.map((l) => l.name))].map((name) => <li key={name}>{name}</li>)}</ul>\n      <div aria-hidden=\"true\" className=\"ds-proof-strip group/strip overflow-hidden\">\n        <ul role=\"list\" className=\"ds-proof-track flex w-max items-center\">\n          {[0, 1, 2].flatMap((copy) => logos.map((l, i) => (\n            <li key={`${copy}-${i}-${l.name}`} className={cn('group/mark grid h-8 flex-none place-items-center', tight ? 'px-6' : 'px-8')}>\n              {l.src\n                ? <span className=\"block bg-fg-muted transition-[background-color] duration-160 ease-out pointer-fine:group-hover/mark:bg-fg\" style={{ height: l.height ?? 24, width: (l.height ?? 24) * (l.ratio ?? 4), mask: `url(\"${l.src}\") center / contain no-repeat` } as CSSProperties} />\n                : <span className=\"type-heading-4 whitespace-nowrap text-fg-muted transition-[color] duration-160 ease-out pointer-fine:group-hover/mark:text-fg\">{l.name}</span>}\n            </li>\n          )))}\n        </ul>\n      </div>\n    </div>\n  )\n}\n\nexport default ProofStrip\n\nconst css = `\n.ds-proof-strip { mask-image: linear-gradient(to right, transparent, var(--ds-color-black) 14%, var(--ds-color-black) 86%, transparent); }\n.ds-proof-track { animation: ds-proof-strip 68s linear infinite; }\n@keyframes ds-proof-strip { to { transform: translateX(calc(-100% / 3)); } }\n@media (hover: hover) and (pointer: fine) { .ds-proof-strip:hover .ds-proof-track { animation-play-state: paused; } }\n@media (prefers-reduced-motion: reduce) { .ds-proof-track { animation: none; } }\n`\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Marks",
+      "label": "Acme placeholders",
+      "center": true,
+      "half": false,
+      "path": "react/examples/proof-strip/Marks.tsx",
+      "content": "import { ProofStrip } from '@/react/components/site/ProofStrip'\n// The marquee with Acme placeholder marks, set as wordmarks.\n\nexport default function Marks() {\n  return <ProofStrip />\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/ProofStrip.tsx",
+          "content": "import type { CSSProperties } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// The site's proof marquee (v3/V3Proof ProofStrip): a row of marks in the muted gray moving left at a constant, slow\n// speed (one copy every 68s, linear, as constant motion is), fading out at both ends over 14% of the row. Under a mouse\n// the row stops and the mark under the pointer turns White (color only; nothing moves). With reduced motion the row\n// holds still. The moving row is hidden from assistive tech; the names are listed once for it instead.\n// Marks come in through `logos`: an SVG or PNG `src` drawn as a mask in the gray (its own colors are not used), or,\n// with no `src`, the name set as a Funnel Display wordmark, so no third-party logo is ever drawn by default.\nexport interface ProofLogo {\n  name: string\n  /** The mark's file (SVG or PNG), drawn in the muted gray. Leave out to set the name as a wordmark. */\n  src?: string\n  /** Its width over its height. */\n  ratio?: number\n  /** Its height in px (16 to 32). */\n  height?: number\n}\n\nexport interface ProofStripProps {\n  logos?: ProofLogo[]\n  /** 48px between marks instead of 64 (the sign-in page's row). */\n  tight?: boolean\n  className?: string\n}\n\nexport const proofPlaceholders: ProofLogo[] = [{ name: 'Acme' }, { name: 'Acme Labs' }, { name: 'Acme Studio' }, { name: 'Acme Goods' }, { name: 'Acme Air' }, { name: 'Acme & Co' }]\n\nexport function ProofStrip({ logos = proofPlaceholders, tight = false, className }: ProofStripProps) {\n  return (\n    <div data-ds=\"proof-strip\" className={cn('w-full max-w-288', className)}>\n      <style href=\"ds-proof-strip\" precedence=\"ds\">{css}</style>\n      <ul className=\"sr-only\">{[...new Set(logos.map((l) => l.name))].map((name) => <li key={name}>{name}</li>)}</ul>\n      <div aria-hidden=\"true\" className=\"ds-proof-strip group/strip overflow-hidden\">\n        <ul role=\"list\" className=\"ds-proof-track flex w-max items-center\">\n          {[0, 1, 2].flatMap((copy) => logos.map((l, i) => (\n            <li key={`${copy}-${i}-${l.name}`} className={cn('group/mark grid h-8 flex-none place-items-center', tight ? 'px-6' : 'px-8')}>\n              {l.src\n                ? <span className=\"block bg-fg-muted transition-[background-color] duration-160 ease-out pointer-fine:group-hover/mark:bg-fg\" style={{ height: l.height ?? 24, width: (l.height ?? 24) * (l.ratio ?? 4), mask: `url(\"${l.src}\") center / contain no-repeat` } as CSSProperties} />\n                : <span className=\"type-heading-4 whitespace-nowrap text-fg-muted transition-[color] duration-160 ease-out pointer-fine:group-hover/mark:text-fg\">{l.name}</span>}\n            </li>\n          )))}\n        </ul>\n      </div>\n    </div>\n  )\n}\n\nexport default ProofStrip\n\nconst css = `\n.ds-proof-strip { mask-image: linear-gradient(to right, transparent, var(--ds-color-black) 14%, var(--ds-color-black) 86%, transparent); }\n.ds-proof-track { animation: ds-proof-strip 68s linear infinite; }\n@keyframes ds-proof-strip { to { transform: translateX(calc(-100% / 3)); } }\n@media (hover: hover) and (pointer: fine) { .ds-proof-strip:hover .ds-proof-track { animation-play-state: paused; } }\n@media (prefers-reduced-motion: reduce) { .ds-proof-track { animation: none; } }\n`\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "ProofStrip",
+            "file": "react/components/site/ProofStrip.tsx",
+            "props": [
+              {
+                "name": "logos",
+                "type": "ProofLogo[]",
+                "required": false,
+                "default": "proofPlaceholders"
+              },
+              {
+                "name": "tight",
+                "type": "boolean",
+                "required": false,
+                "default": "false",
+                "description": "48px between marks instead of 64 (the sign-in page's row)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Marks",
+          "label": "Acme placeholders",
+          "center": true,
+          "half": false,
+          "path": "react/examples/proof-strip/Marks.tsx",
+          "content": "import { ProofStrip } from '@/react/components/site/ProofStrip'\n// The marquee with Acme placeholder marks, set as wordmarks.\n\nexport default function Marks() {\n  return <ProofStrip />\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/proof-strip.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// ProofStrip.tsx as <spyglass-proof-strip>: the site's proof marquee, marks in the muted gray moving left at a constant\n// slow speed and fading at both ends; under a mouse it stops and the mark under the pointer turns White; still with\n// reduced motion. `logos` as JSON: { name, src?, ratio?, height? }; with no `src` the name is set as a wordmark.\n\nexport interface ProofLogo { name: string; src?: string; ratio?: number; height?: number }\nexport const proofPlaceholders: ProofLogo[] = [{ name: 'Acme' }, { name: 'Acme Labs' }, { name: 'Acme Studio' }, { name: 'Acme Goods' }, { name: 'Acme Air' }, { name: 'Acme & Co' }]\n\n/** @summary The proof marquee: marks moving slowly in a row that fades at its ends. */\nexport class ProofStrip extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"proof-strip\"]'))\n\tstatic properties = { logos: { type: Array }, tight: { type: Boolean } }\n\t/** The marks: { name, src?, ratio?, height? }. */\n\tlogos: ProofLogo[] = proofPlaceholders\n\t/** 48px between marks instead of 64 (the sign-in page's row). */\n\ttight = false\n\n\trender() {\n\t\tconst logos = this.logos ?? proofPlaceholders\n\t\treturn html`<div data-ds=\"proof-strip\" class=\"w-full max-w-288\"><ul class=\"sr-only\">${[...new Set(logos.map((l) => l.name))].map((name) => html`<li>${name}</li>`)}</ul><div aria-hidden=\"true\" class=\"ds-proof-strip group/strip overflow-hidden\"><ul role=\"list\" class=\"ds-proof-track flex w-max items-center\">${[0, 1, 2].flatMap(() => logos.map((l) => html`<li class=${`group/mark grid h-8 flex-none place-items-center ${this.tight ? 'px-6' : 'px-8'}`}>${l.src ? html`<span class=\"block bg-fg-muted transition-[background-color] duration-160 ease-out pointer-fine:group-hover/mark:bg-fg\" style=${`height: ${l.height ?? 24}px; width: ${(l.height ?? 24) * (l.ratio ?? 4)}px; mask: url(\"${l.src}\") center / contain no-repeat`}></span>` : html`<span class=\"type-heading-4 whitespace-nowrap text-fg-muted transition-[color] duration-160 ease-out pointer-fine:group-hover/mark:text-fg\">${l.name}</span>`}</li>`))}</ul></div></div>`\n\t}\n}\n\ndefine('proof-strip', ProofStrip)\n"
+        },
+        {
+          "path": "elements/components/site/proof-strip.css",
+          "content": ".ds-proof-strip { mask-image: linear-gradient(to right, transparent, var(--ds-color-black) 14%, var(--ds-color-black) 86%, transparent); }\n.ds-proof-track { animation: ds-proof-strip 68s linear infinite; }\n@keyframes ds-proof-strip { to { transform: translateX(calc(-100% / 3)); } }\n@media (hover: hover) and (pointer: fine) { .ds-proof-strip:hover .ds-proof-track { animation-play-state: paused; } }\n@media (prefers-reduced-motion: reduce) { .ds-proof-track { animation: none; } }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/proof-strip.js"
+      ],
+      "tag": "spyglass-proof-strip",
+      "tags": [
+        "spyglass-proof-strip"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-proof-strip",
+            "name": "ProofStrip",
+            "module": "elements/proof-strip.js",
+            "description": "The proof marquee: marks moving slowly in a row that fades at its ends.",
+            "attributes": [
+              {
+                "name": "logos",
+                "field": "logos",
+                "type": "ProofLogo[]",
+                "default": "proofPlaceholders",
+                "description": "The marks: { name, src?, ratio?, height? }."
+              },
+              {
+                "name": "tight",
+                "field": "tight",
+                "type": "boolean",
+                "default": "false",
+                "description": "48px between marks instead of 64 (the sign-in page's row)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "logos",
+                "type": "ProofLogo[]",
+                "default": "[{ name: 'Acme' }, { name: 'Acme Labs' }, { name: 'Acme Studio' }, { name: 'Acme Goods' }, { name: 'Acme Air' }, { name: 'Acme & Co' }]",
+                "description": "The marks: { name, src?, ratio?, height? }.",
+                "attribute": "logos"
+              },
+              {
+                "name": "tight",
+                "type": "boolean",
+                "default": "false",
+                "description": "48px between marks instead of 64 (the sign-in page's row).",
+                "attribute": "tight"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Marks",
+          "label": "Acme placeholders",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/proof-strip/Marks.html",
+          "content": "<!-- The marquee with Acme placeholder marks, set as wordmarks. -->\n<spyglass-proof-strip></spyglass-proof-strip>\n"
+        }
+      ]
+    }
+  }
+}

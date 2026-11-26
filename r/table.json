@@ -1,0 +1,210 @@
+{
+  "name": "table",
+  "title": "Table",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "Rows of one kind of thing on Black: heads as capital labels in muted DM Sans Medium, cells in DM Sans 14px, a #363636 hairline between rows and the ghost fill under the pointer. Framed, it sits in a hairline box with the brand corner. It scrolls sideways with fading edges inside the frame.",
+  "use_for": "Boards, tracked brands, ads with a few columns to compare. Numbers right-aligned in tabular figures; a total in the footer; a caption under it.",
+  "never": [
+    "A table for one record: use Item or a card",
+    "Zebra stripes, colored rows or shadows: the hairline separates",
+    "A scroll box a keyboard can't reach: give a framed table a label",
+    "Bold heads: labels are Medium in capitals with 6% tracking"
+  ],
+  "source": "Derived from the brand guidelines (no table in the brand assets): the label style for heads, DM Sans for cells, the neutral steps for hairlines, the plan card's fill for the footer",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Table.tsx",
+      "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// Rows of one kind of thing, on Black. Heads are labels: DM Sans Medium 12px in capitals with 6% tracking, muted, over\n// a #363636 hairline; cells are DM Sans 14px with a hairline between rows, and a row takes the ghost fill under the\n// pointer (160ms). Right-aligned cells (class text-right) take tabular figures. A footer row sits on the card's #262626\n// fill; a caption goes under the table in muted 12px. `framed` puts it in a hairline box with the brand corner and a\n// 16px inset at both ends. It scrolls sideways on its own, so a phone never scrolls the page, and an edge with more\n// past it fades (fade-x) inside the frame; with a `label` the scroll box is a named region a keyboard can reach. Write the <caption>, <thead>, <tbody> and <tfoot> as children;\n// mark a selected row with data-state=\"selected\".\nexport interface TableProps {\n  /** In a hairline box with the brand corner. */\n  framed?: boolean\n  /** Names the scroll box (a region a keyboard can reach). */\n  label?: string\n  className?: string\n  /** The table's caption, thead, tbody and tfoot. */\n  children?: ReactNode\n}\n\nexport function Table({ framed, label, className, children }: TableProps) {\n  return (\n    <>\n      <style href=\"ds-table\" precedence=\"ds\">{css}</style>\n      <div data-ds=\"table\" className={cn('relative w-full', framed && 'overflow-hidden rounded-container border border-edge', className)}>\n        <div className=\"w-full overflow-x-auto -outline-offset-2 fade-x\" role={label ? 'region' : undefined} aria-label={label} tabIndex={label ? 0 : undefined}>\n          <table className=\"ds-table\" data-framed={framed || undefined}>{children}</table>\n        </div>\n      </div>\n    </>\n  )\n}\n\nexport default Table\n\nconst css = `\n.ds-table { width: 100%; border-collapse: collapse; caption-side: bottom; color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); }\n.ds-table th { height: var(--ds-size-row); padding: 0 var(--ds-space-md); border-bottom: var(--ds-border-hairline) solid var(--ds-color-edge); color: var(--ds-color-fg-muted); font-size: var(--ds-text-label); line-height: var(--ds-text-label-leading); font-weight: var(--ds-font-weight-medium); letter-spacing: var(--ds-tracking-label); text-transform: uppercase; text-align: left; white-space: nowrap; vertical-align: middle; }\n.ds-table td { padding: var(--ds-space-md); border-bottom: var(--ds-border-hairline) solid var(--ds-color-edge); vertical-align: middle; }\n.ds-table :is(th, td).text-right { text-align: right; font-variant-numeric: tabular-nums; }\n.ds-table tbody tr:last-child td { border-bottom: 0; }\n.ds-table tbody tr { transition: background-color var(--ds-duration-micro) var(--ds-easing-standard); }\n@media (hover: hover) and (pointer: fine) { .ds-table tbody tr:hover { background: var(--ds-color-action-ghost-hover); } }\n.ds-table tbody tr[data-state=\"selected\"] { background: var(--ds-color-surface-subtle); }\n.ds-table tfoot td { border-top: var(--ds-border-hairline) solid var(--ds-color-edge); border-bottom: 0; background: var(--ds-color-surface-raised); font-weight: var(--ds-font-weight-medium); }\n.ds-table caption { margin-top: var(--ds-space-lg); color: var(--ds-color-fg-muted); font-size: var(--ds-text-caption); line-height: var(--ds-text-caption-leading); text-align: left; }\n.ds-table[data-framed] :is(th, td):first-child { padding-left: var(--ds-space-lg); }\n.ds-table[data-framed] :is(th, td):last-child { padding-right: var(--ds-space-lg); }\n.ds-table[data-framed] caption { padding: 0 var(--ds-space-lg) var(--ds-space-lg); }\n`\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Boards",
+      "label": "Boards with a total",
+      "center": false,
+      "half": false,
+      "path": "react/examples/table/Boards.tsx",
+      "content": "import { Table } from '@/react/components/ui/Table'\n// A workspace's boards: what each holds and when it last changed, with a total under them.\n\nconst BOARDS = [\n  { name: 'Acme hooks', creatives: 48, brands: 12, updated: 'Today' },\n  { name: 'Acme summer launch', creatives: 112, brands: 9, updated: 'Yesterday' },\n  { name: 'UGC openers', creatives: 36, brands: 21, updated: '3 days ago' },\n  { name: 'Price in the first line', creatives: 27, brands: 8, updated: 'Last week' },\n]\n\nexport default function Boards() {\n  return (\n    <Table>\n      <caption>Boards in the Acme workspace.</caption>\n      <thead>\n        <tr>\n          <th>Board</th>\n          <th className=\"text-right\">Creatives</th>\n          <th className=\"text-right\">Brands</th>\n          <th>Updated</th>\n        </tr>\n      </thead>\n      <tbody>\n        {BOARDS.map((b) => (\n          <tr key={b.name} data-state={b.name === 'Acme hooks' ? 'selected' : undefined}>\n            <td>{b.name}</td>\n            <td className=\"text-right\">{b.creatives}</td>\n            <td className=\"text-right\">{b.brands}</td>\n            <td className=\"text-fg-muted\">{b.updated}</td>\n          </tr>\n        ))}\n      </tbody>\n      <tfoot>\n        <tr>\n          <td>Total</td>\n          <td className=\"text-right\">223</td>\n          <td className=\"text-right\">50</td>\n          <td />\n        </tr>\n      </tfoot>\n    </Table>\n  )\n}\n",
+      "requires": [],
+      "packages": []
+    },
+    {
+      "name": "Tracked",
+      "label": "Framed with actions",
+      "center": false,
+      "half": false,
+      "path": "react/examples/table/Tracked.tsx",
+      "content": "import { Button } from '@/react/components/ui/Button'\nimport { Table } from '@/react/components/ui/Table'\n// Tracked brands in a hairline frame, each row with its action at the end; it scrolls sideways on a phone.\n\nconst BRANDS = [\n  { name: 'Acme', ads: 214, added: 'Jan 12' },\n  { name: 'Acme Studio', ads: 86, added: 'Feb 3' },\n  { name: 'Acme Goods', ads: 39, added: 'Mar 21' },\n]\n\nexport default function Tracked() {\n  return (\n    <Table framed label=\"Tracked brands\">\n      <thead>\n        <tr>\n          <th>Brand</th>\n          <th className=\"text-right\">Live ads</th>\n          <th>Tracked since</th>\n          <th><span className=\"sr-only\">Actions</span></th>\n        </tr>\n      </thead>\n      <tbody>\n        {BRANDS.map((b) => (\n          <tr key={b.name}>\n            <td>{b.name}</td>\n            <td className=\"text-right\">{b.ads}</td>\n            <td className=\"text-fg-muted\">{b.added}</td>\n            <td className=\"text-right\"><Button variant=\"secondary\" size=\"sm\">View ads</Button></td>\n          </tr>\n        ))}\n      </tbody>\n    </Table>\n  )\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Table.tsx",
+          "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// Rows of one kind of thing, on Black. Heads are labels: DM Sans Medium 12px in capitals with 6% tracking, muted, over\n// a #363636 hairline; cells are DM Sans 14px with a hairline between rows, and a row takes the ghost fill under the\n// pointer (160ms). Right-aligned cells (class text-right) take tabular figures. A footer row sits on the card's #262626\n// fill; a caption goes under the table in muted 12px. `framed` puts it in a hairline box with the brand corner and a\n// 16px inset at both ends. It scrolls sideways on its own, so a phone never scrolls the page, and an edge with more\n// past it fades (fade-x) inside the frame; with a `label` the scroll box is a named region a keyboard can reach. Write the <caption>, <thead>, <tbody> and <tfoot> as children;\n// mark a selected row with data-state=\"selected\".\nexport interface TableProps {\n  /** In a hairline box with the brand corner. */\n  framed?: boolean\n  /** Names the scroll box (a region a keyboard can reach). */\n  label?: string\n  className?: string\n  /** The table's caption, thead, tbody and tfoot. */\n  children?: ReactNode\n}\n\nexport function Table({ framed, label, className, children }: TableProps) {\n  return (\n    <>\n      <style href=\"ds-table\" precedence=\"ds\">{css}</style>\n      <div data-ds=\"table\" className={cn('relative w-full', framed && 'overflow-hidden rounded-container border border-edge', className)}>\n        <div className=\"w-full overflow-x-auto -outline-offset-2 fade-x\" role={label ? 'region' : undefined} aria-label={label} tabIndex={label ? 0 : undefined}>\n          <table className=\"ds-table\" data-framed={framed || undefined}>{children}</table>\n        </div>\n      </div>\n    </>\n  )\n}\n\nexport default Table\n\nconst css = `\n.ds-table { width: 100%; border-collapse: collapse; caption-side: bottom; color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); }\n.ds-table th { height: var(--ds-size-row); padding: 0 var(--ds-space-md); border-bottom: var(--ds-border-hairline) solid var(--ds-color-edge); color: var(--ds-color-fg-muted); font-size: var(--ds-text-label); line-height: var(--ds-text-label-leading); font-weight: var(--ds-font-weight-medium); letter-spacing: var(--ds-tracking-label); text-transform: uppercase; text-align: left; white-space: nowrap; vertical-align: middle; }\n.ds-table td { padding: var(--ds-space-md); border-bottom: var(--ds-border-hairline) solid var(--ds-color-edge); vertical-align: middle; }\n.ds-table :is(th, td).text-right { text-align: right; font-variant-numeric: tabular-nums; }\n.ds-table tbody tr:last-child td { border-bottom: 0; }\n.ds-table tbody tr { transition: background-color var(--ds-duration-micro) var(--ds-easing-standard); }\n@media (hover: hover) and (pointer: fine) { .ds-table tbody tr:hover { background: var(--ds-color-action-ghost-hover); } }\n.ds-table tbody tr[data-state=\"selected\"] { background: var(--ds-color-surface-subtle); }\n.ds-table tfoot td { border-top: var(--ds-border-hairline) solid var(--ds-color-edge); border-bottom: 0; background: var(--ds-color-surface-raised); font-weight: var(--ds-font-weight-medium); }\n.ds-table caption { margin-top: var(--ds-space-lg); color: var(--ds-color-fg-muted); font-size: var(--ds-text-caption); line-height: var(--ds-text-caption-leading); text-align: left; }\n.ds-table[data-framed] :is(th, td):first-child { padding-left: var(--ds-space-lg); }\n.ds-table[data-framed] :is(th, td):last-child { padding-right: var(--ds-space-lg); }\n.ds-table[data-framed] caption { padding: 0 var(--ds-space-lg) var(--ds-space-lg); }\n`\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Table",
+            "file": "react/components/ui/Table.tsx",
+            "props": [
+              {
+                "name": "framed",
+                "type": "boolean",
+                "required": false,
+                "description": "In a hairline box with the brand corner."
+              },
+              {
+                "name": "label",
+                "type": "string",
+                "required": false,
+                "description": "Names the scroll box (a region a keyboard can reach)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false,
+                "description": "The table's caption, thead, tbody and tfoot."
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Boards",
+          "label": "Boards with a total",
+          "center": false,
+          "half": false,
+          "path": "react/examples/table/Boards.tsx",
+          "content": "import { Table } from '@/react/components/ui/Table'\n// A workspace's boards: what each holds and when it last changed, with a total under them.\n\nconst BOARDS = [\n  { name: 'Acme hooks', creatives: 48, brands: 12, updated: 'Today' },\n  { name: 'Acme summer launch', creatives: 112, brands: 9, updated: 'Yesterday' },\n  { name: 'UGC openers', creatives: 36, brands: 21, updated: '3 days ago' },\n  { name: 'Price in the first line', creatives: 27, brands: 8, updated: 'Last week' },\n]\n\nexport default function Boards() {\n  return (\n    <Table>\n      <caption>Boards in the Acme workspace.</caption>\n      <thead>\n        <tr>\n          <th>Board</th>\n          <th className=\"text-right\">Creatives</th>\n          <th className=\"text-right\">Brands</th>\n          <th>Updated</th>\n        </tr>\n      </thead>\n      <tbody>\n        {BOARDS.map((b) => (\n          <tr key={b.name} data-state={b.name === 'Acme hooks' ? 'selected' : undefined}>\n            <td>{b.name}</td>\n            <td className=\"text-right\">{b.creatives}</td>\n            <td className=\"text-right\">{b.brands}</td>\n            <td className=\"text-fg-muted\">{b.updated}</td>\n          </tr>\n        ))}\n      </tbody>\n      <tfoot>\n        <tr>\n          <td>Total</td>\n          <td className=\"text-right\">223</td>\n          <td className=\"text-right\">50</td>\n          <td />\n        </tr>\n      </tfoot>\n    </Table>\n  )\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        },
+        {
+          "name": "Tracked",
+          "label": "Framed with actions",
+          "center": false,
+          "half": false,
+          "path": "react/examples/table/Tracked.tsx",
+          "content": "import { Button } from '@/react/components/ui/Button'\nimport { Table } from '@/react/components/ui/Table'\n// Tracked brands in a hairline frame, each row with its action at the end; it scrolls sideways on a phone.\n\nconst BRANDS = [\n  { name: 'Acme', ads: 214, added: 'Jan 12' },\n  { name: 'Acme Studio', ads: 86, added: 'Feb 3' },\n  { name: 'Acme Goods', ads: 39, added: 'Mar 21' },\n]\n\nexport default function Tracked() {\n  return (\n    <Table framed label=\"Tracked brands\">\n      <thead>\n        <tr>\n          <th>Brand</th>\n          <th className=\"text-right\">Live ads</th>\n          <th>Tracked since</th>\n          <th><span className=\"sr-only\">Actions</span></th>\n        </tr>\n      </thead>\n      <tbody>\n        {BRANDS.map((b) => (\n          <tr key={b.name}>\n            <td>{b.name}</td>\n            <td className=\"text-right\">{b.ads}</td>\n            <td className=\"text-fg-muted\">{b.added}</td>\n            <td className=\"text-right\"><Button variant=\"secondary\" size=\"sm\">View ads</Button></td>\n          </tr>\n        ))}\n      </tbody>\n    </Table>\n  )\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/table.ts",
+          "content": "import { html, type PropertyValues } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { DsElement, define, HostLayoutController, tagName } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Table.tsx as <spyglass-table>: it wraps the page's own <table> (rows stay in the page, where table markup works),\n// styling it with the same rules as React, scoped to tables inside the element. It draws React's root div and the\n// scroll box inside it around its slot: it scrolls sideways on its own with its edges fading (fade-x); `framed` gives\n// the root the hairline box and the brand corner, and with a `label` the scroll box is a named region a keyboard can\n// reach. Layout classes on the element land on the root.\n\n/** Table.tsx's styles, scoped to tables inside the element. */\nconst RULES = `\n.ds-table { width: 100%; border-collapse: collapse; caption-side: bottom; color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); }\n.ds-table th { height: var(--ds-size-row); padding: 0 var(--ds-space-md); border-bottom: var(--ds-border-hairline) solid var(--ds-color-edge); color: var(--ds-color-fg-muted); font-size: var(--ds-text-label); line-height: var(--ds-text-label-leading); font-weight: var(--ds-font-weight-medium); letter-spacing: var(--ds-tracking-label); text-transform: uppercase; text-align: left; white-space: nowrap; vertical-align: middle; }\n.ds-table td { padding: var(--ds-space-md); border-bottom: var(--ds-border-hairline) solid var(--ds-color-edge); vertical-align: middle; }\n.ds-table :is(th, td).text-right { text-align: right; font-variant-numeric: tabular-nums; }\n.ds-table tbody tr:last-child td { border-bottom: 0; }\n.ds-table tbody tr { transition: background-color var(--ds-duration-micro) var(--ds-easing-standard); }\n@media (hover: hover) and (pointer: fine) { .ds-table tbody tr:hover { background: var(--ds-color-action-ghost-hover); } }\n.ds-table tbody tr[data-state=\"selected\"] { background: var(--ds-color-surface-subtle); }\n.ds-table tfoot td { border-top: var(--ds-border-hairline) solid var(--ds-color-edge); border-bottom: 0; background: var(--ds-color-surface-raised); font-weight: var(--ds-font-weight-medium); }\n.ds-table caption { margin-top: var(--ds-space-lg); color: var(--ds-color-fg-muted); font-size: var(--ds-text-caption); line-height: var(--ds-text-caption-leading); text-align: left; }\n.ds-table[data-framed] :is(th, td):first-child { padding-left: var(--ds-space-lg); }\n.ds-table[data-framed] :is(th, td):last-child { padding-right: var(--ds-space-lg); }\n.ds-table[data-framed] caption { padding: 0 var(--ds-space-lg) var(--ds-space-lg); }\n`\nconst sheets = new WeakSet<Document | ShadowRoot>()\nfunction adoptRules(root: Node) {\n\tif (!(root instanceof Document || root instanceof ShadowRoot) || sheets.has(root)) return\n\tconst sheet = new CSSStyleSheet()\n\tsheet.replaceSync(`@scope (${tagName('table')}) { ${RULES} }`)\n\troot.adoptedStyleSheets = [...root.adoptedStyleSheets, sheet]\n\tsheets.add(root)\n}\n\n/**\n * @summary Rows of one kind of thing: wraps the page's own <table>.\n * @slot - A <table> with its caption, thead, tbody and tfoot.\n */\nexport class Table extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"table\"]'))\n\tstatic properties = { framed: { type: Boolean, reflect: true }, label: {} }\n\n\t/** In a hairline box with the brand corner. */\n\tframed = false\n\t/** Names the scroll box (a region a keyboard can reach). */\n\tlabel?: string\n\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\tadoptRules(this.getRootNode())\n\t}\n\n\tprivate mark() {\n\t\tconst table = this.querySelector(':scope > table')\n\t\tif (!table) return\n\t\ttable.classList.add('ds-table')\n\t\ttable.toggleAttribute('data-framed', this.framed)\n\t}\n\tprotected updated(changed: PropertyValues) {\n\t\tsuper.updated(changed)\n\t\tthis.mark()\n\t}\n\n\trender() {\n\t\treturn html`<div data-ds=\"table\" class=${this.framed ? 'relative w-full overflow-hidden rounded-container border border-edge' : 'relative w-full'}><div class=\"w-full overflow-x-auto -outline-offset-2 fade-x\" role=${ifDefined(this.label ? 'region' : undefined)} aria-label=${ifDefined(this.label)} tabindex=${ifDefined(this.label ? '0' : undefined)}><slot @slotchange=${() => this.mark()}></slot></div></div>`\n\t}\n}\n\ndefine('table', Table)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/table.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-table",
+      "tags": [
+        "spyglass-table"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-table",
+            "name": "Table",
+            "module": "elements/table.js",
+            "description": "Rows of one kind of thing: wraps the page's own <table>.",
+            "attributes": [
+              {
+                "name": "framed",
+                "field": "framed",
+                "type": "boolean",
+                "default": "false",
+                "description": "In a hairline box with the brand corner."
+              },
+              {
+                "name": "label",
+                "field": "label",
+                "type": "string | undefined",
+                "description": "Names the scroll box (a region a keyboard can reach)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "framed",
+                "type": "boolean",
+                "default": "false",
+                "description": "In a hairline box with the brand corner.",
+                "attribute": "framed"
+              },
+              {
+                "name": "label",
+                "type": "string | undefined",
+                "description": "Names the scroll box (a region a keyboard can reach).",
+                "attribute": "label"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "A <table> with its caption, thead, tbody and tfoot."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Boards",
+          "label": "Boards with a total",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/table/Boards.html",
+          "content": "<!-- A workspace's boards: what each holds and when it last changed, with a total under them. -->\n<spyglass-table>\n  <table>\n    <caption>Boards in the Acme workspace.</caption>\n    <thead>\n      <tr>\n        <th>Board</th>\n        <th class=\"text-right\">Creatives</th>\n        <th class=\"text-right\">Brands</th>\n        <th>Updated</th>\n      </tr>\n    </thead>\n    <tbody>\n      <tr data-state=\"selected\"><td>Acme hooks</td><td class=\"text-right\">48</td><td class=\"text-right\">12</td><td class=\"text-fg-muted\">Today</td></tr>\n      <tr><td>Acme summer launch</td><td class=\"text-right\">112</td><td class=\"text-right\">9</td><td class=\"text-fg-muted\">Yesterday</td></tr>\n      <tr><td>UGC openers</td><td class=\"text-right\">36</td><td class=\"text-right\">21</td><td class=\"text-fg-muted\">3 days ago</td></tr>\n      <tr><td>Price in the first line</td><td class=\"text-right\">27</td><td class=\"text-right\">8</td><td class=\"text-fg-muted\">Last week</td></tr>\n    </tbody>\n    <tfoot>\n      <tr><td>Total</td><td class=\"text-right\">223</td><td class=\"text-right\">50</td><td></td></tr>\n    </tfoot>\n  </table>\n</spyglass-table>\n"
+        },
+        {
+          "name": "Tracked",
+          "label": "Framed with actions",
+          "center": false,
+          "half": false,
+          "path": "elements/examples/table/Tracked.html",
+          "content": "<!-- Tracked brands in a hairline frame, each row with its action at the end; it scrolls sideways on a phone. -->\n<spyglass-table framed label=\"Tracked brands\">\n  <table>\n    <thead>\n      <tr>\n        <th>Brand</th>\n        <th class=\"text-right\">Live ads</th>\n        <th>Tracked since</th>\n        <th><span class=\"sr-only\">Actions</span></th>\n      </tr>\n    </thead>\n    <tbody>\n      <tr><td>Acme</td><td class=\"text-right\">214</td><td class=\"text-fg-muted\">Jan 12</td><td class=\"text-right\"><spyglass-button variant=\"secondary\" size=\"sm\">View ads</spyglass-button></td></tr>\n      <tr><td>Acme Studio</td><td class=\"text-right\">86</td><td class=\"text-fg-muted\">Feb 3</td><td class=\"text-right\"><spyglass-button variant=\"secondary\" size=\"sm\">View ads</spyglass-button></td></tr>\n      <tr><td>Acme Goods</td><td class=\"text-right\">39</td><td class=\"text-fg-muted\">Mar 21</td><td class=\"text-right\"><spyglass-button variant=\"secondary\" size=\"sm\">View ads</spyglass-button></td></tr>\n    </tbody>\n  </table>\n</spyglass-table>\n"
+        }
+      ]
+    }
+  }
+}

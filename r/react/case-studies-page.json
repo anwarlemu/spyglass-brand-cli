@@ -1,0 +1,30 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "case-studies-page",
+  "type": "registry:block",
+  "title": "Case studies page",
+  "description": "The site's case studies index: the header, the page head, the home's case stories without their head (each case as a wide picture with its panel, then every quote in cards three across), the closing section and the footer.",
+  "dependencies": [],
+  "registryDependencies": [
+    "https://spyglass-ds.vercel.app/r/react/ascii-trail.json",
+    "https://spyglass-ds.vercel.app/r/react/case-stories-block.json",
+    "https://spyglass-ds.vercel.app/r/react/case-study-page.json",
+    "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+    "https://spyglass-ds.vercel.app/r/react/page-close.json",
+    "https://spyglass-ds.vercel.app/r/react/page-head.json",
+    "https://spyglass-ds.vercel.app/r/react/site-footer.json",
+    "https://spyglass-ds.vercel.app/r/react/site-header.json"
+  ],
+  "files": [
+    {
+      "path": "components/pages/CaseStudiesPage.tsx",
+      "type": "registry:ui",
+      "content": "import { CaseStoriesBlock } from '@/components/blocks/CaseStoriesBlock'\nimport { AsciiTrail } from '@/components/visuals/AsciiTrail'\nimport { PageClose } from '@/components/site/PageClose'\nimport { PageHead } from '@/components/site/PageHead'\nimport { SiteHeader } from '@/components/site/SiteHeader'\nimport { SiteFooter } from '@/components/blocks/SiteFooter'\nimport { caseStudiesIndexContent, type CaseStudiesIndexContent, caseStudiesSections, type CaseStudiesSection } from '@/lib/pages/case-studies'\nimport { cn } from '@/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// The site's case studies index (app/resources/case-studies, pages/CaseStudies/CaseStudyIndex): the header, the page\n// head, the home's case stories without their head (each case's picture and panel, then every quote in cards three\n// across) right under it with 96px below, the closing section and the footer. `content` replaces the copy, the cases\n// and the quotes (lib/pages/case-studies.ts; Acme placeholders).\nexport interface CaseStudiesPageProps {\n  content?: CaseStudiesIndexContent\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly CaseStudiesSection[]\n  className?: string\n}\n\n\nexport function CaseStudiesPage({ content: c = caseStudiesIndexContent, menus, sections, className }: CaseStudiesPageProps) {\n  const parts: Record<CaseStudiesSection, ReactNode> = {\n    head: <PageHead id={c.head.id} lines={c.head.lines} lead={c.head.lead} />,\n    stories: (\n      <div aria-label={c.head.lines.join(' ')} role=\"region\" className=\"-mt-(--ds-layout-section) pb-[calc(96px-var(--ds-layout-section))]\">\n        <CaseStoriesBlock cases={c.cases} quotes={c.quotes} quoteCount={c.quotes.length} head={false} />\n      </div>\n    ),\n    close: <PageClose lines={c.close.lines} note={c.close.note} primary={c.close.primary} />,\n  }\n  return (\n    <div data-ds=\"case-studies-page\" className={cn('isolate overflow-x-clip bg-surface text-fg', className)}>\n      <AsciiTrail mode=\"page\" />\n      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      <main>\n        {pageSections(caseStudiesSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <SiteFooter columns={c.footer.columns} legal={c.footer.legal} />\n    </div>\n  )\n}\n\nexport default CaseStudiesPage\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

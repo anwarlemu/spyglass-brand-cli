@@ -1,0 +1,329 @@
+{
+  "name": "home-page",
+  "title": "Home page",
+  "type": "registry:block",
+  "group": "pages",
+  "description": "The site's home, from library items in its order: the header, the playground hero, the proof row, the features, the reasons, the set-up steps beside the MCP session, the case stories, the pricing strip, the questions, the close among the creatives and the footer.",
+  "use_for": "A home page for a product agents use. Add it, then edit the copy in lib/pages/home.ts and lib/home/* or pass each block's content; the sections are library items you can reorder or drop.",
+  "never": [
+    "Third-party customers, logos or ads without permission: every default is an Acme placeholder",
+    "New colors, shadows or type sizes added to a section: use the items' props",
+    "More than one White button in a section"
+  ],
+  "source": "Site app/page.tsx and app/v2/page.tsx (V3Playground hero, V3Proof, V2Features, V2Why, V2HowItWorks, V3CaseStories, V2Pricing, V3Faq, V3Close, the header and footer), measured at 1440 and 390; built from ascii-trail, playground-hero, proof-block, features-block, why-block, how-it-works-block, case-stories-block, pricing-panels-block, faq-block, close-block, site-header and site-footer",
+  "body": "`sections` lists the sections to show, in order (`hero`, `proof`, `features`, `why`, `steps`, `stories`, `pricing`,\n`faq`, `close`); a key left out is not shown. `blocks` gives each block its own data, pictures included:\n`hero.session`, `features` (`ads`, `burst` with each search's `images`, `ring`, `tally`), `why` (`creatives`, `logo`),\n`steps.session`, `stories` (`cases` with each `picture`, `quotes`), `pricing.sets` and `close.creatives`. `menus`\npasses the header menus (the live card's `picture`, the use cases' `shots`). Each picture is an image slot (`src`,\n`alt`, `fit`, `position`); without `src` it keeps its placeholder, which carries `data-ds-placeholder`.",
+  "requires": [
+    "ascii-trail",
+    "case-stories-block",
+    "close-block",
+    "creative-card",
+    "faq-block",
+    "features-block",
+    "how-it-works-block",
+    "mcp-session",
+    "playground-hero",
+    "pricing-panels-block",
+    "proof-block",
+    "site-footer",
+    "site-header",
+    "why-block"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/pages/HomePage.tsx",
+      "content": "import { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { ProofBlock } from '@/react/components/site/ProofBlock'\nimport { AsciiTrail } from '@/react/components/visuals/AsciiTrail'\nimport { PlaygroundHero } from '@/react/components/blocks/PlaygroundHero'\nimport { FeaturesBlock } from '@/react/components/blocks/FeaturesBlock'\nimport { WhyBlock } from '@/react/components/blocks/WhyBlock'\nimport { HowItWorksBlock } from '@/react/components/blocks/HowItWorksBlock'\nimport { CaseStoriesBlock } from '@/react/components/blocks/CaseStoriesBlock'\nimport { PricingPanelsBlock } from '@/react/components/blocks/PricingPanelsBlock'\nimport { FaqBlock } from '@/react/components/blocks/FaqBlock'\nimport { CloseBlock } from '@/react/components/blocks/CloseBlock'\nimport { SiteFooter } from '@/react/components/blocks/SiteFooter'\nimport { homeContent, homeSections, type HomeBlocks, type HomeContent, type HomeSection } from '@/lib/pages/home'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// The site's home (app/page.tsx, which renders app/v2/page.tsx), from library items in the site's order: the ASCII\n// trail behind the page (a mouse leaves it), the header,\n// the playground hero, the proof row, the features, the reasons, the set-up steps beside the MCP session, the case\n// stories, the pricing strip, the questions, the close among the creatives and the footer. Each block carries its own\n// copy (lib/home/*); `content` replaces the header, proof row, questions and footer (lib/pages/home.ts). `blocks`\n// passes each block its own data, pictures included; `sections` lists the sections to show, in order (hero, proof,\n// features, why, steps, stories, pricing, faq, close): leave one out to omit it.\nexport interface HomePageProps {\n  content?: HomeContent\n  /** Each block's data, pictures included: hero, features, why, steps, stories, pricing, close. */\n  blocks?: HomeBlocks\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the site's order by default. */\n  sections?: readonly HomeSection[]\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function HomePage({ content: c = homeContent, blocks: b = {}, menus, sections, className }: HomePageProps) {\n  const parts: Record<HomeSection, ReactNode> = {\n    hero: <PlaygroundHero session={b.hero?.session} />,\n    proof: <ProofBlock title={c.proof.title} logos={c.proof.logos} />,\n    features: <FeaturesBlock ads={b.features?.ads} burst={b.features?.burst} ring={b.features?.ring} tally={b.features?.tally} />,\n    why: <WhyBlock creatives={b.why?.creatives} logo={b.why?.logo} />,\n    steps: <HowItWorksBlock session={b.steps?.session} />,\n    stories: <CaseStoriesBlock cases={b.stories?.cases} quotes={b.stories?.quotes} />,\n    pricing: <PricingPanelsBlock sets={b.pricing?.sets} />,\n    faq: (\n      <div className={cn(WRAP, 'py-(--ds-layout-section)')}>\n        <FaqBlock id=\"home-faq\" title={c.faq.title} body={c.faq.lead} action={c.faq.action} items={c.faq.items} />\n      </div>\n    ),\n    close: <CloseBlock creatives={b.close?.creatives} />,\n  }\n  return (\n    <div data-ds=\"home-page\" className={cn('bg-surface text-fg', className)}>\n      <AsciiTrail mode=\"page\" />\n      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      <main id=\"main\">\n        {pageSections(homeSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <SiteFooter columns={c.footer.columns} legal={c.footer.legal} />\n    </div>\n  )\n}\n\nexport default HomePage\n"
+    },
+    {
+      "path": "lib/pages/home.ts",
+      "content": "// The home page's copy (site app/v2/page.tsx: the header, the proof row, the questions and the footer; each section's\n// own copy lives with its block in lib/home/). The questions are the site's own; the marks, customers and links are\n// Acme placeholders. Both flavors read this file.\n\nimport type { BurstContent } from '@/lib/home/accounts-burst'\nimport type { CloseCreative } from '@/lib/home/close'\nimport type { MediaAd, RingContent, TallyContent } from '@/lib/home/features'\nimport type { PanelCreative } from '@/lib/home/pricing'\nimport type { SessionContent } from '@/lib/home/session'\nimport type { StoryCase, StoryQuote } from '@/lib/home/stories'\nimport type { WhyCreative } from '@/lib/home/why'\n\nconst nav = [\n\t{ label: 'Products', href: '/products' },\n\t{ label: 'Use cases', href: '/use-cases' },\n\t{ label: 'Enterprise', href: '/enterprise' },\n\t{ label: 'Resources', href: '/resources' },\n\t{ label: 'Pricing', href: '/pricing' },\n]\n\nexport const homeContent = {\n\theader: { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get a free API key', href: '/sign-up', short: 'Get API key' } },\n\tproof: { title: 'Trusted by teams and agents at', logos: [{ name: 'Acme' }, { name: 'Acme Labs' }, { name: 'Acme Studio' }, { name: 'Acme Goods' }, { name: 'Acme Air' }, { name: 'Acme & Co' }] as { name: string; src?: string; ratio?: number; height?: number }[] },\n\tfaq: {\n\t\ttitle: 'Frequently asked questions',\n\t\tlead: 'Anything else is in the docs, with every endpoint and tool.',\n\t\taction: { label: 'Read the docs', href: '/docs' },\n\t\titems: [\n\t\t\t{ q: 'How do credits work?', a: 'Most calls cost one credit per record returned: one brand, one creator or one creative. A search that returns 50 posts or ads uses 50 credits. The API and the MCP server draw on the same monthly credits, and a request that fails is never billed.' },\n\t\t\t{ q: 'What does Spyglass index?', a: 'Organic posts on Instagram and TikTok with their views, likes and comments, Meta ads across Facebook and Instagram placements, and the landing pages the ads link to. Brands and creators sit on one record across all of them. Google Ads, LinkedIn Ads and Pinterest are coming next.' },\n\t\t\t{ q: 'Can I see how organic posts perform?', a: 'Yes. Every Instagram and TikTok post comes with its views, likes and comments, and an outlier score against its own account’s usual. Rank a brand’s or a whole category’s posts by any of them, without its ads mixed in.' },\n\t\t\t{ q: 'How fresh is the data?', a: 'Spyglass watches public data continuously and keeps it, so ads that stopped running are still there. For an account that is not indexed yet, a live lookup fetches its latest posts in about 10 to 30 seconds and starts indexing the rest.' },\n\t\t\t{ q: 'Should I use the MCP server or the REST API?', a: 'Use the MCP server to ask in Claude, ChatGPT, Cursor or any MCP client. You sign in with your browser, no API key needed. Use the REST API to call Spyglass from your own code, with SDKs for Python and Node, and a CLI. Both reach the same data and credits.' },\n\t\t\t{ q: 'What if a brand I need is not indexed?', a: 'Add it. Send its website or Instagram handle, up to 20 at a time, and Spyglass indexes it automatically. Adding an account and checking its status are free.' },\n\t\t\t{ q: 'What is analyzed before I ask?', a: 'Every creative is tagged ahead of time for hook, angle, persona, format and funnel stage. Ask for a brand’s top hooks, personas, angles or media mix across the last 90 days and the answer is already computed.' },\n\t\t\t{ q: 'What happens when I run out of credits?', a: 'Free stops until next month. On Creator you can buy more at $2 per 1K credits, and Pro continues at $1.50 per 1K. Nothing is queued or partly charged in between.' },\n\t\t],\n\t},\n\tfooter: {\n\t\tlegal: '© 2026 Acme Inc.',\n\t\tcolumns: [\n\t\t\t{ title: 'Products', wide: true, links: [{ label: 'Brands and creators', href: '/products/brands' }, { label: 'Media archive', href: '/products/media' }, { label: 'Collaborations', href: '/products/collabs' }, { label: 'Coming soon', href: '/products/coming-soon' }] },\n\t\t\t{ title: 'Use cases', wide: true, links: [{ label: 'Paid ads', href: '/use-cases/paid' }, { label: 'Organic social', href: '/use-cases/organic' }, { label: 'Creator sourcing', href: '/use-cases/creators' }] },\n\t\t\t{ title: 'Resources', links: [{ label: 'Templates', href: '/templates' }, { label: 'Docs', href: '/docs' }, { label: 'Blog', href: '/blog' }] },\n\t\t\t{ title: 'Company', links: [{ label: 'Enterprise', href: '/enterprise' }, { label: 'Talk to us', href: '/contact' }, { label: 'Sign in', href: '/sign-in' }] },\n\t\t\t{ title: 'Legal', links: [{ label: 'Terms', href: '/terms' }, { label: 'Privacy', href: '/privacy' }] },\n\t\t],\n\t},\n}\n\nexport type HomeContent = typeof homeContent\n\n/** The home's sections in the site's order; pass `sections` to reorder them or leave some out. */\nexport const homeSections = ['hero', 'proof', 'features', 'why', 'steps', 'stories', 'pricing', 'faq', 'close'] as const\nexport type HomeSection = (typeof homeSections)[number]\n\n/** Each block's own data, pictures included (Acme placeholders where left out). */\nexport interface HomeBlocks {\n\t/** The hero's MCP session (its creatives as images). */\n\thero?: { session?: SessionContent }\n\t/** The features: the media strip's ads, the searches (each with `images`), the graph ring and the tally. */\n\tfeatures?: { ads?: MediaAd[]; burst?: BurstContent; ring?: RingContent; tally?: TallyContent }\n\t/** The reasons: the archive's four creatives and the advertiser's mark. */\n\twhy?: { creatives?: WhyCreative[]; logo?: string }\n\t/** The set-up steps' MCP session. */\n\tsteps?: { session?: SessionContent }\n\t/** The case stories: each case's picture, and the quotes. */\n\tstories?: { cases?: StoryCase[]; quotes?: StoryQuote[] }\n\t/** The pricing strip's sets of five creatives. */\n\tpricing?: { sets?: PanelCreative[][] }\n\t/** The creatives the close cycles through. */\n\tclose?: { creatives?: CloseCreative[] }\n}\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Page",
+      "label": "Home",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/home-page/Page.tsx",
+      "content": "import { HomePage } from '@/react/components/pages/HomePage'\n// The home page template with its own copy.\n\nexport default function Page() {\n  return <HomePage />\n}\n",
+      "requires": [
+        "ascii-trail",
+        "case-stories-block",
+        "close-block",
+        "creative-card",
+        "faq-block",
+        "features-block",
+        "how-it-works-block",
+        "mcp-session",
+        "playground-hero",
+        "pricing-panels-block",
+        "proof-block",
+        "site-footer",
+        "site-header",
+        "why-block"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/pages/HomePage.tsx",
+          "content": "import { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { ProofBlock } from '@/react/components/site/ProofBlock'\nimport { AsciiTrail } from '@/react/components/visuals/AsciiTrail'\nimport { PlaygroundHero } from '@/react/components/blocks/PlaygroundHero'\nimport { FeaturesBlock } from '@/react/components/blocks/FeaturesBlock'\nimport { WhyBlock } from '@/react/components/blocks/WhyBlock'\nimport { HowItWorksBlock } from '@/react/components/blocks/HowItWorksBlock'\nimport { CaseStoriesBlock } from '@/react/components/blocks/CaseStoriesBlock'\nimport { PricingPanelsBlock } from '@/react/components/blocks/PricingPanelsBlock'\nimport { FaqBlock } from '@/react/components/blocks/FaqBlock'\nimport { CloseBlock } from '@/react/components/blocks/CloseBlock'\nimport { SiteFooter } from '@/react/components/blocks/SiteFooter'\nimport { homeContent, homeSections, type HomeBlocks, type HomeContent, type HomeSection } from '@/lib/pages/home'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// The site's home (app/page.tsx, which renders app/v2/page.tsx), from library items in the site's order: the ASCII\n// trail behind the page (a mouse leaves it), the header,\n// the playground hero, the proof row, the features, the reasons, the set-up steps beside the MCP session, the case\n// stories, the pricing strip, the questions, the close among the creatives and the footer. Each block carries its own\n// copy (lib/home/*); `content` replaces the header, proof row, questions and footer (lib/pages/home.ts). `blocks`\n// passes each block its own data, pictures included; `sections` lists the sections to show, in order (hero, proof,\n// features, why, steps, stories, pricing, faq, close): leave one out to omit it.\nexport interface HomePageProps {\n  content?: HomeContent\n  /** Each block's data, pictures included: hero, features, why, steps, stories, pricing, close. */\n  blocks?: HomeBlocks\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the site's order by default. */\n  sections?: readonly HomeSection[]\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function HomePage({ content: c = homeContent, blocks: b = {}, menus, sections, className }: HomePageProps) {\n  const parts: Record<HomeSection, ReactNode> = {\n    hero: <PlaygroundHero session={b.hero?.session} />,\n    proof: <ProofBlock title={c.proof.title} logos={c.proof.logos} />,\n    features: <FeaturesBlock ads={b.features?.ads} burst={b.features?.burst} ring={b.features?.ring} tally={b.features?.tally} />,\n    why: <WhyBlock creatives={b.why?.creatives} logo={b.why?.logo} />,\n    steps: <HowItWorksBlock session={b.steps?.session} />,\n    stories: <CaseStoriesBlock cases={b.stories?.cases} quotes={b.stories?.quotes} />,\n    pricing: <PricingPanelsBlock sets={b.pricing?.sets} />,\n    faq: (\n      <div className={cn(WRAP, 'py-(--ds-layout-section)')}>\n        <FaqBlock id=\"home-faq\" title={c.faq.title} body={c.faq.lead} action={c.faq.action} items={c.faq.items} />\n      </div>\n    ),\n    close: <CloseBlock creatives={b.close?.creatives} />,\n  }\n  return (\n    <div data-ds=\"home-page\" className={cn('bg-surface text-fg', className)}>\n      <AsciiTrail mode=\"page\" />\n      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      <main id=\"main\">\n        {pageSections(homeSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <SiteFooter columns={c.footer.columns} legal={c.footer.legal} />\n    </div>\n  )\n}\n\nexport default HomePage\n"
+        },
+        {
+          "path": "lib/pages/home.ts",
+          "content": "// The home page's copy (site app/v2/page.tsx: the header, the proof row, the questions and the footer; each section's\n// own copy lives with its block in lib/home/). The questions are the site's own; the marks, customers and links are\n// Acme placeholders. Both flavors read this file.\n\nimport type { BurstContent } from '@/lib/home/accounts-burst'\nimport type { CloseCreative } from '@/lib/home/close'\nimport type { MediaAd, RingContent, TallyContent } from '@/lib/home/features'\nimport type { PanelCreative } from '@/lib/home/pricing'\nimport type { SessionContent } from '@/lib/home/session'\nimport type { StoryCase, StoryQuote } from '@/lib/home/stories'\nimport type { WhyCreative } from '@/lib/home/why'\n\nconst nav = [\n\t{ label: 'Products', href: '/products' },\n\t{ label: 'Use cases', href: '/use-cases' },\n\t{ label: 'Enterprise', href: '/enterprise' },\n\t{ label: 'Resources', href: '/resources' },\n\t{ label: 'Pricing', href: '/pricing' },\n]\n\nexport const homeContent = {\n\theader: { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get a free API key', href: '/sign-up', short: 'Get API key' } },\n\tproof: { title: 'Trusted by teams and agents at', logos: [{ name: 'Acme' }, { name: 'Acme Labs' }, { name: 'Acme Studio' }, { name: 'Acme Goods' }, { name: 'Acme Air' }, { name: 'Acme & Co' }] as { name: string; src?: string; ratio?: number; height?: number }[] },\n\tfaq: {\n\t\ttitle: 'Frequently asked questions',\n\t\tlead: 'Anything else is in the docs, with every endpoint and tool.',\n\t\taction: { label: 'Read the docs', href: '/docs' },\n\t\titems: [\n\t\t\t{ q: 'How do credits work?', a: 'Most calls cost one credit per record returned: one brand, one creator or one creative. A search that returns 50 posts or ads uses 50 credits. The API and the MCP server draw on the same monthly credits, and a request that fails is never billed.' },\n\t\t\t{ q: 'What does Spyglass index?', a: 'Organic posts on Instagram and TikTok with their views, likes and comments, Meta ads across Facebook and Instagram placements, and the landing pages the ads link to. Brands and creators sit on one record across all of them. Google Ads, LinkedIn Ads and Pinterest are coming next.' },\n\t\t\t{ q: 'Can I see how organic posts perform?', a: 'Yes. Every Instagram and TikTok post comes with its views, likes and comments, and an outlier score against its own account’s usual. Rank a brand’s or a whole category’s posts by any of them, without its ads mixed in.' },\n\t\t\t{ q: 'How fresh is the data?', a: 'Spyglass watches public data continuously and keeps it, so ads that stopped running are still there. For an account that is not indexed yet, a live lookup fetches its latest posts in about 10 to 30 seconds and starts indexing the rest.' },\n\t\t\t{ q: 'Should I use the MCP server or the REST API?', a: 'Use the MCP server to ask in Claude, ChatGPT, Cursor or any MCP client. You sign in with your browser, no API key needed. Use the REST API to call Spyglass from your own code, with SDKs for Python and Node, and a CLI. Both reach the same data and credits.' },\n\t\t\t{ q: 'What if a brand I need is not indexed?', a: 'Add it. Send its website or Instagram handle, up to 20 at a time, and Spyglass indexes it automatically. Adding an account and checking its status are free.' },\n\t\t\t{ q: 'What is analyzed before I ask?', a: 'Every creative is tagged ahead of time for hook, angle, persona, format and funnel stage. Ask for a brand’s top hooks, personas, angles or media mix across the last 90 days and the answer is already computed.' },\n\t\t\t{ q: 'What happens when I run out of credits?', a: 'Free stops until next month. On Creator you can buy more at $2 per 1K credits, and Pro continues at $1.50 per 1K. Nothing is queued or partly charged in between.' },\n\t\t],\n\t},\n\tfooter: {\n\t\tlegal: '© 2026 Acme Inc.',\n\t\tcolumns: [\n\t\t\t{ title: 'Products', wide: true, links: [{ label: 'Brands and creators', href: '/products/brands' }, { label: 'Media archive', href: '/products/media' }, { label: 'Collaborations', href: '/products/collabs' }, { label: 'Coming soon', href: '/products/coming-soon' }] },\n\t\t\t{ title: 'Use cases', wide: true, links: [{ label: 'Paid ads', href: '/use-cases/paid' }, { label: 'Organic social', href: '/use-cases/organic' }, { label: 'Creator sourcing', href: '/use-cases/creators' }] },\n\t\t\t{ title: 'Resources', links: [{ label: 'Templates', href: '/templates' }, { label: 'Docs', href: '/docs' }, { label: 'Blog', href: '/blog' }] },\n\t\t\t{ title: 'Company', links: [{ label: 'Enterprise', href: '/enterprise' }, { label: 'Talk to us', href: '/contact' }, { label: 'Sign in', href: '/sign-in' }] },\n\t\t\t{ title: 'Legal', links: [{ label: 'Terms', href: '/terms' }, { label: 'Privacy', href: '/privacy' }] },\n\t\t],\n\t},\n}\n\nexport type HomeContent = typeof homeContent\n\n/** The home's sections in the site's order; pass `sections` to reorder them or leave some out. */\nexport const homeSections = ['hero', 'proof', 'features', 'why', 'steps', 'stories', 'pricing', 'faq', 'close'] as const\nexport type HomeSection = (typeof homeSections)[number]\n\n/** Each block's own data, pictures included (Acme placeholders where left out). */\nexport interface HomeBlocks {\n\t/** The hero's MCP session (its creatives as images). */\n\thero?: { session?: SessionContent }\n\t/** The features: the media strip's ads, the searches (each with `images`), the graph ring and the tally. */\n\tfeatures?: { ads?: MediaAd[]; burst?: BurstContent; ring?: RingContent; tally?: TallyContent }\n\t/** The reasons: the archive's four creatives and the advertiser's mark. */\n\twhy?: { creatives?: WhyCreative[]; logo?: string }\n\t/** The set-up steps' MCP session. */\n\tsteps?: { session?: SessionContent }\n\t/** The case stories: each case's picture, and the quotes. */\n\tstories?: { cases?: StoryCase[]; quotes?: StoryQuote[] }\n\t/** The pricing strip's sets of five creatives. */\n\tpricing?: { sets?: PanelCreative[][] }\n\t/** The creatives the close cycles through. */\n\tclose?: { creatives?: CloseCreative[] }\n}\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-trail",
+        "case-stories-block",
+        "close-block",
+        "creative-card",
+        "faq-block",
+        "features-block",
+        "how-it-works-block",
+        "mcp-session",
+        "playground-hero",
+        "pricing-panels-block",
+        "proof-block",
+        "site-footer",
+        "site-header",
+        "why-block"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "HomePage",
+            "file": "react/components/pages/HomePage.tsx",
+            "props": [
+              {
+                "name": "content",
+                "type": "HomeContent",
+                "required": false
+              },
+              {
+                "name": "blocks",
+                "type": "HomeBlocks",
+                "required": false,
+                "description": "Each block's data, pictures included: hero, features, why, steps, stories, pricing, close."
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus",
+                "required": false,
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "type": "readonly HomeSection[]",
+                "required": false,
+                "description": "The sections to show, in order; all of them in the site's order by default."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Home",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/home-page/Page.tsx",
+          "content": "import { HomePage } from '@/react/components/pages/HomePage'\n// The home page template with its own copy.\n\nexport default function Page() {\n  return <HomePage />\n}\n",
+          "registryDependencies": [
+            "ascii-trail",
+            "case-stories-block",
+            "close-block",
+            "creative-card",
+            "faq-block",
+            "features-block",
+            "how-it-works-block",
+            "mcp-session",
+            "playground-hero",
+            "pricing-panels-block",
+            "proof-block",
+            "site-footer",
+            "site-header",
+            "why-block"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/pages/home-page.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { homeContent, homeSections, type HomeBlocks, type HomeContent, type HomeSection } from '@/lib/pages/home'\nimport { pageSections } from '@/lib/image'\nimport '@/elements/components/site/site-header'\nimport '@/elements/components/site/proof-block'\nimport '@/elements/components/visuals/ascii-trail'\nimport '@/elements/components/blocks/playground-hero'\nimport '@/elements/components/blocks/features-block'\nimport '@/elements/components/blocks/why-block'\nimport '@/elements/components/blocks/how-it-works-block'\nimport '@/elements/components/blocks/case-stories-block'\nimport '@/elements/components/blocks/pricing-panels-block'\nimport '@/elements/components/blocks/faq-block'\nimport '@/elements/components/blocks/close-block'\nimport '@/elements/components/blocks/site-footer'\nimport styles from 'virtual:tw'\nimport { headerMenus, type HeaderMenus } from '@/lib/site-header'\n\n// HomePage.tsx as <spyglass-home-page>: the site's home in its order: the ASCII trail, the header, the playground hero, the proof row,\n// the features, the reasons, the set-up steps, the case stories, the pricing strip, the questions, the close and the\n// footer. `content` replaces the header, proof row, questions and footer (lib/pages/home.ts); `blocks` passes each\n// block its own data, pictures included; `sections` (a list) shows those sections in that order.\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\n/**\n * @summary The home page template.\n */\nexport class HomePage extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"home-page\"]'))\n\tstatic properties = { content: { type: Object }, blocks: { type: Object }, menus: { type: Object }, sections: { type: Array } }\n\t/** The page's copy (lib/pages/home.ts by default). */\n\tcontent: HomeContent = homeContent\n\t/** Each block's data, pictures included: hero, features, why, steps, stories, pricing, close. */\n\tblocks: HomeBlocks = {}\n\t/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n\tmenus?: HeaderMenus\n\t/** The sections to show, in order (hero, proof, features, why, steps, stories, pricing, faq, close); all by default. */\n\tsections?: HomeSection[]\n\n\trender() {\n\t\tconst c = this.content ?? homeContent\n\t\tconst b = this.blocks ?? {}\n\t\tconst parts: Record<HomeSection, unknown> = {\n\t\t\thero: html`<spyglass-playground-hero .session=${b.hero?.session}></spyglass-playground-hero>`,\n\t\t\tproof: html`<spyglass-proof-block heading=${c.proof.title} .logos=${c.proof.logos}></spyglass-proof-block>`,\n\t\t\tfeatures: html`<spyglass-features-block .ads=${b.features?.ads} .burst=${b.features?.burst} .ring=${b.features?.ring} .tally=${b.features?.tally}></spyglass-features-block>`,\n\t\t\twhy: html`<spyglass-why-block .creatives=${b.why?.creatives} .logo=${b.why?.logo}></spyglass-why-block>`,\n\t\t\tsteps: html`<spyglass-how-it-works-block .session=${b.steps?.session}></spyglass-how-it-works-block>`,\n\t\t\tstories: html`<spyglass-case-stories-block .cases=${b.stories?.cases} .quotes=${b.stories?.quotes}></spyglass-case-stories-block>`,\n\t\t\tpricing: html`<spyglass-pricing-panels-block .sets=${b.pricing?.sets}></spyglass-pricing-panels-block>`,\n\t\t\tfaq: html`<div class=${`${WRAP} py-(--ds-layout-section)`}><spyglass-faq-block head-id=\"home-faq\" heading=${c.faq.title} body=${c.faq.lead} .action=${c.faq.action} .items=${c.faq.items}></spyglass-faq-block></div>`,\n\t\t\tclose: html`<spyglass-close-block .creatives=${b.close?.creatives}></spyglass-close-block>`,\n\t\t}\n\t\treturn html`<div data-ds=\"home-page\" class=\"bg-surface text-fg\"><spyglass-ascii-trail mode=\"page\"></spyglass-ascii-trail><spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header><main id=\"main\">${pageSections(homeSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`\n\t}\n}\n\ndefine('home-page', HomePage)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/home-page.js",
+        "elements/site-header.js",
+        "elements/proof-block.js",
+        "elements/ascii-trail.js",
+        "elements/playground-hero.js",
+        "elements/features-block.js",
+        "elements/why-block.js",
+        "elements/how-it-works-block.js",
+        "elements/case-stories-block.js",
+        "elements/pricing-panels-block.js",
+        "elements/faq-block.js",
+        "elements/close-block.js",
+        "elements/site-footer.js",
+        "elements/menu-sheet.js",
+        "elements/menu-panels.js",
+        "elements/nav-menus.js",
+        "elements/nav-icon.js",
+        "elements/sheet-disclosure.js",
+        "elements/button.js",
+        "elements/logo.js",
+        "elements/proof-strip.js",
+        "elements/connect-menu.js",
+        "elements/mcp-session.js",
+        "elements/light-image.js",
+        "elements/creative-card.js",
+        "elements/side-drifts.js",
+        "elements/faq-accordion.js",
+        "elements/badge.js",
+        "elements/brand-light.js",
+        "elements/products-live-panel.js",
+        "elements/ascii-drift.js",
+        "elements/product-visual.js"
+      ],
+      "tag": "spyglass-home-page",
+      "tags": [
+        "spyglass-home-page"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-drift",
+        "ascii-trail",
+        "badge",
+        "brand-light",
+        "button",
+        "case-stories-block",
+        "close-block",
+        "connect-menu",
+        "creative-card",
+        "faq-block",
+        "features-block",
+        "how-it-works-block",
+        "light-image",
+        "logo",
+        "mcp-session",
+        "playground-hero",
+        "pricing-panels-block",
+        "product-visual",
+        "proof-block",
+        "proof-strip",
+        "side-drifts",
+        "site-footer",
+        "site-header",
+        "why-block"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-home-page",
+            "name": "HomePage",
+            "module": "elements/home-page.js",
+            "description": "The home page template.",
+            "attributes": [
+              {
+                "name": "content",
+                "field": "content",
+                "type": "{ header: { nav: { label: string; href: string; }[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; short: string; }; }; proof: { title: string; logos: { name: string; src?: string; ratio?: number; height?: number; }[]; }; faq: { title: string; lead: string; action: { label: string; href: string; }; items: { q: string; a: string; }[]; }; footer: { legal: string; columns: ({ title: string; wide: boolean; links: { label: string; href: string; }[]; } | { title: string; links: { label: string; href: string; }[]; wide?: undefined; })[]; }; }",
+                "default": "homeContent",
+                "description": "The page's copy (lib/pages/home.ts by default)."
+              },
+              {
+                "name": "blocks",
+                "field": "blocks",
+                "type": "HomeBlocks",
+                "default": "{}",
+                "description": "Each block's data, pictures included: hero, features, why, steps, stories, pricing, close."
+              },
+              {
+                "name": "menus",
+                "field": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "field": "sections",
+                "type": "(\"hero\" | \"proof\" | \"stories\" | \"close\" | \"features\" | \"faq\" | \"why\" | \"steps\" | \"pricing\")[] | undefined",
+                "description": "The sections to show, in order (hero, proof, features, why, steps, stories, pricing, faq, close); all by default."
+              }
+            ],
+            "properties": [
+              {
+                "name": "content",
+                "type": "{ header: { nav: { label: string; href: string; }[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; short: string; }; }; proof: { title: string; logos: { name: string; src?: string; ratio?: number; height?: number; }[]; }; faq: { title: string; lead: string; action: { label: string; href: string; }; items: { q: string; a: string; }[]; }; footer: { legal: string; columns: ({ title: string; wide: boolean; links: { label: string; href: string; }[]; } | { title: string; links: { label: string; href: string; }[]; wide?: undefined; })[]; }; }",
+                "default": "homeContent",
+                "description": "The page's copy (lib/pages/home.ts by default).",
+                "attribute": "content"
+              },
+              {
+                "name": "blocks",
+                "type": "HomeBlocks",
+                "default": "{}",
+                "description": "Each block's data, pictures included: hero, features, why, steps, stories, pricing, close.",
+                "attribute": "blocks"
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default.",
+                "attribute": "menus"
+              },
+              {
+                "name": "sections",
+                "type": "(\"hero\" | \"proof\" | \"stories\" | \"close\" | \"features\" | \"faq\" | \"why\" | \"steps\" | \"pricing\")[] | undefined",
+                "description": "The sections to show, in order (hero, proof, features, why, steps, stories, pricing, faq, close); all by default.",
+                "attribute": "sections"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Home",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/home-page/Page.html",
+          "content": "<!-- The home page template with its own copy. -->\n<spyglass-home-page></spyglass-home-page>\n"
+        }
+      ]
+    }
+  }
+}

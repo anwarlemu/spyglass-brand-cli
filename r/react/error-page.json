@@ -1,0 +1,29 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "error-page",
+  "type": "registry:block",
+  "title": "Error page",
+  "description": "The site's error page: what shows when a page fails to render, the error head alone on Black (the title in one line, what happened in a plain sentence, the White Try again and the quiet way home), with no header or footer.",
+  "dependencies": [],
+  "registryDependencies": [
+    "https://spyglass-ds.vercel.app/r/react/creative-card.json",
+    "https://spyglass-ds.vercel.app/r/react/page-head.json"
+  ],
+  "files": [
+    {
+      "path": "components/pages/ErrorPage.tsx",
+      "type": "registry:ui",
+      "content": "import { ErrorHead } from '@/components/site/ErrorHead'\nimport { errorContent, type ErrorContent, errorSections, type ErrorSection } from '@/lib/pages/error'\nimport { cn } from '@/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\n\n// The site's error page (app/error.tsx and global-error.tsx): what shows when a page fails to render, so neither the\n// header nor the footer is there, only the error head on Black: the title in one line, the plain sentence, the White\n// \"Try again\" (`onRetry`) and the quiet way home. As the page's last section it keeps the site's section padding under\n// it (56px, 76 at 768, 84 at 1024), in a box that takes back what the page head keeps below. `content` replaces the\n// copy (lib/pages/error.ts).\nexport interface ErrorPageProps {\n  content?: ErrorContent\n  onRetry?: () => void\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly ErrorSection[]\n  className?: string\n}\n\nexport function ErrorPage({ content: c = errorContent, onRetry, sections, className }: ErrorPageProps) {\n  const parts: Record<ErrorSection, ReactNode> = {\n    head: (\n      <div className=\"-mb-6 md:-mb-5 lg:-mb-3\">\n        <ErrorHead content={c} onRetry={onRetry} />\n      </div>\n    ),\n  }\n  return (\n    <div data-ds=\"error-page\" className={cn('min-h-svh bg-surface text-fg', className)}>\n      <main id=\"main\">\n        {pageSections(errorSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n    </div>\n  )\n}\n\nexport default ErrorPage\n"
+    },
+    {
+      "path": "lib/pages/error.ts",
+      "type": "registry:lib",
+      "content": "// The error page's copy (site content/pages/errors.ts): the title, what happened in a plain sentence, try again and the\n// way home. Both flavors read this file.\nexport const errorContent = {\n\tlines: ['Something went wrong'],\n\tlead: 'This page did not load. Try again, or start from the homepage.',\n\tretry: 'Try again',\n\thome: { label: 'Go to the homepage', href: '/' },\n}\nexport type ErrorContent = typeof errorContent\n\n/** The error page's sections in order; pass `sections` to reorder them or leave some out. */\nexport const errorSections = ['head'] as const\nexport type ErrorSection = (typeof errorSections)[number]\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

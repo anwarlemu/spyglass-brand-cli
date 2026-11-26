@@ -1,0 +1,302 @@
+{
+  "name": "alert-dialog",
+  "title": "Alert dialog",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A question that needs an answer before anything else, on the #262626 overlay surface over a Black scrim: a Funnel Display title, one line saying what happens, Cancel and the action (red for what removes something).",
+  "use_for": "Confirming what can't be undone: deleting a board, removing a teammate, canceling a plan. Say exactly what goes away.",
+  "never": [
+    "Confirming what can be undone: do it and offer undo",
+    "A scrim that closes it: only a choice does",
+    "A vague action label (\"OK\", \"Yes\"): name the action (\"Delete board\")",
+    "A shadow around the window"
+  ],
+  "source": "Derived from the guidelines: the #262626 card fill on Black, neutral hairlines, the 10px canvas corner (8px here), Funnel Display titles, DM Sans lines, the White primary and #262626 secondary buttons. shadcn's alert dialog for anatomy, focus and keys.",
+  "body": "",
+  "requires": [
+    "button"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/AlertDialog.tsx",
+      "content": "'use client'\nimport { useEffect, useId, useRef, type ReactNode, type SyntheticEvent } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { useControllable } from '@/react/hooks/useControllable'\n\n// shadcn's alert dialog in the brand: a question that needs an answer before anything else, on the #262626 overlay\n// surface in a neutral hairline with the brand corner and no shadow, over a Black scrim. A Funnel Display title, one\n// line saying what happens, then Cancel (secondary) and the action: the red fill for what removes something\n// (`danger`, the default), the White primary otherwise. Focus starts on Cancel; the scrim does nothing, so only a\n// choice closes it; Escape cancels and focus returns to what opened it. It comes in over 360ms (a fade and a scale\n// from 0.96, centered, ease-out) and leaves at once; reduced motion keeps the fade. `open` with `onOpenChange` (or\n// `defaultOpen` alone); `onConfirm` and `onCancel` say which was chosen.\nexport interface AlertDialogProps {\n  /** The question. */\n  title: string\n  /** One line saying what happens. */\n  description: string\n  /** The action button's label. */\n  action: string\n  /** The Cancel button's label. */\n  cancel?: string\n  /** The red fill for the action (the default); false draws the White primary. */\n  danger?: boolean\n  open?: boolean\n  defaultOpen?: boolean\n  onOpenChange?: (open: boolean) => void\n  onConfirm?: () => void\n  onCancel?: () => void\n  /** More about what happens, under the line. */\n  children?: ReactNode\n}\n\n// The button's md shape with the danger fill (the seed button has no danger variant).\nexport const DANGER_BUTTON = 'inline-flex h-control-md shrink-0 cursor-pointer items-center justify-center gap-2 rounded-control px-4 whitespace-nowrap select-none type-ui-strong bg-action-danger text-ds-neutral-15 transition-[background-color] duration-160 ease-out hover:bg-action-danger-hover'\n\nexport function AlertDialog({ title, description, action, cancel = 'Cancel', danger = true, open: openProp, defaultOpen = false, onOpenChange, onConfirm, onCancel, children }: AlertDialogProps) {\n  const [open, setOpen] = useControllable(openProp, defaultOpen, onOpenChange)\n  const dialog = useRef<HTMLDialogElement | null>(null)\n  const id = useId()\n  const returnTo = useRef<HTMLElement | null>(null)\n  const mounted = useRef(false)\n\n  useEffect(() => {\n    const d = dialog.current\n    const first = !mounted.current\n    mounted.current = true\n    if (!d) return\n    if (open) {\n      if (d.open) return\n      returnTo.current = document.activeElement instanceof HTMLElement ? document.activeElement : null\n      d.showModal()\n      d.querySelector<HTMLElement>('[data-cancel]')?.focus()\n    }\n    else if (!first) {\n      if (d.open) d.close()\n      returnTo.current?.focus({ preventScroll: true })\n      returnTo.current = null\n    }\n  }, [open])\n\n  function cancelled(event: SyntheticEvent) {\n    event.preventDefault()\n    onCancel?.()\n    setOpen(false)\n  }\n  function choose(confirmed: boolean) {\n    if (confirmed) onConfirm?.()\n    else onCancel?.()\n    setOpen(false)\n  }\n  return (\n    <>\n      <style href=\"ds-alert-dialog\" precedence=\"ds\">{css}</style>\n      <dialog data-ds=\"alert-dialog\" ref={dialog} className=\"ds-alert\" role=\"alertdialog\" aria-labelledby={`${id}-title`} aria-describedby={`${id}-text`} onCancel={cancelled}>\n        <h2 id={`${id}-title`} className=\"type-heading-3\">{title}</h2>\n        <p id={`${id}-text`} className=\"mt-3 type-ui text-fg-muted\">{description}</p>\n        {children}\n        <div className=\"mt-6 flex flex-wrap justify-end gap-2\">\n          <Button data-cancel variant=\"secondary\" onClick={() => choose(false)}>{cancel}</Button>\n          {danger\n            ? <button type=\"button\" className={DANGER_BUTTON} onClick={() => choose(true)}>{action}</button>\n            : <Button onClick={() => choose(true)}>{action}</Button>}\n        </div>\n      </dialog>\n    </>\n  )\n}\n\nexport default AlertDialog\n\nconst css = `\n.ds-alert { width: min(440px, calc(100vw - 32px)); margin: auto; padding: var(--ds-space-xl); border: var(--ds-border-hairline) solid var(--ds-color-edge); border-radius: var(--ds-radius-container); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); }\n.ds-alert::backdrop { background: var(--ds-color-scrim); }\n.ds-alert[open] { animation: ds-alert-in var(--ds-duration-entrance) var(--ds-easing-out); }\n.ds-alert[open]::backdrop { animation: ds-alert-fade var(--ds-duration-entrance) var(--ds-easing-out); }\n@keyframes ds-alert-in { from { opacity: 0; transform: scale(0.96); } }\n@keyframes ds-alert-fade { from { opacity: 0; } }\n@media (prefers-reduced-motion: reduce) { .ds-alert[open] { animation-name: ds-alert-fade; } }\n`\n"
+    },
+    {
+      "path": "react/hooks/useControllable.ts",
+      "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Delete",
+      "label": "Delete a board",
+      "center": true,
+      "half": false,
+      "path": "react/examples/alert-dialog/Delete.tsx",
+      "content": "'use client'\nimport { useState } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { AlertDialog } from '@/react/components/ui/AlertDialog'\n// Deleting a board asks first: focus starts on Cancel, and only a choice closes it. The line under says what happened.\n\nexport default function Delete() {\n  const [open, setOpen] = useState(false)\n  const [note, setNote] = useState('Acme summer ads: 48 saved creatives.')\n  return (\n    <div className=\"flex min-h-72 flex-col items-center justify-center gap-3\">\n      <Button variant=\"secondary\" onClick={() => setOpen(true)}>Delete board</Button>\n      <p className=\"type-caption text-fg-muted\" aria-live=\"polite\">{note}</p>\n      <AlertDialog\n        open={open}\n        onOpenChange={setOpen}\n        title=\"Delete this board?\"\n        description=\"Acme summer ads and its 48 saved creatives go away for everyone on the team. This can't be undone.\"\n        action=\"Delete board\"\n        onConfirm={() => setNote('Board deleted.')}\n        onCancel={() => setNote('Kept the board.')}\n      />\n    </div>\n  )\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/AlertDialog.tsx",
+          "content": "'use client'\nimport { useEffect, useId, useRef, type ReactNode, type SyntheticEvent } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { useControllable } from '@/react/hooks/useControllable'\n\n// shadcn's alert dialog in the brand: a question that needs an answer before anything else, on the #262626 overlay\n// surface in a neutral hairline with the brand corner and no shadow, over a Black scrim. A Funnel Display title, one\n// line saying what happens, then Cancel (secondary) and the action: the red fill for what removes something\n// (`danger`, the default), the White primary otherwise. Focus starts on Cancel; the scrim does nothing, so only a\n// choice closes it; Escape cancels and focus returns to what opened it. It comes in over 360ms (a fade and a scale\n// from 0.96, centered, ease-out) and leaves at once; reduced motion keeps the fade. `open` with `onOpenChange` (or\n// `defaultOpen` alone); `onConfirm` and `onCancel` say which was chosen.\nexport interface AlertDialogProps {\n  /** The question. */\n  title: string\n  /** One line saying what happens. */\n  description: string\n  /** The action button's label. */\n  action: string\n  /** The Cancel button's label. */\n  cancel?: string\n  /** The red fill for the action (the default); false draws the White primary. */\n  danger?: boolean\n  open?: boolean\n  defaultOpen?: boolean\n  onOpenChange?: (open: boolean) => void\n  onConfirm?: () => void\n  onCancel?: () => void\n  /** More about what happens, under the line. */\n  children?: ReactNode\n}\n\n// The button's md shape with the danger fill (the seed button has no danger variant).\nexport const DANGER_BUTTON = 'inline-flex h-control-md shrink-0 cursor-pointer items-center justify-center gap-2 rounded-control px-4 whitespace-nowrap select-none type-ui-strong bg-action-danger text-ds-neutral-15 transition-[background-color] duration-160 ease-out hover:bg-action-danger-hover'\n\nexport function AlertDialog({ title, description, action, cancel = 'Cancel', danger = true, open: openProp, defaultOpen = false, onOpenChange, onConfirm, onCancel, children }: AlertDialogProps) {\n  const [open, setOpen] = useControllable(openProp, defaultOpen, onOpenChange)\n  const dialog = useRef<HTMLDialogElement | null>(null)\n  const id = useId()\n  const returnTo = useRef<HTMLElement | null>(null)\n  const mounted = useRef(false)\n\n  useEffect(() => {\n    const d = dialog.current\n    const first = !mounted.current\n    mounted.current = true\n    if (!d) return\n    if (open) {\n      if (d.open) return\n      returnTo.current = document.activeElement instanceof HTMLElement ? document.activeElement : null\n      d.showModal()\n      d.querySelector<HTMLElement>('[data-cancel]')?.focus()\n    }\n    else if (!first) {\n      if (d.open) d.close()\n      returnTo.current?.focus({ preventScroll: true })\n      returnTo.current = null\n    }\n  }, [open])\n\n  function cancelled(event: SyntheticEvent) {\n    event.preventDefault()\n    onCancel?.()\n    setOpen(false)\n  }\n  function choose(confirmed: boolean) {\n    if (confirmed) onConfirm?.()\n    else onCancel?.()\n    setOpen(false)\n  }\n  return (\n    <>\n      <style href=\"ds-alert-dialog\" precedence=\"ds\">{css}</style>\n      <dialog data-ds=\"alert-dialog\" ref={dialog} className=\"ds-alert\" role=\"alertdialog\" aria-labelledby={`${id}-title`} aria-describedby={`${id}-text`} onCancel={cancelled}>\n        <h2 id={`${id}-title`} className=\"type-heading-3\">{title}</h2>\n        <p id={`${id}-text`} className=\"mt-3 type-ui text-fg-muted\">{description}</p>\n        {children}\n        <div className=\"mt-6 flex flex-wrap justify-end gap-2\">\n          <Button data-cancel variant=\"secondary\" onClick={() => choose(false)}>{cancel}</Button>\n          {danger\n            ? <button type=\"button\" className={DANGER_BUTTON} onClick={() => choose(true)}>{action}</button>\n            : <Button onClick={() => choose(true)}>{action}</Button>}\n        </div>\n      </dialog>\n    </>\n  )\n}\n\nexport default AlertDialog\n\nconst css = `\n.ds-alert { width: min(440px, calc(100vw - 32px)); margin: auto; padding: var(--ds-space-xl); border: var(--ds-border-hairline) solid var(--ds-color-edge); border-radius: var(--ds-radius-container); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); }\n.ds-alert::backdrop { background: var(--ds-color-scrim); }\n.ds-alert[open] { animation: ds-alert-in var(--ds-duration-entrance) var(--ds-easing-out); }\n.ds-alert[open]::backdrop { animation: ds-alert-fade var(--ds-duration-entrance) var(--ds-easing-out); }\n@keyframes ds-alert-in { from { opacity: 0; transform: scale(0.96); } }\n@keyframes ds-alert-fade { from { opacity: 0; } }\n@media (prefers-reduced-motion: reduce) { .ds-alert[open] { animation-name: ds-alert-fade; } }\n`\n"
+        },
+        {
+          "path": "react/hooks/useControllable.ts",
+          "content": "'use client'\nimport { useCallback, useRef, useState } from 'react'\n\n// Vue's defineModel in React: a value that is controlled when the caller passes it (value + onValueChange, as Radix\n// does) and kept inside otherwise (defaultValue). setValue calls onChange either way.\nexport function useControllable<T>(value: T | undefined, defaultValue: T, onChange?: (value: T) => void) {\n\tconst [inner, setInner] = useState<T>(defaultValue)\n\tconst controlled = value !== undefined\n\tconst current = controlled ? value : inner\n\tconst ref = useRef(onChange)\n\tref.current = onChange\n\tconst set = useCallback((next: T) => {\n\t\tif (!controlled) setInner(next)\n\t\tref.current?.(next)\n\t}, [controlled])\n\treturn [current, set] as const\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "AlertDialog",
+            "file": "react/components/ui/AlertDialog.tsx",
+            "props": [
+              {
+                "name": "title",
+                "type": "string",
+                "required": true,
+                "description": "The question."
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "required": true,
+                "description": "One line saying what happens."
+              },
+              {
+                "name": "action",
+                "type": "string",
+                "required": true,
+                "description": "The action button's label."
+              },
+              {
+                "name": "cancel",
+                "type": "string",
+                "required": false,
+                "default": "'Cancel'",
+                "description": "The Cancel button's label."
+              },
+              {
+                "name": "danger",
+                "type": "boolean",
+                "required": false,
+                "default": "true",
+                "description": "The red fill for the action (the default); false draws the White primary."
+              },
+              {
+                "name": "open",
+                "type": "boolean",
+                "required": false
+              },
+              {
+                "name": "defaultOpen",
+                "type": "boolean",
+                "required": false,
+                "default": "false"
+              },
+              {
+                "name": "onOpenChange",
+                "type": "(open: boolean) => void",
+                "required": false
+              },
+              {
+                "name": "onConfirm",
+                "type": "() => void",
+                "required": false
+              },
+              {
+                "name": "onCancel",
+                "type": "() => void",
+                "required": false
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false,
+                "description": "More about what happens, under the line."
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Delete",
+          "label": "Delete a board",
+          "center": true,
+          "half": false,
+          "path": "react/examples/alert-dialog/Delete.tsx",
+          "content": "'use client'\nimport { useState } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { AlertDialog } from '@/react/components/ui/AlertDialog'\n// Deleting a board asks first: focus starts on Cancel, and only a choice closes it. The line under says what happened.\n\nexport default function Delete() {\n  const [open, setOpen] = useState(false)\n  const [note, setNote] = useState('Acme summer ads: 48 saved creatives.')\n  return (\n    <div className=\"flex min-h-72 flex-col items-center justify-center gap-3\">\n      <Button variant=\"secondary\" onClick={() => setOpen(true)}>Delete board</Button>\n      <p className=\"type-caption text-fg-muted\" aria-live=\"polite\">{note}</p>\n      <AlertDialog\n        open={open}\n        onOpenChange={setOpen}\n        title=\"Delete this board?\"\n        description=\"Acme summer ads and its 48 saved creatives go away for everyone on the team. This can't be undone.\"\n        action=\"Delete board\"\n        onConfirm={() => setNote('Board deleted.')}\n        onCancel={() => setNote('Kept the board.')}\n      />\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/alert-dialog.ts",
+          "content": "import { html, type LitElement, type PropertyValues } from 'lit'\nimport { DsElement, define, tag, uid } from '@/elements/lib/element'\nimport { html as staticHtml } from 'lit/static-html.js'\nimport '@/elements/components/ui/button'\nimport styles from 'virtual:tw'\n\n// The button's md shape with the danger fill (the seed button has no danger variant), as in AlertDialog.tsx.\nconst DANGER_BUTTON = 'inline-flex h-control-md shrink-0 cursor-pointer items-center justify-center gap-2 rounded-control px-4 whitespace-nowrap select-none type-ui-strong bg-action-danger text-ds-neutral-15 transition-[background-color] duration-160 ease-out hover:bg-action-danger-hover'\n\n// AlertDialog.tsx as <spyglass-alert-dialog>: a question that needs an answer before anything else, on the #262626\n// overlay surface in a neutral hairline with the brand corner, over a Black scrim. A Funnel Display heading, one line\n// saying what happens, then Cancel (secondary) and the action: the red fill for what removes something (`danger`, the\n// default), the White primary with danger=\"false\". Focus starts on Cancel; the scrim does nothing, so only a choice\n// closes it; Escape cancels and focus returns to what opened it. It comes in over 360ms (a fade and a scale from 0.96)\n// and leaves at once. React's `open` with `onOpenChange` is the `open` attribute with `open-change`; React's `title`\n// is `heading` (title is HTML's tooltip attribute); `cancel` is the Cancel button's label, and the `cancel` event fires\n// when it is chosen (or on Escape).\n\n/**\n * @summary A question that needs an answer before anything else.\n * @slot - More about what happens, under the line.\n * @fires confirm - The action was chosen.\n * @fires cancel - Cancel was chosen, or Escape pressed.\n * @fires open-change - It opened or closed (detail.value).\n */\nexport class AlertDialog extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tstatic properties = { heading: {}, description: {}, action: {}, cancel: {}, danger: { converter: { fromAttribute: (v: string | null) => v !== 'false' } }, open: { type: Boolean, reflect: true } }\n\n\t/** The question (React's `title`). */\n\theading = ''\n\t/** One line saying what happens. */\n\tdescription = ''\n\t/** The action button's label. */\n\taction = ''\n\t/** The Cancel button's label. */\n\tcancel = 'Cancel'\n\t/** The red fill for the action; danger=\"false\" draws the White primary. */\n\tdanger = true\n\topen = false\n\tprivate dialogId = uid('alert')\n\tprivate returnTo: HTMLElement | null = null\n\n\tprivate get dialog() {\n\t\treturn this.renderRoot.querySelector('dialog')\n\t}\n\tprivate async show() {\n\t\tconst d = this.dialog\n\t\tif (!d || d.open) return\n\t\tlet a = document.activeElement as Element | null\n\t\twhile (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement\n\t\tthis.returnTo = a instanceof HTMLElement ? a : null\n\t\td.showModal()\n\t\tconst cancel = d.querySelector<LitElement>('[data-cancel]')\n\t\tawait cancel?.updateComplete\n\t\t;(cancel?.shadowRoot?.querySelector('button') ?? cancel)?.focus()\n\t}\n\tprivate close() {\n\t\tif (this.dialog?.open) this.dialog.close()\n\t\tthis.returnTo?.focus({ preventScroll: true })\n\t\tthis.returnTo = null\n\t}\n\tprotected updated(changed: PropertyValues<this>) {\n\t\tsuper.updated(changed)\n\t\tif (!changed.has('open')) return\n\t\tif (this.open) void this.show()\n\t\telse if (changed.get('open') !== undefined) this.close()\n\t}\n\tprivate setOpen(open: boolean) {\n\t\tif (this.open === open) return\n\t\tthis.open = open\n\t\tthis.emit('open-change', { value: open })\n\t}\n\tprivate onCancel = (event: Event) => {\n\t\tevent.preventDefault()\n\t\tthis.emit('cancel')\n\t\tthis.setOpen(false)\n\t}\n\tprivate choose(confirmed: boolean) {\n\t\tthis.emit(confirmed ? 'confirm' : 'cancel')\n\t\tthis.setOpen(false)\n\t}\n\n\trender() {\n\t\tconst button = tag('button')\n\t\treturn html`<dialog data-ds=\"alert-dialog\" class=\"ds-alert\" role=\"alertdialog\" aria-labelledby=${`${this.dialogId}-title`} aria-describedby=${`${this.dialogId}-text`} @cancel=${this.onCancel}>\n\t\t\t<h2 id=${`${this.dialogId}-title`} class=\"type-heading-3\">${this.heading}</h2>\n\t\t\t<p id=${`${this.dialogId}-text`} class=\"mt-3 type-ui text-fg-muted\">${this.description}</p>\n\t\t\t<slot></slot>\n\t\t\t<div class=\"mt-6 flex flex-wrap justify-end gap-2\">\n\t\t\t\t${staticHtml`<${button} data-cancel variant=\"secondary\" @click=${() => this.choose(false)}>${this.cancel}</${button}>`}${this.danger\n\t\t\t\t\t? html`<button type=\"button\" class=${DANGER_BUTTON} @click=${() => this.choose(true)}>${this.action}</button>`\n\t\t\t\t\t: staticHtml`<${button} @click=${() => this.choose(true)}>${this.action}</${button}>`}\n\t\t\t</div>\n\t\t</dialog>`\n\t}\n}\n\ndefine('alert-dialog', AlertDialog)\n"
+        },
+        {
+          "path": "elements/components/ui/alert-dialog.css",
+          "content": "/* AlertDialog.tsx's styles. */\n.ds-alert { width: min(440px, calc(100vw - 32px)); margin: auto; padding: var(--ds-space-xl); border: var(--ds-border-hairline) solid var(--ds-color-edge); border-radius: var(--ds-radius-container); background: var(--ds-color-surface-raised); color: var(--ds-color-fg); font-family: var(--ds-font-text); font-size: var(--ds-text-ui); line-height: var(--ds-text-ui-leading); }\n.ds-alert::backdrop { background: var(--ds-color-scrim); }\n.ds-alert[open] { animation: ds-alert-in var(--ds-duration-entrance) var(--ds-easing-out); }\n.ds-alert[open]::backdrop { animation: ds-alert-fade var(--ds-duration-entrance) var(--ds-easing-out); }\n@keyframes ds-alert-in { from { opacity: 0; transform: scale(0.96); } }\n@keyframes ds-alert-fade { from { opacity: 0; } }\n@media (prefers-reduced-motion: reduce) { .ds-alert[open] { animation-name: ds-alert-fade; } }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/alert-dialog.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-alert-dialog",
+      "tags": [
+        "spyglass-alert-dialog"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-alert-dialog",
+            "name": "AlertDialog",
+            "module": "elements/alert-dialog.js",
+            "description": "A question that needs an answer before anything else.",
+            "attributes": [
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string",
+                "default": "''",
+                "description": "The question (React's `title`)."
+              },
+              {
+                "name": "description",
+                "field": "description",
+                "type": "string",
+                "default": "''",
+                "description": "One line saying what happens."
+              },
+              {
+                "name": "action",
+                "field": "action",
+                "type": "string",
+                "default": "''",
+                "description": "The action button's label."
+              },
+              {
+                "name": "cancel",
+                "field": "cancel",
+                "type": "string",
+                "default": "'Cancel'",
+                "description": "The Cancel button's label."
+              },
+              {
+                "name": "danger",
+                "field": "danger",
+                "type": "boolean",
+                "default": "true",
+                "description": "The red fill for the action; danger=\"false\" draws the White primary."
+              },
+              {
+                "name": "open",
+                "field": "open",
+                "type": "boolean",
+                "default": "false"
+              }
+            ],
+            "properties": [
+              {
+                "name": "heading",
+                "type": "string",
+                "default": "''",
+                "description": "The question (React's `title`).",
+                "attribute": "heading"
+              },
+              {
+                "name": "description",
+                "type": "string",
+                "default": "''",
+                "description": "One line saying what happens.",
+                "attribute": "description"
+              },
+              {
+                "name": "action",
+                "type": "string",
+                "default": "''",
+                "description": "The action button's label.",
+                "attribute": "action"
+              },
+              {
+                "name": "cancel",
+                "type": "string",
+                "default": "'Cancel'",
+                "description": "The Cancel button's label.",
+                "attribute": "cancel"
+              },
+              {
+                "name": "danger",
+                "type": "boolean",
+                "default": "true",
+                "description": "The red fill for the action; danger=\"false\" draws the White primary.",
+                "attribute": "danger"
+              },
+              {
+                "name": "open",
+                "type": "boolean",
+                "default": "false",
+                "attribute": "open"
+              }
+            ],
+            "events": [
+              {
+                "name": "confirm",
+                "description": "The action was chosen."
+              },
+              {
+                "name": "cancel",
+                "description": "Cancel was chosen, or Escape pressed."
+              },
+              {
+                "name": "open-change",
+                "description": "It opened or closed (detail.value)."
+              }
+            ],
+            "slots": [
+              {
+                "name": "",
+                "description": "More about what happens, under the line."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Delete",
+          "label": "Delete a board",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/alert-dialog/Delete.html",
+          "content": "<!-- Deleting a board asks first: focus starts on Cancel, and only a choice closes it. The line under says what happened. -->\n<div class=\"flex min-h-72 flex-col items-center justify-center gap-3\">\n  <spyglass-button id=\"delete-board\" variant=\"secondary\">Delete board</spyglass-button>\n  <p id=\"delete-board-note\" class=\"type-caption text-fg-muted\" aria-live=\"polite\">Acme summer ads: 48 saved creatives.</p>\n  <spyglass-alert-dialog id=\"delete-board-dialog\" heading=\"Delete this board?\" description=\"Acme summer ads and its 48 saved creatives go away for everyone on the team. This can't be undone.\" action=\"Delete board\"></spyglass-alert-dialog>\n</div>\n<script type=\"module\">\n  const dialog = document.getElementById('delete-board-dialog')\n  const note = document.getElementById('delete-board-note')\n  document.getElementById('delete-board').addEventListener('click', () => { dialog.open = true })\n  dialog.addEventListener('confirm', () => { note.textContent = 'Board deleted.' })\n  dialog.addEventListener('cancel', () => { note.textContent = 'Kept the board.' })\n</script>\n"
+        }
+      ]
+    }
+  }
+}

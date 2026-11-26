@@ -1,0 +1,23 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "feature-grid-block",
+  "type": "registry:block",
+  "title": "Feature grid block",
+  "description": "What the product does, as cards: an optional Funnel Display heading and line over a grid of cards on the #262626 fill, each a title and a sentence, three or two across.",
+  "dependencies": [],
+  "registryDependencies": [
+    "https://spyglass-ds.vercel.app/r/react/card.json"
+  ],
+  "files": [
+    {
+      "path": "components/blocks/FeatureGridBlock.tsx",
+      "type": "registry:ui",
+      "content": "import type { ReactNode } from 'react'\nimport { Card } from '@/components/ui/Card'\nimport { cn } from '@/lib/cn'\n\n// What the product does, as cards: an optional Funnel Display heading and line over a grid of cards on the #262626\n// fill, each a title and a sentence (the home page's three cards, as a block). Three across (or two), one on phones.\n// No icons and no color: the words carry it.\nexport interface Feature {\n  title: string\n  body: string\n}\n\nexport interface FeatureGridBlockProps {\n  features: Feature[]\n  /** A heading above the cards. */\n  title?: ReactNode\n  /** A line under the heading. */\n  body?: ReactNode\n  /** Cards across on wide screens: 2 or 3. */\n  columns?: 2 | 3\n  className?: string\n}\n\nexport function FeatureGridBlock({ features, title, body, columns = 3, className }: FeatureGridBlockProps) {\n  return (\n    <section data-ds=\"feature-grid-block\" className={cn('grid gap-10 text-fg max-sm:gap-8', className)}>\n      {(title || body) && (\n        <div className=\"grid max-w-3xl gap-4\">\n          {title && <h2 className=\"type-section\">{title}</h2>}\n          {body && <p className=\"type-body-lg text-fg-soft\">{body}</p>}\n        </div>\n      )}\n      <div className={cn('grid gap-4 max-md:grid-cols-1', columns === 2 ? 'grid-cols-2' : 'grid-cols-3')}>\n        {features.map((f) => <Card key={f.title} title={f.title} description={f.body} />)}\n      </div>\n    </section>\n  )\n}\n\nexport default FeatureGridBlock\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

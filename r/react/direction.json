@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "direction",
+  "type": "registry:ui",
+  "title": "Direction",
+  "description": "Sets the reading direction for what is inside it, so logical spacing and the components follow right-to-left text. Code stays left to right.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/ui/Direction.tsx",
+      "type": "registry:ui",
+      "content": "'use client'\nimport type { ReactNode } from 'react'\nimport { DirectionContext, type Dir } from '@/hooks/useDirection'\n\n// shadcn's direction provider: sets the reading direction for what is inside it (the `dir` attribute, so logical\n// utilities such as ps-, me- and text-start follow it) and provides it to components through useDirection(). Code\n// stays left to right: pre, code and kbd inside it keep `ltr`.\nexport interface DirectionProps {\n  /** ltr or rtl. */\n  dir?: Dir\n  children?: ReactNode\n}\n\nexport function Direction({ dir = 'ltr', children }: DirectionProps) {\n  return (\n    <DirectionContext.Provider value={dir}>\n      <style href=\"ds-direction\" precedence=\"ds\">{css}</style>\n      <div data-ds=\"direction\" className=\"ds-dir\" dir={dir}>{children}</div>\n    </DirectionContext.Provider>\n  )\n}\n\nexport default Direction\n\nconst css = `\n.ds-dir :is(pre, code, kbd) { direction: ltr; unicode-bidi: isolate; }\n`\n"
+    },
+    {
+      "path": "hooks/useDirection.ts",
+      "type": "registry:hook",
+      "content": "'use client'\nimport { createContext, useContext } from 'react'\n\n// The reading direction a Direction wrapper provides to what is inside it, so a component can flip what it draws\n// (an arrow, a slide) for right-to-left text. Outside any wrapper it reads `ltr`.\nexport type Dir = 'ltr' | 'rtl'\nexport const DirectionContext = createContext<Dir>('ltr')\n\nexport function useDirection() {\n  return useContext(DirectionContext)\n}\n"
+    }
+  ]
+}

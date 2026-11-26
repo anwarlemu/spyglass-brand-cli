@@ -1,0 +1,252 @@
+{
+  "name": "blog-post-page",
+  "title": "Blog post page",
+  "type": "registry:block",
+  "group": "pages",
+  "description": "A blog post template, built only from library items: the way back, the title in Funnel Display, a wide image, the body in a 720px column (paragraphs, subheads, a list, a quote, a figure of creatives), more posts and the offer.",
+  "use_for": "One post of a website's blog. The body is a list of blocks in lib/pages/blog-post.ts; pass `content` for each post.",
+  "never": [
+    "New colors, shadows or type sizes added to a section: use the items' props",
+    "More than one White button in a section",
+    "A body wider than 720px"
+  ],
+  "source": "Built from the library (site header, creative card, creative grid, offer block, footer row) and the brand's type",
+  "body": "`sections` lists the sections to show, in order (`head`, `cover`, `body`, `related`, `offer`); a key left out is not\nshown. The head, cover and body stay inside the article, where the first of them falls. The cover, the figures' images\nand the related posts' images are image slots (or the placeholder's `brand`, `caption` and `tone`). `menus` passes the\nheader menus (the live card's `picture`, the use cases' `shots`).",
+  "requires": [
+    "creative-card",
+    "creative-grid",
+    "footer-row",
+    "offer-block",
+    "site-header"
+  ],
+  "dependencies": [
+    "lucide-react@0.479.0"
+  ],
+  "files": [
+    {
+      "path": "react/components/pages/BlogPostPage.tsx",
+      "content": "import { ChevronLeft } from 'lucide-react'\nimport { CreativeCard } from '@/react/components/site/CreativeCard'\nimport { CreativeGrid } from '@/react/components/site/CreativeGrid'\nimport { FooterRow } from '@/react/components/site/FooterRow'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { OfferBlock } from '@/react/components/blocks/OfferBlock'\nimport { blogPostContent, type BlogPostBlock, type BlogPostContent, blogPostSections, type BlogPostSection } from '@/lib/pages/blog-post'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections, groupSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// A blog post from library items: the way back, the date and category in capitals, the title in Funnel Display, the\n// byline, a wide image, then the body in a 720px column (DM Sans paragraphs, Funnel Display subheads, a list, a quote\n// set off by a hairline, a figure of creatives), more posts and the offer. `content` replaces the post\n// (lib/pages/blog-post.ts); its `body` is a list of blocks.\nexport interface BlogPostPageProps {\n  content?: BlogPostContent\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly BlogPostSection[]\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\nconst COLUMN = 'mx-auto w-full max-w-180 px-12 max-sm:px-4'\nconst ARTICLE: readonly BlogPostSection[] = ['head', 'cover', 'body']\nconst TITLE = 'rounded-control transition-[color] duration-160 ease-standard hover:text-fg-soft'\n\nfunction Block({ block: b }: { block: BlogPostBlock }) {\n  if (b.kind === 'h2') return <h2 className=\"mt-6 type-heading-2 text-fg\">{b.text}</h2>\n  if (b.kind === 'quote') return <blockquote className=\"m-0 border-l-2 border-edge-strong pl-6 type-heading-3 text-fg\">{b.text}</blockquote>\n  if (b.kind === 'list') return <ul className=\"grid list-disc gap-2 pl-5 type-body-lg text-fg-soft marker:text-fg-faint\">{b.items.map((i) => <li key={i}>{i}</li>)}</ul>\n  if (b.kind === 'figure') return (\n    <figure className=\"m-0 my-4 grid gap-3\">\n      <CreativeGrid items={b.images} ratio=\"3/4\" />\n      <figcaption className=\"type-caption text-fg-muted\">{b.caption}</figcaption>\n    </figure>\n  )\n  return <p className=\"type-body-lg text-fg-soft\">{b.text}</p>\n}\n\nexport function BlogPostPage({ content: c = blogPostContent, menus, sections, className }: BlogPostPageProps) {\n  const parts: Record<BlogPostSection, ReactNode> = {\n    head: (\n      <header className={cn(COLUMN, 'flex flex-col items-start pt-16 max-sm:pt-10')}>\n        <a href={c.back.href} className=\"inline-flex items-center gap-1.5 rounded-control type-ui text-fg-muted transition-[color] duration-160 ease-standard hover:text-fg\">\n          <ChevronLeft size={16} strokeWidth={1.5} aria-hidden=\"true\" />\n          {c.back.label}\n        </a>\n        <p className=\"mt-8 type-label text-fg-muted\">{`${c.date} · ${c.category}`}</p>\n        <h1 className=\"mt-4 type-hero text-balance max-sm:type-heading-1\">{c.title}</h1>\n        <p className=\"mt-6 type-ui text-fg-muted\">{c.byline}</p>\n      </header>\n    ),\n    cover: (\n      <div className={cn(WRAP, 'mt-12 max-sm:mt-8')}>\n        <CreativeCard {...c.image} alt={c.image.alt ?? c.title} ratio=\"16/9\" className=\"mx-auto max-w-page\" />\n      </div>\n    ),\n    body: (\n      <div className={cn(COLUMN, 'grid gap-6 py-12 max-sm:py-8')}>\n        {c.body.map((b, i) => <Block key={i} block={b} />)}\n      </div>\n    ),\n    related: (\n      <section className={cn(WRAP, 'grid gap-10 py-24 max-sm:gap-8 max-sm:py-16')}>\n        <h2 className=\"type-section\">{c.related.title}</h2>\n        <div className=\"grid grid-cols-3 gap-6 max-md:grid-cols-1\">\n          {c.related.posts.map((p) => (\n            <article key={p.href} className=\"grid content-start gap-4\">\n              <CreativeCard {...p.image} alt={p.image.alt ?? p.title} ratio=\"7/5\" />\n              <p className=\"type-label text-fg-muted\">{p.date}</p>\n              <h3 className=\"type-heading-3 text-balance\"><a href={p.href} className={TITLE}>{p.title}</a></h3>\n            </article>\n          ))}\n        </div>\n      </section>\n    ),\n    offer: <OfferBlock headline={c.offer.headline} note={c.offer.note} cta={c.offer.cta} seed={2} />,\n  }\n  return (\n    <div data-ds=\"blog-post-page\" className={cn('bg-surface text-fg', className)}>\n      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      <main>\n        {groupSections(pageSections(blogPostSections, sections), ARTICLE).map((k) => (Array.isArray(k) ? <article key=\"article\">{k.map((a) => <Fragment key={a}>{parts[a]}</Fragment>)}</article> : <Fragment key={k}>{parts[k]}</Fragment>))}\n      </main>\n      <footer className=\"border-t border-edge\">\n        <div className={cn(WRAP, 'py-10')}>\n          <FooterRow domain={c.footer.domain} homeHref=\"/\" links={c.footer.links} />\n        </div>\n      </footer>\n    </div>\n  )\n}\n\nexport default BlogPostPage\n"
+    },
+    {
+      "path": "lib/pages/blog-post.ts",
+      "content": "// The blog post template's copy: a neutral example post by the team, with Acme placeholders. Both flavors read this file.\nimport type { CreativeImage } from '@/lib/image'\n/** An Acme placeholder creative: the advertiser, a neutral tone (1 to 4) and a headline. */\nconst creative = (brand: string, tone: 1 | 2 | 3 | 4, caption?: string): CreativeImage => (caption ? { brand, tone, caption } : { brand, tone })\n\nconst nav = [\n\t{ label: 'Product', href: '/product' },\n\t{ label: 'Pricing', href: '/pricing' },\n\t{ label: 'Changelog', href: '/changelog' },\n\t{ label: 'Blog', href: '/blog' },\n]\nconst footer = {\n\tdomain: 'spyglass.so',\n\tlinks: [\n\t\t{ label: 'Product', href: '/product' },\n\t\t{ label: 'Pricing', href: '/pricing' },\n\t\t{ label: 'About', href: '/about' },\n\t\t{ label: 'Changelog', href: '/changelog' },\n\t\t{ label: 'Blog', href: '/blog' },\n\t\t{ label: 'Terms', href: '/legal' },\n\t],\n}\nconst header = { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get 50% off', href: '/pricing' } }\n\n// A block of the post's body. Written out in place (no type alias), so the web component's generated types stand alone.\nconst body: ({ kind: 'p' | 'h2' | 'quote'; text: string } | { kind: 'list'; items: string[] } | { kind: 'figure'; caption: string; images: CreativeImage[] })[] = [\n\t{ kind: 'p', text: 'A brand’s best ad tells you what worked once. A week of its ads tells you what it believes. Start with the week.' },\n\t{ kind: 'h2', text: 'Count formats first.' },\n\t{ kind: 'p', text: 'Sort the week by format before you look at a single hook. UGC, studio, static, carousel. The split is the strategy.' },\n\t{ kind: 'list', items: ['Pull seven days of ads for one brand.', 'Tag each one by format.', 'Note which formats got new versions.'] },\n\t{ kind: 'figure', caption: 'Three of Acme Skin’s ads from one week, side by side.', images: [creative('Acme Skin', 3, 'Glow in two steps.'), creative('Acme Skin', 2, 'The travel kit.'), creative('Acme Skin', 4, 'Night repair.')] },\n\t{ kind: 'h2', text: 'Then read the hooks.' },\n\t{ kind: 'p', text: 'Hooks repeat inside a format. When a brand ships the same opening three times, it is working.' },\n\t{ kind: 'quote', text: 'The split is the strategy. The hook is the tactic.' },\n\t{ kind: 'p', text: 'Write down what changed since last week. That list is your brief.' },\n]\n\nexport const blogPostContent = {\n\theader: { ...header, nav: nav.map((l) => (l.href === '/blog' ? { ...l, current: true } : l)) },\n\tback: { label: 'Blog', href: '/blog' },\n\tdate: 'Nov 12, 2026',\n\tcategory: 'Research',\n\ttitle: 'How to read a competitor’s creative mix.',\n\tbyline: 'By the Spyglass team',\n\timage: creative('Acme Skin', 3),\n\tbody,\n\trelated: {\n\t\ttitle: 'More from the blog.',\n\t\tposts: [\n\t\t\t{ href: '/blog/skincare-hooks', title: 'Five hooks that keep working in skincare ads.', date: 'Nov 5, 2026', image: creative('Acme Skin', 2) },\n\t\t\t{ href: '/blog/swipe-files', title: 'A swipe file your team will use.', date: 'Oct 29, 2026', image: creative('Acme Studio', 4) },\n\t\t\t{ href: '/blog/launch-week', title: 'What a launch week looks like in the index.', date: 'Oct 22, 2026', image: creative('Acme Drinks', 1) },\n\t\t],\n\t},\n\toffer: { headline: 'Stop screenshotting at midnight.', note: '$10 for your first month, then $20/month', cta: { label: 'Start Creator for 50% off', href: '/pricing' } },\n\tfooter,\n}\n\nexport type BlogPostContent = typeof blogPostContent\nexport type BlogPostBlock = (typeof body)[number]\n\n/** The blog post's sections in order (head, cover and body stay inside the article, where the first of them falls); pass `sections` to reorder them or leave some out. */\nexport const blogPostSections = ['head', 'cover', 'body', 'related', 'offer'] as const\nexport type BlogPostSection = (typeof blogPostSections)[number]\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Page",
+      "label": "Blog post page",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/blog-post-page/Page.tsx",
+      "content": "import { BlogPostPage } from '@/react/components/pages/BlogPostPage'\n// The blog post page template with its own copy.\n\nexport default function Page() {\n  return <BlogPostPage />\n}\n",
+      "requires": [
+        "creative-card",
+        "creative-grid",
+        "footer-row",
+        "offer-block",
+        "site-header"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/pages/BlogPostPage.tsx",
+          "content": "import { ChevronLeft } from 'lucide-react'\nimport { CreativeCard } from '@/react/components/site/CreativeCard'\nimport { CreativeGrid } from '@/react/components/site/CreativeGrid'\nimport { FooterRow } from '@/react/components/site/FooterRow'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { OfferBlock } from '@/react/components/blocks/OfferBlock'\nimport { blogPostContent, type BlogPostBlock, type BlogPostContent, blogPostSections, type BlogPostSection } from '@/lib/pages/blog-post'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections, groupSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// A blog post from library items: the way back, the date and category in capitals, the title in Funnel Display, the\n// byline, a wide image, then the body in a 720px column (DM Sans paragraphs, Funnel Display subheads, a list, a quote\n// set off by a hairline, a figure of creatives), more posts and the offer. `content` replaces the post\n// (lib/pages/blog-post.ts); its `body` is a list of blocks.\nexport interface BlogPostPageProps {\n  content?: BlogPostContent\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly BlogPostSection[]\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\nconst COLUMN = 'mx-auto w-full max-w-180 px-12 max-sm:px-4'\nconst ARTICLE: readonly BlogPostSection[] = ['head', 'cover', 'body']\nconst TITLE = 'rounded-control transition-[color] duration-160 ease-standard hover:text-fg-soft'\n\nfunction Block({ block: b }: { block: BlogPostBlock }) {\n  if (b.kind === 'h2') return <h2 className=\"mt-6 type-heading-2 text-fg\">{b.text}</h2>\n  if (b.kind === 'quote') return <blockquote className=\"m-0 border-l-2 border-edge-strong pl-6 type-heading-3 text-fg\">{b.text}</blockquote>\n  if (b.kind === 'list') return <ul className=\"grid list-disc gap-2 pl-5 type-body-lg text-fg-soft marker:text-fg-faint\">{b.items.map((i) => <li key={i}>{i}</li>)}</ul>\n  if (b.kind === 'figure') return (\n    <figure className=\"m-0 my-4 grid gap-3\">\n      <CreativeGrid items={b.images} ratio=\"3/4\" />\n      <figcaption className=\"type-caption text-fg-muted\">{b.caption}</figcaption>\n    </figure>\n  )\n  return <p className=\"type-body-lg text-fg-soft\">{b.text}</p>\n}\n\nexport function BlogPostPage({ content: c = blogPostContent, menus, sections, className }: BlogPostPageProps) {\n  const parts: Record<BlogPostSection, ReactNode> = {\n    head: (\n      <header className={cn(COLUMN, 'flex flex-col items-start pt-16 max-sm:pt-10')}>\n        <a href={c.back.href} className=\"inline-flex items-center gap-1.5 rounded-control type-ui text-fg-muted transition-[color] duration-160 ease-standard hover:text-fg\">\n          <ChevronLeft size={16} strokeWidth={1.5} aria-hidden=\"true\" />\n          {c.back.label}\n        </a>\n        <p className=\"mt-8 type-label text-fg-muted\">{`${c.date} · ${c.category}`}</p>\n        <h1 className=\"mt-4 type-hero text-balance max-sm:type-heading-1\">{c.title}</h1>\n        <p className=\"mt-6 type-ui text-fg-muted\">{c.byline}</p>\n      </header>\n    ),\n    cover: (\n      <div className={cn(WRAP, 'mt-12 max-sm:mt-8')}>\n        <CreativeCard {...c.image} alt={c.image.alt ?? c.title} ratio=\"16/9\" className=\"mx-auto max-w-page\" />\n      </div>\n    ),\n    body: (\n      <div className={cn(COLUMN, 'grid gap-6 py-12 max-sm:py-8')}>\n        {c.body.map((b, i) => <Block key={i} block={b} />)}\n      </div>\n    ),\n    related: (\n      <section className={cn(WRAP, 'grid gap-10 py-24 max-sm:gap-8 max-sm:py-16')}>\n        <h2 className=\"type-section\">{c.related.title}</h2>\n        <div className=\"grid grid-cols-3 gap-6 max-md:grid-cols-1\">\n          {c.related.posts.map((p) => (\n            <article key={p.href} className=\"grid content-start gap-4\">\n              <CreativeCard {...p.image} alt={p.image.alt ?? p.title} ratio=\"7/5\" />\n              <p className=\"type-label text-fg-muted\">{p.date}</p>\n              <h3 className=\"type-heading-3 text-balance\"><a href={p.href} className={TITLE}>{p.title}</a></h3>\n            </article>\n          ))}\n        </div>\n      </section>\n    ),\n    offer: <OfferBlock headline={c.offer.headline} note={c.offer.note} cta={c.offer.cta} seed={2} />,\n  }\n  return (\n    <div data-ds=\"blog-post-page\" className={cn('bg-surface text-fg', className)}>\n      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      <main>\n        {groupSections(pageSections(blogPostSections, sections), ARTICLE).map((k) => (Array.isArray(k) ? <article key=\"article\">{k.map((a) => <Fragment key={a}>{parts[a]}</Fragment>)}</article> : <Fragment key={k}>{parts[k]}</Fragment>))}\n      </main>\n      <footer className=\"border-t border-edge\">\n        <div className={cn(WRAP, 'py-10')}>\n          <FooterRow domain={c.footer.domain} homeHref=\"/\" links={c.footer.links} />\n        </div>\n      </footer>\n    </div>\n  )\n}\n\nexport default BlogPostPage\n"
+        },
+        {
+          "path": "lib/pages/blog-post.ts",
+          "content": "// The blog post template's copy: a neutral example post by the team, with Acme placeholders. Both flavors read this file.\nimport type { CreativeImage } from '@/lib/image'\n/** An Acme placeholder creative: the advertiser, a neutral tone (1 to 4) and a headline. */\nconst creative = (brand: string, tone: 1 | 2 | 3 | 4, caption?: string): CreativeImage => (caption ? { brand, tone, caption } : { brand, tone })\n\nconst nav = [\n\t{ label: 'Product', href: '/product' },\n\t{ label: 'Pricing', href: '/pricing' },\n\t{ label: 'Changelog', href: '/changelog' },\n\t{ label: 'Blog', href: '/blog' },\n]\nconst footer = {\n\tdomain: 'spyglass.so',\n\tlinks: [\n\t\t{ label: 'Product', href: '/product' },\n\t\t{ label: 'Pricing', href: '/pricing' },\n\t\t{ label: 'About', href: '/about' },\n\t\t{ label: 'Changelog', href: '/changelog' },\n\t\t{ label: 'Blog', href: '/blog' },\n\t\t{ label: 'Terms', href: '/legal' },\n\t],\n}\nconst header = { nav, secondary: { label: 'Sign in', href: '/sign-in' }, cta: { label: 'Get 50% off', href: '/pricing' } }\n\n// A block of the post's body. Written out in place (no type alias), so the web component's generated types stand alone.\nconst body: ({ kind: 'p' | 'h2' | 'quote'; text: string } | { kind: 'list'; items: string[] } | { kind: 'figure'; caption: string; images: CreativeImage[] })[] = [\n\t{ kind: 'p', text: 'A brand’s best ad tells you what worked once. A week of its ads tells you what it believes. Start with the week.' },\n\t{ kind: 'h2', text: 'Count formats first.' },\n\t{ kind: 'p', text: 'Sort the week by format before you look at a single hook. UGC, studio, static, carousel. The split is the strategy.' },\n\t{ kind: 'list', items: ['Pull seven days of ads for one brand.', 'Tag each one by format.', 'Note which formats got new versions.'] },\n\t{ kind: 'figure', caption: 'Three of Acme Skin’s ads from one week, side by side.', images: [creative('Acme Skin', 3, 'Glow in two steps.'), creative('Acme Skin', 2, 'The travel kit.'), creative('Acme Skin', 4, 'Night repair.')] },\n\t{ kind: 'h2', text: 'Then read the hooks.' },\n\t{ kind: 'p', text: 'Hooks repeat inside a format. When a brand ships the same opening three times, it is working.' },\n\t{ kind: 'quote', text: 'The split is the strategy. The hook is the tactic.' },\n\t{ kind: 'p', text: 'Write down what changed since last week. That list is your brief.' },\n]\n\nexport const blogPostContent = {\n\theader: { ...header, nav: nav.map((l) => (l.href === '/blog' ? { ...l, current: true } : l)) },\n\tback: { label: 'Blog', href: '/blog' },\n\tdate: 'Nov 12, 2026',\n\tcategory: 'Research',\n\ttitle: 'How to read a competitor’s creative mix.',\n\tbyline: 'By the Spyglass team',\n\timage: creative('Acme Skin', 3),\n\tbody,\n\trelated: {\n\t\ttitle: 'More from the blog.',\n\t\tposts: [\n\t\t\t{ href: '/blog/skincare-hooks', title: 'Five hooks that keep working in skincare ads.', date: 'Nov 5, 2026', image: creative('Acme Skin', 2) },\n\t\t\t{ href: '/blog/swipe-files', title: 'A swipe file your team will use.', date: 'Oct 29, 2026', image: creative('Acme Studio', 4) },\n\t\t\t{ href: '/blog/launch-week', title: 'What a launch week looks like in the index.', date: 'Oct 22, 2026', image: creative('Acme Drinks', 1) },\n\t\t],\n\t},\n\toffer: { headline: 'Stop screenshotting at midnight.', note: '$10 for your first month, then $20/month', cta: { label: 'Start Creator for 50% off', href: '/pricing' } },\n\tfooter,\n}\n\nexport type BlogPostContent = typeof blogPostContent\nexport type BlogPostBlock = (typeof body)[number]\n\n/** The blog post's sections in order (head, cover and body stay inside the article, where the first of them falls); pass `sections` to reorder them or leave some out. */\nexport const blogPostSections = ['head', 'cover', 'body', 'related', 'offer'] as const\nexport type BlogPostSection = (typeof blogPostSections)[number]\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [
+        "lucide-react@0.479.0"
+      ],
+      "registryDependencies": [
+        "creative-card",
+        "creative-grid",
+        "footer-row",
+        "offer-block",
+        "site-header"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "BlogPostPage",
+            "file": "react/components/pages/BlogPostPage.tsx",
+            "props": [
+              {
+                "name": "content",
+                "type": "BlogPostContent",
+                "required": false
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus",
+                "required": false,
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "type": "readonly BlogPostSection[]",
+                "required": false,
+                "description": "The sections to show, in order; all of them in the page order by default (leave one out to omit it)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Blog post page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/blog-post-page/Page.tsx",
+          "content": "import { BlogPostPage } from '@/react/components/pages/BlogPostPage'\n// The blog post page template with its own copy.\n\nexport default function Page() {\n  return <BlogPostPage />\n}\n",
+          "registryDependencies": [
+            "creative-card",
+            "creative-grid",
+            "footer-row",
+            "offer-block",
+            "site-header"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/pages/blog-post-page.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { ifDefined } from 'lit/directives/if-defined.js'\nimport { ChevronLeft } from 'lucide'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { icon } from '@/elements/lib/icon'\nimport { blogPostContent, type BlogPostBlock, type BlogPostContent, blogPostSections, type BlogPostSection } from '@/lib/pages/blog-post'\nimport '@/elements/components/site/creative-card'\nimport '@/elements/components/site/creative-grid'\nimport '@/elements/components/site/footer-row'\nimport '@/elements/components/site/site-header'\nimport '@/elements/components/blocks/offer-block'\nimport styles from 'virtual:tw'\nimport { pageSections, groupSections } from '@/lib/image'\nimport { headerMenus, type HeaderMenus } from '@/lib/site-header'\n\n// BlogPostPage.tsx as <spyglass-blog-post-page>: the way back, the title, a wide image, the body in a 720px column,\n// more posts and the offer. `content` replaces the post; its `body` is a list of blocks.\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\nconst COLUMN = 'mx-auto w-full max-w-180 px-12 max-sm:px-4'\nconst ARTICLE: readonly BlogPostSection[] = ['head', 'cover', 'body']\nconst TITLE = 'rounded-control transition-[color] duration-160 ease-standard hover:text-fg-soft'\n\nconst block = (b: BlogPostBlock) => {\n\tif (b.kind === 'h2') return html`<h2 class=\"mt-6 type-heading-2 text-fg\">${b.text}</h2>`\n\tif (b.kind === 'quote') return html`<blockquote class=\"m-0 border-l-2 border-edge-strong pl-6 type-heading-3 text-fg\">${b.text}</blockquote>`\n\tif (b.kind === 'list') return html`<ul class=\"grid list-disc gap-2 pl-5 type-body-lg text-fg-soft marker:text-fg-faint\">${b.items.map((i) => html`<li>${i}</li>`)}</ul>`\n\tif (b.kind === 'figure') return html`<figure class=\"m-0 my-4 grid gap-3\"><spyglass-creative-grid .items=${b.images} ratio=\"3/4\"></spyglass-creative-grid><figcaption class=\"type-caption text-fg-muted\">${b.caption}</figcaption></figure>`\n\treturn html`<p class=\"type-body-lg text-fg-soft\">${b.text}</p>`\n}\n\n/**\n * @summary The blog post template.\n */\nexport class BlogPostPage extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"blog-post-page\"]'))\n\tstatic properties = { content: { type: Object }, menus: { type: Object }, sections: { type: Array } }\n\t/** The post (lib/pages/blog-post.ts by default). */\n\tcontent: BlogPostContent = blogPostContent\n\t/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n\tmenus?: HeaderMenus\n\t/** The sections to show, in order (a list of names); all of them in the page order by default. */\n\tsections?: BlogPostSection[]\n\n\trender() {\n\t\tconst c = this.content ?? blogPostContent\n\t\tconst parts: Record<BlogPostSection, unknown> = {\n\t\t\thead: html`<header class=${`${COLUMN} flex flex-col items-start pt-16 max-sm:pt-10`}><a href=${c.back.href} class=\"inline-flex items-center gap-1.5 rounded-control type-ui text-fg-muted transition-[color] duration-160 ease-standard hover:text-fg\">${icon(ChevronLeft, 'chevron-left', { size: 16, strokeWidth: 1.5, attrs: { 'aria-hidden': 'true' } })}${c.back.label}</a><p class=\"mt-8 type-label text-fg-muted\">${`${c.date} · ${c.category}`}</p><h1 class=\"mt-4 type-hero text-balance max-sm:type-heading-1\">${c.title}</h1><p class=\"mt-6 type-ui text-fg-muted\">${c.byline}</p></header>`,\n\t\t\tcover: html`<div class=${`${WRAP} mt-12 max-sm:mt-8`}><spyglass-creative-card src=${ifDefined(c.image.src)} fit=${ifDefined(c.image.fit)} position=${ifDefined(c.image.position)} brand=${ifDefined(c.image.brand)} caption=${ifDefined(c.image.caption)} tone=${ifDefined(c.image.tone)} alt=${c.image.alt ?? c.title} ratio=\"16/9\" class=\"mx-auto max-w-page\"></spyglass-creative-card></div>`,\n\t\t\tbody: html`<div class=${`${COLUMN} grid gap-6 py-12 max-sm:py-8`}>${c.body.map(block)}</div>`,\n\t\t\trelated: html`<section class=${`${WRAP} grid gap-10 py-24 max-sm:gap-8 max-sm:py-16`}><h2 class=\"type-section\">${c.related.title}</h2><div class=\"grid grid-cols-3 gap-6 max-md:grid-cols-1\">${c.related.posts.map((p) => html`<article class=\"grid content-start gap-4\"><spyglass-creative-card src=${ifDefined(p.image.src)} fit=${ifDefined(p.image.fit)} position=${ifDefined(p.image.position)} brand=${ifDefined(p.image.brand)} caption=${ifDefined(p.image.caption)} tone=${ifDefined(p.image.tone)} alt=${p.image.alt ?? p.title} ratio=\"7/5\"></spyglass-creative-card><p class=\"type-label text-fg-muted\">${p.date}</p><h3 class=\"type-heading-3 text-balance\"><a href=${p.href} class=${TITLE}>${p.title}</a></h3></article>`)}</div></section>`,\n\t\t\toffer: html`<spyglass-offer-block headline=${c.offer.headline} note=${c.offer.note} .cta=${c.offer.cta} seed=\"2\"></spyglass-offer-block>`,\n\t\t}\n\t\treturn html`<div data-ds=\"blog-post-page\" class=\"bg-surface text-fg\">\n<spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header>\n<main>${groupSections(pageSections(blogPostSections, this.sections), ARTICLE).map((k) => (Array.isArray(k) ? html`<article>${k.map((a) => parts[a])}</article>` : parts[k]))}</main>\n<footer class=\"border-t border-edge\"><div class=${`${WRAP} py-10`}><spyglass-footer-row domain=${c.footer.domain} home-href=\"/\" .links=${c.footer.links}></spyglass-footer-row></div></footer>\n</div>`\n\t}\n}\n\ndefine('blog-post-page', BlogPostPage)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/blog-post-page.js",
+        "elements/creative-card.js",
+        "elements/creative-grid.js",
+        "elements/footer-row.js",
+        "elements/site-header.js",
+        "elements/offer-block.js",
+        "elements/brand-light.js",
+        "elements/logo.js",
+        "elements/menu-sheet.js",
+        "elements/menu-panels.js",
+        "elements/nav-menus.js",
+        "elements/nav-icon.js",
+        "elements/sheet-disclosure.js",
+        "elements/button.js",
+        "elements/ascii-texture.js",
+        "elements/products-live-panel.js",
+        "elements/product-visual.js"
+      ],
+      "tag": "spyglass-blog-post-page",
+      "tags": [
+        "spyglass-blog-post-page"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-texture",
+        "brand-light",
+        "button",
+        "creative-card",
+        "creative-grid",
+        "footer-row",
+        "logo",
+        "offer-block",
+        "product-visual",
+        "site-header"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-blog-post-page",
+            "name": "BlogPostPage",
+            "module": "elements/blog-post-page.js",
+            "description": "The blog post template.",
+            "attributes": [
+              {
+                "name": "content",
+                "field": "content",
+                "type": "{ header: { nav: ({ label: string; href: string; } | { current: boolean; label: string; href: string; })[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; }; }; back: { label: string; href: string; }; date: string; category: string; title: string; byline: string; image: CreativeImage; body: ({ kind: \"p\" | \"h2\" | \"quote\"; text: string; } | { kind: \"list\"; items: string[]; } | { kind: \"figure\"; caption: string; images: CreativeImage[]; })[]; related: { title: string; posts: { href: string; title: string; date: string; image: CreativeImage; }[]; }; offer: { headline: string; note: string; cta: { label: string; href: string; }; }; footer: { domain: string; links: { label: string; href: string; }[]; }; }",
+                "default": "blogPostContent",
+                "description": "The post (lib/pages/blog-post.ts by default)."
+              },
+              {
+                "name": "menus",
+                "field": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "field": "sections",
+                "type": "(\"head\" | \"cover\" | \"body\" | \"related\" | \"offer\")[] | undefined",
+                "description": "The sections to show, in order (a list of names); all of them in the page order by default."
+              }
+            ],
+            "properties": [
+              {
+                "name": "content",
+                "type": "{ header: { nav: ({ label: string; href: string; } | { current: boolean; label: string; href: string; })[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; }; }; back: { label: string; href: string; }; date: string; category: string; title: string; byline: string; image: CreativeImage; body: ({ kind: \"p\" | \"h2\" | \"quote\"; text: string; } | { kind: \"list\"; items: string[]; } | { kind: \"figure\"; caption: string; images: CreativeImage[]; })[]; related: { title: string; posts: { href: string; title: string; date: string; image: CreativeImage; }[]; }; offer: { headline: string; note: string; cta: { label: string; href: string; }; }; footer: { domain: string; links: { label: string; href: string; }[]; }; }",
+                "default": "blogPostContent",
+                "description": "The post (lib/pages/blog-post.ts by default).",
+                "attribute": "content"
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default.",
+                "attribute": "menus"
+              },
+              {
+                "name": "sections",
+                "type": "(\"head\" | \"cover\" | \"body\" | \"related\" | \"offer\")[] | undefined",
+                "description": "The sections to show, in order (a list of names); all of them in the page order by default.",
+                "attribute": "sections"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Blog post page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/blog-post-page/Page.html",
+          "content": "<!-- The blog post page template with its own copy. -->\n<spyglass-blog-post-page></spyglass-blog-post-page>\n"
+        }
+      ]
+    }
+  }
+}

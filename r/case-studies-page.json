@@ -1,0 +1,254 @@
+{
+  "name": "case-studies-page",
+  "title": "Case studies page",
+  "type": "registry:block",
+  "group": "pages",
+  "description": "The site's case studies index: the header, the page head, the home's case stories without their head (each case as a wide picture with its panel, then every quote in cards three across), the closing section and the footer.",
+  "use_for": "An index of customer stories; `content` takes the cases (each linking to its case study page) and the quotes.",
+  "never": [
+    "Customers' names, marks, photos or quotes you may not show: the defaults are Acme placeholders",
+    "A case without a concrete figure",
+    "A second head over the stories: the page head names the page"
+  ],
+  "source": "Site app/resources/case-studies/page.tsx and pages/CaseStudies (CaseStudyIndex.tsx, .module.css): PageHead, then CaseStoriesGrid with every quote in the container with 96px under it, PageClose and the footer",
+  "body": "`sections` lists the sections to show, in order (`head`, `stories`, `close`); a key left out is not shown. Each case's\n`picture` is an image slot (`src`, `alt`, `fit`, `position`) or a placeholder `tone`. `menus` passes the header menus\n(the live card's `picture`, the use cases' `shots`).",
+  "requires": [
+    "ascii-trail",
+    "case-stories-block",
+    "case-study-page",
+    "creative-card",
+    "page-close",
+    "page-head",
+    "site-footer",
+    "site-header"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/pages/CaseStudiesPage.tsx",
+      "content": "import { CaseStoriesBlock } from '@/react/components/blocks/CaseStoriesBlock'\nimport { AsciiTrail } from '@/react/components/visuals/AsciiTrail'\nimport { PageClose } from '@/react/components/site/PageClose'\nimport { PageHead } from '@/react/components/site/PageHead'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { SiteFooter } from '@/react/components/blocks/SiteFooter'\nimport { caseStudiesIndexContent, type CaseStudiesIndexContent, caseStudiesSections, type CaseStudiesSection } from '@/lib/pages/case-studies'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// The site's case studies index (app/resources/case-studies, pages/CaseStudies/CaseStudyIndex): the header, the page\n// head, the home's case stories without their head (each case's picture and panel, then every quote in cards three\n// across) right under it with 96px below, the closing section and the footer. `content` replaces the copy, the cases\n// and the quotes (lib/pages/case-studies.ts; Acme placeholders).\nexport interface CaseStudiesPageProps {\n  content?: CaseStudiesIndexContent\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly CaseStudiesSection[]\n  className?: string\n}\n\n\nexport function CaseStudiesPage({ content: c = caseStudiesIndexContent, menus, sections, className }: CaseStudiesPageProps) {\n  const parts: Record<CaseStudiesSection, ReactNode> = {\n    head: <PageHead id={c.head.id} lines={c.head.lines} lead={c.head.lead} />,\n    stories: (\n      <div aria-label={c.head.lines.join(' ')} role=\"region\" className=\"-mt-(--ds-layout-section) pb-[calc(96px-var(--ds-layout-section))]\">\n        <CaseStoriesBlock cases={c.cases} quotes={c.quotes} quoteCount={c.quotes.length} head={false} />\n      </div>\n    ),\n    close: <PageClose lines={c.close.lines} note={c.close.note} primary={c.close.primary} />,\n  }\n  return (\n    <div data-ds=\"case-studies-page\" className={cn('isolate overflow-x-clip bg-surface text-fg', className)}>\n      <AsciiTrail mode=\"page\" />\n      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      <main>\n        {pageSections(caseStudiesSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <SiteFooter columns={c.footer.columns} legal={c.footer.legal} />\n    </div>\n  )\n}\n\nexport default CaseStudiesPage\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Page",
+      "label": "Case studies",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/case-studies-page/Page.tsx",
+      "content": "import { CaseStudiesPage } from '@/react/components/pages/CaseStudiesPage'\n// The case studies index as the site sets it, with Acme's cases and quotes.\n\nexport default function Page() {\n  return <CaseStudiesPage />\n}\n",
+      "requires": [
+        "ascii-trail",
+        "case-stories-block",
+        "case-study-page",
+        "creative-card",
+        "page-close",
+        "page-head",
+        "site-footer",
+        "site-header"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/pages/CaseStudiesPage.tsx",
+          "content": "import { CaseStoriesBlock } from '@/react/components/blocks/CaseStoriesBlock'\nimport { AsciiTrail } from '@/react/components/visuals/AsciiTrail'\nimport { PageClose } from '@/react/components/site/PageClose'\nimport { PageHead } from '@/react/components/site/PageHead'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { SiteFooter } from '@/react/components/blocks/SiteFooter'\nimport { caseStudiesIndexContent, type CaseStudiesIndexContent, caseStudiesSections, type CaseStudiesSection } from '@/lib/pages/case-studies'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// The site's case studies index (app/resources/case-studies, pages/CaseStudies/CaseStudyIndex): the header, the page\n// head, the home's case stories without their head (each case's picture and panel, then every quote in cards three\n// across) right under it with 96px below, the closing section and the footer. `content` replaces the copy, the cases\n// and the quotes (lib/pages/case-studies.ts; Acme placeholders).\nexport interface CaseStudiesPageProps {\n  content?: CaseStudiesIndexContent\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly CaseStudiesSection[]\n  className?: string\n}\n\n\nexport function CaseStudiesPage({ content: c = caseStudiesIndexContent, menus, sections, className }: CaseStudiesPageProps) {\n  const parts: Record<CaseStudiesSection, ReactNode> = {\n    head: <PageHead id={c.head.id} lines={c.head.lines} lead={c.head.lead} />,\n    stories: (\n      <div aria-label={c.head.lines.join(' ')} role=\"region\" className=\"-mt-(--ds-layout-section) pb-[calc(96px-var(--ds-layout-section))]\">\n        <CaseStoriesBlock cases={c.cases} quotes={c.quotes} quoteCount={c.quotes.length} head={false} />\n      </div>\n    ),\n    close: <PageClose lines={c.close.lines} note={c.close.note} primary={c.close.primary} />,\n  }\n  return (\n    <div data-ds=\"case-studies-page\" className={cn('isolate overflow-x-clip bg-surface text-fg', className)}>\n      <AsciiTrail mode=\"page\" />\n      <SiteHeader menus={menus} links={c.header.nav} secondary={c.header.secondary} cta={c.header.cta} />\n      <main>\n        {pageSections(caseStudiesSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <SiteFooter columns={c.footer.columns} legal={c.footer.legal} />\n    </div>\n  )\n}\n\nexport default CaseStudiesPage\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-trail",
+        "case-stories-block",
+        "case-study-page",
+        "creative-card",
+        "page-close",
+        "page-head",
+        "site-footer",
+        "site-header"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "CaseStudiesPage",
+            "file": "react/components/pages/CaseStudiesPage.tsx",
+            "props": [
+              {
+                "name": "content",
+                "type": "CaseStudiesIndexContent",
+                "required": false
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus",
+                "required": false,
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "type": "readonly CaseStudiesSection[]",
+                "required": false,
+                "description": "The sections to show, in order; all of them in the page order by default (leave one out to omit it)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Case studies",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/case-studies-page/Page.tsx",
+          "content": "import { CaseStudiesPage } from '@/react/components/pages/CaseStudiesPage'\n// The case studies index as the site sets it, with Acme's cases and quotes.\n\nexport default function Page() {\n  return <CaseStudiesPage />\n}\n",
+          "registryDependencies": [
+            "ascii-trail",
+            "case-stories-block",
+            "case-study-page",
+            "creative-card",
+            "page-close",
+            "page-head",
+            "site-footer",
+            "site-header"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/pages/case-studies-page.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { caseStudiesIndexContent, type CaseStudiesIndexContent, caseStudiesSections, type CaseStudiesSection } from '@/lib/pages/case-studies'\nimport '@/elements/components/site/site-header'\nimport '@/elements/components/site/page-head'\nimport '@/elements/components/blocks/case-stories-block'\nimport '@/elements/components/site/page-close'\nimport '@/elements/components/blocks/site-footer'\nimport '@/elements/components/visuals/ascii-trail'\nimport styles from 'virtual:tw'\nimport { pageSections } from '@/lib/image'\nimport { headerMenus, type HeaderMenus } from '@/lib/site-header'\n\n// CaseStudiesPage.tsx as <spyglass-case-studies-page>: the header, the page head, the home's case stories without\n// their head (every quote shown), the closing section and the footer. `content` (JSON) replaces the copy, the cases\n// and the quotes (lib/pages/case-studies.ts).\n\n\n/**\n * @summary The case studies index.\n */\nexport class CaseStudiesPage extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"case-studies-page\"]'))\n\tstatic properties = { content: { type: Object }, menus: { type: Object }, sections: { type: Array } }\n\t/** The copy, cases and quotes (lib/pages/case-studies.ts by default). */\n\tcontent: CaseStudiesIndexContent = caseStudiesIndexContent\n\t/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n\tmenus?: HeaderMenus\n\t/** The sections to show, in order (a list of names); all of them in the page order by default. */\n\tsections?: CaseStudiesSection[]\n\n\trender() {\n\t\tconst c = this.content ?? caseStudiesIndexContent\n\t\tconst parts: Record<CaseStudiesSection, unknown> = {\n\t\t\thead: html`<spyglass-page-head head-id=${c.head.id} .lines=${c.head.lines} lead=${c.head.lead}></spyglass-page-head>`,\n\t\t\tstories: html`<div aria-label=${c.head.lines.join(' ')} role=\"region\" class=\"-mt-(--ds-layout-section) pb-[calc(96px-var(--ds-layout-section))]\"><spyglass-case-stories-block .cases=${c.cases} .quotes=${c.quotes} .quoteCount=${c.quotes.length} head=\"false\"></spyglass-case-stories-block></div>`,\n\t\t\tclose: html`<spyglass-page-close .lines=${c.close.lines} note=${c.close.note} .primary=${c.close.primary}></spyglass-page-close>`,\n\t\t}\n\t\treturn html`<div data-ds=\"case-studies-page\" class=\"isolate overflow-x-clip bg-surface text-fg\"><spyglass-ascii-trail mode=\"page\"></spyglass-ascii-trail><spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.header.nav} .secondary=${c.header.secondary} .cta=${c.header.cta}></spyglass-site-header><main>${pageSections(caseStudiesSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.footer.columns} legal=${c.footer.legal}></spyglass-site-footer></div>`\n\t}\n}\n\ndefine('case-studies-page', CaseStudiesPage)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/case-studies-page.js",
+        "elements/site-header.js",
+        "elements/page-head.js",
+        "elements/case-stories-block.js",
+        "elements/page-close.js",
+        "elements/site-footer.js",
+        "elements/ascii-trail.js",
+        "elements/menu-sheet.js",
+        "elements/menu-panels.js",
+        "elements/nav-menus.js",
+        "elements/nav-icon.js",
+        "elements/sheet-disclosure.js",
+        "elements/button.js",
+        "elements/logo.js",
+        "elements/creative-card.js",
+        "elements/connect-menu.js",
+        "elements/badge.js",
+        "elements/brand-light.js",
+        "elements/products-live-panel.js",
+        "elements/product-visual.js"
+      ],
+      "tag": "spyglass-case-studies-page",
+      "tags": [
+        "spyglass-case-studies-page"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-trail",
+        "badge",
+        "brand-light",
+        "button",
+        "case-stories-block",
+        "connect-menu",
+        "creative-card",
+        "logo",
+        "page-close",
+        "page-head",
+        "product-visual",
+        "site-footer",
+        "site-header"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-case-studies-page",
+            "name": "CaseStudiesPage",
+            "module": "elements/case-studies-page.js",
+            "description": "The case studies index.",
+            "attributes": [
+              {
+                "name": "content",
+                "field": "content",
+                "type": "{ head: { id: string; lines: string[]; lead: string; }; cases: StoryCase[]; quotes: StoryQuote[]; header: { nav: { label: string; href: string; }[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; short: string; }; }; footer: { columns: ({ title: string; wide: boolean; links: { label: string; href: string; }[]; } | { title: string; links: { label: string; href: string; }[]; wide?: undefined; })[]; legal: string; }; close: { lines: string[]; note: string; primary: { label: string; href: string; }; }; }",
+                "default": "caseStudiesIndexContent",
+                "description": "The copy, cases and quotes (lib/pages/case-studies.ts by default)."
+              },
+              {
+                "name": "menus",
+                "field": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "field": "sections",
+                "type": "(\"head\" | \"stories\" | \"close\")[] | undefined",
+                "description": "The sections to show, in order (a list of names); all of them in the page order by default."
+              }
+            ],
+            "properties": [
+              {
+                "name": "content",
+                "type": "{ head: { id: string; lines: string[]; lead: string; }; cases: StoryCase[]; quotes: StoryQuote[]; header: { nav: { label: string; href: string; }[]; secondary: { label: string; href: string; }; cta: { label: string; href: string; short: string; }; }; footer: { columns: ({ title: string; wide: boolean; links: { label: string; href: string; }[]; } | { title: string; links: { label: string; href: string; }[]; wide?: undefined; })[]; legal: string; }; close: { lines: string[]; note: string; primary: { label: string; href: string; }; }; }",
+                "default": "caseStudiesIndexContent",
+                "description": "The copy, cases and quotes (lib/pages/case-studies.ts by default).",
+                "attribute": "content"
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default.",
+                "attribute": "menus"
+              },
+              {
+                "name": "sections",
+                "type": "(\"head\" | \"stories\" | \"close\")[] | undefined",
+                "description": "The sections to show, in order (a list of names); all of them in the page order by default.",
+                "attribute": "sections"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Case studies",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/case-studies-page/Page.html",
+          "content": "<!-- The case studies index as the site sets it, with Acme's cases and quotes. -->\n<spyglass-case-studies-page></spyglass-case-studies-page>\n"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,192 @@
+{
+  "name": "product-features",
+  "title": "Product features",
+  "type": "registry:ui",
+  "group": "site",
+  "description": "The site's product feature rows: one row per thing the product does, the title, lead and an optional quiet button beside a 4:3 stage on the #262626 fill where the ASCII texture shows around a clear middle and the feature's picture sits; copy 5 parts to the stage's 7 from 1024, every other row flipped, stacked below.",
+  "use_for": "The body of a product page: three or four features, each with a product visual on its stage.",
+  "never": [
+    "A stage without a picture",
+    "More than one button in a row",
+    "Rows that do not alternate"
+  ],
+  "source": "Site pages/Products/ProductFeatures (ProductFeatures.module.css): rows 80px apart (120 from 768), .t-h2 titles (24/28, 32/36 at 768, 40/44 at 1280, weight 450), .t-lead 16px under, a quiet button 32px under; the stage 4:3, --radius-m, --surface, the ASCII texture at --features-ascii-tile and --features-ascii-opacity (screen) masked clear in a 46% by 50% ellipse; 5fr/7fr from 1024 with a 64px gap (96 at 1280), flipped rows 7fr/5fr",
+  "body": "Each feature's `visual` (React) or the slot `visual-1`, `visual-2`... (web component) fills its stage; the stage is a\nsize container named `stage`, so a picture can size itself with `cqi`. On a product page the visuals are the product\nvisual item's kinds.",
+  "requires": [
+    "ascii-drift",
+    "button"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/ProductFeatures.tsx",
+      "content": "import type { ReactNode } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { ASCII_TEXTURE } from '@/lib/textures'\nimport { cn } from '@/react/lib/cn'\n\n// The site's product feature rows (pages/Products/ProductFeatures): one row per thing the product does, the copy (a\n// Funnel Display 450 title, 24/28 on phones, 32/36 at 768 and 40/44 at 1280, a 20/28 lead 16px under it and a quiet\n// button 32px under that) beside a 4:3 stage on the #262626 fill with the 8px corner, where the ASCII texture shows at\n// half strength around a clear middle (screen blended, its tile placed differently in each row) and the feature's\n// picture sits on top. From 1024 the copy takes 5 parts and the stage 7, 64px apart (96 at 1280), every other row\n// flipped; below, the copy sits over the stage. Rows 80px apart (120 from 768). Nothing moves here; the pictures bring\n// their own motion.\nexport interface ProductFeature {\n  headline: string\n  text: string\n  /** A quiet button under the text. */\n  link?: { label: string; href: string }\n  /** What sits on the stage (a product visual). */\n  visual?: ReactNode\n}\n\nexport interface ProductFeaturesProps {\n  features: ProductFeature[]\n  /** Prefix for the heading ids. */\n  id?: string\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\nexport const FEATURE_ASCII_AT = ['0 0', '40% 24%', '64% 56%', '20% 80%']\n\nexport function ProductFeatures({ features, id = 'product', className }: ProductFeaturesProps) {\n  return (\n    <div data-ds=\"product-features\" className={cn('py-(--ds-layout-section) text-fg', className)}>\n      <style href=\"ds-product-features\" precedence=\"ds\">{css}</style>\n      <div className={cn(WRAP, 'grid gap-y-20 md:gap-y-30')}>\n        {features.map((f, i) => (\n          <section key={f.headline} aria-labelledby={`${id}-feature-${i + 1}`} className={cn('grid grid-cols-[minmax(0,1fr)] items-center gap-y-8 lg:gap-x-16 xl:gap-x-24', i % 2 ? 'lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]' : 'lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]')}>\n            <div className={cn('flex flex-col items-start', i % 2 ? 'lg:order-2' : '')}>\n              <h2 id={`${id}-feature-${i + 1}`} className=\"ds-pf-title\">{f.headline}</h2>\n              <p className=\"mt-4 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft\">{f.text}</p>\n              {f.link && <Button href={f.link.href} variant=\"secondary\" className=\"mt-8 max-md:w-full\">{f.link.label}</Button>}\n            </div>\n            <div className=\"ds-pf-stage relative isolate aspect-4/3 min-w-0 overflow-clip rounded-panel bg-surface-raised\">\n              <span aria-hidden=\"true\" className=\"ds-pf-ascii\" style={{ backgroundImage: `url(\"${ASCII_TEXTURE}\")`, backgroundPosition: FEATURE_ASCII_AT[i % FEATURE_ASCII_AT.length] }} />\n              {f.visual}\n            </div>\n          </section>\n        ))}\n      </div>\n    </div>\n  )\n}\n\nexport default ProductFeatures\n\nconst css = `\n.ds-pf-title { font-family: var(--ds-font-heading); font-weight: var(--ds-font-weight-heading); font-size: var(--ds-text-heading-3); line-height: var(--ds-text-heading-3-leading); letter-spacing: 0; text-wrap: balance; }\n@media (min-width: 768px) { .ds-pf-title { font-size: var(--ds-text-heading-2); line-height: var(--ds-text-heading-2-leading); } }\n@media (min-width: 1280px) { .ds-pf-title { font-size: var(--ds-text-figure); line-height: var(--ds-text-figure-leading); } }\n.ds-pf-stage { container: stage / inline-size; }\n.ds-pf-ascii { position: absolute; inset: 0; z-index: -1; pointer-events: none; background-size: var(--ds-feature-ascii-tile) var(--ds-feature-ascii-tile); opacity: var(--ds-feature-ascii-opacity); mix-blend-mode: screen; mask-image: radial-gradient(ellipse var(--ds-feature-ascii-clear-w) var(--ds-feature-ascii-clear-h) at 50% 50%, transparent 40%, var(--ds-color-black) 100%); }\n`\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Rows",
+      "label": "Two features",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/product-features/Rows.tsx",
+      "content": "import { ProductFeatures } from '@/react/components/site/ProductFeatures'\n// Two feature rows with a plain Acme list on each stage, the second row flipped.\n\nfunction Panel({ rows }: { rows: string[] }) {\n  return (\n    <div className=\"absolute inset-x-[14%] top-[18%] bottom-0 flex flex-col rounded-t-panel border border-b-0 border-edge-strong bg-surface p-4\">\n      {rows.map((r) => <p key={r} className=\"border-b border-edge py-3 type-ui text-fg\">{r}</p>)}\n    </div>\n  )\n}\n\nexport default function Rows() {\n  return (\n    <ProductFeatures\n      id=\"creator-search\"\n      features={[\n        { headline: 'Search creators by name or by description', text: 'Use a name, a handle or a plain brief, like fitness creators in Texas. Filter by location, language, gender, age range and followers.', visual: <Panel rows={['Acme Fit, Austin', 'Acme Run, Dallas', 'Acme Yoga, Houston']} /> },\n        { headline: 'See who already works with your competitors', text: 'Look up a brand to see the creators it has posted with, how often and since when. Start your shortlist there.', link: { label: 'See Creator collabs', href: '#' }, visual: <Panel rows={['Acme Studio, 12 posts', 'Acme Goods, 7 posts', 'Acme Air, 5 posts']} /> },\n      ]}\n    />\n  )\n}\n",
+      "requires": [
+        "ascii-drift",
+        "button"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/ProductFeatures.tsx",
+          "content": "import type { ReactNode } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { ASCII_TEXTURE } from '@/lib/textures'\nimport { cn } from '@/react/lib/cn'\n\n// The site's product feature rows (pages/Products/ProductFeatures): one row per thing the product does, the copy (a\n// Funnel Display 450 title, 24/28 on phones, 32/36 at 768 and 40/44 at 1280, a 20/28 lead 16px under it and a quiet\n// button 32px under that) beside a 4:3 stage on the #262626 fill with the 8px corner, where the ASCII texture shows at\n// half strength around a clear middle (screen blended, its tile placed differently in each row) and the feature's\n// picture sits on top. From 1024 the copy takes 5 parts and the stage 7, 64px apart (96 at 1280), every other row\n// flipped; below, the copy sits over the stage. Rows 80px apart (120 from 768). Nothing moves here; the pictures bring\n// their own motion.\nexport interface ProductFeature {\n  headline: string\n  text: string\n  /** A quiet button under the text. */\n  link?: { label: string; href: string }\n  /** What sits on the stage (a product visual). */\n  visual?: ReactNode\n}\n\nexport interface ProductFeaturesProps {\n  features: ProductFeature[]\n  /** Prefix for the heading ids. */\n  id?: string\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\nexport const FEATURE_ASCII_AT = ['0 0', '40% 24%', '64% 56%', '20% 80%']\n\nexport function ProductFeatures({ features, id = 'product', className }: ProductFeaturesProps) {\n  return (\n    <div data-ds=\"product-features\" className={cn('py-(--ds-layout-section) text-fg', className)}>\n      <style href=\"ds-product-features\" precedence=\"ds\">{css}</style>\n      <div className={cn(WRAP, 'grid gap-y-20 md:gap-y-30')}>\n        {features.map((f, i) => (\n          <section key={f.headline} aria-labelledby={`${id}-feature-${i + 1}`} className={cn('grid grid-cols-[minmax(0,1fr)] items-center gap-y-8 lg:gap-x-16 xl:gap-x-24', i % 2 ? 'lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]' : 'lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]')}>\n            <div className={cn('flex flex-col items-start', i % 2 ? 'lg:order-2' : '')}>\n              <h2 id={`${id}-feature-${i + 1}`} className=\"ds-pf-title\">{f.headline}</h2>\n              <p className=\"mt-4 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft\">{f.text}</p>\n              {f.link && <Button href={f.link.href} variant=\"secondary\" className=\"mt-8 max-md:w-full\">{f.link.label}</Button>}\n            </div>\n            <div className=\"ds-pf-stage relative isolate aspect-4/3 min-w-0 overflow-clip rounded-panel bg-surface-raised\">\n              <span aria-hidden=\"true\" className=\"ds-pf-ascii\" style={{ backgroundImage: `url(\"${ASCII_TEXTURE}\")`, backgroundPosition: FEATURE_ASCII_AT[i % FEATURE_ASCII_AT.length] }} />\n              {f.visual}\n            </div>\n          </section>\n        ))}\n      </div>\n    </div>\n  )\n}\n\nexport default ProductFeatures\n\nconst css = `\n.ds-pf-title { font-family: var(--ds-font-heading); font-weight: var(--ds-font-weight-heading); font-size: var(--ds-text-heading-3); line-height: var(--ds-text-heading-3-leading); letter-spacing: 0; text-wrap: balance; }\n@media (min-width: 768px) { .ds-pf-title { font-size: var(--ds-text-heading-2); line-height: var(--ds-text-heading-2-leading); } }\n@media (min-width: 1280px) { .ds-pf-title { font-size: var(--ds-text-figure); line-height: var(--ds-text-figure-leading); } }\n.ds-pf-stage { container: stage / inline-size; }\n.ds-pf-ascii { position: absolute; inset: 0; z-index: -1; pointer-events: none; background-size: var(--ds-feature-ascii-tile) var(--ds-feature-ascii-tile); opacity: var(--ds-feature-ascii-opacity); mix-blend-mode: screen; mask-image: radial-gradient(ellipse var(--ds-feature-ascii-clear-w) var(--ds-feature-ascii-clear-h) at 50% 50%, transparent 40%, var(--ds-color-black) 100%); }\n`\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-drift",
+        "button"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "ProductFeatures",
+            "file": "react/components/site/ProductFeatures.tsx",
+            "props": [
+              {
+                "name": "features",
+                "type": "ProductFeature[]",
+                "required": true
+              },
+              {
+                "name": "id",
+                "type": "string",
+                "required": false,
+                "default": "'product'",
+                "description": "Prefix for the heading ids."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Rows",
+          "label": "Two features",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/product-features/Rows.tsx",
+          "content": "import { ProductFeatures } from '@/react/components/site/ProductFeatures'\n// Two feature rows with a plain Acme list on each stage, the second row flipped.\n\nfunction Panel({ rows }: { rows: string[] }) {\n  return (\n    <div className=\"absolute inset-x-[14%] top-[18%] bottom-0 flex flex-col rounded-t-panel border border-b-0 border-edge-strong bg-surface p-4\">\n      {rows.map((r) => <p key={r} className=\"border-b border-edge py-3 type-ui text-fg\">{r}</p>)}\n    </div>\n  )\n}\n\nexport default function Rows() {\n  return (\n    <ProductFeatures\n      id=\"creator-search\"\n      features={[\n        { headline: 'Search creators by name or by description', text: 'Use a name, a handle or a plain brief, like fitness creators in Texas. Filter by location, language, gender, age range and followers.', visual: <Panel rows={['Acme Fit, Austin', 'Acme Run, Dallas', 'Acme Yoga, Houston']} /> },\n        { headline: 'See who already works with your competitors', text: 'Look up a brand to see the creators it has posted with, how often and since when. Start your shortlist there.', link: { label: 'See Creator collabs', href: '#' }, visual: <Panel rows={['Acme Studio, 12 posts', 'Acme Goods, 7 posts', 'Acme Air, 5 posts']} /> },\n      ]}\n    />\n  )\n}\n",
+          "registryDependencies": [
+            "ascii-drift",
+            "button"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/product-features.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport '@/elements/components/ui/button'\nimport { ASCII_TEXTURE } from '@/lib/textures'\nimport styles from 'virtual:tw'\n\n// ProductFeatures.tsx as <spyglass-product-features>: one row per thing the product does, the copy beside a 4:3 stage\n// with the ASCII texture around a clear middle, every other row flipped from 1024. `features` as JSON: [{ headline,\n// text, link?: { label, href } }]; each row's picture goes in the slot `visual-1`, `visual-2`...\n\nexport interface ProductFeature { headline: string; text: string; link?: { label: string; href: string } }\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\nconst ASCII_AT = ['0 0', '40% 24%', '64% 56%', '20% 80%']\n\n/**\n * @summary The product feature rows: copy beside a stage for each feature's picture, alternating.\n * @slot visual-1 - The first row's picture (visual-2, visual-3... for the next rows).\n */\nexport class ProductFeatures extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"product-features\"]'))\n\tstatic properties = { features: { type: Array }, prefix: {} }\n\tfeatures: ProductFeature[] = []\n\t/** Prefix for the heading ids (React's `id`). */\n\tprefix = 'product'\n\n\trender() {\n\t\treturn html`<div data-ds=\"product-features\" class=\"py-(--ds-layout-section) text-fg\"><div class=${`${WRAP} grid gap-y-20 md:gap-y-30`}>${(this.features ?? []).map((f, i) => html`<section aria-labelledby=${`${this.prefix}-feature-${i + 1}`} class=${`grid grid-cols-[minmax(0,1fr)] items-center gap-y-8 lg:gap-x-16 xl:gap-x-24 ${i % 2 ? 'lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]' : 'lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]'}`}><div class=${`flex flex-col items-start ${i % 2 ? 'lg:order-2' : ''}`}><h2 id=${`${this.prefix}-feature-${i + 1}`} class=\"ds-pf-title\">${f.headline}</h2><p class=\"mt-4 max-w-(--ds-layout-measure) type-body-lg text-pretty text-fg-soft\">${f.text}</p>${f.link ? html`<spyglass-button href=${f.link.href} variant=\"secondary\" class=\"mt-8 max-md:w-full\">${f.link.label}</spyglass-button>` : nothing}</div><div class=\"ds-pf-stage relative isolate aspect-4/3 min-w-0 overflow-clip rounded-panel bg-surface-raised\"><span aria-hidden=\"true\" class=\"ds-pf-ascii\" style=${`background-image: url(\"${ASCII_TEXTURE}\"); background-position: ${ASCII_AT[i % ASCII_AT.length]}`}></span><slot name=${`visual-${i + 1}`}></slot></div></section>`)}</div></div>`\n\t}\n}\n\ndefine('product-features', ProductFeatures)\n"
+        },
+        {
+          "path": "elements/components/site/product-features.css",
+          "content": ".ds-pf-title { font-family: var(--ds-font-heading); font-weight: var(--ds-font-weight-heading); font-size: var(--ds-text-heading-3); line-height: var(--ds-text-heading-3-leading); letter-spacing: 0; text-wrap: balance; }\n@media (min-width: 768px) { .ds-pf-title { font-size: var(--ds-text-heading-2); line-height: var(--ds-text-heading-2-leading); } }\n@media (min-width: 1280px) { .ds-pf-title { font-size: var(--ds-text-figure); line-height: var(--ds-text-figure-leading); } }\n.ds-pf-stage { container: stage / inline-size; }\n.ds-pf-ascii { position: absolute; inset: 0; z-index: -1; pointer-events: none; background-size: var(--ds-feature-ascii-tile) var(--ds-feature-ascii-tile); opacity: var(--ds-feature-ascii-opacity); mix-blend-mode: screen; mask-image: radial-gradient(ellipse var(--ds-feature-ascii-clear-w) var(--ds-feature-ascii-clear-h) at 50% 50%, transparent 40%, var(--ds-color-black) 100%); }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/product-features.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-product-features",
+      "tags": [
+        "spyglass-product-features"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-product-features",
+            "name": "ProductFeatures",
+            "module": "elements/product-features.js",
+            "description": "The product feature rows: copy beside a stage for each feature's picture, alternating.",
+            "attributes": [
+              {
+                "name": "features",
+                "field": "features",
+                "type": "ProductFeature[]",
+                "default": "[]"
+              },
+              {
+                "name": "prefix",
+                "field": "prefix",
+                "type": "string",
+                "default": "'product'",
+                "description": "Prefix for the heading ids (React's `id`)."
+              }
+            ],
+            "properties": [
+              {
+                "name": "features",
+                "type": "ProductFeature[]",
+                "default": "[]",
+                "attribute": "features"
+              },
+              {
+                "name": "prefix",
+                "type": "string",
+                "default": "'product'",
+                "description": "Prefix for the heading ids (React's `id`).",
+                "attribute": "prefix"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "visual-1",
+                "description": "The first row's picture (visual-2, visual-3... for the next rows)."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Rows",
+          "label": "Two features",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/product-features/Rows.html",
+          "content": "<!-- Two feature rows with a plain Acme list on each stage, the second row flipped. -->\n<spyglass-product-features prefix=\"creator-search\" features='[{\"headline\":\"Search creators by name or by description\",\"text\":\"Use a name, a handle or a plain brief, like fitness creators in Texas. Filter by location, language, gender, age range and followers.\"},{\"headline\":\"See who already works with your competitors\",\"text\":\"Look up a brand to see the creators it has posted with, how often and since when. Start your shortlist there.\",\"link\":{\"label\":\"See Creator collabs\",\"href\":\"#\"}}]'>\n  <div slot=\"visual-1\" class=\"absolute inset-x-[14%] top-[18%] bottom-0 flex flex-col rounded-t-panel border border-b-0 border-edge-strong bg-surface p-4\"><p class=\"border-b border-edge py-3 type-ui text-fg\">Acme Fit, Austin</p><p class=\"border-b border-edge py-3 type-ui text-fg\">Acme Run, Dallas</p><p class=\"border-b border-edge py-3 type-ui text-fg\">Acme Yoga, Houston</p></div>\n  <div slot=\"visual-2\" class=\"absolute inset-x-[14%] top-[18%] bottom-0 flex flex-col rounded-t-panel border border-b-0 border-edge-strong bg-surface p-4\"><p class=\"border-b border-edge py-3 type-ui text-fg\">Acme Studio, 12 posts</p><p class=\"border-b border-edge py-3 type-ui text-fg\">Acme Goods, 7 posts</p><p class=\"border-b border-edge py-3 type-ui text-fg\">Acme Air, 5 posts</p></div>\n</spyglass-product-features>\n"
+        }
+      ]
+    }
+  }
+}

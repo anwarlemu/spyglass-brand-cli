@@ -1,0 +1,395 @@
+{
+  "name": "use-case-page",
+  "title": "Use case page",
+  "type": "registry:block",
+  "group": "pages",
+  "description": "A use case's page as the site sets it: the hero with the connect menu and the chat answering beside it, the proof line over the marks, the scroll story, three stories, the wheel of audiences with the light around its ring, the FAQ, the closing section and the footer.",
+  "use_for": "One page per use case, solution or audience. `content` replaces the copy (lib/pages/use-case.ts); `visual=\"build\"` swaps the chat for the library visual (the site's build your own page).",
+  "never": [
+    "Real customers, quotes or photos in the stories: pass your own with permission, or keep Acme's",
+    "Another brand's creative in the hero, the story or the wheel: pass your own images",
+    "A second White button beside the connect menu"
+  ],
+  "source": "Site app/use-cases/[slug]/page.tsx and pages/UseCasesPage/UseCaseDetail.tsx: UseCaseHero, V3Proof, ScrollStory with the primary button and See templates, V3Stories (team layout, no customer row), V2UseCases with DispersionField ring seed 5, V3Faq with the docs button, PageClose, the footer",
+  "body": "Every section is a library item: `use-case-hero`, `proof-block`, `scroll-story`, `stories-block`, `use-case-wheel`\nwith `dispersion-field`, `faq-block` and `page-close`. `still` holds the wheel and its light for a still preview.\n\n`sections` lists the sections to show, in order (`hero`, `proof`, `story`, `stories`, `wheel`, `faq`, `close`); a key\nleft out is not shown. `chat` and `build` carry the hero's pictures, `blocks.story.story` the scroll story's data in\nplace of its preset and `blocks.wheel.items` the wheel's pictures. `menus` passes the header menus (the live card's\n`picture`, the use cases' `shots`).",
+  "requires": [
+    "ascii-trail",
+    "connect-menu",
+    "creative-card",
+    "dispersion-field",
+    "faq-block",
+    "page-close",
+    "proof-block",
+    "resources-page",
+    "scroll-story",
+    "site-footer",
+    "site-header",
+    "stories-block",
+    "use-case-hero",
+    "use-case-wheel"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/pages/UseCasePage.tsx",
+      "content": "'use client'\n\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { AsciiTrail } from '@/react/components/visuals/AsciiTrail'\nimport { UseCaseHero } from '@/react/components/site/UseCaseHero'\nimport { ConnectMenu } from '@/react/components/site/ConnectMenu'\nimport { ProofBlock } from '@/react/components/site/ProofBlock'\nimport { ScrollStory } from '@/react/components/blocks/ScrollStory'\nimport { StoriesBlock } from '@/react/components/blocks/StoriesBlock'\nimport { UseCaseWheel } from '@/react/components/blocks/UseCaseWheel'\nimport { FaqBlock } from '@/react/components/blocks/FaqBlock'\nimport { PageClose } from '@/react/components/site/PageClose'\nimport { SiteFooter } from '@/react/components/blocks/SiteFooter'\nimport { DispersionField } from '@/react/components/visuals/DispersionField'\nimport type { ChatContent, BuildContent } from '@/lib/use-case-hero'\nimport { useCaseContent, type UseCaseContent, useCaseSections, type UseCaseSection, type UseCaseBlocks } from '@/lib/pages/use-case'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// A use case's page as the site sets it (app/use-cases/[slug], pages/UseCasesPage/UseCaseDetail): the header, the\n// hero (the name, the line, the connect menu with a quiet button and the chat answering beside them, or the build\n// visual), the proof line over the marquee of marks, the scroll story with its two buttons, the stories in three cards\n// (Acme's, with initials), the wheel of audiences with the light around its ring, the FAQ with the docs button, the\n// closing section and the footer. `content` replaces the copy (lib/pages/use-case.ts); `visual`, `chat` and `build` go\n// to the hero; `still` holds the wheel and its light (for a still preview).\nexport interface UseCasePageProps {\n  content?: UseCaseContent\n  visual?: 'chat' | 'build'\n  chat?: ChatContent\n  build?: BuildContent\n  /** Hold the wheel and its light still. */\n  still?: boolean\n  /** Each block's data, pictures included: the story's `story` and the wheel's `items`. */\n  blocks?: UseCaseBlocks\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly UseCaseSection[]\n  className?: string\n}\n\nconst CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function UseCasePage({ content: c = useCaseContent, visual = 'chat', chat, build, still = false, blocks = {}, menus, sections, className }: UseCasePageProps) {\n  const parts: Record<UseCaseSection, ReactNode> = {\n    hero: <UseCaseHero content={c.hero} visual={visual} chat={chat} build={build} control={c.control === 'mcp' ? <ConnectMenu /> : undefined} />,\n    proof: <ProofBlock id={`${c.slug}-proof`} title={c.proof} />,\n    story: <ScrollStory story={blocks.story?.story} preset={c.story.preset} actions={c.story.actions} />,\n    stories: <StoriesBlock id={`${c.slug}-stories`} headline={c.stories.headline} lead={c.stories.lead} stories={c.stories.items} customers={false} />,\n    wheel: <UseCaseWheel id=\"v2-use-cases\" items={blocks.wheel?.items} autoplay={!still} light={(ripple) => <DispersionField composition=\"ring\" seed={5} ripple={ripple} still={still} className=\"relative size-full\" />} />,\n    faq: (\n      <div className={cn(CONTAINER, 'py-(--ds-layout-section)')}>\n        <FaqBlock id={`${c.slug}-faq`} title={c.faq.headline} body={c.faq.lead} action={c.faq.docs} items={c.faq.items} />\n      </div>\n    ),\n    close: <PageClose />,\n  }\n  return (\n    <div data-ds=\"use-case-page\" className={cn('isolate bg-surface text-fg', className)}>\n      <AsciiTrail mode=\"page\" />\n      <SiteHeader menus={menus} links={c.chrome.header.nav} secondary={c.chrome.header.secondary} cta={c.chrome.header.cta} />\n      <main id=\"main\">\n        {pageSections(useCaseSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <SiteFooter columns={c.chrome.footer.columns} legal={c.chrome.footer.legal} />\n    </div>\n  )\n}\n\nexport default UseCasePage\n"
+    },
+    {
+      "path": "lib/pages/use-case.ts",
+      "content": "// A use case page's copy (site app/use-cases/[slug], pages/UseCasesPage/UseCaseDetail, content/pages/use-cases.ts,\n// useCasePages and useCaseStories), here creative research with Acme's stories: the hero, the proof line, the scroll\n// story and its buttons, the stories head, the FAQ and the docs button. Both flavors read this file; the header,\n// footer and close come from lib/pages/site-chrome.ts.\nimport { useCaseHeroContent, type UseCaseHeroContent } from '@/lib/use-case-hero'\nimport type { Story } from '@/lib/stories'\nimport type { StoryAction } from '@/lib/scroll-story'\nimport type { ScrollStoryPreset } from '@/lib/pages/scroll-stories'\nimport { siteChrome, type SiteChrome } from '@/lib/pages/site-chrome'\nimport type { ScrollStoryData } from '@/lib/scroll-story'\nimport type { WheelItem } from '@/lib/use-case-wheel'\n\nexport interface UseCaseFaqItem {\n\tq: string\n\ta: string\n}\n\nexport interface UseCaseContent {\n\t/** The page's slug: the stem of every section's id. */\n\tslug: string\n\thero: UseCaseHeroContent\n\t/** The White button's place: the connect menu (`mcp`) or the hero's own White button (`buttons`). */\n\tcontrol: 'mcp' | 'buttons'\n\tproof: string\n\tstory: { preset: ScrollStoryPreset; actions: StoryAction[] }\n\tstories: { headline: string; lead: string; items: Story[] }\n\tfaq: { headline: string; lead: string; docs: { label: string; href: string }; items: UseCaseFaqItem[] }\n\tchrome: SiteChrome\n}\n\nexport const useCaseContent: UseCaseContent = {\n\tslug: 'creative-research',\n\thero: { ...useCaseHeroContent, primary: { label: 'Connect to MCP', href: '/docs/mcp' }, secondary: { label: 'Get a free API key', href: '/sign-up' } },\n\tcontrol: 'mcp',\n\tproof: 'Trusted by teams and agents at',\n\tstory: {\n\t\tpreset: 'research',\n\t\tactions: [\n\t\t\t{ label: 'Get a free API key', href: '/sign-up' },\n\t\t\t{ label: 'See templates', href: '/templates' },\n\t\t],\n\t},\n\tstories: {\n\t\theadline: 'Creative research, in their words',\n\t\tlead: 'A customer officer, a founder and a GM on researching creative.',\n\t\titems: [\n\t\t\t{ company: 'Acme Labs', quote: 'The first platform to really crack creative research. Not incrementally better, ten times better. We listen, ship and iterate.', name: 'Sam', role: 'Chief customer officer' },\n\t\t\t{ company: 'Acme Studio', quote: 'Sharp, intuitive and built by a team that ships fixes the same day. The easiest recommendation I can make for any creative research.', name: 'Jo', role: 'Founder' },\n\t\t\t{ company: 'Acme Air', quote: 'The only creative tool that shows me what our audience actually sees. Finding trends and new audiences has never been easier.', name: 'Ari', role: 'General manager' },\n\t\t],\n\t},\n\tfaq: {\n\t\theadline: 'Frequently asked questions',\n\t\tlead: 'Every filter and limit is in the docs.',\n\t\tdocs: { label: 'Read the docs', href: '/docs' },\n\t\titems: [\n\t\t\t{ q: 'Who is it for?', a: 'Creative strategists, designers and performance teams who need to know which hooks, angles and formats work before they brief the next round.' },\n\t\t\t{ q: 'What does it read in a creative?', a: 'The hook, the angle, who it is made for, its format and its funnel stage. Every ad and post is analyzed for these before it reaches you.' },\n\t\t\t{ q: 'Do I wait for the analysis?', a: 'No. A brand’s top hooks, angles and personas are worked out ahead of time, over up to the last 90 days. Your agent asks and gets the answer back at once.' },\n\t\t\t{ q: 'Can I research a whole category?', a: 'Yes. Search every indexed ad and post by what is in it, a scene, a line, a style, and see which brands use it, how long their ads run and the views their posts get.' },\n\t\t\t{ q: 'Does it show what an ad spent?', a: 'No. Counts are ads, run length is how long an ad stayed live and views are how a post did. None says what a brand spent or sold, and none claims it does.' },\n\t\t],\n\t},\n\tchrome: siteChrome,\n}\n\n/** The use case page's sections in order; pass `sections` to reorder them or leave some out. */\nexport const useCaseSections = ['hero', 'proof', 'story', 'stories', 'wheel', 'faq', 'close'] as const\nexport type UseCaseSection = (typeof useCaseSections)[number]\n\n/** Each block's own data, pictures included (Acme placeholders where left out). */\nexport interface UseCaseBlocks {\n\t/** The scroll story's data in place of its preset (lib/scroll-story.ts; its images take `src`, `alt`, `fit`, `position`). */\n\tstory?: { story?: ScrollStoryData }\n\t/** The wheel's audiences, each with three pairs of pictures. */\n\twheel?: { items?: WheelItem[] }\n}\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Page",
+      "label": "Use case page",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/use-case-page/Page.tsx",
+      "content": "import { UseCasePage } from '@/react/components/pages/UseCasePage'\n// The creative research page as the site sets it, with Acme's stories and placeholder creatives; the wheel and its light held still.\n\nexport default function Page() {\n  return <UseCasePage still />\n}\n",
+      "requires": [
+        "ascii-trail",
+        "connect-menu",
+        "creative-card",
+        "dispersion-field",
+        "faq-block",
+        "page-close",
+        "proof-block",
+        "resources-page",
+        "scroll-story",
+        "site-footer",
+        "site-header",
+        "stories-block",
+        "use-case-hero",
+        "use-case-wheel"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/pages/UseCasePage.tsx",
+          "content": "'use client'\n\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { AsciiTrail } from '@/react/components/visuals/AsciiTrail'\nimport { UseCaseHero } from '@/react/components/site/UseCaseHero'\nimport { ConnectMenu } from '@/react/components/site/ConnectMenu'\nimport { ProofBlock } from '@/react/components/site/ProofBlock'\nimport { ScrollStory } from '@/react/components/blocks/ScrollStory'\nimport { StoriesBlock } from '@/react/components/blocks/StoriesBlock'\nimport { UseCaseWheel } from '@/react/components/blocks/UseCaseWheel'\nimport { FaqBlock } from '@/react/components/blocks/FaqBlock'\nimport { PageClose } from '@/react/components/site/PageClose'\nimport { SiteFooter } from '@/react/components/blocks/SiteFooter'\nimport { DispersionField } from '@/react/components/visuals/DispersionField'\nimport type { ChatContent, BuildContent } from '@/lib/use-case-hero'\nimport { useCaseContent, type UseCaseContent, useCaseSections, type UseCaseSection, type UseCaseBlocks } from '@/lib/pages/use-case'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// A use case's page as the site sets it (app/use-cases/[slug], pages/UseCasesPage/UseCaseDetail): the header, the\n// hero (the name, the line, the connect menu with a quiet button and the chat answering beside them, or the build\n// visual), the proof line over the marquee of marks, the scroll story with its two buttons, the stories in three cards\n// (Acme's, with initials), the wheel of audiences with the light around its ring, the FAQ with the docs button, the\n// closing section and the footer. `content` replaces the copy (lib/pages/use-case.ts); `visual`, `chat` and `build` go\n// to the hero; `still` holds the wheel and its light (for a still preview).\nexport interface UseCasePageProps {\n  content?: UseCaseContent\n  visual?: 'chat' | 'build'\n  chat?: ChatContent\n  build?: BuildContent\n  /** Hold the wheel and its light still. */\n  still?: boolean\n  /** Each block's data, pictures included: the story's `story` and the wheel's `items`. */\n  blocks?: UseCaseBlocks\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly UseCaseSection[]\n  className?: string\n}\n\nconst CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function UseCasePage({ content: c = useCaseContent, visual = 'chat', chat, build, still = false, blocks = {}, menus, sections, className }: UseCasePageProps) {\n  const parts: Record<UseCaseSection, ReactNode> = {\n    hero: <UseCaseHero content={c.hero} visual={visual} chat={chat} build={build} control={c.control === 'mcp' ? <ConnectMenu /> : undefined} />,\n    proof: <ProofBlock id={`${c.slug}-proof`} title={c.proof} />,\n    story: <ScrollStory story={blocks.story?.story} preset={c.story.preset} actions={c.story.actions} />,\n    stories: <StoriesBlock id={`${c.slug}-stories`} headline={c.stories.headline} lead={c.stories.lead} stories={c.stories.items} customers={false} />,\n    wheel: <UseCaseWheel id=\"v2-use-cases\" items={blocks.wheel?.items} autoplay={!still} light={(ripple) => <DispersionField composition=\"ring\" seed={5} ripple={ripple} still={still} className=\"relative size-full\" />} />,\n    faq: (\n      <div className={cn(CONTAINER, 'py-(--ds-layout-section)')}>\n        <FaqBlock id={`${c.slug}-faq`} title={c.faq.headline} body={c.faq.lead} action={c.faq.docs} items={c.faq.items} />\n      </div>\n    ),\n    close: <PageClose />,\n  }\n  return (\n    <div data-ds=\"use-case-page\" className={cn('isolate bg-surface text-fg', className)}>\n      <AsciiTrail mode=\"page\" />\n      <SiteHeader menus={menus} links={c.chrome.header.nav} secondary={c.chrome.header.secondary} cta={c.chrome.header.cta} />\n      <main id=\"main\">\n        {pageSections(useCaseSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <SiteFooter columns={c.chrome.footer.columns} legal={c.chrome.footer.legal} />\n    </div>\n  )\n}\n\nexport default UseCasePage\n"
+        },
+        {
+          "path": "lib/pages/use-case.ts",
+          "content": "// A use case page's copy (site app/use-cases/[slug], pages/UseCasesPage/UseCaseDetail, content/pages/use-cases.ts,\n// useCasePages and useCaseStories), here creative research with Acme's stories: the hero, the proof line, the scroll\n// story and its buttons, the stories head, the FAQ and the docs button. Both flavors read this file; the header,\n// footer and close come from lib/pages/site-chrome.ts.\nimport { useCaseHeroContent, type UseCaseHeroContent } from '@/lib/use-case-hero'\nimport type { Story } from '@/lib/stories'\nimport type { StoryAction } from '@/lib/scroll-story'\nimport type { ScrollStoryPreset } from '@/lib/pages/scroll-stories'\nimport { siteChrome, type SiteChrome } from '@/lib/pages/site-chrome'\nimport type { ScrollStoryData } from '@/lib/scroll-story'\nimport type { WheelItem } from '@/lib/use-case-wheel'\n\nexport interface UseCaseFaqItem {\n\tq: string\n\ta: string\n}\n\nexport interface UseCaseContent {\n\t/** The page's slug: the stem of every section's id. */\n\tslug: string\n\thero: UseCaseHeroContent\n\t/** The White button's place: the connect menu (`mcp`) or the hero's own White button (`buttons`). */\n\tcontrol: 'mcp' | 'buttons'\n\tproof: string\n\tstory: { preset: ScrollStoryPreset; actions: StoryAction[] }\n\tstories: { headline: string; lead: string; items: Story[] }\n\tfaq: { headline: string; lead: string; docs: { label: string; href: string }; items: UseCaseFaqItem[] }\n\tchrome: SiteChrome\n}\n\nexport const useCaseContent: UseCaseContent = {\n\tslug: 'creative-research',\n\thero: { ...useCaseHeroContent, primary: { label: 'Connect to MCP', href: '/docs/mcp' }, secondary: { label: 'Get a free API key', href: '/sign-up' } },\n\tcontrol: 'mcp',\n\tproof: 'Trusted by teams and agents at',\n\tstory: {\n\t\tpreset: 'research',\n\t\tactions: [\n\t\t\t{ label: 'Get a free API key', href: '/sign-up' },\n\t\t\t{ label: 'See templates', href: '/templates' },\n\t\t],\n\t},\n\tstories: {\n\t\theadline: 'Creative research, in their words',\n\t\tlead: 'A customer officer, a founder and a GM on researching creative.',\n\t\titems: [\n\t\t\t{ company: 'Acme Labs', quote: 'The first platform to really crack creative research. Not incrementally better, ten times better. We listen, ship and iterate.', name: 'Sam', role: 'Chief customer officer' },\n\t\t\t{ company: 'Acme Studio', quote: 'Sharp, intuitive and built by a team that ships fixes the same day. The easiest recommendation I can make for any creative research.', name: 'Jo', role: 'Founder' },\n\t\t\t{ company: 'Acme Air', quote: 'The only creative tool that shows me what our audience actually sees. Finding trends and new audiences has never been easier.', name: 'Ari', role: 'General manager' },\n\t\t],\n\t},\n\tfaq: {\n\t\theadline: 'Frequently asked questions',\n\t\tlead: 'Every filter and limit is in the docs.',\n\t\tdocs: { label: 'Read the docs', href: '/docs' },\n\t\titems: [\n\t\t\t{ q: 'Who is it for?', a: 'Creative strategists, designers and performance teams who need to know which hooks, angles and formats work before they brief the next round.' },\n\t\t\t{ q: 'What does it read in a creative?', a: 'The hook, the angle, who it is made for, its format and its funnel stage. Every ad and post is analyzed for these before it reaches you.' },\n\t\t\t{ q: 'Do I wait for the analysis?', a: 'No. A brand’s top hooks, angles and personas are worked out ahead of time, over up to the last 90 days. Your agent asks and gets the answer back at once.' },\n\t\t\t{ q: 'Can I research a whole category?', a: 'Yes. Search every indexed ad and post by what is in it, a scene, a line, a style, and see which brands use it, how long their ads run and the views their posts get.' },\n\t\t\t{ q: 'Does it show what an ad spent?', a: 'No. Counts are ads, run length is how long an ad stayed live and views are how a post did. None says what a brand spent or sold, and none claims it does.' },\n\t\t],\n\t},\n\tchrome: siteChrome,\n}\n\n/** The use case page's sections in order; pass `sections` to reorder them or leave some out. */\nexport const useCaseSections = ['hero', 'proof', 'story', 'stories', 'wheel', 'faq', 'close'] as const\nexport type UseCaseSection = (typeof useCaseSections)[number]\n\n/** Each block's own data, pictures included (Acme placeholders where left out). */\nexport interface UseCaseBlocks {\n\t/** The scroll story's data in place of its preset (lib/scroll-story.ts; its images take `src`, `alt`, `fit`, `position`). */\n\tstory?: { story?: ScrollStoryData }\n\t/** The wheel's audiences, each with three pairs of pictures. */\n\twheel?: { items?: WheelItem[] }\n}\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-trail",
+        "connect-menu",
+        "creative-card",
+        "dispersion-field",
+        "faq-block",
+        "page-close",
+        "proof-block",
+        "resources-page",
+        "scroll-story",
+        "site-footer",
+        "site-header",
+        "stories-block",
+        "use-case-hero",
+        "use-case-wheel"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "UseCasePage",
+            "file": "react/components/pages/UseCasePage.tsx",
+            "props": [
+              {
+                "name": "content",
+                "type": "UseCaseContent",
+                "required": false
+              },
+              {
+                "name": "visual",
+                "type": "'chat' | 'build'",
+                "required": false,
+                "default": "'chat'"
+              },
+              {
+                "name": "chat",
+                "type": "ChatContent",
+                "required": false
+              },
+              {
+                "name": "build",
+                "type": "BuildContent",
+                "required": false
+              },
+              {
+                "name": "still",
+                "type": "boolean",
+                "required": false,
+                "default": "false",
+                "description": "Hold the wheel and its light still."
+              },
+              {
+                "name": "blocks",
+                "type": "UseCaseBlocks",
+                "required": false,
+                "default": "{}",
+                "description": "Each block's data, pictures included: the story's `story` and the wheel's `items`."
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus",
+                "required": false,
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "type": "readonly UseCaseSection[]",
+                "required": false,
+                "description": "The sections to show, in order; all of them in the page order by default (leave one out to omit it)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Use case page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/use-case-page/Page.tsx",
+          "content": "import { UseCasePage } from '@/react/components/pages/UseCasePage'\n// The creative research page as the site sets it, with Acme's stories and placeholder creatives; the wheel and its light held still.\n\nexport default function Page() {\n  return <UseCasePage still />\n}\n",
+          "registryDependencies": [
+            "ascii-trail",
+            "connect-menu",
+            "creative-card",
+            "dispersion-field",
+            "faq-block",
+            "page-close",
+            "proof-block",
+            "resources-page",
+            "scroll-story",
+            "site-footer",
+            "site-header",
+            "stories-block",
+            "use-case-hero",
+            "use-case-wheel"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/pages/use-case-page.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport type { ChatContent, BuildContent } from '@/lib/use-case-hero'\nimport { useCaseContent, type UseCaseContent, useCaseSections, type UseCaseSection, type UseCaseBlocks } from '@/lib/pages/use-case'\nimport '@/elements/components/site/site-header'\nimport '@/elements/components/site/use-case-hero'\nimport '@/elements/components/site/connect-menu'\nimport '@/elements/components/site/proof-block'\nimport '@/elements/components/blocks/scroll-story'\nimport '@/elements/components/blocks/stories-block'\nimport '@/elements/components/blocks/use-case-wheel'\nimport '@/elements/components/blocks/faq-block'\nimport '@/elements/components/site/page-close'\nimport '@/elements/components/blocks/site-footer'\nimport '@/elements/components/visuals/dispersion-field'\nimport '@/elements/components/visuals/ascii-trail'\nimport styles from 'virtual:tw'\nimport { pageSections } from '@/lib/image'\nimport { useCaseWheelContent } from '@/lib/use-case-wheel'\nimport { headerMenus, type HeaderMenus } from '@/lib/site-header'\n\n// UseCasePage.tsx as <spyglass-use-case-page>: the header, the hero (with the connect menu), the proof line, the scroll\n// story, the stories, the wheel with the light around its ring (the field takes the wheel's ripple), the FAQ, the\n// closing section and the footer. `content`, `visual`, `chat` and `build` as in React; `still` holds the wheel and its\n// light.\nconst CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\n/**\n * @summary A use case's page.\n */\nexport class UseCasePage extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"use-case-page\"]'))\n\tstatic properties = { content: { type: Object }, visual: {}, chat: { type: Object }, build: { type: Object }, still: { type: Boolean }, sections: { type: Array }, blocks: { type: Object }, menus: { type: Object } }\n\t/** The copy as JSON (lib/pages/use-case.ts by default). */\n\tcontent: UseCaseContent = useCaseContent\n\t/** The hero's visual: chat or build. */\n\tvisual: 'chat' | 'build' = 'chat'\n\t/** The hero chat's session. */\n\tchat?: ChatContent\n\t/** The hero's build library. */\n\tbuild?: BuildContent\n\t/** Hold the wheel and its light still. */\n\tstill = false\n\n\tupdated() {\n\t\tconst wheel = this.renderRoot.querySelector<HTMLElement & { ripple?: unknown }>('spyglass-use-case-wheel')\n\t\tconst field = this.renderRoot.querySelector<HTMLElement & { ripple?: unknown }>('spyglass-dispersion-field')\n\t\tif (wheel && field && field.ripple !== wheel.ripple) field.ripple = wheel.ripple\n\t}\n\t/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n\tmenus?: HeaderMenus\n\t/** The sections to show, in order (a list of names); all of them in the page order by default. */\n\t/** Each block's data, pictures included: the story's `story` and the wheel's `items`. */\n\tblocks: UseCaseBlocks = {}\n\tsections?: UseCaseSection[]\n\n\trender() {\n\t\tconst c = this.content ?? useCaseContent\n\t\tconst b = this.blocks ?? {}\n\t\tconst parts: Record<UseCaseSection, unknown> = {\n\t\t\thero: html`<spyglass-use-case-hero .content=${c.hero} visual=${this.visual} .chat=${this.chat} .build=${this.build}>${c.control === 'mcp' ? html`<spyglass-connect-menu slot=\"control\"></spyglass-connect-menu>` : nothing}</spyglass-use-case-hero>`,\n\t\t\tproof: html`<spyglass-proof-block head-id=${`${c.slug}-proof`} heading=${c.proof}></spyglass-proof-block>`,\n\t\t\tstory: html`<spyglass-scroll-story .story=${b.story?.story} preset=${c.story.preset} .actions=${c.story.actions}></spyglass-scroll-story>`,\n\t\t\tstories: html`<spyglass-stories-block section-id=${`${c.slug}-stories`} headline=${c.stories.headline} lead=${c.stories.lead} .stories=${c.stories.items} customers=\"false\"></spyglass-stories-block>`,\n\t\t\twheel: html`<spyglass-use-case-wheel section-id=\"v2-use-cases\" .items=${b.wheel?.items ?? useCaseWheelContent.items} .autoplay=${!this.still}><spyglass-dispersion-field slot=\"light\" class=\"relative block size-full\" composition=\"ring\" seed=\"5\" ?still=${this.still}></spyglass-dispersion-field></spyglass-use-case-wheel>`,\n\t\t\tfaq: html`<div class=${`${CONTAINER} py-(--ds-layout-section)`}><spyglass-faq-block head-id=${`${c.slug}-faq`} heading=${c.faq.headline} body=${c.faq.lead} .action=${c.faq.docs} .items=${c.faq.items}></spyglass-faq-block></div>`,\n\t\t\tclose: html`<spyglass-page-close></spyglass-page-close>`,\n\t\t}\n\t\treturn html`<div data-ds=\"use-case-page\" class=\"isolate bg-surface text-fg\"><spyglass-ascii-trail mode=\"page\"></spyglass-ascii-trail><spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.chrome.header.nav} .secondary=${c.chrome.header.secondary} .cta=${c.chrome.header.cta}></spyglass-site-header><main id=\"main\">${pageSections(useCaseSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.chrome.footer.columns} legal=${c.chrome.footer.legal}></spyglass-site-footer></div>`\n\t}\n}\n\ndefine('use-case-page', UseCasePage)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/use-case-page.js",
+        "elements/site-header.js",
+        "elements/use-case-hero.js",
+        "elements/connect-menu.js",
+        "elements/proof-block.js",
+        "elements/scroll-story.js",
+        "elements/stories-block.js",
+        "elements/use-case-wheel.js",
+        "elements/faq-block.js",
+        "elements/page-close.js",
+        "elements/site-footer.js",
+        "elements/dispersion-field.js",
+        "elements/ascii-trail.js",
+        "elements/menu-sheet.js",
+        "elements/menu-panels.js",
+        "elements/nav-menus.js",
+        "elements/nav-icon.js",
+        "elements/sheet-disclosure.js",
+        "elements/button.js",
+        "elements/logo.js",
+        "elements/proof-strip.js",
+        "elements/browser-frame.js",
+        "elements/creative-card.js",
+        "elements/faq-accordion.js",
+        "elements/badge.js",
+        "elements/brand-light.js",
+        "elements/products-live-panel.js",
+        "elements/product-visual.js"
+      ],
+      "tag": "spyglass-use-case-page",
+      "tags": [
+        "spyglass-use-case-page"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-trail",
+        "badge",
+        "brand-light",
+        "browser-frame",
+        "button",
+        "connect-menu",
+        "creative-card",
+        "dispersion-field",
+        "faq-block",
+        "logo",
+        "page-close",
+        "product-visual",
+        "proof-block",
+        "proof-strip",
+        "scroll-story",
+        "site-footer",
+        "site-header",
+        "stories-block",
+        "use-case-hero",
+        "use-case-wheel"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-use-case-page",
+            "name": "UseCasePage",
+            "module": "elements/use-case-page.js",
+            "description": "A use case's page.",
+            "attributes": [
+              {
+                "name": "content",
+                "field": "content",
+                "type": "UseCaseContent",
+                "default": "useCaseContent",
+                "description": "The copy as JSON (lib/pages/use-case.ts by default)."
+              },
+              {
+                "name": "visual",
+                "field": "visual",
+                "type": "\"build\" | \"chat\"",
+                "default": "'chat'",
+                "description": "The hero's visual: chat or build."
+              },
+              {
+                "name": "chat",
+                "field": "chat",
+                "type": "ChatContent | undefined",
+                "description": "The hero chat's session."
+              },
+              {
+                "name": "build",
+                "field": "build",
+                "type": "BuildContent | undefined",
+                "description": "The hero's build library."
+              },
+              {
+                "name": "still",
+                "field": "still",
+                "type": "boolean",
+                "default": "false",
+                "description": "Hold the wheel and its light still."
+              },
+              {
+                "name": "sections",
+                "field": "sections",
+                "type": "(\"story\" | \"hero\" | \"proof\" | \"stories\" | \"close\" | \"faq\" | \"wheel\")[] | undefined"
+              },
+              {
+                "name": "blocks",
+                "field": "blocks",
+                "type": "UseCaseBlocks",
+                "default": "{}",
+                "description": "Each block's data, pictures included: the story's `story` and the wheel's `items`."
+              },
+              {
+                "name": "menus",
+                "field": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              }
+            ],
+            "properties": [
+              {
+                "name": "content",
+                "type": "UseCaseContent",
+                "default": "useCaseContent",
+                "description": "The copy as JSON (lib/pages/use-case.ts by default).",
+                "attribute": "content"
+              },
+              {
+                "name": "visual",
+                "type": "\"build\" | \"chat\"",
+                "default": "'chat'",
+                "description": "The hero's visual: chat or build.",
+                "attribute": "visual"
+              },
+              {
+                "name": "chat",
+                "type": "ChatContent | undefined",
+                "description": "The hero chat's session.",
+                "attribute": "chat"
+              },
+              {
+                "name": "build",
+                "type": "BuildContent | undefined",
+                "description": "The hero's build library.",
+                "attribute": "build"
+              },
+              {
+                "name": "still",
+                "type": "boolean",
+                "default": "false",
+                "description": "Hold the wheel and its light still.",
+                "attribute": "still"
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default.",
+                "attribute": "menus"
+              },
+              {
+                "name": "blocks",
+                "type": "UseCaseBlocks",
+                "default": "{}",
+                "description": "Each block's data, pictures included: the story's `story` and the wheel's `items`.",
+                "attribute": "blocks"
+              },
+              {
+                "name": "sections",
+                "type": "(\"story\" | \"hero\" | \"proof\" | \"stories\" | \"close\" | \"faq\" | \"wheel\")[] | undefined",
+                "attribute": "sections"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Use case page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/use-case-page/Page.html",
+          "content": "<!-- The creative research page as the site sets it, with Acme's stories and placeholder creatives; the wheel and its light held still. -->\n<spyglass-use-case-page still></spyglass-use-case-page>\n"
+        }
+      ]
+    }
+  }
+}

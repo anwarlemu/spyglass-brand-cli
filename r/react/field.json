@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "field",
+  "type": "registry:ui",
+  "title": "Field",
+  "description": "A label over one control, with a description or an error under it. The label speaks in capitals; the help is muted; an error takes the help's place in red.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/ui/Field.tsx",
+      "type": "registry:ui",
+      "content": "import { useId, type HTMLAttributes, type ReactNode } from 'react'\nimport { cn } from '@/lib/cn'\n\n// A label over one control, with a description or an error under it: the label in the brand's label voice (DM Sans\n// Medium, capitals, 6% tracking) in the soft gray, the description in the muted gray at caption size, the error in the\n// danger red in its place, 8px apart. children may be a function that receives the ids to wire:\n// <Field label=\"Email\">{({ id, describedBy, invalid }) => <Input id={id} aria-describedby={describedBy} invalid={invalid} />}</Field>;\n// plain children work too (give the control the field's `id`).\nexport interface FieldSlot { id: string, describedBy?: string, invalid: boolean }\nexport interface FieldProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {\n  /** The label over the control. */\n  label: string\n  /** A line under the control: what to type, or what happens next. */\n  description?: string\n  /** What is wrong, in the description's place (the control turns red). */\n  error?: string\n  /** The control's id (generated when not given). */\n  id?: string\n  children?: ReactNode | ((slot: FieldSlot) => ReactNode)\n}\n\nexport function Field({ label, description, error, id: given, className, children, ...rest }: FieldProps) {\n  const auto = useId()\n  const id = given ?? `field-${auto}`\n  const describedBy = description || error ? `${id}-description` : undefined\n  return (\n    <div data-ds=\"field\" className={cn('flex flex-col gap-2', className)} {...rest}>\n      <label htmlFor={id} className=\"type-label text-fg-soft\">{label}</label>\n      {typeof children === 'function' ? children({ id, describedBy, invalid: !!error }) : children}\n      {(error || description) && <p id={describedBy} className={cn('type-caption', error ? 'text-fg-danger' : 'text-fg-muted')} role={error ? 'alert' : undefined}>{error || description}</p>}\n    </div>\n  )\n}\n\nexport default Field\n"
+    },
+    {
+      "path": "lib/cn.ts",
+      "type": "registry:lib",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ]
+}

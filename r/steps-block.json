@@ -1,0 +1,178 @@
+{
+  "name": "steps-block",
+  "title": "Steps block",
+  "type": "registry:block",
+  "group": "blocks",
+  "description": "How it works in numbered steps under hairlines: the number as a label, a title and a line, side by side from 768.",
+  "use_for": "A setup or how-it-works section of two to four steps.",
+  "never": [
+    "More than four steps in a row",
+    "Icons that move"
+  ],
+  "source": "Built from the site's How it works (HowItWorks: hairline rows, labels in capitals, h5 titles)",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/blocks/StepsBlock.tsx",
+      "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// How it works in steps, as the site's \"Set up in under a minute\": each step under a #363636 hairline, its number as\n// a label in capitals, a Funnel Display 24/28 title and a #D4D4D4 line; side by side from 768 (up to four), stacked on\n// phones. Nothing moves.\nexport interface Step {\n  title: string\n  body?: string\n}\n\nexport interface StepsBlockProps {\n  steps: Step[]\n  title?: ReactNode\n  body?: ReactNode\n  className?: string\n}\n\nexport function StepsBlock({ steps, title, body, className }: StepsBlockProps) {\n  return (\n    <section data-ds=\"steps-block\" className={cn('grid gap-10 text-fg', className)}>\n      {(title || body) && (\n        <div className=\"grid max-w-3xl gap-6\">\n          {title && <h2 className=\"type-section\">{title}</h2>}\n          {body && <p className=\"max-w-measure type-body-lg text-fg-soft\">{body}</p>}\n        </div>\n      )}\n      <ol className=\"m-0 grid list-none grid-cols-1 gap-8 p-0 md:auto-cols-fr md:grid-flow-col md:gap-6\">\n        {steps.map((s, n) => (\n          <li key={s.title} className=\"grid content-start gap-3 border-t border-edge pt-6\">\n            <span className=\"type-label text-fg-muted\">{String(n + 1).padStart(2, '0')}</span>\n            <h3 className=\"type-heading-3\">{s.title}</h3>\n            {s.body && <p className=\"type-body text-fg-soft\">{s.body}</p>}\n          </li>\n        ))}\n      </ol>\n    </section>\n  )\n}\n\nexport default StepsBlock\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Setup",
+      "label": "Three steps",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/steps-block/Setup.tsx",
+      "content": "import { StepsBlock } from '@/react/components/blocks/StepsBlock'\n// Acme's setup in three steps.\n\nconst steps = [\n  {\n    \"title\": \"Connect\",\n    \"body\": \"Add the brands and creators you track.\"\n  },\n  {\n    \"title\": \"Ask\",\n    \"body\": \"Search in words, the way you would ask a teammate.\"\n  },\n  {\n    \"title\": \"Share\",\n    \"body\": \"Save what you find to a board and send the link.\"\n  }\n]\n\nexport default function Setup() {\n  return <StepsBlock title=\"Set up in under a minute\" steps={steps} />\n}\n",
+      "requires": [],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/blocks/StepsBlock.tsx",
+          "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// How it works in steps, as the site's \"Set up in under a minute\": each step under a #363636 hairline, its number as\n// a label in capitals, a Funnel Display 24/28 title and a #D4D4D4 line; side by side from 768 (up to four), stacked on\n// phones. Nothing moves.\nexport interface Step {\n  title: string\n  body?: string\n}\n\nexport interface StepsBlockProps {\n  steps: Step[]\n  title?: ReactNode\n  body?: ReactNode\n  className?: string\n}\n\nexport function StepsBlock({ steps, title, body, className }: StepsBlockProps) {\n  return (\n    <section data-ds=\"steps-block\" className={cn('grid gap-10 text-fg', className)}>\n      {(title || body) && (\n        <div className=\"grid max-w-3xl gap-6\">\n          {title && <h2 className=\"type-section\">{title}</h2>}\n          {body && <p className=\"max-w-measure type-body-lg text-fg-soft\">{body}</p>}\n        </div>\n      )}\n      <ol className=\"m-0 grid list-none grid-cols-1 gap-8 p-0 md:auto-cols-fr md:grid-flow-col md:gap-6\">\n        {steps.map((s, n) => (\n          <li key={s.title} className=\"grid content-start gap-3 border-t border-edge pt-6\">\n            <span className=\"type-label text-fg-muted\">{String(n + 1).padStart(2, '0')}</span>\n            <h3 className=\"type-heading-3\">{s.title}</h3>\n            {s.body && <p className=\"type-body text-fg-soft\">{s.body}</p>}\n          </li>\n        ))}\n      </ol>\n    </section>\n  )\n}\n\nexport default StepsBlock\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "StepsBlock",
+            "file": "react/components/blocks/StepsBlock.tsx",
+            "props": [
+              {
+                "name": "steps",
+                "type": "Step[]",
+                "required": true
+              },
+              {
+                "name": "title",
+                "type": "ReactNode",
+                "required": false
+              },
+              {
+                "name": "body",
+                "type": "ReactNode",
+                "required": false
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Setup",
+          "label": "Three steps",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/steps-block/Setup.tsx",
+          "content": "import { StepsBlock } from '@/react/components/blocks/StepsBlock'\n// Acme's setup in three steps.\n\nconst steps = [\n  {\n    \"title\": \"Connect\",\n    \"body\": \"Add the brands and creators you track.\"\n  },\n  {\n    \"title\": \"Ask\",\n    \"body\": \"Search in words, the way you would ask a teammate.\"\n  },\n  {\n    \"title\": \"Share\",\n    \"body\": \"Save what you find to a board and send the link.\"\n  }\n]\n\nexport default function Setup() {\n  return <StepsBlock title=\"Set up in under a minute\" steps={steps} />\n}\n",
+          "registryDependencies": [],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/blocks/steps-block.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// StepsBlock.tsx as <spyglass-steps-block>: numbered `steps` ({ title, body }) under hairlines, with an optional\n// `heading` (React's `title`) and `body`.\nexport interface Step { title: string; body?: string }\n\n/**\n * @summary How it works, in numbered steps.\n */\nexport class StepsBlock extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"steps-block\"]'))\n\tstatic properties = { steps: { type: Array }, heading: {}, body: {} }\n\tsteps: Step[] = []\n\t/** The heading (React's `title`). */\n\theading?: string\n\tbody?: string\n\n\trender() {\n\t\treturn html`<section data-ds=\"steps-block\" class=\"grid gap-10 text-fg\">${this.heading || this.body ? html`<div class=\"grid max-w-3xl gap-6\">${this.heading ? html`<h2 class=\"type-section\">${this.heading}</h2>` : nothing}${this.body ? html`<p class=\"max-w-measure type-body-lg text-fg-soft\">${this.body}</p>` : nothing}</div>` : nothing}<ol class=\"m-0 grid list-none grid-cols-1 gap-8 p-0 md:auto-cols-fr md:grid-flow-col md:gap-6\">${(this.steps ?? []).map((s, n) => html`<li class=\"grid content-start gap-3 border-t border-edge pt-6\"><span class=\"type-label text-fg-muted\">${String(n + 1).padStart(2, '0')}</span><h3 class=\"type-heading-3\">${s.title}</h3>${s.body ? html`<p class=\"type-body text-fg-soft\">${s.body}</p>` : nothing}</li>`)}</ol></section>`\n\t}\n}\n\ndefine('steps-block', StepsBlock)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/steps-block.js"
+      ],
+      "tag": "spyglass-steps-block",
+      "tags": [
+        "spyglass-steps-block"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-steps-block",
+            "name": "StepsBlock",
+            "module": "elements/steps-block.js",
+            "description": "How it works, in numbered steps.",
+            "attributes": [
+              {
+                "name": "steps",
+                "field": "steps",
+                "type": "Step[]",
+                "default": "[]"
+              },
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string | undefined",
+                "description": "The heading (React's `title`)."
+              },
+              {
+                "name": "body",
+                "field": "body",
+                "type": "string | undefined"
+              }
+            ],
+            "properties": [
+              {
+                "name": "steps",
+                "type": "Step[]",
+                "default": "[]",
+                "attribute": "steps"
+              },
+              {
+                "name": "heading",
+                "type": "string | undefined",
+                "description": "The heading (React's `title`).",
+                "attribute": "heading"
+              },
+              {
+                "name": "body",
+                "type": "string | undefined",
+                "attribute": "body"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Setup",
+          "label": "Three steps",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/steps-block/Setup.html",
+          "content": "<!-- Acme's setup in three steps. -->\n<spyglass-steps-block heading=\"Set up in under a minute\" steps='[{\"title\":\"Connect\",\"body\":\"Add the brands and creators you track.\"},{\"title\":\"Ask\",\"body\":\"Search in words, the way you would ask a teammate.\"},{\"title\":\"Share\",\"body\":\"Save what you find to a board and send the link.\"}]'></spyglass-steps-block>\n"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,230 @@
+{
+  "name": "alert",
+  "title": "Alert",
+  "type": "registry:ui",
+  "group": "ui",
+  "description": "A note or a problem in a #262626 box on Black: a Lucide icon, the subject in DM Sans Medium, a muted line under it and the button that goes with it. Red for what broke.",
+  "use_for": "A plan note, a failed payment, a search that needs a change: one box per message, with the action that settles it.",
+  "never": [
+    "A spectrum color fill or a glow",
+    "A border or a shadow around the box",
+    "Red for anything that did not break",
+    "Several messages in one box"
+  ],
+  "source": "Derived from the guidelines: the #262626 card fill on Black with the 10px canvas corner (8px here), DM Sans Medium for labels, the brand's voice (\"$10 for your first month, then $20/month\"). shadcn's alert for anatomy.",
+  "body": "",
+  "requires": [],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/ui/Alert.tsx",
+      "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// shadcn's alert in the brand: a #262626 box on Black with the brand corner and no border or shadow, a 16px Lucide\n// icon, the subject in DM Sans Medium and a line of muted DM Sans under it, and a button at the end if one helps.\n// `destructive` turns the icon and the subject red for what broke. role=\"alert\" so it is read out; for a note that\n// was there from the start, pass role=\"status\".\nexport type AlertVariant = 'default' | 'destructive'\n\nconst VARIANTS: Record<AlertVariant, string> = {\n  default: 'text-fg',\n  destructive: 'text-fg-danger',\n}\n\nexport interface AlertProps {\n  /** The subject, in DM Sans Medium. */\n  title: ReactNode\n  /** default, or destructive (red) for what broke. */\n  variant?: AlertVariant\n  /** A 16px Lucide icon before it. */\n  icon?: ReactNode\n  /** A button at the end. */\n  action?: ReactNode\n  /** alert (read out at once) or status (polite). */\n  role?: 'alert' | 'status'\n  className?: string\n  /** The line under the subject. */\n  children?: ReactNode\n}\n\nexport function Alert({ title, variant = 'default', icon, action, role = 'alert', className, children }: AlertProps) {\n  return (\n    <div data-ds=\"alert\" role={role} className={cn('flex w-full items-start gap-3 rounded-container bg-surface-raised p-4 max-sm:flex-wrap', className)}>\n      {icon && <span className={cn('mt-0.5 flex shrink-0', VARIANTS[variant] ?? VARIANTS.default)} aria-hidden=\"true\">{icon}</span>}\n      <div className=\"flex min-w-0 flex-1 flex-col gap-1\">\n        <p className={cn('type-ui-strong', VARIANTS[variant] ?? VARIANTS.default)}>{title}</p>\n        {children && <div className=\"type-ui text-fg-muted\">{children}</div>}\n      </div>\n      {action && <div className=\"shrink-0 self-center max-sm:basis-full max-sm:pl-7\">{action}</div>}\n    </div>\n  )\n}\n\nexport default Alert\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Variants",
+      "label": "Variants",
+      "center": true,
+      "half": false,
+      "path": "react/examples/alert/Variants.tsx",
+      "content": "import { CircleAlert, Info } from 'lucide-react'\nimport { Alert } from '@/react/components/ui/Alert'\nimport { Button } from '@/react/components/ui/Button'\n// A note with the action that goes with it, and a problem in red with the fix.\n\nexport default function Variants() {\n  return (\n    <div className=\"flex w-160 max-w-full flex-col gap-3\">\n      <Alert role=\"status\" title=\"Your first month is $10.\" icon={<Info size={16} strokeWidth={1.5} />} action={<Button size=\"sm\">Start Creator</Button>}>\n        Then $20/month. Cancel any time.\n      </Alert>\n      <Alert variant=\"destructive\" title=\"Your payment did not go through.\" icon={<CircleAlert size={16} strokeWidth={1.5} />} action={<Button size=\"sm\" variant=\"secondary\">Update card</Button>}>\n        Update your card to keep Acme's boards.\n      </Alert>\n      <Alert role=\"status\" title=\"Search results update every day.\" icon={<Info size={16} strokeWidth={1.5} />} />\n    </div>\n  )\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/ui/Alert.tsx",
+          "content": "import type { ReactNode } from 'react'\nimport { cn } from '@/react/lib/cn'\n\n// shadcn's alert in the brand: a #262626 box on Black with the brand corner and no border or shadow, a 16px Lucide\n// icon, the subject in DM Sans Medium and a line of muted DM Sans under it, and a button at the end if one helps.\n// `destructive` turns the icon and the subject red for what broke. role=\"alert\" so it is read out; for a note that\n// was there from the start, pass role=\"status\".\nexport type AlertVariant = 'default' | 'destructive'\n\nconst VARIANTS: Record<AlertVariant, string> = {\n  default: 'text-fg',\n  destructive: 'text-fg-danger',\n}\n\nexport interface AlertProps {\n  /** The subject, in DM Sans Medium. */\n  title: ReactNode\n  /** default, or destructive (red) for what broke. */\n  variant?: AlertVariant\n  /** A 16px Lucide icon before it. */\n  icon?: ReactNode\n  /** A button at the end. */\n  action?: ReactNode\n  /** alert (read out at once) or status (polite). */\n  role?: 'alert' | 'status'\n  className?: string\n  /** The line under the subject. */\n  children?: ReactNode\n}\n\nexport function Alert({ title, variant = 'default', icon, action, role = 'alert', className, children }: AlertProps) {\n  return (\n    <div data-ds=\"alert\" role={role} className={cn('flex w-full items-start gap-3 rounded-container bg-surface-raised p-4 max-sm:flex-wrap', className)}>\n      {icon && <span className={cn('mt-0.5 flex shrink-0', VARIANTS[variant] ?? VARIANTS.default)} aria-hidden=\"true\">{icon}</span>}\n      <div className=\"flex min-w-0 flex-1 flex-col gap-1\">\n        <p className={cn('type-ui-strong', VARIANTS[variant] ?? VARIANTS.default)}>{title}</p>\n        {children && <div className=\"type-ui text-fg-muted\">{children}</div>}\n      </div>\n      {action && <div className=\"shrink-0 self-center max-sm:basis-full max-sm:pl-7\">{action}</div>}\n    </div>\n  )\n}\n\nexport default Alert\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "components": [
+          {
+            "name": "Alert",
+            "file": "react/components/ui/Alert.tsx",
+            "props": [
+              {
+                "name": "title",
+                "type": "ReactNode",
+                "required": true,
+                "description": "The subject, in DM Sans Medium."
+              },
+              {
+                "name": "variant",
+                "type": "AlertVariant",
+                "required": false,
+                "default": "'default'",
+                "description": "default, or destructive (red) for what broke."
+              },
+              {
+                "name": "icon",
+                "type": "ReactNode",
+                "required": false,
+                "description": "A 16px Lucide icon before it."
+              },
+              {
+                "name": "action",
+                "type": "ReactNode",
+                "required": false,
+                "description": "A button at the end."
+              },
+              {
+                "name": "role",
+                "type": "'alert' | 'status'",
+                "required": false,
+                "default": "'alert'",
+                "description": "alert (read out at once) or status (polite)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "children",
+                "type": "ReactNode",
+                "required": false,
+                "description": "The line under the subject."
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Variants",
+          "label": "Variants",
+          "center": true,
+          "half": false,
+          "path": "react/examples/alert/Variants.tsx",
+          "content": "import { CircleAlert, Info } from 'lucide-react'\nimport { Alert } from '@/react/components/ui/Alert'\nimport { Button } from '@/react/components/ui/Button'\n// A note with the action that goes with it, and a problem in red with the fix.\n\nexport default function Variants() {\n  return (\n    <div className=\"flex w-160 max-w-full flex-col gap-3\">\n      <Alert role=\"status\" title=\"Your first month is $10.\" icon={<Info size={16} strokeWidth={1.5} />} action={<Button size=\"sm\">Start Creator</Button>}>\n        Then $20/month. Cancel any time.\n      </Alert>\n      <Alert variant=\"destructive\" title=\"Your payment did not go through.\" icon={<CircleAlert size={16} strokeWidth={1.5} />} action={<Button size=\"sm\" variant=\"secondary\">Update card</Button>}>\n        Update your card to keep Acme's boards.\n      </Alert>\n      <Alert role=\"status\" title=\"Search results update every day.\" icon={<Info size={16} strokeWidth={1.5} />} />\n    </div>\n  )\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/ui/alert.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport styles from 'virtual:tw'\n\n// Alert.tsx as <spyglass-alert>: a #262626 box on Black with the brand corner and no border or shadow, a 16px Lucide\n// icon (the `icon` slot), the subject in DM Sans Medium (`heading`, React's `title`) and a line of muted DM Sans under\n// it (the default slot), and a button at the end (the `action` slot). `variant=\"destructive\"` turns the icon and the\n// subject red. role=\"alert\" so it is read out; `role=\"status\"` for a note that was there from the start.\nexport type AlertVariant = 'default' | 'destructive'\nconst VARIANTS: Record<AlertVariant, string> = {\n\tdefault: 'text-fg',\n\tdestructive: 'text-fg-danger',\n}\n\n/**\n * @summary A note or a problem in a #262626 box: an icon, the subject and a line.\n * @slot - The line under the subject.\n * @slot icon - A 16px Lucide icon.\n * @slot action - A button at the end.\n */\nexport class Alert extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"alert\"]'))\n\tstatic properties = { heading: {}, variant: { reflect: true }, alertRole: { attribute: 'alert-role' } }\n\n\t/** The subject (React's `title`). */\n\theading = ''\n\t/** default, or destructive (red) for what broke. */\n\tvariant: AlertVariant = 'default'\n\t/** alert (read out at once) or status (polite): React's `role`. */\n\talertRole: 'alert' | 'status' = 'alert'\n\n\trender() {\n\t\tconst tone = VARIANTS[this.variant] ?? VARIANTS.default\n\t\treturn html`<div data-ds=\"alert\" role=${this.alertRole} class=\"flex w-full items-start gap-3 rounded-container bg-surface-raised p-4 max-sm:flex-wrap\">${this.hasSlot('icon') ? html`<span class=${['mt-0.5 flex shrink-0', tone].join(' ')} aria-hidden=\"true\"><slot name=\"icon\"></slot></span>` : nothing}<div class=\"flex min-w-0 flex-1 flex-col gap-1\"><p class=${['type-ui-strong', tone].join(' ')}>${this.heading}</p>${this.hasSlot() ? html`<div class=\"type-ui text-fg-muted\"><slot></slot></div>` : nothing}</div>${this.hasSlot('action') ? html`<div class=\"shrink-0 self-center max-sm:basis-full max-sm:pl-7\"><slot name=\"action\"></slot></div>` : nothing}</div>`\n\t}\n}\n\ndefine('alert', Alert)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/alert.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-alert",
+      "tags": [
+        "spyglass-alert"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-alert",
+            "name": "Alert",
+            "module": "elements/alert.js",
+            "description": "A note or a problem in a #262626 box: an icon, the subject and a line.",
+            "attributes": [
+              {
+                "name": "heading",
+                "field": "heading",
+                "type": "string",
+                "default": "''",
+                "description": "The subject (React's `title`)."
+              },
+              {
+                "name": "variant",
+                "field": "variant",
+                "type": "AlertVariant",
+                "default": "'default'",
+                "description": "default, or destructive (red) for what broke."
+              },
+              {
+                "name": "alert-role",
+                "field": "alertRole",
+                "type": "\"alert\" | \"status\"",
+                "default": "'alert'",
+                "description": "alert (read out at once) or status (polite): React's `role`."
+              }
+            ],
+            "properties": [
+              {
+                "name": "heading",
+                "type": "string",
+                "default": "''",
+                "description": "The subject (React's `title`).",
+                "attribute": "heading"
+              },
+              {
+                "name": "variant",
+                "type": "AlertVariant",
+                "default": "'default'",
+                "description": "default, or destructive (red) for what broke.",
+                "attribute": "variant"
+              },
+              {
+                "name": "alertRole",
+                "type": "\"alert\" | \"status\"",
+                "default": "'alert'",
+                "description": "alert (read out at once) or status (polite): React's `role`.",
+                "attribute": "alert-role"
+              }
+            ],
+            "events": [],
+            "slots": [
+              {
+                "name": "",
+                "description": "The line under the subject."
+              },
+              {
+                "name": "icon",
+                "description": "A 16px Lucide icon."
+              },
+              {
+                "name": "action",
+                "description": "A button at the end."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Variants",
+          "label": "Variants",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/alert/Variants.html",
+          "content": "<!-- A note with the action that goes with it, and a problem in red with the fix. -->\n<div class=\"flex w-160 max-w-full flex-col gap-3\">\n  <spyglass-alert alert-role=\"status\" heading=\"Your first month is $10.\">\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-info\" slot=\"icon\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><path d=\"M12 16v-4\"></path><path d=\"M12 8h.01\"></path></svg>\n    Then $20/month. Cancel any time.\n    <spyglass-button slot=\"action\" size=\"sm\">Start Creator</spyglass-button>\n  </spyglass-alert>\n  <spyglass-alert variant=\"destructive\" heading=\"Your payment did not go through.\">\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-circle-alert\" slot=\"icon\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"12\" x2=\"12\" y1=\"8\" y2=\"12\"></line><line x1=\"12\" x2=\"12.01\" y1=\"16\" y2=\"16\"></line></svg>\n    Update your card to keep Acme's boards.\n    <spyglass-button slot=\"action\" size=\"sm\" variant=\"secondary\">Update card</spyglass-button>\n  </spyglass-alert>\n  <spyglass-alert alert-role=\"status\" heading=\"Search results update every day.\">\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-info\" slot=\"icon\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><path d=\"M12 16v-4\"></path><path d=\"M12 8h.01\"></path></svg>\n  </spyglass-alert>\n</div>\n"
+        }
+      ]
+    }
+  }
+}

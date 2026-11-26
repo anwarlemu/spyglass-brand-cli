@@ -1,0 +1,345 @@
+{
+  "name": "enterprise-page",
+  "title": "Enterprise page",
+  "type": "registry:block",
+  "group": "pages",
+  "description": "The site's enterprise page from library items: the header, the hero inside its ring of creatives, the logo row, the automation run under its quote, the eight features and the close with two buttons, then the footer.",
+  "use_for": "An enterprise or sales page; `content` replaces the copy, and `cards`, `logos`, `run` and `features` take your creatives and marks.",
+  "never": [
+    "Customer logos, quotes or creatives you may not show: the defaults are Acme placeholders",
+    "A second White button in a section",
+    "The connect menu in the close: this page closes on a demo"
+  ],
+  "source": "Site app/enterprise and pages/Enterprise (EnterprisePage.tsx, Enterprise.module.css, LogoStrip.module.css) and content/pages/enterprise.ts: hero, logos (--ent-logos-above 24px, 16 from 768; --section-y below), AutomationRun, FeatureGrid, PageClose with two buttons and no texture",
+  "body": "`sections` lists the sections to show, in order (`hero`, `proof`, `run`, `features`, `close`); a key left out is not\nshown. `cards`, `run` and `features` carry the pictures (image slots: `src`, `alt`, `fit`, `position`). `menus` passes\nthe header menus (the live card's `picture`, the use cases' `shots`).",
+  "requires": [
+    "ascii-trail",
+    "automation-run",
+    "creative-card",
+    "enterprise-features",
+    "enterprise-hero",
+    "page-close",
+    "proof-strip",
+    "site-footer",
+    "site-header"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/pages/EnterprisePage.tsx",
+      "content": "import { AutomationRun } from '@/react/components/site/AutomationRun'\nimport { EnterpriseFeatures } from '@/react/components/site/EnterpriseFeatures'\nimport { EnterpriseHero } from '@/react/components/site/EnterpriseHero'\nimport { PageClose } from '@/react/components/site/PageClose'\nimport { ProofStrip, proofPlaceholders, type ProofLogo } from '@/react/components/site/ProofStrip'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { AsciiTrail } from '@/react/components/visuals/AsciiTrail'\nimport { SiteFooter } from '@/react/components/blocks/SiteFooter'\nimport type { RunItem } from '@/lib/automation-run'\nimport type { RingCard } from '@/lib/enterprise-ring'\nimport type { EnterpriseFeaturesContent } from '@/lib/enterprise-features'\nimport { enterprisePageContent, type EnterprisePageContent, enterpriseSections, type EnterpriseSection } from '@/lib/pages/enterprise'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// The site's enterprise page (app/enterprise, pages/Enterprise/EnterprisePage), from library items in the site's order:\n// the header, the hero inside its ring of creatives, the logo row (24px under the hero, 16 from 768, the section's\n// padding below), the automation run under its quote, the eight features, and the close with two buttons and no drifts,\n// then the footer. `content` replaces the copy; `cards`, `logos`, `run` and `features` take your creatives and marks\n// (Acme placeholders by default).\nexport interface EnterprisePageProps {\n  content?: EnterprisePageContent\n  cards?: RingCard[][]\n  logos?: ProofLogo[]\n  run?: RunItem[]\n  features?: EnterpriseFeaturesContent\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly EnterpriseSection[]\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function EnterprisePage({ content: c = enterprisePageContent, cards, logos = proofPlaceholders, run, features, menus, sections, className }: EnterprisePageProps) {\n  const parts: Record<EnterpriseSection, ReactNode> = {\n    hero: <EnterpriseHero content={c.hero} cards={cards} />,\n    proof: (\n      <section aria-label={c.proof} className=\"pt-(--ds-ent-logos-above) pb-(--ds-layout-section) md:pt-(--ds-ent-logos-above-md)\">\n        <div className={cn(WRAP, 'flex justify-center')}>\n          <ProofStrip logos={logos} />\n        </div>\n      </section>\n    ),\n    run: <AutomationRun items={run} id=\"monday-report\" />,\n    features: <EnterpriseFeatures content={features} />,\n    close: <PageClose id=\"enterprise-close\" lines={c.close.title} note={c.close.note} primary={c.close.primary} secondary={c.close.secondary} control={null} texture={false} />,\n  }\n  return (\n    <div data-ds=\"enterprise-page\" className={cn('isolate bg-surface text-fg', className)}>\n      <AsciiTrail mode=\"page\" />\n      <SiteHeader menus={menus} links={c.header.links} secondary={c.header.secondary} variant=\"centered\" />\n      <main id=\"main\">\n        {pageSections(enterpriseSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <SiteFooter columns={c.footer.columns} legal={c.footer.legal} />\n    </div>\n  )\n}\n\nexport default EnterprisePage\n"
+    },
+    {
+      "path": "lib/pages/enterprise.ts",
+      "content": "// The enterprise page's copy (the site's content/pages/enterprise.ts, for Acme). Both flavors read this file. The ring's\n// creatives, the run's batch and the features' details have their own Acme placeholders in lib/enterprise-ring.ts,\n// lib/automation-run.ts and lib/enterprise-features.ts.\nexport const enterpriseHeroContent = {\n\t/** The headline in two lines (the first kept on one line from 768). */\n\ttitle: ['Building creative engines', 'for the world’s most ambitious brands'] as [string, string],\n\tlead: 'Powered by the first agent-native creative search engine.',\n\tprimary: { label: 'Book a demo', href: '/demo' },\n\tsecondary: { label: 'See pricing', href: '/pricing' },\n\t/** The ring's accessible name. */\n\tlabel: 'Ads and posts from D2C brands, read by Acme',\n}\nexport type EnterpriseHeroContent = typeof enterpriseHeroContent\n\nexport const enterpriseCloseContent = {\n\ttitle: ['Your creative army is', 'ready at your command'] as [string, string],\n\tnote: 'Enterprise services require a 3-month minimum commitment, then continue monthly or quarterly.',\n\tprimary: { label: 'Book a demo', href: '/demo' },\n\tsecondary: { label: 'Get a free API key', href: '/sign-up' },\n}\nexport type EnterpriseCloseContent = typeof enterpriseCloseContent\n\n/** The site chrome around the enterprise page: the header's links (Enterprise current) and the footer's columns. */\nexport const enterprisePageContent = {\n\theader: {\n\t\tlinks: [\n\t\t\t{ label: 'Products', href: '/products' },\n\t\t\t{ label: 'Use cases', href: '/use-cases' },\n\t\t\t{ label: 'Enterprise', href: '/enterprise', current: true },\n\t\t\t{ label: 'Resources', href: '/resources' },\n\t\t\t{ label: 'Pricing', href: '/pricing' },\n\t\t],\n\t\tsecondary: { label: 'Sign in', href: '/sign-in' },\n\t},\n\t/** The logo row's name. */\n\tproof: 'Teams using Acme',\n\thero: enterpriseHeroContent,\n\tclose: enterpriseCloseContent,\n\tfooter: {\n\t\tcolumns: [\n\t\t\t{ title: 'Products', wide: true, links: [{ label: 'Brands and creators', href: '/products/brands' }, { label: 'Media archive', href: '/products/archive' }, { label: 'Collaborations', href: '/products/collaborations' }, { label: 'Creative insights', href: '/products/insights' }, { label: 'Realtime search', href: '/products/search' }, { label: 'Coming soon', href: '/products/coming-soon' }] },\n\t\t\t{ title: 'Use cases', wide: true, links: [{ label: 'Build your own', href: '/use-cases/build' }, { label: 'Creative research', href: '/use-cases/research' }, { label: 'Paid ads', href: '/use-cases/paid' }, { label: 'Organic social', href: '/use-cases/organic' }, { label: 'Competitive analysis', href: '/use-cases/competitive' }, { label: 'Creator sourcing', href: '/use-cases/creators' }] },\n\t\t\t{ title: 'Resources', links: [{ label: 'Templates', href: '/templates' }, { label: 'Docs', href: '/docs' }, { label: 'Blog', href: '/blog' }, { label: 'Articles', href: '/articles' }] },\n\t\t\t{ title: 'Company', links: [{ label: 'Enterprise', href: '/enterprise' }, { label: 'Talk to us', href: '/demo' }, { label: 'Sign in', href: '/sign-in' }] },\n\t\t\t{ title: 'Legal', links: [{ label: 'Terms', href: '/terms' }, { label: 'Privacy', href: '/privacy' }] },\n\t\t\t{ title: 'Community', links: [{ label: 'X', href: 'https://x.com' }, { label: 'LinkedIn', href: 'https://linkedin.com' }, { label: 'Instagram', href: 'https://instagram.com' }] },\n\t\t],\n\t\tlegal: '© 2026 Acme Inc.',\n\t},\n}\nexport type EnterprisePageContent = typeof enterprisePageContent\n\n/** The enterprise page's sections in order; pass `sections` to reorder them or leave some out. */\nexport const enterpriseSections = ['hero', 'proof', 'run', 'features', 'close'] as const\nexport type EnterpriseSection = (typeof enterpriseSections)[number]\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Page",
+      "label": "Enterprise page",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/enterprise-page/Page.tsx",
+      "content": "import { EnterprisePage } from '@/react/components/pages/EnterprisePage'\n// The enterprise page for Acme, every section from the library (pass your creatives and marks through `cards`, `logos`, `run` and `features`).\n\nexport default function Page() {\n  return <EnterprisePage />\n}\n",
+      "requires": [
+        "ascii-trail",
+        "automation-run",
+        "creative-card",
+        "enterprise-features",
+        "enterprise-hero",
+        "page-close",
+        "proof-strip",
+        "site-footer",
+        "site-header"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/pages/EnterprisePage.tsx",
+          "content": "import { AutomationRun } from '@/react/components/site/AutomationRun'\nimport { EnterpriseFeatures } from '@/react/components/site/EnterpriseFeatures'\nimport { EnterpriseHero } from '@/react/components/site/EnterpriseHero'\nimport { PageClose } from '@/react/components/site/PageClose'\nimport { ProofStrip, proofPlaceholders, type ProofLogo } from '@/react/components/site/ProofStrip'\nimport { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { AsciiTrail } from '@/react/components/visuals/AsciiTrail'\nimport { SiteFooter } from '@/react/components/blocks/SiteFooter'\nimport type { RunItem } from '@/lib/automation-run'\nimport type { RingCard } from '@/lib/enterprise-ring'\nimport type { EnterpriseFeaturesContent } from '@/lib/enterprise-features'\nimport { enterprisePageContent, type EnterprisePageContent, enterpriseSections, type EnterpriseSection } from '@/lib/pages/enterprise'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// The site's enterprise page (app/enterprise, pages/Enterprise/EnterprisePage), from library items in the site's order:\n// the header, the hero inside its ring of creatives, the logo row (24px under the hero, 16 from 768, the section's\n// padding below), the automation run under its quote, the eight features, and the close with two buttons and no drifts,\n// then the footer. `content` replaces the copy; `cards`, `logos`, `run` and `features` take your creatives and marks\n// (Acme placeholders by default).\nexport interface EnterprisePageProps {\n  content?: EnterprisePageContent\n  cards?: RingCard[][]\n  logos?: ProofLogo[]\n  run?: RunItem[]\n  features?: EnterpriseFeaturesContent\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly EnterpriseSection[]\n  className?: string\n}\n\nconst WRAP = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function EnterprisePage({ content: c = enterprisePageContent, cards, logos = proofPlaceholders, run, features, menus, sections, className }: EnterprisePageProps) {\n  const parts: Record<EnterpriseSection, ReactNode> = {\n    hero: <EnterpriseHero content={c.hero} cards={cards} />,\n    proof: (\n      <section aria-label={c.proof} className=\"pt-(--ds-ent-logos-above) pb-(--ds-layout-section) md:pt-(--ds-ent-logos-above-md)\">\n        <div className={cn(WRAP, 'flex justify-center')}>\n          <ProofStrip logos={logos} />\n        </div>\n      </section>\n    ),\n    run: <AutomationRun items={run} id=\"monday-report\" />,\n    features: <EnterpriseFeatures content={features} />,\n    close: <PageClose id=\"enterprise-close\" lines={c.close.title} note={c.close.note} primary={c.close.primary} secondary={c.close.secondary} control={null} texture={false} />,\n  }\n  return (\n    <div data-ds=\"enterprise-page\" className={cn('isolate bg-surface text-fg', className)}>\n      <AsciiTrail mode=\"page\" />\n      <SiteHeader menus={menus} links={c.header.links} secondary={c.header.secondary} variant=\"centered\" />\n      <main id=\"main\">\n        {pageSections(enterpriseSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <SiteFooter columns={c.footer.columns} legal={c.footer.legal} />\n    </div>\n  )\n}\n\nexport default EnterprisePage\n"
+        },
+        {
+          "path": "lib/pages/enterprise.ts",
+          "content": "// The enterprise page's copy (the site's content/pages/enterprise.ts, for Acme). Both flavors read this file. The ring's\n// creatives, the run's batch and the features' details have their own Acme placeholders in lib/enterprise-ring.ts,\n// lib/automation-run.ts and lib/enterprise-features.ts.\nexport const enterpriseHeroContent = {\n\t/** The headline in two lines (the first kept on one line from 768). */\n\ttitle: ['Building creative engines', 'for the world’s most ambitious brands'] as [string, string],\n\tlead: 'Powered by the first agent-native creative search engine.',\n\tprimary: { label: 'Book a demo', href: '/demo' },\n\tsecondary: { label: 'See pricing', href: '/pricing' },\n\t/** The ring's accessible name. */\n\tlabel: 'Ads and posts from D2C brands, read by Acme',\n}\nexport type EnterpriseHeroContent = typeof enterpriseHeroContent\n\nexport const enterpriseCloseContent = {\n\ttitle: ['Your creative army is', 'ready at your command'] as [string, string],\n\tnote: 'Enterprise services require a 3-month minimum commitment, then continue monthly or quarterly.',\n\tprimary: { label: 'Book a demo', href: '/demo' },\n\tsecondary: { label: 'Get a free API key', href: '/sign-up' },\n}\nexport type EnterpriseCloseContent = typeof enterpriseCloseContent\n\n/** The site chrome around the enterprise page: the header's links (Enterprise current) and the footer's columns. */\nexport const enterprisePageContent = {\n\theader: {\n\t\tlinks: [\n\t\t\t{ label: 'Products', href: '/products' },\n\t\t\t{ label: 'Use cases', href: '/use-cases' },\n\t\t\t{ label: 'Enterprise', href: '/enterprise', current: true },\n\t\t\t{ label: 'Resources', href: '/resources' },\n\t\t\t{ label: 'Pricing', href: '/pricing' },\n\t\t],\n\t\tsecondary: { label: 'Sign in', href: '/sign-in' },\n\t},\n\t/** The logo row's name. */\n\tproof: 'Teams using Acme',\n\thero: enterpriseHeroContent,\n\tclose: enterpriseCloseContent,\n\tfooter: {\n\t\tcolumns: [\n\t\t\t{ title: 'Products', wide: true, links: [{ label: 'Brands and creators', href: '/products/brands' }, { label: 'Media archive', href: '/products/archive' }, { label: 'Collaborations', href: '/products/collaborations' }, { label: 'Creative insights', href: '/products/insights' }, { label: 'Realtime search', href: '/products/search' }, { label: 'Coming soon', href: '/products/coming-soon' }] },\n\t\t\t{ title: 'Use cases', wide: true, links: [{ label: 'Build your own', href: '/use-cases/build' }, { label: 'Creative research', href: '/use-cases/research' }, { label: 'Paid ads', href: '/use-cases/paid' }, { label: 'Organic social', href: '/use-cases/organic' }, { label: 'Competitive analysis', href: '/use-cases/competitive' }, { label: 'Creator sourcing', href: '/use-cases/creators' }] },\n\t\t\t{ title: 'Resources', links: [{ label: 'Templates', href: '/templates' }, { label: 'Docs', href: '/docs' }, { label: 'Blog', href: '/blog' }, { label: 'Articles', href: '/articles' }] },\n\t\t\t{ title: 'Company', links: [{ label: 'Enterprise', href: '/enterprise' }, { label: 'Talk to us', href: '/demo' }, { label: 'Sign in', href: '/sign-in' }] },\n\t\t\t{ title: 'Legal', links: [{ label: 'Terms', href: '/terms' }, { label: 'Privacy', href: '/privacy' }] },\n\t\t\t{ title: 'Community', links: [{ label: 'X', href: 'https://x.com' }, { label: 'LinkedIn', href: 'https://linkedin.com' }, { label: 'Instagram', href: 'https://instagram.com' }] },\n\t\t],\n\t\tlegal: '© 2026 Acme Inc.',\n\t},\n}\nexport type EnterprisePageContent = typeof enterprisePageContent\n\n/** The enterprise page's sections in order; pass `sections` to reorder them or leave some out. */\nexport const enterpriseSections = ['hero', 'proof', 'run', 'features', 'close'] as const\nexport type EnterpriseSection = (typeof enterpriseSections)[number]\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-trail",
+        "automation-run",
+        "creative-card",
+        "enterprise-features",
+        "enterprise-hero",
+        "page-close",
+        "proof-strip",
+        "site-footer",
+        "site-header"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "EnterprisePage",
+            "file": "react/components/pages/EnterprisePage.tsx",
+            "props": [
+              {
+                "name": "content",
+                "type": "EnterprisePageContent",
+                "required": false
+              },
+              {
+                "name": "cards",
+                "type": "RingCard[][]",
+                "required": false
+              },
+              {
+                "name": "logos",
+                "type": "ProofLogo[]",
+                "required": false,
+                "default": "proofPlaceholders"
+              },
+              {
+                "name": "run",
+                "type": "RunItem[]",
+                "required": false
+              },
+              {
+                "name": "features",
+                "type": "EnterpriseFeaturesContent",
+                "required": false
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus",
+                "required": false,
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "type": "readonly EnterpriseSection[]",
+                "required": false,
+                "description": "The sections to show, in order; all of them in the page order by default (leave one out to omit it)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Enterprise page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/enterprise-page/Page.tsx",
+          "content": "import { EnterprisePage } from '@/react/components/pages/EnterprisePage'\n// The enterprise page for Acme, every section from the library (pass your creatives and marks through `cards`, `logos`, `run` and `features`).\n\nexport default function Page() {\n  return <EnterprisePage />\n}\n",
+          "registryDependencies": [
+            "ascii-trail",
+            "automation-run",
+            "creative-card",
+            "enterprise-features",
+            "enterprise-hero",
+            "page-close",
+            "proof-strip",
+            "site-footer",
+            "site-header"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/pages/enterprise-page.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { proofPlaceholders, type ProofLogo } from '@/elements/components/site/proof-strip'\nimport type { RunItem } from '@/lib/automation-run'\nimport { runPlaceholders } from '@/lib/automation-run'\nimport type { RingCard } from '@/lib/enterprise-ring'\nimport { ringPlaceholders } from '@/lib/enterprise-ring'\nimport { enterpriseFeaturesContent, type EnterpriseFeaturesContent } from '@/lib/enterprise-features'\nimport { enterprisePageContent, type EnterprisePageContent, enterpriseSections, type EnterpriseSection } from '@/lib/pages/enterprise'\nimport '@/elements/components/site/site-header'\nimport '@/elements/components/visuals/ascii-trail'\nimport '@/elements/components/site/enterprise-hero'\nimport '@/elements/components/site/proof-strip'\nimport '@/elements/components/site/automation-run'\nimport '@/elements/components/site/enterprise-features'\nimport '@/elements/components/site/page-close'\nimport '@/elements/components/blocks/site-footer'\nimport styles from 'virtual:tw'\nimport { pageSections } from '@/lib/image'\nimport { headerMenus, type HeaderMenus } from '@/lib/site-header'\n\n// EnterprisePage.tsx as <spyglass-enterprise-page>: the header, the hero in its ring, the logo row, the automation run,\n// the eight features, the close with two buttons and the footer. `content`, `cards`, `logos`, `run` and `features` (JSON).\n\n/**\n * @summary The enterprise page.\n */\nexport class EnterprisePage extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"enterprise-page\"]'))\n\tstatic properties = { content: { type: Object }, cards: { type: Array }, logos: { type: Array }, run: { type: Array }, features: { type: Object }, menus: { type: Object }, sections: { type: Array } }\n\t/** The copy (lib/pages/enterprise.ts by default). */\n\tcontent: EnterprisePageContent = enterprisePageContent\n\t/** The hero ring's sets of creatives. */\n\tcards: RingCard[][] = ringPlaceholders\n\t/** The logo row's marks. */\n\tlogos: ProofLogo[] = proofPlaceholders\n\t/** The automation run's batch. */\n\trun: RunItem[] = runPlaceholders\n\t/** The features' copy, data and pictures. */\n\tfeatures: EnterpriseFeaturesContent = enterpriseFeaturesContent\n\t/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n\tmenus?: HeaderMenus\n\t/** The sections to show, in order (a list of names); all of them in the page order by default. */\n\tsections?: EnterpriseSection[]\n\n\trender() {\n\t\tconst c = this.content ?? enterprisePageContent\n\t\tconst wrap = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\t\tconst parts: Record<EnterpriseSection, unknown> = {\n\t\t\thero: html`<spyglass-enterprise-hero .content=${c.hero} .cards=${this.cards ?? ringPlaceholders}></spyglass-enterprise-hero>`,\n\t\t\tproof: html`<section aria-label=${c.proof} class=\"pt-(--ds-ent-logos-above) pb-(--ds-layout-section) md:pt-(--ds-ent-logos-above-md)\"><div class=${`${wrap} flex justify-center`}><spyglass-proof-strip .logos=${this.logos ?? proofPlaceholders}></spyglass-proof-strip></div></section>`,\n\t\t\trun: html`<spyglass-automation-run .items=${this.run ?? runPlaceholders} section-id=\"monday-report\"></spyglass-automation-run>`,\n\t\t\tfeatures: html`<spyglass-enterprise-features .content=${this.features ?? enterpriseFeaturesContent}></spyglass-enterprise-features>`,\n\t\t\tclose: html`<spyglass-page-close close-id=\"enterprise-close\" .lines=${c.close.title} .note=${c.close.note} .primary=${c.close.primary} .secondary=${c.close.secondary} connect=\"false\" texture=\"false\"></spyglass-page-close>`,\n\t\t}\n\t\treturn html`<div data-ds=\"enterprise-page\" class=\"isolate bg-surface text-fg\"><spyglass-ascii-trail mode=\"page\"></spyglass-ascii-trail><spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.header.links} .secondary=${c.header.secondary} variant=\"centered\"></spyglass-site-header><main id=\"main\">${pageSections(enterpriseSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.footer.columns} .legal=${c.footer.legal}></spyglass-site-footer></div>`\n\t}\n}\n\ndefine('enterprise-page', EnterprisePage)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/enterprise-page.js",
+        "elements/proof-strip.js",
+        "elements/site-header.js",
+        "elements/ascii-trail.js",
+        "elements/enterprise-hero.js",
+        "elements/automation-run.js",
+        "elements/enterprise-features.js",
+        "elements/page-close.js",
+        "elements/site-footer.js",
+        "elements/menu-sheet.js",
+        "elements/menu-panels.js",
+        "elements/nav-menus.js",
+        "elements/nav-icon.js",
+        "elements/sheet-disclosure.js",
+        "elements/button.js",
+        "elements/logo.js",
+        "elements/connect-menu.js",
+        "elements/badge.js",
+        "elements/brand-light.js",
+        "elements/products-live-panel.js",
+        "elements/product-visual.js"
+      ],
+      "tag": "spyglass-enterprise-page",
+      "tags": [
+        "spyglass-enterprise-page"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-trail",
+        "automation-run",
+        "badge",
+        "brand-light",
+        "button",
+        "connect-menu",
+        "enterprise-features",
+        "enterprise-hero",
+        "logo",
+        "page-close",
+        "product-visual",
+        "proof-strip",
+        "site-footer",
+        "site-header"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-enterprise-page",
+            "name": "EnterprisePage",
+            "module": "elements/enterprise-page.js",
+            "description": "The enterprise page.",
+            "attributes": [
+              {
+                "name": "content",
+                "field": "content",
+                "type": "{ header: { links: ({ label: string; href: string; current?: undefined; } | { label: string; href: string; current: boolean; })[]; secondary: { label: string; href: string; }; }; proof: string; hero: { title: [string, string]; lead: string; primary: { label: string; href: string; }; secondary: { label: string; href: string; }; label: string; }; close: { title: [string, string]; note: string; primary: { label: string; href: string; }; secondary: { label: string; href: string; }; }; footer: { columns: ({ title: string; wide: boolean; links: { label: string; href: string; }[]; } | { title: string; links: { label: string; href: string; }[]; wide?: undefined; })[]; legal: string; }; }",
+                "default": "enterprisePageContent",
+                "description": "The copy (lib/pages/enterprise.ts by default)."
+              },
+              {
+                "name": "cards",
+                "field": "cards",
+                "type": "RingCard[][]",
+                "default": "ringPlaceholders",
+                "description": "The hero ring's sets of creatives."
+              },
+              {
+                "name": "logos",
+                "field": "logos",
+                "type": "ProofLogo[]",
+                "default": "proofPlaceholders",
+                "description": "The logo row's marks."
+              },
+              {
+                "name": "run",
+                "field": "run",
+                "type": "RunItem[]",
+                "default": "runPlaceholders",
+                "description": "The automation run's batch."
+              },
+              {
+                "name": "features",
+                "field": "features",
+                "type": "{ headline: string; data: { title: string; line: string; tools: { name: string; mark?: string; label?: string; }[]; question: string; answer: string; summary: string; }; archive: { title: string; line: string; live: string; source: string; scope: string; records: { brand: string; meta: string; status: string; picked?: boolean; live?: boolean; shot: FeatureShot; }[]; draft: string; app: string; stat: { value: string; label: string; }; summary: string; }; agents: { title: string; line: string; clients: { name: string; mark?: string; label?: string; }[]; hub: string; summary: string; }; engineers: { title: string; line: string; you: string; us: string; steps: [string, string, string]; summary: string; }; builds: { title: string; line: string; dashboard: { tab: string; caption: string; rows: { label: string; value: number; }[]; }; creators: { tab: string; caption: string; tool: { name: string; mark?: string; label?: string; }; rows: { name: string; note: string; avatar?: string; }[]; }; hooks: { tab: string; review: string; source: string; hook: string; rivals: string; ads: FeatureShot[]; }; summary: string; }; tools: { title: string; line: string; request: string; name: string; metric: string; options: { label: string; value: string; rows: number; }[]; tag: string[]; summary: string; }; reports: { title: string; line: string; messages: { text: string; channel: string; ads: [FeatureShot & { tag: string; }, FeatureShot & { tag: string; }]; }[]; summary: string; }; alpha: { title: string; line: string; workspace: string; shots: FeatureShot[]; ask: string; answer: string; product: string; answering: string; deleted: string; summary: string; }; }",
+                "default": "enterpriseFeaturesContent",
+                "description": "The features' copy, data and pictures."
+              },
+              {
+                "name": "menus",
+                "field": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "field": "sections",
+                "type": "(\"hero\" | \"proof\" | \"close\" | \"run\" | \"features\")[] | undefined",
+                "description": "The sections to show, in order (a list of names); all of them in the page order by default."
+              }
+            ],
+            "properties": [
+              {
+                "name": "content",
+                "type": "{ header: { links: ({ label: string; href: string; current?: undefined; } | { label: string; href: string; current: boolean; })[]; secondary: { label: string; href: string; }; }; proof: string; hero: { title: [string, string]; lead: string; primary: { label: string; href: string; }; secondary: { label: string; href: string; }; label: string; }; close: { title: [string, string]; note: string; primary: { label: string; href: string; }; secondary: { label: string; href: string; }; }; footer: { columns: ({ title: string; wide: boolean; links: { label: string; href: string; }[]; } | { title: string; links: { label: string; href: string; }[]; wide?: undefined; })[]; legal: string; }; }",
+                "default": "enterprisePageContent",
+                "description": "The copy (lib/pages/enterprise.ts by default).",
+                "attribute": "content"
+              },
+              {
+                "name": "cards",
+                "type": "RingCard[][]",
+                "default": "ringPlaceholders",
+                "description": "The hero ring's sets of creatives.",
+                "attribute": "cards"
+              },
+              {
+                "name": "logos",
+                "type": "ProofLogo[]",
+                "default": "proofPlaceholders",
+                "description": "The logo row's marks.",
+                "attribute": "logos"
+              },
+              {
+                "name": "run",
+                "type": "RunItem[]",
+                "default": "runPlaceholders",
+                "description": "The automation run's batch.",
+                "attribute": "run"
+              },
+              {
+                "name": "features",
+                "type": "{ headline: string; data: { title: string; line: string; tools: { name: string; mark?: string; label?: string; }[]; question: string; answer: string; summary: string; }; archive: { title: string; line: string; live: string; source: string; scope: string; records: { brand: string; meta: string; status: string; picked?: boolean; live?: boolean; shot: FeatureShot; }[]; draft: string; app: string; stat: { value: string; label: string; }; summary: string; }; agents: { title: string; line: string; clients: { name: string; mark?: string; label?: string; }[]; hub: string; summary: string; }; engineers: { title: string; line: string; you: string; us: string; steps: [string, string, string]; summary: string; }; builds: { title: string; line: string; dashboard: { tab: string; caption: string; rows: { label: string; value: number; }[]; }; creators: { tab: string; caption: string; tool: { name: string; mark?: string; label?: string; }; rows: { name: string; note: string; avatar?: string; }[]; }; hooks: { tab: string; review: string; source: string; hook: string; rivals: string; ads: FeatureShot[]; }; summary: string; }; tools: { title: string; line: string; request: string; name: string; metric: string; options: { label: string; value: string; rows: number; }[]; tag: string[]; summary: string; }; reports: { title: string; line: string; messages: { text: string; channel: string; ads: [FeatureShot & { tag: string; }, FeatureShot & { tag: string; }]; }[]; summary: string; }; alpha: { title: string; line: string; workspace: string; shots: FeatureShot[]; ask: string; answer: string; product: string; answering: string; deleted: string; summary: string; }; }",
+                "default": "enterpriseFeaturesContent",
+                "description": "The features' copy, data and pictures.",
+                "attribute": "features"
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default.",
+                "attribute": "menus"
+              },
+              {
+                "name": "sections",
+                "type": "(\"hero\" | \"proof\" | \"close\" | \"run\" | \"features\")[] | undefined",
+                "description": "The sections to show, in order (a list of names); all of them in the page order by default.",
+                "attribute": "sections"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Enterprise page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/enterprise-page/Page.html",
+          "content": "<!-- The enterprise page for Acme, every section from the library (pass your creatives and marks through `cards`, `logos`, `run` and `features`). -->\n<spyglass-enterprise-page></spyglass-enterprise-page>\n"
+        }
+      ]
+    }
+  }
+}

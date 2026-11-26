@@ -1,0 +1,264 @@
+{
+  "name": "use-cases-page",
+  "title": "Use cases page",
+  "type": "registry:block",
+  "group": "pages",
+  "description": "The site's use-cases hub: the header, the page head with the ASCII drift, the use cases as linked cards three across (each with three creatives on its Black cover), the closing section with the connect menu, and the footer.",
+  "use_for": "An index of use cases, solutions or audiences, each card linking to its own page. `content` replaces the copy and the cards (lib/pages/use-cases.ts).",
+  "never": [
+    "Another brand's creative on a card: pass your own images as `src` or keep the Acme placeholders",
+    "Cards that move on hover",
+    "A second White button in the head: the hub has none"
+  ],
+  "source": "Site app/use-cases/page.tsx and pages/UseCasesPage (UseCaseHub.tsx, UseCaseHub.module.css over Resources.module.css): PageHead with the title and lead, the cards in .container three across from 1024 with the 240px cover, the section padding under them, PageClose, the footer",
+  "body": "Each card takes `title`, `line`, `meta` (who it is for), `href` and a `cover` of three creatives. The header and footer\nread lib/pages/site-chrome.ts.\n\n`sections` lists the sections to show, in order (`head`, `cards`, `close`); a key left out is not shown. The covers'\ncreatives are image slots. `menus` passes the header menus (the live card's `picture`, the use cases' `shots`).",
+  "requires": [
+    "ascii-trail",
+    "creative-card",
+    "page-close",
+    "page-head",
+    "resource-cards",
+    "resources-page",
+    "site-footer",
+    "site-header"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/pages/UseCasesPage.tsx",
+      "content": "import { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { AsciiTrail } from '@/react/components/visuals/AsciiTrail'\nimport { PageHead } from '@/react/components/site/PageHead'\nimport { ResourceCards } from '@/react/components/site/ResourceCards'\nimport { PageClose } from '@/react/components/site/PageClose'\nimport { SiteFooter } from '@/react/components/blocks/SiteFooter'\nimport { useCasesContent, type UseCasesContent, useCasesSections, type UseCasesSection } from '@/lib/pages/use-cases'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// The site's use-cases hub (app/use-cases, pages/UseCasesPage/UseCaseHub): the header, the page head (the title, the\n// lead and the ASCII drift in the right columns), the use cases as linked cards (three across from 1024, two from 768,\n// each with three creatives on its Black cover, Acme placeholders until you pass `src`), the section padding under\n// them, the closing section with the connect menu, then the footer. `content` replaces the copy (lib/pages/use-cases.ts).\nexport interface UseCasesPageProps {\n  content?: UseCasesContent\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly UseCasesSection[]\n  className?: string\n}\n\nconst CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function UseCasesPage({ content: c = useCasesContent, menus, sections, className }: UseCasesPageProps) {\n  const parts: Record<UseCasesSection, ReactNode> = {\n    head: <PageHead id={c.id} lines={c.head.lines} lead={c.head.lead} />,\n    cards: (\n      <section aria-label={c.head.lines.join(' ')}>\n        <div className={cn(CONTAINER, 'pb-(--ds-layout-section)')}>\n          <ResourceCards cards={c.cards} columns={3} />\n        </div>\n      </section>\n    ),\n    close: <PageClose />,\n  }\n  return (\n    <div data-ds=\"use-cases-page\" className={cn('isolate bg-surface text-fg', className)}>\n      <AsciiTrail mode=\"page\" />\n      <SiteHeader menus={menus} links={c.chrome.header.nav} secondary={c.chrome.header.secondary} cta={c.chrome.header.cta} />\n      <main id=\"main\">\n        {pageSections(useCasesSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <SiteFooter columns={c.chrome.footer.columns} legal={c.chrome.footer.legal} />\n    </div>\n  )\n}\n\nexport default UseCasesPage\n"
+    },
+    {
+      "path": "lib/pages/use-cases.ts",
+      "content": "// The use-cases hub's copy (site app/use-cases, content/pages/use-cases.ts useCasesOverview): the head and the nine\n// use cases in the menu's order, each a card with three Acme placeholder creatives as its cover. Both flavors read\n// this file; the header and footer come from lib/pages/site-chrome.ts.\nimport type { ResourceCard } from '@/lib/resource-cards'\nimport { siteChrome, type SiteChrome } from '@/lib/pages/site-chrome'\n\nconst cover = (a: string, b: string, c: string, tone: 1 | 2 | 3 | 4 = 2): ResourceCard['cover'] => ({\n\tkind: 'creatives',\n\titems: [\n\t\t{ brand: a, tone },\n\t\t{ brand: b, tone: tone === 4 ? 3 : ((tone + 1) as 2 | 3 | 4) },\n\t\t{ brand: c, tone: tone === 1 ? 2 : ((tone - 1) as 1 | 2 | 3) },\n\t],\n})\n\nexport interface UseCasesContent {\n\tid: string\n\thead: { lines: string[]; lead: string }\n\tcards: ResourceCard[]\n\tchrome: SiteChrome\n}\n\nexport const useCasesContent: UseCasesContent = {\n\tid: 'use-cases',\n\thead: {\n\t\tlines: ['Use cases'],\n\t\tlead: 'Nine ways teams put Spyglass to work, from a single question to a tool of their own.',\n\t},\n\tcards: [\n\t\t{ title: 'Build your own', line: 'Your own agents, ad libraries and tools, built on the API and MCP server.', meta: 'For developers, AI builders and growth teams.', href: '/use-cases/build-your-own', cover: cover('Acme', 'Acme', 'Acme', 2) },\n\t\t{ title: 'Creative research', line: 'The hooks, angles and formats that win for any brand, worked out before you ask.', meta: 'For creative strategists, designers and performance teams.', href: '/use-cases/creative-research', cover: cover('Acme', 'Acme', 'Acme', 3) },\n\t\t{ title: 'Paid media', line: 'What brands are running, how long, with which hooks, angles and landing pages.', meta: 'For performance marketers, creative strategists and agencies.', href: '/use-cases/paid-media', cover: cover('Acme', 'Acme', 'Acme', 1) },\n\t\t{ title: 'Organic social', line: 'What brands and creators post and how it performs.', meta: 'For social and brand teams.', href: '/use-cases/organic-social', cover: cover('Acme', 'Acme', 'Acme', 3) },\n\t\t{ title: 'Competitive analysis', line: 'What competitors launch, test and keep running, from the day it goes live.', meta: 'For brand, growth and strategy teams, and agencies.', href: '/use-cases/competitive-analysis', cover: cover('Acme', 'Acme', 'Acme', 2) },\n\t\t{ title: 'Creators', line: 'Finding and hiring creators at scale, and seeing who works with whom.', meta: 'For creator and partnerships teams, and agencies.', href: '/use-cases/creators', cover: cover('Acme', 'Acme', 'Acme', 4) },\n\t\t{ title: 'Consumer sentiment', line: 'What people say about brands and products in the comments, sorted into what to act on.', meta: 'For brand, social, product and insights teams.', href: '/use-cases/consumer-sentiment', cover: cover('Acme', 'Acme', 'Acme', 3) },\n\t\t{ title: 'Landing page development', line: 'Where a brand’s ads lead, and the pages it keeps sending them to.', meta: 'For growth, CRO and web teams.', href: '/use-cases/landing-page-development', cover: cover('Acme', 'Acme', 'Acme', 4) },\n\t\t{ title: '360-degree research', line: 'One brand, all of it: its ads, posts, creators, landing pages and comments on one record.', meta: 'For strategists, agencies and brand teams.', href: '/use-cases/360-degree-research', cover: cover('Acme', 'Acme', 'Acme', 2) },\n\t],\n\tchrome: siteChrome,\n}\n\n/** The use cases index's sections in order; pass `sections` to reorder them or leave some out. */\nexport const useCasesSections = ['head', 'cards', 'close'] as const\nexport type UseCasesSection = (typeof useCasesSections)[number]\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Page",
+      "label": "Use cases page",
+      "center": false,
+      "half": false,
+      "bleed": true,
+      "path": "react/examples/use-cases-page/Page.tsx",
+      "content": "import { UseCasesPage } from '@/react/components/pages/UseCasesPage'\n// The use-cases hub as the site sets it, with Acme placeholder creatives on the cards.\n\nexport default function Page() {\n  return <UseCasesPage />\n}\n",
+      "requires": [
+        "ascii-trail",
+        "creative-card",
+        "page-close",
+        "page-head",
+        "resource-cards",
+        "resources-page",
+        "site-footer",
+        "site-header"
+      ],
+      "packages": []
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/pages/UseCasesPage.tsx",
+          "content": "import { SiteHeader } from '@/react/components/site/SiteHeader'\nimport { AsciiTrail } from '@/react/components/visuals/AsciiTrail'\nimport { PageHead } from '@/react/components/site/PageHead'\nimport { ResourceCards } from '@/react/components/site/ResourceCards'\nimport { PageClose } from '@/react/components/site/PageClose'\nimport { SiteFooter } from '@/react/components/blocks/SiteFooter'\nimport { useCasesContent, type UseCasesContent, useCasesSections, type UseCasesSection } from '@/lib/pages/use-cases'\nimport { cn } from '@/react/lib/cn'\nimport { pageSections } from '@/lib/image'\nimport { Fragment, type ReactNode } from 'react'\nimport type { HeaderMenus } from '@/lib/site-header'\n\n// The site's use-cases hub (app/use-cases, pages/UseCasesPage/UseCaseHub): the header, the page head (the title, the\n// lead and the ASCII drift in the right columns), the use cases as linked cards (three across from 1024, two from 768,\n// each with three creatives on its Black cover, Acme placeholders until you pass `src`), the section padding under\n// them, the closing section with the connect menu, then the footer. `content` replaces the copy (lib/pages/use-cases.ts).\nexport interface UseCasesPageProps {\n  content?: UseCasesContent\n  /** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n  menus?: HeaderMenus\n  /** The sections to show, in order; all of them in the page order by default (leave one out to omit it). */\n  sections?: readonly UseCasesSection[]\n  className?: string\n}\n\nconst CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\nexport function UseCasesPage({ content: c = useCasesContent, menus, sections, className }: UseCasesPageProps) {\n  const parts: Record<UseCasesSection, ReactNode> = {\n    head: <PageHead id={c.id} lines={c.head.lines} lead={c.head.lead} />,\n    cards: (\n      <section aria-label={c.head.lines.join(' ')}>\n        <div className={cn(CONTAINER, 'pb-(--ds-layout-section)')}>\n          <ResourceCards cards={c.cards} columns={3} />\n        </div>\n      </section>\n    ),\n    close: <PageClose />,\n  }\n  return (\n    <div data-ds=\"use-cases-page\" className={cn('isolate bg-surface text-fg', className)}>\n      <AsciiTrail mode=\"page\" />\n      <SiteHeader menus={menus} links={c.chrome.header.nav} secondary={c.chrome.header.secondary} cta={c.chrome.header.cta} />\n      <main id=\"main\">\n        {pageSections(useCasesSections, sections).map((k) => <Fragment key={k}>{parts[k]}</Fragment>)}\n      </main>\n      <SiteFooter columns={c.chrome.footer.columns} legal={c.chrome.footer.legal} />\n    </div>\n  )\n}\n\nexport default UseCasesPage\n"
+        },
+        {
+          "path": "lib/pages/use-cases.ts",
+          "content": "// The use-cases hub's copy (site app/use-cases, content/pages/use-cases.ts useCasesOverview): the head and the nine\n// use cases in the menu's order, each a card with three Acme placeholder creatives as its cover. Both flavors read\n// this file; the header and footer come from lib/pages/site-chrome.ts.\nimport type { ResourceCard } from '@/lib/resource-cards'\nimport { siteChrome, type SiteChrome } from '@/lib/pages/site-chrome'\n\nconst cover = (a: string, b: string, c: string, tone: 1 | 2 | 3 | 4 = 2): ResourceCard['cover'] => ({\n\tkind: 'creatives',\n\titems: [\n\t\t{ brand: a, tone },\n\t\t{ brand: b, tone: tone === 4 ? 3 : ((tone + 1) as 2 | 3 | 4) },\n\t\t{ brand: c, tone: tone === 1 ? 2 : ((tone - 1) as 1 | 2 | 3) },\n\t],\n})\n\nexport interface UseCasesContent {\n\tid: string\n\thead: { lines: string[]; lead: string }\n\tcards: ResourceCard[]\n\tchrome: SiteChrome\n}\n\nexport const useCasesContent: UseCasesContent = {\n\tid: 'use-cases',\n\thead: {\n\t\tlines: ['Use cases'],\n\t\tlead: 'Nine ways teams put Spyglass to work, from a single question to a tool of their own.',\n\t},\n\tcards: [\n\t\t{ title: 'Build your own', line: 'Your own agents, ad libraries and tools, built on the API and MCP server.', meta: 'For developers, AI builders and growth teams.', href: '/use-cases/build-your-own', cover: cover('Acme', 'Acme', 'Acme', 2) },\n\t\t{ title: 'Creative research', line: 'The hooks, angles and formats that win for any brand, worked out before you ask.', meta: 'For creative strategists, designers and performance teams.', href: '/use-cases/creative-research', cover: cover('Acme', 'Acme', 'Acme', 3) },\n\t\t{ title: 'Paid media', line: 'What brands are running, how long, with which hooks, angles and landing pages.', meta: 'For performance marketers, creative strategists and agencies.', href: '/use-cases/paid-media', cover: cover('Acme', 'Acme', 'Acme', 1) },\n\t\t{ title: 'Organic social', line: 'What brands and creators post and how it performs.', meta: 'For social and brand teams.', href: '/use-cases/organic-social', cover: cover('Acme', 'Acme', 'Acme', 3) },\n\t\t{ title: 'Competitive analysis', line: 'What competitors launch, test and keep running, from the day it goes live.', meta: 'For brand, growth and strategy teams, and agencies.', href: '/use-cases/competitive-analysis', cover: cover('Acme', 'Acme', 'Acme', 2) },\n\t\t{ title: 'Creators', line: 'Finding and hiring creators at scale, and seeing who works with whom.', meta: 'For creator and partnerships teams, and agencies.', href: '/use-cases/creators', cover: cover('Acme', 'Acme', 'Acme', 4) },\n\t\t{ title: 'Consumer sentiment', line: 'What people say about brands and products in the comments, sorted into what to act on.', meta: 'For brand, social, product and insights teams.', href: '/use-cases/consumer-sentiment', cover: cover('Acme', 'Acme', 'Acme', 3) },\n\t\t{ title: 'Landing page development', line: 'Where a brand’s ads lead, and the pages it keeps sending them to.', meta: 'For growth, CRO and web teams.', href: '/use-cases/landing-page-development', cover: cover('Acme', 'Acme', 'Acme', 4) },\n\t\t{ title: '360-degree research', line: 'One brand, all of it: its ads, posts, creators, landing pages and comments on one record.', meta: 'For strategists, agencies and brand teams.', href: '/use-cases/360-degree-research', cover: cover('Acme', 'Acme', 'Acme', 2) },\n\t],\n\tchrome: siteChrome,\n}\n\n/** The use cases index's sections in order; pass `sections` to reorder them or leave some out. */\nexport const useCasesSections = ['head', 'cards', 'close'] as const\nexport type UseCasesSection = (typeof useCasesSections)[number]\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-trail",
+        "creative-card",
+        "page-close",
+        "page-head",
+        "resource-cards",
+        "resources-page",
+        "site-footer",
+        "site-header"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "UseCasesPage",
+            "file": "react/components/pages/UseCasesPage.tsx",
+            "props": [
+              {
+                "name": "content",
+                "type": "UseCasesContent",
+                "required": false
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus",
+                "required": false,
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "type": "readonly UseCasesSection[]",
+                "required": false,
+                "description": "The sections to show, in order; all of them in the page order by default (leave one out to omit it)."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Use cases page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "react/examples/use-cases-page/Page.tsx",
+          "content": "import { UseCasesPage } from '@/react/components/pages/UseCasesPage'\n// The use-cases hub as the site sets it, with Acme placeholder creatives on the cards.\n\nexport default function Page() {\n  return <UseCasesPage />\n}\n",
+          "registryDependencies": [
+            "ascii-trail",
+            "creative-card",
+            "page-close",
+            "page-head",
+            "resource-cards",
+            "resources-page",
+            "site-footer",
+            "site-header"
+          ],
+          "dependencies": []
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/pages/use-cases-page.ts",
+          "content": "import { html } from 'lit'\nimport { DsElement, define, HostLayoutController } from '@/elements/lib/element'\nimport { useCasesContent, type UseCasesContent, useCasesSections, type UseCasesSection } from '@/lib/pages/use-cases'\nimport '@/elements/components/site/site-header'\nimport '@/elements/components/site/page-head'\nimport '@/elements/components/site/resource-cards'\nimport '@/elements/components/site/page-close'\nimport '@/elements/components/blocks/site-footer'\nimport '@/elements/components/visuals/ascii-trail'\nimport styles from 'virtual:tw'\nimport { pageSections } from '@/lib/image'\nimport { headerMenus, type HeaderMenus } from '@/lib/site-header'\n\n// UseCasesPage.tsx as <spyglass-use-cases-page>: the header, the page head, the use cases as linked cards (three across\n// from 1024), the closing section with the connect menu, then the footer. `content` replaces the copy.\nconst CONTAINER = 'mx-auto w-full max-w-[calc(var(--ds-layout-content)+2*var(--ds-layout-gutter))] px-(--ds-layout-gutter)'\n\n/**\n * @summary The use-cases hub page.\n */\nexport class UseCasesPage extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"use-cases-page\"]'))\n\tstatic properties = { content: { type: Object }, menus: { type: Object }, sections: { type: Array } }\n\t/** The copy as JSON (lib/pages/use-cases.ts by default). */\n\tcontent: UseCasesContent = useCasesContent\n\t/** The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default. */\n\tmenus?: HeaderMenus\n\t/** The sections to show, in order (a list of names); all of them in the page order by default. */\n\tsections?: UseCasesSection[]\n\n\trender() {\n\t\tconst c = this.content ?? useCasesContent\n\t\tconst parts: Record<UseCasesSection, unknown> = {\n\t\t\thead: html`<spyglass-page-head head-id=${c.id} .lines=${c.head.lines} .lead=${c.head.lead}></spyglass-page-head>`,\n\t\t\tcards: html`<section aria-label=${c.head.lines.join(' ')}><div class=${`${CONTAINER} pb-(--ds-layout-section)`}><spyglass-resource-cards .cards=${c.cards} columns=\"3\"></spyglass-resource-cards></div></section>`,\n\t\t\tclose: html`<spyglass-page-close></spyglass-page-close>`,\n\t\t}\n\t\treturn html`<div data-ds=\"use-cases-page\" class=\"isolate bg-surface text-fg\"><spyglass-ascii-trail mode=\"page\"></spyglass-ascii-trail><spyglass-site-header .menus=${this.menus ?? headerMenus} .links=${c.chrome.header.nav} .secondary=${c.chrome.header.secondary} .cta=${c.chrome.header.cta}></spyglass-site-header><main id=\"main\">${pageSections(useCasesSections, this.sections).map((k) => parts[k])}</main><spyglass-site-footer .columns=${c.chrome.footer.columns} legal=${c.chrome.footer.legal}></spyglass-site-footer></div>`\n\t}\n}\n\ndefine('use-cases-page', UseCasesPage)\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/use-cases-page.js",
+        "elements/site-header.js",
+        "elements/page-head.js",
+        "elements/resource-cards.js",
+        "elements/page-close.js",
+        "elements/site-footer.js",
+        "elements/ascii-trail.js",
+        "elements/menu-sheet.js",
+        "elements/menu-panels.js",
+        "elements/nav-menus.js",
+        "elements/nav-icon.js",
+        "elements/sheet-disclosure.js",
+        "elements/button.js",
+        "elements/logo.js",
+        "elements/code.js",
+        "elements/creative-card.js",
+        "elements/badge.js",
+        "elements/connect-menu.js",
+        "elements/brand-light.js",
+        "elements/products-live-panel.js",
+        "elements/product-visual.js"
+      ],
+      "tag": "spyglass-use-cases-page",
+      "tags": [
+        "spyglass-use-cases-page"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "ascii-trail",
+        "badge",
+        "brand-light",
+        "button",
+        "code-block",
+        "connect-menu",
+        "creative-card",
+        "logo",
+        "page-close",
+        "page-head",
+        "product-visual",
+        "resource-cards",
+        "site-footer",
+        "site-header"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-use-cases-page",
+            "name": "UseCasesPage",
+            "module": "elements/use-cases-page.js",
+            "description": "The use-cases hub page.",
+            "attributes": [
+              {
+                "name": "content",
+                "field": "content",
+                "type": "UseCasesContent",
+                "default": "useCasesContent",
+                "description": "The copy as JSON (lib/pages/use-cases.ts by default)."
+              },
+              {
+                "name": "menus",
+                "field": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default."
+              },
+              {
+                "name": "sections",
+                "field": "sections",
+                "type": "(\"head\" | \"close\" | \"cards\")[] | undefined",
+                "description": "The sections to show, in order (a list of names); all of them in the page order by default."
+              }
+            ],
+            "properties": [
+              {
+                "name": "content",
+                "type": "UseCasesContent",
+                "default": "useCasesContent",
+                "description": "The copy as JSON (lib/pages/use-cases.ts by default).",
+                "attribute": "content"
+              },
+              {
+                "name": "menus",
+                "type": "HeaderMenus | undefined",
+                "description": "The header menus' content, pictures included (the live card's `picture`, the use cases' `shots`); Acme by default.",
+                "attribute": "menus"
+              },
+              {
+                "name": "sections",
+                "type": "(\"head\" | \"close\" | \"cards\")[] | undefined",
+                "description": "The sections to show, in order (a list of names); all of them in the page order by default.",
+                "attribute": "sections"
+              }
+            ],
+            "events": [],
+            "slots": [],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Page",
+          "label": "Use cases page",
+          "center": false,
+          "half": false,
+          "bleed": true,
+          "path": "elements/examples/use-cases-page/Page.html",
+          "content": "<!-- The use-cases hub as the site sets it, with Acme placeholder creatives on the cards. -->\n<spyglass-use-cases-page></spyglass-use-cases-page>\n"
+        }
+      ]
+    }
+  }
+}

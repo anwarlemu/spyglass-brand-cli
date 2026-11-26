@@ -1,0 +1,243 @@
+{
+  "name": "auth-form",
+  "title": "Auth form",
+  "type": "registry:block",
+  "group": "site",
+  "description": "The site's sign-in and sign-up form in a 400px column: the title and lead, a quiet provider button, the or rule, the email field with its message beside the label, the one White button, the legal line and the way to the other mode; a pressed button shows a spinner until the app takes over.",
+  "use_for": "Signing in or up on a page of your own, or inside a dialog; the sign-in page uses it.",
+  "never": [
+    "A third-party logo shipped with the library: the provider's mark comes in through `providerIcon` (the `provider-icon` slot)",
+    "A second White button",
+    "Errors in red: the message is White beside the label and the field's ring turns White"
+  ],
+  "source": "Site pages/Auth/AuthForm and Auth.module.css: title h4 32/36, h3 40/44 from 768, at 450; lead --text-2 12px under; controls 48px (--control-m) with 16/24 labels; the or rule 14/20 --text-3 between --line hairlines, 16px above and below; the field on --raised with an inset --line ring, 8px corner; legal 14/20 --text-off with --text-2 links; the spinner 20px, a 2px ring turning every 800ms",
+  "body": "",
+  "requires": [
+    "button"
+  ],
+  "dependencies": [],
+  "files": [
+    {
+      "path": "react/components/site/AuthForm.tsx",
+      "content": "'use client'\nimport { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { authContent, emailProblem, type AuthContent } from '@/lib/pages/auth'\nimport { cn } from '@/react/lib/cn'\n\n// The site's sign-in and sign-up form (pages/Auth/AuthForm): the title and lead, a quiet provider button, a rule with\n// \"or\", the email field with its label and the message beside it, the one White button, the legal line and the way to\n// the other mode. Centered in a 400px column. A press shows a spinner in the pressed button (the label and the spinner\n// cross-fade over 160ms) until the app takes over; pressing again does nothing meanwhile. The email is checked as the\n// site checks it: empty or malformed puts the message beside the label, rings the field White and focuses it.\n// The provider's mark comes in through `providerIcon` (no third-party logo ships with the library). `onProvider` and\n// `onEmail` take the presses; without them a press goes to the mode's `next` address.\nexport type AuthMode = 'sign-in' | 'sign-up'\n\nexport interface AuthFormProps {\n  mode?: AuthMode\n  content?: AuthContent\n  /** The provider's mark, 20px, before the provider button's label. */\n  providerIcon?: ReactNode\n  /** The provider button's press. */\n  onProvider?: () => void\n  /** A valid email sent. */\n  onEmail?: (email: string) => void\n  className?: string\n}\n\nfunction Labels({ busy, children }: { busy: boolean; children: ReactNode }) {\n  return (\n    <span className=\"grid place-items-center\">\n      <span className={cn('col-start-1 row-start-1 inline-flex items-center gap-3 transition-opacity duration-160 ease-out', busy && 'opacity-0')}>{children}</span>\n      <span aria-hidden=\"true\" className={cn('col-start-1 row-start-1 inline-flex items-center transition-opacity duration-160 ease-out', !busy && 'opacity-0')}>\n        <span className={cn('ds-auth-spin size-5 rounded-full border-2 border-current border-t-transparent', !busy && '[animation-play-state:paused]')} />\n      </span>\n    </span>\n  )\n}\n\nconst LINK = 'rounded-ds-sm underline decoration-transparent decoration-from-font underline-offset-4 transition-[text-decoration-color] duration-160 ease-out pointer-fine:hover:decoration-current'\n\nexport function AuthForm({ mode = 'sign-up', content: c = authContent, providerIcon, onProvider, onEmail, className }: AuthFormProps) {\n  const m = mode === 'sign-in' ? c.signIn : c.signUp\n  const [email, setEmail] = useState('')\n  const [error, setError] = useState('')\n  const [busy, setBusy] = useState<'provider' | 'email' | null>(null)\n  const input = useRef<HTMLInputElement>(null)\n  const id = useId()\n\n  // Back from the next page (the page restored from the cache): the buttons wake up again.\n  useEffect(() => {\n    const back = (event: PageTransitionEvent) => { if (event.persisted) setBusy(null) }\n    window.addEventListener('pageshow', back)\n    return () => window.removeEventListener('pageshow', back)\n  }, [])\n\n  function go(method: 'provider' | 'email', value = '') {\n    if (busy) return\n    setBusy(method)\n    if (method === 'provider' && onProvider) onProvider()\n    else if (method === 'email' && onEmail) onEmail(value)\n    else window.location.assign(m.next)\n  }\n\n  function submit(event: FormEvent<HTMLFormElement>) {\n    event.preventDefault()\n    if (busy) return\n    const problem = emailProblem(email, c)\n    setError(problem)\n    if (problem) input.current?.focus()\n    else go('email', email.trim())\n  }\n\n  return (\n    <section data-ds=\"auth-form\" aria-labelledby={`${id}-title`} className={cn('mx-auto flex w-full max-w-[calc(var(--ds-layout-auth)+2*var(--ds-layout-gutter))] flex-col items-center px-(--ds-layout-gutter) text-center text-fg', className)}>\n      <style href=\"ds-auth-form\" precedence=\"ds\">{css}</style>\n      <h1 id={`${id}-title`} className=\"type-title md:whitespace-nowrap\">{m.title}</h1>\n      {m.lead && <p className=\"mt-3 type-body text-balance text-fg-soft\">{m.lead}</p>}\n      <Button variant=\"secondary\" size=\"form\" className=\"mt-8 w-full\" aria-disabled={busy ? true : undefined} onClick={() => go('provider')}>\n        <Labels busy={busy === 'provider'}>{providerIcon && <span className=\"grid size-5 flex-none place-items-center [&_svg]:size-5\">{providerIcon}</span>}{c.provider}</Labels>\n      </Button>\n      <p className=\"my-4 flex w-full items-center gap-4 type-ui text-fg-muted before:h-px before:flex-1 before:bg-edge after:h-px after:flex-1 after:bg-edge\">{c.or}</p>\n      <form noValidate onSubmit={submit} className=\"flex w-full flex-col text-left\">\n        <div className=\"mb-2 flex justify-between gap-4 type-ui\">\n          <label htmlFor={`${id}-email`} className=\"font-medium\">{c.email}</label>\n          <span id={`${id}-error`} role=\"alert\" className=\"text-fg\">{error}</span>\n        </div>\n        <input\n          ref={input}\n          id={`${id}-email`}\n          type=\"email\"\n          inputMode=\"email\"\n          autoComplete=\"email\"\n          autoCapitalize=\"none\"\n          autoCorrect=\"off\"\n          spellCheck={false}\n          enterKeyHint=\"go\"\n          placeholder={c.placeholder}\n          value={email}\n          aria-invalid={error ? true : undefined}\n          aria-describedby={error ? `${id}-error` : undefined}\n          onChange={(event) => { setEmail(event.target.value); if (error) setError('') }}\n          className=\"mb-3 h-control-form w-full appearance-none rounded-control bg-surface-subtle px-4 type-body text-fg shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-edge)] transition-[box-shadow] duration-160 ease-out placeholder:text-fg-muted focus-visible:-outline-offset-1 aria-invalid:shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-white)]\"\n        />\n        <Button type=\"submit\" size=\"form\" className=\"w-full\" aria-disabled={busy ? true : undefined}>\n          <Labels busy={busy === 'email'}>{m.submit}</Labels>\n        </Button>\n      </form>\n      <p role=\"status\" className=\"sr-only\">{busy ? c.working : ''}</p>\n      <p className=\"mt-5 type-ui text-balance text-fg-faint\">\n        {c.legal.before}<a href={c.legal.terms.href} className={cn('text-fg-soft', LINK)}>{c.legal.terms.label}</a>{c.legal.between}<a href={c.legal.privacy.href} className={cn('text-fg-soft', LINK)}>{c.legal.privacy.label}</a>{c.legal.after}\n      </p>\n      <p className=\"mt-5 type-ui text-fg-muted\">\n        {m.other.ask} <a href={m.other.href} className={cn('relative py-3 font-medium text-fg', LINK)}>{m.other.label}</a>\n      </p>\n    </section>\n  )\n}\n\nexport default AuthForm\n\nconst css = `\n.ds-auth-spin { animation: ds-auth-spin 800ms linear infinite; }\n@keyframes ds-auth-spin { to { transform: rotate(1turn); } }\n@keyframes ds-auth-breathe { 50% { opacity: 0.5; } }\n@media (prefers-reduced-motion: reduce) { .ds-auth-spin { animation: ds-auth-breathe 2s var(--ds-easing-in-out) infinite; } }\n`\n"
+    },
+    {
+      "path": "lib/pages/auth.ts",
+      "content": "// The sign-in and sign-up pages' copy (the site's content/pages/auth.ts, for Acme). Both flavors read this file. Each\n// mode has its title, lead, the White button's label, `next` (where a press goes when no handler takes it) and the way\n// to the other mode.\nexport const authContent = {\n\tsignUp: { title: 'Create your Acme account', lead: '500 free credits every month. No card required.', submit: 'Get started', next: '/app/sign-up', other: { ask: 'Already have an account?', label: 'Sign in', href: '/sign-in' } },\n\tsignIn: { title: 'Welcome back', lead: 'Sign in to your Acme account.', submit: 'Continue', next: '/app/sign-in', other: { ask: 'Don’t have an account?', label: 'Sign up', href: '/sign-up' } },\n\tprovider: 'Continue with Google',\n\tor: 'or',\n\temail: 'Email',\n\tplaceholder: 'you@acme.com',\n\tempty: 'Enter your email',\n\tinvalid: 'Check your email address',\n\tworking: 'One moment',\n\tlegal: { before: 'By continuing, you acknowledge that you understand and agree to the ', terms: { label: 'Terms & Conditions', href: '/terms' }, between: ' and ', privacy: { label: 'Privacy Policy', href: '/privacy' }, after: '.' },\n\tproof: 'Trusted by teams at',\n\thome: 'Home',\n}\nexport type AuthContent = typeof authContent\n\n/** The site's email check: something@something.tld, two letters or more after the dot. */\nexport const EMAIL = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/\n\n/** The message for what was typed, or '' when it will do. */\nexport function emailProblem(value: string, c: AuthContent = authContent): string {\n\tconst v = value.trim()\n\treturn !v ? c.empty : EMAIL.test(v) ? '' : c.invalid\n}\n\n/** The auth page's sections in order; pass `sections` to reorder them or leave some out. */\nexport const authSections = ['form', 'proof'] as const\nexport type AuthSection = (typeof authSections)[number]\n"
+    },
+    {
+      "path": "react/lib/cn.ts",
+      "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Form",
+      "label": "Sign up",
+      "center": true,
+      "half": false,
+      "path": "react/examples/auth-form/Form.tsx",
+      "content": "'use client'\nimport { KeyRound } from 'lucide-react'\nimport { AuthForm } from '@/react/components/site/AuthForm'\n// The form alone, for a page of your own: sign up with a neutral mark in the provider button.\n\nexport default function Form() {\n  return <AuthForm mode=\"sign-up\" providerIcon={<KeyRound size={20} strokeWidth={1.5} aria-hidden=\"true\" />} onProvider={() => {}} onEmail={() => {}} />\n}\n",
+      "requires": [
+        "button"
+      ],
+      "packages": [
+        "lucide-react"
+      ]
+    }
+  ],
+  "flavors": {
+    "react": {
+      "files": [
+        {
+          "path": "react/components/site/AuthForm.tsx",
+          "content": "'use client'\nimport { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react'\nimport { Button } from '@/react/components/ui/Button'\nimport { authContent, emailProblem, type AuthContent } from '@/lib/pages/auth'\nimport { cn } from '@/react/lib/cn'\n\n// The site's sign-in and sign-up form (pages/Auth/AuthForm): the title and lead, a quiet provider button, a rule with\n// \"or\", the email field with its label and the message beside it, the one White button, the legal line and the way to\n// the other mode. Centered in a 400px column. A press shows a spinner in the pressed button (the label and the spinner\n// cross-fade over 160ms) until the app takes over; pressing again does nothing meanwhile. The email is checked as the\n// site checks it: empty or malformed puts the message beside the label, rings the field White and focuses it.\n// The provider's mark comes in through `providerIcon` (no third-party logo ships with the library). `onProvider` and\n// `onEmail` take the presses; without them a press goes to the mode's `next` address.\nexport type AuthMode = 'sign-in' | 'sign-up'\n\nexport interface AuthFormProps {\n  mode?: AuthMode\n  content?: AuthContent\n  /** The provider's mark, 20px, before the provider button's label. */\n  providerIcon?: ReactNode\n  /** The provider button's press. */\n  onProvider?: () => void\n  /** A valid email sent. */\n  onEmail?: (email: string) => void\n  className?: string\n}\n\nfunction Labels({ busy, children }: { busy: boolean; children: ReactNode }) {\n  return (\n    <span className=\"grid place-items-center\">\n      <span className={cn('col-start-1 row-start-1 inline-flex items-center gap-3 transition-opacity duration-160 ease-out', busy && 'opacity-0')}>{children}</span>\n      <span aria-hidden=\"true\" className={cn('col-start-1 row-start-1 inline-flex items-center transition-opacity duration-160 ease-out', !busy && 'opacity-0')}>\n        <span className={cn('ds-auth-spin size-5 rounded-full border-2 border-current border-t-transparent', !busy && '[animation-play-state:paused]')} />\n      </span>\n    </span>\n  )\n}\n\nconst LINK = 'rounded-ds-sm underline decoration-transparent decoration-from-font underline-offset-4 transition-[text-decoration-color] duration-160 ease-out pointer-fine:hover:decoration-current'\n\nexport function AuthForm({ mode = 'sign-up', content: c = authContent, providerIcon, onProvider, onEmail, className }: AuthFormProps) {\n  const m = mode === 'sign-in' ? c.signIn : c.signUp\n  const [email, setEmail] = useState('')\n  const [error, setError] = useState('')\n  const [busy, setBusy] = useState<'provider' | 'email' | null>(null)\n  const input = useRef<HTMLInputElement>(null)\n  const id = useId()\n\n  // Back from the next page (the page restored from the cache): the buttons wake up again.\n  useEffect(() => {\n    const back = (event: PageTransitionEvent) => { if (event.persisted) setBusy(null) }\n    window.addEventListener('pageshow', back)\n    return () => window.removeEventListener('pageshow', back)\n  }, [])\n\n  function go(method: 'provider' | 'email', value = '') {\n    if (busy) return\n    setBusy(method)\n    if (method === 'provider' && onProvider) onProvider()\n    else if (method === 'email' && onEmail) onEmail(value)\n    else window.location.assign(m.next)\n  }\n\n  function submit(event: FormEvent<HTMLFormElement>) {\n    event.preventDefault()\n    if (busy) return\n    const problem = emailProblem(email, c)\n    setError(problem)\n    if (problem) input.current?.focus()\n    else go('email', email.trim())\n  }\n\n  return (\n    <section data-ds=\"auth-form\" aria-labelledby={`${id}-title`} className={cn('mx-auto flex w-full max-w-[calc(var(--ds-layout-auth)+2*var(--ds-layout-gutter))] flex-col items-center px-(--ds-layout-gutter) text-center text-fg', className)}>\n      <style href=\"ds-auth-form\" precedence=\"ds\">{css}</style>\n      <h1 id={`${id}-title`} className=\"type-title md:whitespace-nowrap\">{m.title}</h1>\n      {m.lead && <p className=\"mt-3 type-body text-balance text-fg-soft\">{m.lead}</p>}\n      <Button variant=\"secondary\" size=\"form\" className=\"mt-8 w-full\" aria-disabled={busy ? true : undefined} onClick={() => go('provider')}>\n        <Labels busy={busy === 'provider'}>{providerIcon && <span className=\"grid size-5 flex-none place-items-center [&_svg]:size-5\">{providerIcon}</span>}{c.provider}</Labels>\n      </Button>\n      <p className=\"my-4 flex w-full items-center gap-4 type-ui text-fg-muted before:h-px before:flex-1 before:bg-edge after:h-px after:flex-1 after:bg-edge\">{c.or}</p>\n      <form noValidate onSubmit={submit} className=\"flex w-full flex-col text-left\">\n        <div className=\"mb-2 flex justify-between gap-4 type-ui\">\n          <label htmlFor={`${id}-email`} className=\"font-medium\">{c.email}</label>\n          <span id={`${id}-error`} role=\"alert\" className=\"text-fg\">{error}</span>\n        </div>\n        <input\n          ref={input}\n          id={`${id}-email`}\n          type=\"email\"\n          inputMode=\"email\"\n          autoComplete=\"email\"\n          autoCapitalize=\"none\"\n          autoCorrect=\"off\"\n          spellCheck={false}\n          enterKeyHint=\"go\"\n          placeholder={c.placeholder}\n          value={email}\n          aria-invalid={error ? true : undefined}\n          aria-describedby={error ? `${id}-error` : undefined}\n          onChange={(event) => { setEmail(event.target.value); if (error) setError('') }}\n          className=\"mb-3 h-control-form w-full appearance-none rounded-control bg-surface-subtle px-4 type-body text-fg shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-edge)] transition-[box-shadow] duration-160 ease-out placeholder:text-fg-muted focus-visible:-outline-offset-1 aria-invalid:shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-white)]\"\n        />\n        <Button type=\"submit\" size=\"form\" className=\"w-full\" aria-disabled={busy ? true : undefined}>\n          <Labels busy={busy === 'email'}>{m.submit}</Labels>\n        </Button>\n      </form>\n      <p role=\"status\" className=\"sr-only\">{busy ? c.working : ''}</p>\n      <p className=\"mt-5 type-ui text-balance text-fg-faint\">\n        {c.legal.before}<a href={c.legal.terms.href} className={cn('text-fg-soft', LINK)}>{c.legal.terms.label}</a>{c.legal.between}<a href={c.legal.privacy.href} className={cn('text-fg-soft', LINK)}>{c.legal.privacy.label}</a>{c.legal.after}\n      </p>\n      <p className=\"mt-5 type-ui text-fg-muted\">\n        {m.other.ask} <a href={m.other.href} className={cn('relative py-3 font-medium text-fg', LINK)}>{m.other.label}</a>\n      </p>\n    </section>\n  )\n}\n\nexport default AuthForm\n\nconst css = `\n.ds-auth-spin { animation: ds-auth-spin 800ms linear infinite; }\n@keyframes ds-auth-spin { to { transform: rotate(1turn); } }\n@keyframes ds-auth-breathe { 50% { opacity: 0.5; } }\n@media (prefers-reduced-motion: reduce) { .ds-auth-spin { animation: ds-auth-breathe 2s var(--ds-easing-in-out) infinite; } }\n`\n"
+        },
+        {
+          "path": "lib/pages/auth.ts",
+          "content": "// The sign-in and sign-up pages' copy (the site's content/pages/auth.ts, for Acme). Both flavors read this file. Each\n// mode has its title, lead, the White button's label, `next` (where a press goes when no handler takes it) and the way\n// to the other mode.\nexport const authContent = {\n\tsignUp: { title: 'Create your Acme account', lead: '500 free credits every month. No card required.', submit: 'Get started', next: '/app/sign-up', other: { ask: 'Already have an account?', label: 'Sign in', href: '/sign-in' } },\n\tsignIn: { title: 'Welcome back', lead: 'Sign in to your Acme account.', submit: 'Continue', next: '/app/sign-in', other: { ask: 'Don’t have an account?', label: 'Sign up', href: '/sign-up' } },\n\tprovider: 'Continue with Google',\n\tor: 'or',\n\temail: 'Email',\n\tplaceholder: 'you@acme.com',\n\tempty: 'Enter your email',\n\tinvalid: 'Check your email address',\n\tworking: 'One moment',\n\tlegal: { before: 'By continuing, you acknowledge that you understand and agree to the ', terms: { label: 'Terms & Conditions', href: '/terms' }, between: ' and ', privacy: { label: 'Privacy Policy', href: '/privacy' }, after: '.' },\n\tproof: 'Trusted by teams at',\n\thome: 'Home',\n}\nexport type AuthContent = typeof authContent\n\n/** The site's email check: something@something.tld, two letters or more after the dot. */\nexport const EMAIL = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/\n\n/** The message for what was typed, or '' when it will do. */\nexport function emailProblem(value: string, c: AuthContent = authContent): string {\n\tconst v = value.trim()\n\treturn !v ? c.empty : EMAIL.test(v) ? '' : c.invalid\n}\n\n/** The auth page's sections in order; pass `sections` to reorder them or leave some out. */\nexport const authSections = ['form', 'proof'] as const\nexport type AuthSection = (typeof authSections)[number]\n"
+        },
+        {
+          "path": "react/lib/cn.ts",
+          "content": "// Joins class names, skipping falsy ones: cn('a', on && 'b', ['c', undefined]). It does not merge conflicting\n// utilities (no tailwind-merge), as Vue's class binding does not: the library's classes are written not to compete,\n// and a className from the caller is appended after them, as Vue appends a fallthrough class.\nexport type ClassValue = string | false | null | undefined | 0 | ClassValue[]\n\nexport function cn(...values: ClassValue[]): string {\n\tconst out: string[] = []\n\tfor (const v of values) {\n\t\tif (!v) continue\n\t\tif (Array.isArray(v)) {\n\t\t\tconst s = cn(...v)\n\t\t\tif (s) out.push(s)\n\t\t}\n\t\telse out.push(v)\n\t}\n\treturn out.join(' ')\n}\n"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "components": [
+          {
+            "name": "AuthForm",
+            "file": "react/components/site/AuthForm.tsx",
+            "props": [
+              {
+                "name": "mode",
+                "type": "AuthMode",
+                "required": false,
+                "default": "'sign-up'"
+              },
+              {
+                "name": "content",
+                "type": "AuthContent",
+                "required": false
+              },
+              {
+                "name": "providerIcon",
+                "type": "ReactNode",
+                "required": false,
+                "description": "The provider's mark, 20px, before the provider button's label."
+              },
+              {
+                "name": "onProvider",
+                "type": "() => void",
+                "required": false,
+                "description": "The provider button's press."
+              },
+              {
+                "name": "onEmail",
+                "type": "(email: string) => void",
+                "required": false,
+                "description": "A valid email sent."
+              },
+              {
+                "name": "className",
+                "type": "string",
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Form",
+          "label": "Sign up",
+          "center": true,
+          "half": false,
+          "path": "react/examples/auth-form/Form.tsx",
+          "content": "'use client'\nimport { KeyRound } from 'lucide-react'\nimport { AuthForm } from '@/react/components/site/AuthForm'\n// The form alone, for a page of your own: sign up with a neutral mark in the provider button.\n\nexport default function Form() {\n  return <AuthForm mode=\"sign-up\" providerIcon={<KeyRound size={20} strokeWidth={1.5} aria-hidden=\"true\" />} onProvider={() => {}} onEmail={() => {}} />\n}\n",
+          "registryDependencies": [
+            "button"
+          ],
+          "dependencies": [
+            "lucide-react@0.479.0"
+          ]
+        }
+      ]
+    },
+    "elements": {
+      "files": [
+        {
+          "path": "elements/components/site/auth-form.ts",
+          "content": "import { html, nothing } from 'lit'\nimport { live } from 'lit/directives/live.js'\nimport { DsElement, define, HostLayoutController, uid } from '@/elements/lib/element'\nimport { authContent, emailProblem, type AuthContent } from '@/lib/pages/auth'\nimport '@/elements/components/ui/button'\nimport styles from 'virtual:tw'\n\n// AuthForm.tsx as <spyglass-auth-form>: the site's sign-in and sign-up form, the title and lead, a quiet provider\n// button, the \"or\" rule, the email field with its message, the one White button, the legal line and the way to the other\n// mode. A press shows a spinner in the pressed button until the app takes over. The provider's mark goes in the\n// `provider-icon` slot. `provider` and `email` (with { email }) fire on a press; unless a listener calls\n// preventDefault(), the press goes to the mode's `next` address.\n\n/**\n * @summary The sign-in and sign-up form.\n * @slot provider-icon - The provider's mark, 20px.\n * @fires provider - The provider button pressed (cancelable).\n * @fires email - A valid email sent, with { email } (cancelable).\n */\nexport class AuthForm extends DsElement {\n\tstatic styles = [DsElement.styles, styles]\n\tprotected readonly layout = new HostLayoutController(this, () => this.renderRoot.querySelector<HTMLElement>('[data-ds=\"auth-form\"]'))\n\tstatic properties = { mode: { reflect: true }, content: { type: Object }, email: { state: true }, error: { state: true }, busy: { state: true } }\n\t/** sign-in or sign-up. */\n\tmode: 'sign-in' | 'sign-up' = 'sign-up'\n\t/** The copy (lib/pages/auth.ts by default). */\n\tcontent: AuthContent = authContent\n\tprivate email = ''\n\tprivate error = ''\n\tprivate busy: 'provider' | 'email' | null = null\n\tprivate uid = uid('auth')\n\n\tprivate back = (event: PageTransitionEvent) => { if (event.persisted) this.busy = null }\n\tconnectedCallback() {\n\t\tsuper.connectedCallback()\n\t\twindow.addEventListener('pageshow', this.back)\n\t}\n\tdisconnectedCallback() {\n\t\tsuper.disconnectedCallback()\n\t\twindow.removeEventListener('pageshow', this.back)\n\t}\n\n\tprivate go(method: 'provider' | 'email', value = '') {\n\t\tif (this.busy) return\n\t\tthis.busy = method\n\t\tconst c = this.content ?? authContent\n\t\tconst m = this.mode === 'sign-in' ? c.signIn : c.signUp\n\t\tconst free = method === 'provider' ? this.emit('provider', undefined, { cancelable: true }) : this.emit('email', { email: value }, { cancelable: true })\n\t\tif (free) window.location.assign(m.next)\n\t}\n\n\tprivate submit(event: Event) {\n\t\tevent.preventDefault()\n\t\tif (this.busy) return\n\t\tconst problem = emailProblem(this.email, this.content ?? authContent)\n\t\tthis.error = problem\n\t\tif (problem) this.renderRoot.querySelector<HTMLInputElement>('input')?.focus()\n\t\telse this.go('email', this.email.trim())\n\t}\n\n\tprivate labels(busy: boolean, label: unknown) {\n\t\treturn html`<span class=\"grid place-items-center\"><span class=${['col-start-1 row-start-1 inline-flex items-center gap-3 transition-opacity duration-160 ease-out', busy ? 'opacity-0' : ''].join(' ')}>${label}</span><span aria-hidden=\"true\" class=${['col-start-1 row-start-1 inline-flex items-center transition-opacity duration-160 ease-out', !busy ? 'opacity-0' : ''].join(' ')}><span class=${['ds-auth-spin size-5 rounded-full border-2 border-current border-t-transparent', !busy ? '[animation-play-state:paused]' : ''].join(' ')}></span></span></span>`\n\t}\n\n\trender() {\n\t\tconst c = this.content ?? authContent\n\t\tconst m = this.mode === 'sign-in' ? c.signIn : c.signUp\n\t\tconst id = this.uid\n\t\tconst link = 'rounded-ds-sm underline decoration-transparent decoration-from-font underline-offset-4 transition-[text-decoration-color] duration-160 ease-out pointer-fine:hover:decoration-current'\n\t\tconst icon = this.querySelector('[slot=\"provider-icon\"]') ? html`<span class=\"grid size-5 flex-none place-items-center [&_svg]:size-5\"><slot name=\"provider-icon\"></slot></span>` : nothing\n\t\treturn html`<section data-ds=\"auth-form\" aria-labelledby=${`${id}-title`} class=\"mx-auto flex w-full max-w-[calc(var(--ds-layout-auth)+2*var(--ds-layout-gutter))] flex-col items-center px-(--ds-layout-gutter) text-center text-fg\"><h1 id=${`${id}-title`} class=\"type-title md:whitespace-nowrap\">${m.title}</h1>${m.lead ? html`<p class=\"mt-3 type-body text-balance text-fg-soft\">${m.lead}</p>` : nothing}<spyglass-button variant=\"secondary\" size=\"form\" class=\"mt-8 w-full\" aria-disabled=${this.busy ? 'true' : nothing} @click=${() => this.go('provider')}>${this.labels(this.busy === 'provider', html`${icon}${c.provider}`)}</spyglass-button><p class=\"my-4 flex w-full items-center gap-4 type-ui text-fg-muted before:h-px before:flex-1 before:bg-edge after:h-px after:flex-1 after:bg-edge\">${c.or}</p><form novalidate @submit=${(e: Event) => this.submit(e)} class=\"flex w-full flex-col text-left\"><div class=\"mb-2 flex justify-between gap-4 type-ui\"><label for=${`${id}-email`} class=\"font-medium\">${c.email}</label><span id=${`${id}-error`} role=\"alert\" class=\"text-fg\">${this.error}</span></div><input id=${`${id}-email`} type=\"email\" inputmode=\"email\" autocomplete=\"email\" autocapitalize=\"none\" autocorrect=\"off\" spellcheck=\"false\" enterkeyhint=\"go\" placeholder=${c.placeholder} .value=${live(this.email)} aria-invalid=${this.error ? 'true' : nothing} aria-describedby=${this.error ? `${id}-error` : nothing} @input=${(e: Event) => { this.email = (e.target as HTMLInputElement).value; if (this.error) this.error = '' }} class=\"mb-3 h-control-form w-full appearance-none rounded-control bg-surface-subtle px-4 type-body text-fg shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-edge)] transition-[box-shadow] duration-160 ease-out placeholder:text-fg-muted focus-visible:-outline-offset-1 aria-invalid:shadow-[inset_0_0_0_var(--ds-border-hairline)_var(--ds-color-white)]\"><spyglass-button type=\"submit\" size=\"form\" class=\"w-full\" aria-disabled=${this.busy ? 'true' : nothing}>${this.labels(this.busy === 'email', m.submit)}</spyglass-button></form><p role=\"status\" class=\"sr-only\">${this.busy ? c.working : ''}</p><p class=\"mt-5 type-ui text-balance text-fg-faint\">${c.legal.before}<a href=${c.legal.terms.href} class=${`text-fg-soft ${link}`}>${c.legal.terms.label}</a>${c.legal.between}<a href=${c.legal.privacy.href} class=${`text-fg-soft ${link}`}>${c.legal.privacy.label}</a>${c.legal.after}</p><p class=\"mt-5 type-ui text-fg-muted\">${m.other.ask} <a href=${m.other.href} class=${`relative py-3 font-medium text-fg ${link}`}>${m.other.label}</a></p></section>`\n\t}\n}\n\ndefine('auth-form', AuthForm)\n"
+        },
+        {
+          "path": "elements/components/site/auth-form.css",
+          "content": ".ds-auth-spin { animation: ds-auth-spin 800ms linear infinite; }\n@keyframes ds-auth-spin { to { transform: rotate(1turn); } }\n@keyframes ds-auth-breathe { 50% { opacity: 0.5; } }\n@media (prefers-reduced-motion: reduce) { .ds-auth-spin { animation: ds-auth-breathe 2s var(--ds-easing-in-out) infinite; } }\n"
+        }
+      ],
+      "modules": [
+        "elements/shared.js",
+        "elements/auth-form.js",
+        "elements/button.js"
+      ],
+      "tag": "spyglass-auth-form",
+      "tags": [
+        "spyglass-auth-form"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "button"
+      ],
+      "api": {
+        "elements": [
+          {
+            "tag": "spyglass-auth-form",
+            "name": "AuthForm",
+            "module": "elements/auth-form.js",
+            "description": "The sign-in and sign-up form.",
+            "attributes": [
+              {
+                "name": "mode",
+                "field": "mode",
+                "type": "\"sign-in\" | \"sign-up\"",
+                "default": "'sign-up'",
+                "description": "sign-in or sign-up."
+              },
+              {
+                "name": "content",
+                "field": "content",
+                "type": "{ signUp: { title: string; lead: string; submit: string; next: string; other: { ask: string; label: string; href: string; }; }; signIn: { title: string; lead: string; submit: string; next: string; other: { ask: string; label: string; href: string; }; }; provider: string; or: string; email: string; placeholder: string; empty: string; invalid: string; working: string; legal: { before: string; terms: { label: string; href: string; }; between: string; privacy: { label: string; href: string; }; after: string; }; proof: string; home: string; }",
+                "default": "authContent",
+                "description": "The copy (lib/pages/auth.ts by default)."
+              },
+              {
+                "name": "email",
+                "field": "email",
+                "type": "string",
+                "default": "''"
+              },
+              {
+                "name": "error",
+                "field": "error",
+                "type": "string",
+                "default": "''"
+              },
+              {
+                "name": "busy",
+                "field": "busy",
+                "type": "'provider' | 'email' | null",
+                "default": "null"
+              }
+            ],
+            "properties": [
+              {
+                "name": "mode",
+                "type": "\"sign-in\" | \"sign-up\"",
+                "default": "'sign-up'",
+                "description": "sign-in or sign-up.",
+                "attribute": "mode"
+              },
+              {
+                "name": "content",
+                "type": "{ signUp: { title: string; lead: string; submit: string; next: string; other: { ask: string; label: string; href: string; }; }; signIn: { title: string; lead: string; submit: string; next: string; other: { ask: string; label: string; href: string; }; }; provider: string; or: string; email: string; placeholder: string; empty: string; invalid: string; working: string; legal: { before: string; terms: { label: string; href: string; }; between: string; privacy: { label: string; href: string; }; after: string; }; proof: string; home: string; }",
+                "default": "authContent",
+                "description": "The copy (lib/pages/auth.ts by default).",
+                "attribute": "content"
+              }
+            ],
+            "events": [
+              {
+                "name": "provider",
+                "description": "The provider button pressed (cancelable)."
+              },
+              {
+                "name": "email",
+                "description": "A valid email sent, with { email } (cancelable)."
+              }
+            ],
+            "slots": [
+              {
+                "name": "provider-icon",
+                "description": "The provider's mark, 20px."
+              }
+            ],
+            "methods": []
+          }
+        ]
+      },
+      "examples": [
+        {
+          "name": "Form",
+          "label": "Sign up",
+          "center": true,
+          "half": false,
+          "path": "elements/examples/auth-form/Form.html",
+          "content": "<!-- The form alone, for a page of your own: sign up with a neutral mark in the provider button. -->\n<spyglass-auth-form id=\"auth-form\" mode=\"sign-up\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-key-round\" slot=\"provider-icon\" aria-hidden=\"true\"><path d=\"M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z\"></path><circle cx=\"16.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\"></circle></svg></spyglass-auth-form>\n<script type=\"module\">\n  const form = document.getElementById('auth-form')\n  form.addEventListener('provider', (event) => event.preventDefault())\n  form.addEventListener('email', (event) => event.preventDefault())\n</script>\n"
+        }
+      ]
+    }
+  }
+}
