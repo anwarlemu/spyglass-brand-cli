@@ -154,12 +154,19 @@ it, look at the sheet, and revise the ads they pick.
    | Supporting line, Label, Plan, Features, Quote, Quote name, Quote role, Stat, Search prompt | More copy, drawn where a layout has room | no |
    | Audience | Who sees them (read, never drawn) | no |
    | Look | dark or light theme, minimal or bold, picture-led or type-led, brand light, ASCII texture, product UI, pricing card, and the layouts by name: search bar, photo grid, stacked cards, corridor (brand/briefs/search.md asks for the search-bar ad) | no |
+   | Layout | Any arrangement in plain words, one row per line from the top, parts side by side split by commas: `headline top left`, `stat left, quote right`, `three photos in a row`, `pricing card center`, `button bottom right` (parts: headline, supporting line, label, stat, quote, search bar, pricing card, features, photos, chart, button, logo; with left, right, center, top, bottom, big, small). The ad drawn from it is ranked first; parts the brief gives that the Layout leaves out still go in, after it | no |
    | Images | One per line: `file.png: what it shows` (screenshots, creatives and photos are told apart by what it shows) | for picture-led |
    | Must-haves, Don'ts | One per line: "the price", "the CTA", "no brand light", "no texture", "no pictures" | no |
 
    Use only the person's words. Never write a headline, a price, a quote or a name they did not give: ask for it. Use
    only pictures they gave you (`--image name=file.png` adds one). Customers are Acme, never a real person or company.
-   `brand/briefs/` has three complete briefs to start from.
+   `brand/briefs/` has complete briefs to start from (`layout.md` asks for an arrangement no template has).
+
+   Nothing is limited to the templates. Besides the templates that fit, `ad` always lays the brief out itself on the
+   compose grid: stacked, centered, and in two columns, with every part the brief gives (so a stat and a quote both
+   go in), or exactly as its `Layout` says. Every arrangement is drawn in the brand's blocks and checked like any other
+   design. After that, `design compose add|move|remove|span <ad>.design.json ...` moves any block anywhere, and
+   `design revise` takes plain words, so any layout a person describes can be made.
 2. Run `{{cli}} ad brief.md` (`--variants 2..4`, `--format png,jpg,webp`, `--out <folder>`). It maps each platform to
    its sizes, ranks the layouts that can carry the brief there, draws each one and keeps only those that pass the brand
    check (whole words, contrast, the logo's clear space, the platform's safe areas) and still read at that size. Each

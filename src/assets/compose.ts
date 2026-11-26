@@ -23,8 +23,11 @@ export const COMPOSE_THEMES: Record<string, { ground: string; fg: string; card: 
 	white: { ground: 'white', fg: 'black', card: 'neutral-14', soft: 'neutral-5', inset: 'neutral-12' },
 };
 /** The light block's variants, as the site's own light images (brand/assets/art). */
-const LIGHT_ART: Record<string, { file: string; turn?: boolean; flip?: 'x' | 'y' | 'xy'; at?: Pt }> = {
+const LIGHT_ART: Record<string, { file: string; turn?: boolean; flip?: 'x' | 'y' | 'xy'; at?: Pt; edge?: 'hard' }> = {
 	band: { file: 'hero-band' },
+	// The brand's feed ads: the pale band a search bar sits on (crisp top and bottom), and the swoosh from the top edge.
+	'ad-band': { file: 'ad-band', edge: 'hard' },
+	swoosh: { file: 'ad-swoosh', at: [0.5, 0] },
 	ribbon: { file: 'video-light-a' },
 	field: { file: 'close-band', at: [0.5, 0.42] },
 	corner: { file: 'corner-tl' },
@@ -52,7 +55,7 @@ export const BLOCKS: BlockInfo[] = [
 	{ type: 'quote', names: ['testimonial', 'review'], kind: 'text', description: 'A quote in Funnel Display, the name and role under it (Acme, never a real person).', copy: [{ id: 'text', required: true }, { id: 'name' }, { id: 'role' }], options: [{ id: 'align', values: ALIGN }], span: { cols: 10, rows: 5 }, place: 'center', sample: { text: 'We see every launch the day it ships.', name: 'Alex Kim', role: 'Head of growth, Acme' } },
 	{ type: 'list', names: ['bullets', 'points', 'features'], kind: 'text', description: 'Lines of DM Sans, one per item (separate them with |).', copy: [{ id: 'items', required: true }], options: [{ id: 'align', values: ALIGN }], span: { cols: 6, rows: 4 }, place: 'left', sample: { items: 'Every network|Daily updates|Shared boards' } },
 	{ type: 'button', names: ['cta', 'action'], kind: 'key', description: 'The one White button with a DM Sans Medium label.', copy: [{ id: 'text', required: true }], options: [{ id: 'align', values: ALIGN }, { id: 'valign', values: VALIGN }], span: { cols: 4, rows: 1 }, place: 'bottom-left', sample: { text: 'Start free' } },
-	{ type: 'search', names: ['search-bar', 'prompt', 'field'], kind: 'panel', description: 'The site\'s prompt: the raised fill with a hairline ring, the words in the text gray and the White send key.', copy: [{ id: 'text', required: true }], span: { cols: 12, rows: 1 }, place: 'center', sample: { text: 'Longest-running ads in running shoes' } },
+	{ type: 'search', names: ['search-bar', 'prompt', 'field'], kind: 'panel', description: 'The site\'s prompt: the raised fill with a hairline ring, the words in the text gray and the White send key.', copy: [{ id: 'text', required: true }], options: [{ id: 'key' }], span: { cols: 12, rows: 1 }, place: 'center', sample: { text: 'Longest-running ads in running shoes' } },
 	{ type: 'code', names: ['snippet', 'terminal'], kind: 'panel', description: 'Code in the system mono on the code fill.', copy: [{ id: 'text', required: true }], span: { cols: 8, rows: 3 }, place: 'center', sample: { text: 'npx acme search "running shoes"' } },
 	{ type: 'chart', names: ['graph', 'bars', 'donut'], kind: 'art', description: 'Bars, a line or a donut from your numbers ("Mon 12, Tue 18"), in White and the neutral steps.', copy: [{ id: 'data', required: true }], options: [{ id: 'type', values: ['bar', 'line', 'donut'] }], span: { cols: 6, rows: 4 }, place: 'right', sample: { data: 'Mon 12, Tue 18, Wed 30, Thu 26' } },
 	{ type: 'table', names: ['grid-table', 'comparison'], kind: 'text', description: 'Rows of cells (cells split by |, rows by a new line), the first row as the head.', copy: [{ id: 'rows', required: true }], span: { cols: 10, rows: 4 }, place: 'center', sample: { rows: 'Plan|Price\nFree|$0\nCreator|$20' } },
@@ -68,7 +71,7 @@ const str = (v: unknown, fallback: string) => (typeof v === 'string' && v ? v : 
 const num = (v: unknown, fallback: number) => (typeof v === 'number' ? v : typeof v === 'string' && v.trim() && !Number.isNaN(Number(v)) ? Number(v) : fallback);
 
 /** A light or picture's exact window, as a template places it. */
-type Geometry = { W0?: number; H0?: number; window?: Box; b?: Box; shift?: number; variant?: string; source?: 'brand' | 'generated'; fixed?: boolean; box?: Box; quad?: [Pt, Pt, Pt, Pt]; radius?: number; split?: number; art?: string; fit?: 'fill' | 'cover'; at?: Pt; flip?: 'x' | 'y' | 'xy'; turn?: boolean };
+type Geometry = { W0?: number; H0?: number; window?: Box; b?: Box; shift?: number; variant?: string; source?: 'brand' | 'generated'; fixed?: boolean; box?: Box; quad?: [Pt, Pt, Pt, Pt]; radius?: number; split?: number; art?: string; fit?: 'fill' | 'cover'; at?: Pt; flip?: 'x' | 'y' | 'xy'; turn?: boolean; edge?: 'hard' };
 const geometryOf = (doc: DesignDoc, id: string): Geometry | undefined => {
 	const v = opt(doc, id, 'geometry');
 	if (typeof v !== 'string' || !v.trim()) return undefined;
@@ -258,7 +261,7 @@ function composeScene(doc: DesignDoc, photosIn: Photo[], floor: number, fitted: 
 				const g = geometryOf(doc, id);
 				const seed = opt(doc, id, 'seed');
 				void seed;
-				if (g?.art && g.box) layers.push({ type: 'art', id, file: g.art, box: g.box, fit: g.fit, at: g.at, flip: g.flip, turn: g.turn, clipQuad: g.quad });
+				if (g?.art && g.box) layers.push({ type: 'art', id, file: g.art, box: g.box, fit: g.fit, at: g.at, flip: g.flip, turn: g.turn, clipQuad: g.quad, ...(g.edge === 'hard' ? { edge: 'hard' as const } : {}) });
 				else {
 					// The light is never boxed in: a side whose cells reach the grid's edge runs on to the canvas edge.
 					const grid = doc.grid ?? { cols: 12, rows: 12 };
@@ -269,7 +272,7 @@ function composeScene(doc: DesignDoc, photosIn: Photo[], floor: number, fitted: 
 					const v = str(opt(doc, id, 'variant'), 'band');
 					const a = LIGHT_ART[v];
 					if (!a) throw new Error(`The light is one of the site's images: ${Object.keys(LIGHT_ART).join(', ')} (not "${v}").`);
-					layers.push({ type: 'art', id, file: a.file, box: [x0, y0, x1 - x0, y1 - y0], fit: v === 'share' ? 'fill' : 'cover', at: a.at, flip: a.flip, turn: a.turn });
+					layers.push({ type: 'art', id, file: a.file, box: [x0, y0, x1 - x0, y1 - y0], fit: v === 'share' ? 'fill' : 'cover', at: a.at, flip: a.flip, turn: a.turn, ...(a.edge ? { edge: a.edge } : {}) });
 				}
 				break;
 			}
@@ -309,7 +312,11 @@ function composeScene(doc: DesignDoc, photosIn: Photo[], floor: number, fitted: 
 			}
 				break;
 			case 'search':
-				layers.push({ type: 'search', id, slot: `${id}.text`, box: [r.x, r.y + Math.max(0, (r.h - 88 * u) / 2), r.w, Math.min(r.h, 88 * u)], size: fl(24 * u) });
+				{
+					// `key`: the feed ads' bar (Black, a White key with its label); without it, the site's prompt with the send key.
+					const key = str(opt(doc, id, 'key'), '');
+					layers.push({ type: 'search', id, slot: `${id}.text`, box: [r.x, r.y + Math.max(0, (r.h - 88 * u) / 2), r.w, Math.min(r.h, 88 * u)], size: fl(24 * u), ...(key ? { button: key } : {}) });
+				}
 				break;
 			case 'code': {
 				const pad = Math.min(24 * u, r.w * 0.06);

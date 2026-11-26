@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { parseBrief, parseLook, sizesFor, withImages } from '../src/assets/brief.js';
 import { goalOf, validateBrief } from '../src/assets/ads.js';
 import { runAd } from '../src/commands/ad.js';
+import { arrangements, parseLayout } from '../src/assets/arrange.js';
 import { adapter } from '../src/design/adapter.js';
 import { checkDesign, errorsOf, infoFor, parseDoc } from '../src/design/index.js';
 
@@ -165,6 +166,36 @@ describe('ad runs', () => {
 	it('reads the brief on stdin', async () => {
 		const dir = mkdtempSync(join(tmpdir(), 'ads-stdin-'));
 		await expect(runAd(dir, ['-'], {}, async () => 'Goal: Launch\nPlatforms: X\n')).rejects.toThrow(/missing headline \(## Headline\), cta \(## CTA\)/);
+	});
+
+	it('reads a Layout in plain words: rows from the top, parts side by side, unknown parts refused', () => {
+		const g = parseLayout(['headline top left', 'stat left, quote right', 'three photos in a row', 'big pricing card center', 'button bottom right']);
+		expect(g.map((x) => x.parts.map((p) => p.kind))).toEqual([['headline'], ['stat', 'quote'], ['pictures'], ['card'], ['button']]);
+		expect(g[2]!.parts[0]!.count).toBe(3);
+		expect(g[3]!.parts[0]).toMatchObject({ big: true, align: 'center' });
+		expect(g[4]!.pin).toBe('bottom');
+		expect(() => parseLayout(['a unicorn on the left'])).toThrow(/names no part/);
+	});
+
+	it('lays out every part the brief gives without a template: stacked, centered and in two columns', () => {
+		const b = parseBrief('Goal: a customer story\nPlatforms: Instagram portrait\nHeadline: Research that used to take a week.\nStat: 3x | faster research\nQuote: We found our next campaign in an afternoon.\nCTA: Start free\n');
+		const a = arrangements(b, 'portrait', 1080, 1350, { light: true, texture: true });
+		expect(a.map((x) => x.id)).toEqual(['stacked', 'centered', 'split']);
+		for (const x of a) expect(x.draws.sort()).toEqual(['cta', 'headline', 'quote', 'stat']);
+		// Different arrangements, not one arrangement recolored.
+		expect(new Set(a.map((x) => JSON.stringify(x.blocks.map((k) => k.at)))).size).toBe(3);
+	});
+
+	it('draws the arrangement a brief asks for in words first, at every size, on brand', { timeout: 300_000 }, async () => {
+		const dir = mkdtempSync(join(tmpdir(), 'ads-layout-'));
+		copyFileSync(join(root, 'brand', 'briefs', 'layout.md'), join(dir, 'brief.md'));
+		const r = await runAd(dir, ['brief.md'], { out: 'out' });
+		const ads = (r.json as { ads: { size: string; n: number; layout: string; draws: string[] }[] }).ads;
+		for (const size of ['portrait', 'square', 'story']) {
+			const first = ads.find((a) => a.size === size && a.n === 1)!;
+			expect(first.layout, size).toBe('composed-asked');
+			expect(first.draws, size).toEqual(expect.arrayContaining(['headline', 'stat', 'quote', 'cta']));
+		}
 	});
 
 	it('every example brief in brand/briefs is complete', () => {

@@ -375,10 +375,12 @@ function search(c) {
 	const foot = v.b - 56 * u;
 	const tall = v.h / u;
 	const square = v.shape === 'square';
-	const bandY = v.y + (square ? 250 : 376) * u + (tall > 1300 ? 40 * u : 0);
+	// A story's taller frame: the band and the pictures move down and grow so the canvas is filled.
+	const story = v.shape === 'story';
+	const bandY = v.y + (square ? 250 : 376) * u + (story ? 140 * u : tall > 1300 ? 40 * u : 0);
 	const bandH = (square ? 190 : 240) * u;
 	const py = bandY + bandH + 48 * u;
-	const ph = Math.min(foot - (square ? 40 : 102) * u - py, 560 * u);
+	const ph = Math.min(foot - (square ? 40 : 102) * u - py, (story ? 760 : 560) * u);
 	const gap = 24 * u;
 	const pw = (v.w - 2 * gap) / 3;
 	return done(v, [AD(v),

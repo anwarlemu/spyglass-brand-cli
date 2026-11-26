@@ -64,6 +64,7 @@ const BRIEF_SECTIONS: [string, string][] = [
   ["Supporting line, Offer, Label, Plan, Features, Quote, Quote name, Quote role, Stat, Search prompt", "More copy, drawn where a layout has room; each label on the sheet says what that ad leaves out."],
   ["Audience", "Who sees them. Read, never drawn."],
   ["Look", "`dark` or `light theme`, `minimal` or `bold`, `picture-led` or `type-led`, and the brand elements: `brand light`, `ASCII`, `product UI`, `pricing card`, and the ad layouts by name: `search bar`, `photo grid`, `stacked cards`, `corridor`."],
+  ["Layout", "Any arrangement in plain words, one row per line from the top, parts side by side split by commas: `headline top left`, `stat left, quote right`, `three photos in a row`, `button bottom right`. That ad comes first; without it, `ad` still lays every part out itself (stacked, centered, two columns) beside the templates that fit."],
   ["Images", "One per line, `file.png: what it shows`; or `--image name=file.png`. Pictures are only ever yours."],
   ["Must-haves, Don'ts", "One per line: `the price`, `the CTA`, `no brand light`, `no texture`, `no pictures`. Lines the command cannot check are listed on the sheet to check by eye."],
 ];

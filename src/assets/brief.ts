@@ -18,6 +18,8 @@ export type Brief = {
 	images: BriefImage[];
 	must: string[];
 	donts: string[];
+	/** The layout in plain words, one part per line, top to bottom ("stat left, quote right"); any arrangement, not a template. */
+	layout?: string[];
 };
 
 /** The words an ad can carry, in the order a missing-field error lists them. */
@@ -44,6 +46,7 @@ export const SECTIONS: Record<string, FieldDef> = {
 	stat: { heading: 'Stat', names: ['stat', 'figure', 'metric', 'number', 'result'], about: 'A figure and its line, split by |: 3x | faster launch reviews' },
 	search: { heading: 'Search prompt', names: ['search prompt', 'search', 'prompt', 'query'], about: 'What the search bar shows, for layouts with one' },
 	look: { heading: 'Look', names: ['look', 'tone', 'tone/look', 'tone and look', 'style', 'feel'], about: 'dark or light theme, minimal or bold, picture-led or type-led, and the brand elements: the brand light, ASCII texture, product UI, pricing card, search bar, stacked cards, corridor, photo grid' },
+	layout: { heading: 'Layout', names: ['layout', 'arrangement', 'composition', 'structure', 'layout notes'], about: 'The layout in plain words, one part per line from the top: a block and where it goes (headline top left; stat left, quote right; three photos in a row; button bottom right). Any arrangement, not only the templates' },
 	images: { heading: 'Images', names: ['images', 'image', 'pictures', 'picture', 'assets', 'photos', 'screenshots'], about: 'One per list item: file: what it shows (or name=file: what it shows)' },
 	must: { heading: 'Must-haves', names: ['must-haves', 'must haves', 'must have', 'must', 'musts', 'requirements', 'required'], about: 'What every ad must show' },
 	donts: { heading: "Don'ts", names: ["don'ts", 'donts', "don't", 'dont', 'avoid', 'never', 'do not'], about: 'What no ad may show' },
@@ -204,6 +207,7 @@ function put(b: Brief, id: string, value: string | string[], name: string) {
 	else if (id === 'audience') b.audience = oneLine(text);
 	else if (id === 'platforms') b.platforms.push(...(Array.isArray(value) ? value : listOf(text)));
 	else if (id === 'look') b.look = parseLook(Array.isArray(value) ? value : lines(text).join(', '));
+	else if (id === 'layout') b.layout = [...(b.layout ?? []), ...(Array.isArray(value) ? value : lines(text))];
 	else if (id === 'images') b.images.push(...(Array.isArray(value) ? value : lines(text)).map(parseImage));
 	else if (id === 'must') b.must.push(...(Array.isArray(value) ? value : lines(text)));
 	else if (id === 'donts') b.donts.push(...(Array.isArray(value) ? value : lines(text)));

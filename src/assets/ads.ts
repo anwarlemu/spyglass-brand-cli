@@ -7,6 +7,7 @@ import { recipes } from '../commands/recipe.js';
 import { compositionProblem, type Template } from './templates.js';
 import { SIZES } from './sizes.js';
 import { COPY_FIELDS, headingOf, sizesFor, type Brief, type BriefImage, type CopyField } from './brief.js';
+import { arrangements, type Arrangement } from './arrange.js';
 
 // `ad`: a brief to ads. brand/assets/ads.json says which layouts can carry which fields and what each suits; this file
 // ranks them per size, draws every candidate through the design adapter (the same code as `image`, `recipe` and
@@ -15,7 +16,7 @@ import { COPY_FIELDS, headingOf, sizesFor, type Brief, type BriefImage, type Cop
 
 type PictureSpec = { kinds?: BriefImage['kind'][]; min?: number; max?: number } & Record<string, unknown>;
 export type Alternate = { name: string; options?: Record<string, string | number | boolean>; at?: Record<string, { col: number; row: number; cols: number; rows: number }> };
-export type AdLayout = { id: string; from: 'template' | 'recipe'; alternates?: Alternate[]; fields: Partial<Record<CopyField, string>>; needs?: CopyField[]; pictures?: PictureSpec; sizes?: string[]; goals: string[]; look: string[]; logo?: boolean };
+export type AdLayout = { id: string; from: 'template' | 'recipe' | 'composed'; arrangement?: Arrangement; alternates?: Alternate[]; fields: Partial<Record<CopyField, string>>; needs?: CopyField[]; pictures?: PictureSpec; sizes?: string[]; goals: string[]; look: string[]; logo?: boolean };
 type Rule = { words: string[]; field?: CopyField; layer?: string; kind?: string; hide?: string; no?: string };
 export type AdsData = {
 	goals: Record<string, string[]>;
@@ -201,13 +202,40 @@ export function candidates(b: Brief, goal: string, needs: Needs, size: string): 
 		const seeded = l.from === 'template' && (infos().find((t) => t.id === l.id)?.options ?? []).some((o) => o.id === 'light');
 		list.push({ layout: l, score, draws, leftOut, themes, pictures, seeded });
 	});
+	// Layouts made from the brief itself: its Layout words (ranked first), or stacked, centered and split arrangements
+	// of every part it gives, so a brief never has to fit a template.
+	const spec = SIZES.find((s) => s.id === size);
+	if (spec) {
+		const themes = themesFor({ id: 'composed', from: 'recipe', fields: {}, goals: [], look: [] }, b, needs).filter((t) => t === 'black' || t === 'white');
+		const hideLight = needs.donts.some((r) => r.hide === 'light');
+		const hideTexture = needs.donts.some((r) => r.hide === 'texture');
+		const noPictures = needs.donts.some((r) => r.no === 'picture');
+		const brief = noPictures ? { ...b, images: [] } : b;
+		for (const a of arrangements(brief, size, spec.width, spec.height, { light: !hideLight, texture: !hideTexture })) {
+			if (!themes.length) break;
+			const draws = a.draws;
+			const leftOut = given.filter((f) => !draws.includes(f));
+			const layout: AdLayout = { id: `composed-${a.id}`, from: 'composed', arrangement: a, fields: Object.fromEntries(draws.map((f) => [f, f])), goals: [goal], look: ['composed', 'light', 'ascii', ...(Object.keys(a.pictures).length ? ['picture'] : ['type'])] };
+			const mustMiss = needs.musts.filter((r) => r.field && !draws.includes(r.field)).map((r) => headingOf(r.field!));
+			if (mustMiss.length) {
+				refused.push({ layout: layout.id, reason: `it has no place for ${mustMiss.join(' and ')}, a must-have` });
+				continue;
+			}
+			let score = draws.length * d.score.field + leftOut.length * d.score.leftOut + d.score.goal;
+			const wants = [b.look.style, b.look.lead, ...b.look.elements].filter(Boolean) as string[];
+			for (const w of wants) if (layout.look.includes(w)) score += d.score.look;
+			// What the brief asked for in words comes before any template.
+			if (a.asked) score += 1000;
+			list.push({ layout, score, draws, leftOut, themes, pictures: a.pictures, seeded: false });
+		}
+	}
 	// Best first; the data's order breaks ties, so the same brief always ranks the same way.
 	const order = new Map(d.layouts.map((l, i) => [l.id, i]));
-	list.sort((x, y) => y.score - x.score || order.get(x.layout.id)! - order.get(y.layout.id)!);
+	list.sort((x, y) => y.score - x.score || (order.get(x.layout.id) ?? 1e6) - (order.get(y.layout.id) ?? 1e6));
 	return { list, refused };
 }
 
-export type Ad = { size: string; width: number; height: number; n: number; layout: string; alternate?: string; from: 'template' | 'recipe'; theme?: string; seed?: number; doc: DesignDoc; files: Record<string, Uint8Array>; layers: DrawnLayer[]; findings: Finding[]; draws: CopyField[]; leftOut: CopyField[]; pictures: string[] };
+export type Ad = { size: string; width: number; height: number; n: number; layout: string; alternate?: string; from: 'template' | 'recipe' | 'composed'; theme?: string; seed?: number; doc: DesignDoc; files: Record<string, Uint8Array>; layers: DrawnLayer[]; findings: Finding[]; draws: CopyField[]; leftOut: CopyField[]; pictures: string[] };
 type Attempt = { c: Candidate; theme: string; seed?: number; alt?: Alternate };
 
 const rel = (from: string, file: string) => relative(from, file).split(sep).join('/') || file;
@@ -233,6 +261,13 @@ function docFor(a: Attempt, b: Brief, needs: Needs, size: string, outDir: string
 			if ((hideLight && isLight(layer.id)) || (hideTexture && layer.id === 'texture' && !info.options.some((o) => o.id === 'texture'))) edits.push({ op: 'layer', layer: layer.id, set: { hidden: true } });
 		}
 		return create(ad, l.id, size, edits).doc;
+	}
+	if (l.from === 'composed') {
+		const arr = l.arrangement!;
+		const base = create(ad, 'compose', size, []).doc;
+		const images: Record<string, string> = {};
+		for (const [block, img] of Object.entries(arr.pictures)) images[block] = picture(img);
+		return { ...base, blocks: arr.blocks, grid: arr.grid, theme: a.theme, copy: { ...arr.copy }, images, options: { ...base.options, ...arr.options } } as DesignDoc;
 	}
 	const r = recipes()[l.id]!;
 	const base = create(ad, 'compose', size, []).doc;
@@ -275,7 +310,7 @@ async function tryAttempt(a: Attempt, b: Brief, needs: Needs, size: string, outD
 	const findings = checkDesign({ doc, info: infoFor(ad, doc), layers: r.layers, adapter: ad, png: r.files.png });
 	const errors = errorsOf(findings);
 	if (errors.length) return { ok: false, reason: `the brand check: ${errors.map((f) => f.message).join(' ')}` };
-	if (a.c.layout.from === 'recipe') {
+	if (a.c.layout.from === 'recipe' || a.c.layout.from === 'composed') {
 		const problem = compositionProblem({} as Template, { layers: r.layers } as Parameters<typeof compositionProblem>[1], doc.size.width, doc.size.height);
 		if (problem) return { ok: false, reason: problem };
 	}
