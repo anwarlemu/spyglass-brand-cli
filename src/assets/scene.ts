@@ -87,7 +87,7 @@ export type Layer =
 	/** The brand's own pre-made art (brand/assets/art/<file>.jpg or .png with its ink map <file>.json), drawn over `box`:
 	 * stretched to it (`fit: 'fill'`, the default) or cropped to cover it, mirrored with `flip`, and laid over what is under
 	 * it in screen (the lights are lit on Black, so their Black drops out over the texture). */
-	| (Named & { type: 'art'; file: string; box: Box; fit?: 'fill' | 'cover'; /** Where a cover crop centers, as fractions of the art (default the middle). */ at?: Pt; flip?: 'x' | 'y' | 'xy'; /** A quarter turn clockwise (cover only): a band laid upright. */ turn?: boolean; opacity?: number; clipQuad?: [Pt, Pt, Pt, Pt] })
+	| (Named & { type: 'art'; file: string; box: Box; fit?: 'fill' | 'cover'; /** Where a cover crop centers, as fractions of the art (default the middle). */ at?: Pt; flip?: 'x' | 'y' | 'xy'; /** A quarter turn clockwise (cover only): a band laid upright. */ turn?: boolean; opacity?: number; clipQuad?: [Pt, Pt, Pt, Pt]; /** `hard`: the box's edges stay crisp (the ads' full-width band), no fade. */ edge?: 'hard' })
 	| TextLayer
 	| StackLayer
 	| (Named & { type: 'logo'; lockup: string; color: string; box: Box; align?: 'left' | 'center' | 'right'; /** `auto`: Black where the light under it is pale. */ tone?: 'auto'; /** For stings that bring the lockup in: 0 to 1. */ opacity?: number })
@@ -709,10 +709,16 @@ export async function drawScene(scene: Scene, opts: { embedFonts?: boolean } = {
 			const [x, y, w, h] = l.box;
 			const u = h / 88;
 			// The site's prompt: the words from 32 in, the send key a square at the right.
-			const bw = h - 32 * u;
+			// With a labeled key (the ads' bar): Black, the words in White, a White key with its label at the right.
+			const label = l.button;
+			if (label) checkGlyphs(all.medium, label, l.slot);
+			const kh = h - 32 * u;
+			const ks = 20 * u;
+			const bw = label ? Math.max(136 * u, measure(all.medium, label, ks, 0) + 2 * padOf(kh)) : kh;
 			const set = fitText(all.body, v, { size: l.size, leading: l.size * 1.25, w: w - 32 * u - bw - 16 * u - 24 * u, maxLines: 2, min: Math.max(l.size * 0.75, 16 * unit), slot: l.slot });
 			const bh = capHeight(all.body, set.size) + (set.lines.length - 1) * set.leading;
-			placed.set(l, [textOf({ id: layerId(l), slot: l.slot, asked: v, face: all.body, size: set.size, leading: set.leading, min: l.size * 0.75, tracking: 0, caps: false, lines: set.lines, x: x + 32 * u, w: w - 32 * u - bw - 40 * u, top: y + (h - bh) / 2, align: 'left', color: 'neutral-11', over: [layerId(l)] })]);
+			const words = textOf({ id: layerId(l), slot: l.slot, asked: v, face: all.body, size: set.size, leading: set.leading, min: l.size * 0.75, tracking: 0, caps: false, lines: set.lines, x: x + 32 * u, w: w - 32 * u - bw - 40 * u, top: y + (h - bh) / 2, align: 'left', color: label ? 'white' : 'neutral-11', over: [layerId(l)] });
+			placed.set(l, label ? [words, keyOf(ctx, { id: `${layerId(l)}-key`, slot: `${layerId(l)}-key`, value: label, size: ks, box: [x + w - 16 * u - bw, y + 16 * u, bw, kh], fill: 'white', color: 'black', radius: 8 * u, over: [layerId(l), 'texture', 'light', 'light-2'] })] : [words]);
 		}
 	}
 
@@ -800,7 +806,9 @@ export async function drawScene(scene: Scene, opts: { embedFonts?: boolean } = {
 		if (o.logo) g.logo = o.logo;
 		groups.set(id, g);
 	};
-	const marks = (slot?: string) => (!slot ? {} : scene.sampled?.includes(slot) ? { sample: true } : scene.own?.includes(slot) ? { own: true } : {});
+	// A search bar's key label is the layout's own word (the ads' Search), not copy anyone passes.
+	const keyLabels = new Set(scene.layers.flatMap((l) => (l.type === 'search' && l.button ? [`${layerId(l)}-key`] : [])));
+	const marks = (slot?: string) => (!slot ? {} : scene.sampled?.includes(slot) ? { sample: true } : scene.own?.includes(slot) || keyLabels.has(slot) ? { own: true } : {});
 	const textNote = (t: PlacedText, anchors?: Anchor[], extra: Partial<DrawnLayer['can']> = {}) => {
 		const lo = Math.max(0.5, Math.ceil((t.min / t.size) * 100) / 100);
 		note(t.id, 'text', t.box, {
@@ -871,7 +879,7 @@ export async function drawScene(scene: Scene, opts: { embedFonts?: boolean } = {
 					// Within 2 percent of the canvas edge (a print file's bleed) counts as the edge.
 					const near = a0 > end * 0.02;
 					const far = a0 + len < end * 0.98;
-					if (!clipped || (!near && !far)) return '';
+					if (!clipped || l.edge === 'hard' || (!near && !far)) return '';
 					const fid = nextId('fade');
 					const k0 = 0.14;
 					defs.push(`<linearGradient id="${fid}g" gradientUnits="userSpaceOnUse" x1="${f(vertical ? 0 : x)}" y1="${f(vertical ? y : 0)}" x2="${f(vertical ? 0 : x + w)}" y2="${f(vertical ? y + h : 0)}"><stop offset="0" stop-color="#FFFFFF" stop-opacity="${near ? 0 : 1}"/><stop offset="${near ? k0 : 0}" stop-color="#FFFFFF"/><stop offset="${far ? 1 - k0 : 1}" stop-color="#FFFFFF"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="${far ? 0 : 1}"/></linearGradient><mask id="${fid}" maskUnits="userSpaceOnUse" x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}"><rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" fill="url(#${fid}g)"/></mask>`);
@@ -999,6 +1007,14 @@ export async function drawScene(scene: Scene, opts: { embedFonts?: boolean } = {
 				if (!t) break;
 				const [x, y, w, h] = l.box;
 				const u = h / 88;
+				if (l.button) {
+					parts.push({ svg: `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" rx="${f(16 * u)}" fill="${color('black')}"/>` });
+					const words = t[0] as PlacedText;
+					parts.push({ svg: textMarkup(words), under: '' });
+					note(id, 'panel', l.box, { over: ['texture', 'light', 'light-2'], text: { asked: words.asked, drawn: words.lines.map((r) => r.text).join(' '), size: round(words.size), color: color('white'), ground: [color('black')], ...marks(l.slot) }, can: { move: true, scale: [0.8, 1.2], hide: true } });
+					drawPlaced(t.slice(1));
+					break;
+				}
 				const inset = 16 * u;
 				const bw = h - inset * 2;
 				const bx = x + w - inset - bw;

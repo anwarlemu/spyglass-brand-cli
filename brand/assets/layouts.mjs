@@ -97,8 +97,18 @@ function logo(v, corner, o = {}) {
 	return { type: 'logo', lockup: 'horizontal', color: 'white', corner, align: left ? 'left' : right ? 'right' : 'center', box: [x, corner.startsWith('top') ? v.y : v.b - h, w, h], ...o };
 }
 /** The address, a label in capitals as the site's share card sets its page (12/16 there, 14/20 here for the feed). */
-function address(v, corner, _kind = 'label', o = {}) {
+function address(v, corner, kind = 'label', o = {}) {
 	const k = v.shape === 'strip' ? Math.max(0.8, v.safe ? v.u : Math.min(1, v.u)) : v.u;
+	if (kind === 'ad') {
+		const size = Math.max(v.f, 20 * k);
+		const w = Math.min(400 * k, v.w / 2);
+		const left = corner.endsWith('left');
+		const right = corner.endsWith('right');
+		const cap = size * 0.7;
+		const x = left ? v.x : right ? v.r - w : v.cx - w / 2;
+		const top = corner.startsWith('top') ? v.y + (ROW_H * k - cap) / 2 : v.b - (56 * k + cap) / 2;
+		return { type: 'text', slot: 'url', face: 'body', size, leading: size * 1.4, x, top, w, align: left ? 'left' : right ? 'right' : 'center', maxLines: 1, min: Math.max(v.f, size * 0.8), corner, color: 'white', caps: false, ...o };
+	}
 	const size = Math.max(v.f, 14 * k);
 	const w = Math.min(400 * k, v.w / 2);
 	const left = corner.endsWith('left');
@@ -143,6 +153,8 @@ const stripHead = (v) => {
 };
 /** A strip's head line: the site's four pixels, scaled with the head. */
 const stripLine = (s) => s + 4 * Math.max(0.5, s / 56);
+/** The texture as the owner's ads set it: at full strength nearly to the edges. */
+const AD = (v, o = {}) => A({ strength: 'hero', core: 0.8, ...o });
 const done = (v, layers) => ({ layers: layers.filter(Boolean), frame: v.frame, unit: v.shape === 'strip' ? Math.max(0.62, v.u) : v.u });
 
 // ----- Posts (1080 by 1080) -----
@@ -369,14 +381,14 @@ function search(c) {
 	const ph = Math.min(foot - (square ? 40 : 102) * u - py, 560 * u);
 	const gap = 24 * u;
 	const pw = (v.w - 2 * gap) / 3;
-	return done(v, [A({ from: 'top' }),
-		art('hero-band', [0, bandY, v.W, bandH]),
+	return done(v, [AD(v),
+		art('ad-band', [0, bandY, v.W, bandH], { edge: 'hard' }),
 		logo(v, 'top-left'),
-		stack([v.x, v.y + 64 * u, v.w, bandY - 36 * u - v.y - 64 * u], [head(v, square ? 48 : 56, 0, { w: 760 * u, maxLines: 2 }), body(v, 24, 0, 24, { w: 640 * u, maxLines: 2 })], { prefer: v.y + (square ? 72 : 104) * u }),
-		{ type: 'search', box: [v.x, bandY + bandH / 2 - 44 * u, v.w, 88 * u], slot: 'prompt', size: Math.max(v.f, 24 * u), id: 'prompt' },
+		stack([v.x, v.y + 64 * u, v.w, bandY - 36 * u - v.y - 64 * u], [head(v, square ? 48 : 56, 0, { w: 760 * u, maxLines: 2 }), body(v, 24, 0, 32, { w: 660 * u, maxLines: 2, color: 'white' })], { prefer: v.y + (square ? 72 : 102) * u }),
+		{ type: 'search', box: [v.x, bandY + bandH / 2 - 44 * u, v.w, 88 * u], slot: 'prompt', button: 'Search', size: Math.max(v.f, 24 * u), id: 'prompt' },
 		...list(3).map((i) => P(i, [v.x + i * (pw + gap), py, pw, ph], { radius: 4 * u })),
 		button(v, [v.x, foot, 258 * u, 56 * u], 'bottom-left'),
-		address(v, 'bottom-right', 'label', { top: foot + 21 * u }),
+		address(v, 'bottom-right', 'ad'),
 	]);
 }
 
@@ -391,12 +403,12 @@ function corridor(c) {
 	const q = ([x, y]) => [x * (v.W / 1080), top + (y - 328) * ky];
 	const lw = 140 * (v.W / 1080);
 	const lh = 104 * ky;
-	return done(v, [A({ strength: 'hero' }),
+	return done(v, [AD(v),
 		art('tile-corridor', [470 * (v.W / 1080), top + 320 * ky, lw, lh]),
 		...CORRIDOR.map((quad, i) => ({ type: 'panel', quad: quad.map(q), index: i, bleeds: true })),
-		logo(v, 'top-left'), address(v, 'top-right'),
+		logo(v, 'top-left'), address(v, 'top-right', 'ad'),
 		stack([v.W / 2 - 350 * u, v.y + 60 * u, 700 * u, top - 24 * u - v.y - 60 * u + 60 * ky * u], [head(v, v.shape === 'square' ? 48 : 56, 0, { align: 'center', maxLines: 2 })], { align: 'center', prefer: v.y + (v.shape === 'square' ? 84 : 104) * u }),
-		stack([v.W / 2 - 260 * u, bottom + 16 * u, 520 * u, v.b - 56 * u - 40 * u - bottom - 16 * u], [body(v, 24, 0, 0, { align: 'center', maxLines: 2 })], { align: 'center', valign: c.has('cta') ? 'bottom' : 'center', prefer: portrait ? v.b - 137 * u : undefined, grow: 700 * u }),
+		stack([v.W / 2 - 260 * u, bottom + 16 * u, 520 * u, v.b - 56 * u - 40 * u - bottom - 16 * u], [body(v, 24, 0, 0, { align: 'center', maxLines: 2, color: 'white' })], { align: 'center', valign: c.has('cta') ? 'bottom' : 'center', prefer: portrait ? v.b - 137 * u : undefined, grow: 700 * u }),
 		button(v, [v.W / 2 - 129 * u, v.b - 56 * u, 258 * u, 56 * u], 'bottom'),
 	]);
 }
@@ -478,14 +490,14 @@ function plan(c) {
 	const u = v.u;
 	const card = (o = {}) => ({ type: 'card', id: 'card', w: 600 * u, pad: 40 * u, padTop: 40 * u, fill: 'card-fill', radius: 4 * u, gap: 48 * u, items: [
 		text('plan', 'display', 40 * u, 44 * u, { maxLines: 2 }),
-		body(v, 20, 0, 16, { slot: 'price', maxLines: 2 }),
-		{ ...body(v, 20, 0, 32, { slot: 'features', maxLines: 2, w: 520 * u }), type: 'list', itemGap: 12 * u },
-		{ ...key(v, 0, 0, 40), w: 520 * u, align: 'center' },
+		body(v, 24, 0, 32, { slot: 'price', maxLines: 2, color: 'white' }),
+		{ ...body(v, 20, 0, 48, { slot: 'features', maxLines: 2, w: 520 * u, color: 'white' }), type: 'list', itemGap: 16 * u },
+		{ ...key(v, 0, 0, 48), w: 520 * u, align: 'center' },
 	], ...o });
 	const hasCard = c.has('plan') || c.has('price') || c.has('features') || c.has('cta');
 	if (v.shape === 'wide') {
 		const cw = 520 * u;
-		return done(v, [A(),
+		return done(v, [AD(v),
 			art('close-band', [0, 0, v.W, v.y + v.h * 0.3 - 40 * u], { at: [0.5, 0.42] }),
 			stack([v.x, v.y + v.h * 0.3, hasCard ? v.w - cw - 56 * u : v.w, v.h * 0.7 - 72 * u], [head(v, 64, 0, { maxLines: 4 })], { valign: 'bottom' }),
 			hasCard && stack([v.r - cw, v.y, cw, v.h], [card({ w: cw, pad: 32 * u, padTop: 32 * u, gap: 0, items: card().items.map((i) => (i.type === 'button' ? { ...i, w: cw - 64 * u } : i)) })], { valign: 'center' }),
@@ -496,11 +508,12 @@ function plan(c) {
 	const square = v.shape === 'square';
 	const foot = v.b - 28 * u;
 	const bottom = foot - 56 * u;
-	const top = square ? v.y + 64 * u : v.y + 150 * u;
-	return done(v, [A(),
-		art('close-band', [0, 0, v.W, Math.max(v.y, top - 56 * u)], { at: [0.5, 0.42] }),
-		stack([v.W / 2 - 380 * u, top, 760 * u, bottom - top], [head(v, 72, 0, { align: 'center', maxLines: square ? 2 : 3 }), ...(hasCard ? [card()] : [])], { align: 'center', prefer: square ? undefined : v.safe ? v.y + 372 * u : v.y + 289 * u, valign: square ? 'center' : 'top' }),
-		logo(v, 'bottom-left'), address(v, 'bottom-right'),
+	// The headline starts below the swoosh, where the owner's ads set it (the box starts there, so a rebuild from blocks keeps it clear).
+	const top = square ? v.y + 64 * u : v.safe ? v.y + 360 * u : v.y + 280 * u;
+	return done(v, [AD(v),
+		art('ad-swoosh', [0, square ? -230 * u : 0, v.W, v.W * (1100 / 2160)]),
+		stack([v.W / 2 - 380 * u, top, 760 * u, bottom - top], [head(v, 72, 0, { align: 'center', maxLines: square ? 2 : 3, w: 700 * u }), ...(hasCard ? [{ ...card(), gap: 56 * u }] : [])], { align: 'center', prefer: square ? undefined : v.safe ? v.y + 372 * u : v.y + 289 * u, valign: square ? 'center' : 'top' }),
+		logo(v, 'bottom-left'), address(v, 'bottom-right', 'ad'),
 	]);
 }
 
@@ -515,22 +528,22 @@ function row(c) {
 	const ox = wide ? area[0] + area[2] - 951.5 * k : area[0] + (area[2] - 951.5 * k) / 2;
 	const oy = area[1] + (area[3] - 840.5 * k) / (v.shape === 'portrait' ? 1e9 : 2);
 	const q = ([x, y]) => [ox + (x - 64) * k, oy + (y - 150) * k];
-	const tile = (file, quad) => {
+	const tile = (file, quad, o = {}) => {
 		const pts = quad.map(q);
 		const xs = pts.map((p) => p[0]);
 		const ys = pts.map((p) => p[1]);
-		return art(file, [Math.min(...xs), Math.min(...ys), Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)], { id: 'pictures', clipQuad: pts });
+		return art(file, [Math.min(...xs), Math.min(...ys), Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)], { id: 'pictures', clipQuad: pts, ...o });
 	};
-	return done(v, [A({ strength: 'hero' }),
+	return done(v, [AD(v),
 		{ type: 'panel', quad: ROW[0].map(q), index: 0 },
-		tile('tile-a', TILES[0]),
+		tile('ad-swoosh', TILES[0], { at: [0.88, 0.35] }),
 		{ type: 'panel', quad: ROW[1].map(q), index: 1 }, { type: 'panel', quad: ROW[2].map(q), index: 2 },
-		tile('tile-c', TILES[1]),
+		tile('ad-swoosh', TILES[1], { at: [0.2, 0.3] }),
 		...[3, 4, 5].map((i) => ({ type: 'panel', quad: ROW[i].map(q), index: i })),
 		logo(v, 'top-left'),
 		wide
 			? stack([v.x, v.y + 68 * u, v.w * 0.33, v.b - v.y - 68 * u], [head(v, 44, 0, { maxLines: 5 }), key(v, 0, 0, 40)], { valign: 'top' })
-			: stack([v.x, oy + 840.5 * k + 24 * u, 440 * u, v.b - oy - 840.5 * k - 24 * u], [head(v, 48, 0, { maxLines: 2 })], { valign: 'bottom', prefer: v.b - 0.2 * u, grow: c.has('cta') ? 440 * u : v.w }),
+			: stack([v.x, oy + 840.5 * k + 24 * u, 440 * u, v.b - oy - 840.5 * k - 24 * u], [head(v, 48, 0, { maxLines: 2 })], { valign: 'bottom', prefer: v.b - 0.2 * u, grow: c.has('cta') ? 560 * u : v.w }),
 		!wide && button(v, [v.r - 241 * u, foot, 241 * u, 56 * u], 'bottom-right'),
 	]);
 }

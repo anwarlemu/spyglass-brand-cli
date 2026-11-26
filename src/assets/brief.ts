@@ -6,7 +6,7 @@ import { sizeSpec } from './sizes.js';
 
 export type BriefImage = { name: string; file: string; shows: string; kind: 'screenshot' | 'creative' | 'photo' };
 export type Look = { tone?: 'dark' | 'light'; style?: 'minimal' | 'bold'; lead?: 'picture' | 'type'; elements: Element[] };
-export type Element = 'light' | 'ascii' | 'product-ui' | 'pricing-card';
+export type Element = 'light' | 'ascii' | 'product-ui' | 'pricing-card' | 'search-bar' | 'stacked-cards' | 'corridor' | 'photo-grid';
 export type Copy = Partial<Record<CopyField, string>>;
 export type Brief = {
 	name?: string;
@@ -43,7 +43,7 @@ export const SECTIONS: Record<string, FieldDef> = {
 	role: { heading: 'Quote role', names: ['quote role', 'role', 'attribution', 'company'], about: 'Their role and company' },
 	stat: { heading: 'Stat', names: ['stat', 'figure', 'metric', 'number', 'result'], about: 'A figure and its line, split by |: 3x | faster launch reviews' },
 	search: { heading: 'Search prompt', names: ['search prompt', 'search', 'prompt', 'query'], about: 'What the search bar shows, for layouts with one' },
-	look: { heading: 'Look', names: ['look', 'tone', 'tone/look', 'tone and look', 'style', 'feel'], about: 'dark or light theme, minimal or bold, picture-led or type-led, and the brand elements: the brand light, ASCII texture, product UI, pricing card' },
+	look: { heading: 'Look', names: ['look', 'tone', 'tone/look', 'tone and look', 'style', 'feel'], about: 'dark or light theme, minimal or bold, picture-led or type-led, and the brand elements: the brand light, ASCII texture, product UI, pricing card, search bar, stacked cards, corridor, photo grid' },
 	images: { heading: 'Images', names: ['images', 'image', 'pictures', 'picture', 'assets', 'photos', 'screenshots'], about: 'One per list item: file: what it shows (or name=file: what it shows)' },
 	must: { heading: 'Must-haves', names: ['must-haves', 'must haves', 'must have', 'must', 'musts', 'requirements', 'required'], about: 'What every ad must show' },
 	donts: { heading: "Don'ts", names: ["don'ts", 'donts', "don't", 'dont', 'avoid', 'never', 'do not'], about: 'What no ad may show' },
@@ -105,7 +105,11 @@ const LOOK_WORDS: { words: string[]; set: (l: Look) => void }[] = [
 	{ words: ['type-led', 'type led', 'typographic', 'text-led', 'text led', 'type only', 'words only'], set: (l) => (l.lead = 'type') },
 	{ words: ['brand light', 'the light', 'the brand light', 'glow', 'light band'], set: (l) => add(l, 'light') },
 	{ words: ['ascii', 'ascii texture', 'texture', 'the texture'], set: (l) => add(l, 'ascii') },
-	{ words: ['product ui', 'product', 'ui', 'screenshot', 'search bar', 'the product'], set: (l) => add(l, 'product-ui') },
+	{ words: ['product ui', 'product', 'ui', 'screenshot', 'the product'], set: (l) => add(l, 'product-ui') },
+	{ words: ['search bar', 'search', 'search box', 'prompt', 'query'], set: (l) => (add(l, 'search-bar'), add(l, 'product-ui')) },
+	{ words: ['stacked cards', 'card stack', 'stack of cards', 'fanned cards', 'isometric cards', 'isometric', 'cards in a row', 'creative row'], set: (l) => add(l, 'stacked-cards') },
+	{ words: ['corridor', 'tunnel', 'hallway', 'perspective walls', 'wall of creatives'], set: (l) => add(l, 'corridor') },
+	{ words: ['photo grid', 'photo row', 'three photos', 'image grid', 'image row', 'grid of photos', 'row of photos'], set: (l) => add(l, 'photo-grid') },
 	{ words: ['pricing card', 'pricing', 'plan card', 'price card'], set: (l) => add(l, 'pricing-card') },
 ];
 const add = (l: Look, e: Element) => {
@@ -127,7 +131,7 @@ export function parseLook(text: string | string[] | Record<string, unknown> | un
 		if (hit) hit.set(look);
 		else bad.push(raw.trim());
 	}
-	if (bad.length) throw new Error(`Look: ${bad.map((b) => `"${b}"`).join(', ')} ${bad.length > 1 ? 'are' : 'is'} not a look this command reads. It reads: dark or light theme, minimal or bold, picture-led or type-led, brand light, ASCII texture, product UI, pricing card.`);
+	if (bad.length) throw new Error(`Look: ${bad.map((b) => `"${b}"`).join(', ')} ${bad.length > 1 ? 'are' : 'is'} not a look this command reads. It reads: dark or light theme, minimal or bold, picture-led or type-led, brand light, ASCII texture, product UI, pricing card, search bar, stacked cards, corridor, photo grid.`);
 	return look;
 }
 

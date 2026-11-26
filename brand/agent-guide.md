@@ -153,7 +153,7 @@ it, look at the sheet, and revise the ads they pick.
    | Offer | The offer or price | for an offer, or a pricing card |
    | Supporting line, Label, Plan, Features, Quote, Quote name, Quote role, Stat, Search prompt | More copy, drawn where a layout has room | no |
    | Audience | Who sees them (read, never drawn) | no |
-   | Look | dark or light theme, minimal or bold, picture-led or type-led, brand light, ASCII texture, product UI, pricing card | no |
+   | Look | dark or light theme, minimal or bold, picture-led or type-led, brand light, ASCII texture, product UI, pricing card, and the layouts by name: search bar, photo grid, stacked cards, corridor (brand/briefs/search.md asks for the search-bar ad) | no |
    | Images | One per line: `file.png: what it shows` (screenshots, creatives and photos are told apart by what it shows) | for picture-led |
    | Must-haves, Don'ts | One per line: "the price", "the CTA", "no brand light", "no texture", "no pictures" | no |
 
